@@ -8,10 +8,11 @@ from flask import Flask, make_response
 from flask.json import jsonify
 
 from bshop.core.base import DynamicObject
-from bshop.core.config.loaders import CONFIG_LOADERS
 from bshop.core.config.loaders import app_config
+from bshop import configuration
 
 app = Flask(__name__)
+app.config.from_object(configuration)
 
 
 # @api.route('/hello')
@@ -25,7 +26,6 @@ app = Flask(__name__)
 def say_hello():
     s = app_config.AppConfig.APP_CONFIG_FILE
     # raise Exception('error')
-    CONFIG_LOADERS.append(None)
     return make_response(jsonify(DynamicObject(id=1000,
                                                name='test',
                                                cars=['bmw',

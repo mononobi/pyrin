@@ -11,7 +11,7 @@ class AppConfig(ObjectBase):
     App configuration file loader
     """
 
-    APP_CONFIG_FILE = "settings/app.config"
+    APP_CONFIG_FILE = ""
 
     def __init__(self):
         ObjectBase.__init__(self)
