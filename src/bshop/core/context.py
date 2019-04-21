@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Defines base classes.
+Defines base contextual classes.
 """
 
 
@@ -98,7 +98,7 @@ class ObjectBase(object):
         """
         Sets new name to current object.
 
-        :param str name: object new name
+        :param str name: object new name.
         """
 
         self.__name = name
@@ -116,8 +116,8 @@ class ObjectBase(object):
         """
         Sets the given value to specified attribute.
 
-        :param str name: attribute name
-        :param object value: attribute value
+        :param str name: attribute name.
+        :param object value: attribute value.
         """
 
         return object.__setattr__(self, name, value)

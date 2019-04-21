@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-Core package.
+Packaging package.
 """
