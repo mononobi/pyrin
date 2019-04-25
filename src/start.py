@@ -5,15 +5,13 @@ It should be run without debug flag in production environments.
 """
 
 from bshop.core.context import DynamicObject
-from bshop.core.application import app
-from bshop.core.packaging import manager as packaging_manager
+from bshop import app
 
 # @api.route('/hello')
 # class HelloWorld(Resource):
 #     @api.route('/hello', methods=['GET'])
 #     def get(self):
 #         return DynamicObject(id=1000, name='test', cars=['bmw', 'mercedes', 'pride']), 300
-packaging_manager.load_packages()
 
 # @app.route('/', methods=['GET'])
 # def say_hello():
@@ -46,4 +44,4 @@ def error(exception):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

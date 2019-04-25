@@ -6,14 +6,15 @@ def function(name, **kwargs):
     """
     Sample function.
 
-    :param int name: name parameter
+    :param int name: name parameter.
 
-    :keyword str age: age parameter
-    :keyword list(Car) cars: cars list
+    :keyword str age: age parameter.
+    :keyword list[Car] cars: cars list.
     :type Car: dict(name str: car name,
-                    model str: car model)
+                    model str: car model).
 
-    :raises: :class:`RuntimeException`: runtime exception
+    :raises: :class:`RuntimeException`: runtime exception.
 
+    :return: string output
     :rtype: str
     """

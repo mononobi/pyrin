@@ -4,8 +4,25 @@ Application base module.
 """
 
 from flask import Flask
+from flask.globals import _request_ctx_stack
+
+import bshop.core.packaging.services as packaging_services
 
 from bshop.core.api_context import ResponseBase, RequestBase
+from bshop.core.context import DynamicObject, Context
+from bshop import settings
+
+
+class ApplicationContext(Context):
+    """
+    Context class to hold application contextual data.
+    """
+
+
+class ApplicationComponent(ApplicationContext):
+    """
+    Context class to hold application components.
+    """
 
 
 class Application(Flask):
@@ -17,7 +34,7 @@ class Application(Flask):
     response_class = ResponseBase
     request_class = RequestBase
 
-    def __init__(self, import_name, **kwargs):
+    def __init__(self, import_name, **options):
         """
         Initializes an instance of Application.
 
@@ -53,7 +70,58 @@ class Application(Flask):
                                 manually defined.
         """
 
-        super(Application, self).__init__(import_name, **kwargs)
+        super(Application, self).__init__(import_name, **options)
+        self._context = ApplicationContext()
+        self._components = ApplicationComponent()
+
+    def add_context(self, key, value):
+        """
+        Adds the given key and it's value into the application context.
+
+        :param str key: related key for storing application context.
+        :param object value: related value for storing in application context.
+        """
+
+        self._context[key] = value
+
+    def get_context(self, key):
+        """
+        Gets the application context value that belongs to given key.
+
+        :param str key: key for requested application context.
+
+        :rtype: object
+        """
+
+        return self._context[key]
+
+    def register_component(self, component):
+        """
+        Registers given application component.
+
+        :param Component component: component instance.
+        """
+
+        self._components[component.COMPONENT_ID] = component
+
+    def get_component(self, component_id):
+        """
+        Gets the specified application component.
+
+        :param str component_id: component unique id.
+
+        :rtype: Component
+        """
+
+        return self._components[component_id]
+
+    def _load(self):
+        """
+        Loads application packages and modules.
+        """
+
+        self.config.from_object(settings)
+        packaging_services.load_components()
 
     def run(self, host=None, port=None, debug=None,
             load_dotenv=True, **options):
@@ -70,7 +138,29 @@ class Application(Flask):
         :param bool load_dotenv: Load the nearest :file:`.env` and :file:`.flaskenv`
                                  files to set environment variables. Will also change the working
                                  directory to the directory containing the first file found.
-        :param dict options: the options to be forwarded to the underlying Werkzeug server.
         """
 
+        self._load()
         super(Application, self).run(host, port, debug, load_dotenv, **options)
+
+    def dispatch_request(self):
+        """
+        Does the request dispatching. Matches the URL and returns the
+        return value of the view or error handler. This does not have to
+        be a response object. In order to convert the return value to a
+        proper response object, call :func:`make_response`.
+
+        This method is overridden to make it possible to pass all request parameters
+        to the underlying view method.
+        """
+
+        request = _request_ctx_stack.top.request
+
+        params = DynamicObject(**(request.view_args or {}),
+                               **(request.get_json(force=True, silent=True) or {}),
+                               query_params=request.args,
+                               files=request.files)
+
+        request.view_args = params
+
+        return super(Application, self).dispatch_request()
