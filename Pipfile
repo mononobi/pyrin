@@ -28,6 +28,7 @@ MarkupSafe = "*"
 PyJWT = "*"
 SQLAlchemy = "*"
 Werkzeug = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.7"
