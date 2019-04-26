@@ -3,7 +3,7 @@
 Application services.
 """
 
-from bshop import app
+from bshop.core.application import app
 
 
 def add_context(key, value):
@@ -29,17 +29,17 @@ def get_context(key):
     return app.get_context(key)
 
 
-def register_component(component):
+def register_component(component, **options):
     """
     Registers given application component.
 
     :param Component component: component instance.
     """
 
-    app.register_component(component)
+    app.register_component(component, **options)
 
 
-def get_component(component_id):
+def get_component(component_id, **options):
     """
     Gets the specified application component.
 
@@ -48,4 +48,4 @@ def get_component(component_id):
     :rtype: Component
     """
 
-    return app.get_component(component_id)
+    return app.get_component(component_id, **options)

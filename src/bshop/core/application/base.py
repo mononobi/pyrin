@@ -4,25 +4,28 @@ Application base module.
 """
 
 from flask import Flask
-from flask.globals import _request_ctx_stack
+# from flask.globals import _request_ctx_stack
 
 import bshop.core.packaging.services as packaging_services
 
-from bshop.core.api_context import ResponseBase, RequestBase
-from bshop.core.context import DynamicObject, Context
+from bshop.core.api.context import ResponseBase, RequestBase
+from bshop.core.context import Context, Component
 from bshop import settings
+from bshop.core.exceptions import CoreTypeError
 
 
 class ApplicationContext(Context):
     """
     Context class to hold application contextual data.
     """
+    pass
 
 
 class ApplicationComponent(ApplicationContext):
     """
     Context class to hold application components.
     """
+    pass
 
 
 class Application(Flask):
@@ -38,7 +41,7 @@ class Application(Flask):
         """
         Initializes an instance of Application.
 
-        :param str import_name: the name of the application package.
+        :param str import_name: name of the main application package.
 
         :keyword str static_url_path: can be used to specify a different path for the
                                       static files on the web. Defaults to the name
@@ -95,16 +98,22 @@ class Application(Flask):
 
         return self._context[key]
 
-    def register_component(self, component):
+    def register_component(self, component, **options):
         """
         Registers given application component.
 
         :param Component component: component instance.
+
+        :raises CoreTypeError: core type error.
         """
+
+        if not isinstance(component, Component):
+            raise CoreTypeError('Input parameter [{component}] is not '
+                                'an instance of Component.'.format(component=str(component)))
 
         self._components[component.COMPONENT_ID] = component
 
-    def get_component(self, component_id):
+    def get_component(self, component_id, **options):
         """
         Gets the specified application component.
 
@@ -115,13 +124,20 @@ class Application(Flask):
 
         return self._components[component_id]
 
-    def _load(self):
+    def _load(self, **options):
         """
-        Loads application packages and modules.
+        Loads application configs and components.
+        """
+
+        self._configure(**options)
+        packaging_services.load_components(**options)
+
+    def _configure(self, **options):
+        """
+        Configures application.
         """
 
         self.config.from_object(settings)
-        packaging_services.load_components()
 
     def run(self, host=None, port=None, debug=None,
             load_dotenv=True, **options):
@@ -143,24 +159,24 @@ class Application(Flask):
         self._load()
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 
-    def dispatch_request(self):
-        """
-        Does the request dispatching. Matches the URL and returns the
-        return value of the view or error handler. This does not have to
-        be a response object. In order to convert the return value to a
-        proper response object, call :func:`make_response`.
-
-        This method is overridden to make it possible to pass all request parameters
-        to the underlying view method.
-        """
-
-        request = _request_ctx_stack.top.request
-
-        params = DynamicObject(**(request.view_args or {}),
-                               **(request.get_json(force=True, silent=True) or {}),
-                               query_params=request.args,
-                               files=request.files)
-
-        request.view_args = params
-
-        return super(Application, self).dispatch_request()
+    # def dispatch_request(self):
+    #     """
+    #     Does the request dispatching. Matches the URL and returns the
+    #     return value of the view or error handler. This does not have to
+    #     be a response object. In order to convert the return value to a
+    #     proper response object, call :func:`make_response`.
+    #
+    #     This method is overridden to make it possible to pass all request parameters
+    #     to the underlying view method.
+    #     """
+    #
+    #     request = _request_ctx_stack.top.request
+    #
+    #     params = DynamicObject(**(request.view_args or {}),
+    #                            **(request.get_json(force=True, silent=True) or {}),
+    #                            query_params=request.args,
+    #                            files=request.files)
+    #
+    #     request.view_args = params
+    #
+    #     return super(Application, self).dispatch_request()

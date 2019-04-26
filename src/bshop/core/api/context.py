@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Defines base api contextual classes.
+API context module.
 """
 
 from flask import Request, Response, jsonify

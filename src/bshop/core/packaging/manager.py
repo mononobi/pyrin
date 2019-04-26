@@ -7,42 +7,65 @@ import os
 
 from importlib import import_module
 
-from bshop.settings.packaging import ROOT_DIRECTORY, IGNORED_DIRECTORIES, \
-    IGNORED_PACKAGES, IGNORED_MODULES
+from bshop.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
+    IGNORED_DIRECTORIES
 
 
-def load_components():
+# holds the absolute path of application root directory where
+# the main package is located. for example '/var/app_root/'.
+# this will be resolved automatically by packaging package.
+_ROOT_DIRECTORY = ''
+
+
+def load_components(**options):
     """
     Loads required packages and modules for application startup.
     """
 
     print('Loading application components...')
 
-    packages, modules = _get_loadable_components()
+    packages, modules = _get_loadable_components(**options)
 
     for package in packages:
-        import_module(package)
-        print('Package [{package}] loaded.'.format(package=package))
+        load(package, **options)
+        print('[{package}] package loaded.'.format(package=package))
 
     for module in modules:
-        import_module(module)
-        print('Module [{module}] loaded.'.format(module=module))
+        load(module, **options)
+        print('[{module}] module loaded.'.format(module=module))
 
     print('Total of [{count}] packages loaded.'.format(count=len(packages)))
     print('Total of [{count}] modules loaded.'.format(count=len(modules)))
 
 
-def _get_loadable_components():
+def load(module_name, **options):
+    """
+    Loads the specified module.
+
+    :param str module_name: module name.
+                            example module_name = `bshop.core.application`.
+
+    :rtype: Module
+    """
+
+    return import_module(module_name)
+
+
+def _get_loadable_components(**options):
     """
     Gets all package and module names that should be loaded.
 
-    :return: (packages, modules)
-    :rtype: (list[str], list[str])
+    :returns: tuple(package_names, module_names)
+
+    :rtype: tuple(list[str], list[str])
     """
 
-    packages = []
-    modules = []
-    for root, directories, filenames in os.walk(ROOT_DIRECTORY):
+    global _ROOT_DIRECTORY
+    _ROOT_DIRECTORY = _resolve_application_root_path(__name__.split('.')[0])
+
+    package_names = []
+    module_names = []
+    for root, directories, filenames in os.walk(_ROOT_DIRECTORY):
 
         for directory in directories:
             combined_path = os.path.join(root, directory)
@@ -56,20 +79,20 @@ def _get_loadable_components():
             if _is_ignored_package(package_name):
                 continue
 
-            packages.append(package_name)
+            package_names.append(package_name)
 
             files = os.listdir(combined_path)
             for file_name in files:
                 if not _is_module(file_name):
                     continue
 
-                module = file_name.strip('.py')
-                if _is_ignored_module(module):
+                module_name = file_name.strip('.py')
+                if _is_ignored_module(module_name):
                     continue
 
-                modules.append(_get_module_name(package_name, module))
+                module_names.append(_get_module_name(package_name, module_name))
 
-    return packages, modules
+    return package_names, module_names
 
 
 def _is_ignored_directory(directory):
@@ -85,30 +108,30 @@ def _is_ignored_directory(directory):
     return directory in IGNORED_DIRECTORIES
 
 
-def _is_ignored_package(package):
+def _is_ignored_package(package_name):
     """
     Gets a value indicating that given package should be ignored.
 
-    :param str package: package name.
-                        example package = `bshop.core.database`.
+    :param str package_name: package name.
+                             example package_name = `bshop.core.database`.
 
     :rtype: bool
     """
 
-    return package in IGNORED_PACKAGES
+    return package_name in IGNORED_PACKAGES
 
 
-def _is_ignored_module(module):
+def _is_ignored_module(module_name):
     """
     Gets a value indicating that given module should be ignored.
 
-    :param str module: module name.
-                       example module = `manager`.
+    :param str module_name: module name.
+                            example module_name = `manager`.
 
     :rtype: bool
     """
 
-    return module in IGNORED_MODULES
+    return module_name in IGNORED_MODULES
 
 
 def _get_package_name(path):
@@ -121,22 +144,22 @@ def _get_package_name(path):
     :rtype: str
     """
 
-    return path.replace(ROOT_DIRECTORY, '').replace('/', '.')
+    return path.replace(_ROOT_DIRECTORY, '').replace('/', '.')
 
 
-def _get_module_name(package, module):
+def _get_module_name(package_name, module_name):
     """
     Gets the full module name.
 
-    :param str package: package name.
-                        example package = `bshob.core.database`.
-    :param str module: module name.
-                       example module = `api`.
+    :param str package_name: package name.
+                             example package_name = `bshob.core.database`.
+    :param str module_name: module name.
+                            example module_name = `api`.
 
     :rtype: str
     """
 
-    return '{package}.{module}'.format(package=package, module=module)
+    return '{package}.{module}'.format(package=package_name, module=module_name)
 
 
 def _is_package(path):
@@ -167,16 +190,32 @@ def _is_module(file_name):
     return file_name.endswith('.py') and '__init__.py' not in file_name
 
 
-def _has_module(path, module):
+def _has_module(path, module_name):
     """
     Gets a value indicating that given module exists in specified path.
 
     :param str path: path to check module availability in it.
                      example path = `/home/src/bshop/core/database`.
-    :param str module: module name.
-                       example module = `__init__`.
+    :param str module_name: module name.
+                            example module_name = `__init__`.
 
     :rtype: bool
     """
 
-    return os.path.isfile(os.path.join(path, '{module}.py'.format(module=module)))
+    return os.path.isfile(os.path.join(path, '{module}.py'.format(module=module_name)))
+
+
+def _resolve_application_root_path(main_package_name):
+    """
+    Gets the application root path which the main package is located.
+
+    :param str main_package_name: application's main package name.
+                                  example main_package_name = `bshop`.
+
+    :rtype: str
+    """
+
+    main_package = load(main_package_name)
+    main_package_path = os.path.abspath(main_package.__file__)
+
+    return main_package_path.replace('{package}/__init__.py'.format(package=main_package_name), '')

@@ -1,46 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Defines base contextual classes.
+Core context module.
 """
 
+from enum import Enum, EnumMeta
 
-class ExceptionBase(Exception):
-    """
-    Base class for all application exceptions.
-    """
-
-    def __init__(self, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
-
-        self._data = {}
-        self._traceback = None
-
-    def get_code(self):
-        """
-        Gets the error code.
-
-        :rtype: str
-        """
-
-        return self.__class__.__name__
-
-    def get_data(self):
-        """
-        Gets the error data.
-
-        :rtype: dict
-        """
-
-        return self._data
-
-    def get_traceback(self):
-        """
-        Returns the traceback of this exception.
-
-        :rtype: object
-        """
-
-        return self._traceback
+from bshop.core.exceptions import CoreAttributeError
 
 
 class DynamicObject(dict):
@@ -53,7 +18,7 @@ class DynamicObject(dict):
         if name in self:
             return self.get(name)
 
-        raise AttributeError('Property [{name}] not found.'.format(name=name))
+        raise CoreAttributeError('Property [{name}] not found.'.format(name=name))
 
     def __setattr__(self, name, value):
         self[name] = value
@@ -79,7 +44,6 @@ class ObjectBase(object):
     """
 
     def __init__(self):
-
         object.__init__(self)
         self.__name = None
 
@@ -123,14 +87,14 @@ class ObjectBase(object):
         return object.__setattr__(self, name, value)
 
     def __setattr__(self, name, value):
-
         return self.setattr(name, value)
 
 
-class ContextException(ExceptionBase):
+class ContextAttributeError(CoreAttributeError):
     """
-    Context exception class.
+    Context attribute error.
     """
+    pass
 
 
 class Context(DynamicObject):
@@ -140,11 +104,10 @@ class Context(DynamicObject):
     """
 
     def __getattr__(self, name):
-
         if name in self:
             return self.get(name)
 
-        raise ContextException('Property [{name}] not found.'.format(name=name))
+        raise ContextAttributeError('Property [{name}] not found.'.format(name=name))
 
 
 class Component(ObjectBase):
@@ -155,3 +118,18 @@ class Component(ObjectBase):
 
     # COMPONENT_ID should be unique for each instance.
     COMPONENT_ID = ''
+
+
+class EnumMetaBase(EnumMeta):
+    """
+    Base enum metaclass.
+    """
+    pass
+
+
+class EnumBase(Enum, metaclass=EnumMetaBase):
+    """
+    Base enum class.
+    All application enumerations must inherit from this class.
+    """
+    pass

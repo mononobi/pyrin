@@ -4,9 +4,15 @@ Main entry point for bshop server.
 It should be run without debug flag in production environments.
 """
 
+from bshop.core.application import app
+from bshop.core.application.services import add_context
+# from bshop import settings
 from bshop.core.context import DynamicObject
-from bshop import app
+# from bshop.core.application.base import Application
+from flask import Flask, jsonify
 
+# app = Application('bshop')
+# app.config.from_object(settings)
 # @api.route('/hello')
 # class HelloWorld(Resource):
 #     @api.route('/hello', methods=['GET'])
@@ -23,25 +29,16 @@ from bshop import app
 #                                                      'mercedes',
 #                                                      'pride'])), 202)
 
-# @app.route('/hello', methods=['GET'])
-# def say_hello():
-#     #raise Exception('error')
-#     return DynamicObject(id=1000,
-#                          name='test',
-#                          cars=['bmw',
-#                                'mercedes',
-#                                'pride']), 202
 
-
-@app.errorhandler(Exception)
-def error(exception):
-    return DynamicObject(message='error occured'), 500
-
-
-@app.errorhandler(500)
-def error(exception):
-    return DynamicObject(message='error 500'), 600
+# @app.route('/', methods=['GET'])
+# def say_hello2(**kwargs):
+#     return jsonify(DynamicObject(id=1000,
+#                                  name='test',
+#                                  cars=['bmw',
+#                                        'mercedes',
+#                                        'pride']))
 
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
+    app.run(use_reloader=False)
+

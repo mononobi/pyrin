@@ -4,6 +4,7 @@ Base deserializer module.
 """
 
 from bshop.core.context import ObjectBase
+from bshop.core.exceptions import CoreNotImplementedError
 
 
 class DeserializerBase(ObjectBase):
@@ -12,17 +13,17 @@ class DeserializerBase(ObjectBase):
     """
 
     def __init__(self, **options):
-        super(DeserializerBase, self).__init__()
+        ObjectBase.__init__(self)
 
-    def deserialize(self, value):
+    def deserialize(self, value, **options):
         """
         Deserializes the given value.
 
         :param str value: value to be deserialized.
 
-        :return: deserialized value.
+        :raises CoreNotImplementedError: core not implemented error.
 
-        :raises: :class:`NotImplementedError`: not implemented error.
+        :returns: deserialized value.
         """
 
-        raise NotImplementedError()
+        raise CoreNotImplementedError()
