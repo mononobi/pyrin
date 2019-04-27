@@ -2,7 +2,8 @@
 
 2. Method docstring pattern for all custom functions (non-built-in):
 
-def function(name, **kwargs):
+Sample 1:
+def function(name, **options):
     """
     Sample function.
 
@@ -13,8 +14,33 @@ def function(name, **kwargs):
     :type Car: dict(name str: car name,
                     model str: car model).
 
-    :raises: :class:`RuntimeException`: runtime exception.
+    :raises RuntimeException: runtime exception.
 
-    :return: string output
-    :rtype: str
+    :returns: tuple(dict(int code: error code,
+                         str message: error message), int code: error code)
+
+    :rtype: tuple(dict, int)
     """
+
+Sample 2:
+def _get_deserializers(**options):
+    """
+    Gets all registered deserializers.
+
+    :keyword type for_type: specifies to get serializers which
+                            are registered for the input type.
+                            If not present, all deserializers will be returned.
+
+    :returns: dict{str: name, DeserializerBase: instance}
+
+    :rtype: dict
+    """
+
+    for_type = options.get('for_type', None)
+
+    if for_type is None:
+        return [value for value in __deserializers__.values()]
+
+    # getting all deserializers that are registered for the given type.
+    deserializer_keys = [key for key in __deserializers__.keys() if key[1] == for_type]
+    return [__deserializers__[key] for key in deserializer_keys]

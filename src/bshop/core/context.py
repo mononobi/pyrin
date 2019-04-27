@@ -113,7 +113,7 @@ class Context(DynamicObject):
 class Component(ObjectBase):
     """
     Base component class.
-    All manager classes must inherit from this class.
+    All component classes must inherit from this class and their respective manager class.
     """
 
     # COMPONENT_ID should be unique for each instance.

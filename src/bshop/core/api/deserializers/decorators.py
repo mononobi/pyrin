@@ -3,8 +3,9 @@
 Deserializers decorators module.
 """
 
-from bshop.core.api.deserializers import _register_deserializer
-from bshop.core.api.deserializers.base import DeserializerBase
+import bshop.core.api.deserializers.services as deserializer_services
+
+from bshop.core.api.deserializers.handlers.base import DeserializerBase
 from bshop.core.exceptions import CoreTypeError
 
 
@@ -13,7 +14,7 @@ def register(*args, **kwargs):
     Decorator to register a deserializer.
 
     :param object args: deserializer class constructor arguments.
-    :param dict kwargs: deserializer class constructor keyword arguments.
+    :param object kwargs: deserializer class constructor keyword arguments.
 
     :returns: deserializer class.
 
@@ -40,7 +41,7 @@ def register(*args, **kwargs):
                                 .format(class_name=str(cls)))
 
         instance = cls(*args, **kwargs)
-        _register_deserializer(instance)
+        deserializer_services.register_deserializer(instance, **kwargs)
 
         return cls
 

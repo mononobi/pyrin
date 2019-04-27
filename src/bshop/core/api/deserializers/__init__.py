@@ -3,7 +3,7 @@
 API deserializers package.
 """
 
-from bshop.core.api.deserializers.base import DeserializerBase
+from bshop.core.api.deserializers.handlers.base import DeserializerBase
 from bshop.core.context import Context
 from bshop.core.exceptions import CoreTypeError
 
@@ -26,16 +26,27 @@ def _register_deserializer(instance, **options):
                             .format(instance=str(instance)))
 
     global __deserializers__
-    __deserializers__[instance.get_name()] = instance
+    __deserializers__[(instance.get_name(), instance.accepted_type())] = instance
 
 
-def get_deserializers(**options):
+def _get_deserializers(**options):
     """
     Gets all registered deserializers.
+    It could filter deserializers for a specific type if provided.
 
-    :returns: dict{str, DeserializerBase}
+    :keyword type accepted_type: specifies to get deserializers which are registered for the
+                                 accepted type. If not provided, all deserializers will be returned.
 
-    :rtype: dict
+    :returns: list[instance]
+
+    :rtype: list[DeserializerBase]
     """
 
-    return __deserializers__
+    accepted_type = options.get('accepted_type', None)
+
+    if accepted_type is None:
+        return [value for value in __deserializers__.values()]
+
+    # getting all deserializers that are registered for the given type.
+    deserializer_keys = [key for key in __deserializers__.keys() if key[1] == accepted_type]
+    return [__deserializers__[key] for key in deserializer_keys]

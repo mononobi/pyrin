@@ -5,12 +5,12 @@ Datetime deserializers module.
 
 from datetime import date, datetime
 
-from bshop.core.api.deserializers.base import DeserializerBase
+from bshop.core.api.deserializers.handlers.base import StringDeserializerBase
 from bshop.core.api.deserializers.decorators import register
 
 
 @register()
-class DateDeserializer(DeserializerBase):
+class DateDeserializer(StringDeserializerBase):
     """
     Date deserializer.
     """
@@ -21,10 +21,10 @@ class DateDeserializer(DeserializerBase):
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for date deserialization.
-        :type accepted_formats: list[tuple(str: format, int: length)]
+        :type accepted_formats: list[tuple(str format, int length)]
         """
 
-        DeserializerBase.__init__(self, **options)
+        StringDeserializerBase.__init__(self, **options)
 
         self._accepted_formats = [('%Y-%m-%d', 10),
                                   ('%Y/%m/%d', 10),
@@ -43,7 +43,7 @@ class DateDeserializer(DeserializerBase):
         :rtype: date
         """
 
-        if value is None or len(value.strip()) == 0:
+        if not self.is_deserializable(value, **options):
             return None
 
         value = value.strip()
@@ -70,7 +70,7 @@ class DateDeserializer(DeserializerBase):
 
 
 @register()
-class TimeDeserializer(DeserializerBase):
+class TimeDeserializer(StringDeserializerBase):
     """
     Time deserializer.
     """
@@ -81,10 +81,10 @@ class TimeDeserializer(DeserializerBase):
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for time deserialization.
-        :type accepted_formats: list[tuple(str: format, int: length)]
+        :type accepted_formats: list[tuple(str format, int length)]
         """
 
-        DeserializerBase.__init__(self, **options)
+        StringDeserializerBase.__init__(self, **options)
 
         self._accepted_formats = [('%H:%M:%S%z', 13)]
 
@@ -101,7 +101,7 @@ class TimeDeserializer(DeserializerBase):
         :rtype: time
         """
 
-        if value is None or len(value.strip()) == 0:
+        if not self.is_deserializable(value, **options):
             return None
 
         value = value.strip()
@@ -128,7 +128,7 @@ class TimeDeserializer(DeserializerBase):
 
 
 @register()
-class DateTimeDeserializer(DeserializerBase):
+class DateTimeDeserializer(StringDeserializerBase):
     """
     Datetime deserializer.
     """
@@ -139,10 +139,10 @@ class DateTimeDeserializer(DeserializerBase):
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for date deserialization.
-        :type accepted_formats: list[(str: format, int: length)]
+        :type accepted_formats: list[tuple(str format, int length)]
         """
 
-        DeserializerBase.__init__(self, **options)
+        StringDeserializerBase.__init__(self, **options)
 
         self._accepted_formats = [('%Y-%m-%d %H:%M:%S%z', 24),
                                   ('%Y/%m/%d %H:%M:%S%z', 24),
@@ -161,7 +161,7 @@ class DateTimeDeserializer(DeserializerBase):
         :rtype: datetime
         """
 
-        if value is None or len(value.strip()) == 0:
+        if not self.is_deserializable(value, **options):
             return None
 
         value = value.strip()

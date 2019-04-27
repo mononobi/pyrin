@@ -14,7 +14,7 @@ def register_component(*args, **kwargs):
     Decorator to register a component to application.
 
     :param object args: component class constructor arguments.
-    :param dict kwargs: component class constructor keyword arguments.
+    :param object kwargs: component class constructor keyword arguments.
 
     :returns: component class.
 
