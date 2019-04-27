@@ -23,6 +23,7 @@ def method_two(**dic):
 
     print(dic)
 
+import bshop.core.api.deserializers.services as service
 
 from bshop.core.application import app
 from  bshop.core.api.deserializers.decorators import register
@@ -72,7 +73,14 @@ def accepted_type():
 
 if __name__ == '__main__':
     #method_two(**d)
-    #app.run(use_reloader=False)
 
-    print(accepted_type()('dsfdfs'))
 
+
+    #print(accepted_type()('dsfdfs'))
+    a = 4
+
+    app.run(use_reloader=False)
+
+    d = service.get_deserializers(accepted_type=str)
+
+    s = 9

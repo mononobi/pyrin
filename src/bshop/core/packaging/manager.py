@@ -86,7 +86,7 @@ def _get_loadable_components(**options):
                 if not _is_module(file_name):
                     continue
 
-                module_name = file_name.strip('.py')
+                module_name = file_name.replace('.py', '')
                 if _is_ignored_module(module_name):
                     continue
 
