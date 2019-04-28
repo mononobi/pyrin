@@ -1,11 +1,25 @@
-1. We don't set docstring for built-in functions.
+1. we don't set docstring for built-in functions, unless really necessary.
 
-2. Method docstring pattern for all custom functions (non-built-in):
+2. all docstrings and comments must be lowercase, the only exception is for
+   specifying object types. example 1.
 
-Sample 1:
+3. all docstrings and comments must end with a dot. example 1.
+
+4. method docstring pattern for all custom functions (non-built-in)
+   are shown in examples 2, 3.
+
+5. in docstrings, all params, keywords, raises, returns and rtypes and the description
+   must be grouped by type with a single empty line between each group. and if any of the above
+   elements are more than a single line, then there should be an empty line on top and under
+   the multi-line element. example 4 shows this nicely.
+
+example 1:
+# this variable is for storing http method name of type CoreObject.
+
+example 2:
 def function(name, **options):
     """
-    Sample function.
+    sample function.
 
     :param int name: name parameter.
 
@@ -22,16 +36,16 @@ def function(name, **options):
     :rtype: tuple(dict, int)
     """
 
-Sample 2:
-def _get_deserializers(**options):
+example 3:
+def get_deserializers(**options):
     """
-    Gets all registered deserializers.
+    gets all registered deserializers.
 
     :keyword type for_type: specifies to get serializers which
                             are registered for the input type.
-                            If not present, all deserializers will be returned.
+                            if not present, all deserializers will be returned.
 
-    :returns: dict{str: name, DeserializerBase: instance}
+    :returns: list[DeserializerBase]
 
     :rtype: dict
     """
@@ -44,3 +58,27 @@ def _get_deserializers(**options):
     # getting all deserializers that are registered for the given type.
     deserializer_keys = [key for key in __deserializers__.keys() if key[1] == for_type]
     return [__deserializers__[key] for key in deserializer_keys]
+
+example 4:
+def some_func(param1, param2, param3, param4 ,**options):
+    """
+    some nice function for http server.
+
+    :param int param1: some integer value.
+    :param str param2: some string value.
+
+    :param CoreObject param3: some multi-line
+                              param of CoreObject.
+
+    :param date param4: some date value.
+
+    :keyword int key1: some integer optional value.
+
+    :raises CoreException: core exception.
+
+    :returns: dict(int id: id of someone,
+                   str name: name of someone)
+
+    :rtype: dict
+"""
+
