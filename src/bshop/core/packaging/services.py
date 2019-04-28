@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-Packaging services.
+packaging services module.
 """
 
-from bshop.core.packaging import manager
+from bshop.core.packaging.component import PackagingComponent
+from bshop.core.application.services import get_component
 
 
 def load_components(**options):
     """
-    Loads required packages and modules for application startup.
+    loads required packages and modules for application startup.
     """
 
-    manager.load_components(**options)
+    get_component(PackagingComponent.COMPONENT_ID).load_components(**options)
 
 
 def load(module_name, **options):
     """
-    Loads the specified module.
+    loads the specified module.
 
     :param str module_name: module name.
                             example module_name = `bshop.core.application`.
@@ -24,4 +25,4 @@ def load(module_name, **options):
     :rtype: Module
     """
 
-    return manager.load(module_name, **options)
+    return get_component(PackagingComponent.COMPONENT_ID).load(module_name, **options)

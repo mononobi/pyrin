@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Deserializers manager module.
+deserializer manager module.
 """
 
-from bshop.core.api.deserializers import _get_deserializers, _register_deserializer
-from bshop.core.api.deserializers.handlers.base import DeserializerBase
-from bshop.core.context import ObjectBase
+from bshop.core.api.deserializer import _get_deserializers, _register_deserializer
+from bshop.core.api.deserializer.handlers.base import DeserializerBase
+from bshop.core.context import CoreObject
 
 
-class DeserializersManager(ObjectBase):
+class DeserializerManager(CoreObject):
     """
-    Deserializers manager class.
+    deserializer manager class.
     """
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
-        Returns None if deserialization fails.
+        deserializes the given value.
+        returns None if deserialization fails.
 
         :param object value: value to be deserialized.
 
@@ -37,24 +37,30 @@ class DeserializersManager(ObjectBase):
 
     def register_deserializer(self, instance, **options):
         """
-        Registers a new deserializer or updates the existing one if available.
+        registers a new deserializer or replaces the existing one
+        if `replace=True` is provided. otherwise, it raises an error
+        on adding an instance which it's name and accepted type is already available
+        in registered deserializers.
 
         :param DeserializerBase instance: deserializer to be registered.
                                           it must be an instance of DeserializerBase.
+
+        :keyword bool replace: specifies that if there is another registered
+                               deserializer with the same name and accepted type,
+                               replace it with the new one, otherwise raise
+                               an error. defaults to False.
         """
 
         _register_deserializer(instance, **options)
 
     def get_deserializers(self, **options):
         """
-        Gets all registered deserializers.
-        It could filter deserializers for a specific type if provided.
+        gets all registered deserializers.
+        it could filter deserializers for a specific type if provided.
 
         :keyword type accepted_type: specifies to get deserializers which are registered for the
-                                     accepted type. If not provided, all deserializers
+                                     accepted type. if not provided, all deserializers
                                      will be returned.
-
-        :returns: list[instance]
 
         :rtype: list[DeserializerBase]
         """

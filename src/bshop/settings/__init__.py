@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Application settings package.
+settings package.
 """
 
 from bshop.settings.application import *

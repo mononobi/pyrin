@@ -1,26 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Datetime deserializers module.
+deserializer datetime module.
 """
 
 from datetime import date, datetime
 
-from bshop.core.api.deserializers.handlers.base import StringDeserializerBase
-from bshop.core.api.deserializers.decorators import register
+from bshop.core.api.deserializer.handlers.base import StringDeserializerBase
+from bshop.core.api.deserializer.decorators import register_deserializer
 
 
-@register()
+@register_deserializer()
 class DateDeserializer(StringDeserializerBase):
     """
-    Date deserializer.
+    date deserializer class.
     """
 
     def __init__(self, **options):
         """
-        Creates an instance of DateDeserializer.
+        creates an instance of DateDeserializer.
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for date deserialization.
+
         :type accepted_formats: list[tuple(str format, int length)]
         """
 
@@ -35,8 +36,8 @@ class DateDeserializer(StringDeserializerBase):
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
-        Returns None if deserialization fails.
+        deserializes the given value.
+        returns None if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -69,18 +70,19 @@ class DateDeserializer(StringDeserializerBase):
         return converted_date
 
 
-@register()
+@register_deserializer()
 class TimeDeserializer(StringDeserializerBase):
     """
-    Time deserializer.
+    time deserializer class.
     """
 
     def __init__(self, **options):
         """
-        Creates an instance of TimeDeserializer.
+        creates an instance of TimeDeserializer.
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for time deserialization.
+
         :type accepted_formats: list[tuple(str format, int length)]
         """
 
@@ -93,8 +95,8 @@ class TimeDeserializer(StringDeserializerBase):
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
-        Returns None if deserialization fails.
+        deserializes the given value.
+        returns None if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -127,18 +129,19 @@ class TimeDeserializer(StringDeserializerBase):
         return converted_time
 
 
-@register()
+@register_deserializer()
 class DateTimeDeserializer(StringDeserializerBase):
     """
-    Datetime deserializer.
+    datetime deserializer class.
     """
 
     def __init__(self, **options):
         """
-        Creates an instance of DateTimeDeserializer.
+        creates an instance of DateTimeDeserializer.
 
         :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
                                                          and their length for date deserialization.
+
         :type accepted_formats: list[tuple(str format, int length)]
         """
 
@@ -153,8 +156,8 @@ class DateTimeDeserializer(StringDeserializerBase):
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
-        Returns None if deserialization fails.
+        deserializes the given value.
+        returns None if deserialization fails.
 
         :param str value: value to be deserialized.
 

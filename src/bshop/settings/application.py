@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-General application settings.
+application settings.
 """
 
 # application title.

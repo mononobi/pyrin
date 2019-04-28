@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Core context module.
+core context module.
 """
 
 from enum import Enum, EnumMeta
@@ -8,10 +8,10 @@ from enum import Enum, EnumMeta
 from bshop.core.exceptions import CoreAttributeError
 
 
-class DynamicObject(dict):
+class DTO(dict):
     """
-    Context class for storing objects in every layer.
-    It's actually a dictionary with the capability to add keys directly.
+    context class for storing objects in every layer.
+    it's actually a dictionary with the capability to add keys directly.
     """
 
     def __getattr__(self, name):
@@ -27,7 +27,7 @@ class DynamicObject(dict):
         return hash(tuple(self.values()))
 
     def __eq__(self, other):
-        if not other or not isinstance(other, DynamicObject):
+        if not other or not isinstance(other, DTO):
             return False
         keys = self.keys()
         if len(keys) != len(other.keys()):
@@ -38,9 +38,9 @@ class DynamicObject(dict):
         return True
 
 
-class ObjectBase(object):
+class CoreObject(object):
     """
-    Base class for all application classes.
+    base class for all application classes.
     """
 
     def __init__(self):
@@ -49,7 +49,8 @@ class ObjectBase(object):
 
     def get_name(self):
         """
-        Gets the name of the object.
+        gets the name of the object.
+        if name is not available, returns objects's class name.
 
         :rtype: str
         """
@@ -60,7 +61,7 @@ class ObjectBase(object):
 
     def _set_name_(self, name):
         """
-        Sets new name to current object.
+        sets new name to current object.
 
         :param str name: object new name.
         """
@@ -69,7 +70,7 @@ class ObjectBase(object):
 
     def get_doc(self):
         """
-        Gets docstring of the object.
+        gets docstring of the object.
 
         :rtype: str
         """
@@ -78,7 +79,7 @@ class ObjectBase(object):
 
     def setattr(self, name, value):
         """
-        Sets the given value to specified attribute.
+        sets the given value to specified attribute.
 
         :param str name: attribute name.
         :param object value: attribute value.
@@ -92,15 +93,15 @@ class ObjectBase(object):
 
 class ContextAttributeError(CoreAttributeError):
     """
-    Context attribute error.
+    context attribute error.
     """
     pass
 
 
-class Context(DynamicObject):
+class Context(DTO):
     """
-    Context class for storing objects in every layer.
-    It's actually a dictionary with the capability to add keys directly.
+    context class for storing objects in every layer.
+    it's actually a dictionary with the capability to add keys directly.
     """
 
     def __getattr__(self, name):
@@ -110,26 +111,27 @@ class Context(DynamicObject):
         raise ContextAttributeError('Property [{name}] not found.'.format(name=name))
 
 
-class Component(ObjectBase):
+class Component(CoreObject):
     """
-    Base component class.
-    All component classes must inherit from this class and their respective manager class.
+    base component class.
+    all component classes must inherit from this class and their respective manager class.
     """
 
     # COMPONENT_ID should be unique for each instance.
+
     COMPONENT_ID = ''
 
 
-class EnumMetaBase(EnumMeta):
+class CoreEnumMeta(EnumMeta):
     """
-    Base enum metaclass.
+    base enum metaclass.
     """
     pass
 
 
-class EnumBase(Enum, metaclass=EnumMetaBase):
+class CoreEnum(Enum, metaclass=CoreEnumMeta):
     """
-    Base enum class.
-    All application enumerations must inherit from this class.
+    base enum class.
+    all application enumerations must inherit from this class.
     """
     pass

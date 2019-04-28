@@ -1,23 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-API request handlers module.
+request handlers module.
 """
 
 from flask import request
-from bshop.core.application import app
-from bshop.core.context import DynamicObject
+
+import bshop.core.api.deserializer.services as deserializer_services
+
+from bshop.core import _get_app
+from bshop.core.context import DTO
+
+app = _get_app()
 
 
 @app.before_request
-def before_request():
+def request_deserializer():
     """
-    Before request handler.
+    Before request handlers for deserialization.
     This method will be executed before every request.
     """
 
-    params = DynamicObject(**(request.view_args or {}),
-                           **(request.get_json(force=True, silent=True) or {}),
-                           query_params=request.args,
-                           files=request.files)
+    params = DTO(**(request.view_args or {}),
+                 **(request.get_json(force=True, silent=True) or {}),
+                 query_params=request.args,
+                 files=request.files)
 
-    request.view_args = params
+    deserialized_value = deserializer_services.deserialize(params)
+    if deserialized_value is not None:
+        request.view_args = deserialized_value
+    else:
+        request.view_args = params
+

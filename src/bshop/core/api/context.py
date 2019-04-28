@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-API context module.
+api context module.
 """
 
 from flask import Request, Response, jsonify
@@ -11,8 +11,8 @@ from bshop.settings.api import JSONIFY_MIMETYPE, DEFAULT_STATUS_CODE
 
 class ResponseBase(Response):
     """
-    Represents base response.
-    This class should be used as server response.
+    represents base response.
+    this class should be used as server response.
     """
 
     # charset of the response.
@@ -35,8 +35,8 @@ class ResponseBase(Response):
 
 class RequestBase(Request):
     """
-    Represents base request class.
-    This class should be used for server request.
+    represents base request class.
+    this class should be used for server request.
     """
 
     # charset of the request.

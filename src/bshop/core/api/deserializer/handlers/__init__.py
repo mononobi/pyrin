@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-packaging package.
+deserializer handlers module.
 """

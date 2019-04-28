@@ -1,51 +1,51 @@
 # -*- coding: utf-8 -*-
 """
-Application services.
+application services module.
 """
 
-from bshop.core.application import app
+from bshop.core import _get_app
 
 
 def add_context(key, value):
     """
-    Adds the given key and it's value into the application context.
+    adds the given key and it's value into the application context.
 
     :param str key: related key for storing application context.
     :param object value: related value for storing in application context.
     """
 
-    app.add_context(key, value)
+    _get_app().add_context(key, value)
 
 
 def get_context(key):
     """
-    Gets the application context value that belongs to given key.
+    gets the application context value that belongs to given key.
 
     :param str key: key for requested application context.
 
     :rtype: object
     """
 
-    return app.get_context(key)
+    return _get_app().get_context(key)
 
 
 def register_component(component, **options):
     """
-    Registers given application component.
+    registers given application component.
 
     :param Component component: component instance.
     """
 
-    app.register_component(component, **options)
+    _get_app().register_component(component, **options)
 
 
 def get_component(component_id, **options):
     """
-    Gets the specified application component.
+    gets the specified application component.
 
     :param str component_id: component unique id.
 
     :rtype: Component
     """
 
-    return app.get_component(component_id, **options)
+    return _get_app().get_component(component_id, **options)

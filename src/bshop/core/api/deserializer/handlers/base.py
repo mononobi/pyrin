@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-Base deserializers module.
+deserializer base module.
 """
 
-from bshop.core.context import ObjectBase
+from bshop.core.context import CoreObject
 from bshop.core.exceptions import CoreNotImplementedError
 
 
-class DeserializerBase(ObjectBase):
+class DeserializerBase(CoreObject):
     """
-    Base deserializer.
+    base deserializer class.
     """
 
     def __init__(self, **options):
-        ObjectBase.__init__(self)
+        CoreObject.__init__(self)
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
+        deserializes the given value.
 
         :param object value: value to be deserialized.
 
@@ -30,18 +30,18 @@ class DeserializerBase(ObjectBase):
 
     def is_deserializable(self, value, **options):
         """
-        Gets a value indicating that the given input is deserializable.
+        gets a value indicating that the given input is deserializable.
 
         :param object value: value to be deserialized.
 
         :rtype: bool
         """
 
-        return type(value) is self.accepted_type()
+        return isinstance(value, self.accepted_type())
 
     def accepted_type(self):
         """
-        Gets the accepted type for this deserializer
+        gets the accepted type for this deserializer
         which could deserialize values from this type.
 
         :rtype: type
@@ -52,7 +52,7 @@ class DeserializerBase(ObjectBase):
 
 class StringDeserializerBase(DeserializerBase):
     """
-    Base string deserializer.
+    base string deserializer class.
     """
 
     def __init__(self, **options):
@@ -60,7 +60,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def deserialize(self, value, **options):
         """
-        Deserializes the given value.
+        deserializes the given value.
 
         :param str value: value to be deserialized.
 
@@ -73,7 +73,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def is_deserializable(self, value, **options):
         """
-        Gets a value indicating that the given input is deserializable.
+        gets a value indicating that the given input is deserializable.
 
         :param object value: value to be deserialized.
 
@@ -90,7 +90,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def accepted_type(self):
         """
-        Gets the accepted type for this deserializer
+        gets the accepted type for this deserializer
         which could deserialize values from this type.
 
         :rtype: type

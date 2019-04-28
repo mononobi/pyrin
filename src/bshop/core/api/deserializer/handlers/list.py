@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-List deserializers module.
+deserializer list module.
 """
 
-import bshop.core.api.deserializers.services as deserializer_services
+import bshop.core.api.deserializer.services as deserializer_services
 
-from bshop.core.api.deserializers.handlers.base import DeserializerBase
-from bshop.core.api.deserializers.decorators import register
+from bshop.core.api.deserializer.handlers.base import DeserializerBase
+from bshop.core.api.deserializer.decorators import register_deserializer
 
 
-@register()
+@register_deserializer()
 class ListDeserializer(DeserializerBase):
     """
     List deserializer.
@@ -41,7 +41,7 @@ class ListDeserializer(DeserializerBase):
         for item in result:
             deserialized_value = None
 
-            if type(item) is self.accepted_type():
+            if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
                 deserialized_value = deserializer_services.deserialize(item)

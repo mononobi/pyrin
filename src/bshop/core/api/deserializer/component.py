@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Deserializers component module.
+deserializer component module.
 """
 
-from bshop.core.api.deserializers.manager import DeserializersManager
+from bshop.core.api.deserializer.manager import DeserializerManager
 from bshop.core.application.decorators import register_component
 from bshop.core.context import Component
 
 
 @register_component()
-class DeserializersComponent(Component, DeserializersManager):
+class DeserializerComponent(Component, DeserializerManager):
     """
-    Deserializers component class.
+    deserializer component class.
     """
 
     COMPONENT_ID = __name__

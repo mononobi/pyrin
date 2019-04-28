@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Database settings.
+database settings.
 """
 
 # database server ip.

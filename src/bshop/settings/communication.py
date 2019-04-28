@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Communication settings.
+communication settings.
 """
 
 # server host name.

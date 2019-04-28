@@ -5,10 +5,12 @@ API error handlers module.
 
 from werkzeug.exceptions import HTTPException
 
-from bshop.core.application import app
-from bshop.core.context import DynamicObject
+from bshop.core import _get_app
+from bshop.core.context import DTO
 from bshop.core.api.enumeration import ServerErrorResponseCode
 from bshop.core.exceptions import CoreException
+
+app = _get_app()
 
 
 @app.errorhandler(HTTPException)
@@ -23,9 +25,9 @@ def http_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-
-    return DynamicObject(code=exception.code,
-                         message=exception.description), exception.code
+    print('ERROR-HTTP')
+    return DTO(code=exception.code,
+               message=exception.description), exception.code
 
 
 @app.errorhandler(CoreException)
@@ -41,10 +43,9 @@ def server_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-
-    return DynamicObject(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
-                         message=exception.message), \
-        ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value
+    print('ERROR-SERVER')
+    return DTO(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
+               message=exception.message), ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value
 
 
 @app.errorhandler(Exception)
@@ -59,7 +60,6 @@ def server_unknown_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-
-    return DynamicObject(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
-                         message=str(exception)), \
-        ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value
+    print('ERROR-UNKNOWN')
+    return DTO(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
+               message=str(exception)), ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value

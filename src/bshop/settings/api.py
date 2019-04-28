@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-API settings.
+api settings.
 """
 
 # sort json response keys.
@@ -18,8 +18,8 @@ JSONIFY_MIMETYPE = 'application/json'
 # default status code of api responses.
 DEFAULT_STATUS_CODE = 200
 
-# trusted ips to accept requests from. (['*'], ['192.168.3.43'])
-TRUSTED_IPS = ['*']
+# trusted ips to accept requests from. (('*',), ('192.168.3.43',))
+TRUSTED_IPS = ('*',)
 
 # minimum android client version to accept requests from. (1, 2, 25)
 MIN_ANDROID_VERSION = (0, 0, 0)

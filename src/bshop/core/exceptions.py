@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Core exceptions module.
+core exceptions module.
 """
 
 
 class CoreException(Exception):
     """
-    Base class for all application exceptions.
+    base class for all application exceptions.
     """
 
     def __init__(self, *args, **kwargs):
@@ -19,7 +19,7 @@ class CoreException(Exception):
 
     def get_code(self):
         """
-        Gets the error code.
+        gets the error code.
 
         :rtype: str
         """
@@ -28,7 +28,7 @@ class CoreException(Exception):
 
     def get_data(self):
         """
-        Gets the error data.
+        gets the error data.
 
         :rtype: dict
         """
@@ -37,7 +37,7 @@ class CoreException(Exception):
 
     def get_traceback(self):
         """
-        Returns the traceback of this exception.
+        returns the traceback of this exception.
 
         :rtype: object
         """
@@ -46,7 +46,7 @@ class CoreException(Exception):
 
     def get_message(self):
         """
-        Gets the error message.
+        gets the error message.
 
         :rtype: str
         """
@@ -56,27 +56,34 @@ class CoreException(Exception):
 
 class CoreAttributeError(CoreException, AttributeError):
     """
-    Core attribute error.
+    core attribute error.
     """
     pass
 
 
 class CoreNotImplementedError(CoreException, NotImplementedError):
     """
-    Core not implemented error.
+    core not implemented error.
     """
     pass
 
 
 class CoreTypeError(CoreException, TypeError):
     """
-    Core type error.
+    core type error.
     """
     pass
 
 
 class CoreValueError(CoreException, ValueError):
     """
-    Core value error.
+    core value error.
+    """
+    pass
+
+
+class CoreKeyError(CoreException, KeyError):
+    """
+    core key error.
     """
     pass

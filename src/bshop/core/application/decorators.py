@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Application decorators module.
+application decorators module.
 """
 
 import bshop.core.application.services as application_services
@@ -11,7 +11,7 @@ from bshop.core.exceptions import CoreTypeError
 
 def register_component(*args, **kwargs):
     """
-    Decorator to register a component to application.
+    decorator to register a component in application.
 
     :param object args: component class constructor arguments.
     :param object kwargs: component class constructor keyword arguments.
@@ -23,7 +23,7 @@ def register_component(*args, **kwargs):
 
     def decorator(cls):
         """
-        Decorates the given class and registers an instance
+        decorates the given class and registers an instance
         of it into available components of application.
 
         :param type cls: component class.

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-API enumeration module.
+api enumeration module.
 """
 
-from bshop.core.context import EnumBase
+from bshop.core.context import CoreEnum
 
 
-class InformationResponseCodeEnum(EnumBase):
+class InformationResponseCodeEnum(CoreEnum):
     """
-    HTTP information response code enum.
+    http information response code enum.
     """
 
     # This interim response indicates that everything so far is OK and that
@@ -28,9 +28,9 @@ class InformationResponseCodeEnum(EnumBase):
     EARLY_HINTS = 103
 
 
-class SuccessfulResponseCodeEnum(EnumBase):
+class SuccessfulResponseCodeEnum(CoreEnum):
     """
-    HTTP successful response code enum.
+    http successful response code enum.
     """
 
     # The request has succeeded. The meaning of a success varies depending on the HTTP method:
@@ -81,9 +81,9 @@ class SuccessfulResponseCodeEnum(EnumBase):
     IM_USED = 226
 
 
-class RedirectionResponseCodeEnum(EnumBase):
+class RedirectionResponseCodeEnum(CoreEnum):
     """
-    HTTP redirection response code enum.
+    http redirection response code enum.
     """
 
     # The request has more than one possible response. The user-agent or user should
@@ -131,9 +131,9 @@ class RedirectionResponseCodeEnum(EnumBase):
     PERMANENT_REDIRECT = 308
 
 
-class ClientErrorResponseCodeEnum(EnumBase):
+class ClientErrorResponseCodeEnum(CoreEnum):
     """
-    HTTP client error response code enum.
+    http client error response code enum.
     """
 
     # This response means that server could not understand the request due to invalid syntax.
@@ -257,9 +257,9 @@ class ClientErrorResponseCodeEnum(EnumBase):
     UNAVAILABLE_FOR_LEGAL_REASONS = 451
 
 
-class ServerErrorResponseCode(EnumBase):
+class ServerErrorResponseCode(CoreEnum):
     """
-    HTTP server error response code enum.
+    http server error response code enum.
     """
 
     # The server has encountered a situation it doesn't know how to handle.

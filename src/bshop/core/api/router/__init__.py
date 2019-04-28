@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-Deserializers handlers module.
+router package.
 """

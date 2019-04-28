@@ -13,6 +13,9 @@
    elements are more than a single line, then there should be an empty line on top and under
    the multi-line element. example 4 shows this nicely.
 
+6. in docstrings for packages and modules and classes we must mention the exact
+   package or module or class keyword at the end. example 5.
+
 example 1:
 # this variable is for storing http method name of type CoreObject.
 
@@ -82,3 +85,9 @@ def some_func(param1, param2, param3, param4 ,**options):
     :rtype: dict
 """
 
+example 5:
+
+class Something(CoreObject):
+    """
+    something class
+    """
