@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-api enumeration module.
+api enumerations module.
 """
 
 from bshop.core.context import CoreEnum
@@ -257,7 +257,7 @@ class ClientErrorResponseCodeEnum(CoreEnum):
     UNAVAILABLE_FOR_LEGAL_REASONS = 451
 
 
-class ServerErrorResponseCode(CoreEnum):
+class ServerErrorResponseCodeEnum(CoreEnum):
     """
     http server error response code enum.
     """

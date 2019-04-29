@@ -7,7 +7,7 @@ from werkzeug.exceptions import HTTPException
 
 from bshop.core import _get_app
 from bshop.core.context import DTO
-from bshop.core.api.enumeration import ServerErrorResponseCode
+from bshop.core.api.enumerations import ServerErrorResponseCodeEnum
 from bshop.core.exceptions import CoreException
 
 app = _get_app()
@@ -44,8 +44,8 @@ def server_error_handler(exception):
     :rtype: tuple(dict, int)
     """
     print('ERROR-SERVER')
-    return DTO(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
-               message=exception.message), ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value
+    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
+               message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
 
 
 @app.errorhandler(Exception)
@@ -61,5 +61,5 @@ def server_unknown_error_handler(exception):
     :rtype: tuple(dict, int)
     """
     print('ERROR-UNKNOWN')
-    return DTO(code=ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value,
-               message=str(exception)), ServerErrorResponseCode.INTERNAL_SERVER_ERROR.value
+    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
+               message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
