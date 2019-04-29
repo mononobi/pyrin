@@ -13,9 +13,10 @@ manager.py
 optional (depends on package type):
 
 context.py
-enumeration.py
+enumerations.py
 models.py
 error_handlers.py
+request_handlers.py
 base.py
 decorators.py
 
