@@ -12,20 +12,20 @@ from bshop.core.api.deserializer.decorators import register_deserializer
 @register_deserializer()
 class ListDeserializer(DeserializerBase):
     """
-    List deserializer.
+    list deserializer.
     """
 
     def __init__(self, **options):
         """
-        Creates an instance of ListDeserializer.
+        creates an instance of ListDeserializer.
         """
 
         DeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
-        Deserializes every possible value available in input list.
-        And gets a new deserialized list, leaving the input unchanged.
+        deserializes every possible value available in input list.
+        and gets a new deserialized list, leaving the input unchanged.
 
         :param list value: value that should be deserialized.
 
@@ -56,7 +56,7 @@ class ListDeserializer(DeserializerBase):
 
     def accepted_type(self):
         """
-        Gets the accepted type for this deserializer
+        gets the accepted type for this deserializer
         which could deserialize values from this type.
 
         :rtype: type
