@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-API error handlers module.
+api error handlers module.
 """
 
 from werkzeug.exceptions import HTTPException
@@ -16,7 +16,7 @@ app = _get_app()
 @app.errorhandler(HTTPException)
 def http_error_handler(exception):
     """
-    Handler for http exceptions.
+    handler for http exceptions.
 
     :param HTTPException exception: exception instance.
 
@@ -33,7 +33,7 @@ def http_error_handler(exception):
 @app.errorhandler(CoreException)
 def server_error_handler(exception):
     """
-    Handler for server internal core exceptions.
+    handler for server internal core exceptions.
 
     :param CoreException exception: core exception instance.
 
@@ -51,7 +51,7 @@ def server_error_handler(exception):
 @app.errorhandler(Exception)
 def server_unknown_error_handler(exception):
     """
-    Handler for unknown server internal exceptions.
+    handler for unknown server internal exceptions.
 
     :param Exception exception: exception instance.
 
