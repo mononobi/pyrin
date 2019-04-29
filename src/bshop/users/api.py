@@ -8,10 +8,13 @@ from datetime import datetime
 import bshop.core.api.deserializer.services as deserializer_services
 from bshop.core.context import DTO
 from bshop.core import _get_app
+from bshop.core.logging.decorators import audit
 
 app = _get_app()
 
+
 @app.route('/hello', methods=['GET'])
+@audit
 def say_hello(dic, date, items, **options):
 
     # t0 = datetime.now()
