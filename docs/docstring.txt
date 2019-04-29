@@ -89,5 +89,5 @@ example 5:
 
 class Something(CoreObject):
     """
-    something class
+    something class.
     """
