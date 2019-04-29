@@ -16,8 +16,8 @@ app = _get_app()
 @app.before_request
 def request_deserializer():
     """
-    Before request handlers for deserialization.
-    This method will be executed before every request.
+    before request handlers for deserialization.
+    this method will be executed before every request.
     """
 
     params = DTO(**(request.view_args or {}),
