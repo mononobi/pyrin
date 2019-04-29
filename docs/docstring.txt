@@ -3,7 +3,8 @@
 2. all docstrings and comments must be lowercase, the only exception is for
    specifying object types. example 1.
 
-3. all docstrings and comments must end with a dot. example 1.
+3. all docstrings and comments must end with a dot. the only exceptions are 
+   rtype and returns that should not have a trailing dot. example 1.
 
 4. method docstring pattern for all custom functions (non-built-in)
    are shown in examples 2, 3.
