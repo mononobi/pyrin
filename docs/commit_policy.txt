@@ -1,4 +1,4 @@
-1. all work that belongs to same bug or feature should be pushed as a single commit. 
+1. all works that belong to same bug or feature must be pushed as a single commit. 
 exceptions are described below.
 
 2. changes on files that does not belong to main application package (bshop), or not related to code development, 
@@ -8,4 +8,3 @@ exceptions are described below.
    
 3. all commits must have a well formed english comment that describes what has been changed or added.
    and commits should be in lower case except for object types if needed.
-
