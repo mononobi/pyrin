@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Request processor settings.
+request processor settings.
 """
 
 # max request processor worker count.
