@@ -1,5 +1,5 @@
 1. all works that belong to same bug or feature must be pushed as a single commit. 
-exceptions are described below.
+   exceptions are described below.
 
 2. changes on files that does not belong to main application package (bshop), or not related to code development, 
    like `locale` and `settings` and `docs` must be committed separately for each type of files and seperated from 
