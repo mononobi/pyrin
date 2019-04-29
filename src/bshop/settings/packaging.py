@@ -18,7 +18,7 @@ IGNORED_DIRECTORIES = ('__pycache__',)
 BASE_PACKAGES = ('bshop.core',)
 
 # owner packages that should be loaded after all other packages,
-# this packages will replace default behaviour of system.
+# this packages will replace default behavior of system.
 OWNER_PACKAGES = ('', )
 
 # test packages that should be loaded after all packages and owner packages have been loaded.
