@@ -118,7 +118,6 @@ class Component(CoreObject):
     """
 
     # COMPONENT_ID should be unique for each instance.
-
     COMPONENT_ID = ''
 
 
