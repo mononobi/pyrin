@@ -1,1 +1,3 @@
-Server side code for bshop application.
+# bshop-server
+
+Server side application for bshop online store management.
