@@ -19,20 +19,13 @@ class DateDeserializer(StringDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
+        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string formats
                                                          and their length for date deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
 
         StringDeserializerBase.__init__(self, **options)
-
-        self._accepted_formats = [('%Y-%m-%d', 10),
-                                  ('%Y/%m/%d', 10),
-                                  ('%Y.%m.%d', 10)]
-
-        accepted_formats = options.get('accepted_formats', [])
-        self._accepted_formats.extend(accepted_formats)
 
     def deserialize(self, value, **options):
         """
@@ -51,7 +44,7 @@ class DateDeserializer(StringDeserializerBase):
         date_length = len(value)
         converted_date = None
 
-        for format_string, length in self._accepted_formats:
+        for format_string, length in self.accepted_formats():
             if date_length != length:
                 continue
 
@@ -68,6 +61,21 @@ class DateDeserializer(StringDeserializerBase):
             return converted_date.date()
 
         return converted_date
+
+    @classmethod
+    def get_default_formats(cls):
+        """
+        gets default accepted formats that this
+        deserializer could deserialize value from.
+
+        :return: list(tuple(str format, int length))
+
+        :rtype: list(tuple(str, int))
+        """
+
+        return [('%Y-%m-%d', 10),
+                ('%Y/%m/%d', 10),
+                ('%Y.%m.%d', 10)]
 
 
 @register_deserializer()
@@ -88,11 +96,6 @@ class TimeDeserializer(StringDeserializerBase):
 
         StringDeserializerBase.__init__(self, **options)
 
-        self._accepted_formats = [('%H:%M:%S%z', 13)]
-
-        accepted_formats = options.get('accepted_formats', [])
-        self._accepted_formats.extend(accepted_formats)
-
     def deserialize(self, value, **options):
         """
         deserializes the given value.
@@ -110,7 +113,7 @@ class TimeDeserializer(StringDeserializerBase):
         time_length = len(value)
         converted_time = None
 
-        for format_string, length in self._accepted_formats:
+        for format_string, length in self.accepted_formats():
             if time_length != length:
                 continue
 
@@ -127,6 +130,19 @@ class TimeDeserializer(StringDeserializerBase):
             return converted_time.timetz()
 
         return converted_time
+
+    @classmethod
+    def get_default_formats(cls):
+        """
+        gets default accepted formats that this
+        deserializer could deserialize value from.
+
+        :return: list(tuple(str format, int length))
+
+        :rtype: list(tuple(str, int))
+        """
+
+        return [('%H:%M:%S%z', 13)]
 
 
 @register_deserializer()
@@ -147,13 +163,6 @@ class DateTimeDeserializer(StringDeserializerBase):
 
         StringDeserializerBase.__init__(self, **options)
 
-        self._accepted_formats = [('%Y-%m-%d %H:%M:%S%z', 24),
-                                  ('%Y/%m/%d %H:%M:%S%z', 24),
-                                  ('%Y.%m.%d %H:%M:%S%z', 24)]
-
-        accepted_formats = options.get('accepted_formats', [])
-        self._accepted_formats.extend(accepted_formats)
-
     def deserialize(self, value, **options):
         """
         deserializes the given value.
@@ -171,7 +180,7 @@ class DateTimeDeserializer(StringDeserializerBase):
         datetime_length = len(value)
         converted_datetime = None
 
-        for format_string, length in self._accepted_formats:
+        for format_string, length in self.accepted_formats():
             if datetime_length != length:
                 continue
 
@@ -185,3 +194,18 @@ class DateTimeDeserializer(StringDeserializerBase):
                 continue
 
         return converted_datetime
+
+    @classmethod
+    def get_default_formats(cls):
+        """
+        gets default accepted formats that this
+        deserializer could deserialize value from.
+
+        :return: list(tuple(str format, int length))
+
+        :rtype: list(tuple(str, int))
+        """
+
+        return [('%Y-%m-%d %H:%M:%S%z', 24),
+                ('%Y/%m/%d %H:%M:%S%z', 24),
+                ('%Y.%m.%d %H:%M:%S%z', 24)]
