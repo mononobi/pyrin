@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-logging package.
+utils datetime package.
 """

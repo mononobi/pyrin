@@ -5,7 +5,10 @@ logging decorators module.
 
 import time
 
-from bshop.settings import ENV
+from bshop.settings.logging import AUDIT_LOG
+
+total = 0
+count = 0
 
 
 def audit(func):
@@ -25,13 +28,10 @@ def audit(func):
         :param object args: function arguments.
         :param object kwargs: function keyword arguments.
 
-        :keyword str environment: a value indicating that logging should be done in which
-                                  environment. if empty, logging will be always done.
-
         :returns: function result.
         """
 
-        if 'development' not in ENV:
+        if not AUDIT_LOG:
             return func(*args, **kwargs)
 
         start_time = time.time()
@@ -47,5 +47,11 @@ def audit(func):
             print('duration of function call [{name}]: {seconds} sec'.
                   format(name=func.__name__, seconds=((end_time - start_time) * 1000)))
             # do some logging here.
+            global total
+            total += ((end_time - start_time) * 1000)
+            global count
+            count += 1
+
+            print('COUNT: ', count, ' TOTAL: ', total, ' sec')
 
     return decorator

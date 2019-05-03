@@ -3,10 +3,10 @@
 deserializer list module.
 """
 
-import bshop.core.api.deserializer.services as deserializer_services
+import bshop.core.api.converters.deserializer.services as deserializer_services
 
-from bshop.core.api.deserializer.handlers.base import DeserializerBase
-from bshop.core.api.deserializer.decorators import register_deserializer
+from bshop.core.api.converters.deserializer.handlers.base import DeserializerBase
+from bshop.core.api.converters.deserializer.decorators import register_deserializer
 
 
 @register_deserializer()
@@ -54,7 +54,7 @@ class ListDeserializer(DeserializerBase):
 
         return result
 
-    def accepted_type(self):
+    def get_accepted_type(self):
         """
         gets the accepted type for this deserializer
         which could deserialize values from this type.

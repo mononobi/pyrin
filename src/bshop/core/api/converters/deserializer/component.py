@@ -3,7 +3,7 @@
 deserializer component module.
 """
 
-from bshop.core.api.deserializer.manager import DeserializerManager
+from bshop.core.api.converters.deserializer.manager import DeserializerManager
 from bshop.core.application.decorators import register_component
 from bshop.core.context import Component
 

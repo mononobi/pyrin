@@ -7,10 +7,12 @@ from flask import Flask
 
 import bshop.core.packaging.services as packaging_services
 
-from bshop.core.packaging.component import PackagingComponent
 from bshop import settings
 from bshop.core import _set_app
-from bshop.core.api.context import ResponseBase, RequestBase
+from bshop.core.api.converters.json.decoder import CoreJSONDecoder
+from bshop.core.api.converters.json.encoder import CoreJSONEncoder
+from bshop.core.packaging.component import PackagingComponent
+from bshop.core.api.context import CoreResponse, CoreRequest
 from bshop.core.context import Context, Component, ContextAttributeError
 from bshop.core.exceptions import CoreValueError, CoreTypeError
 
@@ -48,8 +50,10 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
-    response_class = ResponseBase
-    request_class = RequestBase
+    response_class = CoreResponse
+    request_class = CoreRequest
+    json_decoder = CoreJSONDecoder
+    json_encoder = CoreJSONEncoder
 
     def __init__(self, import_name, **options):
         """
@@ -210,3 +214,18 @@ class Application(Flask):
         """
 
         return super(Application, self).dispatch_request()
+
+    def make_response(self, rv):
+        """
+        converts the return value from a view function to an instance of DTO.
+        if the return value is None, it returns an empty dict as return value.
+
+        :param object rv: the return value from the view function.
+
+        :rtype: object.
+        """
+
+        if rv is None:
+            rv = {}
+
+        return super(Application, self).make_response(rv)

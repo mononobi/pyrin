@@ -3,7 +3,7 @@
 deserializer services module.
 """
 
-from bshop.core.api.deserializer.component import DeserializerComponent
+from bshop.core.api.converters.deserializer.component import DeserializerComponent
 from bshop.core.application.services import get_component
 
 

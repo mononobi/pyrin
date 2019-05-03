@@ -9,7 +9,7 @@ from bshop.settings.application import APPLICATION_ENCODING
 from bshop.settings.api import JSONIFY_MIMETYPE, DEFAULT_STATUS_CODE
 
 
-class ResponseBase(Response):
+class CoreResponse(Response):
     """
     represents base response.
     this class should be used as server response.
@@ -25,15 +25,15 @@ class ResponseBase(Response):
     default_mimetype = JSONIFY_MIMETYPE
 
     def __init__(self, response, **kwargs):
-        super(ResponseBase, self).__init__(response, **kwargs)
+        super(CoreResponse, self).__init__(response, **kwargs)
 
     @classmethod
     def force_type(cls, response, environ=None):
         response = jsonify(response)
-        return super(ResponseBase, cls).force_type(response, environ)
+        return super(CoreResponse, cls).force_type(response, environ)
 
 
-class RequestBase(Request):
+class CoreRequest(Request):
     """
     represents base request class.
     this class should be used for server request.
@@ -43,4 +43,4 @@ class RequestBase(Request):
     charset = APPLICATION_ENCODING
 
     def __init__(self, environ, populate_request=True, shallow=False):
-        super(RequestBase, self).__init__(environ, populate_request, shallow)
+        super(CoreRequest, self).__init__(environ, populate_request, shallow)

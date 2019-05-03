@@ -39,9 +39,9 @@ class DeserializerBase(CoreObject):
         :rtype: bool
         """
 
-        return isinstance(value, self.accepted_type())
+        return isinstance(value, self.get_accepted_type())
 
-    def accepted_type(self):
+    def get_accepted_type(self):
         """
         gets the accepted type for this deserializer
         which could deserialize values from this type.
@@ -110,7 +110,7 @@ class StringDeserializerBase(DeserializerBase):
 
         return False
 
-    def accepted_type(self):
+    def get_accepted_type(self):
         """
         gets the accepted type for this deserializer
         which could deserialize values from this type.
@@ -120,7 +120,7 @@ class StringDeserializerBase(DeserializerBase):
 
         return str
 
-    def accepted_length(self):
+    def get_accepted_length(self):
         """
         gets the min and max accepted length of strings to be
         deserialized by this deserializer.
@@ -132,7 +132,7 @@ class StringDeserializerBase(DeserializerBase):
 
         return self._min_length, self._max_length
 
-    def accepted_formats(self):
+    def get_accepted_formats(self):
         """
         gets the accepted string formats that this deserializer
         can deserialize value from.
@@ -155,7 +155,7 @@ class StringDeserializerBase(DeserializerBase):
         """
 
         length = len(value.strip())
-        min_length, max_length = self.accepted_length()
+        min_length, max_length = self.get_accepted_length()
 
         if length < min_length or length > max_length:
             return False
@@ -172,8 +172,8 @@ class StringDeserializerBase(DeserializerBase):
         :rtype: tuple(int, int)
         """
 
-        return min([item[1] for item in self.accepted_formats()]), \
-            max([item[1] for item in self.accepted_formats()])
+        return min([item[1] for item in self.get_accepted_formats()]), \
+            max([item[1] for item in self.get_accepted_formats()])
 
     @classmethod
     def get_default_formats(cls):

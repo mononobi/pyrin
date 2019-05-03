@@ -5,8 +5,10 @@ deserializer datetime module.
 
 from datetime import date, datetime
 
-from bshop.core.api.deserializer.handlers.base import StringDeserializerBase
-from bshop.core.api.deserializer.decorators import register_deserializer
+from bshop.core.api.converters.deserializer.handlers.base import StringDeserializerBase
+from bshop.core.api.converters.deserializer.decorators import register_deserializer
+from bshop.core.utils.datetime.converter import DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT_UTC, \
+    DEFAULT_DATE_TIME_FORMAT_UTC, to_datetime
 
 
 @register_deserializer()
@@ -41,15 +43,11 @@ class DateDeserializer(StringDeserializerBase):
             return None
 
         value = value.strip()
-        date_length = len(value)
         converted_date = None
 
-        for format_string, length in self.accepted_formats():
-            if date_length != length:
-                continue
-
+        for format_string, length in self.get_accepted_formats():
             try:
-                converted_date = datetime.strptime(value, format_string)
+                converted_date = to_datetime(value, format=format_string)
                 if converted_date is not None:
                     break
 
@@ -73,9 +71,7 @@ class DateDeserializer(StringDeserializerBase):
         :rtype: list(tuple(str, int))
         """
 
-        return [('%Y-%m-%d', 10),
-                ('%Y/%m/%d', 10),
-                ('%Y.%m.%d', 10)]
+        return [DEFAULT_DATE_FORMAT]
 
 
 @register_deserializer()
@@ -109,16 +105,11 @@ class TimeDeserializer(StringDeserializerBase):
         if not self.is_deserializable(value, **options):
             return None
 
-        value = value.strip()
-        time_length = len(value)
         converted_time = None
 
-        for format_string, length in self.accepted_formats():
-            if time_length != length:
-                continue
-
+        for format_string, length in self.get_accepted_formats():
             try:
-                converted_time = datetime.strptime(value, format_string)
+                converted_time = to_datetime(value, format=format_string)
                 if converted_time is not None:
                     break
 
@@ -142,7 +133,7 @@ class TimeDeserializer(StringDeserializerBase):
         :rtype: list(tuple(str, int))
         """
 
-        return [('%H:%M:%S%z', 13)]
+        return [DEFAULT_TIME_FORMAT_UTC]
 
 
 @register_deserializer()
@@ -176,16 +167,11 @@ class DateTimeDeserializer(StringDeserializerBase):
         if not self.is_deserializable(value, **options):
             return None
 
-        value = value.strip()
-        datetime_length = len(value)
         converted_datetime = None
 
-        for format_string, length in self.accepted_formats():
-            if datetime_length != length:
-                continue
-
+        for format_string, length in self.get_accepted_formats():
             try:
-                converted_datetime = datetime.strptime(value, format_string)
+                converted_datetime = to_datetime(value, format=format_string)
                 if converted_datetime is not None:
                     break
 
@@ -206,6 +192,4 @@ class DateTimeDeserializer(StringDeserializerBase):
         :rtype: list(tuple(str, int))
         """
 
-        return [('%Y-%m-%d %H:%M:%S%z', 24),
-                ('%Y/%m/%d %H:%M:%S%z', 24),
-                ('%Y.%m.%d %H:%M:%S%z', 24)]
+        return [DEFAULT_DATE_TIME_FORMAT_UTC]
