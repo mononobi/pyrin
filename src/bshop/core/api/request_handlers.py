@@ -5,16 +5,14 @@ request handlers module.
 
 from flask import request
 
-from bshop.core import _get_app
+from bshop.core.application.decorators import register_before_request_handler
 from bshop.core.context import DTO
 
-app = _get_app()
 
-
-@app.before_request
+@register_before_request_handler()
 def request_input_mapper():
     """
-    before request handler for mapping input params into view function.
+    before request handler for mapping input params into view arguments.
     this method will be executed before every request.
     """
 
@@ -22,5 +20,3 @@ def request_input_mapper():
                             **(request.get_json(force=True, silent=True) or {}),
                             query_params=request.args,
                             files=request.files)
-
-

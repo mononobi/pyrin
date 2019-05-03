@@ -14,7 +14,7 @@ from bshop.core.api.converters.json.encoder import CoreJSONEncoder
 from bshop.core.packaging.component import PackagingComponent
 from bshop.core.api.context import CoreResponse, CoreRequest
 from bshop.core.context import Context, Component, ContextAttributeError
-from bshop.core.exceptions import CoreValueError, CoreTypeError
+from bshop.core.exceptions import CoreValueError, CoreTypeError, CoreKeyError
 
 
 class ApplicationContext(Context):
@@ -135,11 +135,20 @@ class Application(Flask):
 
     def register_component(self, component, **options):
         """
-        registers given application component.
+        registers given application component or replaces the existing one
+        if `replace=True` is provided. otherwise, it raises an error
+        on adding an instance which it's id is already available
+        in registered components.
 
         :param Component component: component instance.
 
+        :keyword bool replace: specifies that if there is another registered
+                               component with the same id, replace it with the new one.
+                               otherwise raise an error. defaults to False.
+
         :raises CoreTypeError: core type error.
+        :raises CoreValueError: core value error.
+        :raises CoreKeyError: core key error.
         """
 
         if not isinstance(component, Component):
@@ -150,6 +159,21 @@ class Application(Flask):
                 len(component.COMPONENT_ID.strip()) == 0:
             raise CoreValueError('Component [{component}] has '
                                  'not a valid component id.'.format(component=str(component)))
+
+        # checking whether is there any registered instance with the same id.
+        if component.COMPONENT_ID in self._components.keys():
+            replace = options.get('replace', False)
+
+            if not replace:
+                raise CoreKeyError('There is another registered component with id [{id}] '
+                                   'but "replace" option is not set, so component '
+                                   '[{instance}] could not be registered.'
+                                   .format(id=component.COMPONENT_ID,
+                                           instance=str(component)))
+
+            old_instance = self._components[component.COMPONENT_ID]
+            print('Component [{old_instance}] is going to be replaced by [{new_instance}].'
+                  .format(old_instance=str(old_instance), new_instance=str(component)))
 
         self._components[component.COMPONENT_ID] = component
 

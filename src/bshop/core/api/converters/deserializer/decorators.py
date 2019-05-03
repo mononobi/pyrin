@@ -21,6 +21,8 @@ def register_deserializer(*args, **kwargs):
                            replace it with the new one, otherwise raise
                            an error. defaults to False.
 
+    :raises CoreTypeError: core type error.
+
     :returns: deserializer class.
 
     :rtype: type

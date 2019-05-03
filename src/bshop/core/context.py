@@ -120,6 +120,13 @@ class Component(CoreObject):
     # COMPONENT_ID should be unique for each instance.
     COMPONENT_ID = ''
 
+    def __init__(self, **options):
+        """
+        initializes an instance of Component.
+        """
+
+        super(Component, self).__init__()
+
 
 class CoreEnumMeta(EnumMeta):
     """

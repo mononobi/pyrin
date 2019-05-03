@@ -5,15 +5,13 @@ api error handlers module.
 
 from werkzeug.exceptions import HTTPException
 
-from bshop.core import _get_app
+from bshop.core.application.decorators import register_error_handler
 from bshop.core.context import DTO
 from bshop.core.api.enumerations import ServerErrorResponseCodeEnum
 from bshop.core.exceptions import CoreException
 
-app = _get_app()
 
-
-@app.errorhandler(HTTPException)
+@register_error_handler(HTTPException)
 def http_error_handler(exception):
     """
     handler for http exceptions.
@@ -30,7 +28,7 @@ def http_error_handler(exception):
                message=exception.description), exception.code
 
 
-@app.errorhandler(CoreException)
+@register_error_handler(CoreException)
 def server_error_handler(exception):
     """
     handler for server internal core exceptions.
@@ -48,7 +46,7 @@ def server_error_handler(exception):
                message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
 
 
-@app.errorhandler(Exception)
+@register_error_handler(Exception)
 def server_unknown_error_handler(exception):
     """
     handler for unknown server internal exceptions.

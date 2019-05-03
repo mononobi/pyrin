@@ -3,7 +3,7 @@
 router context module.
 """
 
-from bshop.core.context import CoreObject
+from bshop.core.context import CoreObject, Context
 
 
 class Route(CoreObject):
@@ -43,3 +43,5 @@ class Route(CoreObject):
         """
 
         CoreObject.__init__(self)
+
+        self._routes = Context()
