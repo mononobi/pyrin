@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-core context module.
+pyrin context module.
 """
 
 from enum import Enum, EnumMeta

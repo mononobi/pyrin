@@ -205,7 +205,7 @@ class PackagingManager(CoreObject):
         gets the full package name from provided path.
 
         :param str path: full path of package.
-                         example path = `/home/src/pyrin/core/database`.
+                         example path = `/home/src/pyrin/database`.
 
         :rtype: str
         """
@@ -233,7 +233,7 @@ class PackagingManager(CoreObject):
         it simply checks that `__init__` module exists or not.
 
         :param str path: full path of package.
-                         example path = `/home/src/pyrin/core/database`.
+                         example path = `/home/src/pyrin/database`.
 
         :rtype: bool
         """
@@ -258,7 +258,7 @@ class PackagingManager(CoreObject):
         gets a value indicating that given module exists in specified path.
 
         :param str path: path to check module availability in it.
-                         example path = `/home/src/pyrin/core/database`.
+                         example path = `/home/src/pyrin/database`.
 
         :param str module_name: module name.
                                 example module_name = `__init__`.

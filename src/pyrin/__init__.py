@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-core package.
+pyrin package.
 """
 
 __app__ = None

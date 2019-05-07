@@ -18,10 +18,10 @@ IGNORED_DIRECTORIES = ('__pycache__',
 # base packages of system that should be loaded before other packages.
 CORE_PACKAGES = ('pyrin',)
 
-# owner packages that should be loaded after all other packages,
+# custom packages that should be loaded after all other packages,
 # this packages will replace default behavior of system.
-OWNER_PACKAGES = ('', )
+CUSTOM_PACKAGES = ('', )
 
-# test packages that should be loaded after all packages and owner packages have been loaded.
+# test packages that should be loaded after all packages and custom packages have been loaded.
 # this packages are used for unit testing and should not be loaded by default.
 TEST_PACKAGES = ('', )
