@@ -20,7 +20,7 @@ def load(module_name, **options):
     loads the specified module.
 
     :param str module_name: module name.
-                            example module_name = `bshop.core.application`.
+                            example module_name = `bshop.core.application.decorators`.
 
     :rtype: Module
     """

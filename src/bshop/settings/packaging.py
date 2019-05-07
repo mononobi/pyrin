@@ -12,10 +12,11 @@ IGNORED_PACKAGES = ('bshop.core.packaging',
 IGNORED_MODULES = ('start',)
 
 # directories that should be ignored completely.
-IGNORED_DIRECTORIES = ('__pycache__',)
+IGNORED_DIRECTORIES = ('__pycache__',
+                       'locale')
 
 # base packages of system that should be loaded before other packages.
-BASE_PACKAGES = ('bshop.core',)
+CORE_PACKAGES = ('bshop.core',)
 
 # owner packages that should be loaded after all other packages,
 # this packages will replace default behavior of system.

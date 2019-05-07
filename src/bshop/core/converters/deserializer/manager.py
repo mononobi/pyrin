@@ -3,7 +3,7 @@
 deserializer manager module.
 """
 
-from bshop.core.api.converters.deserializer.handlers.base import DeserializerBase
+from bshop.core.converters.deserializer.handlers.base import DeserializerBase
 from bshop.core.context import CoreObject, Context
 from bshop.core.exceptions import CoreTypeError, CoreKeyError
 

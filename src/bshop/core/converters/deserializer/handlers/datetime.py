@@ -5,13 +5,13 @@ deserializer datetime module.
 
 from datetime import date, datetime
 
-from bshop.core.api.converters.deserializer.handlers.base import StringDeserializerBase
-from bshop.core.api.converters.deserializer.decorators import register_deserializer
+from bshop.core.converters.deserializer.handlers.base import StringDeserializerBase
+from bshop.core.converters.deserializer.decorators import deserializer
 from bshop.core.utils.datetime.converter import DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT_UTC, \
     DEFAULT_DATE_TIME_FORMAT_UTC, to_datetime
 
 
-@register_deserializer()
+@deserializer()
 class DateDeserializer(StringDeserializerBase):
     """
     date deserializer class.
@@ -74,7 +74,7 @@ class DateDeserializer(StringDeserializerBase):
         return [DEFAULT_DATE_FORMAT]
 
 
-@register_deserializer()
+@deserializer()
 class TimeDeserializer(StringDeserializerBase):
     """
     time deserializer class.
@@ -136,7 +136,7 @@ class TimeDeserializer(StringDeserializerBase):
         return [DEFAULT_TIME_FORMAT_UTC]
 
 
-@register_deserializer()
+@deserializer()
 class DateTimeDeserializer(StringDeserializerBase):
     """
     datetime deserializer class.

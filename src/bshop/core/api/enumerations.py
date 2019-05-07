@@ -6,6 +6,19 @@ api enumerations module.
 from bshop.core.context import CoreEnum
 
 
+class HTTPMethodEnum(CoreEnum):
+    """
+    http method enum.
+    """
+
+    GET = 'GET'
+    POST = 'POST'
+    PUT = 'PUT'
+    HEAD = 'HEAD'
+    TRACE = 'TRACE'
+    OPTIONS = 'OPTIONS'
+
+
 class InformationResponseCodeEnum(CoreEnum):
     """
     http information response code enum.
@@ -307,3 +320,4 @@ class ServerErrorResponseCodeEnum(CoreEnum):
 
     # the 511 status code indicates that the client needs to authenticate to gain network access.
     NETWORK_AUTHENTICATION_REQUIRED = 511
+

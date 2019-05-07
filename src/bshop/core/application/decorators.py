@@ -9,7 +9,7 @@ from bshop.core.context import Component
 from bshop.core.exceptions import CoreTypeError
 
 
-def register_component(*args, **kwargs):
+def component(*args, **kwargs):
     """
     decorator to register a component in application or replace the existing one
     if `replace=True` is provided. otherwise, it raises an error on adding an instance
@@ -56,7 +56,7 @@ def register_component(*args, **kwargs):
     return decorator
 
 
-def register_error_handler(code_or_exception):
+def error_handler(code_or_exception):
     """
     decorator to register an error handler for application.
 
@@ -81,7 +81,7 @@ def register_error_handler(code_or_exception):
     return decorator
 
 
-def register_before_request_handler():
+def before_request_handler():
     """
     decorator to register a function into application before request handlers.
 
@@ -104,7 +104,7 @@ def register_before_request_handler():
     return decorator
 
 
-def register_after_request_handler():
+def after_request_handler():
     """
     decorator to register a function into application after request handlers.
 

@@ -9,7 +9,7 @@ from importlib import import_module
 
 from bshop.core.context import CoreObject
 from bshop.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
-    IGNORED_DIRECTORIES
+    IGNORED_DIRECTORIES, CORE_PACKAGES
 
 
 class PackagingManager(CoreObject):
@@ -36,44 +36,66 @@ class PackagingManager(CoreObject):
 
         print('Loading application components...')
 
-        packages, modules = self._get_loadable_components(**options)
+        core_packages, core_modules, packages, modules = self._get_loadable_components(**options)
 
-        for package in packages:
-            self.load(package, **options)
-            print('[{package}] package loaded.'.format(package=package))
+        self._load_packages(core_packages)
+        self._load_modules(core_modules)
+        self._load_packages(packages)
+        self._load_modules(modules)
 
-        for module in modules:
-            self.load(module, **options)
-            print('[{module}] module loaded.'.format(module=module))
-
-        print('Total of [{count}] packages loaded.'.format(count=len(packages)))
-        print('Total of [{count}] modules loaded.'.format(count=len(modules)))
+        print('Total of [{count}] packages loaded.'.format(count=len(packages) + len(core_packages)))
+        print('Total of [{count}] modules loaded.'.format(count=len(modules) + len(core_modules)))
 
     def load(self, module_name, **options):
         """
         loads the specified module.
 
         :param str module_name: module name.
-                                example module_name = `bshop.core.application`.
+                                example module_name = `bshop.core.application.decorators`.
 
         :rtype: Module
         """
 
         return import_module(module_name)
 
+    def _load_modules(self, module_names, **options):
+        """
+        loads the given modules.
+
+        :param list[str] module_names: module names to be loaded.
+        """
+
+        for module in module_names:
+            self.load(module, **options)
+            print('[{module}] module loaded.'.format(module=module))
+
+    def _load_packages(self, package_names, **options):
+        """
+        loads the given packages.
+
+        :param list[str] package_names: package names to be loaded.
+        """
+
+        for package in package_names:
+            self.load(package, **options)
+            print('[{package}] package loaded.'.format(package=package))
+
     def _get_loadable_components(self, **options):
         """
         gets all package and module names that should be loaded.
 
-        :returns: tuple(package_names, module_names)
+        :returns: tuple(core_packages, core_modules, package_names, module_names)
 
-        :rtype: tuple(list[str], list[str])
+        :rtype: tuple(list[str], list[str], list[str], list[str])
         """
 
         self._root_directory = self._resolve_application_root_path(__name__.split('.')[0])
 
+        core_packages = []
+        core_modules = []
         package_names = []
         module_names = []
+
         for root, directories, filenames in os.walk(self._root_directory):
 
             for directory in directories:
@@ -88,7 +110,10 @@ class PackagingManager(CoreObject):
                 if self._is_ignored_package(package_name):
                     continue
 
-                package_names.append(package_name)
+                if self._is_core_package(package_name):
+                    core_packages.append(package_name)
+                else:
+                    package_names.append(package_name)
 
                 files = os.listdir(combined_path)
                 for file_name in files:
@@ -99,9 +124,13 @@ class PackagingManager(CoreObject):
                     if self._is_ignored_module(module_name):
                         continue
 
-                    module_names.append(self._get_module_name(package_name, module_name))
+                    full_module_name = self._get_module_name(package_name, module_name)
+                    if self._is_core_module(full_module_name):
+                        core_modules.append(full_module_name)
+                    else:
+                        module_names.append(full_module_name)
 
-        return package_names, module_names
+        return core_packages, core_modules, package_names, module_names
 
     def _is_ignored_directory(self, directory):
         """
@@ -138,6 +167,38 @@ class PackagingManager(CoreObject):
         """
 
         return module_name in IGNORED_MODULES
+
+    def _is_core_package(self, package_name):
+        """
+        gets a value indicating that given package is a core package.
+
+        :param str package_name: package name.
+                                 example package_name = 'bshop.core.api'
+
+        :rtype: bool
+        """
+
+        for core in CORE_PACKAGES:
+            if core in package_name:
+                return True
+
+        return False
+
+    def _is_core_module(self, module_name):
+        """
+        gets a value indicating that given module is a core module.
+
+        :param str module_name: module name.
+                                example module_name = 'bshop.core.api.error_handlers'
+
+        :rtype: bool
+        """
+
+        for core in CORE_PACKAGES:
+            if core in module_name:
+                return True
+
+        return False
 
     def _get_package_name(self, path):
         """

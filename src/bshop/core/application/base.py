@@ -4,15 +4,18 @@ application base module.
 """
 
 from flask import Flask
+from flask.app import setupmethod
+from flask.helpers import _endpoint_from_view_func
 
 import bshop.core.packaging.services as packaging_services
 
 from bshop import settings
 from bshop.core import _set_app
-from bshop.core.api.converters.json.decoder import CoreJSONDecoder
-from bshop.core.api.converters.json.encoder import CoreJSONEncoder
+from bshop.core.api.router.base import Route
+from bshop.core.converters.json.decoder import CoreJSONDecoder
+from bshop.core.converters.json.encoder import CoreJSONEncoder
 from bshop.core.packaging.component import PackagingComponent
-from bshop.core.api.context import CoreResponse, CoreRequest
+from bshop.core.application.context import CoreResponse, CoreRequest
 from bshop.core.context import Context, Component, ContextAttributeError
 from bshop.core.exceptions import CoreValueError, CoreTypeError, CoreKeyError
 
@@ -50,6 +53,7 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
+    url_rule_class = Route
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
@@ -106,7 +110,7 @@ class Application(Flask):
         self._components = ApplicationComponent()
 
         # we should register packaging component manually because it is the base package
-        # and could not be loaded automatically due to references through imports.
+        # and could not be loaded automatically due to circular references through imports.
         self.register_component(PackagingComponent())
 
         # setting the application instance in global 'bshop.core' level variable.
@@ -253,3 +257,78 @@ class Application(Flask):
             rv = {}
 
         return super(Application, self).make_response(rv)
+
+    @setupmethod
+    def add_url_rule(self, rule, endpoint=None, view_func=None,
+                     provide_automatic_options=None, **options):
+        """
+        connects a url rule. if a view_func is provided it will be registered with the endpoint.
+        if there is another rule with the same url and `replace=True` option is provided,
+        it will be replaced, otherwise an error will be raised.
+
+        :param str rule: the url rule as string.
+
+        :param str endpoint: the endpoint for the registered url rule. flask
+                             itself assumes the name of the view function as endpoint.
+
+        :param callable view_func: the function to call when serving a request to the
+                                   provided endpoint.
+
+        :param bool provide_automatic_options: controls whether the `OPTIONS` method should be
+                                               added automatically. this can also be controlled
+                                               by setting the `view_func.provide_automatic_options = False`
+                                               before adding the rule.
+
+        :keyword tuple(str) methods: http methods that this rule should handle.
+
+        :keyword tuple(PermissionBase) permissions: list of all required permissions
+                                                    to access this route's resource.
+
+        :keyword bool login_required: specifies that this route could not be accessed
+                                      if the requester has not a valid token.
+                                      defaults to True if not provided.
+
+        :keyword bool replace: specifies that this route must replace
+                               any existing route with the same url or raise
+                               an error if not provided. defaults to False.
+        """
+
+        if endpoint is None:
+            endpoint = self.get_endpoint_name(view_func)
+
+        replace = options.get('replace', False)
+
+        old_rule = None
+        for rule_item in self.url_map._rules:
+            if rule_item.rule == rule:
+                old_rule = rule_item
+                break
+
+        # checking whether is there any route with the same url rule.
+        if old_rule is not None:
+            if replace is True:
+                self.url_map._rules.remove(old_rule)
+                if old_rule.endpoint in self.view_functions.keys():
+                    self.view_functions.pop(old_rule.endpoint)
+                if old_rule.endpoint in self.url_map._rules_by_endpoint.keys():
+                    self.url_map._rules_by_endpoint.pop(old_rule.endpoint)
+
+                print('Registered route [{route}] is going to be replaced by a new route.'.format(route=rule))
+            else:
+                raise CoreKeyError('There is another registered route with the same url [{url}], '
+                                   'but "replace" option is not set, so the new route could not be registered'
+                                   .format(url=rule))
+
+        super(Application, self).add_url_rule(rule, endpoint, view_func,
+                                              provide_automatic_options, **options)
+
+    def get_endpoint_name(self, view_function):
+        """
+        gets the endpoint name according to given view function.
+
+        :param callable view_function: a function to get endpoint name from it.
+
+        :rtype: str
+        """
+
+        return view_function.__name__

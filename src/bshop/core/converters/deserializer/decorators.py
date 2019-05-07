@@ -3,13 +3,13 @@
 deserializer decorators module.
 """
 
-import bshop.core.api.converters.deserializer.services as deserializer_services
+import bshop.core.converters.deserializer.services as deserializer_services
 
-from bshop.core.api.converters.deserializer.handlers.base import DeserializerBase
+from bshop.core.converters.deserializer.handlers.base import DeserializerBase
 from bshop.core.exceptions import CoreTypeError
 
 
-def register_deserializer(*args, **kwargs):
+def deserializer(*args, **kwargs):
     """
     decorator to register a deserializer.
 

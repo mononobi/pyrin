@@ -3,11 +3,11 @@
 deserializer boolean module.
 """
 
-from bshop.core.api.converters.deserializer.handlers.base import StringDeserializerBase
-from bshop.core.api.converters.deserializer.decorators import register_deserializer
+from bshop.core.converters.deserializer.handlers.base import StringDeserializerBase
+from bshop.core.converters.deserializer.decorators import deserializer
 
 
-@register_deserializer()
+@deserializer()
 class BooleanDeserializer(StringDeserializerBase):
     """
     boolean deserializer class.

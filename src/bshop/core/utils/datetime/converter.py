@@ -8,8 +8,8 @@ from datetime import datetime
 
 
 # default datetime format with utc offset.
-# example: '2015-12-24 23:40:15+0330'
-DEFAULT_DATE_TIME_FORMAT_UTC = ('%Y-%m-%d %H:%M:%S%z', 24)
+# example: '2015-12-24T23:40:15+0330'
+DEFAULT_DATE_TIME_FORMAT_UTC = ('%Y-%m-%dT%H:%M:%S%z', 24)
 
 # default date format.
 # example: '2015-12-24'
@@ -20,8 +20,8 @@ DEFAULT_DATE_FORMAT = ('%Y-%m-%d', 10)
 DEFAULT_TIME_FORMAT_UTC = ('%H:%M:%S%z', 13)
 
 # default datetime regular expression pattern with utc offset.
-# example: '2015-12-24 23:40:15+0330'
-DEFAULT_DATE_TIME_UTC_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d[0-5]\d$')
+# example: '2015-12-24T23:40:15+0330'
+DEFAULT_DATE_TIME_UTC_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d[0-5]\d$')
 
 # default date regular expression pattern.
 # example: '2015-12-24'

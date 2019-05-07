@@ -3,13 +3,13 @@
 deserializer list module.
 """
 
-import bshop.core.api.converters.deserializer.services as deserializer_services
+import bshop.core.converters.deserializer.services as deserializer_services
 
-from bshop.core.api.converters.deserializer.handlers.base import DeserializerBase
-from bshop.core.api.converters.deserializer.decorators import register_deserializer
+from bshop.core.converters.deserializer.handlers.base import DeserializerBase
+from bshop.core.converters.deserializer.decorators import deserializer
 
 
-@register_deserializer()
+@deserializer()
 class ListDeserializer(DeserializerBase):
     """
     list deserializer.
