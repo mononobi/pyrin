@@ -29,6 +29,8 @@ PyJWT = "*"
 SQLAlchemy = "*"
 Werkzeug = "*"
 setuptools = "*"
+pep8 = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.7"
