@@ -50,8 +50,6 @@ class Route(RouteBase):
         dispatch the current route.
 
         :param CoreRequest request: current request object.
-
-        :raises CoreNotImplementedError: core not implemented error.
         """
 
         pass

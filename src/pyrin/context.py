@@ -142,4 +142,10 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
     """
 
     def __get__(self, instance, owner):
+        """
+        this method is overridden to be able to access enum
+        member value without having to write `enum_member.value`.
+        this causes `enum_member.name` to become unavailable.
+        """
+
         return self.value

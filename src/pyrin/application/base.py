@@ -3,7 +3,7 @@
 application base module.
 """
 
-from flask import Flask
+from flask import Flask, request
 from flask.app import setupmethod
 
 import pyrin.packaging.services as packaging_services
@@ -239,11 +239,25 @@ class Application(Flask):
         proper response object, call `make_response` function.
         """
 
-        return super(Application, self).dispatch_request()
+        with request:
+            if request.routing_exception is not None:
+                self.raise_routing_exception(request)
+
+            route = request.url_rule
+            # if we provide automatic options for this URL and the
+            # request came with the OPTIONS method, reply automatically.
+            if getattr(route, 'provide_automatic_options', False) \
+               and request.method == 'OPTIONS':
+                return self.make_default_options_response()
+
+            super(Application, self).dispatch_request()
+
+            # otherwise dispatch to the handler for that route.
+            return route.dispatch(request)
 
     def make_response(self, rv):
         """
-        converts the return value from a view function to an instance of DTO.
+        converts the return value from a view function to an instance of dict.
         if the return value is None, it returns an empty dict as return value.
 
         :param object rv: the return value from the view function.

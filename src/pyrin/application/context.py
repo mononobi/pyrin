@@ -27,7 +27,7 @@ class CoreResponse(Response):
     # function to use as response converter.
     response_converter = jsonify
 
-    def __init__(self, response, **kwargs):
+    def __init__(self, response=None, **kwargs):
         super(CoreResponse, self).__init__(response, **kwargs)
 
     @classmethod

@@ -67,7 +67,7 @@ class RouteBase(Rule):
 
     def get_permissions(self, **options):
         """
-        gets this routes permissions.
+        gets this route's required permissions.
 
         :rtype: tuple(PermissionBase)
         """
