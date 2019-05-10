@@ -3,13 +3,16 @@
 router base module.
 """
 
+from typing import Iterable
+
 from werkzeug.routing import Rule
 
+from pyrin.exceptions import CoreNotImplementedError
 
-class Route(Rule):
+
+class RouteBase(Rule):
     """
-    route class.
-    this class should be used to manage application api routes.
+    route base class.
     """
 
     def __init__(self, rule, **options):
@@ -43,9 +46,24 @@ class Route(Rule):
                                an error if not provided. defaults to False.
         """
 
-        super(Route, self).__init__(rule, **options)
+        # we should call super method with exact param names because it
+        # does not have `**options` in it's signature and raises an error
+        # if extra keywords passed to it. maybe flask fixes it in the future.
+        super(RouteBase, self).__init__(rule,
+                                        defaults=options.get('defaults', None),
+                                        subdomain=options.get('subdomain', None),
+                                        methods=options.get('methods', None),
+                                        build_only=options.get('build_only', False),
+                                        endpoint=options.get('endpoint', None),
+                                        strict_slashes=options.get('strict_slashes', None),
+                                        redirect_to=options.get('redirect_to', None),
+                                        alias=options.get('alias', False),
+                                        host=options.get('host', None))
 
         self._permissions = options.get('permissions', ())
+        if not isinstance(self._permissions, (tuple, list, set)):
+            self._permissions = (self._permissions,)
+
         self._login_required = options.get('login_required', True)
         self._replace = options.get('replace', False)
 
@@ -76,3 +94,14 @@ class Route(Rule):
         """
 
         return self._replace
+
+    def dispatch(self, request, **options):
+        """
+        dispatch the current route.
+
+        :param CoreRequest request: current request object.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()

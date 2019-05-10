@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-api context module.
+application context module.
 """
 
 from flask import Request, Response, jsonify
@@ -24,12 +24,15 @@ class CoreResponse(Response):
     # default mimetype if none is provided.
     default_mimetype = JSONIFY_MIMETYPE
 
+    # function to use as response converter.
+    response_converter = jsonify
+
     def __init__(self, response, **kwargs):
         super(CoreResponse, self).__init__(response, **kwargs)
 
     @classmethod
     def force_type(cls, response, environ=None):
-        response = jsonify(response)
+        response = CoreResponse.response_converter(response)
         return super(CoreResponse, cls).force_type(response, environ)
 
 

@@ -15,13 +15,13 @@ IGNORED_MODULES = ('start',)
 IGNORED_DIRECTORIES = ('__pycache__',
                        'locale')
 
-# base packages of system that should be loaded before other packages.
+# core packages of system that should be loaded before other packages.
 CORE_PACKAGES = ('pyrin',)
 
-# custom packages that should be loaded after all other packages,
+# custom packages that should be loaded after core and application packages.
 # this packages will replace default behavior of system.
 CUSTOM_PACKAGES = ('', )
 
-# test packages that should be loaded after all packages and custom packages have been loaded.
-# this packages are used for unit testing and should not be loaded by default.
+# test packages that should be loaded after all other packages.
+# these packages are used for unit testing and should not be loaded by default.
 TEST_PACKAGES = ('', )

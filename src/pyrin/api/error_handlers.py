@@ -9,6 +9,7 @@ from pyrin.application.decorators import error_handler
 from pyrin.context import DTO
 from pyrin.api.enumerations import ServerErrorResponseCodeEnum
 from pyrin.exceptions import CoreException
+from pyrin.utils.custom_print import print_error
 
 
 @error_handler(HTTPException)
@@ -23,7 +24,7 @@ def http_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print('ERROR-HTTP')
+    print_error('ERROR-HTTP')
     return DTO(code=exception.code,
                message=exception.description), exception.code
 
@@ -41,7 +42,7 @@ def server_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print('ERROR-SERVER')
+    print_error('ERROR-SERVER')
     return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
                message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
 
@@ -58,6 +59,6 @@ def server_unknown_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print('ERROR-UNKNOWN')
+    print_error('ERROR-UNKNOWN')
     return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
                message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value

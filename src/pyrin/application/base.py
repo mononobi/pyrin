@@ -10,13 +10,14 @@ import pyrin.packaging.services as packaging_services
 
 from pyrin import settings
 from pyrin import _set_app
-from pyrin.api.router.base import Route
+from pyrin.api.router.route import Route
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest
 from pyrin.context import Context, Component, ContextAttributeError
 from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError
+from pyrin.utils.custom_print import print_warning
 
 
 class ApplicationContext(Context):
@@ -136,6 +137,7 @@ class Application(Flask):
 
         return self._context[key]
 
+    @setupmethod
     def register_component(self, component, **options):
         """
         registers given application component or replaces the existing one
@@ -163,11 +165,11 @@ class Application(Flask):
             raise CoreValueError('Component [{component}] has '
                                  'not a valid component id.'.format(component=str(component)))
 
-        # checking whether is there any registered instance with the same id.
+        # checking whether is there any registered component with the same id.
         if component.COMPONENT_ID in self._components.keys():
             replace = options.get('replace', False)
 
-            if not replace:
+            if replace is not True:
                 raise CoreKeyError('There is another registered component with id [{id}] '
                                    'but "replace" option is not set, so component '
                                    '[{instance}] could not be registered.'
@@ -175,8 +177,8 @@ class Application(Flask):
                                            instance=str(component)))
 
             old_instance = self._components[component.COMPONENT_ID]
-            print('Component [{old_instance}] is going to be replaced by [{new_instance}].'
-                  .format(old_instance=str(old_instance), new_instance=str(component)))
+            print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
+                          .format(old_instance=str(old_instance), new_instance=str(component)))
 
         self._components[component.COMPONENT_ID] = component
 
@@ -235,9 +237,6 @@ class Application(Flask):
         return value of the view or error handlers. this does not have to
         be a response object. in order to convert the return value to a
         proper response object, call `make_response` function.
-
-        this method is overridden to make it possible to pass all request parameters
-        to the underlying view method.
         """
 
         return super(Application, self).dispatch_request()
@@ -267,8 +266,8 @@ class Application(Flask):
 
         :param str rule: the url rule as string.
 
-        :param str endpoint: the endpoint for the registered url rule. flask
-                             itself assumes the name of the view function as endpoint.
+        :param str endpoint: the endpoint for the registered url rule.
+                             pyrin itself assumes the url rule as endpoint.
 
         :param callable view_func: the function to call when serving a request to the
                                    provided endpoint.
@@ -279,8 +278,9 @@ class Application(Flask):
                                                before adding the rule.
 
         :keyword tuple(str) methods: http methods that this rule should handle.
+                                     if not provided, defaults to `GET`.
 
-        :keyword tuple(PermissionBase) permissions: list of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword bool login_required: specifies that this route could not be accessed
@@ -290,20 +290,28 @@ class Application(Flask):
         :keyword bool replace: specifies that this route must replace
                                any existing route with the same url or raise
                                an error if not provided. defaults to False.
+
+        :raises CoreKeyError: core key error.
         """
 
-        if endpoint is None:
-            endpoint = self.get_endpoint_name(view_func)
+        methods = options.get('methods', ())
+        if not isinstance(methods, (tuple, list, set)):
+            options.update(methods=(methods,))
 
         replace = options.get('replace', False)
 
+        # setting endpoint to url rule instead of view function name,
+        # to be able to have the same function name on different url rules.
+        if endpoint is None:
+            endpoint = rule
+
+        # checking whether is there any route with the same url.
         old_rule = None
         for rule_item in self.url_map._rules:
             if rule_item.rule == rule:
                 old_rule = rule_item
                 break
 
-        # checking whether is there any route with the same url rule.
         if old_rule is not None:
             if replace is True:
                 self.url_map._rules.remove(old_rule)
@@ -312,22 +320,12 @@ class Application(Flask):
                 if old_rule.endpoint in self.url_map._rules_by_endpoint.keys():
                     self.url_map._rules_by_endpoint.pop(old_rule.endpoint)
 
-                print('Registered route [{route}] is going to be replaced by a new route.'.format(route=rule))
+                print_warning('Registered route for url [{url}] is going to be replaced by a new route.'
+                              .format(url=rule))
             else:
                 raise CoreKeyError('There is another registered route with the same url [{url}], '
-                                   'but "replace" option is not set, so the new route could not be registered'
+                                   'but "replace" option is not set, so the new route could not be registered.'
                                    .format(url=rule))
 
         super(Application, self).add_url_rule(rule, endpoint, view_func,
                                               provide_automatic_options, **options)
-
-    def get_endpoint_name(self, view_function):
-        """
-        gets the endpoint name according to given view function.
-
-        :param callable view_function: a function to get endpoint name from it.
-
-        :rtype: str
-        """
-
-        return view_function.__name__

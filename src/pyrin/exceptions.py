@@ -87,3 +87,10 @@ class CoreKeyError(CoreException, KeyError):
     core key error.
     """
     pass
+
+
+class CoreAssertionError(CoreException, AssertionError):
+    """
+    core assertion error.
+    """
+    pass

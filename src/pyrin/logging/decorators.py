@@ -5,7 +5,10 @@ logging decorators module.
 
 import time
 
+from functools import update_wrapper
+
 from pyrin.settings.logging import AUDIT_LOG
+from pyrin.utils.custom_print import print_info
 
 total = 0
 count = 0
@@ -13,7 +16,8 @@ count = 0
 
 def audit(func):
     """
-    decorator to log information before and after a function execution.
+    decorator to log information before and after
+    a function execution in debug mode.
 
     :param callable func: function.
 
@@ -22,7 +26,7 @@ def audit(func):
 
     def decorator(*args, **kwargs):
         """
-        decorates the given function and logs it's behavior
+        decorates the given function and logs it's behavior in debug mode
         and returns the function's result every time that function gets called.
 
         :param object args: function arguments.
@@ -44,14 +48,14 @@ def audit(func):
             raise ex
         finally:
             end_time = time.time()
-            print('duration of function call [{name}]: {seconds} sec'.
-                  format(name=func.__name__, seconds=((end_time - start_time) * 1000)))
+            print_info('Duration of function call [{name}]: {seconds} sec'.
+                       format(name=func.__name__, seconds=((end_time - start_time) * 1000)))
             # do some logging here.
             global total
             total += ((end_time - start_time) * 1000)
             global count
             count += 1
 
-            print('COUNT: ', count, ' TOTAL: ', total, ' sec')
+            print_info('COUNT: {count} TOTAL: {total} sec'.format(count=count, total=total))
 
-    return decorator
+    return update_wrapper(decorator, func)

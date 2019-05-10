@@ -6,6 +6,7 @@ deserializer manager module.
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.context import CoreObject, Context
 from pyrin.exceptions import CoreTypeError, CoreKeyError
+from pyrin.utils.custom_print import print_warning
 
 
 class DeserializerManager(CoreObject):
@@ -75,7 +76,7 @@ class DeserializerManager(CoreObject):
         if (instance.get_name(), instance.get_accepted_type()) in self._deserializers.keys():
             replace = options.get('replace', False)
 
-            if not replace:
+            if replace is not True:
                 raise CoreKeyError('There is another registered deserializer with name [{name}] '
                                    'and accepted type [{accepted_type}] but "replace" option is not set, '
                                    'so deserializer [{instance}] could not be registered.'
@@ -84,8 +85,8 @@ class DeserializerManager(CoreObject):
                                            instance=str(instance)))
 
             old_instance = self._deserializers[(instance.get_name(), instance.get_accepted_type())]
-            print('Deserializer [{old_instance}] is going to be replaced by [{new_instance}].'
-                  .format(old_instance=str(old_instance), new_instance=str(instance)))
+            print_warning('Deserializer [{old_instance}] is going to be replaced by [{new_instance}].'
+                          .format(old_instance=str(old_instance), new_instance=str(instance)))
 
         # registering new deserializer.
         self._deserializers[(instance.get_name(), instance.get_accepted_type())] = instance

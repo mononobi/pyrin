@@ -10,6 +10,7 @@ from importlib import import_module
 from pyrin.context import CoreObject
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     IGNORED_DIRECTORIES, CORE_PACKAGES
+from pyrin.utils.custom_print import print_info
 
 
 class PackagingManager(CoreObject):
@@ -34,7 +35,7 @@ class PackagingManager(CoreObject):
         loads required packages and modules for application startup.
         """
 
-        print('Loading application components...')
+        print_info('Loading application components...')
 
         core_packages, core_modules, packages, modules = self._get_loadable_components(**options)
 
@@ -43,8 +44,8 @@ class PackagingManager(CoreObject):
         self._load_packages(packages)
         self._load_modules(modules)
 
-        print('Total of [{count}] packages loaded.'.format(count=len(packages) + len(core_packages)))
-        print('Total of [{count}] modules loaded.'.format(count=len(modules) + len(core_modules)))
+        print_info('Total of [{count}] packages loaded.'.format(count=len(packages) + len(core_packages)))
+        print_info('Total of [{count}] modules loaded.'.format(count=len(modules) + len(core_modules)))
 
     def load(self, module_name, **options):
         """
@@ -96,7 +97,7 @@ class PackagingManager(CoreObject):
         package_names = []
         module_names = []
 
-        for root, directories, file_names in os.walk(self._root_directory):
+        for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
 
             for directory in directories:
                 combined_path = os.path.join(root, directory)
