@@ -14,9 +14,16 @@ class HTTPMethodEnum(CoreEnum):
     GET = 'GET'
     POST = 'POST'
     PUT = 'PUT'
+    DELETE = 'DELETE'
     HEAD = 'HEAD'
     TRACE = 'TRACE'
     OPTIONS = 'OPTIONS'
+    PATCH = 'PATCH'
+    COPY = 'COPY'
+    LINK = 'LINK'
+    UNLINK = 'UNLINK'
+    PURGE = 'PURGE'
+    VIEW = 'VIEW'
 
 
 class InformationResponseCodeEnum(CoreEnum):

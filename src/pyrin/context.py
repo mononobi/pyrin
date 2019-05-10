@@ -140,4 +140,6 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
     base enum class.
     all application enumerations must inherit from this class.
     """
-    pass
+
+    def __get__(self, instance, owner):
+        return self.value

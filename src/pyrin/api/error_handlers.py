@@ -43,8 +43,8 @@ def server_error_handler(exception):
     :rtype: tuple(dict, int)
     """
     print_error('ERROR-SERVER')
-    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
-               message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
+    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
+               message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
 
 
 @error_handler(Exception)
@@ -60,5 +60,5 @@ def server_unknown_error_handler(exception):
     :rtype: tuple(dict, int)
     """
     print_error('ERROR-UNKNOWN')
-    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value,
-               message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR.value
+    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
+               message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
