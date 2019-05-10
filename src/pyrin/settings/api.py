@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-api settings.
+pyrin api settings.
 """
 
 # sort json response keys.

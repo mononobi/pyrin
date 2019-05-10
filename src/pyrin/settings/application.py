@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-application settings.
+pyrin application settings.
 """
 
 # application title.

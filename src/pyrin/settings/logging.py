@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-logging settings.
+pyrin logging settings.
 """
 
 # enable logging for functions with audit decorator.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database settings.
+pyrin database settings.
 """
 
 # database server ip.

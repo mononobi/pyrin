@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-request processor settings.
+pyrin request processor settings.
 """
 
 # max request processor worker count.

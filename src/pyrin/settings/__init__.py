@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-settings package.
+pyrin settings package.
 """
 
 from pyrin.settings.application import *

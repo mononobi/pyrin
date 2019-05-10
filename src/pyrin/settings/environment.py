@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-environment settings.
+pyrin environment settings.
 """
 
 # application environment. ('production', 'development')

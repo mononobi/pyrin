@@ -3,6 +3,9 @@
 application base module.
 """
 
+import signal
+import sys
+
 from flask import Flask, request
 from flask.app import setupmethod
 
@@ -17,7 +20,7 @@ from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest
 from pyrin.context import Context, Component, ContextAttributeError
 from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError
-from pyrin.utils.custom_print import print_warning
+from pyrin.utils.custom_print import print_warning, print_error
 
 
 class ApplicationContext(Context):
@@ -250,7 +253,7 @@ class Application(Flask):
                and request.method == 'OPTIONS':
                 return self.make_default_options_response()
 
-            super(Application, self).dispatch_request()
+            # super(Application, self).dispatch_request()
 
             # otherwise dispatch to the handler for that route.
             return route.dispatch(request)
@@ -319,7 +322,7 @@ class Application(Flask):
         if endpoint is None:
             endpoint = rule
 
-        # checking whether is there any route with the same url.
+        # checking whether is there any registered route with the same url.
         old_rule = None
         for rule_item in self.url_map._rules:
             if rule_item.rule == rule:
@@ -343,3 +346,14 @@ class Application(Flask):
 
         super(Application, self).add_url_rule(rule, endpoint, view_func,
                                               provide_automatic_options, **options)
+
+    def terminate(self, **options):
+        """
+        terminates the application.
+        """
+
+        print_error('Terminating application [{name}].'.format(name=self.name))
+
+        # forcing termination after 10 seconds.
+        signal.alarm(10)
+        sys.exit(0)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-communication settings.
+pyrin communication settings.
 """
 
 # server host name.

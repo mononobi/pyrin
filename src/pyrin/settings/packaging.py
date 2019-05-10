@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-packaging settings.
+pyrin packaging settings.
 """
 
 # packages that should be ignored from loading on server startup.
