@@ -3,8 +3,6 @@
 router base module.
 """
 
-from typing import Iterable
-
 from werkzeug.routing import Rule
 
 from pyrin.exceptions import CoreNotImplementedError
