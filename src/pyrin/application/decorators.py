@@ -125,3 +125,26 @@ def after_request_handler():
         return func
 
     return decorator
+
+
+def route_factory():
+    """
+    decorator to register a function as application route factory.
+
+    :rtype: callable
+    """
+
+    def decorator(func):
+        """
+        decorates the given function and registers it as application route factory.
+
+        :param callable func: function to register it as application route factory.
+
+        :rtype: callable
+        """
+
+        application_services.register_route_factory(func)
+
+        return func
+
+    return decorator

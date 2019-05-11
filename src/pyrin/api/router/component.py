@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-deserializer component module.
+router component module.
 """
 
-from pyrin.converters.deserializer.manager import DeserializerManager
+from pyrin.api.router.manager import RouterManager
 from pyrin.application.decorators import component
 from pyrin.context import Component
 from pyrin.settings import DEFAULT_COMPONENT_KEY
 
 
 @component()
-class DeserializerComponent(Component, DeserializerManager):
+class RouterComponent(Component, RouterManager):
     """
-    deserializer component class.
+    router component class.
     """
 
     COMPONENT_ID = (__name__, DEFAULT_COMPONENT_KEY)

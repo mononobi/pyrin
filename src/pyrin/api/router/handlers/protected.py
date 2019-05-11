@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-route module.
+protected route handler module.
 """
 
-from pyrin.api.router.base import RouteBase
+from pyrin.api.router.handlers.base import RouteBase
 
 
-class Route(RouteBase):
+class ProtectedRoute(RouteBase):
     """
-    route class.
-    this class should be used to manage application api routes.
+    protected route class.
+    this class should be used to manage application protected api routes that need valid token.
     """
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of Route.
+        initializes a new instance of ProtectedRoute.
 
         :param str rule: unique url rule to register this route for.
                          routes with duplicated urls will be overwritten
@@ -33,17 +33,32 @@ class Route(RouteBase):
                                
         :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
-                                                    
-        :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not a valid token.
-                                      defaults to True if not provided.
-         
-        :keyword bool replace: specifies that this route must replace
-                               any existing route with the same url or raise
-                               an error if not provided. defaults to False.
+
         """
 
-        super(Route, self).__init__(rule, **options)
+        super(ProtectedRoute, self).__init__(rule, **options)
+
+        self._permissions = options.get('permissions', ())
+        if not isinstance(self._permissions, (tuple, list, set)):
+            self._permissions = (self._permissions,)
+
+    def get_permissions(self, **options):
+        """
+        gets this route's required permissions.
+
+        :rtype: tuple(PermissionBase)
+        """
+
+        return self._permissions
+
+    def is_login_required(self):
+        """
+        gets a value indicating that accessing this route needs a valid token.
+
+        :rtype: bool
+        """
+
+        return True
 
     def dispatch(self, request, **options):
         """

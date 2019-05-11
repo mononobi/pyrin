@@ -52,6 +52,8 @@ def get_component(component_id, **options):
 
     :param str component_id: component unique id.
 
+    :keyword object custom_key: custom key of component to get.
+
     :rtype: Component
     """
 
@@ -128,3 +130,14 @@ def add_url_rule(rule, endpoint=None, view_func=None,
 
     _get_app().add_url_rule(rule, endpoint, view_func,
                             provide_automatic_options, **options)
+
+
+def register_route_factory(factory):
+    """
+    registers a route factory as application url rule class.
+
+    :param callable factory: route factory.
+                             it could be a class or a factory method.
+    """
+
+    _get_app().register_route_factory(factory)

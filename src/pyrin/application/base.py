@@ -13,13 +13,14 @@ import pyrin.packaging.services as packaging_services
 
 from pyrin import settings
 from pyrin import _set_app
-from pyrin.api.router.route import Route
+from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest
 from pyrin.context import Context, Component, ContextAttributeError
 from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError
+from pyrin.settings import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 
 
@@ -56,7 +57,9 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
-    url_rule_class = Route
+    # we set `url_rule_class = ProtectedRoute` to force top
+    # level application to register it's own desired factory.
+    url_rule_class = ProtectedRoute
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
@@ -163,8 +166,8 @@ class Application(Flask):
             raise CoreTypeError('Input parameter [{component}] is not '
                                 'an instance of Component.'.format(component=str(component)))
 
-        if component.COMPONENT_ID is None or \
-                len(component.COMPONENT_ID.strip()) == 0:
+        if not isinstance(component.COMPONENT_ID, tuple) or \
+                len(component.COMPONENT_ID[0].strip()) == 0:
             raise CoreValueError('Component [{component}] has '
                                  'not a valid component id.'.format(component=str(component)))
 
@@ -191,9 +194,17 @@ class Application(Flask):
 
         :param str component_id: component unique id.
 
+        :keyword object custom_key: custom key of component to get.
+
         :rtype: Component
         """
 
+        # checking whether is there any custom implementation for this component.
+        key = options.get('custom_key', DEFAULT_COMPONENT_KEY)
+        if (component_id[0], key) in self._components.keys():
+            return self._components[(component_id[0], key)]
+
+        # getting default component.
         return self._components[component_id]
 
     def _load(self, **options):
@@ -357,3 +368,13 @@ class Application(Flask):
         # forcing termination after 10 seconds.
         signal.alarm(10)
         sys.exit(0)
+
+    def register_route_factory(self, factory):
+        """
+        registers a route factory as application url rule class.
+
+        :param callable factory: route factory.
+                                 it could be a class or a factory method.
+        """
+
+        Application.url_rule_class = factory

@@ -6,6 +6,7 @@ pyrin context module.
 from enum import Enum, EnumMeta
 
 from pyrin.exceptions import CoreAttributeError
+from pyrin.settings import DEFAULT_COMPONENT_KEY
 
 
 class DTO(dict):
@@ -117,8 +118,12 @@ class Component(CoreObject):
     all component classes must inherit from this class and their respective manager class.
     """
 
-    # COMPONENT_ID should be unique for each instance.
-    COMPONENT_ID = ''
+    # COMPONENT_ID should be a unique tuple for each instance.
+    # unless its intended to replace an already available component.
+    # structure: (name, key)
+    # example: ('pyrin.application.services', 0) -> default
+    # example: ('pyrin.application.services', 5) -> custom
+    COMPONENT_ID = None
 
     def __init__(self, **options):
         """
