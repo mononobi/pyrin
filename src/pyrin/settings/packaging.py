@@ -25,3 +25,11 @@ CUSTOM_PACKAGES = ('', )
 # test packages that should be loaded after all other packages.
 # these packages are used for unit testing and should not be loaded by default.
 TEST_PACKAGES = ('', )
+
+# this value will be used to register default components that does not belong
+# to a custom implementation. any other custom implementation that needs to be
+# exposed through services, should provide it's own relevant key.
+# example for COMPONENT_ID:
+# (__name__, 0) -> default
+# (__name__, 4) -> custom
+DEFAULT_COMPONENT_KEY = 0
