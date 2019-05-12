@@ -26,7 +26,7 @@ class RouterManager(CoreObject):
                                     if not provided, defaults to `GET`, `HEAD`
                                     and `OPTIONS`.
 
-        :keyword callable view_func: a function to be called on accessing this route.
+        :keyword callable view_function: a function to be called on accessing this route.
 
         :keyword str endpoint: the endpoint for the registered url rule. flask
                                itself assumes the name of the view function as

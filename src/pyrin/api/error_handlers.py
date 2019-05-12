@@ -44,7 +44,7 @@ def server_error_handler(exception):
     """
     print_error('ERROR-SERVER')
     return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
-               message=exception.message), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+               message=exception.description), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
 
 
 @error_handler(Exception)

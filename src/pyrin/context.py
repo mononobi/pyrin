@@ -121,7 +121,7 @@ class Component(CoreObject):
     # COMPONENT_ID should be a unique tuple for each instance.
     # unless its intended to replace an already available component.
     # structure: (name, key)
-    # example: ('pyrin.application.services', 0) -> default
+    # example: ('pyrin.application.services', DEFAULT_COMPONENT_KEY) -> default
     # example: ('pyrin.application.services', 5) -> custom
     COMPONENT_ID = None
 

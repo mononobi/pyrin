@@ -15,7 +15,7 @@ class CoreException(Exception):
         self._data = {}
         self._traceback = None
         self.code = self.__class__.__name__
-        self.message = str(self)
+        self.description = str(self)
 
     def get_code(self):
         """
@@ -44,14 +44,14 @@ class CoreException(Exception):
 
         return self._traceback
 
-    def get_message(self):
+    def get_description(self):
         """
-        gets the error message.
+        gets the error description.
 
         :rtype: str
         """
 
-        return self.message
+        return self.description
 
 
 class CoreAttributeError(CoreException, AttributeError):

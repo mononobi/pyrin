@@ -21,15 +21,42 @@ class PublicRoute(RouteBase):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword list[str] methods: http methods that this route could handle.
-                                    if not provided, defaults to `GET`, `HEAD`
-                                    and `OPTIONS`.
+        :keyword tuple(str) methods: http methods that this route could handle.
+                                     if not provided, defaults to `GET`, `HEAD`
+                                     and `OPTIONS`.
 
-        :keyword callable view_func: a function to be called on accessing this route.
+        :keyword callable view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. flask
-                               itself assumes the name of the view function as
-                               endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule. pyrin
+                               itself assumes the rule as endpoint if not provided.
+
+        :keyword dict defaults: an optional dict with defaults for other rules with the same endpoint.
+                                this is a bit tricky but useful if you want to have unique urls.
+
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
+                                only matches for the `default_subdomain` of the map. if the map is
+                                not bound to a subdomain this feature is disabled.
+
+        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for this rule.
+                                      if not specified the `Map` setting is used.
+
+        :keyword bool build_only: set this to True and the rule will never match but will create a url
+                                  that can be build. this is useful if you have resources on a subdomain
+                                  or folder that are not handled by the WSGI application (like static data)
+
+        :keyword Union[string, Callable] redirect_to: if given this must be either a string or callable.
+                                                      in case of a callable it's called with the url adapter
+                                                      that triggered the match and the values of the url as
+                                                      keyword arguments and has to return the target for the
+                                                      redirect, otherwise it has to be a string with placeholders
+                                                      in rule syntax.
+
+        :keyword bool alias: if enabled this rule serves as an alias for another rule with
+                             the same endpoint and arguments.
+
+        :keyword str host: if provided and the url map has host matching enabled this can be
+                           used to provide a match rule for the whole host. this also means
+                           that the subdomain feature is disabled.
         """
 
         super(PublicRoute, self).__init__(rule, **options)
@@ -43,11 +70,3 @@ class PublicRoute(RouteBase):
 
         return False
 
-    def dispatch(self, request, **options):
-        """
-        dispatch the current route.
-
-        :param CoreRequest request: current request object.
-        """
-
-        pass

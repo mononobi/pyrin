@@ -13,7 +13,7 @@ import pyrin.packaging.services as packaging_services
 
 from pyrin import settings
 from pyrin import _set_app
-from pyrin.api.router.handlers.protected import ProtectedRoute
+from pyrin.api.router.handlers.protected import SimpleProtectedRoute
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
@@ -57,9 +57,9 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
-    # we set `url_rule_class = ProtectedRoute` to force top
-    # level application to register it's own desired factory.
-    url_rule_class = ProtectedRoute
+    # we set `url_rule_class = SimpleProtectedRoute` to force top
+    # level application to register it's own desired route factory.
+    url_rule_class = SimpleProtectedRoute
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
@@ -253,6 +253,9 @@ class Application(Flask):
         proper response object, call `make_response` function.
         """
 
+        # we have to override whole `dispatch_request` method to be able to customize it,
+        # because of the poor design of flask that everything is embedded inside
+        # the `dispatch_request` method.
         with request:
             if request.routing_exception is not None:
                 self.raise_routing_exception(request)
@@ -264,9 +267,7 @@ class Application(Flask):
                and request.method == 'OPTIONS':
                 return self.make_default_options_response()
 
-            # super(Application, self).dispatch_request()
-
-            # otherwise dispatch to the handler for that route.
+            # otherwise dispatch the handler for that route.
             return route.dispatch(request)
 
     def make_response(self, rv):
@@ -355,6 +356,12 @@ class Application(Flask):
                                    'but "replace" option is not set, so the new route could not be registered.'
                                    .format(url=rule))
 
+        # we have to put `view_function=view_func` into options to be able to deliver it to
+        # route initialization in the super method. that's because of poor design of flask
+        # that does not forward all params to inner method calls. and this is the less ugly way
+        # in comparison with overriding the whole `add_url_rule` function.
+        options.update(view_function=view_func)
+
         super(Application, self).add_url_rule(rule, endpoint, view_func,
                                               provide_automatic_options, **options)
 
@@ -375,6 +382,12 @@ class Application(Flask):
 
         :param callable factory: route factory.
                                  it could be a class or a factory method.
+
+        :raises CoreTypeError: core type error.
         """
+
+        if not callable(factory):
+            raise CoreTypeError('Input parameter [{factory}] is not callable.'
+                                .format(factory=str(factory)))
 
         Application.url_rule_class = factory
