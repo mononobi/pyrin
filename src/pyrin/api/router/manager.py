@@ -28,9 +28,8 @@ class RouterManager(CoreObject):
 
         :keyword callable view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. flask
-                               itself assumes the name of the view function as
-                               endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule. pyrin
+                               itself assumes the url rule as endpoint if not provided.
 
         :keyword bool login_required: specifies that this route could not be accessed
                                       if the requester has not a valid token.
