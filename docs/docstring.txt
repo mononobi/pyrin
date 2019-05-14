@@ -29,8 +29,8 @@ def function(name, **options):
 
     :keyword str age: age parameter.
     :keyword list[Car] cars: cars list.
-    :type Car: dict(name str: car name,
-                    model str: car model).
+    :type Car: dict(str name: car name,
+                    str model: car model).
 
     :raises RuntimeException: runtime exception.
 
@@ -71,7 +71,7 @@ def some_func(param1, param2, param3, param4 ,**options):
     :param int param1: some integer value.
     :param str param2: some string value.
 
-    :param CoreObject param3: some multi-line
+    :param CoreObject param3: some multi-line.
                               param of CoreObject.
 
     :param date param4: some date value.

@@ -9,3 +9,5 @@
 4. in each package, the business must be implemented inside the manager, not anywhere else, so modules
    like decorators, error_handlers, services, api should not have any business implementation
    but some light weight code that uses the package functionality through services module.
+
+5. every package must subclass Package in it's __init__ module, except application and packaging.
