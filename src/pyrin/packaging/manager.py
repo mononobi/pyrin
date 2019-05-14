@@ -8,6 +8,7 @@ import os
 from importlib import import_module
 
 from pyrin.context import CoreObject
+from pyrin.packaging.base import Package
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     IGNORED_DIRECTORIES, CORE_PACKAGES
 from pyrin.utils.custom_print import print_info
@@ -30,6 +31,9 @@ class PackagingManager(CoreObject):
         # this will be resolved automatically by packaging package.
         self._root_directory = ''
 
+        # holds the loaded packages.
+        self._loaded_packages = []
+
     def load_components(self, **options):
         """
         loads required packages and modules for application startup.
@@ -37,21 +41,19 @@ class PackagingManager(CoreObject):
 
         print_info('Loading application components...')
 
-        core_packages, core_modules, packages, modules = self._get_loadable_components(**options)
+        core_packages, application_packages = self._get_loadable_components(**options)
 
-        self._load_packages(core_packages)
-        self._load_modules(core_modules)
-        self._load_packages(packages)
-        self._load_modules(modules)
+        self._load_components(core_packages, **options)
+        self._load_components(application_packages, **options)
 
-        print_info('Total of [{count}] packages loaded.'.format(count=len(packages) + len(core_packages)))
-        print_info('Total of [{count}] modules loaded.'.format(count=len(modules) + len(core_modules)))
+        print_info('Total of [{count}] packages loaded.'
+                   .format(count=len(core_packages.keys()) + len(application_packages.keys())))
 
     def load(self, module_name, **options):
         """
         loads the specified module.
 
-        :param str module_name: module name.
+        :param str module_name: full module name.
                                 example module_name = `pyrin.application.decorators`.
 
         :rtype: Module
@@ -59,43 +61,78 @@ class PackagingManager(CoreObject):
 
         return import_module(module_name)
 
-    def _load_modules(self, module_names, **options):
+    def _load_component(self, package_name, module_names, **options):
         """
-        loads the given modules.
+        loads the given component.
 
-        :param list[str] module_names: module names to be loaded.
+        :param str package_name: full package name to be loaded.
+        :param list[str] module_names: full module names to be loaded.
         """
+
+        self.load(package_name)
 
         for module in module_names:
             self.load(module, **options)
-            print('[{module}] module loaded.'.format(module=module))
 
-    def _load_packages(self, package_names, **options):
+        self._loaded_packages.append(package_name)
+
+        print('[{package}] package loaded. including [{module_count}] modules.'
+              .format(package=package_name,
+                      module_count=len(module_names)))
+
+    def _load_components(self, components, **options):
         """
-        loads the given packages.
+        loads the given components considering their dependency on each other.
 
-        :param list[str] package_names: package names to be loaded.
+        :param dict(str: list[str]) components: full package names and their modules to be loaded.
+
+        :type components: dict(list[str] package_name: modules)
         """
 
-        for package in package_names:
-            self.load(package, **options)
-            print('[{package}] package loaded.'.format(package=package))
+        # a dictionary containing all dependent package names and their respective modules.
+        # in the form of {package_name: [modules]}.
+        dependent_components = {}
+
+        for package in components.keys():
+            package_class = self._get_package_class(package)
+
+            # checking whether this package has any dependencies.
+            # if so, check those dependencies has been loaded or not.
+            # if not, then put this package into dependent_packages and
+            # load it later. otherwise load it now.
+            if package_class is None or \
+                len(package_class.DEPENDS) == 0 or \
+               self._is_dependencies_loaded(package_class.DEPENDS) is True:
+
+                self._load_component(package, components[package], **options)
+            else:
+                dependent_components[package] = components[package]
+
+        # now, go through dependent components if any, and try to load them.
+        if len(dependent_components.keys()) > 0:
+            self._load_components(dependent_components, **options)
 
     def _get_loadable_components(self, **options):
         """
         gets all package and module names that should be loaded.
 
-        :returns: tuple(core_packages, core_modules, package_names, module_names)
+        :returns: tuple(core_components, application_components)
 
-        :rtype: tuple(list[str], list[str], list[str], list[str])
+        :type core_components: dict(list[str] package_name: modules)
+
+        :type application_components: dict(list[str] package_name: modules)
+
+        :type package_name: list(str module: module name)
+
+        :rtype: tuple(dict(str: list[str]), dict(str: list[str]))
         """
 
         self._root_directory = self._resolve_application_root_path(__name__.split('.')[0])
 
-        core_packages = []
-        core_modules = []
-        package_names = []
-        module_names = []
+        # a dictionary containing all package names and their respective modules.
+        # in the form of {package_name: [modules]}.
+        core_components = {}
+        application_components = {}
 
         for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
 
@@ -112,9 +149,9 @@ class PackagingManager(CoreObject):
                     continue
 
                 if self._is_core_package(package_name):
-                    core_packages.append(package_name)
+                    core_components[package_name] = []
                 else:
-                    package_names.append(package_name)
+                    application_components[package_name] = []
 
                 files = os.listdir(combined_path)
                 for file_name in files:
@@ -122,16 +159,16 @@ class PackagingManager(CoreObject):
                         continue
 
                     module_name = file_name.replace('.py', '')
-                    if self._is_ignored_module(module_name):
+                    full_module_name = self._get_module_name(package_name, module_name)
+                    if self._is_ignored_module(full_module_name):
                         continue
 
-                    full_module_name = self._get_module_name(package_name, module_name)
                     if self._is_core_module(full_module_name):
-                        core_modules.append(full_module_name)
+                        core_components[package_name].append(full_module_name)
                     else:
-                        module_names.append(full_module_name)
+                        application_components[package_name].append(full_module_name)
 
-        return core_packages, core_modules, package_names, module_names
+        return core_components, application_components
 
     def _is_ignored_directory(self, directory):
         """
@@ -149,7 +186,7 @@ class PackagingManager(CoreObject):
         """
         gets a value indicating that given package should be ignored.
 
-        :param str package_name: package name.
+        :param str package_name: full package name.
                                  example package_name = `pyrin.database`.
 
         :rtype: bool
@@ -161,19 +198,23 @@ class PackagingManager(CoreObject):
         """
         gets a value indicating that given module should be ignored.
 
-        :param str module_name: module name.
-                                example module_name = `manager`.
+        :param str module_name: full module name.
+                                example module_name = `pyrin.api.error_handlers`.
 
         :rtype: bool
         """
 
-        return module_name in IGNORED_MODULES
+        for ignored in IGNORED_MODULES:
+            if ignored in module_name:
+                return True
+
+        return False
 
     def _is_core_package(self, package_name):
         """
         gets a value indicating that given package is a core package.
 
-        :param str package_name: package name.
+        :param str package_name: full package name.
                                  example package_name = 'pyrin.api'
 
         :rtype: bool
@@ -189,7 +230,7 @@ class PackagingManager(CoreObject):
         """
         gets a value indicating that given module is a core module.
 
-        :param str module_name: module name.
+        :param str module_name: full module name.
                                 example module_name = 'pyrin.api.error_handlers'
 
         :rtype: bool
@@ -273,7 +314,7 @@ class PackagingManager(CoreObject):
         """
         gets the application root path which the main package is located.
 
-        :param str main_package_name: application's main package name.
+        :param str main_package_name: application's main package full name.
                                       example main_package_name = `pyrin`.
 
         :rtype: str
@@ -283,3 +324,40 @@ class PackagingManager(CoreObject):
         main_package_path = os.path.abspath(main_package.__file__)
 
         return main_package_path.replace('{package}/__init__.py'.format(package=main_package_name), '')
+
+    def _get_package_class(self, package_name):
+        """
+        gets the package class implemented in given package if available, otherwise returns None.
+
+        :param str package_name: full package name.
+                                 example package_name = `pyrin.api`.
+
+        :rtype: Union[Package, None]
+        """
+
+        module = self.load(package_name)
+        package_class = None
+
+        for cls in module.__dict__.values():
+            try:
+                if cls is not Package and issubclass(cls, Package):
+                    package_class = cls
+            except TypeError:
+                pass
+        return package_class
+
+    def _is_dependencies_loaded(self, dependencies):
+        """
+        gets a value indicating that given dependencies has been already loaded.
+
+        :param list[str] dependencies: full dependency names.
+                                       example dependencies = `pyrin.logging`
+
+        :rtype: bool
+        """
+
+        for dependency in dependencies:
+            if dependency not in self._loaded_packages:
+                return False
+
+        return True

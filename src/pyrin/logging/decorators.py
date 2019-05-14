@@ -48,14 +48,14 @@ def audit(func):
             raise ex
         finally:
             end_time = time.time()
-            print_info('Duration of function call [{name}]: {seconds} sec'.
-                       format(name=func.__name__, seconds=((end_time - start_time) * 1000)))
+            print_info('Duration of function call [{name}]: {milliseconds} ms'.
+                       format(name=func.__name__, milliseconds=(end_time - start_time) * 1000))
             # do some logging here.
             global total
-            total += ((end_time - start_time) * 1000)
+            total += (end_time - start_time) * 1000
             global count
             count += 1
 
-            print_info('COUNT: {count} TOTAL: {total} sec'.format(count=count, total=total))
+            print_info('COUNT: {count} TOTAL: {total} ms'.format(count=count, total=total))
 
     return update_wrapper(decorator, func)

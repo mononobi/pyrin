@@ -4,11 +4,13 @@ pyrin packaging settings.
 """
 
 # packages that should be ignored from loading on server startup.
+# it should contain packages with their full name.
 IGNORED_PACKAGES = ('pyrin.packaging',
                     'pyrin.application',
                     'pyrin.settings')
 
 # modules that should be ignored from loading on server startup.
+# the names could be full or just the module name itself.
 IGNORED_MODULES = ('start',)
 
 # directories that should be ignored completely.

@@ -6,7 +6,6 @@ pyrin context module.
 from enum import Enum, EnumMeta
 
 from pyrin.exceptions import CoreAttributeError
-from pyrin.settings import DEFAULT_COMPONENT_KEY
 
 
 class DTO(dict):

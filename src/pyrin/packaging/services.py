@@ -19,7 +19,7 @@ def load(module_name, **options):
     """
     loads the specified module.
 
-    :param str module_name: module name.
+    :param str module_name: full module name.
                             example module_name = `pyrin.application.decorators`.
 
     :rtype: Module
