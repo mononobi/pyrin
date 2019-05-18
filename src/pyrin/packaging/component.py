@@ -5,7 +5,7 @@ packaging component module.
 
 from pyrin.context import Component
 from pyrin.packaging.manager import PackagingManager
-from pyrin.settings import DEFAULT_COMPONENT_KEY
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 
 class PackagingComponent(Component, PackagingManager):

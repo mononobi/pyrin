@@ -94,3 +94,9 @@ class CoreAssertionError(CoreException, AssertionError):
     core assertion error.
     """
     pass
+
+
+class CoreNotADirectoryError(CoreException, NotADirectoryError):
+    """
+    core not a directory error.
+    """

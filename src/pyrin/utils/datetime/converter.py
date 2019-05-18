@@ -21,7 +21,8 @@ DEFAULT_TIME_FORMAT_UTC = ('%H:%M:%S%z', 13)
 
 # default datetime regular expression pattern with utc offset.
 # example: '2015-12-24T23:40:15+0330'
-DEFAULT_DATE_TIME_UTC_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d[0-5]\d$')
+DEFAULT_DATE_TIME_UTC_REGEX = \
+    re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d[0-5]\d$')
 
 # default date regular expression pattern.
 # example: '2015-12-24'

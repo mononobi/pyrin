@@ -6,15 +6,19 @@ application services module.
 from pyrin import _get_app
 
 
-def add_context(key, value):
+def add_context(key, value, **options):
     """
     adds the given key and it's value into the application context.
 
     :param str key: related key for storing application context.
     :param object value: related value for storing in application context.
+
+    :keyword bool replace: specifies that if there is already a value with
+                           the same key in application context, it should be updated
+                           with new value, otherwise raise an error. defaults to False.
     """
 
-    _get_app().add_context(key, value)
+    _get_app().add_context(key, value, **options)
 
 
 def get_context(key):
@@ -64,7 +68,9 @@ def register_error_handler(code_or_exception, func):
     """
     registers the given function as an error handler for given code or exception type.
 
-    :param Union[int, Exception] code_or_exception: code or exception to register error handler for.
+    :param Union[int, Exception] code_or_exception: code or exception to
+                                                    register error handler for.
+
     :param callable func: function to register it as an error handler.
     """
 
@@ -107,8 +113,9 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                                provided endpoint.
 
     :param bool provide_automatic_options: controls whether the `OPTIONS` method should be
-                                           added automatically. this can also be controlled
-                                           by setting the `view_func.provide_automatic_options = False`
+                                           added automatically.
+                                           this can also be controlled by setting the
+                                           `view_func.provide_automatic_options = False`
                                            before adding the rule.
 
     :keyword tuple(str) methods: http methods that this rule should handle.
@@ -141,3 +148,13 @@ def register_route_factory(factory):
     """
 
     _get_app().register_route_factory(factory)
+
+
+def get_settings_path():
+    """
+    gets the application settings path.
+
+    :rtype: str
+    """
+
+    return _get_app().get_settings_path()

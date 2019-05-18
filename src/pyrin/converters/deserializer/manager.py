@@ -22,7 +22,7 @@ class DeserializerManager(CoreObject):
         CoreObject.__init__(self)
 
         # a dictionary containing information of registered deserializers.
-        # example: dic(tuple(class_name, type)) = instance
+        # example: dic(tuple(class_name, type): instance)
         self._deserializers = Context()
 
     def deserialize(self, value, **options):
@@ -78,14 +78,15 @@ class DeserializerManager(CoreObject):
 
             if replace is not True:
                 raise CoreKeyError('There is another registered deserializer with name [{name}] '
-                                   'and accepted type [{accepted_type}] but "replace" option is not set, '
-                                   'so deserializer [{instance}] could not be registered.'
+                                   'and accepted type [{accepted_type}] but "replace" option is '
+                                   'not set, so deserializer [{instance}] could not be registered.'
                                    .format(name=instance.get_name(),
                                            accepted_type=instance.get_accepted_type(),
                                            instance=str(instance)))
 
             old_instance = self._deserializers[(instance.get_name(), instance.get_accepted_type())]
-            print_warning('Deserializer [{old_instance}] is going to be replaced by [{new_instance}].'
+            print_warning('Deserializer [{old_instance}] is going '
+                          'to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(instance)))
 
         # registering new deserializer.
@@ -110,5 +111,6 @@ class DeserializerManager(CoreObject):
             return [value for value in self._deserializers.values()]
 
         # getting deserializers for given type.
-        deserializer_keys = [key for key in self._deserializers.keys() if issubclass(accepted_type, key[1])]
+        deserializer_keys = [key for key in self._deserializers.keys()
+                             if issubclass(accepted_type, key[1])]
         return [self._deserializers[key] for key in deserializer_keys]

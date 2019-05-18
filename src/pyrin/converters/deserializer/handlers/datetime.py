@@ -21,8 +21,9 @@ class DateDeserializer(StringDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string formats
-                                                         and their length for date deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string
+                                                         formats and their length for date
+                                                         deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
@@ -84,8 +85,9 @@ class TimeDeserializer(StringDeserializerBase):
         """
         creates an instance of TimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
-                                                         and their length for time deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string
+                                                         formats and their length for time
+                                                         deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
@@ -146,8 +148,9 @@ class DateTimeDeserializer(StringDeserializerBase):
         """
         creates an instance of DateTimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string formats
-                                                         and their length for date deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string
+                                                         formats and their length for date
+                                                         deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """

@@ -29,9 +29,11 @@ class PackagingManager(CoreObject):
         # holds the absolute path of application root directory where
         # the main package is located. for example '/var/app_root/'.
         # this will be resolved automatically by packaging package.
-        self._root_directory = ''
+        self._root_directory = self._resolve_application_root_path(__name__.split('.')[0])
 
         # holds the loaded packages.
+        # `pyrin.application` and `pyrin.packaging` will be loaded at
+        # the beginning, so they will not included in this list.
         self._loaded_packages = []
 
     def load_components(self, **options):
@@ -47,7 +49,7 @@ class PackagingManager(CoreObject):
         self._load_components(application_packages, **options)
 
         print_info('Total of [{count}] packages loaded.'
-                   .format(count=len(core_packages.keys()) + len(application_packages.keys())))
+                   .format(count=len(self._loaded_packages)))
 
     def load(self, module_name, **options):
         """
@@ -84,7 +86,8 @@ class PackagingManager(CoreObject):
         """
         loads the given components considering their dependency on each other.
 
-        :param dict(str: list[str]) components: full package names and their modules to be loaded.
+        :param dict(str: list[str]) components: full package names and their
+                                                modules to be loaded.
 
         :type components: dict(list[str] package_name: modules)
         """
@@ -126,8 +129,6 @@ class PackagingManager(CoreObject):
 
         :rtype: tuple(dict(str: list[str]), dict(str: list[str]))
         """
-
-        self._root_directory = self._resolve_application_root_path(__name__.split('.')[0])
 
         # a dictionary containing all package names and their respective modules.
         # in the form of {package_name: [modules]}.
@@ -192,7 +193,11 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        return package_name in IGNORED_PACKAGES
+        for ignored in IGNORED_PACKAGES:
+            if package_name.startswith(ignored):
+                return True
+
+        return False
 
     def _is_ignored_module(self, module_name):
         """
@@ -205,7 +210,22 @@ class PackagingManager(CoreObject):
         """
 
         for ignored in IGNORED_MODULES:
-            if ignored in module_name:
+            if module_name.endswith(ignored):
+                return True
+
+        return False
+
+    def _is_core_component(self, component_name):
+        """
+        gets a value indicating that given component is a core component.
+
+        :param str component_name: full package or module name.
+
+        :rtype: bool
+        """
+
+        for core in CORE_PACKAGES:
+            if component_name.startswith(core):
                 return True
 
         return False
@@ -220,11 +240,7 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        for core in CORE_PACKAGES:
-            if core in package_name:
-                return True
-
-        return False
+        return self._is_core_component(package_name)
 
     def _is_core_module(self, module_name):
         """
@@ -236,11 +252,7 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        for core in CORE_PACKAGES:
-            if core in module_name:
-                return True
-
-        return False
+        return self._is_core_component(module_name)
 
     def _get_package_name(self, path):
         """
@@ -321,9 +333,10 @@ class PackagingManager(CoreObject):
         """
 
         main_package = self.load(main_package_name)
-        main_package_path = os.path.abspath(main_package.__file__)
+        main_package_path = main_package.__path__[0]
 
-        return main_package_path.replace('{package}/__init__.py'.format(package=main_package_name), '')
+        return main_package_path.replace('{package}'
+                                         .format(package=main_package_name), '')
 
     def _get_package_class(self, package_name):
         """

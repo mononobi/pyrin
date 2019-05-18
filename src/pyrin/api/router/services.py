@@ -9,13 +9,9 @@ from pyrin.application.services import get_component
 
 
 @route_factory()
-def create_route(instance, rule, **options):
+def create_route(rule, **options):
     """
     creates the appropriate route based on the input parameters.
-
-    :param Application instance: caller object instance, it should be an application instance.
-                                 this value will not used. it just added for compatibility
-                                 with flask.
 
     :param str rule: unique url rule to register this route for.
                      routes with duplicated urls will be overwritten

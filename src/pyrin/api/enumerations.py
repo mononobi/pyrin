@@ -56,7 +56,8 @@ class SuccessfulResponseCodeEnum(CoreEnum):
     # the request has succeeded. the meaning of a success varies depending on the http method:
     # GET: the resource has been fetched and is transmitted in the message body.
     # HEAD: the entity headers are in the message body.
-    # PUT/POST: the resource describing the result of the action is transmitted in the message body.
+    # PUT/POST: the resource describing the result of the action is transmitted in the message
+    # body.
     # TRACE: the message body contains the request message as received by the server.
     OK = 200
 
@@ -185,17 +186,17 @@ class ClientErrorResponseCodeEnum(CoreEnum):
     # GET and HEAD, must never be disabled and should not return this error code.
     METHOD_NOT_ALLOWED = 405
 
-    # this response is sent when the web server, after performing server-driven content negotiation,
-    # doesn't find any content following the criteria given by the user agent.
+    # this response is sent when the web server, after performing server-driven content
+    # negotiation, doesn't find any content following the criteria given by the user agent.
     NOT_ACCEPTABLE = 406
 
     # this is similar to 401 but authentication is needed to be done by a proxy.
     PROXY_AUTHENTICATION_REQUIRED = 407
 
     # this response is sent on an idle connection by some servers, even without any previous
-    # request by the client. it means that the server would like to shut down this unused connection.
-    # this response is used much more since some browsers, like Chrome, Firefox 27+, or IE9,
-    # use http pre-connection mechanisms to speed up surfing.
+    # request by the client. it means that the server would like to shut down this unused
+    # connection. this response is used much more since some browsers, like Chrome,
+    # Firefox 27+, or IE9, use http pre-connection mechanisms to speed up surfing.
     # also note that some servers merely shut down the connection without sending this message.
     REQUEST_TIMEOUT = 408
 
@@ -327,4 +328,3 @@ class ServerErrorResponseCodeEnum(CoreEnum):
 
     # the 511 status code indicates that the client needs to authenticate to gain network access.
     NETWORK_AUTHENTICATION_REQUIRED = 511
-

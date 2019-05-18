@@ -5,8 +5,8 @@ application context module.
 
 from flask import Request, Response, jsonify
 
-from pyrin.settings.application import APPLICATION_ENCODING
-from pyrin.settings.api import JSONIFY_MIMETYPE, DEFAULT_STATUS_CODE
+from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
+    APPLICATION_ENCODING
 
 
 class CoreResponse(Response):
@@ -32,7 +32,7 @@ class CoreResponse(Response):
 
     @classmethod
     def force_type(cls, response, environ=None):
-        response = CoreResponse.response_converter(response)
+        response = cls.response_converter(response)
         return super(CoreResponse, cls).force_type(response, environ)
 
 

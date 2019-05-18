@@ -5,13 +5,13 @@ application base module.
 
 import signal
 import sys
+import os.path
 
 from flask import Flask, request
 from flask.app import setupmethod
 
 import pyrin.packaging.services as packaging_services
 
-from pyrin import settings
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import SimpleProtectedRoute
 from pyrin.converters.json.decoder import CoreJSONDecoder
@@ -19,8 +19,9 @@ from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest
 from pyrin.context import Context, Component, ContextAttributeError
-from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError
-from pyrin.settings import DEFAULT_COMPONENT_KEY
+from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError, \
+    CoreNotADirectoryError, CoreNotImplementedError
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 
 
@@ -58,12 +59,13 @@ class Application(Flask):
     """
 
     # we set `url_rule_class = SimpleProtectedRoute` to force top
-    # level application to register it's own desired route factory.
+    # level application to register it's own desired route or route factory.
     url_rule_class = SimpleProtectedRoute
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
+    settings_context_key = 'settings_path'
 
     def __init__(self, import_name, **options):
         """
@@ -103,10 +105,10 @@ class Application(Flask):
                                                 be relative to the instance path instead
                                                 of the application root.
 
-        :keyword str root_path: Flask by default will automatically calculate the path
+        :keyword str root_path: flask by default will automatically calculate the path
                                 to the root of the application. in certain situations
                                 this cannot be achieved (for instance if the package
-                                is a Python 3 namespace package) and needs to be
+                                is a python 3 namespace package) and needs to be
                                 manually defined.
         """
 
@@ -122,13 +124,26 @@ class Application(Flask):
         # setting the application instance in global 'pyrin' level variable.
         _set_app(self)
 
-    def add_context(self, key, value):
+    def add_context(self, key, value, **options):
         """
         adds the given key and it's value into the application context.
 
         :param str key: related key for storing application context.
         :param object value: related value for storing in application context.
+
+        :keyword bool replace: specifies that if there is already a value with
+                               the same key in application context, it should be updated
+                               with new value, otherwise raise an error. defaults to False.
+
+        :raises CoreKeyError: core key error.
         """
+
+        replace = options.get('replace', False)
+        if replace is not True and key in self._context:
+            raise CoreKeyError('Key [{key}] is already available in application context '
+                               'and `replace=True` option is not set, so the new value '
+                               'could not be added.'
+                               .format(key=key))
 
         self._context[key] = value
 
@@ -212,15 +227,19 @@ class Application(Flask):
         loads application configs and components.
         """
 
-        self._configure(**options)
+        self._resolve_settings_path()
         packaging_services.load_components(**options)
+
+        # we should call this method after loading components
+        # to be able to use configuration package.
+        self._configure(**options)
 
     def _configure(self, **options):
         """
         configures application.
         """
 
-        self.config.from_object(settings)
+        # self.config.from_object(settings)
 
     def run(self, host=None, port=None, debug=None,
             load_dotenv=True, **options):
@@ -302,8 +321,9 @@ class Application(Flask):
                                    provided endpoint.
 
         :param bool provide_automatic_options: controls whether the `OPTIONS` method should be
-                                               added automatically. this can also be controlled
-                                               by setting the `view_func.provide_automatic_options = False`
+                                               added automatically.
+                                               this can also be controlled by setting the
+                                               `view_func.provide_automatic_options = False`
                                                before adding the rule.
 
         :keyword tuple(str) methods: http methods that this rule should handle.
@@ -330,7 +350,7 @@ class Application(Flask):
         replace = options.get('replace', False)
 
         # setting endpoint to url rule instead of view function name,
-        # to be able to have the same function name on different url rules.
+        # to be able to have the same function names on different url rules.
         if endpoint is None:
             endpoint = rule
 
@@ -349,15 +369,17 @@ class Application(Flask):
                 if old_rule.endpoint in self.url_map._rules_by_endpoint.keys():
                     self.url_map._rules_by_endpoint.pop(old_rule.endpoint)
 
-                print_warning('Registered route for url [{url}] is going to be replaced by a new route.'
+                print_warning('Registered route for url [{url}] is '
+                              'going to be replaced by a new route.'
                               .format(url=rule))
             else:
                 raise CoreKeyError('There is another registered route with the same url [{url}], '
-                                   'but "replace" option is not set, so the new route could not be registered.'
+                                   'but "replace" option is not set, so the new '
+                                   'route could not be registered.'
                                    .format(url=rule))
 
         # we have to put `view_function=view_func` into options to be able to deliver it to
-        # route initialization in the super method. that's because of poor design of flask
+        # route initialization in the super method. that's because of the design of flask
         # that does not forward all params to inner method calls. and this is the less ugly way
         # in comparison with overriding the whole `add_url_rule` function.
         options.update(view_function=view_func)
@@ -368,13 +390,19 @@ class Application(Flask):
     def terminate(self, **options):
         """
         terminates the application.
+        this method should not be called directly.
+        it is defined for cases that application has to
+        be terminated for some unexpected reasons.
+
+        :keyword int status: status code to use for application exit.
+                             if not provided, status=0 will be used.
         """
 
         print_error('Terminating application [{name}].'.format(name=self.name))
 
         # forcing termination after 10 seconds.
         signal.alarm(10)
-        sys.exit(0)
+        sys.exit(options.get('status', 0))
 
     def register_route_factory(self, factory):
         """
@@ -390,4 +418,49 @@ class Application(Flask):
             raise CoreTypeError('Input parameter [{factory}] is not callable.'
                                 .format(factory=str(factory)))
 
-        Application.url_rule_class = factory
+        self.url_rule_class = factory
+
+    def get_settings_path(self):
+        """
+        gets the application settings path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.settings_context_key)
+
+    def _resolve_settings_path(self, **options):
+        """
+        resolves the application settings path. the resolved path will
+        be accessible by `settings_path` key inside application context.
+
+        :keyword str settings_directory = settings directory name.
+                                          if not provided, defaults to `settings`.
+
+        :rtype: str
+        """
+
+        main_package_path = self._resolve_application_main_package_path(**options)
+
+        settings_path = '{main_package_path}/{settings_directory}' \
+                        .format(main_package_path=main_package_path,
+                                settings_directory=options.get('settings', 'settings'))
+
+        if not os.path.isdir(settings_path):
+            raise CoreNotADirectoryError('Settings path [{path}] does not exist.'
+                                         .format(path=settings_path))
+
+        self.add_context(self.settings_context_key, settings_path)
+
+    def _resolve_application_main_package_path(self, **options):
+        """
+        resolves the application main package path.
+        each derived class from Application, must override this method,
+        and resolve it's own main package path.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()

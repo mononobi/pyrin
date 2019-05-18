@@ -63,8 +63,9 @@ class StringDeserializerBase(DeserializerBase):
         """
         initializes an instance of StringDeserializerBase.
 
-        :keyword list[tuple(str, int)] accepted_formats: custom string formats that this
-                                                         deserializer can deserialize value from.
+        :keyword list[tuple(str, int)] accepted_formats: custom string formats that
+                                                         this deserializer can deserialize
+                                                         value from.
         """
 
         DeserializerBase.__init__(self, **options)
@@ -105,7 +106,7 @@ class StringDeserializerBase(DeserializerBase):
         """
 
         if DeserializerBase.is_deserializable(self, value, **options) \
-                and self.is_valid_length(value):
+                and self.is_valid_length(str(value)):
             return True
 
         return False

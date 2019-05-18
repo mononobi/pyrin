@@ -17,8 +17,9 @@ class BooleanDeserializer(StringDeserializerBase):
         """
         creates an instance of BooleanDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string formats
-                                                         and their length for boolean deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string
+                                                         formats and their length for
+                                                         boolean deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """

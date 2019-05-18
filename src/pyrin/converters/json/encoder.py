@@ -7,7 +7,8 @@ from datetime import datetime, date, time
 
 from flask.json import JSONEncoder
 
-from pyrin.utils.datetime.converter import to_datetime_string_utc, to_date_string, to_time_string_utc
+from pyrin.utils.datetime.converter import to_datetime_string_utc, to_date_string, \
+    to_time_string_utc
 
 
 class CoreJSONEncoder(JSONEncoder):
