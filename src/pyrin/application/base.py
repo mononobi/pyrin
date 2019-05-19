@@ -432,7 +432,7 @@ class Application(Flask):
     def _resolve_settings_path(self, **options):
         """
         resolves the application settings path. the resolved path will
-        be accessible by `settings_path` key inside application context.
+        be accessible by `self.settings_context_key` inside application context.
 
         :keyword str settings_directory = settings directory name.
                                           if not provided, defaults to `settings`.
