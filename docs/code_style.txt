@@ -1,0 +1,2 @@
+1. maximum line length for every line is 100 characters.
+   longer lines should be wrapped into multiple lines.
