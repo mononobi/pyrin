@@ -139,10 +139,10 @@ class PackagingManager(CoreObject):
 
             for directory in directories:
                 combined_path = os.path.join(root, directory)
-                if self._is_ignored_directory(directory):
+                if not self._is_package(combined_path):
                     continue
 
-                if not self._is_package(combined_path):
+                if self._is_ignored_directory(directory):
                     continue
 
                 package_name = self._get_package_name(combined_path)

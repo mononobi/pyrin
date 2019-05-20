@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 static settings.
-these settings are intended for values used inside
-some classes, to be available before server startup.
+these settings are intended for values used inside some classes,
+to be available before server startup. or some critical places where
+we want no overhead of getting configs from configuration package.
 """
 
 # default response status code.
@@ -21,3 +22,6 @@ APPLICATION_ENCODING = 'utf-8'
 # (__name__, DEFAULT_COMPONENT_KEY) -> default
 # (__name__, 4) -> custom
 DEFAULT_COMPONENT_KEY = 0
+
+# determines that @audit decorator should be enabled to log decorated methods.
+AUDIT_LOG = True

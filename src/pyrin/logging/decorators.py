@@ -7,7 +7,7 @@ import time
 
 from functools import update_wrapper
 
-from bshop.settings.logging import AUDIT_LOG
+from pyrin.settings.static import AUDIT_LOG
 from pyrin.utils.custom_print import print_info
 
 total = 0

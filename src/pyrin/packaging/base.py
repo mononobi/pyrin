@@ -10,13 +10,14 @@ class Package(CoreObject):
     """
     base package class.
     all application python packages should be subclassed from this.
-    except the `application` and `packaging` and `settings` packages
-    that should not implement Package class.
+    except the `application` and `packaging` packages that should not
+    implement Package class.
     """
 
     # the name of the package.
     # example: `pyrin.api`.
-    NAME = __name__
+    # should get it from __name__ for each package.
+    NAME = None
 
     # list of all packages that this package is dependent
     # on them and should be loaded after all of them.

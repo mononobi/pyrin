@@ -100,3 +100,9 @@ class CoreNotADirectoryError(CoreException, NotADirectoryError):
     """
     core not a directory error.
     """
+
+
+class CoreFileNotFoundError(CoreException, FileNotFoundError):
+    """
+    core file not found error.
+    """
