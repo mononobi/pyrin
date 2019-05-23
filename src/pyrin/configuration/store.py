@@ -3,9 +3,9 @@
 configuration store module.
 """
 
-import os
-
 from configparser import ConfigParser
+
+import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.context import CoreObject
 from pyrin.exceptions import CoreFileNotFoundError, CoreKeyError
@@ -47,7 +47,7 @@ class ConfigStore(CoreObject):
             for single_value in values:
                 dic_values[single_value[0]] = single_value[1]
 
-            self._configs[section] = dic_values
+            self._configs[section] = deserializer_services.deserialize(dic_values)
 
     def reload(self, **options):
         """

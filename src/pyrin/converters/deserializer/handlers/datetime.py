@@ -21,9 +21,8 @@ class DateDeserializer(StringDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string
-                                                         formats and their length for date
-                                                         deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted formats and
+                                                         their length for date deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
@@ -61,8 +60,7 @@ class DateDeserializer(StringDeserializerBase):
 
         return converted_date
 
-    @classmethod
-    def get_default_formats(cls):
+    def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
@@ -85,9 +83,8 @@ class TimeDeserializer(StringDeserializerBase):
         """
         creates an instance of TimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string
-                                                         formats and their length for time
-                                                         deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted formats and
+                                                         their length for time deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
@@ -107,6 +104,7 @@ class TimeDeserializer(StringDeserializerBase):
         if not self.is_deserializable(value, **options):
             return None
 
+        value = value.strip()
         converted_time = None
 
         for format_string, length in self.get_accepted_formats():
@@ -124,8 +122,7 @@ class TimeDeserializer(StringDeserializerBase):
 
         return converted_time
 
-    @classmethod
-    def get_default_formats(cls):
+    def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
@@ -148,9 +145,8 @@ class DateTimeDeserializer(StringDeserializerBase):
         """
         creates an instance of DateTimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted string
-                                                         formats and their length for date
-                                                         deserialization.
+        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted formats and
+                                                         their length for datetime deserialization.
 
         :type accepted_formats: list[tuple(str format, int length)]
         """
@@ -170,6 +166,7 @@ class DateTimeDeserializer(StringDeserializerBase):
         if not self.is_deserializable(value, **options):
             return None
 
+        value = value.strip()
         converted_datetime = None
 
         for format_string, length in self.get_accepted_formats():
@@ -184,8 +181,7 @@ class DateTimeDeserializer(StringDeserializerBase):
 
         return converted_datetime
 
-    @classmethod
-    def get_default_formats(cls):
+    def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.

@@ -59,21 +59,27 @@ class StringDeserializerBase(DeserializerBase):
     base string deserializer class.
     """
 
+    # these values will be used for accepted
+    # formats that have no length restriction.
+    UNDEF_LENGTH = None
+    _DEFAULT_MIN = 1
+    _DEFAULT_MAX = 1000000
+
     def __init__(self, **options):
         """
         initializes an instance of StringDeserializerBase.
 
-        :keyword list[tuple(str, int)] accepted_formats: custom string formats that
-                                                         this deserializer can deserialize
-                                                         value from.
+        :keyword list[tuple(str, int)] accepted_formats: custom formats and their length
+                                                         that this deserializer can
+                                                         deserialize value from.
+
+        :type accepted_formats: list[tuple(str format, int length)]
         """
 
         DeserializerBase.__init__(self, **options)
 
-        # setting default accepted formats.
         self._accepted_formats = self.get_default_formats()
 
-        # setting custom accepted formats
         custom_accepted_formats = options.get('accepted_formats', [])
         self._accepted_formats.extend(custom_accepted_formats)
 
@@ -173,11 +179,15 @@ class StringDeserializerBase(DeserializerBase):
         :rtype: tuple(int, int)
         """
 
+        # if there is any format with length=UNDEF_LENGTH,
+        # we should not enforce length restriction on values.
+        if self.UNDEF_LENGTH in [item[1] for item in self.get_accepted_formats()]:
+            return self._DEFAULT_MIN, self._DEFAULT_MAX
+
         return min([item[1] for item in self.get_accepted_formats()]), \
             max([item[1] for item in self.get_accepted_formats()])
 
-    @classmethod
-    def get_default_formats(cls):
+    def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
@@ -191,3 +201,137 @@ class StringDeserializerBase(DeserializerBase):
 
         raise CoreNotImplementedError()
 
+
+class StringPatternDeserializerBase(StringDeserializerBase):
+    """
+    base string pattern deserializer class.
+    this class uses regex to determine whether a value is deserializable or not.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of StringPatternDeserializerBase.
+
+        :keyword list[tuple(Pattern, int)] accepted_formats: custom patterns and their length
+                                                             that this deserializer can
+                                                             deserialize value from.
+
+        :type accepted_formats: list[tuple(Pattern format, int length)]
+        """
+
+        StringDeserializerBase.__init__(self, **options)
+
+    def is_deserializable(self, value, **options):
+        """
+        gets a value indicating that the given input is deserializable.
+        if value is deserializable, the matching Pattern would be also returned.
+        otherwise None would be returned instead of Pattern.
+
+        :param object value: value to be deserialized.
+
+        :rtype: tuple(bool, Union[Pattern, None])
+        """
+
+        if StringDeserializerBase.is_deserializable(self, value, **options):
+            for pattern, length in self.get_accepted_formats():
+                if pattern.match(value):
+                    return True, pattern
+
+        return False, None
+
+
+class StringCollectionDeserializerBase(StringPatternDeserializerBase):
+    """
+    base string collection deserializer class.
+    note that this deserializer could only handle collections with single depth.
+    meaning that nested collections are not supported and stops deserialization.
+    for example: (1, (2, 4), [5, 4]) will not be deserialized.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of StringCollectionDeserializerBase.
+
+        :keyword list[tuple(Pattern, int)] accepted_formats: custom patterns and their length
+                                                             that this deserializer can
+                                                             deserialize value from.
+
+        :type accepted_formats: list[tuple(Pattern format, int length)]
+
+        :keyword list[str] invalid_chars: custom invalid characters that make deserialization
+                                          impossible for this deserializer.
+        """
+
+        StringPatternDeserializerBase.__init__(self, **options)
+
+        self._invalid_chars = self.get_default_invalid_chars()
+
+        custom_invalid_chars = options.get('invalid_chars', [])
+        self._invalid_chars.extend(custom_invalid_chars)
+
+    def is_deserializable(self, value, **options):
+        """
+        gets a value indicating that the given input is deserializable.
+        if value is deserializable, the matching Pattern would be also returned.
+        otherwise None would be returned instead of Pattern.
+
+        :param object value: value to be deserialized.
+
+        :rtype: tuple(bool, Union[Pattern, None])
+        """
+
+        deserializable, pattern = StringPatternDeserializerBase.\
+            is_deserializable(self, value, **options)
+
+        if deserializable and not self._contains_invalid_chars(str(value)):
+            return True, pattern
+
+        return False, None
+
+    def get_invalid_chars(self):
+        """
+        returns a list of invalid characters which make
+        deserialization impossible for this deserializer.
+
+        :rtype: list[str]
+        """
+
+        return self._invalid_chars
+
+    def get_default_invalid_chars(self):
+        """
+        returns a list of default invalid characters which make
+        deserialization impossible for this deserializer.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: list[str]
+        """
+
+        raise CoreNotImplementedError()
+
+    def _contains_invalid_chars(self, value):
+        """
+        gets a value indicating that given input contains invalid chars.
+
+        :param str value: value to be deserialized.
+
+        :rtype: bool
+        """
+
+        value = value.strip()
+
+        # each collection string should only have the collection
+        # holder sign at start and the end of it.
+        # for example a tuple string should only have '(' at start
+        # and ')' at the end. anywhere else is not valid.
+        begin_char = value[0:1]
+        end_char = value[-1:]
+        if value.count(begin_char) == 1 and value.count(end_char) == 1:
+            for invalid_char in self.get_invalid_chars():
+                if invalid_char in value:
+                    return True
+
+            return False
+
+        return True

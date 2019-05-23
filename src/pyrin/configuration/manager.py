@@ -6,10 +6,10 @@ configuration manager module.
 import os
 
 import pyrin.application.services as application_services
-from pyrin.configuration.store import ConfigStore
 
+from pyrin.configuration.store import ConfigStore
 from pyrin.context import CoreObject
-from pyrin.exceptions import CoreNotADirectoryError, CoreKeyError
+from pyrin.exceptions import CoreNotADirectoryError, CoreKeyError, CoreFileNotFoundError
 
 
 class ConfigurationManager(CoreObject):
@@ -26,32 +26,21 @@ class ConfigurationManager(CoreObject):
 
         self._config_stores = {}
         self._settings_path = application_services.get_settings_path()
-        self._load_configurations(self._settings_path)
+        self._load_all_configurations(self._settings_path)
 
-    def _load_configurations(self, settings_path):
+    def _load_all_configurations(self, settings_path):
         """
         loads all available configuration files from specified
         settings path into relevant config stores.
 
-        :param settings_path: settings directory full path.
+        :param str settings_path: settings directory full path.
+
+        :raises CoreNotADirectoryError: core not a directory error.
         """
 
-        if not os.path.isdir(settings_path):
-            raise CoreNotADirectoryError('Settings path [{path}] does not exist.'
-                                         .format(path=settings_path))
-
         for root, directories, file_names in os.walk(self._settings_path):
-            for file in file_names:
-                if self._is_config_file(file):
-                    self._add_config_store(os.path.splitext(file)[0],
-                                           os.path.join(root, file))
-
-            # for directory in directories:
-            #     combined_path = os.path.join(root, directory)
-            #     inner_files = os.listdir(combined_path)
-            #     for inner_file in inner_files:
-            #         self._add_config_store(os.path.splitext(file)[0],
-            #                                os.path.join(root, file))
+            files = [os.path.splitext(name)[0] for name in file_names]
+            self.load_configurations(*files, silent=True)
 
     def _add_config_store(self, name, file_path):
         """
@@ -80,3 +69,58 @@ class ConfigurationManager(CoreObject):
         """
 
         return file_name.endswith('.config')
+
+    def load_configuration(self, name, **options):
+        """
+        loads the given configuration if relevant file is
+        available in settings path.
+
+        :param str name: configuration name.
+
+        :keyword bool silent: specifies that if a related configuration file
+                              for the given name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises CoreNotADirectoryError: core not a directory error.
+        :raises CoreFileNotFoundError: core file not found error.
+        """
+
+        if not os.path.isdir(self._settings_path):
+            raise CoreNotADirectoryError('Settings path [{path}] does not exist.'
+                                         .format(path=self._settings_path))
+
+        files = os.listdir(self._settings_path)
+
+        for single_file in files:
+            single_file_name = os.path.splitext(single_file)[0]
+            if single_file_name == name and \
+               self._is_config_file(single_file):
+
+                self._add_config_store(single_file_name,
+                                       os.path.join(self._settings_path,
+                                                    single_file))
+                return
+
+        silent = options.get('silent', False)
+        if silent is not True:
+            raise CoreFileNotFoundError('Config name [{name}] does not have any '
+                                        'related configuration file in [{settings}].'
+                                        .format(name=name, settings=self._settings_path))
+
+    def load_configurations(self, *names, **options):
+        """
+        loads the given configurations if relevant files is
+        available in settings path.
+
+        :param str names: configuration names as arguments.
+
+        :keyword bool silent: specifies that if a related configuration file
+                              for any of the given names not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises CoreNotADirectoryError: core not a directory error.
+        :raises CoreFileNotFoundError: core file not found error.
+        """
+
+        for single_name in names:
+            self.load_configuration(single_name, **options)

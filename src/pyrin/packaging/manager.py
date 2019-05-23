@@ -10,7 +10,7 @@ from importlib import import_module
 from pyrin.context import CoreObject
 from pyrin.packaging.base import Package
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
-    IGNORED_DIRECTORIES, CORE_PACKAGES
+    CORE_PACKAGES
 from pyrin.utils.custom_print import print_info
 
 
@@ -142,9 +142,6 @@ class PackagingManager(CoreObject):
                 if not self._is_package(combined_path):
                     continue
 
-                if self._is_ignored_directory(directory):
-                    continue
-
                 package_name = self._get_package_name(combined_path)
                 if self._is_ignored_package(package_name):
                     continue
@@ -170,18 +167,6 @@ class PackagingManager(CoreObject):
                         application_components[package_name].append(full_module_name)
 
         return core_components, application_components
-
-    def _is_ignored_directory(self, directory):
-        """
-        gets a value indicating that given directory should be ignored.
-
-        :param str directory: directory name.
-                              example directory = `__pycache__`.
-
-        :rtype: bool
-        """
-
-        return directory in IGNORED_DIRECTORIES
 
     def _is_ignored_package(self, package_name):
         """

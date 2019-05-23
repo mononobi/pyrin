@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer list module.
+deserializer tuple module.
 """
 
 import re
@@ -13,35 +13,35 @@ from pyrin.converters.deserializer.decorators import deserializer
 
 
 @deserializer()
-class ListDeserializer(DeserializerBase):
+class TupleDeserializer(DeserializerBase):
     """
-    list deserializer class.
+    tuple deserializer class.
     """
 
     def __init__(self, **options):
         """
-        creates an instance of ListDeserializer.
+        creates an instance of TupleDeserializer.
         """
 
         DeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
-        deserializes every possible value available in input list.
-        and gets a new deserialized list, leaving the input unchanged.
+        deserializes every possible value available in input tuple.
+        and gets a new deserialized tuple.
 
-        :param list value: value that should be deserialized.
+        :param tuple value: value that should be deserialized.
 
-        :rtype: list
+        :rtype: tuple
         """
 
         if not self.is_deserializable(value, **options):
             return None
 
-        result = [item for item in value]
+        result_list = [item for item in value]
 
         index = 0
-        for item in result:
+        for item in result_list:
             deserialized_value = None
 
             if self.is_deserializable(item, **options):
@@ -50,12 +50,12 @@ class ListDeserializer(DeserializerBase):
                 deserialized_value = deserializer_services.deserialize(item)
 
             if deserialized_value is not None:
-                result[index] = deserialized_value
+                result_list[index] = deserialized_value
 
             index += 1
             continue
 
-        return result
+        return tuple(result_list)
 
     def get_accepted_type(self):
         """
@@ -65,28 +65,28 @@ class ListDeserializer(DeserializerBase):
         :rtype: type
         """
 
-        return list
+        return tuple
 
 
 @deserializer()
-class StringListDeserializer(StringCollectionDeserializerBase):
+class StringTupleDeserializer(StringCollectionDeserializerBase):
     """
-    string list deserializer class.
-    note that this deserializer could only handle lists with single depth.
-    meaning that nested lists are not supported. and also nested tuples or
+    string tuple deserializer class.
+    note that this deserializer could only handle tuples with single depth.
+    meaning that nested tuples are not supported. and also nested lists or
     dictionaries or sets or any other collections are not supported and
     stops deserialization.
-    for example: [1, (2, 4), [5, 4]] will not be deserialized.
+    for example: (1, (2, 4), [5, 4]) will not be deserialized.
     """
 
-    # matches the list inside string.
-    # example: [], [1], [1,], [1,2],[1,2,]
+    # matches the tuple inside string.
+    # example: (), (1), (1,), (1,2),(1,2,)
     # all of these values will be matched.
-    LIST_REGEX = re.compile(r'^\[\]$|^\[.+(,.+)*\]$')
+    TUPLE_REGEX = re.compile(r'^\(\)$|^\(.+(,.+)*\)$')
 
     def __init__(self, **options):
         """
-        creates an instance of StringListDeserializer.
+        creates an instance of StringTupleDeserializer.
 
         :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted patterns
                                                              and their length for tuple
@@ -107,7 +107,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
 
         :param str value: value to be deserialized.
 
-        :rtype: list
+        :rtype: tuple
         """
 
         deserializable, pattern = self.is_deserializable(value, **options)
@@ -116,7 +116,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
 
         value = value.strip()
 
-        # removing the first '[' and last ']' from value.
+        # removing the first '(' and last ')' from value.
         value = value[1:-1]
         items = value.split(',')
         temp_list = []
@@ -124,9 +124,9 @@ class StringListDeserializer(StringCollectionDeserializerBase):
             if len(item.strip()) > 0:
                 temp_list.append(item)
 
-        # this deserializer does not handle nested lists, so it won't
+        # this deserializer does not handle nested tuples, so it won't
         # check whether each item is deserializable or not.
-        return deserializer_services.deserialize(temp_list)
+        return deserializer_services.deserialize(tuple(temp_list))
 
     def get_default_formats(self):
         """
@@ -138,7 +138,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
         :rtype: list(tuple(Pattern, int))
         """
 
-        return [(self.LIST_REGEX, self.UNDEF_LENGTH)]
+        return [(self.TUPLE_REGEX, self.UNDEF_LENGTH)]
 
     def get_default_invalid_chars(self):
         """
@@ -148,4 +148,4 @@ class StringListDeserializer(StringCollectionDeserializerBase):
         :rtype: list[str]
         """
 
-        return ['(', ')', '{', '}']
+        return ['[', ']', '{', '}']

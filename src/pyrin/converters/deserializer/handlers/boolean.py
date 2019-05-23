@@ -3,28 +3,39 @@
 deserializer boolean module.
 """
 
-from pyrin.converters.deserializer.handlers.base import StringDeserializerBase
+import re
+
+from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
 
 
 @deserializer()
-class BooleanDeserializer(StringDeserializerBase):
+class BooleanDeserializer(StringPatternDeserializerBase):
     """
     boolean deserializer class.
     """
+
+    # matches the bool inside string.
+    # example: true, false
+    # matching are case-insensitive.
+    TRUE_REGEX = re.compile(r'^true$', re.IGNORECASE)
+    FALSE_REGEX = re.compile(r'^false$', re.IGNORECASE)
 
     def __init__(self, **options):
         """
         creates an instance of BooleanDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted string
-                                                         formats and their length for
-                                                         boolean deserialization.
+        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+                                                             and their length for boolean
+                                                             deserialization.
 
-        :type accepted_formats: list[tuple(str format, int length)]
+        :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringDeserializerBase.__init__(self, **options)
+        StringPatternDeserializerBase.__init__(self, **options)
+
+        self._converter_map = {self.TRUE_REGEX: True,
+                               self.FALSE_REGEX: False}
 
     def deserialize(self, value, **options):
         """
@@ -36,29 +47,21 @@ class BooleanDeserializer(StringDeserializerBase):
         :rtype: bool
         """
 
-        if not self.is_deserializable(value, **options):
+        deserializable, pattern = self.is_deserializable(value, **options)
+        if not deserializable:
             return None
 
-        value = value.strip()
-        converted_bool = None
+        return self._converter_map[pattern]
 
-        if value.lower() is 'true':
-            converted_bool = True
-        elif value.lower() is 'false':
-            converted_bool = False
-
-        return converted_bool
-
-    @classmethod
-    def get_default_formats(cls):
+    def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(str format, int length))
+        :return: list(tuple(Pattern format, int length))
 
-        :rtype: list(tuple(str, int))
+        :rtype: list(tuple(Pattern, int))
         """
 
-        return [('true', 4),
-                ('false', 5)]
+        return [(self.TRUE_REGEX, 4),
+                (self.FALSE_REGEX, 5)]

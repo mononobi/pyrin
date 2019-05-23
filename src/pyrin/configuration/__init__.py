@@ -12,4 +12,4 @@ class ConfigurationPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
+    DEPENDS = ['pyrin.converters.deserializer']
