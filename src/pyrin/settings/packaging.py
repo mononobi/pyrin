@@ -19,14 +19,6 @@ IGNORED_PACKAGES = ('pyrin.packaging',
 # matching the provided name will be ignored from loading.
 IGNORED_MODULES = ('start',)
 
-# directories that should be ignored completely.
-# it should contain the name of directory itself,
-# without any parent directory name.
-# example: `settings`
-IGNORED_DIRECTORIES = ('__pycache__',
-                       'locale',
-                       'settings')
-
 # core packages of system that should be loaded before other packages.
 # package names must be fully qualified.
 # example: `app.core.pyrin`
