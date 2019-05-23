@@ -80,7 +80,7 @@ class StringTupleDeserializer(StringCollectionDeserializerBase):
     """
 
     # matches the tuple inside string.
-    # example: (), (1), (1,), (1,2),(1,2,)
+    # example: (), (1), (1,), (1,2), (1,2,)
     # all of these values will be matched.
     TUPLE_REGEX = re.compile(r'^\(\)$|^\(.+(,.+)*\)$')
 
