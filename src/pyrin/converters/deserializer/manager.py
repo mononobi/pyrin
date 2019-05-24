@@ -3,9 +3,10 @@
 deserializer manager module.
 """
 
+from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
+    DuplicatedDeserializerError
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.context import CoreObject, Context
-from pyrin.exceptions import CoreTypeError, CoreKeyError
 from pyrin.utils.custom_print import print_warning
 
 
@@ -62,14 +63,14 @@ class DeserializerManager(CoreObject):
                                replace it with the new one, otherwise raise
                                an error. defaults to False.
 
-        :raises CoreTypeError: core type error.
-        :raises CoreKeyError: core key error.
+        :raises InvalidDeserializerTypeError: invalid deserializer type error.
+        :raises DuplicatedDeserializerError: duplicated deserializer error.
         """
 
         if not isinstance(instance, DeserializerBase):
-            raise CoreTypeError('Input parameter [{instance}] is '
-                                'not an instance of DeserializerBase.'
-                                .format(instance=str(instance)))
+            raise InvalidDeserializerTypeError('Input parameter [{instance}] is '
+                                               'not an instance of DeserializerBase.'
+                                               .format(instance=str(instance)))
 
         # checking whether is there any registered instance
         # with the same name and accepted type.
@@ -77,12 +78,15 @@ class DeserializerManager(CoreObject):
             replace = options.get('replace', False)
 
             if replace is not True:
-                raise CoreKeyError('There is another registered deserializer with name [{name}] '
-                                   'and accepted type [{accepted_type}] but "replace" option is '
-                                   'not set, so deserializer [{instance}] could not be registered.'
-                                   .format(name=instance.get_name(),
-                                           accepted_type=instance.get_accepted_type(),
-                                           instance=str(instance)))
+                raise DuplicatedDeserializerError('There is another registered deserializer '
+                                                  'with name [{name}] and accepted type '
+                                                  '[{accepted_type}] but "replace" option is '
+                                                  'not set, so deserializer [{instance}] '
+                                                  'could not be registered.'
+                                                  .format(name=instance.get_name(),
+                                                          accepted_type=
+                                                          instance.get_accepted_type(),
+                                                          instance=str(instance)))
 
             old_instance = self._deserializers[(instance.get_name(), instance.get_accepted_type())]
             print_warning('Deserializer [{old_instance}] is going '

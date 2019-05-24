@@ -5,8 +5,9 @@ route base handler module.
 
 from werkzeug.routing import Rule
 
+from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError
 from pyrin.context import DTO
-from pyrin.exceptions import CoreNotImplementedError, CoreTypeError
+from pyrin.exceptions import CoreNotImplementedError
 
 
 class RouteBase(Rule):
@@ -64,7 +65,7 @@ class RouteBase(Rule):
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
 
-        :raises CoreTypeError: core type error.
+        :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
         # we should call super method with exact param names because it
@@ -84,10 +85,10 @@ class RouteBase(Rule):
         self._view_function = options.get('view_function')
 
         if not callable(self._view_function):
-            raise CoreTypeError('The provided view function [{function}] '
-                                'for route [{route}] is not callable.'
-                                .format(function=str(self._view_function),
-                                        route=str(self)))
+            raise InvalidViewFunctionTypeError('The provided view function [{function}] '
+                                               'for route [{route}] is not callable.'
+                                               .format(function=str(self._view_function),
+                                                       route=str(self)))
 
     def is_login_required(self):
         """

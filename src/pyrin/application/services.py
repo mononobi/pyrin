@@ -16,6 +16,8 @@ def add_context(key, value, **options):
     :keyword bool replace: specifies that if there is already a value with
                            the same key in application context, it should be updated
                            with new value, otherwise raise an error. defaults to False.
+
+    :raises DuplicateContextKeyError: duplicate context key error.
     """
 
     _get_app().add_context(key, value, **options)
@@ -45,6 +47,10 @@ def register_component(component, **options):
     :keyword bool replace: specifies that if there is another registered
                            component with the same id, replace it with the new one.
                            otherwise raise an error. defaults to False.
+
+    :raises InvalidComponentTypeError: invalid component type error.
+    :raises InvalidComponentIDError: invalid component id error.
+    :raises DuplicateComponentIDError: duplicate component id error.
     """
 
     _get_app().register_component(component, **options)
@@ -132,7 +138,7 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.
 
-    :raises CoreKeyError: core key error.
+    :raises DuplicateRouteURLError: duplicate route url error.
     """
 
     _get_app().add_url_rule(rule, endpoint, view_func,
@@ -145,6 +151,8 @@ def register_route_factory(factory):
 
     :param callable factory: route factory.
                              it could be a class or a factory method.
+
+    :raises InvalidRouteFactoryTypeError: invalid route factory type error.
     """
 
     _get_app().register_route_factory(factory)

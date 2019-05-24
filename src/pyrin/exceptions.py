@@ -61,6 +61,13 @@ class CoreAttributeError(CoreException, AttributeError):
     pass
 
 
+class ContextAttributeError(CoreAttributeError):
+    """
+    context attribute error.
+    """
+    pass
+
+
 class CoreNotImplementedError(CoreException, NotImplementedError):
     """
     core not implemented error.
@@ -100,9 +107,11 @@ class CoreNotADirectoryError(CoreException, NotADirectoryError):
     """
     core not a directory error.
     """
+    pass
 
 
 class CoreFileNotFoundError(CoreException, FileNotFoundError):
     """
     core file not found error.
     """
+    pass

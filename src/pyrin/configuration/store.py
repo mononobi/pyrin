@@ -6,34 +6,12 @@ configuration store module.
 from configparser import ConfigParser
 
 import pyrin.converters.deserializer.services as deserializer_services
+from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
+    ConfigurationStoreSectionOrKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
+    ConfigurationStoreDuplicateKeyError
 
 from pyrin.context import CoreObject, DTO
-from pyrin.exceptions import CoreFileNotFoundError, CoreKeyError
 from pyrin.utils.dictionary import change_key_case
-
-
-class ConfigurationFileNotFoundError(CoreFileNotFoundError):
-    """
-    configuration file not found error.
-    """
-
-
-class ConfigurationStoreSectionOrKeyNotFoundError(CoreKeyError):
-    """
-    configuration store section or key not found error.
-    """
-
-
-class ConfigurationStoreSectionNotFoundError(CoreKeyError):
-    """
-    configuration store section not found error.
-    """
-
-
-class ConfigurationStoreDuplicateKeyError(CoreKeyError):
-    """
-    configuration store duplicate key error.
-    """
 
 
 class ConfigStore(CoreObject):

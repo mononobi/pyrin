@@ -6,34 +6,12 @@ configuration manager module.
 import os
 
 import pyrin.application.services as application_services
+from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
+    ConfigurationSettingsPathNotExistedError, ConfigurationStoreNotFoundError, \
+    ConfigurationFileNotFoundError
 
 from pyrin.configuration.store import ConfigStore
 from pyrin.context import CoreObject
-from pyrin.exceptions import CoreNotADirectoryError, CoreKeyError, CoreFileNotFoundError
-
-
-class ConfigurationStoreNotFoundError(CoreKeyError):
-    """
-    configuration store not found error.
-    """
-
-
-class ConfigurationStoreExistedError(CoreKeyError):
-    """
-    configuration store existed error.
-    """
-
-
-class ConfigurationSettingsPathNotExistedError(CoreNotADirectoryError):
-    """
-    configuration settings path not existed error.
-    """
-
-
-class ConfigurationRelatedFileNotFoundError(CoreFileNotFoundError):
-    """
-    configuration related file not found error.
-    """
 
 
 class ConfigurationManager(CoreObject):
@@ -134,11 +112,11 @@ class ConfigurationManager(CoreObject):
 
         silent = options.get('silent', False)
         if silent is not True:
-            raise ConfigurationRelatedFileNotFoundError('Config name [{name}] does not '
-                                                        'have any related configuration '
-                                                        'file in [{settings}].'
-                                                        .format(name=name,
-                                                                settings=self._settings_path))
+            raise ConfigurationFileNotFoundError('Config name [{name}] does not '
+                                                 'have any related configuration '
+                                                 'file in [{settings}].'
+                                                 .format(name=name,
+                                                         settings=self._settings_path))
 
     def load_configurations(self, *names, **options):
         """

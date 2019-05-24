@@ -5,8 +5,8 @@ deserializer decorators module.
 
 import pyrin.converters.deserializer.services as deserializer_services
 
+from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
-from pyrin.exceptions import CoreTypeError
 
 
 def deserializer(*args, **kwargs):
@@ -21,7 +21,7 @@ def deserializer(*args, **kwargs):
                            replace it with the new one, otherwise raise
                            an error. defaults to False.
 
-    :raises CoreTypeError: core type error.
+    :raises InvalidDeserializerTypeError: invalid deserializer type error.
 
     :returns: deserializer class.
 
@@ -35,7 +35,7 @@ def deserializer(*args, **kwargs):
 
         :param type cls: deserializer class.
 
-        :raises CoreTypeError: core type error.
+        :raises InvalidDeserializerTypeError: invalid deserializer type error.
 
         :returns: deserializer class.
 
@@ -43,9 +43,9 @@ def deserializer(*args, **kwargs):
         """
 
         if not issubclass(cls, DeserializerBase):
-            raise CoreTypeError('Input parameter [{class_name}] is '
-                                'not a subclass of DeserializerBase.'
-                                .format(class_name=str(cls)))
+            raise InvalidDeserializerTypeError('Input parameter [{class_name}] is '
+                                               'not a subclass of DeserializerBase.'
+                                               .format(class_name=str(cls)))
 
         instance = cls(*args, **kwargs)
         deserializer_services.register_deserializer(instance, **kwargs)

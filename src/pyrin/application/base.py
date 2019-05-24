@@ -14,42 +14,18 @@ import pyrin.packaging.services as packaging_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import SimpleProtectedRoute
+from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
+    InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
+    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
-from pyrin.application.context import CoreResponse, CoreRequest
-from pyrin.context import Context, Component, ContextAttributeError
-from pyrin.exceptions import CoreValueError, CoreTypeError, CoreKeyError, \
-    CoreNotADirectoryError, CoreNotImplementedError
+from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
+    ApplicationComponent
+from pyrin.context import Component
+from pyrin.exceptions import CoreNotImplementedError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
-
-
-class ApplicationContext(Context):
-    """
-    context class to hold application contextual data.
-    """
-    pass
-
-
-class ComponentAttributeError(ContextAttributeError):
-    """
-    component attribute error.
-    """
-    pass
-
-
-class ApplicationComponent(ApplicationContext):
-    """
-    context class to hold application components.
-    """
-
-    def __getattr__(self, name):
-        if name in self:
-            return self.get(name)
-
-        raise ComponentAttributeError('Component [{name}] is not available '
-                                      'in application components.'.format(name=name))
 
 
 class Application(Flask):
@@ -135,15 +111,15 @@ class Application(Flask):
                                the same key in application context, it should be updated
                                with new value, otherwise raise an error. defaults to False.
 
-        :raises CoreKeyError: core key error.
+        :raises DuplicateContextKeyError: duplicate context key error.
         """
 
         replace = options.get('replace', False)
         if replace is not True and key in self._context:
-            raise CoreKeyError('Key [{key}] is already available in application context '
-                               'and `replace=True` option is not set, so the new value '
-                               'could not be added.'
-                               .format(key=key))
+            raise DuplicateContextKeyError('Key [{key}] is already available in application '
+                                           'context and `replace=True` option is not set, so '
+                                           'the new value could not be added.'
+                                           .format(key=key))
 
         self._context[key] = value
 
@@ -172,30 +148,32 @@ class Application(Flask):
                                component with the same id, replace it with the new one.
                                otherwise raise an error. defaults to False.
 
-        :raises CoreTypeError: core type error.
-        :raises CoreValueError: core value error.
-        :raises CoreKeyError: core key error.
+        :raises InvalidComponentTypeError: invalid component type error.
+        :raises InvalidComponentIDError: invalid component id error.
+        :raises DuplicateComponentIDError: duplicate component id error.
         """
 
         if not isinstance(component, Component):
-            raise CoreTypeError('Input parameter [{component}] is not '
-                                'an instance of Component.'.format(component=str(component)))
+            raise InvalidComponentTypeError('Input parameter [{component}] is not '
+                                            'an instance of Component.'
+                                            .format(component=str(component)))
 
         if not isinstance(component.COMPONENT_ID, tuple) or \
                 len(component.COMPONENT_ID[0].strip()) == 0:
-            raise CoreValueError('Component [{component}] has '
-                                 'not a valid component id.'.format(component=str(component)))
+            raise InvalidComponentIDError('Component [{component}] has '
+                                          'not a valid component id.'
+                                          .format(component=str(component)))
 
         # checking whether is there any registered component with the same id.
         if component.COMPONENT_ID in self._components.keys():
             replace = options.get('replace', False)
 
             if replace is not True:
-                raise CoreKeyError('There is another registered component with id [{id}] '
-                                   'but "replace" option is not set, so component '
-                                   '[{instance}] could not be registered.'
-                                   .format(id=component.COMPONENT_ID,
-                                           instance=str(component)))
+                raise DuplicateComponentIDError('There is another registered component with '
+                                                'id [{id}] but "replace" option is not set, so '
+                                                'component [{instance}] could not be registered.'
+                                                .format(id=component.COMPONENT_ID,
+                                                        instance=str(component)))
 
             old_instance = self._components[component.COMPONENT_ID]
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
@@ -340,7 +318,7 @@ class Application(Flask):
                                any existing route with the same url or raise
                                an error if not provided. defaults to False.
 
-        :raises CoreKeyError: core key error.
+        :raises DuplicateRouteURLError: duplicate route url error.
         """
 
         methods = options.get('methods', ())
@@ -373,10 +351,10 @@ class Application(Flask):
                               'going to be replaced by a new route.'
                               .format(url=rule))
             else:
-                raise CoreKeyError('There is another registered route with the same url [{url}], '
-                                   'but "replace" option is not set, so the new '
-                                   'route could not be registered.'
-                                   .format(url=rule))
+                raise DuplicateRouteURLError('There is another registered route with the '
+                                             'same url [{url}], but "replace" option is not '
+                                             'set, so the new route could not be registered.'
+                                             .format(url=rule))
 
         # we have to put `view_function=view_func` into options to be able to deliver it to
         # route initialization in the super method. that's because of the design of flask
@@ -411,12 +389,12 @@ class Application(Flask):
         :param callable factory: route factory.
                                  it could be a class or a factory method.
 
-        :raises CoreTypeError: core type error.
+        :raises InvalidRouteFactoryTypeError: invalid route factory type error.
         """
 
         if not callable(factory):
-            raise CoreTypeError('Input parameter [{factory}] is not callable.'
-                                .format(factory=str(factory)))
+            raise InvalidRouteFactoryTypeError('Input parameter [{factory}] is not callable.'
+                                               .format(factory=str(factory)))
 
         self.url_rule_class = factory
 
@@ -434,8 +412,11 @@ class Application(Flask):
         resolves the application settings path. the resolved path will
         be accessible by `self.settings_context_key` inside application context.
 
-        :keyword str settings_directory = settings directory name.
-                                          if not provided, defaults to `settings`.
+        :keyword str settings_directory: settings directory name.
+                                         if not provided, defaults to `settings`.
+
+        :raises ApplicationSettingsPathNotExistedError: application settings path
+                                                        not existed error.
 
         :rtype: str
         """
@@ -447,8 +428,8 @@ class Application(Flask):
                                 settings_directory=options.get('settings', 'settings'))
 
         if not os.path.isdir(settings_path):
-            raise CoreNotADirectoryError('Settings path [{path}] does not exist.'
-                                         .format(path=settings_path))
+            raise ApplicationSettingsPathNotExistedError('Settings path [{path}] does not exist.'
+                                                         .format(path=settings_path))
 
         self.add_context(self.settings_context_key, settings_path)
 

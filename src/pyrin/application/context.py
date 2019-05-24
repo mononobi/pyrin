@@ -5,8 +5,30 @@ application context module.
 
 from flask import Request, Response, jsonify
 
+from pyrin.application.exceptions import ComponentAttributeError
+from pyrin.context import Context
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING
+
+
+class ApplicationContext(Context):
+    """
+    context class to hold application contextual data.
+    """
+    pass
+
+
+class ApplicationComponent(ApplicationContext):
+    """
+    context class to hold application components.
+    """
+
+    def __getattr__(self, name):
+        if name in self:
+            return self.get(name)
+
+        raise ComponentAttributeError('Component [{name}] is not available '
+                                      'in application components.'.format(name=name))
 
 
 class CoreResponse(Response):

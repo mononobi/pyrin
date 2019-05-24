@@ -5,7 +5,7 @@ pyrin context module.
 
 from enum import Enum, EnumMeta
 
-from pyrin.exceptions import CoreAttributeError
+from pyrin.exceptions import CoreAttributeError, ContextAttributeError
 
 
 class DTO(dict):
@@ -59,7 +59,7 @@ class CoreObject(object):
             return self.__name
         return self.__class__.__name__
 
-    def _set_name_(self, name):
+    def _set_name(self, name):
         """
         sets new name to current object.
 
@@ -89,13 +89,6 @@ class CoreObject(object):
 
     def __setattr__(self, name, value):
         return self.setattr(name, value)
-
-
-class ContextAttributeError(CoreAttributeError):
-    """
-    context attribute error.
-    """
-    pass
 
 
 class Context(DTO):

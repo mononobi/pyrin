@@ -34,6 +34,9 @@ def register_deserializer(instance, **options):
                            deserializer with the same name and accepted type,
                            replace it with the new one, otherwise raise
                            an error. defaults to False.
+
+    :raises InvalidDeserializerTypeError: invalid deserializer type error.
+    :raises DuplicatedDeserializerError: duplicated deserializer error.
     """
 
     return get_component(DeserializerComponent.COMPONENT_ID).register_deserializer(

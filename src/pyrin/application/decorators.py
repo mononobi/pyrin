@@ -5,8 +5,8 @@ application decorators module.
 
 import pyrin.application.services as application_services
 
+from pyrin.application.exceptions import InvalidComponentTypeError
 from pyrin.context import Component
-from pyrin.exceptions import CoreTypeError
 
 
 def component(*args, **kwargs):
@@ -22,7 +22,7 @@ def component(*args, **kwargs):
                            component with the same id, replace it with the new one.
                            otherwise raise an error. defaults to False.
 
-    :raises CoreTypeError: core type error.
+    :raises InvalidComponentTypeError: invalid component type error.
 
     :returns: component class.
 
@@ -36,7 +36,7 @@ def component(*args, **kwargs):
 
         :param type cls: component class.
 
-        :raises CoreTypeError: core type error.
+        :raises InvalidComponentTypeError: invalid component type error.
 
         :returns: component class.
 
@@ -44,9 +44,9 @@ def component(*args, **kwargs):
         """
 
         if not issubclass(cls, Component):
-            raise CoreTypeError('Input parameter [{class_name}] is '
-                                'not a subclass of Component.'
-                                .format(class_name=str(cls)))
+            raise InvalidComponentTypeError('Input parameter [{class_name}] is '
+                                            'not a subclass of Component.'
+                                            .format(class_name=str(cls)))
 
         instance = cls(*args, **kwargs)
         application_services.register_component(instance, **kwargs)
