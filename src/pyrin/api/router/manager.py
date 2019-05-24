@@ -5,7 +5,7 @@ router manager module.
 
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
-from pyrin.context import CoreObject
+from pyrin.core.context import CoreObject
 
 
 class RouterManager(CoreObject):

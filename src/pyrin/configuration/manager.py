@@ -6,12 +6,12 @@ configuration manager module.
 import os
 
 import pyrin.application.services as application_services
+
+from pyrin.configuration.store import ConfigStore
+from pyrin.core.context import CoreObject
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationSettingsPathNotExistedError, ConfigurationStoreNotFoundError, \
     ConfigurationFileNotFoundError
-
-from pyrin.configuration.store import ConfigStore
-from pyrin.context import CoreObject
 
 
 class ConfigurationManager(CoreObject):

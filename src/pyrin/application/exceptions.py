@@ -3,7 +3,7 @@
 application exceptions module.
 """
 
-from pyrin.exceptions import CoreTypeError, CoreValueError, CoreKeyError, \
+from pyrin.core.exceptions import CoreTypeError, CoreValueError, CoreKeyError, \
     CoreNotADirectoryError, ContextAttributeError
 
 

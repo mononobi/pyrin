@@ -22,8 +22,8 @@ from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
     ApplicationComponent
-from pyrin.context import Component
-from pyrin.exceptions import CoreNotImplementedError
+from pyrin.core.context import Component
+from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 

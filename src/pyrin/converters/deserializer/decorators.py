@@ -5,9 +5,6 @@ deserializer decorators module.
 
 import pyrin.converters.deserializer.services as deserializer_services
 
-from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
-from pyrin.converters.deserializer.handlers.base import DeserializerBase
-
 
 def deserializer(*args, **kwargs):
     """
@@ -41,11 +38,6 @@ def deserializer(*args, **kwargs):
 
         :rtype: type
         """
-
-        if not issubclass(cls, DeserializerBase):
-            raise InvalidDeserializerTypeError('Input parameter [{class_name}] is '
-                                               'not a subclass of DeserializerBase.'
-                                               .format(class_name=str(cls)))
 
         instance = cls(*args, **kwargs)
         deserializer_services.register_deserializer(instance, **kwargs)

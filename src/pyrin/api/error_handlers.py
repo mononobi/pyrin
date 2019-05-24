@@ -6,9 +6,9 @@ api error handlers module.
 from werkzeug.exceptions import HTTPException
 
 from pyrin.application.decorators import error_handler
-from pyrin.context import DTO
+from pyrin.core.context import DTO
 from pyrin.api.enumerations import ServerErrorResponseCodeEnum
-from pyrin.exceptions import CoreException
+from pyrin.core.exceptions import CoreException
 from pyrin.utils.custom_print import print_error
 
 

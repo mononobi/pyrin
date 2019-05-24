@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-pyrin context module.
+core context module.
 """
 
 from enum import Enum, EnumMeta
 
-from pyrin.exceptions import CoreAttributeError, ContextAttributeError
+from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
 
 
 class DTO(dict):

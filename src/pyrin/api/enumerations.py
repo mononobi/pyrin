@@ -3,7 +3,7 @@
 api enumerations module.
 """
 
-from pyrin.context import CoreEnum
+from pyrin.core.context import CoreEnum
 
 
 class HTTPMethodEnum(CoreEnum):

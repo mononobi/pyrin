@@ -3,7 +3,7 @@
 configuration exceptions module.
 """
 
-from pyrin.exceptions import CoreKeyError, CoreNotADirectoryError, CoreFileNotFoundError
+from pyrin.core.exceptions import CoreKeyError, CoreNotADirectoryError, CoreFileNotFoundError
 
 
 class ConfigurationStoreNotFoundError(CoreKeyError):

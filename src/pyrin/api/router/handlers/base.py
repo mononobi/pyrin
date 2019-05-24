@@ -6,8 +6,8 @@ route base handler module.
 from werkzeug.routing import Rule
 
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError
-from pyrin.context import DTO
-from pyrin.exceptions import CoreNotImplementedError
+from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreNotImplementedError
 
 
 class RouteBase(Rule):

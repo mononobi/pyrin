@@ -5,7 +5,7 @@ configuration component module.
 
 from pyrin.application.decorators import component
 from pyrin.configuration.manager import ConfigurationManager
-from pyrin.context import Component
+from pyrin.core.context import Component
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 

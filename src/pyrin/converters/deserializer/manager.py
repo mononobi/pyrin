@@ -3,11 +3,11 @@
 deserializer manager module.
 """
 
+from pyrin.converters.deserializer.handlers.base import DeserializerBase
+from pyrin.core.context import CoreObject, Context
+from pyrin.utils.custom_print import print_warning
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
     DuplicatedDeserializerError
-from pyrin.converters.deserializer.handlers.base import DeserializerBase
-from pyrin.context import CoreObject, Context
-from pyrin.utils.custom_print import print_warning
 
 
 class DeserializerManager(CoreObject):
@@ -84,8 +84,8 @@ class DeserializerManager(CoreObject):
                                                   'not set, so deserializer [{instance}] '
                                                   'could not be registered.'
                                                   .format(name=instance.get_name(),
-                                                          accepted_type=
-                                                          instance.get_accepted_type(),
+                                                          accepted_type=instance.
+                                                          get_accepted_type(),
                                                           instance=str(instance)))
 
             old_instance = self._deserializers[(instance.get_name(), instance.get_accepted_type())]

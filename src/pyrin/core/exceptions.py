@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-pyrin exceptions module.
+core exceptions module.
 """
 
 

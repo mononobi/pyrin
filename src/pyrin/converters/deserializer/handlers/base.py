@@ -3,8 +3,8 @@
 deserializer base module.
 """
 
-from pyrin.context import CoreObject
-from pyrin.exceptions import CoreNotImplementedError
+from pyrin.core.context import CoreObject
+from pyrin.core.exceptions import CoreNotImplementedError
 
 
 class DeserializerBase(CoreObject):

@@ -7,11 +7,11 @@ import os
 
 from importlib import import_module
 
-from pyrin.context import CoreObject
+from pyrin.core.context import CoreObject
 from pyrin.packaging.base import Package
+from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     CORE_PACKAGES
-from pyrin.utils.custom_print import print_info
 
 
 class PackagingManager(CoreObject):

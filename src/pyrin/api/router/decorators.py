@@ -26,6 +26,8 @@ def api(url, **options):
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.
 
+    :raises DuplicateRouteURLError: duplicate route url error.
+
     :rtype: callable
     """
 
@@ -34,6 +36,8 @@ def api(url, **options):
         decorates the given function and registers it as an api handler.
 
         :param callable func: function to register it as an api handler.
+
+        :raises DuplicateRouteURLError: duplicate route url error.
 
         :rtype: callable
         """

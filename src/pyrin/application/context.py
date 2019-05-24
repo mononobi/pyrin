@@ -6,7 +6,7 @@ application context module.
 from flask import Request, Response, jsonify
 
 from pyrin.application.exceptions import ComponentAttributeError
-from pyrin.context import Context
+from pyrin.core.context import Context
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING
 

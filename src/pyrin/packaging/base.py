@@ -3,7 +3,7 @@
 packaging base module.
 """
 
-from pyrin.context import CoreObject
+from pyrin.core.context import CoreObject
 
 
 class Package(CoreObject):

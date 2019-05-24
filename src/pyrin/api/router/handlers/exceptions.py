@@ -3,7 +3,7 @@
 router handlers exceptions module.
 """
 
-from pyrin.exceptions import CoreTypeError
+from pyrin.core.exceptions import CoreTypeError
 
 
 class InvalidViewFunctionTypeError(CoreTypeError):

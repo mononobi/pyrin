@@ -5,7 +5,7 @@ router component module.
 
 from pyrin.api.router.manager import RouterManager
 from pyrin.application.decorators import component
-from pyrin.context import Component
+from pyrin.core.context import Component
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 

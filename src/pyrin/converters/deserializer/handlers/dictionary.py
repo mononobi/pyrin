@@ -7,7 +7,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
-from pyrin.context import DTO
+from pyrin.core.context import DTO
 
 
 @deserializer()

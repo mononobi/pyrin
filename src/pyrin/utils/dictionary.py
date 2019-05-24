@@ -3,8 +3,8 @@
 utils dictionary module.
 """
 
-from pyrin.context import DTO
-from pyrin.exceptions import CoreTypeError
+from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreTypeError
 from pyrin.utils.string import upper, lower
 
 

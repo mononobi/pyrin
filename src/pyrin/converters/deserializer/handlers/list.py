@@ -7,9 +7,9 @@ import re
 
 import pyrin.converters.deserializer.services as deserializer_services
 
+from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.converters.deserializer.handlers.base import DeserializerBase, \
     StringCollectionDeserializerBase
-from pyrin.converters.deserializer.decorators import deserializer
 
 
 @deserializer()

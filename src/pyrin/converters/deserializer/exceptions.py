@@ -3,7 +3,7 @@
 deserializer exceptions module.
 """
 
-from pyrin.exceptions import CoreTypeError, CoreKeyError
+from pyrin.core.exceptions import CoreTypeError, CoreKeyError
 
 
 class InvalidDeserializerTypeError(CoreTypeError):
