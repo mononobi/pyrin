@@ -6,8 +6,15 @@
    not the manager, even if the caller module is resided inside the same package of that manager,
    the only exception is when the caller in the manager itself.
 
-4. in each package, the business must be implemented inside the manager, not anywhere else, so modules
-   like decorators, error_handlers, services, api should not have any business implementation
-   but some light weight code that uses the package functionality through services module.
+4. in each package, the business must be implemented inside the manager, not anywhere else, so
+   modules like decorators, error_handlers, services, api should not have any business
+   implementation but some light weight code that uses the package functionality through
+   services module.
 
 5. every package must subclass Package in it's __init__ module, except application and packaging.
+
+6. each package should subclass it's own custom exceptions from core exceptions and put them
+   inside exceptions.py module. the only type of exception that must be used directly and
+   without subclassing is CoreNotImplementedError.
+
+7. pyrin.utils packages must use core exceptions and not implementing their own custom exceptions.

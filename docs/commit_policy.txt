@@ -1,10 +1,10 @@
 1. all works that belong to same bug or feature must be pushed as a single commit. 
    exceptions are described below.
 
-2. changes on files that does not belong to main application package (pyrin), or not related to code development,
-   like `locale` and `settings` and `docs` must be committed separately for each type of files and separated from
-   code changes too. this is needed for the peace of mind of developers to reduce the conflict chance and other 
-   headaches.
+2. changes on files that does not belong to main application package (pyrin), or not related
+   to code development, like `locale` and `settings` and `docs` must be committed separately
+   for each type of files and separated from code changes too. this is needed for the peace
+   of mind of developers to reduce the conflict chance and other headaches.
    
-3. all commits must have a well formed english comment that describes what has been changed or added.
-   all comments must be in lowercase except for object types if needed.
+3. all commits must have a well formed english comment that describes what has been
+   changed or added. all comments must be in lowercase except for object types if needed.
