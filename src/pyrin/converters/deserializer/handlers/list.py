@@ -80,7 +80,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
     """
 
     # matches the list inside string.
-    # example: [], [1], [1,], [1,2],[1,2,]
+    # example: [], [1], [1,], [1,2], [1,2,]
     # all of these values will be matched.
     LIST_REGEX = re.compile(r'^\[\]$|^\[.+(,.+)*\]$')
 
