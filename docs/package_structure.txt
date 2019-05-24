@@ -8,11 +8,12 @@ api.py
 services.py
 component.py
 manager.py
+exceptions.py
+context.py
 
 ===================================================================================================
 optional (depends on package type):
 
-context.py
 enumerations.py
 models.py
 error_handlers.py
