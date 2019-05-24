@@ -12,6 +12,30 @@ from pyrin.context import CoreObject
 from pyrin.exceptions import CoreNotADirectoryError, CoreKeyError, CoreFileNotFoundError
 
 
+class ConfigurationStoreNotFoundError(CoreKeyError):
+    """
+    configuration store not found error.
+    """
+
+
+class ConfigurationStoreExistedError(CoreKeyError):
+    """
+    configuration store existed error.
+    """
+
+
+class ConfigurationSettingsPathNotExistedError(CoreNotADirectoryError):
+    """
+    configuration settings path not existed error.
+    """
+
+
+class ConfigurationRelatedFileNotFoundError(CoreFileNotFoundError):
+    """
+    configuration related file not found error.
+    """
+
+
 class ConfigurationManager(CoreObject):
     """
     configuration manager class.
@@ -26,7 +50,6 @@ class ConfigurationManager(CoreObject):
 
         self._config_stores = {}
         self._settings_path = application_services.get_settings_path()
-        self._load_all_configurations(self._settings_path)
 
     def _load_all_configurations(self, settings_path):
         """
@@ -35,7 +58,11 @@ class ConfigurationManager(CoreObject):
 
         :param str settings_path: settings directory full path.
 
-        :raises CoreNotADirectoryError: core not a directory error.
+        :raises ConfigurationSettingsPathNotExistedError: configuration settings
+                                                          path not existed error.
+
+        :raises ConfigurationRelatedFileNotFoundError: configuration related file
+                                                       not found error.
         """
 
         for root, directories, file_names in os.walk(self._settings_path):
@@ -49,13 +76,13 @@ class ConfigurationManager(CoreObject):
         :param str name: config store name.
         :param str file_path: config file full path.
 
-        :raises CoreKeyError: core key error.
+        :raises ConfigurationStoreExistedError: configuration store existed error.
         """
 
         if name in self._config_stores.keys():
-            raise CoreKeyError('Config store with name [{name}] already exists, '
-                               'config file names must be unique.'
-                               .format(name=name))
+            raise ConfigurationStoreExistedError('Config store with name [{name}] already '
+                                                 'existed, config file names must be unique.'
+                                                 .format(name=name))
 
         self._config_stores[name] = ConfigStore(name, file_path)
 
@@ -81,13 +108,17 @@ class ConfigurationManager(CoreObject):
                               for the given name not found, ignore it.
                               otherwise raise an error. defaults to False.
 
-        :raises CoreNotADirectoryError: core not a directory error.
-        :raises CoreFileNotFoundError: core file not found error.
+        :raises ConfigurationSettingsPathNotExistedError: configuration settings
+                                                          path not existed error.
+
+        :raises ConfigurationRelatedFileNotFoundError: configuration related file
+                                                       not found error.
         """
 
         if not os.path.isdir(self._settings_path):
-            raise CoreNotADirectoryError('Settings path [{path}] does not exist.'
-                                         .format(path=self._settings_path))
+            raise ConfigurationSettingsPathNotExistedError('Settings path [{path}] '
+                                                           'does not exist.'
+                                                           .format(path=self._settings_path))
 
         files = os.listdir(self._settings_path)
 
@@ -103,9 +134,11 @@ class ConfigurationManager(CoreObject):
 
         silent = options.get('silent', False)
         if silent is not True:
-            raise CoreFileNotFoundError('Config name [{name}] does not have any '
-                                        'related configuration file in [{settings}].'
-                                        .format(name=name, settings=self._settings_path))
+            raise ConfigurationRelatedFileNotFoundError('Config name [{name}] does not '
+                                                        'have any related configuration '
+                                                        'file in [{settings}].'
+                                                        .format(name=name,
+                                                                settings=self._settings_path))
 
     def load_configurations(self, *names, **options):
         """
@@ -118,9 +151,42 @@ class ConfigurationManager(CoreObject):
                               for any of the given names not found, ignore it.
                               otherwise raise an error. defaults to False.
 
-        :raises CoreNotADirectoryError: core not a directory error.
-        :raises CoreFileNotFoundError: core file not found error.
+        :raises ConfigurationSettingsPathNotExistedError: configuration settings
+                                                          path not existed error.
+
+        :raises ConfigurationRelatedFileNotFoundError: configuration related file
+                                                       not found error.
         """
 
         for single_name in names:
             self.load_configuration(single_name, **options)
+
+    def reload(self, store_name, **options):
+        """
+        reloads the configuration store from it's relevant file.
+
+        :param str store_name: config store name to be reloaded.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+        """
+
+        if store_name not in self._config_stores.keys():
+            raise ConfigurationStoreNotFoundError('Config store [{name}] not found.'
+                                                  .format(name=store_name))
+
+        self._config_stores[store_name].reload(**options)
+
+    def get_file_path(self, store_name):
+        """
+        gets the configuration file path for given store name.
+
+        :param str store_name: config store name to get it's file path.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+        """
+
+        if store_name not in self._config_stores.keys():
+            raise ConfigurationStoreNotFoundError('Config store [{name}] not found.'
+                                                  .format(name=store_name))
+
+        return self._config_stores[store_name].get_file_path()
