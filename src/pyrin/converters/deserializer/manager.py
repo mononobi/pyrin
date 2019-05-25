@@ -29,7 +29,7 @@ class DeserializerManager(CoreObject):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns None if deserialization fails.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param object value: value to be deserialized.
 
@@ -37,12 +37,12 @@ class DeserializerManager(CoreObject):
         """
 
         options.update(accepted_type=type(value))
-        deserialized_value = None
+        deserialized_value = DeserializerBase.DESERIALIZATION_FAILED
 
         for deserializer in self.get_deserializers(**options):
             deserialized_value = deserializer.deserialize(value, **options)
 
-            if deserialized_value is not None:
+            if deserialized_value is not DeserializerBase.DESERIALIZATION_FAILED:
                 return deserialized_value
             continue
 

@@ -12,12 +12,16 @@ class DeserializerBase(CoreObject):
     base deserializer class.
     """
 
+    # this value would be returned if deserialization fails.
+    DESERIALIZATION_FAILED = CoreObject()
+
     def __init__(self, **options):
         CoreObject.__init__(self)
 
     def deserialize(self, value, **options):
         """
         deserializes the given value.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param object value: value to be deserialized.
 
@@ -90,6 +94,7 @@ class StringDeserializerBase(DeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param str value: value to be deserialized.
 

@@ -34,9 +34,9 @@ class ConfigurationFileNotFoundError(CoreFileNotFoundError):
     pass
 
 
-class ConfigurationStoreSectionOrKeyNotFoundError(CoreKeyError):
+class ConfigurationStoreKeyNotFoundError(CoreKeyError):
     """
-    configuration store section or key not found error.
+    configuration store key not found error.
     """
     pass
 

@@ -36,20 +36,20 @@ class ListDeserializer(DeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return None
+            return self.DESERIALIZATION_FAILED
 
         result = [item for item in value]
 
         index = 0
         for item in result:
-            deserialized_value = None
+            deserialized_value = self.DESERIALIZATION_FAILED
 
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
                 deserialized_value = deserializer_services.deserialize(item)
 
-            if deserialized_value is not None:
+            if deserialized_value is not self.DESERIALIZATION_FAILED:
                 result[index] = deserialized_value
 
             index += 1
@@ -103,7 +103,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns None if deserialization fails.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -112,7 +112,7 @@ class StringListDeserializer(StringCollectionDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return None
+            return self.DESERIALIZATION_FAILED
 
         value = value.strip()
 

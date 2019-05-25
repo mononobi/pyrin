@@ -187,13 +187,13 @@ class Application(Flask):
 
         :param str component_id: component unique id.
 
-        :keyword object custom_key: custom key of component to get.
+        :keyword object __custom_key__: custom key of component to get.
 
         :rtype: Component
         """
 
         # checking whether is there any custom implementation for this component.
-        key = options.get('custom_key', DEFAULT_COMPONENT_KEY)
+        key = options.get('__custom_key__', DEFAULT_COMPONENT_KEY)
         if (component_id[0], key) in self._components.keys():
             return self._components[(component_id[0], key)]
 

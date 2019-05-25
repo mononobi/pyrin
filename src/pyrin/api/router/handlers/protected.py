@@ -86,9 +86,13 @@ class ProtectedRoute(RouteBase):
         dispatch the current route.
 
         :param CoreRequest request: current request object.
+
+        :returns: view function's result.
+
+        :rtype: object
         """
 
-        super(ProtectedRoute, self).dispatch(request, **options)
+        return super(ProtectedRoute, self).dispatch(request, **options)
 
 
 class SimpleProtectedRoute(ProtectedRoute):

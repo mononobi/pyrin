@@ -10,14 +10,15 @@ from pyrin.application.services import get_component
 def deserialize(value, **options):
     """
     deserializes the given value.
-    returns None if deserialization fails.
+    returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
     :param object value: value to be deserialized.
 
     :rtype: object
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID).deserialize(value, **options)
+    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+        deserialize(value, **options)
 
 
 def register_deserializer(instance, **options):
@@ -39,8 +40,8 @@ def register_deserializer(instance, **options):
     :raises DuplicatedDeserializerError: duplicated deserializer error.
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID).register_deserializer(
-        instance, **options)
+    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+        register_deserializer(instance, **options)
 
 
 def get_deserializers(**options):
@@ -55,4 +56,5 @@ def get_deserializers(**options):
     :rtype: list[DeserializerBase]
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID).get_deserializers(**options)
+    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+        get_deserializers(**options)

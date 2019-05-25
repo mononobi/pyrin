@@ -36,7 +36,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns None if deserialization fails.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -45,7 +45,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return None
+            return self.DESERIALIZATION_FAILED
 
         return int(value.strip())
 
@@ -89,7 +89,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns None if deserialization fails.
+        returns `DESERIALIZATION_FAILED` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -98,7 +98,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return None
+            return self.DESERIALIZATION_FAILED
 
         return float(value.strip())
 

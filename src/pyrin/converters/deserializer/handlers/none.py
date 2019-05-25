@@ -10,32 +10,29 @@ from pyrin.converters.deserializer.decorators import deserializer
 
 
 @deserializer()
-class BooleanDeserializer(StringPatternDeserializerBase):
+class NoneDeserializer(StringPatternDeserializerBase):
     """
-    boolean deserializer class.
+    none deserializer class.
     """
 
-    # matches the bool inside string.
-    # example: true, false
+    # matches the none inside string.
+    # example: none, null
     # matching are case-insensitive.
-    TRUE_REGEX = re.compile(r'^true$', re.IGNORECASE)
-    FALSE_REGEX = re.compile(r'^false$', re.IGNORECASE)
+    NONE_REGEX = re.compile(r'^none$', re.IGNORECASE)
+    NULL_REGEX = re.compile(r'^null$', re.IGNORECASE)
 
     def __init__(self, **options):
         """
-        creates an instance of BooleanDeserializer.
+        creates an instance of NoneDeserializer.
 
         :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
-                                                             and their length for boolean
+                                                             and their length for none
                                                              deserialization.
 
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
         StringPatternDeserializerBase.__init__(self, **options)
-
-        self._converter_map = {self.TRUE_REGEX: True,
-                               self.FALSE_REGEX: False}
 
     def deserialize(self, value, **options):
         """
@@ -44,14 +41,14 @@ class BooleanDeserializer(StringPatternDeserializerBase):
 
         :param str value: value to be deserialized.
 
-        :rtype: bool
+        :rtype: none
         """
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
             return self.DESERIALIZATION_FAILED
 
-        return self._converter_map[pattern]
+        return None
 
     def get_default_formats(self):
         """
@@ -63,5 +60,5 @@ class BooleanDeserializer(StringPatternDeserializerBase):
         :rtype: list(tuple(Pattern, int))
         """
 
-        return [(self.TRUE_REGEX, 4),
-                (self.FALSE_REGEX, 5)]
+        return [(self.NONE_REGEX, 4),
+                (self.NULL_REGEX, 4)]

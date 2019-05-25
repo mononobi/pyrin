@@ -10,7 +10,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 from pyrin.core.context import CoreObject, DTO
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
-    ConfigurationStoreSectionOrKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
+    ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
     ConfigurationStoreDuplicateKeyError
 
 
@@ -19,6 +19,9 @@ class ConfigStore(CoreObject):
     config store class.
     all configurations will be stored with lowercase keys.
     """
+
+    ACTIVE_SECTION_NAME = 'active'
+    SELECTED_SECTION_NAME = 'selected'
 
     def __init__(self, name, config_file_path, **options):
         """
@@ -75,28 +78,29 @@ class ConfigStore(CoreObject):
         :keyword object default_value: default value if key not present in config section.
                                        if not provided, error will be raised.
 
-        :raises ConfigurationStoreSectionOrKeyNotFoundError: configuration store section
-                                                             or key not found error.
+        :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                        section not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
 
         :rtype: object
         """
 
-        if section in self._configs.keys() and \
-           key in self._configs[section].keys():
-            return self._configs[section][key]
+        section_data = self.get_section(section, **options)
+        if key in section_data.keys():
+            return section_data[key]
 
         if 'default_value' not in options.keys():
-            raise ConfigurationStoreSectionOrKeyNotFoundError('Configuration with section '
-                                                              '[{section}] and key [{key}] '
-                                                              'not found in config '
-                                                              'store [{name}].'
-                                                              .format(section=section,
-                                                                      key=key,
-                                                                      name=self._name))
+            raise ConfigurationStoreKeyNotFoundError('Key [{key}] not found in section '
+                                                     '[{section}] from config store [{name}].'
+                                                     .format(key=key,
+                                                             section=section,
+                                                             name=self._name))
 
         return options.get('default_value')
 
-    def get_section_names(self):
+    def get_section_names(self, **options):
         """
         gets all available section names of config store.
 
@@ -111,7 +115,10 @@ class ConfigStore(CoreObject):
 
         :param str section: section name.
 
-        :keyword callable converter: a callable to use as keys case converter.
+        :keyword callable converter: a callable to use as case converter for keys.
+                                     it should be a callable with a signature
+                                     similar to below example:
+                                     case_converter(input_dict).
 
         :raises ConfigurationStoreSectionNotFoundError: configuration store section
                                                         not found error.
@@ -127,22 +134,26 @@ class ConfigStore(CoreObject):
 
         result = self._configs.get(section)
 
-        converter = options.get('converter', None)
-        if converter is not None:
-            return change_key_case(result, converter)
+        return self._change_key_case(result, **options)
 
-        return result
-
-    def get_section_keys(self, section):
+    def get_section_keys(self, section, **options):
         """
         gets all available keys in given section.
 
         :param str section: section name.
 
+        :keyword callable converter: a callable to use as case converter for keys.
+                                     it should be a callable with a signature
+                                     similar to below example:
+                                     case_converter(input_dict).
+
+        :raises ConfigurationStoreSectionNotFoundError: configuration store section
+                                                        not found error.
+
         :rtype: list[str]
         """
 
-        return self.get_section(section).keys()
+        return self.get_section(section, **options).keys()
 
     def get_all(self, **options):
         """
@@ -151,7 +162,10 @@ class ConfigStore(CoreObject):
         note that if there are same key names in different
         sections, it raises an error to prevent overwriting values.
 
-        :keyword callable converter: a callable to use as keys case converter.
+        :keyword callable converter: a callable to use as case converter for keys.
+                                     it should be a callable with a signature
+                                     similar to below example:
+                                     case_converter(input_dict).
 
         :raises ConfigurationStoreDuplicateKeyError: configuration store duplicate key error.
 
@@ -170,13 +184,9 @@ class ConfigStore(CoreObject):
                                                                           name=self._name))
                     flat_dict[key] = data
 
-        converter = options.get('converter', None)
-        if converter is not None:
-            return change_key_case(flat_dict, converter)
+        return self._change_key_case(flat_dict, **options)
 
-        return flat_dict
-
-    def get_file_path(self):
+    def get_file_path(self, **options):
         """
         gets config file path of this config store.
 
@@ -184,3 +194,60 @@ class ConfigStore(CoreObject):
         """
 
         return self._config_file_path
+
+    def _change_key_case(self, value, **options):
+        """
+        returns a copy of input dict with all it's keys
+        and nested keys cases modified using given converter.
+        if converter is not provided, it returns the inputted dict.
+
+        :param dict value: dict to change it's keys cases.
+
+        :keyword callable converter: a callable to use as case converter.
+                                     it should be a callable with a signature
+                                     similar to below example:
+                                     case_converter(input_dict).
+
+        :rtype: dict
+        """
+
+        converter = options.get('converter', None)
+        if converter is not None:
+            return change_key_case(value, converter)
+
+        return value
+
+    def get_active(self, **options):
+        """
+        gets the active configuration available in related file.
+        this method gets the section that it's name is under [active]
+        section, for example:
+
+        [active]
+        selected: production
+
+        [production]
+        id: 123
+        name: prod
+
+        [development]
+        id: 233
+        name: dev
+
+        this will return all key/values available under [production].
+        if the config store has not an [active] section, this method
+        raises an error.
+
+        :keyword callable converter: a callable to use as case converter.
+                                     it should be a callable with a signature
+                                     similar to below example:
+                                     case_converter(input_dict).
+
+        :raises ConfigurationStoreHasNoActiveSectionError: configuration store has
+                                                           no active section error.
+
+        :rtype: dict
+        """
+
+        selected_name = self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
+        return self.get_section(str(selected_name), **options)

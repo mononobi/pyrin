@@ -34,20 +34,20 @@ class DictionaryDeserializer(DeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return None
+            return self.DESERIALIZATION_FAILED
 
         result = DTO(**value)
 
         for key in result.keys():
             item = result.get(key)
-            deserialized_value = None
+            deserialized_value = self.DESERIALIZATION_FAILED
 
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
                 deserialized_value = deserializer_services.deserialize(item)
 
-            if deserialized_value is not None:
+            if deserialized_value is not self.DESERIALIZATION_FAILED:
                 result[key] = deserialized_value
             continue
 

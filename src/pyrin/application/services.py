@@ -62,7 +62,7 @@ def get_component(component_id, **options):
 
     :param str component_id: component unique id.
 
-    :keyword object custom_key: custom key of component to get.
+    :keyword object __custom_key__: custom key of component to get.
 
     :rtype: Component
     """

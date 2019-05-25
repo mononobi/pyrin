@@ -106,6 +106,10 @@ class RouteBase(Rule):
         dispatch the current route.
 
         :param CoreRequest request: current request object.
+
+        :returns: view function's result.
+
+        :rtype: object
         """
 
         return self._call_view_function(request, **options)

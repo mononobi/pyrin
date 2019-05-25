@@ -12,7 +12,7 @@ def load_components(**options):
     loads required packages and modules for application startup.
     """
 
-    get_component(PackagingComponent.COMPONENT_ID).load_components(**options)
+    get_component(PackagingComponent.COMPONENT_ID, **options).load_components(**options)
 
 
 def load(module_name, **options):
@@ -25,4 +25,4 @@ def load(module_name, **options):
     :rtype: Module
     """
 
-    return get_component(PackagingComponent.COMPONENT_ID).load(module_name, **options)
+    return get_component(PackagingComponent.COMPONENT_ID, **options).load(module_name, **options)

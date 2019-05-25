@@ -37,4 +37,4 @@ def create_route(rule, **options):
     :rtype: RouteBase
     """
 
-    return get_component(RouterComponent.COMPONENT_ID).create_route(rule, **options)
+    return get_component(RouterComponent.COMPONENT_ID, **options).create_route(rule, **options)

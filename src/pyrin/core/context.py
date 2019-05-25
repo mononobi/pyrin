@@ -115,6 +115,8 @@ class Component(CoreObject):
     # structure: (name, key)
     # example: ('pyrin.application.services', DEFAULT_COMPONENT_KEY) -> default
     # example: ('pyrin.application.services', 5) -> custom
+    # for DI and IoC to work, it's needed that `__custom_key__`=value
+    # be present in options passed to get_component() method.
     COMPONENT_ID = None
 
     def __init__(self, **options):

@@ -25,7 +25,8 @@ def load_configuration(name, **options):
                                                    not found error.
     """
 
-    return get_component(ConfigurationComponent.COMPONENT_ID).load_configuration(name, **options)
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        load_configuration(name, **options)
 
 
 def load_configurations(*names, **options):
@@ -46,7 +47,7 @@ def load_configurations(*names, **options):
                                                    not found error.
     """
 
-    return get_component(ConfigurationComponent.COMPONENT_ID).\
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
         load_configurations(*names, **options)
 
 
@@ -59,4 +60,166 @@ def reload(store_name, **options):
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
     """
 
-    return get_component(ConfigurationComponent.COMPONENT_ID).reload(store_name, **options)
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        reload(store_name, **options)
+
+
+def get_file_path(store_name, **options):
+    """
+    gets the configuration file path for given config store.
+
+    :param str store_name: config store name to get it's file path.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_file_path(store_name, **options)
+
+
+def get(store_name, section, key, **options):
+    """
+    gets the value of specified key from provided section of given config store.
+
+    :param str store_name: config store name.
+    :param str section: config section name.
+    :param str key: config key to get it's value.
+
+    :keyword object default_value: default value if key not present in config section.
+                                   if not provided, error will be raised.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                    section not found error.
+
+    :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                key not found error.
+
+    :rtype: object
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get(store_name, section, key, **options)
+
+
+def get_section_names(store_name, **options):
+    """
+    gets all available section names of given config store.
+
+    :param str store_name: config store name.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :rtype: list[str]
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_section_names(store_name, **options)
+
+
+def get_section(store_name, section, **options):
+    """
+    gets all key/values stored in given section of specified config store.
+
+    :param str store_name: config store name.
+    :param str section: section name.
+
+    :keyword callable converter: a callable to use as case converter for keys.
+                                 it should be a callable with a signature
+                                 similar to below example:
+                                 case_converter(input_dict).
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreSectionNotFoundError: configuration store section
+                                                    not found error.
+
+    :rtype: dict
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_section(store_name, section, **options)
+
+
+def get_section_keys(store_name, section, **options):
+    """
+    gets all available keys in given section of specified config store.
+
+    :param str store_name: config store name.
+    :param str section: section name.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreSectionNotFoundError: configuration store section
+                                                    not found error.
+
+    :rtype: list[str]
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_section_keys(store_name, section, **options)
+
+
+def get_all(store_name, **options):
+    """
+    gets all available key/values from different sections of
+    given config store in a flat dict, eliminating the sections.
+    note that if there are same key names in different
+    sections, it raises an error to prevent overwriting values.
+
+    :param str store_name: config store name.
+
+    :keyword callable converter: a callable to use as case converter for keys.
+                                 it should be a callable with a signature
+                                 similar to below example:
+                                 case_converter(input_dict).
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+    :raises ConfigurationStoreDuplicateKeyError: configuration store duplicate key error.
+
+    :rtype: dict
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_all(store_name, **options)
+
+
+def get_active(store_name, **options):
+    """
+    gets the active configuration available in given config store.
+    this method gets the section that it's name is under [active]
+    section, for example:
+
+    [active]
+    selected: production
+
+    [production]
+    id: 123
+    name: prod
+
+    [development]
+    id: 233
+    name: dev
+
+    this will return all key/values available under [production].
+    if the config store has not an [active] section, this method
+    raises an error.
+
+    :param str store_name: config store name.
+
+    :keyword callable converter: a callable to use as case converter.
+                                 it should be a callable with a signature
+                                 similar to below example:
+                                 case_converter(input_dict).
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreHasNoActiveSectionError: configuration store has
+                                                       no active section error.
+
+    :rtype: dict
+    """
+
+    return get_component(ConfigurationComponent.COMPONENT_ID, **options).\
+        get_active(store_name, **options)
