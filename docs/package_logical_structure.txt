@@ -17,4 +17,11 @@
    inside exceptions.py module. the only type of exception that must be used directly and
    without subclassing is CoreNotImplementedError.
 
-7. pyrin.utils packages must use core exceptions and not implementing their own custom exceptions.
+7. pyrin.utils packages must use core exceptions and not implement their own custom exceptions.
+
+8. all methods that have been exposed through `services` modules, must have `**options`
+   in their signature because that's how DI and IoC framework of pyrin gets used.
+   and `**options` must be always passed to get_component() method.
+
+9. signature of sibling methods in different layers (manager, services, api, ...) must be the
+   same (in 99% of occasions).
