@@ -25,3 +25,6 @@
 
 9. signature of sibling methods in different layers (manager, services, api, ...) must be the
    same (in 99% of occasions).
+
+10. in each package, only the implementation (manager) module should call other packages services,
+    so every other module, should only call it's own package services module.
