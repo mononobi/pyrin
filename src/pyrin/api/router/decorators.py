@@ -3,7 +3,7 @@
 router decorators module.
 """
 
-import pyrin.application.services as application_services
+import pyrin.api.router.services as router_services
 
 
 def api(url, **options):
@@ -42,7 +42,7 @@ def api(url, **options):
         :rtype: callable
         """
 
-        application_services.add_url_rule(url, view_func=func, **options)
+        router_services.add_route(url, view_func=func, **options)
 
         return func
 

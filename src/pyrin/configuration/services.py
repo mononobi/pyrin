@@ -215,8 +215,11 @@ def get_active(store_name, **options):
 
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
 
-    :raises ConfigurationStoreHasNoActiveSectionError: configuration store has
-                                                       no active section error.
+    :raises ConfigurationStoreSectionNotFoundError: configuration store section
+                                                    not found error.
+
+    :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                key not found error.
 
     :rtype: dict
     """

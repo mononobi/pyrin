@@ -29,13 +29,11 @@ class ConfigurationManager(CoreObject):
         self._config_stores = {}
         self._settings_path = application_services.get_settings_path()
 
-        self._load_all_configurations(self._settings_path)
-
     def _load_all_configurations(self, settings_path):
         """
         loads all available configuration files from specified
         settings path into relevant config stores.
-        this method is deprecated and is not being used anywhere.
+        this method is deprecated and is not used anywhere.
 
         :param str settings_path: settings directory full path.
 
@@ -297,8 +295,11 @@ class ConfigurationManager(CoreObject):
 
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
 
-        :raises ConfigurationStoreHasNoActiveSectionError: configuration store has
-                                                           no active section error.
+        :raises ConfigurationStoreSectionNotFoundError: configuration store section
+                                                        not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
 
         :rtype: dict
         """

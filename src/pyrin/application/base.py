@@ -11,6 +11,7 @@ from flask import Flask, request
 from flask.app import setupmethod
 
 import pyrin.packaging.services as packaging_services
+import pyrin.configuration.services as config_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import SimpleProtectedRoute
@@ -26,6 +27,7 @@ from pyrin.core.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
+from pyrin.utils.dictionary import make_key_upper
 
 
 class Application(Flask):
@@ -34,14 +36,24 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
-    # we set `url_rule_class = SimpleProtectedRoute` to force top
-    # level application to register it's own desired route or route factory.
+    # the application looks for these files to configure itself.
+    # they should be present in settings folder of the upper
+    # level application.
+    config_stores = ['application',
+                     'communication',
+                     'environment']
+
+    # settings path will be registered in application context with this key.
+    settings_context_key = 'settings_path'
+
+    # we set `url_rule_class = SimpleProtectedRoute` to force
+    # the api package to register it's own desired route or route factory.
     url_rule_class = SimpleProtectedRoute
+
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
-    settings_context_key = 'settings_path'
 
     def __init__(self, import_name, **options):
         """
@@ -210,14 +222,38 @@ class Application(Flask):
 
         # we should call this method after loading components
         # to be able to use configuration package.
-        self._configure(**options)
+        self._load_configs()
 
-    def _configure(self, **options):
+    def _load_configs(self):
         """
-        configures application.
+        loads all configurations related to application package.
         """
 
-        # self.config.from_object(settings)
+        config_services.load_configurations(*self.config_stores)
+        for store_name in self.config_stores:
+            config_dict = config_services.get_all(store_name)
+            self.configure(config_dict)
+
+    def _configure(self, config_store):
+        """
+        configures the application with given dict.
+        all keys will be converted to uppercase for flask compatibility.
+
+        :param dict config_store: a dictionary containing configuration key/values.
+        """
+
+        upper_dict = make_key_upper(config_store)
+        self.config.update(upper_dict)
+
+    def configure(self, config_store):
+        """
+        configures the application with given dict.
+        all keys will be converted to uppercase for flask compatibility.
+
+        :param dict config_store: a dictionary containing configuration key/values.
+        """
+
+        self._configure(config_store)
 
     def run(self, host=None, port=None, debug=None,
             load_dotenv=True, **options):

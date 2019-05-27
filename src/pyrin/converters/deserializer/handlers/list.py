@@ -9,7 +9,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.converters.deserializer.handlers.base import DeserializerBase, \
-    StringCollectionDeserializerBase
+    StringPatternDeserializerBase
 
 
 @deserializer()
@@ -69,7 +69,7 @@ class ListDeserializer(DeserializerBase):
 
 
 @deserializer()
-class StringListDeserializer(StringCollectionDeserializerBase):
+class StringListDeserializer(StringPatternDeserializerBase):
     """
     string list deserializer class.
     note that this deserializer could only handle lists with single depth.
@@ -79,10 +79,11 @@ class StringListDeserializer(StringCollectionDeserializerBase):
     for example: [1, (2, 4), [5, 4]] will not be deserialized.
     """
 
-    # matches the list inside string.
+    # matches a list inside string, all of these values will be matched.
     # example: [], [1], [1,], [1,2], [1,2,]
-    # all of these values will be matched.
-    LIST_REGEX = re.compile(r'^\[\]$|^\[.+(,.+)*\]$')
+    # it won't accept nested collections, all of these values won't match.
+    # example: [()], [1, {2: 4}, [2,3]]
+    LIST_REGEX = re.compile(r'^\[\]$|^\[[^\(\){}\[\]]+(,[^\(\){}\[\]]+)*\]$')
 
     def __init__(self, **options):
         """
@@ -93,12 +94,9 @@ class StringListDeserializer(StringCollectionDeserializerBase):
                                                              deserialization.
 
         :type accepted_formats: list[tuple(Pattern format, int length)]
-
-        :keyword list[str] invalid_chars: custom invalid characters that make deserialization
-                                          impossible for this deserializer.
         """
 
-        StringCollectionDeserializerBase.__init__(self, **options)
+        StringPatternDeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
@@ -139,13 +137,3 @@ class StringListDeserializer(StringCollectionDeserializerBase):
         """
 
         return [(self.LIST_REGEX, self.UNDEF_LENGTH)]
-
-    def get_default_invalid_chars(self):
-        """
-        returns a list of default invalid characters which make
-        deserialization impossible for this deserializer.
-
-        :rtype: list[str]
-        """
-
-        return ['(', ')', '{', '}']

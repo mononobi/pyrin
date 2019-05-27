@@ -166,3 +166,14 @@ def get_settings_path():
     """
 
     return _get_app().get_settings_path()
+
+
+def configure(config_store):
+    """
+    configures the application with given dict.
+    all keys will be converted to uppercase for flask compatibility.
+
+    :param dict config_store: a dictionary containing configuration key/values.
+    """
+
+    _get_app().configure(config_store)
