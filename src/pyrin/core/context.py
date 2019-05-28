@@ -5,7 +5,8 @@ core context module.
 
 from enum import Enum, EnumMeta
 
-from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
+from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError, \
+    InvalidComponentNameError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 
@@ -102,7 +103,24 @@ class Context(DTO):
         if name in self:
             return self.get(name)
 
-        raise ContextAttributeError('Property [{name}] not found.'.format(name=name))
+        self._raise_key_error(name)
+
+    def __getitem__(self, item):
+        if item in self:
+            return self.get(item)
+
+        self._raise_key_error(item)
+
+    def _raise_key_error(self, key):
+        """
+        raises an error for given key.
+
+        :param object key: key object that caused the error.
+
+        :raises ContextAttributeError: context attribute error.
+        """
+
+        raise ContextAttributeError('Property [{name}] not found.'.format(name=key))
 
 
 class Component(CoreObject):
@@ -124,8 +142,7 @@ class Component(CoreObject):
 
         # component id is a tuple(str, object) and should be unique for each
         # instance unless it's intended to replace an already existing one.
-        self._component_id = (component_name,
-                              options.get('component_custom_key', DEFAULT_COMPONENT_KEY))
+        self._component_id = self.make_component_id(component_name, **options)
 
     def get_id(self):
         """
@@ -135,6 +152,27 @@ class Component(CoreObject):
         """
 
         return self._component_id
+
+    @staticmethod
+    def make_component_id(component_name, **options):
+        """
+        makes a component id based on input values and returns it.
+
+        :param str component_name: component name.
+
+        :keyword object component_custom_key: component custom key.
+
+        :raises InvalidComponentNameError: invalid component name.
+
+        :rtype: tuple(str, object)
+        """
+
+        if component_name is None or component_name.strip() == '':
+            raise InvalidComponentNameError('Component name should not be blank.')
+
+        component_custom_key = options.get('component_custom_key', DEFAULT_COMPONENT_KEY)
+
+        return component_name, component_custom_key
 
 
 class CoreEnumMeta(EnumMeta):

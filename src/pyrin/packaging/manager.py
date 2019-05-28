@@ -7,6 +7,8 @@ import os
 
 from importlib import import_module
 
+import pyrin.configuration.services as config_services
+
 from pyrin.core.context import CoreObject
 from pyrin.packaging.base import Package
 from pyrin.utils.custom_print import print_info
@@ -106,6 +108,10 @@ class PackagingManager(CoreObject):
             if package_class is None or \
                 len(package_class.DEPENDS) == 0 or \
                self._is_dependencies_loaded(package_class.DEPENDS) is True:
+
+                if package_class is not None:
+                    instance = package_class()
+                    instance.load_configs(config_services)
 
                 self._load_component(package, components[package], **options)
             else:

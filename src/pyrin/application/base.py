@@ -26,7 +26,6 @@ from pyrin.application.context import CoreResponse, CoreRequest, ApplicationCont
     ApplicationComponent
 from pyrin.core.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 from pyrin.utils.dictionary import make_key_upper
 
@@ -122,6 +121,7 @@ class Application(Flask):
         # setting the application instance in global 'pyrin' level variable.
         _set_app(self)
 
+    @setupmethod
     def _register_required_components(self):
         """
         registers required components that the Application needs to
@@ -227,18 +227,18 @@ class Application(Flask):
 
         :keyword object component_custom_key: custom key of component to get.
 
+        :raises InvalidComponentNameError: invalid component name error.
+
         :rtype: Component
         """
 
-        component_id = (component_name,
-                        options.get('component_custom_key', DEFAULT_COMPONENT_KEY))
-
-        # checking whether is there any custom implementations.
+        # checking whether is there any custom implementation.
+        component_id = Component.make_component_id(component_name, **options)
         if component_id in self._components.keys():
             return self._components[component_id]
 
         # getting default component.
-        component_id = (component_name, DEFAULT_COMPONENT_KEY)
+        component_id = Component.make_component_id(component_name)
         return self._components[component_id]
 
     def _load(self, **options):

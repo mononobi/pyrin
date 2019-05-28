@@ -7,6 +7,7 @@ from flask import Request, Response, jsonify
 
 from pyrin.application.exceptions import ComponentAttributeError
 from pyrin.core.context import Context
+from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING
 
@@ -15,7 +16,18 @@ class ApplicationContext(Context):
     """
     context class to hold application contextual data.
     """
-    pass
+
+    def _raise_key_error(self, key):
+        """
+        raises an error for given key.
+
+        :param object key: key object that caused the error.
+
+        :raises ContextAttributeError: context attribute error.
+        """
+
+        raise ContextAttributeError('Property [{name}] not found in application context.'
+                                    .format(name=key))
 
 
 class ApplicationComponent(ApplicationContext):
@@ -23,12 +35,17 @@ class ApplicationComponent(ApplicationContext):
     context class to hold application components.
     """
 
-    def __getattr__(self, name):
-        if name in self:
-            return self.get(name)
+    def _raise_key_error(self, key):
+        """
+        raises an error for given key.
+
+        :param object key: key object that caused the error.
+
+        :raises ComponentAttributeError: component attribute error.
+        """
 
         raise ComponentAttributeError('Component [{name}] is not available '
-                                      'in application components.'.format(name=name))
+                                      'in application components.'.format(name=key))
 
 
 class CoreResponse(Response):

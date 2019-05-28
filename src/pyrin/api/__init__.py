@@ -12,4 +12,5 @@ class APIPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
+    DEPENDS = ['pyrin.configuration']
+    CONFIG_STORE_NAMES = ['api']
