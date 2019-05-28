@@ -6,6 +6,7 @@ core context module.
 from enum import Enum, EnumMeta
 
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 
 class DTO(dict):
@@ -110,21 +111,30 @@ class Component(CoreObject):
     all component classes must inherit from this class and their respective manager class.
     """
 
-    # COMPONENT_ID should be a unique tuple for each instance.
-    # unless its intended to replace an already available component.
-    # structure: (name, key)
-    # example: ('pyrin.application.services', DEFAULT_COMPONENT_KEY) -> default
-    # example: ('pyrin.application.services', 5) -> custom
-    # for DI and IoC to work, it's needed that `__custom_key__`=value
-    # be present in options passed to get_component() method.
-    COMPONENT_ID = None
-
-    def __init__(self, **options):
+    def __init__(self, component_name, **options):
         """
         initializes an instance of Component.
+
+        :param str component_name: component name.
+
+        :keyword object component_custom_key: component custom key.
         """
 
         super(Component, self).__init__()
+
+        # component id is a tuple(str, object) and should be unique for each
+        # instance unless it's intended to replace an already existing one.
+        self._component_id = (component_name,
+                              options.get('component_custom_key', DEFAULT_COMPONENT_KEY))
+
+    def get_id(self):
+        """
+        gets the component id of this instance.
+
+        :rtype: tuple(str, object)
+        """
+
+        return self._component_id
 
 
 class CoreEnumMeta(EnumMeta):

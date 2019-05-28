@@ -4,6 +4,7 @@ packaging base module.
 """
 
 from pyrin.core.context import CoreObject
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 
 class Package(CoreObject):
@@ -27,3 +28,13 @@ class Package(CoreObject):
     # because those two packages will be loaded at the beginning
     # and are always available before any other package gets loaded.
     DEPENDS = []
+
+    # component name should be unique for each instance unless it's intended
+    # to replace an already available one.
+    COMPONENT_NAME = None
+
+    # component custom key should be unique for each instance unless it's intended
+    # to replace an already available one.
+    # custom key usage is when we want to expose different implementations
+    # based on request context.
+    COMPONENT_CUSTOM_KEY = DEFAULT_COMPONENT_KEY

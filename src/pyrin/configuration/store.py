@@ -283,4 +283,3 @@ class ConfigStore(CoreObject):
 
         return [self.get_section(section, **options)
                 for section in self.get_section_names(**options)]
-

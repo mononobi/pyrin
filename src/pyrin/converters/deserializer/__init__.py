@@ -13,3 +13,4 @@ class DeserializerPackage(Package):
 
     NAME = __name__
     DEPENDS = []
+    COMPONENT_NAME = 'pyrin.converters.deserializer.component'

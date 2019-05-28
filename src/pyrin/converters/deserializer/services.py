@@ -3,7 +3,7 @@
 deserializer services module.
 """
 
-from pyrin.converters.deserializer.component import DeserializerComponent
+from pyrin.converters.deserializer import DeserializerPackage
 from pyrin.application.services import get_component
 
 
@@ -17,7 +17,7 @@ def deserialize(value, **options):
     :rtype: object
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
         deserialize(value, **options)
 
 
@@ -40,7 +40,7 @@ def register_deserializer(instance, **options):
     :raises DuplicatedDeserializerError: duplicated deserializer error.
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
         register_deserializer(instance, **options)
 
 
@@ -56,5 +56,5 @@ def get_deserializers(**options):
     :rtype: list[DeserializerBase]
     """
 
-    return get_component(DeserializerComponent.COMPONENT_ID, **options).\
+    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
         get_deserializers(**options)

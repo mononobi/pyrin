@@ -56,18 +56,18 @@ def register_component(component, **options):
     _get_app().register_component(component, **options)
 
 
-def get_component(component_id, **options):
+def get_component(component_name, **options):
     """
     gets the specified application component.
 
-    :param str component_id: component unique id.
+    :param str component_name: component name.
 
-    :keyword object __custom_key__: custom key of component to get.
+    :keyword object component_custom_key: custom key of component to get.
 
     :rtype: Component
     """
 
-    return _get_app().get_component(component_id, **options)
+    return _get_app().get_component(component_name, **options)
 
 
 def register_error_handler(code_or_exception, func):

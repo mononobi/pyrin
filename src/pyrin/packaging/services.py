@@ -3,7 +3,7 @@
 packaging services module.
 """
 
-from pyrin.packaging.component import PackagingComponent
+from pyrin.packaging import PackagingPackage
 from pyrin.application.services import get_component
 
 
@@ -12,7 +12,7 @@ def load_components(**options):
     loads required packages and modules for application startup.
     """
 
-    get_component(PackagingComponent.COMPONENT_ID, **options).load_components(**options)
+    get_component(PackagingPackage.COMPONENT_NAME, **options).load_components(**options)
 
 
 def load(module_name, **options):
@@ -25,4 +25,4 @@ def load(module_name, **options):
     :rtype: Module
     """
 
-    return get_component(PackagingComponent.COMPONENT_ID, **options).load(module_name, **options)
+    return get_component(PackagingPackage.COMPONENT_NAME, **options).load(module_name, **options)

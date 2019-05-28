@@ -20,6 +20,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
+from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
     ApplicationComponent
@@ -36,7 +37,7 @@ class Application(Flask):
     server must initialize an instance of this class at startup.
     """
 
-    # the application looks for these files to configure itself.
+    # the application looks for these stores to configure itself.
     # they should be present in settings folder of the upper
     # level application.
     config_stores = ['application',
@@ -45,6 +46,14 @@ class Application(Flask):
 
     # settings path will be registered in application context with this key.
     settings_context_key = 'settings_path'
+
+    # default packaging component to be used by application.
+    # if you want to change the default one, you could subclass
+    # Application and set `packaging_component_class` to your desired one.
+    # this design is compatible with other flask subclassing features.
+    # note that your custom packaging component class should not use @component
+    # decorator to register itself, application will register it instead.
+    packaging_component_class = PackagingComponent
 
     # we set `url_rule_class = SimpleProtectedRoute` to force
     # the api package to register it's own desired route or route factory.
@@ -105,12 +114,29 @@ class Application(Flask):
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
 
-        # we should register packaging component manually because it is the base package
-        # and could not be loaded automatically due to circular references through imports.
-        self.register_component(PackagingComponent())
+        # we should register some packages manually because they are referenced
+        # in `application.base` module and could not be loaded automatically
+        # because packaging package will not handle them.
+        self._register_required_components()
 
         # setting the application instance in global 'pyrin' level variable.
         _set_app(self)
+
+    def _register_required_components(self):
+        """
+        registers required components that the Application needs to
+        reference to them immediately.
+        this type of components could not be registered using @component decorator,
+        because they will be referenced before Application instance gets initialized.
+
+        note that implementation-wise, application package should depend on other
+        packages services as few as possible, so be careful if you needed some external
+        packages services inside application package, probably it would be better to
+        change your design that enforces the application to use other packages services.
+        """
+
+        self.register_component(self.packaging_component_class(
+            PackagingPackage.COMPONENT_NAME))
 
     def add_context(self, key, value, **options):
         """
@@ -170,46 +196,49 @@ class Application(Flask):
                                             'an instance of Component.'
                                             .format(component=str(component)))
 
-        if not isinstance(component.COMPONENT_ID, tuple) or \
-                len(component.COMPONENT_ID[0].strip()) == 0:
+        if not isinstance(component.get_id(), tuple) or \
+                len(component.get_id()[0].strip()) == 0:
             raise InvalidComponentIDError('Component [{component}] has '
                                           'not a valid component id.'
                                           .format(component=str(component)))
 
         # checking whether is there any registered component with the same id.
-        if component.COMPONENT_ID in self._components.keys():
+        if component.get_id() in self._components.keys():
             replace = options.get('replace', False)
 
             if replace is not True:
                 raise DuplicateComponentIDError('There is another registered component with '
                                                 'id [{id}] but "replace" option is not set, so '
                                                 'component [{instance}] could not be registered.'
-                                                .format(id=component.COMPONENT_ID,
+                                                .format(id=component.get_id(),
                                                         instance=str(component)))
 
-            old_instance = self._components[component.COMPONENT_ID]
+            old_instance = self._components[component.get_id()]
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(component)))
 
-        self._components[component.COMPONENT_ID] = component
+        self._components[component.get_id()] = component
 
-    def get_component(self, component_id, **options):
+    def get_component(self, component_name, **options):
         """
         gets the specified application component.
 
-        :param str component_id: component unique id.
+        :param str component_name: component name.
 
-        :keyword object __custom_key__: custom key of component to get.
+        :keyword object component_custom_key: custom key of component to get.
 
         :rtype: Component
         """
 
-        # checking whether is there any custom implementation for this component.
-        key = options.get('__custom_key__', DEFAULT_COMPONENT_KEY)
-        if (component_id[0], key) in self._components.keys():
-            return self._components[(component_id[0], key)]
+        component_id = (component_name,
+                        options.get('component_custom_key', DEFAULT_COMPONENT_KEY))
+
+        # checking whether is there any custom implementations.
+        if component_id in self._components.keys():
+            return self._components[component_id]
 
         # getting default component.
+        component_id = (component_name, DEFAULT_COMPONENT_KEY)
         return self._components[component_id]
 
     def _load(self, **options):
@@ -231,6 +260,7 @@ class Application(Flask):
 
         config_services.load_configurations(*self.config_stores)
         for store_name in self.config_stores:
+            pass
             config_dict = config_services.get_all(store_name)
             self.configure(config_dict)
 

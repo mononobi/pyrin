@@ -6,14 +6,17 @@ application decorators module.
 import pyrin.application.services as application_services
 
 
-def component(*args, **kwargs):
+def component(component_name, *args, **kwargs):
     """
     decorator to register a component in application or replace the existing one
     if `replace=True` is provided. otherwise, it raises an error on adding an instance
     which it's id is already available in registered components.
 
+    :param str component_name: component name.
     :param object args: component class constructor arguments.
     :param object kwargs: component class constructor keyword arguments.
+
+    :keyword object component_custom_key: component custom key.
 
     :keyword bool replace: specifies that if there is another registered
                            component with the same id, replace it with the new one.
@@ -44,7 +47,7 @@ def component(*args, **kwargs):
         :rtype: type
         """
 
-        instance = cls(*args, **kwargs)
+        instance = cls(component_name, *args, **kwargs)
         application_services.register_component(instance, **kwargs)
 
         return cls

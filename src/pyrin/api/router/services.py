@@ -3,7 +3,7 @@
 router services module.
 """
 
-from pyrin.api.router.component import RouterComponent
+from pyrin.api.router import RouterPackage
 from pyrin.application.decorators import route_factory
 from pyrin.application.services import get_component
 
@@ -37,7 +37,7 @@ def create_route(rule, **options):
     :rtype: RouteBase
     """
 
-    return get_component(RouterComponent.COMPONENT_ID, **options).create_route(rule, **options)
+    return get_component(RouterPackage.COMPONENT_NAME, **options).create_route(rule, **options)
 
 
 def add_route(url, endpoint=None, view_func=None,
@@ -78,5 +78,5 @@ def add_route(url, endpoint=None, view_func=None,
     :raises DuplicateRouteURLError: duplicate route url error.
     """
 
-    return get_component(RouterComponent.COMPONENT_ID, **options).\
+    return get_component(RouterPackage.COMPONENT_NAME, **options).\
         add_route(url, endpoint, view_func, provide_automatic_options, **options)
