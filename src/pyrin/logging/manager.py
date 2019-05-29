@@ -1,87 +1,112 @@
-# # -*- coding: utf-8 -*-
-# """
-# logging manager module.
-# """
-#
-# import os
-# import platform
-# import logging
-# import flask.logging
-#
-# from logging.handlers import SysLogHandler
-#
-#
-# from pyrin.context import CoreObject
-#
-#
-# class Logging(CoreObject):
-#     """Configure flask logging with nice formatting and syslog support."""
-#
-#     def __init__(self, app=None):
-#         """Boiler plate extension init with log_level being declared"""
-#         self.log_level = None
-#         self.app = app
-#         if app is not None:
-#             self.init_app(app)
-#
-#     def init_app(self, app):
-#         """Setup the logging handlers, level and formatters.
-#         Level (DEBUG, INFO, CRITICAL, etc) is determined by the
-#         app.config['FLASK_LOG_LEVEL'] setting, and defaults to
-#         ``None``/``logging.NOTSET``.
-#         """
-#         config_log_level = app.config.get('FLASK_LOG_LEVEL', None)
-#
-#         # Set up format for default logging
-#         hostname = platform.node().split('.')[0]
-#         formatter = (
-#             '[%(asctime)s] %(levelname)s %(process)d [%(name)s] '
-#             '%(filename)s:%(lineno)d - '
-#             '[{hostname}] - %(message)s'
-#         ).format(hostname=hostname)
-#
-#         config_log_int = None
-#         set_level = None
-#
-#         if config_log_level:
-#             config_log_int = getattr(logging, config_log_level.upper(), None)
-#             if not isinstance(config_log_int, int):
-#                 raise ValueError(
-#                     'Invalid log level: {0}'.format(config_log_level)
-#                 )
-#             set_level = config_log_int
-#
-#         # Set to NotSet if we still aren't set yet
-#         if not set_level:
-#             set_level = config_log_int = logging.NOTSET
-#         self.log_level = set_level
-#
-#         # Setup basic StreamHandler logging with format and level (do
-#         # setup in case we are main, or change root logger if we aren't.
-#         logging.basicConfig(format=formatter)
-#         root_logger = logging.getLogger()
-#         root_logger.setLevel(set_level)
-#
-#         # Get everything ready to setup the syslog handlers
-#         address = None
-#         if os.path.exists('/dev/log'):
-#             address = '/dev/log'
-#         elif os.path.exists('/var/run/syslog'):
-#             address = '/var/run/syslog'
-#         else:
-#             address = ('127.0.0.1', 514)
-#         # Add syslog handler before adding formatters
-#         root_logger.addHandler(
-#             SysLogHandler(address=address, facility=SysLogHandler.LOG_LOCAL0)
-#         )
-#         self.set_formatter(formatter)
-#
-#         return config_log_int
-#
-#     @staticmethod
-#     def set_formatter(log_formatter):
-#         """Override the default log formatter with your own."""
-#         # Add our formatter to all the handlers
-#         root_logger = logging.getLogger()
-#         for handler in root_logger.handlers:
-#             handler.setFormatter(logging.Formatter(log_formatter))
+# -*- coding: utf-8 -*-
+"""
+logging manager module.
+"""
+
+import logging
+import logging.config
+
+import pyrin.configuration.services as config_services
+
+from pyrin.core.context import CoreObject
+
+
+class LoggingManager(CoreObject):
+    """
+    logging manager class.
+    """
+
+    CONFIG_STORE_NAME = 'logging'
+
+    def __init__(self):
+        """
+        initializes an instance of LoggingManager.
+        """
+
+        CoreObject.__init__(self)
+
+        self._config_file_path = config_services.get_file_path(self.CONFIG_STORE_NAME)
+        self._load_configs(self._config_file_path)
+
+    def _load_configs(self, config_file_path):
+        """
+        loads logging configuration and handlers from given file.
+
+        :param str config_file_path: config file path.
+        """
+
+        logging.config.fileConfig(config_file_path)
+
+    def reload_configs(self, **options):
+        """
+        reloads all logging configurations from config file.
+        """
+
+        self._load_configs(self._config_file_path)
+
+    def get_logger(self, name, **options):
+        """
+        gets the logger based on input parameters.
+
+        :param str name: logger name to get.
+
+        :returns: specified logger.
+
+        :rtype: Logger
+        """
+
+        return logging.getLogger(name)
+
+    def debug(self, msg, *args, **kwargs):
+        """
+        emits a log with debug level.
+
+        :param str msg: log message.
+        """
+
+        logging.debug(msg, *args, **kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        """
+        emits a log with info level.
+
+        :param str msg: log message.
+        """
+
+        logging.info(msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        """
+        emits a log with warning level.
+
+        :param str msg: log message.
+        """
+
+        logging.warning(msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        """
+        emits a log with error level.
+
+        :param str msg: log message.
+        """
+
+        logging.error(msg, *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        """
+        emits a log with error level and exception information.
+
+        :param str msg: log message.
+        """
+
+        logging.exception(msg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        """
+        emits a log with critical level.
+
+        :param str msg: log message.
+        """
+
+        logging.critical(msg, *args, **kwargs)

@@ -22,6 +22,12 @@ class DTO(dict):
 
         raise CoreAttributeError('Property [{name}] not found.'.format(name=name))
 
+    def __getitem__(self, item):
+        if item in self:
+            return self.get(item)
+
+        raise CoreAttributeError('Property [{name}] not found.'.format(name=item))
+
     def __setattr__(self, name, value):
         self[name] = value
 
@@ -196,3 +202,17 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
         """
 
         return self.value
+
+
+class Hook(CoreObject):
+    """
+    base hook class.
+    all application hook classes must be subclassed from this one.
+    """
+
+    def __init__(self):
+        """
+        initializes an instance of Hook.
+        """
+
+        CoreObject.__init__(self)

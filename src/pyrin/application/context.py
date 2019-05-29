@@ -3,7 +3,11 @@
 application context module.
 """
 
+from datetime import datetime
+
 from flask import Request, Response, jsonify
+
+import pyrin.utils.unique_id as uuid_utils
 
 from pyrin.application.exceptions import ComponentAttributeError
 from pyrin.core.context import Context
@@ -84,5 +88,18 @@ class CoreRequest(Request):
     # charset of the request.
     charset = APPLICATION_ENCODING
 
-    def __init__(self, environ, populate_request=True, shallow=False):
+    def __init__(self, environ, populate_request=True, shallow=False,
+                 **options):
         super(CoreRequest, self).__init__(environ, populate_request, shallow)
+
+        self.request_id = uuid_utils.generate()
+        self.request_date = datetime.utcnow()
+        self.token = None
+        self.client_ip = None
+        self.context = Context()
+
+    def __str__(self):
+        result = 'id: [{request_id}], request date: [{request_date}], api: [{api}]'
+        return result.format(request_id=self.request_id,
+                             request_date=self.request_date,
+                             api=self.url_rule.rule)

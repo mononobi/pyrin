@@ -260,7 +260,6 @@ class Application(Flask):
 
         config_services.load_configurations(*self.config_stores)
         for store_name in self.config_stores:
-            pass
             config_dict = config_services.get_all(store_name)
             self.configure(config_dict)
 

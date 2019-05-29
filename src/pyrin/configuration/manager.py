@@ -94,30 +94,9 @@ class ConfigurationManager(CoreObject):
                                                        not found error.
         """
 
-        if not os.path.isdir(self._settings_path):
-            raise ConfigurationSettingsPathNotExistedError('Settings path [{path}] '
-                                                           'does not exist.'
-                                                           .format(path=self._settings_path))
-
-        files = os.listdir(self._settings_path)
-
-        for single_file in files:
-            single_file_name = os.path.splitext(single_file)[0]
-            if single_file_name == name and \
-               self._is_config_file(single_file):
-
-                self._add_config_store(single_file_name,
-                                       os.path.join(self._settings_path, single_file),
-                                       **options)
-                return
-
-        silent = options.get('silent', False)
-        if silent is not True:
-            raise ConfigurationFileNotFoundError('Config name [{name}] does not '
-                                                 'have any related configuration '
-                                                 'file in [{settings}].'
-                                                 .format(name=name,
-                                                         settings=self._settings_path))
+        file_path = self._get_relevant_file_path(name, **options)
+        if file_path is not None:
+            self._add_config_store(name, file_path, **options)
 
     def load_configurations(self, *names, **options):
         """
@@ -140,6 +119,45 @@ class ConfigurationManager(CoreObject):
         for single_name in names:
             self.load_configuration(single_name, **options)
 
+    def _get_relevant_file_path(self, name, **options):
+        """
+        gets the relevant file path to specified config name in settings folder.
+
+        :param str name: config store name.
+
+        :keyword bool silent: specifies that if a related configuration file
+                              for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises ConfigurationSettingsPathNotExistedError: configuration settings
+                                                          path not existed error.
+
+        :raises ConfigurationRelatedFileNotFoundError: configuration related file
+                                                       not found error.
+        """
+
+        if not os.path.isdir(self._settings_path):
+            raise ConfigurationSettingsPathNotExistedError('Settings path [{path}] '
+                                                           'does not exist.'
+                                                           .format(path=self._settings_path))
+
+        files = os.listdir(self._settings_path)
+
+        for single_file in files:
+            single_file_name = os.path.splitext(single_file)[0]
+            if single_file_name == name and \
+               self._is_config_file(single_file):
+                return os.path.join(self._settings_path, single_file)
+
+        silent = options.get('silent', False)
+        if silent is not True:
+            raise ConfigurationFileNotFoundError('Config name [{name}] does not '
+                                                 'have any related configuration '
+                                                 'file in [{settings}].'
+                                                 .format(name=name,
+                                                         settings=self._settings_path))
+        return None
+
     def reload(self, store_name, **options):
         """
         reloads the configuration store from it's relevant file.
@@ -160,7 +178,10 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
         """
 
-        return self._get_config_store(store_name).get_file_path(**options)
+        if store_name in self._config_stores.keys():
+            return self._get_config_store(store_name).get_file_path(**options)
+
+        return self._get_relevant_file_path(store_name, **options)
 
     def get(self, store_name, section, key, **options):
         """
