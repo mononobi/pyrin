@@ -31,3 +31,11 @@
 
 11. except some base packages, the rest of them should subclass from Package in
     their `__init__` module and set the required attributes and methods.
+
+12. those type of classes that has a very simple functionality (2 or less methods) should
+    be put inside context module of each package.
+
+13. in handlers packages the base handlers should be put inside base module of each package.
+
+14. those classes that has lots of functionality (3 or more methods) should be put inside
+    a module with the same name as the class itself.
