@@ -3,6 +3,7 @@
 pyrin package.
 """
 
+# holds the instance of running application.
 __app__ = None
 
 

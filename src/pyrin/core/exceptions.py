@@ -10,7 +10,7 @@ class CoreException(Exception):
     """
 
     def __init__(self, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
+        super(CoreException, self).__init__(*args, **kwargs)
 
         self._data = {}
         self._traceback = None
@@ -113,12 +113,5 @@ class CoreNotADirectoryError(CoreException, NotADirectoryError):
 class CoreFileNotFoundError(CoreException, FileNotFoundError):
     """
     core file not found error.
-    """
-    pass
-
-
-class InvalidComponentNameError(CoreException):
-    """
-    invalid component name error.
     """
     pass

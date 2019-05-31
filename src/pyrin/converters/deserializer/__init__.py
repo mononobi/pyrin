@@ -3,7 +3,7 @@
 deserializer package.
 """
 
-from pyrin.packaging.base import Package
+from pyrin.packaging.context import Package
 
 
 class DeserializerPackage(Package):

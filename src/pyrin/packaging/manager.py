@@ -10,7 +10,7 @@ from importlib import import_module
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
-from pyrin.packaging.base import Package
+from pyrin.packaging.context import Package
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     CORE_PACKAGES

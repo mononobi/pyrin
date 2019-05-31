@@ -3,7 +3,7 @@
 logging package.
 """
 
-from pyrin.packaging.base import Package
+from pyrin.packaging.context import Package
 
 
 class LoggingPackage(Package):

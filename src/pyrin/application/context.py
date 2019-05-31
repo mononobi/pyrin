@@ -9,11 +9,11 @@ from flask import Request, Response, jsonify
 
 import pyrin.utils.unique_id as uuid_utils
 
-from pyrin.application.exceptions import ComponentAttributeError
-from pyrin.core.context import Context
+from pyrin.application.exceptions import ComponentAttributeError, InvalidComponentNameError
+from pyrin.core.context import Context, CoreObject
 from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
-    APPLICATION_ENCODING
+    APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 
 
 class ApplicationContext(Context):
@@ -52,6 +52,58 @@ class ApplicationComponent(ApplicationContext):
                                       'in application components.'.format(name=key))
 
 
+class Component(CoreObject):
+    """
+    base component class.
+    all component classes must inherit from this class and their respective manager class.
+    """
+
+    def __init__(self, component_name, **options):
+        """
+        initializes an instance of Component.
+
+        :param str component_name: component name.
+
+        :keyword object component_custom_key: component custom key.
+        """
+
+        super(Component, self).__init__()
+
+        # component id is a tuple(str, object) and should be unique for each
+        # instance unless it's intended to replace an already existing one.
+        self._component_id = self.make_component_id(component_name, **options)
+
+    def get_id(self):
+        """
+        gets the component id of this instance.
+
+        :rtype: tuple(str, object)
+        """
+
+        return self._component_id
+
+    @staticmethod
+    def make_component_id(component_name, **options):
+        """
+        makes a component id based on input values and returns it.
+
+        :param str component_name: component name.
+
+        :keyword object component_custom_key: component custom key.
+
+        :raises InvalidComponentNameError: invalid component name.
+
+        :rtype: tuple(str, object)
+        """
+
+        if component_name is None or component_name.strip() == '':
+            raise InvalidComponentNameError('Component name should not be blank.')
+
+        component_custom_key = options.get('component_custom_key', DEFAULT_COMPONENT_KEY)
+
+        return component_name, component_custom_key
+
+
 class CoreResponse(Response):
     """
     represents base response.
@@ -88,8 +140,8 @@ class CoreRequest(Request):
     # charset of the request.
     charset = APPLICATION_ENCODING
 
-    def __init__(self, environ, populate_request=True, shallow=False,
-                 **options):
+    def __init__(self, environ, populate_request=True,
+                 shallow=False, **options):
         super(CoreRequest, self).__init__(environ, populate_request, shallow)
 
         self.request_id = uuid_utils.generate()
@@ -97,9 +149,14 @@ class CoreRequest(Request):
         self.token = None
         self.client_ip = None
         self.context = Context()
+        a = self.method
+        b = self.query_string
+        c = self.args
+        d = self.view_args
+        j = 0
 
     def __str__(self):
-        result = 'id: [{request_id}], request date: [{request_date}], api: [{api}]'
+        result = 'request id: [{request_id}], request date: [{request_date}], route: [{route}]'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
-                             api=self.url_rule.rule)
+                             route=self.path)

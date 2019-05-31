@@ -24,7 +24,7 @@ from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
     ApplicationComponent
-from pyrin.core.context import Component
+from pyrin.application.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utils.custom_print import print_warning, print_error
 from pyrin.utils.dictionary import make_key_upper

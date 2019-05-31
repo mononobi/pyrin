@@ -4,7 +4,7 @@ application exceptions module.
 """
 
 from pyrin.core.exceptions import CoreTypeError, CoreValueError, CoreKeyError, \
-    CoreNotADirectoryError, ContextAttributeError
+    CoreNotADirectoryError, ContextAttributeError, CoreException
 
 
 class ComponentAttributeError(ContextAttributeError):
@@ -24,6 +24,13 @@ class InvalidComponentTypeError(CoreTypeError):
 class InvalidComponentIDError(CoreValueError):
     """
     invalid component id error.
+    """
+    pass
+
+
+class InvalidComponentNameError(CoreException):
+    """
+    invalid component name error.
     """
     pass
 
