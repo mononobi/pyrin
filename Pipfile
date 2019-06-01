@@ -29,9 +29,7 @@ PyJWT = "*"
 SQLAlchemy = "*"
 Werkzeug = "*"
 setuptools = "*"
-pep8 = "*"
 colorama = "*"
-flask-iniconfig = "*"
 
 [requires]
 python_version = "3.7"
