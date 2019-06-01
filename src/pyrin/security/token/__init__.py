@@ -1,4 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-security token package.
+token package.
 """
+
+from pyrin.packaging import Package
+
+
+class TokenPackage(Package):
+    """
+    token package class.
+    """
+
+    NAME = __name__
+    DEPENDS = []
+    COMPONENT_NAME = 'pyrin.security.token.component'

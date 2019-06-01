@@ -117,7 +117,7 @@ class StringDeserializerBase(DeserializerBase):
         """
 
         if DeserializerBase.is_deserializable(self, value, **options) \
-                and self.is_valid_length(str(value)):
+                and self.is_valid_length(value):
             return True
 
         return False
