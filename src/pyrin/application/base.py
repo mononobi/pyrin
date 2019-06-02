@@ -16,9 +16,11 @@ import pyrin.configuration.services as config_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
+from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
-    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError
+    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
+    InvalidApplicationStatusError
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.packaging import PackagingPackage
@@ -29,6 +31,7 @@ from pyrin.application.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utils.custom_print import print_warning, print_error
 from pyrin.utils.dictionary import make_key_upper
+from pyrin.utils.path import resolve_application_root_path
 
 
 class Application(Flask):
@@ -51,7 +54,7 @@ class Application(Flask):
     # if you want to change the default one, you could subclass
     # Application and set `packaging_component_class` to your desired one.
     # this design is compatible with other flask subclassing features.
-    # note that your custom packaging component class should not use @component
+    # note that your custom packaging component class should not use `@component`
     # decorator to register itself, application will register it instead.
     packaging_component_class = PackagingComponent
 
@@ -94,9 +97,11 @@ class Application(Flask):
                                 manually defined.
         """
 
+        self.__status = ApplicationStatusEnum.INITIALIZING
+
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
-        # through a correct mechanism.
+        # through a correct mechanism later.
         super(Application, self).__init__(import_name, static_folder=None, **options)
 
         self._context = ApplicationContext()
@@ -126,6 +131,31 @@ class Application(Flask):
 
         self.register_component(self.packaging_component_class(
             PackagingPackage.COMPONENT_NAME))
+
+    def _set_status(self, status):
+        """
+        sets the application status.
+        status must be from ApplicationStatusEnum.
+
+        :param int status: application status.
+
+        raises InvalidApplicationStatusError: invalid application status error.
+        """
+
+        if not ApplicationStatusEnum.has_value(status):
+            raise InvalidApplicationStatusError('Application status [{state}] is not valid.'
+                                                .format(state=status))
+
+        self.__status = status
+
+    def get_status(self):
+        """
+        gets the application status.
+
+        :rtype: int
+        """
+
+        return self.__status
 
     def add_context(self, key, value, **options):
         """
@@ -235,7 +265,8 @@ class Application(Flask):
         loads application configs and components.
         """
 
-        load_dotenv('/home/mono/workspace/hamdige_server/.env')
+        self._set_status(ApplicationStatusEnum.LOADING)
+        self._load_environment_variables()
         self._resolve_settings_path()
         packaging_services.load_components(**options)
 
@@ -295,6 +326,7 @@ class Application(Flask):
         """
 
         self._load()
+        self._set_status(ApplicationStatusEnum.RUNNING)
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 
     def dispatch_request(self):
@@ -306,7 +338,7 @@ class Application(Flask):
         """
 
         # we have to override whole `dispatch_request` method to be able to customize it,
-        # because of the poor design of flask that everything is embedded inside
+        # because of flask design that everything is embedded inside
         # the `dispatch_request` method.
         with request:
             if request.routing_exception is not None:
@@ -411,10 +443,10 @@ class Application(Flask):
                                              'set, so the new route could not be registered.'
                                              .format(url=rule))
 
-        # we have to put `view_function=view_func` into options to be able to deliver it to
-        # route initialization in the super method. that's because of the design of flask
-        # that does not forward all params to inner method calls. and this is the less ugly way
-        # in comparison with overriding the whole `add_url_rule` function.
+        # we have to put `view_function=view_func` into options to be able to deliver it
+        # to route initialization in the super method. that's because of flask design
+        # that does not forward all params to inner method calls. and this is the less
+        # ugly way in comparison to overriding the whole `add_url_rule` function.
         options.update(view_function=view_func)
 
         super(Application, self).add_url_rule(rule, endpoint, view_func,
@@ -435,6 +467,8 @@ class Application(Flask):
 
         # forcing termination after 10 seconds.
         signal.alarm(10)
+        self._set_status(ApplicationStatusEnum.TERMINATED)
+
         sys.exit(options.get('status', 0))
 
     def register_route_factory(self, factory):
@@ -500,3 +534,15 @@ class Application(Flask):
         """
 
         raise CoreNotImplementedError()
+
+    def _load_environment_variables(self):
+        """
+        loads all environment variables defined in a `.env` file in application
+        root path. if the file does not exist, it will be ignored.
+        """
+
+        root_path = resolve_application_root_path()
+        env_file = os.path.join(root_path, '.env')
+
+        if os.path.isfile(env_file):
+            load_dotenv(env_file)

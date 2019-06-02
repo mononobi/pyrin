@@ -68,3 +68,10 @@ class ApplicationSettingsPathNotExistedError(CoreNotADirectoryError):
     application settings path not existed error.
     """
     pass
+
+
+class InvalidApplicationStatusError(CoreValueError):
+    """
+    invalid application status error.
+    """
+    pass

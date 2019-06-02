@@ -14,6 +14,7 @@ from pyrin.packaging.context import Package
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     CORE_PACKAGES
+from pyrin.utils.path import resolve_application_root_path
 
 
 class PackagingManager(CoreObject):
@@ -29,9 +30,8 @@ class PackagingManager(CoreObject):
         CoreObject.__init__(self)
 
         # holds the absolute path of application root directory where
-        # the main package is located. for example '/var/app_root/'.
-        # this will be resolved automatically by packaging package.
-        self._root_directory = self._resolve_application_root_path(__name__.split('.')[0])
+        # the main package is located. for example `/var/app_root/`.
+        self._root_directory = resolve_application_root_path()
 
         # holds the loaded packages.
         # `pyrin.application` and `pyrin.packaging` will be loaded at
@@ -312,22 +312,6 @@ class PackagingManager(CoreObject):
         """
 
         return os.path.isfile(os.path.join(path, '{module}.py'.format(module=module_name)))
-
-    def _resolve_application_root_path(self, main_package_name):
-        """
-        gets the application root path which the main package is located.
-
-        :param str main_package_name: application's main package full name.
-                                      example main_package_name = `pyrin`.
-
-        :rtype: str
-        """
-
-        main_package = self.load(main_package_name)
-        main_package_path = main_package.__path__[0]
-
-        return main_package_path.replace('{package}'
-                                         .format(package=main_package_name), '')
 
     def _get_package_class(self, package_name):
         """

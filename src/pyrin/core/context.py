@@ -149,6 +149,28 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
 
         return self.value
 
+    @classmethod
+    def values(cls):
+        """
+        gets a set containing all values in the enumeration.
+
+        :rtype: set
+        """
+
+        return set(item.value for item in cls)
+
+    @classmethod
+    def has_value(cls, value):
+        """
+        gets a value indicating that given input existed in the enumeration values.
+
+        :param Union[int, str] value: value to be checked for existence.
+
+        :rtype: bool
+        """
+
+        return any(value == item.value for item in cls)
+
 
 class Hook(CoreObject):
     """
