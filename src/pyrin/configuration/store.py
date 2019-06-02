@@ -3,6 +3,7 @@
 configuration store module.
 """
 
+import os
 from configparser import ConfigParser
 
 import pyrin.converters.deserializer.services as deserializer_services
@@ -11,7 +12,8 @@ from pyrin.core.context import CoreObject, DTO
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
-    ConfigurationStoreDuplicateKeyError
+    ConfigurationStoreDuplicateKeyError, ConfigurationEnvironmentVariableNotFoundError, \
+    InvalidConfigurationEnvironmentVariableValueError
 
 
 class ConfigStore(CoreObject):
@@ -56,7 +58,9 @@ class ConfigStore(CoreObject):
             for single_value in values:
                 dic_values[single_value[0]] = single_value[1]
 
-            self._configs[section] = deserializer_services.deserialize(dic_values)
+            self._configs[section] = deserializer_services.deserialize(dic_values, **options)
+
+        self._sync_with_env(**options)
 
     def reload(self, **options):
         """
@@ -283,3 +287,62 @@ class ConfigStore(CoreObject):
 
         return [self.get_section(section, **options)
                 for section in self.get_section_names(**options)]
+
+    def _get_from_env(self, key, **options):
+        """
+        gets the value of given key from environment variable if available.
+        otherwise may raise an exception or ignore it depending on `silent` keyword.
+        note that all configs stored in environment variable, would be of str type.
+
+        :param str key: key to get it's value from environment variable.
+
+        :keyword bool silent: indicates that if an environment variable for the
+                              given key not found, ignore it and return None, otherwise
+                              raise an error. defaults to False.
+
+        :raises ConfigurationEnvironmentVariableNotFoundError: configuration environment
+                                                               variable not found error.
+
+        :raises InvalidConfigurationEnvironmentVariableValueError: invalid configuration
+                                                                   environment variable
+                                                                   value error.
+
+        :rtype: str
+        """
+
+        value = os.environ.get(key)
+        silent = options.get('silent', False)
+        if value is None:
+            if silent is not True:
+                raise ConfigurationEnvironmentVariableNotFoundError('Configuration environment '
+                                                                    'variable [{key}] not found.'
+                                                                    .format(key=key))
+        if value.strip() in '':
+            if silent is not True:
+                raise InvalidConfigurationEnvironmentVariableValueError('Configuration '
+                                                                        'environment variable '
+                                                                        '[{key}] has an '
+                                                                        'invalid value.'
+                                                                        .format(key=key))
+        return value
+
+    def _sync_with_env(self, **options):
+        """
+        synchronizes all keys with None value of this config store
+        with environment variables with the same name.
+
+        :keyword bool silent: indicates that if an environment variable for the
+                              config key not found, ignore it and return None, otherwise
+                              raise an error. defaults to False.
+        """
+
+        for section_name in self.get_section_names():
+            section = self.get_section(section_name)
+            for key, value in section.items():
+                if value is None:
+                    env_value = self._get_from_env(key, **options)
+                    self._configs[section_name][key] = env_value
+
+    def __repr__(self):
+        return self._name
+

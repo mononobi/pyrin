@@ -26,6 +26,13 @@ def api(url, **options):
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.
 
+    :keyword int max_content_length: max content length that this route could handle,
+                                     in bytes. if not provided, it will be set to
+                                     `restricted_max_content_length` api config key.
+                                     note that this value should be lesser than or equal
+                                     to `max_content_length` api config key, otherwise
+                                     it will cause an error.
+
     :raises DuplicateRouteURLError: duplicate route url error.
 
     :rtype: callable

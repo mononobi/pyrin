@@ -3,7 +3,8 @@
 configuration exceptions module.
 """
 
-from pyrin.core.exceptions import CoreKeyError, CoreNotADirectoryError, CoreFileNotFoundError
+from pyrin.core.exceptions import CoreKeyError, CoreNotADirectoryError, CoreFileNotFoundError, \
+    CoreValueError
 
 
 class ConfigurationStoreNotFoundError(CoreKeyError):
@@ -51,5 +52,19 @@ class ConfigurationStoreSectionNotFoundError(CoreKeyError):
 class ConfigurationStoreDuplicateKeyError(CoreKeyError):
     """
     configuration store duplicate key error.
+    """
+    pass
+
+
+class ConfigurationEnvironmentVariableNotFoundError(CoreKeyError):
+    """
+    configuration environment variable not found error.
+    """
+    pass
+
+
+class InvalidConfigurationEnvironmentVariableValueError(CoreValueError):
+    """
+    configuration environment variable value error.
     """
     pass

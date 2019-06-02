@@ -62,6 +62,19 @@ class PublicRoute(RouteBase):
         :keyword str host: if provided and the url map has host matching enabled this can be
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
+
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
+                                                                        not be greater than global
+                                                                        limit error.
+
+        :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
         super(PublicRoute, self).__init__(rule, **options)
@@ -74,4 +87,3 @@ class PublicRoute(RouteBase):
         """
 
         return False
-

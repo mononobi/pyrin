@@ -47,7 +47,7 @@ class ListDeserializer(DeserializerBase):
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
-                deserialized_value = deserializer_services.deserialize(item)
+                deserialized_value = deserializer_services.deserialize(item, **options)
 
             if deserialized_value is not self.DESERIALIZATION_FAILED:
                 result[index] = deserialized_value
@@ -124,7 +124,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
 
         # this deserializer does not handle nested lists, so it won't
         # check whether each item is deserializable or not.
-        return deserializer_services.deserialize(temp_list)
+        return deserializer_services.deserialize(temp_list, **options)
 
     def get_default_formats(self):
         """

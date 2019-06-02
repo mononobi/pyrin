@@ -45,7 +45,7 @@ class DictionaryDeserializer(DeserializerBase):
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
-                deserialized_value = deserializer_services.deserialize(item)
+                deserialized_value = deserializer_services.deserialize(item, **options)
 
             if deserialized_value is not self.DESERIALIZATION_FAILED:
                 result[key] = deserialized_value

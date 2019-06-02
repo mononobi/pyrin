@@ -18,9 +18,9 @@ def create_route(rule, **options):
                      if `replace=True` option is provided, otherwise an error
                      will be raised.
 
-    :keyword list[str] methods: http methods that this route could handle.
-                                if not provided, defaults to `GET`, `HEAD`
-                                and `OPTIONS`.
+    :keyword tuple(str) methods: http methods that this route could handle.
+                                 if not provided, defaults to `GET`, `HEAD`
+                                 and `OPTIONS`.
 
     :keyword callable view_function: a function to be called on accessing this route.
 
@@ -33,6 +33,13 @@ def create_route(rule, **options):
 
     :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                 to access this route's resource.
+
+    :keyword int max_content_length: max content length that this route could handle,
+                                     in bytes. if not provided, it will be set to
+                                     `restricted_max_content_length` api config key.
+                                     note that this value should be lesser than or equal
+                                     to `max_content_length` api config key, otherwise
+                                     it will cause an error.
 
     :rtype: RouteBase
     """
@@ -74,6 +81,13 @@ def add_route(url, endpoint=None, view_func=None,
     :keyword bool replace: specifies that this route must replace
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.
+
+    :keyword int max_content_length: max content length that this route could handle,
+                                     in bytes. if not provided, it will be set to
+                                     `restricted_max_content_length` api config key.
+                                     note that this value should be lesser than or equal
+                                     to `max_content_length` api config key, otherwise
+                                     it will cause an error.
 
     :raises DuplicateRouteURLError: duplicate route url error.
     """

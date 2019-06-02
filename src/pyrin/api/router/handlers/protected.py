@@ -64,6 +64,19 @@ class ProtectedRoute(RouteBase):
                                
         :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
+
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
+                                                                        not be greater than global
+                                                                        limit error.
+
+        :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
         super(ProtectedRoute, self).__init__(rule, **options)
@@ -97,8 +110,9 @@ class ProtectedRoute(RouteBase):
 
 class SimpleProtectedRoute(ProtectedRoute):
     """
-    simple protected route class.
+    simple protected route class for flask compatibility.
     this class just passes the `request.view_args` to the view function as input params.
+    normally you should never use this route type, use `ProtectedRoute` instead.
     """
 
     def __init__(self, rule, **options):
@@ -153,6 +167,19 @@ class SimpleProtectedRoute(ProtectedRoute):
 
         :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
+
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
+                                                                        not be greater than global
+                                                                        limit error.
+
+        :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
         super(SimpleProtectedRoute, self).__init__(rule, **options)

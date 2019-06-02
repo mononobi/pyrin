@@ -5,7 +5,10 @@ route base handler module.
 
 from werkzeug.routing import Rule
 
-from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError
+import pyrin.configuration.services as config_services
+
+from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
+    MaxContentLengthShouldNotBeGreaterThanGlobalLimitError
 from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 
@@ -65,6 +68,17 @@ class RouteBase(Rule):
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
 
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
+                                                                        not be greater than global
+                                                                        limit error.
+
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
@@ -83,6 +97,28 @@ class RouteBase(Rule):
                                         host=options.get('host', None))
 
         self._view_function = options.get('view_function')
+
+        global_limit = config_services.get('api', 'general', 'max_content_length')
+
+        restricted_length = options.get('max_content_length',
+                                        config_services.get('api',
+                                                            'general',
+                                                            'restricted_max_content_length'))
+
+        if restricted_length > global_limit:
+            raise MaxContentLengthShouldNotBeGreaterThanGlobalLimitError('Specified max content '
+                                                                         'length [{restricted}] '
+                                                                         'for route [{route}] '
+                                                                         'is greater than global '
+                                                                         'limit which is '
+                                                                         '[{global_limit}].'
+                                                                         .format(restricted=
+                                                                                 restricted_length,
+                                                                                 route=rule,
+                                                                                 global_limit=
+                                                                                 global_limit))
+
+        self._max_content_length = restricted_length
 
         if not callable(self._view_function):
             raise InvalidViewFunctionTypeError('The provided view function [{function}] '

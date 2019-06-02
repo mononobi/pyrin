@@ -7,6 +7,7 @@ import signal
 import sys
 import os.path
 
+from dotenv import load_dotenv
 from flask import Flask, request
 from flask.app import setupmethod
 
@@ -14,7 +15,7 @@ import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
 
 from pyrin import _set_app
-from pyrin.api.router.handlers.protected import SimpleProtectedRoute
+from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError
@@ -54,10 +55,7 @@ class Application(Flask):
     # decorator to register itself, application will register it instead.
     packaging_component_class = PackagingComponent
 
-    # we set `url_rule_class = SimpleProtectedRoute` to force
-    # the api package to register it's own desired route or route factory.
-    url_rule_class = SimpleProtectedRoute
-
+    url_rule_class = ProtectedRoute
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
@@ -68,18 +66,6 @@ class Application(Flask):
         initializes an instance of Application.
 
         :param str import_name: name of the main application package.
-
-        :keyword str static_url_path: can be used to specify a different path for the
-                                      static files on the web. defaults to the name
-                                      of the `static_folder` folder.
-
-        :keyword str static_folder: the folder with static files that should be served
-                                    at `static_url_path`. defaults to the `static`
-                                    folder in the root path of the application.
-
-        :keyword str static_host: the host to use when adding the static route.
-                                  defaults to None. required when using `host_matching=True`
-                                  with a `static_folder` configured.
 
         :keyword bool host_matching: set `url_map.host_matching` attribute.
                                      defaults to False.
@@ -108,7 +94,10 @@ class Application(Flask):
                                 manually defined.
         """
 
-        super(Application, self).__init__(import_name, **options)
+        # we should pass `static_folder=None` to prevent flask from
+        # adding static route on startup, then we register required static routes
+        # through a correct mechanism.
+        super(Application, self).__init__(import_name, static_folder=None, **options)
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
@@ -246,21 +235,22 @@ class Application(Flask):
         loads application configs and components.
         """
 
+        load_dotenv('/home/mono/workspace/hamdige_server/.env')
         self._resolve_settings_path()
         packaging_services.load_components(**options)
 
         # we should call this method after loading components
         # to be able to use configuration package.
-        self._load_configs()
+        self._load_configs(**options)
 
-    def _load_configs(self):
+    def _load_configs(self, **options):
         """
         loads all configurations related to application package.
         """
 
-        config_services.load_configurations(*self.config_stores)
+        config_services.load_configurations(*self.config_stores, **options)
         for store_name in self.config_stores:
-            config_dict = config_services.get_all(store_name)
+            config_dict = config_services.get_all(store_name, **options)
             self.configure(config_dict)
 
     def _configure(self, config_store):
