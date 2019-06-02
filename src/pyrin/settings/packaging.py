@@ -35,4 +35,3 @@ CUSTOM_PACKAGES = ('', )
 # package names must be fully qualified.
 # example: `tests.api`
 TEST_PACKAGES = ('', )
-
