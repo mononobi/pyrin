@@ -19,6 +19,7 @@ def deserializer(*args, **kwargs):
                            an error. defaults to False.
 
     :raises InvalidDeserializerTypeError: invalid deserializer type error.
+    :raises DuplicatedDeserializerError: duplicated deserializer error.
 
     :returns: deserializer class.
 
@@ -31,8 +32,6 @@ def deserializer(*args, **kwargs):
         of it into available deserializer.
 
         :param type cls: deserializer class.
-
-        :raises InvalidDeserializerTypeError: invalid deserializer type error.
 
         :returns: deserializer class.
 

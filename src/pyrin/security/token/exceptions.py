@@ -3,7 +3,7 @@
 token exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreKeyError
+from pyrin.core.exceptions import CoreTypeError, CoreKeyError, CoreValueError
 
 
 class InvalidTokenHandlerTypeError(CoreTypeError):
@@ -23,5 +23,12 @@ class DuplicatedTokenHandlerError(CoreKeyError):
 class TokenHandlerNotFoundError(CoreKeyError):
     """
     token handler not found error.
+    """
+    pass
+
+
+class InvalidTokenHandlerNameError(CoreValueError):
+    """
+    invalid token handler name error.
     """
     pass

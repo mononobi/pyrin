@@ -23,6 +23,7 @@ def register_token_handler(instance, **options):
                            defaults to False.
 
     :raises InvalidTokenHandlerTypeError: invalid token handler type error.
+    :raises InvalidTokenHandlerNameError: invalid token handler name error.
     :raises DuplicatedTokenHandlerError: duplicated token handler error.
     """
 
@@ -32,7 +33,7 @@ def register_token_handler(instance, **options):
 
 def generate_access_token(handler_name, payload, **options):
     """
-    generates an access token using specified handler from given payload and parameters.
+    generates an access token using specified handler from the given inputs and returns it.
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
@@ -51,9 +52,9 @@ def generate_access_token(handler_name, payload, **options):
 
     :raises TokenHandlerNotFoundError: token handler not found error.
 
-    :returns: token as bytes.
+    :returns: token.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_access_token(handler_name,
@@ -62,7 +63,7 @@ def generate_access_token(handler_name, payload, **options):
 
 def generate_refresh_token(handler_name, payload, **options):
     """
-    generates a refresh token using specified handler from given payload and parameters.
+    generates a refresh token using specified handler from the given inputs and returns it.
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
@@ -81,9 +82,9 @@ def generate_refresh_token(handler_name, payload, **options):
 
     :raises TokenHandlerNotFoundError: token handler not found error.
 
-    :returns: token as bytes.
+    :returns: token.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_refresh_token(handler_name,
@@ -95,7 +96,7 @@ def get_payload(handler_name, token, **options):
     decodes token using specified handler and gets the payload data.
 
     :param str handler_name: token handler name to be used.
-    :param bytes token: token as bytes.
+    :param str token: token to get it's payload.
 
     :raises TokenHandlerNotFoundError: token handler not found error.
 

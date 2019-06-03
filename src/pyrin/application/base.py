@@ -566,5 +566,9 @@ class Application(Flask):
         root_path = resolve_application_root_path()
         env_file = os.path.join(root_path, '.env')
 
-        if os.path.isfile(env_file):
-            load_dotenv_(env_file)
+        if not os.path.isfile(env_file):
+            print_warning('Could not find ".env" file in application root path [{root_path}].'
+                          .format(root_path=root_path))
+            return
+
+        load_dotenv_(env_file)

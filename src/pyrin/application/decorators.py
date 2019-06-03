@@ -38,10 +38,6 @@ def component(component_name, *args, **kwargs):
 
         :param type cls: component class.
 
-        :raises InvalidComponentTypeError: invalid component type error.
-        :raises InvalidComponentIDError: invalid component id error.
-        :raises DuplicateComponentIDError: duplicate component id error.
-
         :returns: component class.
 
         :rtype: type
@@ -141,8 +137,6 @@ def route_factory():
         decorates the given function and registers it as application route factory.
 
         :param callable func: function to register it as application route factory.
-
-        :raises InvalidRouteFactoryTypeError: invalid route factory type error.
 
         :rtype: callable
         """

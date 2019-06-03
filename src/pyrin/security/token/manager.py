@@ -5,7 +5,7 @@ token manager module.
 
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
-    DuplicatedTokenHandlerError, TokenHandlerNotFoundError
+    DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError
 from pyrin.security.token.handlers.base import TokenBase
 from pyrin.utils.custom_print import print_warning
 
@@ -40,12 +40,17 @@ class TokenManager(CoreObject):
                                defaults to False.
 
         :raises InvalidTokenHandlerTypeError: invalid token handler type error.
+        :raises InvalidTokenHandlerNameError: invalid token handler name error.
         :raises DuplicatedTokenHandlerError: duplicated token handler error.
         """
 
         if not isinstance(instance, TokenBase):
             raise InvalidTokenHandlerTypeError('Input parameter [{instance}] is '
                                                'not an instance of TokenBase.'
+                                               .format(instance=str(instance)))
+
+        if instance.get_name() is None or len(instance.get_name().strip()) == 0:
+            raise InvalidTokenHandlerNameError('Token handler [{instance}] has invalid name.'
                                                .format(instance=str(instance)))
 
         # checking whether is there any registered instance with the same name.
@@ -87,7 +92,7 @@ class TokenManager(CoreObject):
 
     def generate_access_token(self, handler_name, payload, **options):
         """
-        generates an access token using specified handler from given payload and parameters.
+        generates an access token using specified handler from the given inputs and returns it.
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -106,16 +111,16 @@ class TokenManager(CoreObject):
 
         :raises TokenHandlerNotFoundError: token handler not found error.
 
-        :returns: token as bytes.
+        :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_token_handler(handler_name).generate_access_token(payload, **options)
 
     def generate_refresh_token(self, handler_name, payload, **options):
         """
-        generates a refresh token using specified handler from given payload and parameters.
+        generates a refresh token using specified handler from the given inputs and returns it.
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -134,9 +139,9 @@ class TokenManager(CoreObject):
 
         :raises TokenHandlerNotFoundError: token handler not found error.
 
-        :returns: token as bytes.
+        :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_token_handler(handler_name).generate_refresh_token(payload, **options)
@@ -146,7 +151,7 @@ class TokenManager(CoreObject):
         decodes token using specified handler and gets the payload data.
 
         :param str handler_name: token handler name to be used.
-        :param bytes token: token as bytes.
+        :param str token: token to get it's payload.
 
         :raises TokenHandlerNotFoundError: token handler not found error.
 

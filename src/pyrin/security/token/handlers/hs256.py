@@ -5,21 +5,23 @@ hs256 token handler module.
 
 import pyrin.configuration.services as config_services
 
+from pyrin.security.token.decorators import token
 from pyrin.security.token.handlers.base import SymmetricTokenBase
 
 
+@token()
 class HS256Token(SymmetricTokenBase):
     """
     hs256 token class.
     """
 
-    def __init__(self):
+    def __init__(self, **options):
         """
         initializes an instance of HS256Token.
         """
 
         # we pass the algorithm of token handler as the name of it.
-        SymmetricTokenBase.__init__(self, self._get_algorithm())
+        SymmetricTokenBase.__init__(self, self._get_algorithm(), **options)
 
     def _get_encoding_key(self, **options):
         """

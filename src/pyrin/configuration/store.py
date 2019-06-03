@@ -317,7 +317,7 @@ class ConfigStore(CoreObject):
                 raise ConfigurationEnvironmentVariableNotFoundError('Configuration environment '
                                                                     'variable [{key}] not found.'
                                                                     .format(key=key))
-        if value.strip() in '':
+        if len(value.strip()) == 0:
             if silent is not True:
                 raise InvalidConfigurationEnvironmentVariableValueError('Configuration '
                                                                         'environment variable '

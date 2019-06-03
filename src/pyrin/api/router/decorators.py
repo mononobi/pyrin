@@ -44,8 +44,6 @@ def api(url, **options):
 
         :param callable func: function to register it as an api handler.
 
-        :raises DuplicateRouteURLError: duplicate route url error.
-
         :rtype: callable
         """
 

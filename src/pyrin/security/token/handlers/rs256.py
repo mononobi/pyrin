@@ -5,21 +5,23 @@ rs256 token handler module.
 
 import pyrin.configuration.services as config_services
 
+from pyrin.security.token.decorators import token
 from pyrin.security.token.handlers.base import AsymmetricTokenBase
 
 
+@token()
 class RS256Token(AsymmetricTokenBase):
     """
     rs256 token class.
     """
 
-    def __init__(self):
+    def __init__(self, **options):
         """
         initializes an instance of RS256Token.
         """
 
         # we pass the algorithm of token handler as the name of it.
-        AsymmetricTokenBase.__init__(self, self._get_algorithm())
+        AsymmetricTokenBase.__init__(self, self._get_algorithm(), **options)
 
     def _get_encoding_key(self, **options):
         """
