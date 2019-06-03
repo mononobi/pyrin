@@ -19,23 +19,19 @@
 
 7. pyrin.utils packages must use core exceptions and not implement their own custom exceptions.
 
-8. all methods that have been exposed through `services` modules, must have `**options`
-   in their signature because that's how DI and IoC framework of pyrin gets used.
-   and `**options` must be always passed to get_component() method.
-
-9. signature of sibling methods in different layers (manager, services, api, ...) must be the
+8. signature of sibling methods in different layers (manager, services, api, ...) must be the
    same (in 99% of occasions).
 
-10. in each package, only the implementation (manager) module should call other packages services,
+9. in each package, only the implementation (manager) module should call other packages services,
     so every other module, should only call it's own package services module.
 
-11. except some base packages, the rest of them should subclass from Package in
+10. except some base packages, the rest of them should subclass from Package in
     their `__init__` module and set the required attributes and methods.
 
-12. those type of classes that has a very simple functionality (2 or less methods) should
+11. those type of classes that has a very simple functionality (2 or less methods) should
     be put inside context module of each package.
 
-13. in handlers packages the base handlers should be put inside base module of each package.
+12. in handlers packages the base handlers should be put inside base module of each package.
 
-14. those classes that has lots of functionality (3 or more methods) should be put inside
+13. those classes that has lots of functionality (3 or more methods) should be put inside
     a module with the same name as the class itself.
