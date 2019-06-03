@@ -35,3 +35,9 @@
 
 13. those classes that has lots of functionality (3 or more methods) should be put inside
     a module with the same name as the class itself.
+
+14. in each package, all dependencies (from root package itself and from all sub packages)
+    must be set in root package's `DEPENDS` attribute.
+
+15. in each package, all config stores (from root package itself and from all sub packages)
+    must be set in root package's `CONFIG_STORE_NAMES` attribute.
