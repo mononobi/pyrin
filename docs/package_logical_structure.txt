@@ -11,33 +11,31 @@
    implementation but some light weight code that uses the package functionality through
    services module.
 
-5. every package must subclass Package in it's __init__ module, except application and packaging.
-
-6. each package should subclass it's own custom exceptions from core exceptions and put them
-   inside exceptions.py module. the only type of exception that must be used directly and
+5. each package should subclass it's own custom exceptions from core exceptions and put them
+   inside `exceptions` module. the only type of exception that must be used directly and
    without subclassing is CoreNotImplementedError.
 
-7. pyrin.utils packages must use core exceptions and not implement their own custom exceptions.
+6. `pyrin.utils` packages must use core exceptions and not implement their own custom exceptions.
 
-8. signature of sibling methods in different layers (manager, services, api, ...) must be the
+7. signature of sibling methods in different layers (manager, services, api, ...) must be the
    same (in 99% of occasions).
 
-9. in each package, only the implementation (manager) module should call other packages services,
-    so every other module, should only call it's own package services module.
+8. in each package, only the implementation (manager) module should call other packages services,
+   so every other module, should only call it's own package services module.
 
-10. except some base packages, the rest of them should subclass from Package in
-    their `__init__` module and set the required attributes and methods.
+9. except some base packages like `application` and `core`, the rest of them should
+   subclass from Package in their `__init__` module and set the required attributes.
 
-11. those type of classes that has a very simple functionality (2 or less methods) should
-    be put inside context module of each package.
+10. those type of classes that has a very simple functionality (2 or less methods) should
+    be put inside `context` module of each package.
 
-12. in handlers packages the base handlers should be put inside base module of each package.
+11. in handlers packages the base handlers should be put inside `base` module of each package.
 
-13. those classes that has lots of functionality (3 or more methods) should be put inside
+12. those classes that has lots of functionality (3 or more methods) should be put inside
     a module with the same name as the class itself.
 
-14. in each package, all dependencies (from root package itself and from all sub packages)
+13. in each package, all dependencies (from root package itself and from all sub packages)
     must be set in root package's `DEPENDS` attribute.
 
-15. in each package, all config stores (from root package itself and from all sub packages)
+14. in each package, all config stores (from root package itself and from all sub packages)
     must be set in root package's `CONFIG_STORE_NAMES` attribute.
