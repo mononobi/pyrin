@@ -8,7 +8,7 @@ import os
 import pyrin.application.services as application_services
 
 from pyrin.configuration.store import ConfigStore
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, Context
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationSettingsPathNotExistedError, ConfigurationStoreNotFoundError, \
     ConfigurationFileNotFoundError
@@ -26,27 +26,8 @@ class ConfigurationManager(CoreObject):
 
         CoreObject.__init__(self)
 
-        self._config_stores = {}
+        self._config_stores = Context()
         self._settings_path = application_services.get_settings_path()
-
-    def _load_all_configurations(self, settings_path):
-        """
-        loads all available configuration files from specified
-        settings path into relevant config stores.
-        this method is deprecated and is not used anywhere.
-
-        :param str settings_path: settings directory full path.
-
-        :raises ConfigurationSettingsPathNotExistedError: configuration settings
-                                                          path not existed error.
-
-        :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                       not found error.
-        """
-
-        for root, directories, file_names in os.walk(self._settings_path):
-            files = [os.path.splitext(name)[0] for name in file_names]
-            self.load_configurations(*files, silent=True)
 
     def _add_config_store(self, name, file_path, **options):
         """

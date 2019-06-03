@@ -17,8 +17,7 @@ def deserialize(value, **options):
     :rtype: object
     """
 
-    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
-        deserialize(value, **options)
+    return get_component(DeserializerPackage.COMPONENT_NAME).deserialize(value, **options)
 
 
 def register_deserializer(instance, **options):
@@ -40,8 +39,8 @@ def register_deserializer(instance, **options):
     :raises DuplicatedDeserializerError: duplicated deserializer error.
     """
 
-    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
-        register_deserializer(instance, **options)
+    return get_component(DeserializerPackage.COMPONENT_NAME).register_deserializer(instance,
+                                                                                   **options)
 
 
 def get_deserializers(**options):
@@ -56,5 +55,4 @@ def get_deserializers(**options):
     :rtype: list[DeserializerBase]
     """
 
-    return get_component(DeserializerPackage.COMPONENT_NAME, **options).\
-        get_deserializers(**options)
+    return get_component(DeserializerPackage.COMPONENT_NAME).get_deserializers(**options)

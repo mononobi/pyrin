@@ -44,7 +44,7 @@ def create_route(rule, **options):
     :rtype: RouteBase
     """
 
-    return get_component(RouterPackage.COMPONENT_NAME, **options).create_route(rule, **options)
+    return get_component(RouterPackage.COMPONENT_NAME).create_route(rule, **options)
 
 
 def add_route(url, endpoint=None, view_func=None,
@@ -92,5 +92,6 @@ def add_route(url, endpoint=None, view_func=None,
     :raises DuplicateRouteURLError: duplicate route url error.
     """
 
-    return get_component(RouterPackage.COMPONENT_NAME, **options).\
-        add_route(url, endpoint, view_func, provide_automatic_options, **options)
+    return get_component(RouterPackage.COMPONENT_NAME).add_route(url, endpoint, view_func,
+                                                                 provide_automatic_options,
+                                                                 **options)

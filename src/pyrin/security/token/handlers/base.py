@@ -14,17 +14,20 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utils import unique_id
 
 
-class TokenHandlerBase(CoreObject):
+class TokenBase(CoreObject):
     """
-    token base handler class.
+    token base class.
     """
 
-    def __init__(self):
+    def __init__(self, name):
         """
-        initializes an instance of TokenHandlerBase.
+        initializes an instance of TokenBase.
+
+        :param str name: name of the token handler.
         """
 
         CoreObject.__init__(self)
+        self._set_name(name)
 
     def generate_access_token(self, payload, **options):
         """
@@ -104,23 +107,6 @@ class TokenHandlerBase(CoreObject):
                       True,
                       self._get_algorithm(),
                       self._get_default_options())
-
-    def is_valid(self, token):
-        """
-        gets a value indicating that given token is valid.
-
-        :param bytes token: token to be validated.
-
-        :rtype: bool
-        """
-
-        try:
-            payload = self.get_payload(token)
-            return True
-        except Exception:
-            pass
-
-        return False
 
     def _get_common_required_claims(self):
         """
@@ -243,7 +229,7 @@ class TokenHandlerBase(CoreObject):
 
     def _get_algorithm(self):
         """
-        gets the algorithm for signing keys.
+        gets the algorithm for signing the token.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -253,24 +239,24 @@ class TokenHandlerBase(CoreObject):
         raise CoreNotImplementedError()
 
 
-class SymmetricTokenHandlerBase(TokenHandlerBase):
+class SymmetricTokenBase(TokenBase):
     """
-    symmetric token base handler class.
+    symmetric token base class.
     this token type uses a single symmetric key for decoding and encoding.
     """
 
-    def __init__(self):
+    def __init__(self, name):
         """
-        initializes an instance of TokenHandlerBase.
+        initializes an instance of SymmetricTokenBase.
+
+        :param str name: name of the token handler.
         """
 
-        TokenHandlerBase.__init__(self)
+        TokenBase.__init__(self, name)
 
     def _get_decoding_key(self):
         """
         gets the signing key for decoding.
-
-        :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: str
         """
@@ -278,15 +264,17 @@ class SymmetricTokenHandlerBase(TokenHandlerBase):
         self._get_encoding_key()
 
 
-class AsymmetricTokenHandlerBase(TokenHandlerBase):
+class AsymmetricTokenBase(TokenBase):
     """
-    asymmetric token base handler class.
+    asymmetric token base class.
     this token type uses a pair of public/private asymmetric keys for decoding and encoding.
     """
 
-    def __init__(self):
+    def __init__(self, name):
         """
-        initializes an instance of TokenHandlerBase.
+        initializes an instance of AsymmetricTokenBase.
+
+        :param str name: name of the token handler.
         """
 
-        TokenHandlerBase.__init__(self)
+        TokenBase.__init__(self, name)

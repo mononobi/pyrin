@@ -7,7 +7,7 @@ import signal
 import sys
 import os.path
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv as load_dotenv_
 from flask import Flask, request
 from flask.app import setupmethod
 
@@ -29,6 +29,7 @@ from pyrin.application.context import CoreResponse, CoreRequest, ApplicationCont
     ApplicationComponent
 from pyrin.application.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 from pyrin.utils.dictionary import make_key_upper
 from pyrin.utils.path import resolve_application_root_path
@@ -244,21 +245,42 @@ class Application(Flask):
 
         :param str component_name: component name.
 
-        :keyword object component_custom_key: custom key of component to get.
-
         :raises InvalidComponentNameError: invalid component name error.
 
         :rtype: Component
         """
 
+        component_custom_key = self._extract_component_custom_key()
+
         # checking whether is there any custom implementation.
-        component_id = Component.make_component_id(component_name, **options)
-        if component_id in self._components.keys():
-            return self._components[component_id]
+        component_custom_id = \
+            Component.make_component_id(component_name,
+                                        component_custom_key=component_custom_key)
+
+        if component_custom_id in self._components.keys():
+            return self._components[component_custom_id]
 
         # getting default component.
-        component_id = Component.make_component_id(component_name)
-        return self._components[component_id]
+        component_default_id = Component.make_component_id(component_name)
+        return self._components[component_default_id]
+
+    def _extract_component_custom_key(self):
+        """
+        gets `component_custom_key` from request context if available,
+        otherwise gets the default component key.
+        note that if application is in any state other than `RUNNING`,
+        it always returns the default component key.
+
+        :rtype: object
+        """
+
+        # before application reaches the `RUNNING` state,
+        # we should always use the default component key.
+        if self.get_status() != ApplicationStatusEnum.RUNNING:
+            return DEFAULT_COMPONENT_KEY
+
+        with request:
+            return request.context.get('component_custom_key', DEFAULT_COMPONENT_KEY)
 
     def _load(self, **options):
         """
@@ -545,4 +567,4 @@ class Application(Flask):
         env_file = os.path.join(root_path, '.env')
 
         if os.path.isfile(env_file):
-            load_dotenv(env_file)
+            load_dotenv_(env_file)

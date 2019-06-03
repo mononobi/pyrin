@@ -12,4 +12,4 @@ class TokenHandlersPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.configuration']
+    DEPENDS = []

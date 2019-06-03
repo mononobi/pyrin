@@ -25,8 +25,8 @@ def load_configuration(name, **options):
                                                    not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        load_configuration(name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(name,
+                                                                                 **options)
 
 
 def load_configurations(*names, **options):
@@ -47,8 +47,8 @@ def load_configurations(*names, **options):
                                                    not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        load_configurations(*names, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(*names,
+                                                                                  **options)
 
 
 def reload(store_name, **options):
@@ -60,8 +60,7 @@ def reload(store_name, **options):
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        reload(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).reload(store_name, **options)
 
 
 def get_file_path(store_name, **options):
@@ -73,8 +72,8 @@ def get_file_path(store_name, **options):
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_file_path(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_file_path(store_name,
+                                                                            **options)
 
 
 def get(store_name, section, key, **options):
@@ -99,8 +98,8 @@ def get(store_name, section, key, **options):
     :rtype: object
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get(store_name, section, key, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get(store_name, section,
+                                                                  key, **options)
 
 
 def get_section_names(store_name, **options):
@@ -114,8 +113,8 @@ def get_section_names(store_name, **options):
     :rtype: list[str]
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_section_names(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_section_names(store_name,
+                                                                                **options)
 
 
 def get_section(store_name, section, **options):
@@ -138,8 +137,8 @@ def get_section(store_name, section, **options):
     :rtype: dict
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_section(store_name, section, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_section(store_name, section,
+                                                                          **options)
 
 
 def get_section_keys(store_name, section, **options):
@@ -157,8 +156,9 @@ def get_section_keys(store_name, section, **options):
     :rtype: list[str]
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_section_keys(store_name, section, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_section_keys(store_name,
+                                                                               section,
+                                                                               **options)
 
 
 def get_all(store_name, **options):
@@ -181,8 +181,7 @@ def get_all(store_name, **options):
     :rtype: dict
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_all(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_all(store_name, **options)
 
 
 def get_active(store_name, **options):
@@ -224,5 +223,4 @@ def get_active(store_name, **options):
     :rtype: dict
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME, **options).\
-        get_active(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active(store_name, **options)
