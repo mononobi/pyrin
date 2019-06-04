@@ -5,6 +5,7 @@ deserializer manager module.
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.core.context import CoreObject, Context
+from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
     DuplicatedDeserializerError
@@ -29,7 +30,7 @@ class DeserializerManager(CoreObject):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param object value: value to be deserialized.
 
@@ -37,12 +38,12 @@ class DeserializerManager(CoreObject):
         """
 
         options.update(accepted_type=type(value))
-        deserialized_value = DeserializerBase.DESERIALIZATION_FAILED
+        deserialized_value = NULL
 
         for deserializer in self.get_deserializers(**options):
             deserialized_value = deserializer.deserialize(value, **options)
 
-            if deserialized_value is not DeserializerBase.DESERIALIZATION_FAILED:
+            if deserialized_value is not NULL:
                 return deserialized_value
             continue
 

@@ -10,6 +10,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.converters.deserializer.handlers.base import DeserializerBase, \
     StringPatternDeserializerBase
+from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -36,20 +37,20 @@ class ListDeserializer(DeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         result = [item for item in value]
 
         index = 0
         for item in result:
-            deserialized_value = self.DESERIALIZATION_FAILED
+            deserialized_value = NULL
 
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
                 deserialized_value = deserializer_services.deserialize(item, **options)
 
-            if deserialized_value is not self.DESERIALIZATION_FAILED:
+            if deserialized_value is not NULL:
                 result[index] = deserialized_value
 
             index += 1
@@ -101,7 +102,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -110,7 +111,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         value = value.strip()
 

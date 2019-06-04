@@ -7,6 +7,7 @@ from datetime import date, datetime
 
 from pyrin.converters.deserializer.handlers.base import StringDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
+from pyrin.core.globals import NULL
 from pyrin.utils.datetime.converter import DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT_UTC, \
     DEFAULT_DATE_TIME_FORMAT_UTC, to_datetime
 
@@ -32,7 +33,7 @@ class DateDeserializer(StringDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -40,7 +41,7 @@ class DateDeserializer(StringDeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         value = value.strip()
         converted_date = None
@@ -58,7 +59,7 @@ class DateDeserializer(StringDeserializerBase):
         if converted_date is not None:
             return converted_date.date()
 
-        return self.DESERIALIZATION_FAILED
+        return NULL
 
     def get_default_formats(self):
         """
@@ -94,7 +95,7 @@ class TimeDeserializer(StringDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -102,7 +103,7 @@ class TimeDeserializer(StringDeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         value = value.strip()
         converted_time = None
@@ -120,7 +121,7 @@ class TimeDeserializer(StringDeserializerBase):
         if converted_time is not None:
             return converted_time.timetz()
 
-        return self.DESERIALIZATION_FAILED
+        return NULL
 
     def get_default_formats(self):
         """
@@ -156,7 +157,7 @@ class DateTimeDeserializer(StringDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -164,7 +165,7 @@ class DateTimeDeserializer(StringDeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         value = value.strip()
         converted_datetime = None
@@ -182,7 +183,7 @@ class DateTimeDeserializer(StringDeserializerBase):
         if converted_datetime is not None:
             return converted_datetime
 
-        return self.DESERIALIZATION_FAILED
+        return NULL
 
     def get_default_formats(self):
         """

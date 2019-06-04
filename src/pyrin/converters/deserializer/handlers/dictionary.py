@@ -8,6 +8,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.core.context import DTO
+from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -34,20 +35,20 @@ class DictionaryDeserializer(DeserializerBase):
         """
 
         if not self.is_deserializable(value, **options):
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         result = DTO(**value)
 
         for key in result.keys():
             item = result.get(key)
-            deserialized_value = self.DESERIALIZATION_FAILED
+            deserialized_value = NULL
 
             if self.is_deserializable(item, **options):
                 deserialized_value = self.deserialize(item)
             else:
                 deserialized_value = deserializer_services.deserialize(item, **options)
 
-            if deserialized_value is not self.DESERIALIZATION_FAILED:
+            if deserialized_value is not NULL:
                 result[key] = deserialized_value
             continue
 

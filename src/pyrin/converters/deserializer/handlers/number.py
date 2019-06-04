@@ -7,6 +7,7 @@ import re
 
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
+from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -36,7 +37,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -45,7 +46,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         return int(value.strip())
 
@@ -89,7 +90,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `DESERIALIZATION_FAILED` object if deserialization fails.
+        returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
@@ -98,7 +99,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
 
         deserializable, pattern = self.is_deserializable(value, **options)
         if not deserializable:
-            return self.DESERIALIZATION_FAILED
+            return NULL
 
         return float(value.strip())
 
