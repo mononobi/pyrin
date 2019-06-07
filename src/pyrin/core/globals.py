@@ -6,5 +6,5 @@ core globals module.
 from pyrin.core.context import CoreObject
 
 
-# this value should be used as `None`, where the `None` itself has a different meaning.
+# this value should be used as `None`, where the `None` itself has a meaning.
 NULL = CoreObject()
