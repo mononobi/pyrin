@@ -13,12 +13,12 @@ from pyrin.settings.static import APPLICATION_ENCODING
 
 class AES128Encrypter(SymmetricEncrypterBase):
     """
-    aes encrypter class.
+    aes128 encrypter class.
     """
 
     def __init__(self, **options):
         """
-        initializes an instance of AESEncrypter.
+        initializes an instance of AES128Encrypter.
         """
 
         # we pass the algorithm of encryption handler as the name of it.
