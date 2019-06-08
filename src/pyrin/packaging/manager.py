@@ -11,6 +11,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
 from pyrin.packaging.context import Package
+from pyrin.packaging.exceptions import InvalidPackageNameError
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
     CORE_PACKAGES
@@ -105,9 +106,10 @@ class PackagingManager(CoreObject):
             # if so, check those dependencies has been loaded or not.
             # if not, then put this package into dependent_packages and
             # load it later. otherwise load it now.
-            if package_class is None or \
-                len(package_class.DEPENDS) == 0 or \
-               self._is_dependencies_loaded(package_class.DEPENDS) is True:
+            if (package_class is None or
+                len(package_class.DEPENDS) == 0 or
+                self._is_dependencies_loaded(package_class.DEPENDS) is True) and \
+               self._is_parent_loaded(package) is True:
 
                 if package_class is not None:
                     instance = package_class()
@@ -349,3 +351,34 @@ class PackagingManager(CoreObject):
                 return False
 
         return True
+
+    def _is_parent_loaded(self, package_name):
+        """
+        gets a value indicating that given package's parent package has been loaded.
+
+        :param str package_name: full package name.
+                                 example package_name = `pyrin.encryption.handlers`
+
+        :raises InvalidPackageNameError: invalid package name error.
+
+        :rtype: bool
+        """
+
+        items = package_name.split('.')
+        parent_package = None
+
+        length = len(items)
+        if length == 1:
+            parent_package = items[0]
+        elif length > 1:
+            parent_package = '.'.join(items[:-1])
+        else:
+            raise InvalidPackageNameError('Input package name [{package_name}] is invalid.'
+                                          .format(package_name=package_name))
+
+        # application root packages like `pyrin`, has no
+        # parent so it should always return `True` for them.
+        if parent_package == package_name:
+            return True
+
+        return self._is_dependencies_loaded([parent_package])

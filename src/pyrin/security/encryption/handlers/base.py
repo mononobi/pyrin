@@ -83,6 +83,21 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    def generate_key(self, **options):
+        """
+        generates a valid key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some encryption handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: Union[str, tuple(str, str)]
+        """
+
+        raise CoreNotImplementedError()
+
 
 class SymmetricEncrypterBase(EncrypterBase):
     """
@@ -108,6 +123,21 @@ class SymmetricEncrypterBase(EncrypterBase):
 
         return self._get_encryption_key()
 
+    def generate_key(self, **options):
+        """
+        generates a valid key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some encryption handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
 
 class AsymmetricEncrypterBase(EncrypterBase):
     """
@@ -124,3 +154,20 @@ class AsymmetricEncrypterBase(EncrypterBase):
         """
 
         EncrypterBase.__init__(self, name, **options)
+
+    def generate_key(self, **options):
+        """
+        generates a valid public/private key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some encryption handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns tuple(str public_key, str private_key)
+
+        :rtype: tuple(str, str)
+        """
+
+        raise CoreNotImplementedError()

@@ -259,6 +259,21 @@ class TokenBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    def generate_key(self, **options):
+        """
+        generates a valid key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some token handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: Union[str, tuple(str, str)]
+        """
+
+        raise CoreNotImplementedError()
+
 
 class SymmetricTokenBase(TokenBase):
     """
@@ -284,6 +299,21 @@ class SymmetricTokenBase(TokenBase):
 
         return self._get_encoding_key()
 
+    def generate_key(self, **options):
+        """
+        generates a valid key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some token handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
 
 class AsymmetricTokenBase(TokenBase):
     """
@@ -299,3 +329,20 @@ class AsymmetricTokenBase(TokenBase):
         """
 
         TokenBase.__init__(self, name, **options)
+
+    def generate_key(self, **options):
+        """
+        generates a valid public/private key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some token handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns tuple(str public_key, str private_key)
+
+        :rtype: tuple(str, str)
+        """
+
+        raise CoreNotImplementedError()

@@ -25,3 +25,7 @@ DEFAULT_COMPONENT_KEY = 0
 
 # determines that @audit decorator should be enabled to log decorated methods.
 AUDIT_LOG = True
+
+# default secure random size in bytes.
+# defaults to 64 bytes.
+DEFAULT_SECURE_RANDOM_SIZE = 64

@@ -159,3 +159,18 @@ class TokenManager(CoreObject):
         """
 
         return self._get_token_handler(handler_name).get_payload(token, **options)
+
+    def generate_key(self, handler_name, **options):
+        """
+        generates a valid key for the given handler and returns it.
+
+        :param str handler_name: token handler name to be used.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some token handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :rtype: Union[str, tuple(str, str)]
+        """
+
+        return self._get_token_handler(handler_name).generate_key(**options)

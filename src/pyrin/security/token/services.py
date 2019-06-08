@@ -105,3 +105,19 @@ def get_payload(handler_name, token, **options):
 
     return get_component(TokenPackage.COMPONENT_NAME).get_payload(handler_name, token,
                                                                   **options)
+
+
+def generate_key(handler_name, **options):
+    """
+    generates a valid key for the given handler and returns it.
+
+    :param str handler_name: token handler name to be used.
+
+    :keyword int length: the length of generated key in bytes.
+                         note that some token handlers may not accept custom
+                         key length so this value would be ignored on those handlers.
+
+    :rtype: Union[str, tuple(str, str)]
+    """
+
+    return get_component(TokenPackage.COMPONENT_NAME).generate_key(handler_name, **options)

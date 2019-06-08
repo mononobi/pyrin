@@ -3,9 +3,10 @@
 utils dictionary module.
 """
 
+import pyrin.utils.string as string_utils
+
 from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreTypeError
-from pyrin.utils.string import upper, lower
 
 
 def change_key_case(value, converter, **options):
@@ -47,7 +48,7 @@ def make_key_upper(value):
     :rtype: dict
     """
 
-    return change_key_case(value, upper)
+    return change_key_case(value, string_utils.upper)
 
 
 def make_key_lower(value):
@@ -60,4 +61,4 @@ def make_key_lower(value):
     :rtype: dict
     """
 
-    return change_key_case(value, lower)
+    return change_key_case(value, string_utils.lower)

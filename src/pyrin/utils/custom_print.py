@@ -3,7 +3,7 @@
 utils custom_print module.
 """
 
-from colorama import init, deinit, Fore
+import colorama
 
 
 def print_colorful(text, color):
@@ -17,10 +17,10 @@ def print_colorful(text, color):
     """
 
     try:
-        init(autoreset=True)
+        colorama.init(autoreset=True)
         print(str(color) + text)
     finally:
-        deinit()
+        colorama.deinit()
 
 
 def print_warning(text):
@@ -30,7 +30,7 @@ def print_warning(text):
     :param str text: text to be printed.
     """
 
-    print_colorful(text, Fore.YELLOW)
+    print_colorful(text, colorama.Fore.YELLOW)
 
 
 def print_error(text):
@@ -40,7 +40,7 @@ def print_error(text):
     :param str text: text to be printed.
     """
 
-    print_colorful(text, Fore.RED)
+    print_colorful(text, colorama.Fore.RED)
 
 
 def print_info(text):
@@ -50,4 +50,4 @@ def print_info(text):
     :param str text: text to be printed.
     """
 
-    print_colorful(text, Fore.BLUE)
+    print_colorful(text, colorama.Fore.BLUE)

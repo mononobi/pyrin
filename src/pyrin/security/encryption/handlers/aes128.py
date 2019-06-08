@@ -7,10 +7,12 @@ from cryptography.fernet import Fernet
 
 import pyrin.configuration.services as config_services
 
+from pyrin.security.encryption.decorators import encrypter
 from pyrin.security.encryption.handlers.base import SymmetricEncrypterBase
 from pyrin.settings.static import APPLICATION_ENCODING
 
 
+@encrypter()
 class AES128Encrypter(SymmetricEncrypterBase):
     """
     aes128 encrypter class.
@@ -65,3 +67,16 @@ class AES128Encrypter(SymmetricEncrypterBase):
         """
 
         return self._encrypter.decrypt(value.encode(APPLICATION_ENCODING))
+
+    def generate_key(self, **options):
+        """
+        generates a valid key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bytes.
+                             note that some encryption handlers may not accept custom
+                             key length so this value would be ignored on those handlers.
+
+        :rtype: str
+        """
+
+        return self._encrypter.generate_key().decode(APPLICATION_ENCODING)
