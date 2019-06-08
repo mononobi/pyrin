@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 """
-hashing handlers base module.
+bcrypt hashing handler module.
 """
 
-from pyrin.core.context import CoreObject
-from pyrin.core.exceptions import CoreNotImplementedError
+import bcrypt
+
+import pyrin.configuration.services as config_services
+
+from pyrin.security.hashing.handlers.base import HashingBase
+from pyrin.settings.static import APPLICATION_ENCODING
 
 
-class HashingBase(CoreObject):
+class BcryptHashing(HashingBase):
     """
-    hashing base class.
-    all application hashing handlers must be subclassed from this.
+    bcrypt hashing class.
     """
 
     def __init__(self, name, **options):
         """
-        initializes an instance of HashingBase.
+        initializes an instance of BcryptHashing.
 
         :param str name: name of the hashing handler.
         """
 
-        CoreObject.__init__(self)
+        # we pass the algorithm of hashing handler as the name of it.
+        HashingBase.__init__(self, self._get_algorithm(), **options)
 
         self._set_name(name)
 
@@ -31,27 +35,20 @@ class HashingBase(CoreObject):
         :param str plain_text: text to be hashed.
         :param str salt: salt to append to plain text before hashing.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        return bcrypt.hashpw(plain_text.encode(APPLICATION_ENCODING),
+                             salt.encode(APPLICATION_ENCODING)).decode(APPLICATION_ENCODING)
 
     def generate_salt(self, **options):
         """
         generates a valid salt for this handler and returns it.
 
-        :keyword int length: length of generated salt.
-                             some hashing handlers may not accept custom salt length,
-                             so this value would be ignored on those handlers.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        return bcrypt.gensalt(config_services.get('security', 'hashing', 'bcrypt_log_rounds'))
 
     def is_valid(self, plain_text, hashed_value):
         """
@@ -61,20 +58,16 @@ class HashingBase(CoreObject):
         :param str plain_text: text to be hashed.
         :param str hashed_value: hashed value to compare with.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bool
         """
 
-        raise CoreNotImplementedError()
+        return bcrypt.checkpw(plain_text, hashed_value)
 
     def _get_algorithm(self):
         """
         gets the hashing algorithm.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        return 'bcrypt'

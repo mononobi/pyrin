@@ -72,10 +72,6 @@ class AES128Encrypter(SymmetricEncrypterBase):
         """
         generates a valid key for this handler and returns it.
 
-        :keyword int length: the length of generated key in bytes.
-                             note that some encryption handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
-
         :rtype: str
         """
 
