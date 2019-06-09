@@ -38,7 +38,7 @@ def encrypt(handler_name, value):
     :param str handler_name: handler name to be used for encryption.
     :param str value: value to be encrypted.
 
-    :rtype: str
+    :rtype: bytes
     """
 
     return get_component(EncryptionPackage.COMPONENT_NAME).encrypt(handler_name, value)
@@ -49,7 +49,7 @@ def decrypt(handler_name, value):
     decrypts the given value using specified handler and returns the decrypted result.
 
     :param str handler_name: handler name to be used for decryption.
-    :param str value: value to be decrypted.
+    :param bytes value: value to be decrypted.
 
     :rtype: str
     """
@@ -67,7 +67,7 @@ def generate_key(handler_name, **options):
                          note that some encryption handlers may not accept custom
                          key length so this value would be ignored on those handlers.
 
-    :rtype: Union[str, tuple(str, str)]
+    :rtype: Union[bytes, tuple(bytes, bytes)]
     """
 
     return get_component(EncryptionPackage.COMPONENT_NAME).generate_key(handler_name,

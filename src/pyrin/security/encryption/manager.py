@@ -82,7 +82,7 @@ class EncryptionManager(CoreObject):
         :param str handler_name: handler name to be used for encryption.
         :param str value: value to be encrypted.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         return self._get_encryption_handler(handler_name).encrypt(value)
@@ -92,7 +92,7 @@ class EncryptionManager(CoreObject):
         decrypts the given value using specified handler and returns the decrypted result.
 
         :param str handler_name: handler name to be used for decryption.
-        :param str value: value to be decrypted.
+        :param bytes value: value to be decrypted.
 
         :rtype: str
         """
@@ -109,7 +109,7 @@ class EncryptionManager(CoreObject):
                              note that some encryption handlers may not accept custom
                              key length so this value would be ignored on those handlers.
 
-        :rtype: Union[str, tuple(str, str)]
+        :rtype: Union[bytes, tuple(bytes, bytes)]
         """
 
         return self._get_encryption_handler(handler_name).generate_key(**options)

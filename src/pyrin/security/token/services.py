@@ -54,7 +54,7 @@ def generate_access_token(handler_name, payload, **options):
 
     :returns: token.
 
-    :rtype: str
+    :rtype: bytes
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_access_token(handler_name,
@@ -84,7 +84,7 @@ def generate_refresh_token(handler_name, payload, **options):
 
     :returns: token.
 
-    :rtype: str
+    :rtype: bytes
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_refresh_token(handler_name,
@@ -96,7 +96,7 @@ def get_payload(handler_name, token, **options):
     decodes token using specified handler and gets the payload data.
 
     :param str handler_name: token handler name to be used.
-    :param str token: token to get it's payload.
+    :param bytes token: token to get it's payload.
 
     :raises TokenHandlerNotFoundError: token handler not found error.
 

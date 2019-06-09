@@ -4,10 +4,10 @@ hs256 token handler module.
 """
 
 import pyrin.configuration.services as config_services
-import pyrin.utils.secure_random as secure_random_utils
 
 from pyrin.security.token.decorators import token
 from pyrin.security.token.handlers.base import SymmetricTokenBase
+from pyrin.utils import secure_random
 
 
 @token()
@@ -50,9 +50,7 @@ class HS256Token(SymmetricTokenBase):
                              note that some token handlers may not accept custom
                              key length so this value would be ignored on those handlers.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: str
         """
 
-        return secure_random_utils.get_url_safe()
+        return secure_random.get_url_safe(**options)

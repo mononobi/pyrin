@@ -1,0 +1,143 @@
+# -*- coding: utf-8 -*-
+"""
+hashing manager module.
+"""
+
+from pyrin.core.context import CoreObject, Context
+from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
+    InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError
+from pyrin.security.hashing.handlers.base import HashingBase
+from pyrin.utils.custom_print import print_warning
+
+
+class HashingManager(CoreObject):
+    """
+    hashing manager class.
+    """
+
+    def __init__(self):
+        """
+        initializes an instance of HashingManager.
+        """
+
+        CoreObject.__init__(self)
+
+        self._hashing_handlers = Context()
+
+    def register_hashing_handler(self, instance, **options):
+        """
+        registers a new hashing handler or replaces the existing one
+        if `replace=True` is provided. otherwise, it raises an error
+        on adding an instance which it's name is already available
+        in registered handlers.
+
+        :param HashingBase instance: hashing handler to be registered.
+                                     it must be an instance of HashingBase.
+
+        :keyword bool replace: specifies that if there is another registered
+                               handler with the same name, replace it with
+                               the new one, otherwise raise an error.
+                               defaults to False.
+
+        :raises InvalidHashingHandlerTypeError: invalid hashing handler type error.
+        :raises InvalidHashingHandlerNameError: invalid hashing handler name error.
+        :raises DuplicatedHashingHandlerError: duplicated hashing handler error.
+        """
+
+        if not isinstance(instance, HashingBase):
+            raise InvalidHashingHandlerTypeError('Input parameter [{instance}] is '
+                                                 'not an instance of HashingBase.'
+                                                 .format(instance=str(instance)))
+
+        if instance.get_name() is None or len(instance.get_name().strip()) == 0:
+            raise InvalidHashingHandlerNameError('Hashing handler [{instance}] '
+                                                 'has invalid name.'
+                                                 .format(instance=str(instance)))
+
+        # checking whether is there any registered instance with the same name.
+        if instance.get_name() in self._hashing_handlers.keys():
+            replace = options.get('replace', False)
+
+            if replace is not True:
+                raise DuplicatedHashingHandlerError('There is another registered hashing '
+                                                    'handler with name [{name}] but "replace" '
+                                                    'option is not set, so handler '
+                                                    '[{instance}] could not be registered.'
+                                                    .format(name=instance.get_name(),
+                                                            instance=str(instance)))
+
+            old_instance = self._hashing_handlers[instance.get_name()]
+            print_warning('Hashing handler [{old_instance}] is going '
+                          'to be replaced by [{new_instance}].'
+                          .format(old_instance=str(old_instance), new_instance=str(instance)))
+
+        # registering new hashing handler.
+        self._hashing_handlers[instance.get_name()] = instance
+
+    def generate_hash(self, handler_name, plain_text, salt, **options):
+        """
+        gets the hash of input plain text and salt using given handler.
+
+        :param str handler_name: handler name to be used for hashing.
+        :param str plain_text: text to be hashed.
+        :param bytes salt: salt to append to plain text before hashing.
+
+        :keyword int rounds: rounds to perform for generating hash.
+                             if not provided, default value from
+                             relevant config will be used.
+
+        :rtype: bytes
+        """
+
+        return self._get_hashing_handler(handler_name).generate_hash(plain_text, salt,
+                                                                     **options)
+
+    def generate_salt(self, handler_name, **options):
+        """
+        generates a valid salt for the given handler and returns it.
+
+        :param str handler_name: handler name to be used for salt generation.
+
+        :keyword int length: length of generated salt.
+                             some hashing handlers may not accept custom salt length,
+                             so this value would be ignored on those handlers.
+
+        :keyword int rounds: rounds to perform for generating hash.
+                             if not provided, default value from
+                             relevant config will be used.
+
+        :rtype: bytes
+        """
+
+        return self._get_hashing_handler(handler_name).generate_salt(**options)
+
+    def is_match(self, handler_name, plain_text, hashed_value):
+        """
+        gets a value indicating that given plain text's
+        hash is identical to given hashed  using specified handler.
+
+        :param str handler_name: handler name to be used for hash comparison.
+        :param str plain_text: text to be hashed.
+        :param bytes hashed_value: hashed value to compare with.
+
+        :rtype: bool
+        """
+
+        return self._get_hashing_handler(handler_name).is_match(plain_text, hashed_value)
+
+    def _get_hashing_handler(self, name, **options):
+        """
+        gets the specified hashing handler.
+
+        :param str name: name of hashing handler to get.
+
+        :raises HashingHandlerNotFoundError: hashing handler not found error.
+
+        :rtype: HashingBase
+        """
+
+        if name not in self._hashing_handlers.keys():
+            raise HashingHandlerNotFoundError('Hashing handler [{name}] not found.'
+                                              .format(name=name))
+
+        return self._hashing_handlers[name]

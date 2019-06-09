@@ -32,10 +32,11 @@ class AES128Encrypter(SymmetricEncrypterBase):
         """
         gets the signing key for encryption.
 
-        :rtype: str
+        :rtype: bytes
         """
 
-        return config_services.get('security', 'encryption', 'aes128_key')
+        return config_services.get('security', 'encryption', 'aes128_key').\
+            encode(APPLICATION_ENCODING)
 
     def _get_algorithm(self):
         """
@@ -52,27 +53,27 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         :param str value: value to be encrypted.
 
-        :rtype: str
+        :rtype: bytes
         """
 
-        return self._encrypter.encrypt(value).decode(APPLICATION_ENCODING)
+        return self._encrypter.encrypt(value.encode(APPLICATION_ENCODING))
 
     def decrypt(self, value):
         """
         decrypts the given value and returns the decrypted result.
 
-        :param str value: value to be decrypted.
+        :param bytes value: value to be decrypted.
 
         :rtype: str
         """
 
-        return self._encrypter.decrypt(value.encode(APPLICATION_ENCODING))
+        return self._encrypter.decrypt(value).decode(APPLICATION_ENCODING)
 
     def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.
 
-        :rtype: str
+        :rtype: bytes
         """
 
-        return self._encrypter.generate_key().decode(APPLICATION_ENCODING)
+        return self._encrypter.generate_key()

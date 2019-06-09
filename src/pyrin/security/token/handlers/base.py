@@ -50,7 +50,7 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         updated_payload = payload or {}
@@ -77,7 +77,7 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         updated_payload = payload or {}
@@ -102,7 +102,7 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         is_fresh = options.get('is_fresh', False)
@@ -112,18 +112,18 @@ class TokenBase(CoreObject):
         return encode(updated_payload,
                       self._get_encoding_key(),
                       self._get_algorithm(),
-                      options.get('custom_headers', None)).decode(APPLICATION_ENCODING)
+                      options.get('custom_headers', None))
 
     def get_payload(self, token, **options):
         """
         decodes token and gets the payload data.
 
-        :param str token: token to get it's payload.
+        :param bytes token: token to get it's payload.
 
         :rtype: dict
         """
 
-        return decode(token,
+        return decode(token.decode(APPLICATION_ENCODING),
                       self._get_decoding_key(),
                       True,
                       self._get_algorithm(),

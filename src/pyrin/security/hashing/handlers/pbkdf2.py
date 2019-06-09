@@ -1,28 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-hashing handlers base module.
+pbkdf2 hashing handler module.
 """
 
-from pyrin.core.context import CoreObject
-from pyrin.core.exceptions import CoreNotImplementedError
+import hashlib
+
+import pyrin.configuration.services as config_services
+
+from pyrin.security.hashing.decorators import hashing
+from pyrin.security.hashing.handlers.base import HashingBase
+from pyrin.settings.static import APPLICATION_ENCODING
+from pyrin.utils import secure_random
 
 
-class HashingBase(CoreObject):
+@hashing()
+class PBKDF2Hashing(HashingBase):
     """
-    hashing base class.
-    all application hashing handlers must be subclassed from this.
+    pbkdf2 hashing class.
     """
 
-    def __init__(self, name, **options):
+    INTERNAL_ALGORITHM = 'sha256'
+
+    def __init__(self, **options):
         """
-        initializes an instance of HashingBase.
-
-        :param str name: name of the hashing handler.
+        initializes an instance of PBKDF2Hashing.
         """
 
-        CoreObject.__init__(self)
-
-        self._set_name(name)
+        # we pass the algorithm of hashing handler as the name of it.
+        HashingBase.__init__(self, self._get_algorithm(), **options)
 
     def generate_hash(self, plain_text, **options):
         """
@@ -36,12 +41,15 @@ class HashingBase(CoreObject):
                              if not provided, default value from
                              relevant config will be used.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bytes
         """
 
-        raise CoreNotImplementedError()
+        rounds = options.get('rounds', config_services.get('security', 'hashing',
+                                                           'pbkdf2_log_rounds'))
+
+        return hashlib.pbkdf2_hmac(self.INTERNAL_ALGORITHM,
+                                   plain_text.encode(APPLICATION_ENCODING),
+                                   options.get('salt', b''), rounds)
 
     def generate_salt(self, **options):
         """
@@ -51,16 +59,10 @@ class HashingBase(CoreObject):
                              some hashing handlers may not accept custom salt length,
                              so this value would be ignored on those handlers.
 
-        :keyword int rounds: rounds to perform for generating hash.
-                             if not provided, default value from
-                             relevant config will be used.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bytes
         """
 
-        raise CoreNotImplementedError()
+        return secure_random.get_bytes(**options)
 
     def is_match(self, plain_text, hashed_value):
         """
@@ -70,20 +72,16 @@ class HashingBase(CoreObject):
         :param str plain_text: text to be hashed.
         :param bytes hashed_value: hashed value to compare with.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bool
         """
 
-        raise CoreNotImplementedError()
+        pass
 
     def _get_algorithm(self):
         """
         gets the hashing algorithm.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        return 'PBKDF2'

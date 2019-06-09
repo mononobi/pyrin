@@ -30,7 +30,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         raise CoreNotImplementedError()
@@ -41,13 +41,13 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         raise CoreNotImplementedError()
 
     def _get_algorithm(self):
-        """
+        """       self._set_name(name)
         gets the algorithm used for encryption.
 
         :raises CoreNotImplementedError: core not implemented error.
@@ -65,7 +65,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         raise CoreNotImplementedError()
@@ -74,7 +74,7 @@ class EncrypterBase(CoreObject):
         """
         decrypts the given value and returns the decrypted result.
 
-        :param str value: value to be decrypted.
+        :param bytes value: value to be decrypted.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -93,7 +93,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[str, tuple(str, str)]
+        :rtype: Union[bytes, tuple(bytes, bytes)]
         """
 
         raise CoreNotImplementedError()
@@ -118,7 +118,7 @@ class SymmetricEncrypterBase(EncrypterBase):
         """
         gets the signing key for decryption.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         return self._get_encryption_key()
@@ -133,7 +133,7 @@ class SymmetricEncrypterBase(EncrypterBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: str
+        :rtype: bytes
         """
 
         raise CoreNotImplementedError()
@@ -165,9 +165,9 @@ class AsymmetricEncrypterBase(EncrypterBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns tuple(str public_key, str private_key)
+        :returns tuple(bytes public_key, bytes private_key)
 
-        :rtype: tuple(str, str)
+        :rtype: tuple(bytes, bytes)
         """
 
         raise CoreNotImplementedError()
