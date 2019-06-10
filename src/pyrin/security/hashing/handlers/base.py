@@ -13,16 +13,15 @@ class HashingBase(CoreObject):
     all application hashing handlers must be subclassed from this.
     """
 
-    def __init__(self, name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of HashingBase.
-
-        :param str name: name of the hashing handler.
         """
 
         CoreObject.__init__(self)
 
-        self._set_name(name)
+        # we set the algorithm of hashing handler as the name of it.
+        self._set_name(self._get_algorithm())
 
     def generate_hash(self, text, **options):
         """

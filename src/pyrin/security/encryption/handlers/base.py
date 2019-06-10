@@ -105,14 +105,13 @@ class SymmetricEncrypterBase(EncrypterBase):
     this encrypter type uses a single symmetric key for encryption and decryption.
     """
 
-    def __init__(self, name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of SymmetricEncrypterBase.
-
-        :param str name: name of the encryption handler.
         """
 
-        EncrypterBase.__init__(self, name, **options)
+        # we pass the algorithm of encryption handler as the name of it.
+        EncrypterBase.__init__(self, self._get_algorithm(), **options)
 
     def _get_decryption_key(self, **options):
         """
@@ -146,14 +145,13 @@ class AsymmetricEncrypterBase(EncrypterBase):
     keys for encryption and decryption.
     """
 
-    def __init__(self, name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of AsymmetricEncrypterBase.
-
-        :param str name: name of the encryption handler.
         """
 
-        EncrypterBase.__init__(self, name, **options)
+        # we pass the algorithm of encryption handler as the name of it.
+        EncrypterBase.__init__(self, self._get_algorithm(), **options)
 
     def generate_key(self, **options):
         """

@@ -31,8 +31,7 @@ class BcryptHashing(HashingBase):
         initializes an instance of BcryptHashing.
         """
 
-        # we pass the algorithm of hashing handler as the name of it.
-        HashingBase.__init__(self, self._get_algorithm(), **options)
+        HashingBase.__init__(self, **options)
 
     def generate_hash(self, text, **options):
         """

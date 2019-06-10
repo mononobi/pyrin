@@ -26,8 +26,7 @@ class PBKDF2Hashing(HashingBase):
         initializes an instance of PBKDF2Hashing.
         """
 
-        # we pass the algorithm of hashing handler as the name of it.
-        HashingBase.__init__(self, self._get_algorithm(), **options)
+        HashingBase.__init__(self, **options)
 
         # the final hash parts are separated with this byte character.
         # in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.

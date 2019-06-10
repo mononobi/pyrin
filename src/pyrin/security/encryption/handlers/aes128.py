@@ -23,8 +23,7 @@ class AES128Encrypter(SymmetricEncrypterBase):
         initializes an instance of AES128Encrypter.
         """
 
-        # we pass the algorithm of encryption handler as the name of it.
-        SymmetricEncrypterBase.__init__(self, self._get_algorithm(), **options)
+        SymmetricEncrypterBase.__init__(self, **options)
 
         self._encrypter = Fernet(self._get_encryption_key(**options))
 

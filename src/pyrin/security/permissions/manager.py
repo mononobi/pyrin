@@ -12,6 +12,8 @@ from pyrin.security.permissions.exceptions import InvalidPermissionTypeError, \
 class PermissionsManager(CoreObject):
     """
     permissions manager class.
+    this class is intended to be an interface for top level application's permissions
+    package, so most methods of this class will raise CoreNotImplementedError.
     """
 
     def __init__(self):
