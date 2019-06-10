@@ -30,7 +30,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         raise CoreNotImplementedError()
@@ -41,7 +41,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         raise CoreNotImplementedError()
@@ -93,7 +93,7 @@ class EncrypterBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[bytes, tuple(bytes, bytes)]
+        :rtype: Union[str, tuple(str, str)]
         """
 
         raise CoreNotImplementedError()
@@ -118,7 +118,7 @@ class SymmetricEncrypterBase(EncrypterBase):
         """
         gets the signing key for decryption.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_encryption_key()
@@ -133,7 +133,7 @@ class SymmetricEncrypterBase(EncrypterBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         raise CoreNotImplementedError()
@@ -165,9 +165,9 @@ class AsymmetricEncrypterBase(EncrypterBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns tuple(bytes public_key, bytes private_key)
+        :returns tuple(str public_key, str private_key)
 
-        :rtype: tuple(bytes, bytes)
+        :rtype: tuple(str, str)
         """
 
         raise CoreNotImplementedError()

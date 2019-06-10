@@ -31,57 +31,53 @@ def register_hashing_handler(instance, **options):
                                                                                  **options)
 
 
-def generate_hash(handler_name, plain_text, salt, **options):
+def generate_hash(handler_name, text, **options):
     """
-    gets the hash of input plain text and salt using given handler.
+    gets the hash of input text using a random or specified salt.
 
-    :param str handler_name: handler name to be used for hashing.
-    :param str plain_text: text to be hashed.
-    :param str salt: salt to append to plain text before hashing.
+    :param str handler_name: handler name to be used for hash generation.
+
+    :param str text: text to be hashed.
+
+    :keyword bytes salt: salt to be used for hashing.
+                         if not provided, a random salt will be generated
+                         considering `salt_length` option.
+
+    :keyword str internal_algorithm: internal algorithm to be used
+                                     for hashing. if not provided,
+                                     default value from relevant
+                                     config will be used.
 
     :keyword int rounds: rounds to perform for generating hash.
                          if not provided, default value from
                          relevant config will be used.
 
-    :rtype: str
+    :keyword int salt_length: salt length to be used for hashing.
+                              if `salt` option is provided, then
+                              this value will be ignored.
+                              if not provided, default value from
+                              relevant config will be used.
+
+    :keyword str prefix: prefix to be used for bcrypt hashing.
+
+    :rtype: bytes
     """
 
     return get_component(HashingPackage.COMPONENT_NAME).generate_hash(handler_name,
-                                                                      plain_text,
-                                                                      salt, **options)
+                                                                      text, **options)
 
 
-def generate_salt(handler_name, **options):
+def is_match(handler_name, text, full_hashed_value):
     """
-    generates a valid salt for the given handler and returns it.
+    gets a value indicating that given text's
+    hash is identical to given full hashed value.
 
-    :param str handler_name: handler name to be used for salt generation.
-
-    :keyword int length: length of generated salt.
-                         some hashing handlers may not accept custom salt length,
-                         so this value would be ignored on those handlers.
-
-    :keyword int rounds: rounds to perform for generating hash.
-                         if not provided, default value from
-                         relevant config will be used.
-
-    :rtype: str
-    """
-
-    return get_component(HashingPackage.COMPONENT_NAME).generate_salt(handler_name, **options)
-
-
-def is_match(handler_name, plain_text, hashed_value):
-    """
-    gets a value indicating that given plain text's
-    hash is identical to given hashed  using specified handler.
-
-    :param str handler_name: handler name to be used for hash comparison.
-    :param str plain_text: text to be hashed.
-    :param str hashed_value: hashed value to compare with.
+    :param str handler_name: handler name to be used for hash generation.
+    :param str text: text to be hashed.
+    :param bytes full_hashed_value: full hashed value to compare with.
 
     :rtype: bool
     """
 
-    return get_component(HashingPackage.COMPONENT_NAME).is_match(handler_name,
-                                                                 plain_text, hashed_value)
+    return get_component(HashingPackage.COMPONENT_NAME).is_match(handler_name, text,
+                                                                 full_hashed_value)

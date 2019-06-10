@@ -109,7 +109,7 @@ class EncryptionManager(CoreObject):
                              note that some encryption handlers may not accept custom
                              key length so this value would be ignored on those handlers.
 
-        :rtype: Union[bytes, tuple(bytes, bytes)]
+        :rtype: Union[str, tuple(str, str)]
         """
 
         return self._get_encryption_handler(handler_name).generate_key(**options)

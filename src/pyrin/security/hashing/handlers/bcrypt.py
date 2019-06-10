@@ -34,27 +34,37 @@ class BcryptHashing(HashingBase):
         # we pass the algorithm of hashing handler as the name of it.
         HashingBase.__init__(self, self._get_algorithm(), **options)
 
-    def generate_hash(self, plain_text, **options):
+    def generate_hash(self, text, **options):
         """
-        gets the hash of input plain text and salt.
+        gets the hash of input text using a random or specified salt.
+        the result is in the form of `$prefix$rounds$salt-text_hash`.
 
-        :param str plain_text: text to be hashed.
+        :param str text: text to be hashed.
 
-        :keyword bytes salt: salt to append to plain text before hashing.
+        :keyword bytes salt: salt to be used for hashing.
+                             if not provided, a random salt will be generated
+                             considering `salt_length` option.
+
+        :keyword str prefix: prefix to be used for hashing.
+
+        :keyword int rounds: rounds to perform for generating hash.
+                             if not provided, default value from
+                             relevant config will be used.
 
         :raises BcryptMaxSizeLimitError: bcrypt max size limit error.
 
         :rtype: bytes
         """
 
-        text_bytes = self._digest_inputs(plain_text, **options)
-        salt = options.get('salt', self.generate_salt(**options))
+        text_bytes = self._digest_inputs(text, **options)
 
-        return bcrypt.hashpw(text_bytes, salt)
+        return bcrypt.hashpw(text_bytes, self._generate_salt(**options))
 
-    def generate_salt(self, **options):
+    def _generate_salt(self, **options):
         """
         generates a valid salt for this handler and returns it.
+
+        :keyword str prefix: prefix to be used for hashing.
 
         :keyword int rounds: rounds to perform for generating hash.
                              if not provided, default value from
@@ -66,20 +76,25 @@ class BcryptHashing(HashingBase):
         rounds = options.get('rounds', config_services.get('security', 'hashing',
                                                            'bcrypt_log_rounds'))
 
-        return bcrypt.gensalt(rounds=rounds)
+        prefix = options.get('prefix', b'2b')
 
-    def is_match(self, plain_text, hashed_value):
+        return bcrypt.gensalt(rounds=rounds, prefix=prefix)
+
+    def is_match(self, text, full_hashed_value):
         """
-        gets a value indicating that given plain text's
-        hash is identical to given hashed value.
+        gets a value indicating that given text's
+        hash is identical to given full hashed value.
 
-        :param str plain_text: text to be hashed.
-        :param bytes hashed_value: hashed value to compare with.
+        :param str text: text to be hashed.
+
+        :param bytes full_hashed_value: full hashed value to compare with.
+                                        it should be in the form of
+                                       `$prefix$rounds$salt-text_hash`.
 
         :rtype: bool
         """
 
-        return bcrypt.checkpw(plain_text.encode(APPLICATION_ENCODING), hashed_value)
+        return bcrypt.checkpw(text.encode(APPLICATION_ENCODING), full_hashed_value)
 
     def _get_algorithm(self):
         """
@@ -90,26 +105,25 @@ class BcryptHashing(HashingBase):
 
         return 'bcrypt'
 
-    def _digest_inputs(self, plain_text, **options):
+    def _digest_inputs(self, text, **options):
         """
         validates given inputs for bcrypt hashing and
-        returns the byte equivalent of plain text input.
+        returns the byte equivalent of text input.
         it raises an error on invalid inputs.
 
-        :param str plain_text: text to be hashed.
+        :param str text: text to be hashed.
 
         :raises BcryptMaxSizeLimitError: bcrypt max size limit error.
 
         :rtype bytes
         """
 
-        text_bytes = plain_text.encode(APPLICATION_ENCODING)
+        text_bytes = text.encode(APPLICATION_ENCODING)
         size = len(text_bytes)
         if size > self.MAX_SIZE:
-            raise BcryptMaxSizeLimitError('Size of input string [{text}] is [{input_size}] '
-                                          'bytes which is larger than bcrypt\'s [{limit}] bytes '
-                                          'limit'
-                                          .format(text=plain_text, input_size=size,
+            raise BcryptMaxSizeLimitError('Size of input string [{text}] is [{input_size}] bytes '
+                                          'which is larger than bcrypt\'s [{limit}] bytes limit.'
+                                          .format(text=text, input_size=size,
                                                   limit=self.MAX_SIZE))
 
         return text_bytes

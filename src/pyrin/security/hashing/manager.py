@@ -74,56 +74,53 @@ class HashingManager(CoreObject):
         # registering new hashing handler.
         self._hashing_handlers[instance.get_name()] = instance
 
-    def generate_hash(self, handler_name, plain_text, salt, **options):
+    def generate_hash(self, handler_name, text, **options):
         """
-        gets the hash of input plain text and salt using given handler.
+        gets the hash of input text using a random or specified salt.
 
-        :param str handler_name: handler name to be used for hashing.
-        :param str plain_text: text to be hashed.
-        :param bytes salt: salt to append to plain text before hashing.
+        :param str handler_name: handler name to be used for hash generation.
+
+        :param str text: text to be hashed.
+
+        :keyword bytes salt: salt to be used for hashing.
+                             if not provided, a random salt will be generated
+                             considering `salt_length` option.
+
+        :keyword str internal_algorithm: internal algorithm to be used
+                                         for hashing. if not provided,
+                                         default value from relevant
+                                         config will be used.
 
         :keyword int rounds: rounds to perform for generating hash.
                              if not provided, default value from
                              relevant config will be used.
 
-        :rtype: bytes
-        """
+        :keyword int salt_length: salt length to be used for hashing.
+                                  if `salt` option is provided, then
+                                  this value will be ignored.
+                                  if not provided, default value from
+                                  relevant config will be used.
 
-        return self._get_hashing_handler(handler_name).generate_hash(plain_text, salt,
-                                                                     **options)
-
-    def generate_salt(self, handler_name, **options):
-        """
-        generates a valid salt for the given handler and returns it.
-
-        :param str handler_name: handler name to be used for salt generation.
-
-        :keyword int length: length of generated salt.
-                             some hashing handlers may not accept custom salt length,
-                             so this value would be ignored on those handlers.
-
-        :keyword int rounds: rounds to perform for generating hash.
-                             if not provided, default value from
-                             relevant config will be used.
+        :keyword str prefix: prefix to be used for bcrypt hashing.
 
         :rtype: bytes
         """
 
-        return self._get_hashing_handler(handler_name).generate_salt(**options)
+        return self._get_hashing_handler(handler_name).generate_hash(text, **options)
 
-    def is_match(self, handler_name, plain_text, hashed_value):
+    def is_match(self, handler_name, text, full_hashed_value):
         """
-        gets a value indicating that given plain text's
-        hash is identical to given hashed  using specified handler.
+        gets a value indicating that given text's
+        hash is identical to given full hashed value.
 
-        :param str handler_name: handler name to be used for hash comparison.
-        :param str plain_text: text to be hashed.
-        :param bytes hashed_value: hashed value to compare with.
+        :param str handler_name: handler name to be used for hash generation.
+        :param str text: text to be hashed.
+        :param bytes full_hashed_value: full hashed value to compare with.
 
         :rtype: bool
         """
 
-        return self._get_hashing_handler(handler_name).is_match(plain_text, hashed_value)
+        return self._get_hashing_handler(handler_name).is_match(text, full_hashed_value)
 
     def _get_hashing_handler(self, name, **options):
         """

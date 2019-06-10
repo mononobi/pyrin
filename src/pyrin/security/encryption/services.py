@@ -67,7 +67,7 @@ def generate_key(handler_name, **options):
                          note that some encryption handlers may not accept custom
                          key length so this value would be ignored on those handlers.
 
-    :rtype: Union[bytes, tuple(bytes, bytes)]
+    :rtype: Union[str, tuple(str, str)]
     """
 
     return get_component(EncryptionPackage.COMPONENT_NAME).generate_key(handler_name,

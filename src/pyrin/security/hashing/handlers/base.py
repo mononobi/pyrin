@@ -24,13 +24,15 @@ class HashingBase(CoreObject):
 
         self._set_name(name)
 
-    def generate_hash(self, plain_text, **options):
+    def generate_hash(self, text, **options):
         """
-        gets the hash of input plain text and salt.
+        gets the hash of input text using a random or specified salt.
 
-        :param str plain_text: text to be hashed.
+        :param str text: text to be hashed.
 
-        :keyword bytes salt: salt to append to plain text before hashing.
+        :keyword bytes salt: salt to be used for hashing.
+                             if not provided, a random salt will be generated
+                             considering `salt_length` option.
 
         :keyword int rounds: rounds to perform for generating hash.
                              if not provided, default value from
@@ -43,32 +45,13 @@ class HashingBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def generate_salt(self, **options):
+    def is_match(self, text, full_hashed_value):
         """
-        generates a valid salt for this handler and returns it.
+        gets a value indicating that given text's
+        hash is identical to given full hashed value.
 
-        :keyword int length: length of generated salt.
-                             some hashing handlers may not accept custom salt length,
-                             so this value would be ignored on those handlers.
-
-        :keyword int rounds: rounds to perform for generating hash.
-                             if not provided, default value from
-                             relevant config will be used.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: bytes
-        """
-
-        raise CoreNotImplementedError()
-
-    def is_match(self, plain_text, hashed_value):
-        """
-        gets a value indicating that given plain text's
-        hash is identical to given hashed value.
-
-        :param str plain_text: text to be hashed.
-        :param bytes hashed_value: hashed value to compare with.
+        :param str text: text to be hashed.
+        :param bytes full_hashed_value: full hashed value to compare with.
 
         :raises CoreNotImplementedError: core not implemented error.
 
