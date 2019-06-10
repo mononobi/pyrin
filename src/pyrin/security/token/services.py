@@ -25,6 +25,7 @@ def register_token_handler(instance, **options):
     :raises InvalidTokenHandlerTypeError: invalid token handler type error.
     :raises InvalidTokenHandlerNameError: invalid token handler name error.
     :raises DuplicatedTokenHandlerError: duplicated token handler error.
+    :raises DuplicatedTokenKidHeaderError: duplicated token kid header error.
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).register_token_handler(instance,
@@ -54,7 +55,7 @@ def generate_access_token(handler_name, payload, **options):
 
     :returns: token.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_access_token(handler_name,
@@ -84,27 +85,40 @@ def generate_refresh_token(handler_name, payload, **options):
 
     :returns: token.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_refresh_token(handler_name,
                                                                              payload, **options)
 
 
-def get_payload(handler_name, token, **options):
+def get_payload(token, **options):
     """
-    decodes token using specified handler and gets the payload data.
+    decodes token using correct handler and gets the payload data.
 
-    :param str handler_name: token handler name to be used.
-    :param bytes token: token to get it's payload.
+    :param str token: token to get it's payload.
 
+    :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
+    :raises TokenKidHeaderNotFoundError: token kid header not found error.
     :raises TokenHandlerNotFoundError: token handler not found error.
 
     :rtype: dict
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).get_payload(handler_name, token,
-                                                                  **options)
+    return get_component(TokenPackage.COMPONENT_NAME).get_payload(token, **options)
+
+
+def get_unverified_header(token):
+    """
+    gets the header dict of token without verifying the signature.
+    note that the returned header must not be trusted for critical operations.
+
+    :param str token: token to get it's header.
+
+    :rtype: dict
+    """
+
+    return get_component(TokenPackage.COMPONENT_NAME).get_unverified_header(token)
 
 
 def generate_key(handler_name, **options):

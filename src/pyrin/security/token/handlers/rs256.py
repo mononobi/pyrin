@@ -20,8 +20,7 @@ class RS256Token(AsymmetricTokenBase):
         initializes an instance of RS256Token.
         """
 
-        # we pass the algorithm of token handler as the name of it.
-        AsymmetricTokenBase.__init__(self, self._get_algorithm(), **options)
+        AsymmetricTokenBase.__init__(self, **options)
 
     def _get_encoding_key(self, **options):
         """
@@ -49,3 +48,13 @@ class RS256Token(AsymmetricTokenBase):
         """
 
         return 'RS256'
+
+    def get_kid(self):
+        """
+        gets kid value to be used in token header for this handler.
+        it must be unique for each handler.
+
+        :rtype: str
+        """
+
+        return '8441c8a0-8ec6-4987-ab80-be71c3bef90c'

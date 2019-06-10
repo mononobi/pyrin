@@ -5,7 +5,7 @@ token handlers base module.
 
 import time
 
-from jwt import decode, encode
+import jwt
 
 import pyrin.configuration.services as config_services
 
@@ -24,7 +24,7 @@ class TokenBase(CoreObject):
         """
         initializes an instance of TokenBase.
 
-        :param str name: name of the token handler.
+        :param str name: token handler name.
         """
 
         CoreObject.__init__(self)
@@ -50,7 +50,7 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         updated_payload = payload or {}
@@ -77,7 +77,7 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         updated_payload = payload or {}
@@ -102,32 +102,58 @@ class TokenBase(CoreObject):
 
         :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         is_fresh = options.get('is_fresh', False)
         updated_payload = payload or {}
         updated_payload.update(is_fresh=is_fresh)
 
-        return encode(updated_payload,
-                      self._get_encoding_key(),
-                      self._get_algorithm(),
-                      options.get('custom_headers', None))
+        custom_headers = options.get('custom_headers', {})
+        custom_headers.update(**self._get_common_required_headers())
+
+        return jwt.encode(updated_payload,
+                          self._get_encoding_key(),
+                          self._get_algorithm(),
+                          custom_headers).decode(APPLICATION_ENCODING)
 
     def get_payload(self, token, **options):
         """
         decodes token and gets the payload data.
 
-        :param bytes token: token to get it's payload.
+        :param str token: token to get it's payload.
 
         :rtype: dict
         """
 
-        return decode(token.decode(APPLICATION_ENCODING),
-                      self._get_decoding_key(),
-                      True,
-                      self._get_algorithm(),
-                      self._get_default_options())
+        return jwt.decode(token,
+                          self._get_decoding_key(),
+                          True,
+                          self._get_algorithm(),
+                          self._get_default_options())
+
+    def get_unverified_header(self, token):
+        """
+        gets the header dict of token without verifying the signature.
+        note that returned header must not be trusted for critical operations.
+
+        :param str token: token to get it's header.
+
+        :rtype: dict
+        """
+
+        return jwt.get_unverified_header(token)
+
+    def _get_common_required_headers(self):
+        """
+        gets a dictionary containing common required headers.
+
+        :returns: dict(str kid: token kid)
+
+        :rtype: dict
+        """
+
+        return DTO(kid=self.get_kid())
 
     def _get_common_required_claims(self):
         """
@@ -274,6 +300,18 @@ class TokenBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    def get_kid(self):
+        """
+        gets kid value to be used in token header for this handler.
+        it must be unique for each handler.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
 
 class SymmetricTokenBase(TokenBase):
     """
@@ -281,14 +319,13 @@ class SymmetricTokenBase(TokenBase):
     this token type uses a single symmetric key for decoding and encoding.
     """
 
-    def __init__(self, name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of SymmetricTokenBase.
-
-        :param str name: name of the token handler.
         """
 
-        TokenBase.__init__(self, name, **options)
+        # we pass the algorithm of token handler as the name of it.
+        TokenBase.__init__(self, self._get_algorithm(), **options)
 
     def _get_decoding_key(self):
         """
@@ -321,14 +358,13 @@ class AsymmetricTokenBase(TokenBase):
     this token type uses a pair of public/private asymmetric keys for decoding and encoding.
     """
 
-    def __init__(self, name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of AsymmetricTokenBase.
-
-        :param str name: name of the token handler.
         """
 
-        TokenBase.__init__(self, name, **options)
+        # we pass the algorithm of token handler as the name of it.
+        TokenBase.__init__(self, self._get_algorithm(), **options)
 
     def generate_key(self, **options):
         """

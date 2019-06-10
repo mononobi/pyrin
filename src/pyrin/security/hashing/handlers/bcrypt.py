@@ -42,8 +42,7 @@ class BcryptHashing(HashingBase):
         :param str text: text to be hashed.
 
         :keyword bytes salt: salt to be used for hashing.
-                             if not provided, a random salt will be generated
-                             considering `salt_length` option.
+                             if not provided, a random salt will be generated.
 
         :keyword str prefix: prefix to be used for hashing.
 
@@ -58,7 +57,11 @@ class BcryptHashing(HashingBase):
 
         text_bytes = self._digest_inputs(text, **options)
 
-        return bcrypt.hashpw(text_bytes, self._generate_salt(**options))
+        salt = options.get('salt', None)
+        if salt is None:
+            salt = self._generate_salt(**options)
+
+        return bcrypt.hashpw(text_bytes, salt)
 
     def _generate_salt(self, **options):
         """

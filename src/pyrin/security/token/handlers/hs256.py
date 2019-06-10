@@ -21,8 +21,7 @@ class HS256Token(SymmetricTokenBase):
         initializes an instance of HS256Token.
         """
 
-        # we pass the algorithm of token handler as the name of it.
-        SymmetricTokenBase.__init__(self, self._get_algorithm(), **options)
+        SymmetricTokenBase.__init__(self, **options)
 
     def _get_encoding_key(self, **options):
         """
@@ -54,3 +53,13 @@ class HS256Token(SymmetricTokenBase):
         """
 
         return secure_random.get_url_safe(**options)
+
+    def get_kid(self):
+        """
+        gets kid value to be used in token header for this handler.
+        it must be unique for each handler.
+
+        :rtype: str
+        """
+
+        return '494d8b2d-ae91-442d-86eb-9fd020fe3518'

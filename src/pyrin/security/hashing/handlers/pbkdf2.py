@@ -30,13 +30,14 @@ class PBKDF2Hashing(HashingBase):
         HashingBase.__init__(self, self._get_algorithm(), **options)
 
         # the final hash parts are separated with this byte character.
-        # in the form of `$internal_algorithm$rounds$salt$text_hash`.
+        # in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
         self._separator = b'$'
+        self._format = '$internal_algorithm$rounds$salt_length$salt-text_hash'
 
     def generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
-        the result is in the form of `$internal_algorithm$rounds$salt$text_hash`.
+        the result is in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :param str text: text to be hashed.
 
@@ -98,7 +99,7 @@ class PBKDF2Hashing(HashingBase):
 
         :param bytes full_hashed_value: full hashed value to compare with.
                                         it should be in the form of
-                                       `$internal_algorithm$rounds$salt$text_hash`.
+                                       `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :rtype: bool
         """
@@ -187,7 +188,7 @@ class PBKDF2Hashing(HashingBase):
     def _make_final_hash(self, internal_algorithm, rounds, salt, text_hash):
         """
         makes final hash from input values and returns it.
-        the result is in the form of `$internal_algorithm$rounds$salt$text_hash`.
+        the result is in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :param str internal_algorithm: internal algorithm to be used for hashing.
         :param int rounds: rounds to perform for generating hash.
@@ -200,7 +201,8 @@ class PBKDF2Hashing(HashingBase):
         return self._separator + self._separator.join(
             (internal_algorithm.encode(APPLICATION_ENCODING),
              str(rounds).encode(APPLICATION_ENCODING),
-             salt, text_hash))
+             str(len(salt)).encode(APPLICATION_ENCODING),
+             salt + text_hash))
 
     def _extract_parts_from_final_hash(self, full_hashed_value):
         """
@@ -208,18 +210,23 @@ class PBKDF2Hashing(HashingBase):
 
         :param bytes full_hashed_value: full hashed value to extract it's parts.
                                         it must be in the form of
-                                       `$internal_algorithm$rounds$salt$text_hash`.
+                                       `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :returns tuple(str internal_algorithm, int rounds, bytes salt, bytes text_hash)
 
         :rtype: tuple(str, int, bytes, bytes)
         """
 
-        if full_hashed_value.count(self._separator) != 4 and \
-           full_hashed_value[0] != self._separator:
+        separator_count = self._format.count(self._separator.decode(APPLICATION_ENCODING))
+        if full_hashed_value.count(self._separator) < separator_count or \
+           full_hashed_value[0] != self._separator[0]:
             raise InvalidPBKDF2HashError('Input hash value is invalid.')
 
-        items = full_hashed_value.split(self._separator)
-        internal_algorithm, rounds, salt, text_hash = tuple(items[1:])
+        empty, internal_algorithm, rounds, salt_length, salt_plus_text_hash = \
+            full_hashed_value.split(self._separator, separator_count)
+
+        salt_length = int(salt_length)
+        salt = salt_plus_text_hash[:salt_length]
+        text_hash = salt_plus_text_hash[salt_length:]
 
         return internal_algorithm.decode(APPLICATION_ENCODING), int(rounds), salt, text_hash

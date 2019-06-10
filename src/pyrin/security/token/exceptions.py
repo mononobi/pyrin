@@ -32,3 +32,24 @@ class InvalidTokenHandlerNameError(CoreValueError):
     invalid token handler name error.
     """
     pass
+
+
+class TokenKidHeaderNotSpecifiedError(CoreKeyError):
+    """
+    token kid header not specified error.
+    """
+    pass
+
+
+class TokenKidHeaderNotFoundError(CoreKeyError):
+    """
+    token kid header not found error.
+    """
+    pass
+
+
+class DuplicatedTokenKidHeaderError(CoreKeyError):
+    """
+    duplicated token kid header error.
+    """
+    pass

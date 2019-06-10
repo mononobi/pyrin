@@ -21,6 +21,7 @@ def token(*args, **kwargs):
     :raises InvalidTokenHandlerTypeError: invalid token handler type error.
     :raises InvalidTokenHandlerNameError: invalid token handler name error.
     :raises DuplicatedTokenHandlerError: duplicated token handler error.
+    :raises DuplicatedTokenKidHeaderError: duplicated token kid header error.
 
     :returns: token handler class.
 

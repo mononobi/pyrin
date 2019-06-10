@@ -3,9 +3,12 @@
 token manager module.
 """
 
+import jwt
+
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
-    DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError
+    DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
+    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError
 from pyrin.security.token.handlers.base import TokenBase
 from pyrin.utils.custom_print import print_warning
 
@@ -23,6 +26,10 @@ class TokenManager(CoreObject):
         CoreObject.__init__(self)
 
         self._token_handlers = Context()
+
+        # a dictionary containing the relation between each kid to the handler name.
+        # in the form of: {str kid: str handler_name}
+        self._kid_to_handler_map = {}
 
     def register_token_handler(self, instance, **options):
         """
@@ -42,6 +49,7 @@ class TokenManager(CoreObject):
         :raises InvalidTokenHandlerTypeError: invalid token handler type error.
         :raises InvalidTokenHandlerNameError: invalid token handler name error.
         :raises DuplicatedTokenHandlerError: duplicated token handler error.
+        :raises DuplicatedTokenKidHeaderError: duplicated token kid header error.
         """
 
         if not isinstance(instance, TokenBase):
@@ -70,8 +78,16 @@ class TokenManager(CoreObject):
                           'to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(instance)))
 
-        # registering new token handler.
+        # checking whether is there any registered instance with the same kid header.
+        if instance.get_kid() in self._kid_to_handler_map.keys():
+            raise DuplicatedTokenKidHeaderError('There is another registered token handler '
+                                                'with "kid" header [{kid}]. each handler '
+                                                'must have a unique "kid" header.'
+                                                .format(kid=instance.get_kid()))
+
+        # registering new token handler and it's mapping.
         self._token_handlers[instance.get_name()] = instance
+        self._kid_to_handler_map[instance.get_kid()] = instance.get_name()
 
     def _get_token_handler(self, name, **options):
         """
@@ -113,7 +129,7 @@ class TokenManager(CoreObject):
 
         :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_token_handler(handler_name).generate_access_token(payload, **options)
@@ -141,24 +157,38 @@ class TokenManager(CoreObject):
 
         :returns: token.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_token_handler(handler_name).generate_refresh_token(payload, **options)
 
-    def get_payload(self, handler_name, token, **options):
+    def get_payload(self, token, **options):
         """
-        decodes token using specified handler and gets the payload data.
+        decodes token using correct handler and gets the payload data.
 
-        :param str handler_name: token handler name to be used.
-        :param bytes token: token to get it's payload.
+        :param str token: token to get it's payload.
 
+        :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
+        :raises TokenKidHeaderNotFoundError: token kid header not found error.
         :raises TokenHandlerNotFoundError: token handler not found error.
 
         :rtype: dict
         """
 
+        handler_name = self._get_handler_name(token)
         return self._get_token_handler(handler_name).get_payload(token, **options)
+
+    def get_unverified_header(self, token):
+        """
+        gets the header dict of token without verifying the signature.
+        note that the returned header must not be trusted for critical operations.
+
+        :param str token: token to get it's header.
+
+        :rtype: dict
+        """
+
+        return jwt.get_unverified_header(token)
 
     def generate_key(self, handler_name, **options):
         """
@@ -174,3 +204,26 @@ class TokenManager(CoreObject):
         """
 
         return self._get_token_handler(handler_name).generate_key(**options)
+
+    def _get_handler_name(self, token):
+        """
+        gets the handler name for specified token using the kid header.
+
+        :param str token: token to get it's handler name.
+
+        :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
+        :raises TokenKidHeaderNotFoundError: token kid header not found error.
+
+        :rtype: str
+        """
+
+        header = self.get_unverified_header(token)
+        if 'kid' not in header.keys():
+            raise TokenKidHeaderNotSpecifiedError('The "kid" header must be present in token.')
+
+        kid = header['kid']
+        if kid not in self._kid_to_handler_map.keys():
+            raise TokenKidHeaderNotFoundError('Token kid header [{kid}] not found.'
+                                              .format(kid=kid))
+
+        return self._kid_to_handler_map[kid]
