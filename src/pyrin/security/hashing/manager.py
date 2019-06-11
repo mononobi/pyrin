@@ -3,6 +3,8 @@
 hashing manager module.
 """
 
+import pyrin.configuration.services as config_services
+
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
     InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError
@@ -74,13 +76,15 @@ class HashingManager(CoreObject):
         # registering new hashing handler.
         self._hashing_handlers[instance.get_name()] = instance
 
-    def generate_hash(self, handler_name, text, **options):
+    def generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
 
-        :param str handler_name: handler name to be used for hash generation.
-
         :param str text: text to be hashed.
+
+        :keyword str handler_name: handler name to be used for hash generation.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :keyword bytes salt: salt to be used for hashing.
                              if not provided, a random salt will be generated
@@ -106,35 +110,50 @@ class HashingManager(CoreObject):
         :rtype: bytes
         """
 
-        return self._get_hashing_handler(handler_name).generate_hash(text, **options)
+        return self._get_hashing_handler(**options).generate_hash(text, **options)
 
-    def is_match(self, handler_name, text, full_hashed_value):
+    def is_match(self, text, full_hashed_value, **options):
         """
         gets a value indicating that given text's
         hash is identical to given full hashed value.
 
-        :param str handler_name: handler name to be used for hash generation.
         :param str text: text to be hashed.
         :param bytes full_hashed_value: full hashed value to compare with.
+
+        :keyword str handler_name: handler name to be used for hash generation.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :rtype: bool
         """
 
-        return self._get_hashing_handler(handler_name).is_match(text, full_hashed_value)
+        return self._get_hashing_handler(**options).is_match(text, full_hashed_value, **options)
 
-    def _get_hashing_handler(self, name, **options):
+    def _get_hashing_handler(self, **options):
         """
         gets the specified hashing handler.
 
-        :param str name: name of hashing handler to get.
+        :keyword str handler_name: handler name to get.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :raises HashingHandlerNotFoundError: hashing handler not found error.
 
         :rtype: HashingBase
         """
 
-        if name not in self._hashing_handlers.keys():
+        handler_name = options.get('handler_name', self._get_default_handler_name())
+        if handler_name not in self._hashing_handlers.keys():
             raise HashingHandlerNotFoundError('Hashing handler [{name}] not found.'
-                                              .format(name=name))
+                                              .format(name=handler_name))
 
-        return self._hashing_handlers[name]
+        return self._hashing_handlers[handler_name]
+
+    def _get_default_handler_name(self):
+        """
+        gets default hashing handler name from configs.
+
+        :rtype: str
+        """
+
+        return config_services.get('security', 'hashing', 'default_hashing_handler')

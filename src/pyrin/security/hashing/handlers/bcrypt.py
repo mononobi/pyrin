@@ -76,13 +76,13 @@ class BcryptHashing(HashingBase):
         """
 
         rounds = options.get('rounds', config_services.get('security', 'hashing',
-                                                           'bcrypt_log_rounds'))
+                                                           'bcrypt_rounds'))
 
         prefix = options.get('prefix', b'2b')
 
         return bcrypt.gensalt(rounds=rounds, prefix=prefix)
 
-    def is_match(self, text, full_hashed_value):
+    def is_match(self, text, full_hashed_value, **options):
         """
         gets a value indicating that given text's
         hash is identical to given full hashed value.
@@ -98,7 +98,7 @@ class BcryptHashing(HashingBase):
 
         return bcrypt.checkpw(text.encode(APPLICATION_ENCODING), full_hashed_value)
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the hashing algorithm.
 

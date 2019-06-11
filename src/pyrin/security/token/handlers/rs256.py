@@ -6,11 +6,11 @@ rs256 token handler module.
 import pyrin.configuration.services as config_services
 
 from pyrin.security.token.decorators import token
-from pyrin.security.token.handlers.base import AsymmetricTokenBase
+from pyrin.security.token.handlers.base import RSTokenBase
 
 
 @token()
-class RS256Token(AsymmetricTokenBase):
+class RS256Token(RSTokenBase):
     """
     rs256 token class.
     """
@@ -20,7 +20,7 @@ class RS256Token(AsymmetricTokenBase):
         initializes an instance of RS256Token.
         """
 
-        AsymmetricTokenBase.__init__(self, **options)
+        RSTokenBase.__init__(self, **options)
 
     def _get_encoding_key(self, **options):
         """
@@ -29,7 +29,7 @@ class RS256Token(AsymmetricTokenBase):
         :rtype: str
         """
 
-        return config_services.get('security', 'token', 'rs256_private_key')
+        return self._private_key
 
     def _get_decoding_key(self, **options):
         """
@@ -38,9 +38,9 @@ class RS256Token(AsymmetricTokenBase):
         :rtype: str
         """
 
-        return config_services.get('security', 'token', 'rs256_public_key')
+        return self._public_key
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the algorithm for signing the token.
 
@@ -58,3 +58,22 @@ class RS256Token(AsymmetricTokenBase):
         """
 
         return '8441c8a0-8ec6-4987-ab80-be71c3bef90c'
+
+    def generate_key(self, **options):
+        """
+        generates a valid public/private key for this handler and returns it.
+
+        :returns tuple(str public_key, str private_key)
+
+        :rtype: tuple(str, str)
+        """
+
+        return RSTokenBase.generate_key(self, length=2048)
+
+    def _load_keys(self, **options):
+        """
+        loads public/private keys into this class's relevant attributes.
+        """
+
+        self._public_key = config_services.get('security', 'token', 'rs256_public_key')
+        self._private_key = config_services.get('security', 'token', 'rs256_private_key')

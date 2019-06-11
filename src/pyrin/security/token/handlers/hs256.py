@@ -7,7 +7,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.security.token.decorators import token
 from pyrin.security.token.handlers.base import SymmetricTokenBase
-from pyrin.utils import secure_random
+from pyrin.security.utils import secure_random
 
 
 @token()
@@ -32,7 +32,7 @@ class HS256Token(SymmetricTokenBase):
 
         return config_services.get('security', 'token', 'hs256_key')
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the algorithm for signing the token.
 
@@ -52,7 +52,11 @@ class HS256Token(SymmetricTokenBase):
         :rtype: str
         """
 
-        return secure_random.get_url_safe(**options)
+        key_length = options.get('length',
+                                 config_services.get('security', 'token',
+                                                     'hs256_key_length'))
+
+        return secure_random.get_url_safe(length=key_length)
 
     def get_kid(self):
         """

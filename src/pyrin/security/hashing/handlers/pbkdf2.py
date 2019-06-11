@@ -12,7 +12,7 @@ from pyrin.security.hashing.handlers.base import HashingBase
 from pyrin.security.hashing.handlers.exceptions import InvalidHashingRoundsCountError, \
     InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError, InvalidPBKDF2HashError
 from pyrin.settings.static import APPLICATION_ENCODING
-from pyrin.utils import secure_random
+from pyrin.security.utils import secure_random
 
 
 @hashing()
@@ -87,9 +87,12 @@ class PBKDF2Hashing(HashingBase):
         :rtype: bytes
         """
 
-        return secure_random.get_bytes(**options)
+        salt_length = options.get('length', config_services.get('security', 'hashing',
+                                                                'pbkdf2_salt_length'))
 
-    def is_match(self, text, full_hashed_value):
+        return secure_random.get_bytes(length=salt_length)
+
+    def is_match(self, text, full_hashed_value, **options):
         """
         gets a value indicating that given text's
         hash is identical to given full hashed value.
@@ -103,16 +106,21 @@ class PBKDF2Hashing(HashingBase):
         :rtype: bool
         """
 
-        internal_algorithm, rounds, salt, text_hash = \
-            self._extract_parts_from_final_hash(full_hashed_value)
+        try:
+            internal_algorithm, rounds, salt, text_hash = \
+                self._extract_parts_from_final_hash(full_hashed_value)
 
-        new_full_hashed_value = self.generate_hash(text,
-                                                   internal_algorithm=internal_algorithm,
-                                                   rounds=rounds, salt=salt)
+            new_full_hashed_value = self.generate_hash(text,
+                                                       internal_algorithm=internal_algorithm,
+                                                       rounds=rounds, salt=salt)
 
-        return full_hashed_value == new_full_hashed_value
+            return full_hashed_value == new_full_hashed_value
 
-    def _get_algorithm(self):
+        except(InvalidPBKDF2InternalAlgorithmError, InvalidHashingRoundsCountError,
+               InvalidHashingSaltLengthError, InvalidPBKDF2HashError):
+            return False
+
+    def _get_algorithm(self, **options):
         """
         gets the hashing algorithm.
 
@@ -150,7 +158,7 @@ class PBKDF2Hashing(HashingBase):
                                                              'pbkdf2_internal_algorithm'))
 
         rounds = options.get('rounds', config_services.get('security', 'hashing',
-                                                           'pbkdf2_log_rounds'))
+                                                           'pbkdf2_rounds'))
 
         salt_length = options.get('salt_length', config_services.get('security', 'hashing',
                                                                      'pbkdf2_salt_length'))
@@ -210,6 +218,8 @@ class PBKDF2Hashing(HashingBase):
         :param bytes full_hashed_value: full hashed value to extract it's parts.
                                         it must be in the form of
                                        `$internal_algorithm$rounds$salt_length$salt-text_hash`.
+
+        :raises InvalidPBKDF2HashError: invalid pbkdf2 hash error.
 
         :returns tuple(str internal_algorithm, int rounds, bytes salt, bytes text_hash)
 

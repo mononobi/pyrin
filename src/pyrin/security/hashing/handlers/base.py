@@ -21,7 +21,7 @@ class HashingBase(CoreObject):
         CoreObject.__init__(self)
 
         # we set the algorithm of hashing handler as the name of it.
-        self._set_name(self._get_algorithm())
+        self._set_name(self._get_algorithm(**options))
 
     def generate_hash(self, text, **options):
         """
@@ -44,7 +44,7 @@ class HashingBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def is_match(self, text, full_hashed_value):
+    def is_match(self, text, full_hashed_value, **options):
         """
         gets a value indicating that given text's
         hash is identical to given full hashed value.
@@ -59,7 +59,7 @@ class HashingBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the hashing algorithm.
 

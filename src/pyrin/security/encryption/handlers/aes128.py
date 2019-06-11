@@ -36,7 +36,7 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         return config_services.get('security', 'encryption', 'aes128_key')
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the algorithm used for encryption.
 
@@ -45,7 +45,7 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         return 'AES128'
 
-    def encrypt(self, value):
+    def encrypt(self, value, **options):
         """
         encrypts the given value and returns the encrypted result.
 
@@ -56,7 +56,7 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         return self._encrypter.encrypt(value.encode(APPLICATION_ENCODING))
 
-    def decrypt(self, value):
+    def decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
 

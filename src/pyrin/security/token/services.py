@@ -32,17 +32,19 @@ def register_token_handler(instance, **options):
                                                                              **options)
 
 
-def generate_access_token(handler_name, payload, **options):
+def generate_access_token(payload, **options):
     """
     generates an access token using specified handler from the given inputs and returns it.
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
-    :param str handler_name: token handler name to be used.
-
     :param dict payload: a dictionary containing key/values as payload.
                          note that for better performance, keep payload
                          as small as possible.
+
+    :keyword str handler_name: name of token handler to be used.
+                               if not provided, default handler
+                               from relevant configs will be used.
 
     :keyword dict custom_headers: a dictionary containing custom headers.
 
@@ -58,21 +60,22 @@ def generate_access_token(handler_name, payload, **options):
     :rtype: str
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).generate_access_token(handler_name,
-                                                                            payload, **options)
+    return get_component(TokenPackage.COMPONENT_NAME).generate_access_token(payload, **options)
 
 
-def generate_refresh_token(handler_name, payload, **options):
+def generate_refresh_token(payload, **options):
     """
     generates a refresh token using specified handler from the given inputs and returns it.
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
-    :param str handler_name: token handler name to be used.
-
     :param dict payload: a dictionary containing key/values as payload.
                          note that for better performance, keep payload
                          as small as possible.
+
+    :keyword str handler_name: name of token handler to be used.
+                               if not provided, default handler
+                               from relevant configs will be used.
 
     :keyword dict custom_headers: a dictionary containing custom headers.
 
@@ -88,8 +91,7 @@ def generate_refresh_token(handler_name, payload, **options):
     :rtype: str
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).generate_refresh_token(handler_name,
-                                                                             payload, **options)
+    return get_component(TokenPackage.COMPONENT_NAME).generate_refresh_token(payload, **options)
 
 
 def get_payload(token, **options):
@@ -108,7 +110,7 @@ def get_payload(token, **options):
     return get_component(TokenPackage.COMPONENT_NAME).get_payload(token, **options)
 
 
-def get_unverified_header(token):
+def get_unverified_header(token, **options):
     """
     gets the header dict of token without verifying the signature.
     note that the returned header must not be trusted for critical operations.
@@ -118,7 +120,7 @@ def get_unverified_header(token):
     :rtype: dict
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).get_unverified_header(token)
+    return get_component(TokenPackage.COMPONENT_NAME).get_unverified_header(token, **options)
 
 
 def generate_key(handler_name, **options):

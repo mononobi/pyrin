@@ -3,6 +3,8 @@
 encryption manager module.
 """
 
+import pyrin.configuration.services as config_services
+
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
@@ -75,29 +77,35 @@ class EncryptionManager(CoreObject):
         # registering new encryption handler.
         self._encryption_handlers[instance.get_name()] = instance
 
-    def encrypt(self, handler_name, value):
+    def encrypt(self, value, **options):
         """
         encrypts the given value using specified handler and returns the encrypted result.
 
-        :param str handler_name: handler name to be used for encryption.
         :param str value: value to be encrypted.
+
+        :keyword str handler_name: handler name to be used for encryption.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :rtype: bytes
         """
 
-        return self._get_encryption_handler(handler_name).encrypt(value)
+        return self._get_encryption_handler(**options).encrypt(value, **options)
 
-    def decrypt(self, handler_name, value):
+    def decrypt(self, value, **options):
         """
         decrypts the given value using specified handler and returns the decrypted result.
 
-        :param str handler_name: handler name to be used for decryption.
         :param bytes value: value to be decrypted.
+
+        :keyword str handler_name: handler name to be used for decryption.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :rtype: str
         """
 
-        return self._get_encryption_handler(handler_name).decrypt(value)
+        return self._get_encryption_handler(**options).decrypt(value, **options)
 
     def generate_key(self, handler_name, **options):
         """
@@ -112,21 +120,33 @@ class EncryptionManager(CoreObject):
         :rtype: Union[str, tuple(str, str)]
         """
 
-        return self._get_encryption_handler(handler_name).generate_key(**options)
+        return self._get_encryption_handler(handler_name=handler_name).generate_key(**options)
 
-    def _get_encryption_handler(self, name, **options):
+    def _get_encryption_handler(self, **options):
         """
         gets the specified encryption handler.
 
-        :param str name: name of encryption handler to get.
+        :keyword str handler_name: handler name to get.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
         :raises EncryptionHandlerNotFoundError: encryption handler not found error.
 
         :rtype: EncrypterBase
         """
 
-        if name not in self._encryption_handlers.keys():
+        handler_name = options.get('handler_name', self._get_default_handler_name())
+        if handler_name not in self._encryption_handlers.keys():
             raise EncryptionHandlerNotFoundError('Encryption handler [{name}] not found.'
-                                                 .format(name=name))
+                                                 .format(name=handler_name))
 
-        return self._encryption_handlers[name]
+        return self._encryption_handlers[handler_name]
+
+    def _get_default_handler_name(self):
+        """
+        gets default encryption handler name from configs.
+
+        :rtype: str
+        """
+
+        return config_services.get('security', 'encryption', 'default_encryption_handler')

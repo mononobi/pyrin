@@ -31,13 +31,15 @@ def register_hashing_handler(instance, **options):
                                                                                  **options)
 
 
-def generate_hash(handler_name, text, **options):
+def generate_hash(text, **options):
     """
     gets the hash of input text using a random or specified salt.
 
-    :param str handler_name: handler name to be used for hash generation.
-
     :param str text: text to be hashed.
+
+    :keyword str handler_name: handler name to be used for hash generation.
+                               if not provided, default handler from
+                               relevant configs will be used.
 
     :keyword bytes salt: salt to be used for hashing.
                          if not provided, a random salt will be generated
@@ -63,21 +65,23 @@ def generate_hash(handler_name, text, **options):
     :rtype: bytes
     """
 
-    return get_component(HashingPackage.COMPONENT_NAME).generate_hash(handler_name,
-                                                                      text, **options)
+    return get_component(HashingPackage.COMPONENT_NAME).generate_hash(text, **options)
 
 
-def is_match(handler_name, text, full_hashed_value):
+def is_match(text, full_hashed_value, **options):
     """
     gets a value indicating that given text's
     hash is identical to given full hashed value.
 
-    :param str handler_name: handler name to be used for hash generation.
     :param str text: text to be hashed.
     :param bytes full_hashed_value: full hashed value to compare with.
+
+    :keyword str handler_name: handler name to be used for hash generation.
+                                   if not provided, default handler from
+                                   relevant configs will be used.
 
     :rtype: bool
     """
 
-    return get_component(HashingPackage.COMPONENT_NAME).is_match(handler_name, text,
-                                                                 full_hashed_value)
+    return get_component(HashingPackage.COMPONENT_NAME).is_match(text, full_hashed_value,
+                                                                 **options)

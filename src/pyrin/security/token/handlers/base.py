@@ -7,10 +7,15 @@ import time
 
 import jwt
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import unique_id
 
@@ -129,10 +134,10 @@ class TokenBase(CoreObject):
         return jwt.decode(token,
                           self._get_decoding_key(),
                           True,
-                          self._get_algorithm(),
+                          self._get_algorithm(**options),
                           self._get_default_options())
 
-    def get_unverified_header(self, token):
+    def get_unverified_header(self, token, **options):
         """
         gets the header dict of token without verifying the signature.
         note that returned header must not be trusted for critical operations.
@@ -274,7 +279,7 @@ class TokenBase(CoreObject):
 
         return config_services.get('security', 'token', 'refresh_token_lifetime', **options)
 
-    def _get_algorithm(self):
+    def _get_algorithm(self, **options):
         """
         gets the algorithm for signing the token.
 
@@ -325,16 +330,16 @@ class SymmetricTokenBase(TokenBase):
         """
 
         # we pass the algorithm of token handler as the name of it.
-        TokenBase.__init__(self, self._get_algorithm(), **options)
+        TokenBase.__init__(self, self._get_algorithm(**options), **options)
 
-    def _get_decoding_key(self):
+    def _get_decoding_key(self, **options):
         """
         gets the signing key for decoding.
 
         :rtype: str
         """
 
-        return self._get_encoding_key()
+        return self._get_encoding_key(**options)
 
     def generate_key(self, **options):
         """
@@ -364,21 +369,62 @@ class AsymmetricTokenBase(TokenBase):
         """
 
         # we pass the algorithm of token handler as the name of it.
-        TokenBase.__init__(self, self._get_algorithm(), **options)
+        TokenBase.__init__(self, self._get_algorithm(**options), **options)
 
     def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
-        :keyword int length: the length of generated key in bytes.
-                             note that some token handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
+        :keyword int length: the length of generated key in bits.
 
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns tuple(str public_key, str private_key)
 
         :rtype: tuple(str, str)
+        """
+
+        raise CoreNotImplementedError()
+
+
+class RSTokenBase(AsymmetricTokenBase):
+    """
+    rs token base class.
+    this token type uses a pair of public/private asymmetric keys for decoding and encoding.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of AsymmetricTokenBase.
+        """
+
+        AsymmetricTokenBase.__init__(self, **options)
+
+        self._private_key = None
+        self._public_key = None
+
+        self._load_keys(**options)
+
+    def generate_key(self, **options):
+        """
+        generates a valid public/private key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bits.
+                             if not provided, it uses default value
+                             from relevant config.
+
+        :returns tuple(str public_key, str private_key)
+
+        :rtype: tuple(str, str)
+        """
+
+        return key_helper.generate_rsa_key(**options)
+
+    def _load_keys(self, **options):
+        """
+        loads public/private keys into this class's relevant attributes.
+
+        :raises CoreNotImplementedError: core not implemented error.
         """
 
         raise CoreNotImplementedError()

@@ -55,7 +55,7 @@ class PermissionsManager(CoreObject):
         self.__permissions[instance.get_id()] = instance
         instance.synchronize(**options)
 
-    def _get_permissions(self):
+    def get_permissions(self, **options):
         """
         gets all registered permissions.
 
@@ -64,7 +64,7 @@ class PermissionsManager(CoreObject):
 
         return self.__permissions.values()
 
-    def _get_permission(self, permission_id, **options):
+    def get_permission(self, permission_id, **options):
         """
         gets the specified permission with given permission id.
 
@@ -82,3 +82,11 @@ class PermissionsManager(CoreObject):
                                           .format(permission_id=permission_id))
 
         return self.__permissions[permission_id]
+
+    def synchronize_all(self, **options):
+        """
+        synchronizes all permissions with database.
+        """
+
+        for permission in self.get_permissions(**options):
+            permission.synchronize(**options)

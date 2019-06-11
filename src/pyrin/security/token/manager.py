@@ -5,6 +5,8 @@ token manager module.
 
 import jwt
 
+import pyrin.configuration.services as config_services
+
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
@@ -89,34 +91,37 @@ class TokenManager(CoreObject):
         self._token_handlers[instance.get_name()] = instance
         self._kid_to_handler_map[instance.get_kid()] = instance.get_name()
 
-    def _get_token_handler(self, name, **options):
+    def _get_token_handler(self, **options):
         """
         gets the specified token handler.
 
-        :param str name: name of token handler to get.
+        :keyword str handler_name: name of token handler to get.
 
         :raises TokenHandlerNotFoundError: token handler not found error.
 
         :rtype: TokenBase
         """
 
-        if name not in self._token_handlers.keys():
+        handler_name = options.get('handler_name', self._get_default_handler_name())
+        if handler_name not in self._token_handlers.keys():
             raise TokenHandlerNotFoundError('Token handler [{name}] not found.'
-                                            .format(name=name))
+                                            .format(name=handler_name))
 
-        return self._token_handlers[name]
+        return self._token_handlers[handler_name]
 
-    def generate_access_token(self, handler_name, payload, **options):
+    def generate_access_token(self, payload, **options):
         """
         generates an access token using specified handler from the given inputs and returns it.
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
-        :param str handler_name: token handler name to be used.
-
         :param dict payload: a dictionary containing key/values as payload.
                              note that for better performance, keep payload
                              as small as possible.
+
+        :keyword str handler_name: name of token handler to be used.
+                                   if not provided, default handler
+                                   from relevant configs will be used.
 
         :keyword dict custom_headers: a dictionary containing custom headers.
 
@@ -132,19 +137,21 @@ class TokenManager(CoreObject):
         :rtype: str
         """
 
-        return self._get_token_handler(handler_name).generate_access_token(payload, **options)
+        return self._get_token_handler(**options).generate_access_token(payload, **options)
 
-    def generate_refresh_token(self, handler_name, payload, **options):
+    def generate_refresh_token(self, payload, **options):
         """
         generates a refresh token using specified handler from the given inputs and returns it.
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
-        :param str handler_name: token handler name to be used.
-
         :param dict payload: a dictionary containing key/values as payload.
                              note that for better performance, keep payload
                              as small as possible.
+
+        :keyword str handler_name: name of token handler to be used.
+                                   if not provided, default handler
+                                   from relevant configs will be used.
 
         :keyword dict custom_headers: a dictionary containing custom headers.
 
@@ -160,7 +167,7 @@ class TokenManager(CoreObject):
         :rtype: str
         """
 
-        return self._get_token_handler(handler_name).generate_refresh_token(payload, **options)
+        return self._get_token_handler(**options).generate_refresh_token(payload, **options)
 
     def get_payload(self, token, **options):
         """
@@ -176,9 +183,9 @@ class TokenManager(CoreObject):
         """
 
         handler_name = self._get_handler_name(token)
-        return self._get_token_handler(handler_name).get_payload(token, **options)
+        return self._get_token_handler(handler_name=handler_name).get_payload(token, **options)
 
-    def get_unverified_header(self, token):
+    def get_unverified_header(self, token, **options):
         """
         gets the header dict of token without verifying the signature.
         note that the returned header must not be trusted for critical operations.
@@ -203,7 +210,7 @@ class TokenManager(CoreObject):
         :rtype: Union[str, tuple(str, str)]
         """
 
-        return self._get_token_handler(handler_name).generate_key(**options)
+        return self._get_token_handler(handler_name=handler_name).generate_key(**options)
 
     def _get_handler_name(self, token):
         """
@@ -227,3 +234,12 @@ class TokenManager(CoreObject):
                                               .format(kid=kid))
 
         return self._kid_to_handler_map[kid]
+
+    def _get_default_handler_name(self):
+        """
+        gets default token handler name from configs.
+
+        :rtype: str
+        """
+
+        return config_services.get('security', 'token', 'default_token_handler')

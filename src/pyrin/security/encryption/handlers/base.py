@@ -5,6 +5,7 @@ encryption handlers base module.
 
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.utils import key_helper
 
 
 class EncrypterBase(CoreObject):
@@ -46,8 +47,8 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def _get_algorithm(self):
-        """       self._set_name(name)
+    def _get_algorithm(self, **options):
+        """
         gets the algorithm used for encryption.
 
         :raises CoreNotImplementedError: core not implemented error.
@@ -57,7 +58,7 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def encrypt(self, value):
+    def encrypt(self, value, **options):
         """
         encrypts the given value and returns the encrypted result.
 
@@ -70,7 +71,7 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def decrypt(self, value):
+    def decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
 
@@ -111,7 +112,7 @@ class SymmetricEncrypterBase(EncrypterBase):
         """
 
         # we pass the algorithm of encryption handler as the name of it.
-        EncrypterBase.__init__(self, self._get_algorithm(), **options)
+        EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
 
     def _get_decryption_key(self, **options):
         """
@@ -120,7 +121,7 @@ class SymmetricEncrypterBase(EncrypterBase):
         :rtype: str
         """
 
-        return self._get_encryption_key()
+        return self._get_encryption_key(**options)
 
     def generate_key(self, **options):
         """
@@ -151,21 +152,81 @@ class AsymmetricEncrypterBase(EncrypterBase):
         """
 
         # we pass the algorithm of encryption handler as the name of it.
-        EncrypterBase.__init__(self, self._get_algorithm(), **options)
+        EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
 
     def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
-        :keyword int length: the length of generated key in bytes.
-                             note that some encryption handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
+        :keyword int length: the length of generated key in bits.
 
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns tuple(str public_key, str private_key)
 
         :rtype: tuple(str, str)
+        """
+
+        raise CoreNotImplementedError()
+
+
+class RSAEncrypterBase(AsymmetricEncrypterBase):
+    """
+    rsa encrypter base class.
+    this encrypter type uses a pair of public/private asymmetric
+    keys for encryption and decryption.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of RSAEncrypterBase.
+        """
+
+        AsymmetricEncrypterBase.__init__(self, **options)
+
+        self._private_key = None
+        self._public_key = None
+
+        self._load_keys(**options)
+
+    def _get_encryption_key(self, **options):
+        """
+        gets the signing key for encryption.
+
+        :rtype: object
+        """
+
+        return self._public_key
+
+    def _get_decryption_key(self, **options):
+        """
+        gets the signing key for decryption.
+
+        :rtype: object
+        """
+
+        return self._private_key
+
+    def generate_key(self, **options):
+        """
+        generates a valid public/private key for this handler and returns it.
+
+        :keyword int length: the length of generated key in bits.
+                             if not provided, it uses default value
+                             from relevant config.
+
+        :returns tuple(str public_key, str private_key)
+
+        :rtype: tuple(str, str)
+        """
+
+        return key_helper.generate_rsa_key(**options)
+
+    def _load_keys(self, **options):
+        """
+        loads public/private keys into this class's relevant attributes.
+
+        :raises CoreNotImplementedError: core not implemented error.
         """
 
         raise CoreNotImplementedError()
