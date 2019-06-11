@@ -39,3 +39,17 @@ class InvalidPBKDF2HashError(CoreValueError):
     invalid pbkdf2 hash error.
     """
     pass
+
+
+class InvalidHashingHandlerError(CoreValueError):
+    """
+    invalid hashing handler error.
+    """
+    pass
+
+
+class InvalidBcryptHashError(CoreValueError):
+    """
+    invalid bcrypt hash error.
+    """
+    pass

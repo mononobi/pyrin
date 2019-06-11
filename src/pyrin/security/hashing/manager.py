@@ -7,8 +7,10 @@ import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
-    InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError
+    InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError, \
+    InvalidHashError
 from pyrin.security.hashing.handlers.base import HashingBase
+from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils.custom_print import print_warning
 
 
@@ -25,6 +27,7 @@ class HashingManager(CoreObject):
         CoreObject.__init__(self)
 
         self._hashing_handlers = Context()
+        self._separator = b'$'
 
     def register_hashing_handler(self, instance, **options):
         """
@@ -120,14 +123,12 @@ class HashingManager(CoreObject):
         :param str text: text to be hashed.
         :param bytes full_hashed_value: full hashed value to compare with.
 
-        :keyword str handler_name: handler name to be used for hash generation.
-                                   if not provided, default handler from
-                                   relevant configs will be used.
-
         :rtype: bool
         """
 
-        return self._get_hashing_handler(**options).is_match(text, full_hashed_value, **options)
+        handler_name = self._extract_handler_name(full_hashed_value, **options)
+        return self._get_hashing_handler(handler_name=handler_name).is_match(
+            text, full_hashed_value, **options)
 
     def _get_hashing_handler(self, **options):
         """
@@ -157,3 +158,20 @@ class HashingManager(CoreObject):
         """
 
         return config_services.get('security', 'hashing', 'default_hashing_handler')
+
+    def _extract_handler_name(self, full_hashed_value, **options):
+        """
+        extracts the handler name of given full hashed value.
+
+        :param bytes full_hashed_value: full hashed value to extract the handler name from.
+
+        :raises InvalidHashError: invalid hash error.
+
+        :rtype: str
+        """
+
+        if full_hashed_value.count(self._separator) < 2:
+            raise InvalidHashError('Input hash value has an incorrect format.')
+
+        items = full_hashed_value.split(self._separator, 2)
+        return items[1].decode(APPLICATION_ENCODING)

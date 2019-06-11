@@ -10,7 +10,8 @@ import pyrin.configuration.services as config_services
 from pyrin.security.hashing.decorators import hashing
 from pyrin.security.hashing.handlers.base import HashingBase
 from pyrin.security.hashing.handlers.exceptions import InvalidHashingRoundsCountError, \
-    InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError, InvalidPBKDF2HashError
+    InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError, InvalidPBKDF2HashError, \
+    InvalidHashingHandlerError
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.security.utils import secure_random
 
@@ -29,14 +30,12 @@ class PBKDF2Hashing(HashingBase):
         HashingBase.__init__(self, **options)
 
         # the final hash parts are separated with this byte character.
-        # in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
         self._separator = b'$'
-        self._format = '$internal_algorithm$rounds$salt_length$salt-text_hash'
+        self._format = '$handler_name$internal_algorithm$rounds$salt_length$salt-text_hash'
 
     def generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
-        the result is in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :param str text: text to be hashed.
 
@@ -100,8 +99,6 @@ class PBKDF2Hashing(HashingBase):
         :param str text: text to be hashed.
 
         :param bytes full_hashed_value: full hashed value to compare with.
-                                        it should be in the form of
-                                       `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :rtype: bool
         """
@@ -117,7 +114,8 @@ class PBKDF2Hashing(HashingBase):
             return full_hashed_value == new_full_hashed_value
 
         except(InvalidPBKDF2InternalAlgorithmError, InvalidHashingRoundsCountError,
-               InvalidHashingSaltLengthError, InvalidPBKDF2HashError):
+               InvalidHashingSaltLengthError, InvalidPBKDF2HashError,
+               InvalidHashingHandlerError):
             return False
 
     def _get_algorithm(self, **options):
@@ -195,7 +193,6 @@ class PBKDF2Hashing(HashingBase):
     def _make_final_hash(self, internal_algorithm, rounds, salt, text_hash):
         """
         makes final hash from input values and returns it.
-        the result is in the form of `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :param str internal_algorithm: internal algorithm to be used for hashing.
         :param int rounds: rounds to perform for generating hash.
@@ -206,7 +203,8 @@ class PBKDF2Hashing(HashingBase):
         """
 
         return self._separator + self._separator.join(
-            (internal_algorithm.encode(APPLICATION_ENCODING),
+            (self._get_algorithm().encode(APPLICATION_ENCODING),
+             internal_algorithm.encode(APPLICATION_ENCODING),
              str(rounds).encode(APPLICATION_ENCODING),
              str(len(salt)).encode(APPLICATION_ENCODING),
              salt + text_hash))
@@ -216,10 +214,9 @@ class PBKDF2Hashing(HashingBase):
         extracts different parts of given full hashed value.
 
         :param bytes full_hashed_value: full hashed value to extract it's parts.
-                                        it must be in the form of
-                                       `$internal_algorithm$rounds$salt_length$salt-text_hash`.
 
         :raises InvalidPBKDF2HashError: invalid pbkdf2 hash error.
+        :raises InvalidHashingHandlerError: invalid hashing handler error.
 
         :returns tuple(str internal_algorithm, int rounds, bytes salt, bytes text_hash)
 
@@ -229,10 +226,18 @@ class PBKDF2Hashing(HashingBase):
         separator_count = self._format.count(self._separator.decode(APPLICATION_ENCODING))
         if full_hashed_value.count(self._separator) < separator_count or \
            full_hashed_value[0] != self._separator[0]:
-            raise InvalidPBKDF2HashError('Input hash value is invalid.')
+            raise InvalidPBKDF2HashError('Input hash value is not a valid [{current}] hash.'
+                                         .format(current=self._get_algorithm()))
 
-        empty, internal_algorithm, rounds, salt_length, salt_plus_text_hash = \
+        empty, handler, internal_algorithm, rounds, salt_length, salt_plus_text_hash = \
             full_hashed_value.split(self._separator, separator_count)
+
+        handler = handler.decode(APPLICATION_ENCODING)
+        if handler != self._get_algorithm():
+            raise InvalidHashingHandlerError('Hashing handler [{handler}] does not '
+                                             'match the current handler which is [{current}].'
+                                             .format(handler=handler,
+                                                     current=self._get_algorithm()))
 
         salt_length = int(salt_length)
         salt = salt_plus_text_hash[:salt_length]

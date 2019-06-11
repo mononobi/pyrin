@@ -32,3 +32,10 @@ class InvalidHashingHandlerNameError(CoreValueError):
     invalid hashing handler name error.
     """
     pass
+
+
+class InvalidHashError(CoreValueError):
+    """
+    invalid hash error.
+    """
+    pass

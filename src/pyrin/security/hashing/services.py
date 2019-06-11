@@ -76,10 +76,6 @@ def is_match(text, full_hashed_value, **options):
     :param str text: text to be hashed.
     :param bytes full_hashed_value: full hashed value to compare with.
 
-    :keyword str handler_name: handler name to be used for hash generation.
-                                   if not provided, default handler from
-                                   relevant configs will be used.
-
     :rtype: bool
     """
 
