@@ -36,22 +36,22 @@ class RSA256Encrypter(RSAEncrypterBase):
 
         return 'RSA256'
 
-    def encrypt(self, value, **options):
+    def _encrypt(self, text, **options):
         """
         encrypts the given value and returns the encrypted result.
 
-        :param str value: value to be encrypted.
+        :param str text: text to be encrypted.
 
         :rtype: bytes
         """
 
-        return self._public_key.encrypt(value.encode(APPLICATION_ENCODING),
+        return self._public_key.encrypt(text.encode(APPLICATION_ENCODING),
                                         padding.OAEP(
                                             mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                             algorithm=hashes.SHA256(),
                                             label=None))
 
-    def decrypt(self, value, **options):
+    def _decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
 

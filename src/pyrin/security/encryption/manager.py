@@ -8,8 +8,9 @@ import pyrin.configuration.services as config_services
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
-    EncryptionHandlerNotFoundError
+    EncryptionHandlerNotFoundError, InvalidEncryptedValueError
 from pyrin.security.encryption.handlers.base import EncrypterBase
+from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils.custom_print import print_warning
 
 
@@ -26,6 +27,7 @@ class EncryptionManager(CoreObject):
         CoreObject.__init__(self)
 
         self._encryption_handlers = Context()
+        self._separator = b'$'
 
     def register_encryption_handler(self, instance, **options):
         """
@@ -77,11 +79,11 @@ class EncryptionManager(CoreObject):
         # registering new encryption handler.
         self._encryption_handlers[instance.get_name()] = instance
 
-    def encrypt(self, value, **options):
+    def encrypt(self, text, **options):
         """
         encrypts the given value using specified handler and returns the encrypted result.
 
-        :param str value: value to be encrypted.
+        :param str text: text to be encrypted.
 
         :keyword str handler_name: handler name to be used for encryption.
                                    if not provided, default handler from
@@ -90,22 +92,21 @@ class EncryptionManager(CoreObject):
         :rtype: bytes
         """
 
-        return self._get_encryption_handler(**options).encrypt(value, **options)
+        return self._get_encryption_handler(**options).encrypt(text, **options)
 
-    def decrypt(self, value, **options):
+    def decrypt(self, full_encrypted_value, **options):
         """
-        decrypts the given value using specified handler and returns the decrypted result.
+        decrypts the given full encrypted value using specified
+        handler and returns the decrypted result.
 
-        :param bytes value: value to be decrypted.
-
-        :keyword str handler_name: handler name to be used for decryption.
-                                   if not provided, default handler from
-                                   relevant configs will be used.
+        :param bytes full_encrypted_value: full encrypted value to be decrypted.
 
         :rtype: str
         """
 
-        return self._get_encryption_handler(**options).decrypt(value, **options)
+        handler_name = self._extract_handler_name(full_encrypted_value, **options)
+        return self._get_encryption_handler(handler_name=handler_name).decrypt(
+            full_encrypted_value, **options)
 
     def generate_key(self, handler_name, **options):
         """
@@ -150,3 +151,21 @@ class EncryptionManager(CoreObject):
         """
 
         return config_services.get('security', 'encryption', 'default_encryption_handler')
+
+    def _extract_handler_name(self, full_encrypted_value, **options):
+        """
+        extracts the handler name of given full encrypted value.
+
+        :param bytes full_encrypted_value: full encrypted value to extract
+                                           the handler name from.
+
+        :raises InvalidEncryptionValueError: invalid encryption value error.
+
+        :rtype: str
+        """
+
+        if full_encrypted_value.count(self._separator) < 2:
+            raise InvalidEncryptedValueError('Input encrypted value has an incorrect format.')
+
+        items = full_encrypted_value.split(self._separator, 2)
+        return items[1].decode(APPLICATION_ENCODING)

@@ -3,14 +3,15 @@
 bcrypt hashing handler module.
 """
 
+import re
+
 import bcrypt
 
 import pyrin.configuration.services as config_services
 
 from pyrin.security.hashing.decorators import hashing
 from pyrin.security.hashing.handlers.base import HashingBase
-from pyrin.security.hashing.handlers.exceptions import BcryptMaxSizeLimitError, \
-    InvalidBcryptHashError, InvalidHashingHandlerError
+from pyrin.security.hashing.handlers.exceptions import BcryptMaxSizeLimitError
 from pyrin.settings.static import APPLICATION_ENCODING
 
 
@@ -20,9 +21,14 @@ class BcryptHashing(HashingBase):
     bcrypt hashing class.
     """
 
-    # bcrypt hashing has a max size value that could be hashed, original
+    # regular expression to validate format of full hashed values.
+    # the following format will be matched:
+    # `$handler_name$prefix$rounds$salt-text_plus_salt_hash`
+    FORMAT_REGEX = re.compile(r'^\$bcrypt\$[^$]+\$[\d]+\$(.+)$')
+
+    # bcrypt hashing has a max size limit that could be hashed, original
     # implementation truncates the input string to satisfy max size limit.
-    # though the max size differs on different bcrypt implementations, so
+    # since the max size is different on each bcrypt implementation,
     # we consider 50 bytes as a safe max size for all implementations.
     # 50 bytes is equivalent to 50 chars in ascii encoding, not unicode.
     MAX_SIZE = 50
@@ -34,11 +40,7 @@ class BcryptHashing(HashingBase):
 
         HashingBase.__init__(self, **options)
 
-        # the final hash parts are separated with this byte character.
-        self._separator = b'$'
-        self._format = '$handler_name$prefix$rounds$salt-text_hash'
-
-    def generate_hash(self, text, **options):
+    def _generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
 
@@ -87,24 +89,18 @@ class BcryptHashing(HashingBase):
 
         return bcrypt.gensalt(rounds=rounds, prefix=prefix)
 
-    def is_match(self, text, full_hashed_value, **options):
+    def _is_match(self, text, hashed_value, **options):
         """
         gets a value indicating that given text's
-        hash is identical to given full hashed value.
+        hash is identical to given hashed value.
 
         :param str text: text to be hashed.
-
-        :param bytes full_hashed_value: full hashed value to compare with.
+        :param bytes hashed_value: hashed value to compare with.
 
         :rtype: bool
         """
 
-        try:
-            bcrypt_hash = self._get_bcrypt_hash_part(full_hashed_value)
-            return bcrypt.checkpw(text.encode(APPLICATION_ENCODING), bcrypt_hash)
-
-        except (InvalidBcryptHashError, InvalidHashingHandlerError):
-            return False
+        return bcrypt.checkpw(text.encode(APPLICATION_ENCODING), hashed_value)
 
     def _get_algorithm(self, **options):
         """
@@ -114,6 +110,15 @@ class BcryptHashing(HashingBase):
         """
 
         return 'bcrypt'
+
+    def _get_separator_count(self):
+        """
+        gets the separator count used between parts of this handler's hashed result.
+
+        :rtype: int
+        """
+
+        return 4
 
     def _digest_inputs(self, text, **options):
         """
@@ -138,32 +143,19 @@ class BcryptHashing(HashingBase):
 
         return text_bytes
 
-    def _get_bcrypt_hash_part(self, full_hashed_value, **options):
+    def _get_hashed_part(self, full_hashed_value, **options):
         """
-        gets the hash part that bcrypt understands it, excluding the handler name.
+        gets the hashed part from full hashed value which current
+        handler understands it.
+        this method returns the original hash value made by bcrypt
+        excluding the handler name.
 
-        :param bytes full_hashed_value: full hashed value to exclude handler name from it.
-
-        :raises InvalidBcryptHashError: invalid bcrypt hash error.
-        :raises InvalidHashingHandlerError: invalid hashing handler error.
+        :param bytes full_hashed_value: full hashed value to get hashed part from it.
 
         :rtype: bytes
         """
 
-        separator_count = self._format.count(self._separator.decode(APPLICATION_ENCODING))
-        if full_hashed_value.count(self._separator) < separator_count or \
-           full_hashed_value[0] != self._separator[0]:
-            raise InvalidBcryptHashError('Input hash value is not a valid [{current}] hash.'
-                                         .format(current=self._get_algorithm()))
-
-        empty, handler, bcrypt_hash = full_hashed_value.split(self._separator, 2)
-        handler = handler.decode(APPLICATION_ENCODING)
-        if handler != self._get_algorithm():
-            raise InvalidHashingHandlerError('Hashing handler [{handler}] does not '
-                                             'match the current handler which is [{current}].'
-                                             .format(handler=handler,
-                                                     current=self._get_algorithm()))
-
+        empty, handler, bcrypt_hash = full_hashed_value.split(self._get_separator(), 2)
         return self._separator + bcrypt_hash
 
     def _make_final_hash(self, bcrypt_hash, **options):

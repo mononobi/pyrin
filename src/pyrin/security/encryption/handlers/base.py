@@ -3,9 +3,14 @@
 encryption handlers base module.
 """
 
+import re
+
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueError, \
+    EncryptionHandlerMismatchError
 from pyrin.security.utils import key_helper
+from pyrin.settings.static import APPLICATION_ENCODING
 
 
 class EncrypterBase(CoreObject):
@@ -13,6 +18,10 @@ class EncrypterBase(CoreObject):
     encrypter base class.
     all application encrypters must subclass this.
     """
+
+    # regular expression to validate format of full encrypted values.
+    # the following format will be matched: `$handler_name$encrypted_value`
+    FORMAT_REGEX = re.compile(r'^\$[^$]+\$(.+)$')
 
     def __init__(self, name, **options):
         """
@@ -24,6 +33,24 @@ class EncrypterBase(CoreObject):
         CoreObject.__init__(self)
 
         self._set_name(name)
+
+    def _get_separator(self):
+        """
+        gets the separator used between each part of this handler's encryption result.
+
+        :rtype: bytes
+        """
+
+        return b'$'
+
+    def _get_separator_count(self):
+        """
+        gets the separator count used between parts of this handler's encryption result.
+
+        :rtype: int
+        """
+
+        return 2
 
     def _get_encryption_key(self, **options):
         """
@@ -58,11 +85,24 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def encrypt(self, value, **options):
+    def encrypt(self, text, **options):
+        """
+        encrypts the given value and returns the full encrypted
+        result which includes the handler name.
+
+        :param str text: text to be encrypted.
+
+        :rtype: bytes
+        """
+
+        encrypted = self._encrypt(text, **options)
+        return self._make_final_result(encrypted, **options)
+
+    def _encrypt(self, text, **options):
         """
         encrypts the given value and returns the encrypted result.
 
-        :param str value: value to be encrypted.
+        :param str text: text to be encrypted.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -71,13 +111,23 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def decrypt(self, value, **options):
+    def decrypt(self, full_encrypted_value, **options):
+        """
+        decrypts the given full encrypted value and returns the decrypted result.
+
+        :param bytes full_encrypted_value: full encrypted value to be decrypted.
+
+        :rtype: str
+        """
+
+        encrypted_part = self._get_encrypted_part(full_encrypted_value, **options)
+        return self._decrypt(encrypted_part, **options)
+
+    def _decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
 
         :param bytes value: value to be decrypted.
-
-        :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: str
         """
@@ -98,6 +148,85 @@ class EncrypterBase(CoreObject):
         """
 
         raise CoreNotImplementedError()
+
+    def _get_encrypted_part(self, full_encrypted_value, **options):
+        """
+        gets the encrypted part from full encrypted value.
+
+        :param bytes full_encrypted_value: full encrypted value to get encrypted part from it.
+
+        :raises InvalidEncryptedValueError: invalid encrypted value error.
+        :raises EncryptionHandlerMismatchError: encryption handler mismatch error.
+
+        :rtype: bytes
+        """
+
+        self._validate_format(full_encrypted_value, **options)
+        handler, encrypted_part = self._extract_parts_from_final_value(
+            full_encrypted_value, **options)
+        self._validate_handler(handler, **options)
+
+        return encrypted_part
+
+    def _validate_format(self, full_encrypted_value, **options):
+        """
+        validates the format of full encrypted value.
+        an exception will be raised on invalid values.
+
+        :param bytes full_encrypted_value: full encrypted value to be validated.
+
+        :raises InvalidEncryptedValueError: invalid encrypted value error.
+        """
+
+        if not self.FORMAT_REGEX.match(full_encrypted_value.decode(APPLICATION_ENCODING)):
+            raise InvalidEncryptedValueError('Input value is not a valid '
+                                             '[{current}] encryption value.'
+                                             .format(current=self._get_algorithm()))
+
+    def _extract_parts_from_final_value(self, full_encrypted_value, **options):
+        """
+        extracts different parts from full encrypted value.
+
+        :param bytes full_encrypted_value: full encrypted value to get different parts from it.
+
+        :returns: tuple(str handler_name, bytes encrypted_part)
+
+        :rtype: tuple(str, bytes)
+        """
+
+        empty, handler, encrypted_part = full_encrypted_value.split(
+            self._get_separator(), self._get_separator_count())
+
+        return handler.decode(APPLICATION_ENCODING), encrypted_part
+
+    def _validate_handler(self, handler_name, **options):
+        """
+        validates the handler name to match the current handler.
+        it will raise an error on handler mismatch.
+
+        :param str handler_name: handler name to be validated.
+
+        :raises EncryptionHandlerMismatchError: encryption handler mismatch error.
+        """
+
+        if handler_name != self._get_algorithm():
+            raise EncryptionHandlerMismatchError('Encryption handler [{handler}] does not '
+                                                 'match the current handler which is [{current}].'
+                                                 .format(handler=handler_name,
+                                                         current=self._get_algorithm()))
+
+    def _make_final_result(self, encrypted_value, **options):
+        """
+        gets the final result by prepending the handler name to the encrypted value.
+
+        :param bytes encrypted_value: encrypted value which handler name should be prepended to.
+
+        :rtype: bytes
+        """
+
+        return self._get_separator() + self._get_separator().join(
+            (self._get_algorithm().encode(APPLICATION_ENCODING),
+             encrypted_value))
 
 
 class SymmetricEncrypterBase(EncrypterBase):

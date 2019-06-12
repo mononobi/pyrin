@@ -31,11 +31,11 @@ def register_encryption_handler(instance, **options):
                                                                                        **options)
 
 
-def encrypt(value, **options):
+def encrypt(text, **options):
     """
     encrypts the given value using specified handler and returns the encrypted result.
 
-    :param str value: value to be encrypted.
+    :param str text: text to be encrypted.
 
     :keyword str handler_name: handler name to be used for encryption.
                                if not provided, default handler from
@@ -44,23 +44,21 @@ def encrypt(value, **options):
     :rtype: bytes
     """
 
-    return get_component(EncryptionPackage.COMPONENT_NAME).encrypt(value, **options)
+    return get_component(EncryptionPackage.COMPONENT_NAME).encrypt(text, **options)
 
 
-def decrypt(value, **options):
+def decrypt(full_encrypted_value, **options):
     """
-    decrypts the given value using specified handler and returns the decrypted result.
+    decrypts the given full encrypted value using specified
+    handler and returns the decrypted result.
 
-    :param bytes value: value to be decrypted.
-
-    :keyword str handler_name: handler name to be used for decryption.
-                               if not provided, default handler from
-                               relevant configs will be used.
+    :param bytes full_encrypted_value: full encrypted value to be decrypted.
 
     :rtype: str
     """
 
-    return get_component(EncryptionPackage.COMPONENT_NAME).decrypt(value, **options)
+    return get_component(EncryptionPackage.COMPONENT_NAME).decrypt(full_encrypted_value,
+                                                                   **options)
 
 
 def generate_key(handler_name, **options):

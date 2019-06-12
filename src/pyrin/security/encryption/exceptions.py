@@ -32,3 +32,10 @@ class InvalidEncryptionHandlerNameError(CoreValueError):
     invalid encryption handler name error.
     """
     pass
+
+
+class InvalidEncryptedValueError(CoreValueError):
+    """
+    invalid encrypted value error.
+    """
+    pass

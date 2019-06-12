@@ -4,14 +4,14 @@ pbkdf2 hashing handler module.
 """
 
 import hashlib
+import re
 
 import pyrin.configuration.services as config_services
 
 from pyrin.security.hashing.decorators import hashing
 from pyrin.security.hashing.handlers.base import HashingBase
 from pyrin.security.hashing.handlers.exceptions import InvalidHashingRoundsCountError, \
-    InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError, InvalidPBKDF2HashError, \
-    InvalidHashingHandlerError
+    InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.security.utils import secure_random
 
@@ -22,6 +22,11 @@ class PBKDF2Hashing(HashingBase):
     pbkdf2 hashing class.
     """
 
+    # regular expression to validate format of full hashed values.
+    # the following format will be matched:
+    # `$handler_name$internal_algorithm$rounds$salt_length$salt-text_plus_salt_hash`
+    FORMAT_REGEX = re.compile(r'^\$PBKDF2\$[^$]+\$[\d]+\$[\d]+\$(.+)$')
+
     def __init__(self, **options):
         """
         initializes an instance of PBKDF2Hashing.
@@ -29,11 +34,7 @@ class PBKDF2Hashing(HashingBase):
 
         HashingBase.__init__(self, **options)
 
-        # the final hash parts are separated with this byte character.
-        self._separator = b'$'
-        self._format = '$handler_name$internal_algorithm$rounds$salt_length$salt-text_hash'
-
-    def generate_hash(self, text, **options):
+    def _generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
 
@@ -91,31 +92,29 @@ class PBKDF2Hashing(HashingBase):
 
         return secure_random.get_bytes(length=salt_length)
 
-    def is_match(self, text, full_hashed_value, **options):
+    def _is_match(self, text, hashed_value, **options):
         """
         gets a value indicating that given text's
         hash is identical to given full hashed value.
 
         :param str text: text to be hashed.
-
-        :param bytes full_hashed_value: full hashed value to compare with.
+        :param bytes hashed_value: hashed value to compare with.
 
         :rtype: bool
         """
 
         try:
             internal_algorithm, rounds, salt, text_hash = \
-                self._extract_parts_from_final_hash(full_hashed_value)
+                self._extract_parts_from_final_hash(hashed_value, **options)
 
-            new_full_hashed_value = self.generate_hash(text,
-                                                       internal_algorithm=internal_algorithm,
-                                                       rounds=rounds, salt=salt)
+            new_full_hashed_value = self._generate_hash(text,
+                                                        internal_algorithm=internal_algorithm,
+                                                        rounds=rounds, salt=salt)
 
-            return full_hashed_value == new_full_hashed_value
+            return hashed_value == new_full_hashed_value
 
         except(InvalidPBKDF2InternalAlgorithmError, InvalidHashingRoundsCountError,
-               InvalidHashingSaltLengthError, InvalidPBKDF2HashError,
-               InvalidHashingHandlerError):
+               InvalidHashingSaltLengthError):
             return False
 
     def _get_algorithm(self, **options):
@@ -126,6 +125,15 @@ class PBKDF2Hashing(HashingBase):
         """
 
         return 'PBKDF2'
+
+    def _get_separator_count(self):
+        """
+        gets the separator count used between parts of this handler's hashed result.
+
+        :rtype: int
+        """
+
+        return 5
 
     def _extract_attributes(self, **options):
         """
@@ -209,38 +217,34 @@ class PBKDF2Hashing(HashingBase):
              str(len(salt)).encode(APPLICATION_ENCODING),
              salt + text_hash))
 
-    def _extract_parts_from_final_hash(self, full_hashed_value):
+    def _extract_parts_from_final_hash(self, full_hashed_value, **options):
         """
         extracts different parts of given full hashed value.
 
         :param bytes full_hashed_value: full hashed value to extract it's parts.
-
-        :raises InvalidPBKDF2HashError: invalid pbkdf2 hash error.
-        :raises InvalidHashingHandlerError: invalid hashing handler error.
 
         :returns tuple(str internal_algorithm, int rounds, bytes salt, bytes text_hash)
 
         :rtype: tuple(str, int, bytes, bytes)
         """
 
-        separator_count = self._format.count(self._separator.decode(APPLICATION_ENCODING))
-        if full_hashed_value.count(self._separator) < separator_count or \
-           full_hashed_value[0] != self._separator[0]:
-            raise InvalidPBKDF2HashError('Input hash value is not a valid [{current}] hash.'
-                                         .format(current=self._get_algorithm()))
-
         empty, handler, internal_algorithm, rounds, salt_length, salt_plus_text_hash = \
-            full_hashed_value.split(self._separator, separator_count)
-
-        handler = handler.decode(APPLICATION_ENCODING)
-        if handler != self._get_algorithm():
-            raise InvalidHashingHandlerError('Hashing handler [{handler}] does not '
-                                             'match the current handler which is [{current}].'
-                                             .format(handler=handler,
-                                                     current=self._get_algorithm()))
+            full_hashed_value.split(self._get_separator(), self._get_separator_count())
 
         salt_length = int(salt_length)
         salt = salt_plus_text_hash[:salt_length]
         text_hash = salt_plus_text_hash[salt_length:]
 
         return internal_algorithm.decode(APPLICATION_ENCODING), int(rounds), salt, text_hash
+
+    def _get_hashed_part(self, full_hashed_value, **options):
+        """
+        gets the hashed part from full hashed value which current handler understands it.
+        this handler returns the same input as result.
+
+        :param bytes full_hashed_value: full hashed value to get hashed part from it.
+
+        :rtype: bytes
+        """
+
+        return full_hashed_value

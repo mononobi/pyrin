@@ -45,18 +45,18 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         return 'AES128'
 
-    def encrypt(self, value, **options):
+    def _encrypt(self, text, **options):
         """
         encrypts the given value and returns the encrypted result.
 
-        :param str value: value to be encrypted.
+        :param str text: text to be encrypted.
 
         :rtype: bytes
         """
 
-        return self._encrypter.encrypt(value.encode(APPLICATION_ENCODING))
+        return self._encrypter.encrypt(text.encode(APPLICATION_ENCODING))
 
-    def decrypt(self, value, **options):
+    def _decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
 

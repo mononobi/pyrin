@@ -34,22 +34,15 @@ class InvalidHashingSaltLengthError(CoreValueError):
     pass
 
 
-class InvalidPBKDF2HashError(CoreValueError):
+class HashingHandlerMismatchError(CoreValueError):
     """
-    invalid pbkdf2 hash error.
-    """
-    pass
-
-
-class InvalidHashingHandlerError(CoreValueError):
-    """
-    invalid hashing handler error.
+    hashing handler mismatch error.
     """
     pass
 
 
-class InvalidBcryptHashError(CoreValueError):
+class InvalidHashedValueError(CoreValueError):
     """
-    invalid bcrypt hash error.
+    invalid hashed value error.
     """
     pass
