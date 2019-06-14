@@ -15,7 +15,7 @@ from pyrin.utils.datetime.converter import to_datetime_string_utc, to_date_strin
 class CoreJSONEncoder(JSONEncoder):
     """
     the default application json encoder. it extends the default flask json encoder
-    to get the correct string representation for dates and times.
+    to get the correct string representation for other complex types.
     """
 
     def default(self, o):
