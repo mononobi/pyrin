@@ -62,7 +62,7 @@ def generate_hash(text, **options):
 
     :keyword str prefix: prefix to be used for bcrypt hashing.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(HashingPackage.COMPONENT_NAME).generate_hash(text, **options)
@@ -74,7 +74,7 @@ def is_match(text, full_hashed_value, **options):
     hash is identical to given full hashed value.
 
     :param str text: text to be hashed.
-    :param bytes full_hashed_value: full hashed value to compare with.
+    :param str full_hashed_value: full hashed value to compare with.
 
     :rtype: bool
     """

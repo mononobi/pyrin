@@ -145,8 +145,7 @@ class BcryptHashing(HashingBase):
 
     def _get_hashed_part(self, full_hashed_value, **options):
         """
-        gets the hashed part from full hashed value which current
-        handler understands it.
+        gets the hashed part from full hashed value which current handler understands it.
         this method returns the original hash value made by bcrypt
         excluding the handler name.
 
@@ -156,7 +155,7 @@ class BcryptHashing(HashingBase):
         """
 
         empty, handler, bcrypt_hash = full_hashed_value.split(self._get_separator(), 2)
-        return self._separator + bcrypt_hash
+        return self._get_separator() + bcrypt_hash
 
     def _make_final_hash(self, bcrypt_hash, **options):
         """
@@ -167,5 +166,5 @@ class BcryptHashing(HashingBase):
         :rtype: bytes
         """
 
-        return self._separator + self._get_algorithm().encode(
+        return self._get_separator() + self._get_algorithm().encode(
             APPLICATION_ENCODING) + bcrypt_hash

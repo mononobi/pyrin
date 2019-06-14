@@ -95,7 +95,7 @@ class PBKDF2Hashing(HashingBase):
     def _is_match(self, text, hashed_value, **options):
         """
         gets a value indicating that given text's
-        hash is identical to given full hashed value.
+        hash is identical to given hashed value.
 
         :param str text: text to be hashed.
         :param bytes hashed_value: hashed value to compare with.
@@ -210,12 +210,12 @@ class PBKDF2Hashing(HashingBase):
         :rtype: bytes
         """
 
-        return self._separator + self._separator.join(
+        return self._get_separator() + self._get_separator().join(
             (self._get_algorithm().encode(APPLICATION_ENCODING),
              internal_algorithm.encode(APPLICATION_ENCODING),
              str(rounds).encode(APPLICATION_ENCODING),
              str(len(salt)).encode(APPLICATION_ENCODING),
-             salt + text_hash))
+             self._encode_hash_part(salt + text_hash)))
 
     def _extract_parts_from_final_hash(self, full_hashed_value, **options):
         """
@@ -232,15 +232,16 @@ class PBKDF2Hashing(HashingBase):
             full_hashed_value.split(self._get_separator(), self._get_separator_count())
 
         salt_length = int(salt_length)
-        salt = salt_plus_text_hash[:salt_length]
-        text_hash = salt_plus_text_hash[salt_length:]
+        raw_salt_plus_text_hash = self._decode_hash_part(salt_plus_text_hash)
+        salt = raw_salt_plus_text_hash[:salt_length]
+        text_hash = raw_salt_plus_text_hash[salt_length:]
 
         return internal_algorithm.decode(APPLICATION_ENCODING), int(rounds), salt, text_hash
 
     def _get_hashed_part(self, full_hashed_value, **options):
         """
         gets the hashed part from full hashed value which current handler understands it.
-        this handler returns the same input as result.
+        this handler returns the same input value as result.
 
         :param bytes full_hashed_value: full hashed value to get hashed part from it.
 

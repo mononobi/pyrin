@@ -10,7 +10,6 @@ from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeErr
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
     EncryptionHandlerNotFoundError, InvalidEncryptedValueError
 from pyrin.security.encryption.handlers.base import EncrypterBase
-from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils.custom_print import print_warning
 
 
@@ -27,7 +26,7 @@ class EncryptionManager(CoreObject):
         CoreObject.__init__(self)
 
         self._encryption_handlers = Context()
-        self._separator = b'$'
+        self._separator = '$'
 
     def register_encryption_handler(self, instance, **options):
         """
@@ -89,7 +88,7 @@ class EncryptionManager(CoreObject):
                                    if not provided, default handler from
                                    relevant configs will be used.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_encryption_handler(**options).encrypt(text, **options)
@@ -99,7 +98,7 @@ class EncryptionManager(CoreObject):
         decrypts the given full encrypted value using specified
         handler and returns the decrypted result.
 
-        :param bytes full_encrypted_value: full encrypted value to be decrypted.
+        :param str full_encrypted_value: full encrypted value to be decrypted.
 
         :rtype: str
         """
@@ -156,8 +155,8 @@ class EncryptionManager(CoreObject):
         """
         extracts the handler name of given full encrypted value.
 
-        :param bytes full_encrypted_value: full encrypted value to extract
-                                           the handler name from.
+        :param str full_encrypted_value: full encrypted value to extract
+                                         the handler name from.
 
         :raises InvalidEncryptionValueError: invalid encryption value error.
 
@@ -168,4 +167,4 @@ class EncryptionManager(CoreObject):
             raise InvalidEncryptedValueError('Input encrypted value has an incorrect format.')
 
         items = full_encrypted_value.split(self._separator, 2)
-        return items[1].decode(APPLICATION_ENCODING)
+        return items[1]

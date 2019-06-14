@@ -11,6 +11,7 @@ from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueE
     EncryptionHandlerMismatchError
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
+from pyrin.utils import encoding
 
 
 class EncrypterBase(CoreObject):
@@ -92,11 +93,12 @@ class EncrypterBase(CoreObject):
 
         :param str text: text to be encrypted.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         encrypted = self._encrypt(text, **options)
-        return self._make_final_result(encrypted, **options)
+        final_result = self._make_final_result(encrypted, **options)
+        return self._prepare_output(final_result)
 
     def _encrypt(self, text, **options):
         """
@@ -115,12 +117,15 @@ class EncrypterBase(CoreObject):
         """
         decrypts the given full encrypted value and returns the decrypted result.
 
-        :param bytes full_encrypted_value: full encrypted value to be decrypted.
+        :param str full_encrypted_value: full encrypted value to be decrypted.
 
         :rtype: str
         """
 
-        encrypted_part = self._get_encrypted_part(full_encrypted_value, **options)
+        self._validate_format(full_encrypted_value, **options)
+        encrypted_part = self._get_encrypted_part(self._prepare_input(full_encrypted_value),
+                                                  **options)
+
         return self._decrypt(encrypted_part, **options)
 
     def _decrypt(self, value, **options):
@@ -161,9 +166,9 @@ class EncrypterBase(CoreObject):
         :rtype: bytes
         """
 
-        self._validate_format(full_encrypted_value, **options)
         handler, encrypted_part = self._extract_parts_from_final_value(
             full_encrypted_value, **options)
+
         self._validate_handler(handler, **options)
 
         return encrypted_part
@@ -173,12 +178,12 @@ class EncrypterBase(CoreObject):
         validates the format of full encrypted value.
         an exception will be raised on invalid values.
 
-        :param bytes full_encrypted_value: full encrypted value to be validated.
+        :param str full_encrypted_value: full encrypted value to be validated.
 
         :raises InvalidEncryptedValueError: invalid encrypted value error.
         """
 
-        if not self.FORMAT_REGEX.match(full_encrypted_value.decode(APPLICATION_ENCODING)):
+        if not self.FORMAT_REGEX.match(full_encrypted_value):
             raise InvalidEncryptedValueError('Input value is not a valid '
                                              '[{current}] encryption value.'
                                              .format(current=self._get_algorithm()))
@@ -197,7 +202,7 @@ class EncrypterBase(CoreObject):
         empty, handler, encrypted_part = full_encrypted_value.split(
             self._get_separator(), self._get_separator_count())
 
-        return handler.decode(APPLICATION_ENCODING), encrypted_part
+        return handler.decode(APPLICATION_ENCODING), self._decode_encrypted_part(encrypted_part)
 
     def _validate_handler(self, handler_name, **options):
         """
@@ -226,7 +231,55 @@ class EncrypterBase(CoreObject):
 
         return self._get_separator() + self._get_separator().join(
             (self._get_algorithm().encode(APPLICATION_ENCODING),
-             encrypted_value))
+             self._encode_encrypted_part(encrypted_value)))
+
+    def _prepare_output(self, full_encrypted_value, **options):
+        """
+        prepares output value before returning from this handler.
+
+        :param bytes full_encrypted_value: full encrypted value to be prepared.
+
+        :rtype: str
+        """
+
+        return full_encrypted_value.decode(APPLICATION_ENCODING)
+
+    def _prepare_input(self, full_encrypted_value, **options):
+        """
+        prepares input value to be handled by this handler.
+
+        :param str full_encrypted_value: full encrypted value to be prepared.
+
+        :rtype: bytes
+        """
+
+        return full_encrypted_value.encode(APPLICATION_ENCODING)
+
+    def _decode_encrypted_part(self, value):
+        """
+        decodes base64 encoded encrypted part into raw bytes.
+
+        :param bytes value: base64 encoded value.
+
+        :returns: raw bytes.
+
+        :rtype: bytes
+        """
+
+        return encoding.base64_to_bytes(value)
+
+    def _encode_encrypted_part(self, value):
+        """
+        encodes raw bytes encrypted part into base64 encoded bytes.
+
+        :param bytes value: raw bytes value.
+
+        :returns: base64 encoded bytes.
+
+        :rtype: bytes
+        """
+
+        return encoding.bytes_to_base64(value)
 
 
 class SymmetricEncrypterBase(EncrypterBase):

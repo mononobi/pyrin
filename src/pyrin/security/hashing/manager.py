@@ -10,7 +10,6 @@ from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
     InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError, \
     InvalidHashError
 from pyrin.security.hashing.handlers.base import HashingBase
-from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils.custom_print import print_warning
 
 
@@ -27,7 +26,7 @@ class HashingManager(CoreObject):
         CoreObject.__init__(self)
 
         self._hashing_handlers = Context()
-        self._separator = b'$'
+        self._separator = '$'
 
     def register_hashing_handler(self, instance, **options):
         """
@@ -110,7 +109,7 @@ class HashingManager(CoreObject):
 
         :keyword str prefix: prefix to be used for bcrypt hashing.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         return self._get_hashing_handler(**options).generate_hash(text, **options)
@@ -121,7 +120,7 @@ class HashingManager(CoreObject):
         hash is identical to given full hashed value.
 
         :param str text: text to be hashed.
-        :param bytes full_hashed_value: full hashed value to compare with.
+        :param str full_hashed_value: full hashed value to compare with.
 
         :rtype: bool
         """
@@ -163,7 +162,7 @@ class HashingManager(CoreObject):
         """
         extracts the handler name of given full hashed value.
 
-        :param bytes full_hashed_value: full hashed value to extract the handler name from.
+        :param str full_hashed_value: full hashed value to extract the handler name from.
 
         :raises InvalidHashError: invalid hash error.
 
@@ -174,4 +173,4 @@ class HashingManager(CoreObject):
             raise InvalidHashError('Input hash value has an incorrect format.')
 
         items = full_hashed_value.split(self._separator, 2)
-        return items[1].decode(APPLICATION_ENCODING)
+        return items[1]

@@ -41,7 +41,7 @@ def encrypt(text, **options):
                                if not provided, default handler from
                                relevant configs will be used.
 
-    :rtype: bytes
+    :rtype: str
     """
 
     return get_component(EncryptionPackage.COMPONENT_NAME).encrypt(text, **options)
@@ -52,7 +52,7 @@ def decrypt(full_encrypted_value, **options):
     decrypts the given full encrypted value using specified
     handler and returns the decrypted result.
 
-    :param bytes full_encrypted_value: full encrypted value to be decrypted.
+    :param str full_encrypted_value: full encrypted value to be decrypted.
 
     :rtype: str
     """
@@ -74,5 +74,4 @@ def generate_key(handler_name, **options):
     :rtype: Union[str, tuple(str, str)]
     """
 
-    return get_component(EncryptionPackage.COMPONENT_NAME).generate_key(handler_name,
-                                                                        **options)
+    return get_component(EncryptionPackage.COMPONENT_NAME).generate_key(handler_name, **options)

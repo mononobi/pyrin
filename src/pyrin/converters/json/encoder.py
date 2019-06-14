@@ -3,13 +3,11 @@
 json encoder module.
 """
 
-import base64
-
 from datetime import datetime, date, time
 
 from flask.json import JSONEncoder
 
-from pyrin.settings.static import APPLICATION_ENCODING
+from pyrin.utils import encoding
 from pyrin.utils.datetime.converter import to_datetime_string_utc, to_date_string, \
     to_time_string_utc
 
@@ -36,6 +34,6 @@ class CoreJSONEncoder(JSONEncoder):
         if isinstance(o, time):
             return to_time_string_utc(o)
         if isinstance(o, bytes):
-            return base64.b64encode(o).decode(APPLICATION_ENCODING)
+            return encoding.bytes_to_base64_string(o)
 
         return JSONEncoder.default(self, o)

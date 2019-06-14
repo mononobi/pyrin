@@ -5,11 +5,12 @@ api error handlers module.
 
 from werkzeug.exceptions import HTTPException
 
+import pyrin.logging.services as logging_services
+
 from pyrin.application.decorators import error_handler
 from pyrin.core.context import DTO
 from pyrin.api.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreException
-from pyrin.utils.custom_print import print_error
 
 
 @error_handler(HTTPException)
@@ -24,7 +25,8 @@ def http_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print_error('ERROR-HTTP')
+
+    _log_error(exception)
     return DTO(code=exception.code,
                message=exception.description), exception.code
 
@@ -42,7 +44,8 @@ def server_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print_error('ERROR-SERVER')
+
+    _log_error(exception)
     return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
                message=exception.description), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
 
@@ -59,6 +62,18 @@ def server_unknown_error_handler(exception):
 
     :rtype: tuple(dict, int)
     """
-    print_error('ERROR-UNKNOWN')
+
+    _log_error(exception)
     return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
                message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+
+
+def _log_error(exception):
+    """
+    logs the specified exception.
+
+    :param Exception exception: exception that raised on error.
+    """
+
+    logging_services.exception('Application error details: [{message}]'
+                               .format(message=str(exception)))

@@ -10,6 +10,7 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.hashing.handlers.exceptions import InvalidHashedValueError, \
     HashingHandlerMismatchError
 from pyrin.settings.static import APPLICATION_ENCODING
+from pyrin.utils import encoding
 
 
 class HashingBase(CoreObject):
@@ -33,8 +34,6 @@ class HashingBase(CoreObject):
 
         # we set the algorithm of hashing handler as the name of it.
         self._set_name(self._get_algorithm(**options))
-        # self._input_converter
-        # self._output_converter
 
     def generate_hash(self, text, **options):
         """
@@ -50,11 +49,11 @@ class HashingBase(CoreObject):
                              if not provided, default value from
                              relevant config will be used.
 
-        :rtype: bytes
+        :rtype: str
         """
 
         full_hashed_value = self._generate_hash(text, **options)
-        return self._make_final_result(full_hashed_value, **options)
+        return self._prepare_output(full_hashed_value, **options)
 
     def _generate_hash(self, text, **options):
         """
@@ -83,17 +82,18 @@ class HashingBase(CoreObject):
         hash is identical to given full hashed value.
 
         :param str text: text to be hashed.
-        :param bytes full_hashed_value: full hashed value to compare with.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        :param str full_hashed_value: full hashed value to compare with.
 
         :rtype: bool
         """
 
         try:
             self._validate_format(full_hashed_value, **options)
-            hashed_part = self._get_hashed_part(full_hashed_value, **options)
+            hashed_part = self._get_hashed_part(self._prepare_input(full_hashed_value),
+                                                **options)
+
             return self._is_match(text, hashed_part, **options)
+
         except InvalidHashedValueError:
             return False
 
@@ -157,12 +157,12 @@ class HashingBase(CoreObject):
         validates the format of full hashed value.
         an exception will be raised on invalid values.
 
-        :param bytes full_hashed_value: full hashed value to be validated.
+        :param str full_hashed_value: full hashed value to be validated.
 
         :raises InvalidHashedValueError: invalid hashed value error.
         """
 
-        if not self.FORMAT_REGEX.match(full_hashed_value.decode(APPLICATION_ENCODING)):
+        if not self.FORMAT_REGEX.match(full_hashed_value):
             raise InvalidHashedValueError('Input value is not a valid '
                                           '[{current}] hashing value.'
                                           .format(current=self._get_algorithm()))
@@ -196,12 +196,50 @@ class HashingBase(CoreObject):
                                               .format(handler=handler_name,
                                                       current=self._get_algorithm()))
 
-    def _prepare_result(self, full_hashed_value, **options):
+    def _prepare_output(self, full_hashed_value, **options):
         """
-        prepares input value to be returned as handler's output.
+        prepares output value before returning from this handler.
 
-        :param bytes full_hashed_value: full hashed value to be processed.
+        :param bytes full_hashed_value: full hashed value to be prepared.
+
+        :rtype: str
+        """
+
+        return full_hashed_value.decode(APPLICATION_ENCODING)
+
+    def _prepare_input(self, full_hashed_value, **options):
+        """
+        prepares input value to be handled by this handler.
+
+        :param str full_hashed_value: full hashed value to be prepared.
 
         :rtype: bytes
         """
 
+        return full_hashed_value.encode(APPLICATION_ENCODING)
+
+    def _decode_hash_part(self, value):
+        """
+        decodes base64 encoded hash part into raw bytes.
+
+        :param bytes value: base64 encoded value.
+
+        :returns: raw bytes.
+
+        :rtype: bytes
+        """
+
+        return encoding.base64_to_bytes(value)
+
+    def _encode_hash_part(self, value):
+        """
+        encodes raw bytes hash part into base64 encoded bytes.
+
+        :param bytes value: raw bytes value.
+
+        :returns: base64 encoded bytes.
+
+        :rtype: bytes
+        """
+
+        return encoding.bytes_to_base64(value)
