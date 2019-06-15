@@ -8,7 +8,7 @@ from werkzeug.routing import Rule
 import pyrin.configuration.services as config_services
 
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
-    MaxContentLengthShouldNotBeGreaterThanGlobalLimitError
+    MaxContentLengthLimitMismatchError
 from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 
@@ -75,9 +75,7 @@ class RouteBase(Rule):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
-        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
-                                                                        not be greater than global
-                                                                        limit error.
+        :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
 
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
@@ -106,17 +104,15 @@ class RouteBase(Rule):
                                                             'restricted_max_content_length'))
 
         if restricted_length > global_limit:
-            raise MaxContentLengthShouldNotBeGreaterThanGlobalLimitError('Specified max content '
-                                                                         'length [{restricted}] '
-                                                                         'for route [{route}] '
-                                                                         'is greater than global '
-                                                                         'limit which is '
-                                                                         '[{global_limit}].'
-                                                                         .format(restricted=
-                                                                                 restricted_length,
-                                                                                 route=rule,
-                                                                                 global_limit=
-                                                                                 global_limit))
+            raise MaxContentLengthLimitMismatchError('Specified max content length '
+                                                     '[{restricted}] for route [{route}] is '
+                                                     'greater than global limit which is '
+                                                     '[{global_limit}].'
+                                                     .format(restricted=
+                                                             restricted_length,
+                                                             route=rule,
+                                                             global_limit=
+                                                             global_limit))
 
         self._max_content_length = restricted_length
 

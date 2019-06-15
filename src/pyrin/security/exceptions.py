@@ -3,11 +3,25 @@
 security exceptions module.
 """
 
-from pyrin.core.exceptions import CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidPasswordError(CoreValueError):
+class SecurityManagerException(CoreException):
     """
-    invalid password error.
+    security manager exception.
+    """
+    pass
+
+
+class InvalidPasswordLengthError(SecurityManagerException):
+    """
+    invalid password length error.
+    """
+    pass
+
+
+class InvalidEncryptionTextLengthError(SecurityManagerException):
+    """
+    invalid encryption text length error.
     """
     pass

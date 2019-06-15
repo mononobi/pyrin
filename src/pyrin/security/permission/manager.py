@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-permissions manager module.
+permission manager module.
 """
 
 from pyrin.core.context import CoreObject, Context
-from pyrin.security.permissions.base import PermissionBase
-from pyrin.security.permissions.exceptions import InvalidPermissionTypeError, \
+from pyrin.security.permission.base import PermissionBase
+from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     InvalidPermissionIDError, DuplicatedPermissionError, PermissionNotFoundError
 
 
-class PermissionsManager(CoreObject):
+class PermissionManager(CoreObject):
     """
-    permissions manager class.
-    this class is intended to be an interface for top level application's permissions
+    permission manager class.
+    this class is intended to be an interface for top level application's permission
     package, so most methods of this class will raise CoreNotImplementedError.
     """
 
     def __init__(self):
         """
-        initializes an instance of PermissionsManager.
+        initializes an instance of PermissionManager.
         """
 
         CoreObject.__init__(self)

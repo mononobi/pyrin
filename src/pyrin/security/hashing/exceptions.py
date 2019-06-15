@@ -3,38 +3,45 @@
 hashing exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreKeyError, CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidHashingHandlerTypeError(CoreTypeError):
+class HashingManagerException(CoreException):
+    """
+    hashing manager exception.
+    """
+    pass
+
+
+class InvalidHashingHandlerTypeError(HashingManagerException):
     """
     invalid hashing handler type error.
     """
     pass
 
 
-class DuplicatedHashingHandlerError(CoreKeyError):
+class DuplicatedHashingHandlerError(HashingManagerException):
     """
     duplicated hashing handler error.
     """
     pass
 
 
-class HashingHandlerNotFoundError(CoreKeyError):
+class HashingHandlerNotFoundError(HashingManagerException):
     """
     hashing handler not found error.
     """
     pass
 
 
-class InvalidHashingHandlerNameError(CoreValueError):
+class InvalidHashingHandlerNameError(HashingManagerException):
     """
     invalid hashing handler name error.
     """
     pass
 
 
-class InvalidHashError(CoreValueError):
+class InvalidHashError(HashingManagerException):
     """
     invalid hash error.
     """

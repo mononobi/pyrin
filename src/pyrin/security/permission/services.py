@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-permissions services module.
+permission services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.security.permissions import PermissionsPackage
+from pyrin.security.permission import PermissionPackage
 
 
 def register_permission(instance, **options):
@@ -18,5 +18,5 @@ def register_permission(instance, **options):
     :raises DuplicatedPermissionError: duplicated permission error.
     """
 
-    return get_component(PermissionsPackage.COMPONENT_NAME).register_permission(instance,
-                                                                                **options)
+    return get_component(PermissionPackage.COMPONENT_NAME).register_permission(instance,
+                                                                               **options)

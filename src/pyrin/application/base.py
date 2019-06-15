@@ -44,12 +44,12 @@ class Application(Flask):
     # the application looks for these stores to configure itself.
     # they should be present in settings folder of the upper
     # level application.
-    config_stores = ['application',
+    CONFIG_STORES = ['application',
                      'communication',
                      'environment']
 
     # settings path will be registered in application context with this key.
-    settings_context_key = 'settings_path'
+    SETTINGS_CONTEXT_KEY = 'settings_path'
 
     # default packaging component to be used by application.
     # if you want to change the default one, you could subclass
@@ -301,8 +301,8 @@ class Application(Flask):
         loads all configurations related to application package.
         """
 
-        config_services.load_configurations(*self.config_stores, **options)
-        for store_name in self.config_stores:
+        config_services.load_configurations(*self.CONFIG_STORES, **options)
+        for store_name in self.CONFIG_STORES:
             config_dict = config_services.get_all(store_name, **options)
             self.configure(config_dict)
 
@@ -516,12 +516,12 @@ class Application(Flask):
         :rtype: str
         """
 
-        return self.get_context(self.settings_context_key)
+        return self.get_context(self.SETTINGS_CONTEXT_KEY)
 
     def _resolve_settings_path(self, **options):
         """
         resolves the application settings path. the resolved path will
-        be accessible by `self.settings_context_key` inside application context.
+        be accessible by `self.SETTINGS_CONTEXT_KEY` inside application context.
 
         :keyword str settings_directory: settings directory name.
                                          if not provided, defaults to `settings`.
@@ -542,7 +542,7 @@ class Application(Flask):
             raise ApplicationSettingsPathNotExistedError('Settings path [{path}] does not exist.'
                                                          .format(path=settings_path))
 
-        self.add_context(self.settings_context_key, settings_path)
+        self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 
     def _resolve_application_main_package_path(self, **options):
         """

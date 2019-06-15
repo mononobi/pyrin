@@ -7,14 +7,14 @@ import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
 from pyrin.core.context import CoreObject
-from pyrin.security.exceptions import InvalidPasswordError
+from pyrin.security.exceptions import InvalidPasswordLengthError, InvalidEncryptionTextLengthError
 
 
 class SecurityManager(CoreObject):
     """
     security manager class.
-    this class is intended to be an interface for top level application's security
-    package, so most methods of this class will raise CoreNotImplementedError.
+    this class is intended to provide some services needed in pyrin application.
+    the top level application must extend this class considering business requirements.
     """
 
     def get_password_hash(self, password, **options):
@@ -25,31 +25,34 @@ class SecurityManager(CoreObject):
 
         :keyword bool is_encrypted: specifies that given password is encrypted.
 
-        :keyword str encryption_handler: specifies which encryption handler should be used.
-                                         if not provided, `default_encryption_handler` key
-                                         from security configs will be used.
+        :raises InvalidPasswordLengthError: invalid password length error.
 
-        :keyword str hashing_handler: specifies which hashing handler should be used.
-                                      if not provided, `default_hashing_handler` key
-                                      from security configs will be used.
-
-        :rtype: bytes
+        :rtype: str
         """
 
         if password is None or len(password) == 0:
-            raise InvalidPasswordError('Input password is invalid.')
+            raise InvalidPasswordLengthError('Input password has invalid invalid.')
 
         decrypted_password = password
         is_encrypted = options.get('is_encrypted', False)
         if is_encrypted is True:
-            decrypted_password = \
-                encryption_services.decrypt(password,
-                                            handler_name=options.get('encryption_handler'),
-                                            **options)
+            decrypted_password = encryption_services.decrypt(password)
 
-        hashed_password = \
-            hashing_services.generate_hash(decrypted_password,
-                                           handler_name=options.get('hashing_handler'),
-                                           **options)
-
+        hashed_password = hashing_services.generate_hash(decrypted_password)
         return hashed_password
+
+    def encrypt(self, text, **options):
+        """
+        encrypts the given text and returns the encrypted value.
+
+        :param str text: text to be encrypted.
+
+        :raises InvalidEncryptionTextLengthError: invalid encryption text length error.
+
+        :rtype: str
+        """
+
+        if text is None or len(text) == 0:
+            raise InvalidEncryptionTextLengthError('Input text has invalid length.')
+
+        return encryption_services.encrypt(text)

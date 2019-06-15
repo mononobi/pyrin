@@ -3,10 +3,17 @@
 packaging exceptions module.
 """
 
-from pyrin.core.exceptions import CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidPackageNameError(CoreValueError):
+class PackagingManagerException(CoreException):
+    """
+    packaging manager exception.
+    """
+    pass
+
+
+class InvalidPackageNameError(PackagingManagerException):
     """
     invalid package name error.
     """

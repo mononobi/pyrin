@@ -8,7 +8,7 @@ import re
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.hashing.handlers.exceptions import InvalidHashedValueError, \
-    HashingHandlerMismatchError
+    HashingHandlerMismatchError, HashingHandlerException
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import encoding
 
@@ -94,7 +94,7 @@ class HashingBase(CoreObject):
 
             return self._is_match(text, hashed_part, **options)
 
-        except InvalidHashedValueError:
+        except HashingHandlerException:
             return False
 
     def _is_match(self, text, hashed_value, **options):

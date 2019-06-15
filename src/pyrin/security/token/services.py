@@ -100,6 +100,7 @@ def get_payload(token, **options):
 
     :param str token: token to get it's payload.
 
+    :raises TokenIsBlackListedError: token is black listed error.
     :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
     :raises TokenKidHeaderNotFoundError: token kid header not found error.
     :raises TokenHandlerNotFoundError: token handler not found error.
@@ -108,6 +109,19 @@ def get_payload(token, **options):
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).get_payload(token, **options)
+
+
+def get_unverified_payload(token, **options):
+    """
+    decodes token and gets the payload data without verifying the signature.
+    note that returned payload must not be trusted for any critical operations.
+
+    :param str token: token to get it's payload.
+
+    :rtype: dict
+    """
+
+    return get_component(TokenPackage.COMPONENT_NAME).get_unverified_payload(token, **options)
 
 
 def get_unverified_header(token, **options):
@@ -137,3 +151,25 @@ def generate_key(handler_name, **options):
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_key(handler_name, **options)
+
+
+def add_to_black_list(token, **options):
+    """
+    adds the given token into black list.
+
+    :param str token: token to be added into black list.
+    """
+
+    return get_component(TokenPackage.COMPONENT_NAME).add_to_black_list(token, **options)
+
+
+def is_in_black_list(token, **options):
+    """
+    gets a value indicating that given token is in black list.
+
+    :param str token: token to be checked is in black list.
+
+    :rtype: bool
+    """
+
+    return get_component(TokenPackage.COMPONENT_NAME).is_in_black_list(token, **options)

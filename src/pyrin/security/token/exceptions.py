@@ -3,53 +3,67 @@
 token exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreKeyError, CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidTokenHandlerTypeError(CoreTypeError):
+class TokenManagerException(CoreException):
+    """
+    token manager exception.
+    """
+    pass
+
+
+class InvalidTokenHandlerTypeError(TokenManagerException):
     """
     invalid token handler type error.
     """
     pass
 
 
-class DuplicatedTokenHandlerError(CoreKeyError):
+class DuplicatedTokenHandlerError(TokenManagerException):
     """
     duplicated token handler error.
     """
     pass
 
 
-class TokenHandlerNotFoundError(CoreKeyError):
+class TokenHandlerNotFoundError(TokenManagerException):
     """
     token handler not found error.
     """
     pass
 
 
-class InvalidTokenHandlerNameError(CoreValueError):
+class InvalidTokenHandlerNameError(TokenManagerException):
     """
     invalid token handler name error.
     """
     pass
 
 
-class TokenKidHeaderNotSpecifiedError(CoreKeyError):
+class TokenKidHeaderNotSpecifiedError(TokenManagerException):
     """
     token kid header not specified error.
     """
     pass
 
 
-class TokenKidHeaderNotFoundError(CoreKeyError):
+class TokenKidHeaderNotFoundError(TokenManagerException):
     """
     token kid header not found error.
     """
     pass
 
 
-class DuplicatedTokenKidHeaderError(CoreKeyError):
+class DuplicatedTokenKidHeaderError(TokenManagerException):
     """
     duplicated token kid header error.
+    """
+    pass
+
+
+class TokenIsBlackListedError(TokenManagerException):
+    """
+    token is black listed error.
     """
     pass

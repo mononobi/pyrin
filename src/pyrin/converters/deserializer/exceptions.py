@@ -3,17 +3,24 @@
 deserializer exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreKeyError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidDeserializerTypeError(CoreTypeError):
+class DeserializerManagerException(CoreException):
+    """
+    deserializer manager exception.
+    """
+    pass
+
+
+class InvalidDeserializerTypeError(DeserializerManagerException):
     """
     invalid deserializer type error.
     """
     pass
 
 
-class DuplicatedDeserializerError(CoreKeyError):
+class DuplicatedDeserializerError(DeserializerManagerException):
     """
     duplicated deserializer error.
     """

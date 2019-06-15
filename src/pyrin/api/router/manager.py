@@ -3,10 +3,11 @@
 router manager module.
 """
 
+import pyrin.application.services as application_services
+
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
 from pyrin.core.context import CoreObject
-import pyrin.application.services as application_services
 
 
 class RouterManager(CoreObject):

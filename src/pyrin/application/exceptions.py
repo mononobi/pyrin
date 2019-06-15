@@ -3,8 +3,7 @@
 application exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreValueError, CoreKeyError, \
-    CoreNotADirectoryError, ContextAttributeError, CoreException
+from pyrin.core.exceptions import ContextAttributeError, CoreException
 
 
 class ComponentAttributeError(ContextAttributeError):
@@ -14,63 +13,70 @@ class ComponentAttributeError(ContextAttributeError):
     pass
 
 
-class InvalidComponentTypeError(CoreTypeError):
+class ApplicationException(CoreException):
+    """
+    application exception.
+    """
+    pass
+
+
+class InvalidComponentTypeError(ApplicationException):
     """
     invalid component type error.
     """
     pass
 
 
-class InvalidComponentIDError(CoreValueError):
+class InvalidComponentIDError(ApplicationException):
     """
     invalid component id error.
     """
     pass
 
 
-class InvalidComponentNameError(CoreException):
+class InvalidComponentNameError(ApplicationException):
     """
     invalid component name error.
     """
     pass
 
 
-class DuplicateComponentIDError(CoreKeyError):
+class DuplicateComponentIDError(ApplicationException):
     """
     duplicate component id error.
     """
     pass
 
 
-class DuplicateContextKeyError(CoreKeyError):
+class DuplicateContextKeyError(ApplicationException):
     """
     duplicate context key error.
     """
     pass
 
 
-class DuplicateRouteURLError(CoreKeyError):
+class DuplicateRouteURLError(ApplicationException):
     """
     duplicate route url error.
     """
     pass
 
 
-class InvalidRouteFactoryTypeError(CoreTypeError):
+class InvalidRouteFactoryTypeError(ApplicationException):
     """
     invalid route factory type error.
     """
     pass
 
 
-class ApplicationSettingsPathNotExistedError(CoreNotADirectoryError):
+class ApplicationSettingsPathNotExistedError(ApplicationException):
     """
     application settings path not existed error.
     """
     pass
 
 
-class InvalidApplicationStatusError(CoreValueError):
+class InvalidApplicationStatusError(ApplicationException):
     """
     invalid application status error.
     """

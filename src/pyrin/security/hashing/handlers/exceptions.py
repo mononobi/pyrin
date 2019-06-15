@@ -3,45 +3,52 @@
 hashing handlers exceptions module.
 """
 
-from pyrin.core.exceptions import CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class BcryptMaxSizeLimitError(CoreValueError):
+class HashingHandlerException(CoreException):
+    """
+    hashing handler exception.
+    """
+    pass
+
+
+class BcryptMaxSizeLimitError(HashingHandlerException):
     """
     bcrypt max size limit error.
     """
     pass
 
 
-class InvalidHashingRoundsCountError(CoreValueError):
+class InvalidHashingRoundsCountError(HashingHandlerException):
     """
     invalid hashing rounds count error error.
     """
     pass
 
 
-class InvalidPBKDF2InternalAlgorithmError(CoreValueError):
+class InvalidPBKDF2InternalAlgorithmError(HashingHandlerException):
     """
     invalid pbkdf2 internal algorithm error.
     """
     pass
 
 
-class InvalidHashingSaltLengthError(CoreValueError):
+class InvalidHashingSaltLengthError(HashingHandlerException):
     """
     invalid hashing salt length error.
     """
     pass
 
 
-class HashingHandlerMismatchError(CoreValueError):
+class HashingHandlerMismatchError(HashingHandlerException):
     """
     hashing handler mismatch error.
     """
     pass
 
 
-class InvalidHashedValueError(CoreValueError):
+class InvalidHashedValueError(HashingHandlerException):
     """
     invalid hashed value error.
     """

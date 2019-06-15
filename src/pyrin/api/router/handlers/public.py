@@ -70,9 +70,7 @@ class PublicRoute(RouteBase):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
-        :raises MaxContentLengthShouldNotBeGreaterThanGlobalLimitError: max content length should
-                                                                        not be greater than global
-                                                                        limit error.
+        :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
 
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """

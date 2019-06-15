@@ -8,9 +8,11 @@ import jwt
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, Context
+from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
-    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError
+    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
+    TokenIsBlackListedError
 from pyrin.security.token.handlers.base import TokenBase
 from pyrin.utils.custom_print import print_warning
 
@@ -175,6 +177,7 @@ class TokenManager(CoreObject):
 
         :param str token: token to get it's payload.
 
+        :raises TokenIsBlackListedError: token is black listed error.
         :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
         :raises TokenKidHeaderNotFoundError: token kid header not found error.
         :raises TokenHandlerNotFoundError: token handler not found error.
@@ -182,8 +185,25 @@ class TokenManager(CoreObject):
         :rtype: dict
         """
 
+        if self.is_in_black_list(token, **options):
+            raise TokenIsBlackListedError('Input token is in black list.')
+
         handler_name = self._get_handler_name(token)
         return self._get_token_handler(handler_name=handler_name).get_payload(token, **options)
+
+    def get_unverified_payload(self, token, **options):
+        """
+        decodes token and gets the payload data without verifying the signature.
+        note that returned payload must not be trusted for any critical operations.
+
+        :param str token: token to get it's payload.
+
+        :rtype: dict
+        """
+
+        handler_name = self._get_handler_name(token)
+        return self._get_token_handler(handler_name=handler_name).get_unverified_payload(
+            token, **options)
 
     def get_unverified_header(self, token, **options):
         """
@@ -243,3 +263,27 @@ class TokenManager(CoreObject):
         """
 
         return config_services.get('security', 'token', 'default_token_handler')
+
+    def add_to_black_list(self, token, **options):
+        """
+        adds the given token into black list.
+
+        :param str token: token to be added into black list.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    def is_in_black_list(self, token, **options):
+        """
+        gets a value indicating that given token is in black list.
+
+        :param str token: token to be checked is in black list.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()

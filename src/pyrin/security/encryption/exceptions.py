@@ -3,38 +3,45 @@
 encryption exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreKeyError, CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidEncryptionHandlerTypeError(CoreTypeError):
+class EncryptionManagerException(CoreException):
+    """
+    encryption manager exception.
+    """
+    pass
+
+
+class InvalidEncryptionHandlerTypeError(EncryptionManagerException):
     """
     invalid encryption handler type error.
     """
     pass
 
 
-class DuplicatedEncryptionHandlerError(CoreKeyError):
+class DuplicatedEncryptionHandlerError(EncryptionManagerException):
     """
     duplicated encryption handler error.
     """
     pass
 
 
-class EncryptionHandlerNotFoundError(CoreKeyError):
+class EncryptionHandlerNotFoundError(EncryptionManagerException):
     """
     encryption handler not found error.
     """
     pass
 
 
-class InvalidEncryptionHandlerNameError(CoreValueError):
+class InvalidEncryptionHandlerNameError(EncryptionManagerException):
     """
     invalid encryption handler name error.
     """
     pass
 
 
-class InvalidEncryptedValueError(CoreValueError):
+class InvalidEncryptedValueError(EncryptionManagerException):
     """
     invalid encrypted value error.
     """

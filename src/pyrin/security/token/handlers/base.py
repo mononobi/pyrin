@@ -7,10 +7,6 @@ import time
 
 import jwt
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, DTO
@@ -124,18 +120,50 @@ class TokenBase(CoreObject):
 
     def get_payload(self, token, **options):
         """
-        decodes token and gets the payload data.
+        decodes token and gets the payload data. if token signature could
+        not be verified, it will raise an error.
 
         :param str token: token to get it's payload.
 
         :rtype: dict
         """
 
+        return self._get_payload(token, verify=True)
+
+    def _get_payload(self, token, **options):
+        """
+        decodes token and gets the payload data.
+
+        :param str token: token to get it's payload.
+
+        :keyword bool verify: specifies that token must be verified before getting
+                              the payload. if not provided, defaults to True.
+
+        :rtype: dict
+        """
+
+        default_options = self._get_default_options()
+        verify = options.get('verify', True)
+        if verify is False:
+            default_options = None
+
         return jwt.decode(token,
                           self._get_decoding_key(),
-                          True,
+                          verify,
                           self._get_algorithm(**options),
-                          self._get_default_options())
+                          default_options)
+
+    def get_unverified_payload(self, token, **options):
+        """
+        decodes token and gets the payload data without verifying the signature.
+        note that returned payload must not be trusted for any critical operations.
+
+        :param str token: token to get it's payload.
+
+        :rtype: dict
+        """
+
+        return self._get_payload(token, verify=False)
 
     def get_unverified_header(self, token, **options):
         """

@@ -3,18 +3,25 @@
 router handlers exceptions module.
 """
 
-from pyrin.core.exceptions import CoreTypeError, CoreValueError
+from pyrin.core.exceptions import CoreException
 
 
-class InvalidViewFunctionTypeError(CoreTypeError):
+class RouterHandlerException(CoreException):
+    """
+    router handler exception.
+    """
+    pass
+
+
+class InvalidViewFunctionTypeError(RouterHandlerException):
     """
     invalid view function type error.
     """
     pass
 
 
-class MaxContentLengthShouldNotBeGreaterThanGlobalLimitError(CoreValueError):
+class MaxContentLengthLimitMismatchError(RouterHandlerException):
     """
-    max content length should not be greater than global limit error.
+    max content length limit mismatch error.
     """
     pass

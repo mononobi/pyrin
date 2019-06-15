@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-permissions base module.
+permission base module.
 """
 
-import pyrin.security.permissions.services as permission_services
+import pyrin.security.permission.services as permission_services
 
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError

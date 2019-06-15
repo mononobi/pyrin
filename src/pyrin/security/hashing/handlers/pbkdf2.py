@@ -103,19 +103,14 @@ class PBKDF2Hashing(HashingBase):
         :rtype: bool
         """
 
-        try:
-            internal_algorithm, rounds, salt, text_hash = \
-                self._extract_parts_from_final_hash(hashed_value, **options)
+        internal_algorithm, rounds, salt, text_hash = \
+            self._extract_parts_from_final_hash(hashed_value, **options)
 
-            new_full_hashed_value = self._generate_hash(text,
-                                                        internal_algorithm=internal_algorithm,
-                                                        rounds=rounds, salt=salt)
+        new_full_hashed_value = self._generate_hash(text,
+                                                    internal_algorithm=internal_algorithm,
+                                                    rounds=rounds, salt=salt)
 
-            return hashed_value == new_full_hashed_value
-
-        except(InvalidPBKDF2InternalAlgorithmError, InvalidHashingRoundsCountError,
-               InvalidHashingSaltLengthError):
-            return False
+        return hashed_value == new_full_hashed_value
 
     def _get_algorithm(self, **options):
         """
