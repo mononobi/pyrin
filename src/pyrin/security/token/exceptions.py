@@ -2,13 +2,27 @@
 """
 token exceptions module.
 """
-
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class TokenManagerException(CoreException):
     """
     token manager exception.
+    """
+    pass
+
+
+class TokenManagerBusinessException(CoreBusinessException,
+                                    TokenManagerException):
+    """
+    token manager business exception.
+    """
+    pass
+
+
+class TokenManagerVerificationFailedException(TokenManagerBusinessException):
+    """
+    token manager verification failed exception.
     """
     pass
 
@@ -27,7 +41,7 @@ class DuplicatedTokenHandlerError(TokenManagerException):
     pass
 
 
-class TokenHandlerNotFoundError(TokenManagerException):
+class TokenHandlerNotFoundError(TokenManagerVerificationFailedException):
     """
     token handler not found error.
     """
@@ -41,14 +55,14 @@ class InvalidTokenHandlerNameError(TokenManagerException):
     pass
 
 
-class TokenKidHeaderNotSpecifiedError(TokenManagerException):
+class TokenKidHeaderNotSpecifiedError(TokenManagerVerificationFailedException):
     """
     token kid header not specified error.
     """
     pass
 
 
-class TokenKidHeaderNotFoundError(TokenManagerException):
+class TokenKidHeaderNotFoundError(TokenManagerVerificationFailedException):
     """
     token kid header not found error.
     """
@@ -62,7 +76,7 @@ class DuplicatedTokenKidHeaderError(TokenManagerException):
     pass
 
 
-class TokenIsBlackListedError(TokenManagerException):
+class TokenIsBlackListedError(TokenManagerVerificationFailedException):
     """
     token is black listed error.
     """

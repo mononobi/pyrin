@@ -3,6 +3,8 @@
 core exceptions module.
 """
 
+from pyrin.core.enumerations import ServerErrorResponseCodeEnum, ClientErrorResponseCodeEnum
+
 
 class CoreException(Exception):
     """
@@ -11,10 +13,9 @@ class CoreException(Exception):
 
     def __init__(self, *args, **kwargs):
         super(CoreException, self).__init__(*args, **kwargs)
-
         self._data = {}
         self._traceback = None
-        self.code = self.__class__.__name__
+        self.code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
         self.description = str(self)
 
     def get_code(self):
@@ -52,6 +53,16 @@ class CoreException(Exception):
         """
 
         return self.description
+
+
+class CoreBusinessException(CoreException):
+    """
+    base class for all application business exceptions.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CoreBusinessException, self).__init__(*args, **kwargs)
+        self.code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
 
 
 class CoreAttributeError(CoreException, AttributeError):

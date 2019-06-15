@@ -3,12 +3,20 @@
 encryption exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class EncryptionManagerException(CoreException):
     """
     encryption manager exception.
+    """
+    pass
+
+
+class EncryptionManagerBusinessException(CoreBusinessException,
+                                         EncryptionManagerException):
+    """
+    encryption manager business exception.
     """
     pass
 
@@ -41,7 +49,7 @@ class InvalidEncryptionHandlerNameError(EncryptionManagerException):
     pass
 
 
-class InvalidEncryptedValueError(EncryptionManagerException):
+class InvalidEncryptedValueError(EncryptionManagerBusinessException):
     """
     invalid encrypted value error.
     """

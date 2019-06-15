@@ -3,7 +3,7 @@
 encryption handlers exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class EncryptionHandlerException(CoreException):
@@ -13,14 +13,22 @@ class EncryptionHandlerException(CoreException):
     pass
 
 
-class InvalidEncryptedValueError(EncryptionHandlerException):
+class EncryptionHandlerBusinessException(CoreBusinessException,
+                                         EncryptionHandlerException):
+    """
+    encryption handler business exception.
+    """
+    pass
+
+
+class InvalidEncryptedValueError(EncryptionHandlerBusinessException):
     """
     invalid encrypted value error.
     """
     pass
 
 
-class EncryptionHandlerMismatchError(EncryptionHandlerException):
+class EncryptionHandlerMismatchError(EncryptionHandlerBusinessException):
     """
     encryption handler mismatch error.
     """

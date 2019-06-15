@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-api enumerations module.
+core enumerations module.
 """
 
 from pyrin.core.context import CoreEnum

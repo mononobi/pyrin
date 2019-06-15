@@ -153,23 +153,23 @@ def generate_key(handler_name, **options):
     return get_component(TokenPackage.COMPONENT_NAME).generate_key(handler_name, **options)
 
 
-def add_to_black_list(token, **options):
+def add_to_blacklist(token, **options):
     """
-    adds the given token into black list.
+    adds the given token into blacklist.
 
-    :param str token: token to be added into black list.
+    :param str token: token to be added into blacklist.
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).add_to_black_list(token, **options)
+    return get_component(TokenPackage.COMPONENT_NAME).add_to_blacklist(token, **options)
 
 
-def is_in_black_list(token, **options):
+def is_in_blacklist(token, **options):
     """
-    gets a value indicating that given token is in black list.
+    gets a value indicating that given token is blacklisted.
 
-    :param str token: token to be checked is in black list.
+    :param str token: token to be checked is blacklisted.
 
     :rtype: bool
     """
 
-    return get_component(TokenPackage.COMPONENT_NAME).is_in_black_list(token, **options)
+    return get_component(TokenPackage.COMPONENT_NAME).is_in_blacklist(token, **options)

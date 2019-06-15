@@ -3,7 +3,7 @@
 security exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreBusinessException, CoreException
 
 
 class SecurityManagerException(CoreException):
@@ -13,14 +13,22 @@ class SecurityManagerException(CoreException):
     pass
 
 
-class InvalidPasswordLengthError(SecurityManagerException):
+class SecurityManagerBusinessException(CoreBusinessException,
+                                       SecurityManagerException):
+    """
+    security manager business exception.
+    """
+    pass
+
+
+class InvalidPasswordLengthError(SecurityManagerBusinessException):
     """
     invalid password length error.
     """
     pass
 
 
-class InvalidEncryptionTextLengthError(SecurityManagerException):
+class InvalidEncryptionTextLengthError(SecurityManagerBusinessException):
     """
     invalid encryption text length error.
     """

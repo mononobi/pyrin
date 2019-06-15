@@ -185,8 +185,8 @@ class TokenManager(CoreObject):
         :rtype: dict
         """
 
-        if self.is_in_black_list(token, **options):
-            raise TokenIsBlackListedError('Input token is in black list.')
+        if self.is_in_blacklist(token, **options):
+            raise TokenIsBlackListedError('Input token is blacklisted.')
 
         handler_name = self._get_handler_name(token)
         return self._get_token_handler(handler_name=handler_name).get_payload(token, **options)
@@ -264,22 +264,22 @@ class TokenManager(CoreObject):
 
         return config_services.get('security', 'token', 'default_token_handler')
 
-    def add_to_black_list(self, token, **options):
+    def add_to_blacklist(self, token, **options):
         """
-        adds the given token into black list.
+        adds the given token into blacklist.
 
-        :param str token: token to be added into black list.
+        :param str token: token to be added into blacklist.
 
         :raises CoreNotImplementedError: core not implemented error.
         """
 
         raise CoreNotImplementedError()
 
-    def is_in_black_list(self, token, **options):
+    def is_in_blacklist(self, token, **options):
         """
-        gets a value indicating that given token is in black list.
+        gets a value indicating that given token is blacklisted.
 
-        :param str token: token to be checked is in black list.
+        :param str token: token to be checked is blacklisted.
 
         :raises CoreNotImplementedError: core not implemented error.
 

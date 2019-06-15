@@ -9,7 +9,7 @@ import pyrin.logging.services as logging_services
 
 from pyrin.application.decorators import error_handler
 from pyrin.core.context import DTO
-from pyrin.api.enumerations import ServerErrorResponseCodeEnum
+from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreException
 
 
@@ -46,8 +46,8 @@ def server_error_handler(exception):
     """
 
     _log_error(exception)
-    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
-               message=exception.description), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+    return DTO(code=exception.code,
+               message=exception.description), exception.code
 
 
 @error_handler(Exception)

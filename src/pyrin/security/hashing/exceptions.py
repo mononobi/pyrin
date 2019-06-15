@@ -3,12 +3,20 @@
 hashing exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class HashingManagerException(CoreException):
     """
     hashing manager exception.
+    """
+    pass
+
+
+class HashingManagerBusinessException(CoreBusinessException,
+                                      HashingManagerException):
+    """
+    hashing manager business exception.
     """
     pass
 
@@ -41,7 +49,7 @@ class InvalidHashingHandlerNameError(HashingManagerException):
     pass
 
 
-class InvalidHashError(HashingManagerException):
+class InvalidHashError(HashingManagerBusinessException):
     """
     invalid hash error.
     """

@@ -3,12 +3,20 @@
 permission exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class PermissionManagerException(CoreException):
     """
     permission manager exception.
+    """
+    pass
+
+
+class PermissionManagerBusinessException(CoreBusinessException,
+                                         PermissionManagerException):
+    """
+    permission manager business exception.
     """
     pass
 
@@ -34,7 +42,7 @@ class DuplicatedPermissionError(PermissionManagerException):
     pass
 
 
-class PermissionNotFoundError(PermissionManagerException):
+class PermissionNotFoundError(PermissionManagerBusinessException):
     """
     permission not found error.
     """
