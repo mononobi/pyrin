@@ -40,4 +40,8 @@
 14. in each package, all config stores (from root package itself and from all sub packages)
     must be set in root package's `CONFIG_STORE_NAMES` attribute.
 
-15. methods exposed in api modules, should always have `**options` in their signature.
+15. methods exposed in api modules, and their underlying services and manager methods,
+    should always have `**options` in their signature.
+
+16. each manger and other classes implementing business, should have their own exception
+    class, which underlying business errors will subclass form it.
