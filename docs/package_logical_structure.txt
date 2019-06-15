@@ -43,5 +43,5 @@
 15. methods exposed in api modules, and their underlying services and manager methods,
     should always have `**options` in their signature.
 
-16. each manger and other classes implementing business, should have their own exception
+16. each manager and other classes implementing business, should have their own exception
     class, which underlying business errors will subclass form it.
