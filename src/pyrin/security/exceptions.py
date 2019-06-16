@@ -33,3 +33,9 @@ class InvalidEncryptionTextLengthError(SecurityManagerBusinessException):
     invalid encryption text length error.
     """
     pass
+
+
+class InvalidUserError(SecurityManagerBusinessException):
+    """
+    invalid user error.
+    """

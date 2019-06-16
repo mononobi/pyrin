@@ -3,7 +3,7 @@
 application enumerations module.
 """
 
-from pyrin.core.context import CoreEnum
+from pyrin.core.enumerations import CoreEnum
 
 
 class ApplicationStatusEnum(CoreEnum):

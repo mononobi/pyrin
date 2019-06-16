@@ -3,15 +3,13 @@
 core context module.
 """
 
-from enum import Enum, EnumMeta
-
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
 
 
 class DTO(dict):
     """
     context class for storing objects in every layer.
-    it's actually a dictionary with the capability to add keys directly.
+    it's actually a dictionary with the capability to treat keys as instance attributes.
     """
 
     def __getattr__(self, name):
@@ -125,51 +123,6 @@ class Context(DTO):
         """
 
         raise ContextAttributeError('Property [{name}] not found.'.format(name=key))
-
-
-class CoreEnumMeta(EnumMeta):
-    """
-    base enum metaclass.
-    """
-    pass
-
-
-class CoreEnum(Enum, metaclass=CoreEnumMeta):
-    """
-    base enum class.
-    all application enumerations must inherit from this class.
-    """
-
-    def __get__(self, instance, owner):
-        """
-        this method is overridden to be able to access enum
-        member value without having to write `enum_member.value`.
-        this causes `enum_member.name` to become unavailable.
-        """
-
-        return self.value
-
-    @classmethod
-    def values(cls):
-        """
-        gets a set containing all values in the enumeration.
-
-        :rtype: set
-        """
-
-        return set(item.value for item in cls)
-
-    @classmethod
-    def has_value(cls, value):
-        """
-        gets a value indicating that given input existed in the enumeration values.
-
-        :param Union[int, str] value: value to be checked for existence.
-
-        :rtype: bool
-        """
-
-        return any(value == item.value for item in cls)
 
 
 class Hook(CoreObject):

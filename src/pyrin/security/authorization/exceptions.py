@@ -22,11 +22,11 @@ class AuthorizationManagerBusinessException(CoreBusinessException,
     pass
 
 
-class PermissionDeniedError(AuthorizationManagerBusinessException):
+class AuthorizationFailedError(AuthorizationManagerBusinessException):
     """
-    permission denied error.
+    authorization failed error.
     """
 
     def __init__(self, *args, **kwargs):
-        super(PermissionDeniedError, self).__init__(*args, **kwargs)
+        super(AuthorizationFailedError, self).__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.FORBIDDEN

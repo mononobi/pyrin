@@ -7,7 +7,9 @@ import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
 from pyrin.core.context import CoreObject
-from pyrin.security.exceptions import InvalidPasswordLengthError, InvalidEncryptionTextLengthError
+from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.exceptions import InvalidPasswordLengthError, InvalidUserError, \
+    InvalidEncryptionTextLengthError
 
 
 class SecurityManager(CoreObject):
@@ -56,3 +58,36 @@ class SecurityManager(CoreObject):
             raise InvalidEncryptionTextLengthError('Input text has invalid length.')
 
         return encryption_services.encrypt(text)
+
+    def get_permission_ids(self, **options):
+        """
+        gets permission ids according to given inputs.
+
+        :keyword dict user: user identity to get it's permission ids.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: list[permission_ids]
+
+        :rtype: list[object]
+        """
+
+        raise CoreNotImplementedError()
+
+    def get_user_permission_ids(self, user, **options):
+        """
+        gets specified user's permission ids.
+
+        :param dict user: user identity to get it's permission ids.
+
+        :raises InvalidUserError: invalid user error.
+
+        :returns: list[permission_ids]
+
+        :rtype: list[object]
+        """
+
+        if user is None:
+            raise InvalidUserError('Input user could not be None.')
+
+        return self.get_permission_ids(user=user)
