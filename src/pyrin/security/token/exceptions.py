@@ -2,6 +2,9 @@
 """
 token exceptions module.
 """
+
+from jwt.exceptions import PyJWTError
+
 from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
@@ -79,5 +82,13 @@ class DuplicatedTokenKidHeaderError(TokenManagerException):
 class TokenIsBlackListedError(TokenManagerVerificationFailedException):
     """
     token is black listed error.
+    """
+    pass
+
+
+class TokenSignatureError(TokenManagerVerificationFailedException,
+                          PyJWTError):
+    """
+    token signature error.
     """
     pass

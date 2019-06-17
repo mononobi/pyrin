@@ -13,4 +13,4 @@ class TokenPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.token.component'
+    COMPONENT_NAME = 'security.token.component'

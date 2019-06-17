@@ -41,3 +41,16 @@ class AuthorizationManager(CoreObject):
             message = 'User [{user}] has not required permission(s) [{permission_ids}].'
             raise AuthorizationFailedError(message.format(user=str(user),
                                                           permission_ids=permission_ids))
+
+    def is_authorized(self, permission_ids, **options):
+        """
+        gets a value indicating that specified user is authorized for given permissions.
+
+        :param list[object] permission_ids: permission ids to check for authorization.
+
+        :keyword dic user: user identity to be checked for authorization.
+
+        :rtype: bool
+        """
+
+        user = options.get('user', None)

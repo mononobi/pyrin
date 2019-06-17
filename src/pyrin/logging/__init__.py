@@ -13,4 +13,4 @@ class LoggingPackage(Package):
 
     NAME = __name__
     DEPENDS = ['pyrin.configuration']
-    COMPONENT_NAME = 'pyrin.logging.component'
+    COMPONENT_NAME = 'logging.component'

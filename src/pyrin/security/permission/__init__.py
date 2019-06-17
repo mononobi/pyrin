@@ -13,4 +13,4 @@ class PermissionPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.permission.component'
+    COMPONENT_NAME = 'security.permission.component'

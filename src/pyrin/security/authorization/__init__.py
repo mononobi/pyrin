@@ -14,4 +14,4 @@ class AuthorizationPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.authorization.component'
+    COMPONENT_NAME = 'security.authorization.component'

@@ -7,10 +7,13 @@ import time
 
 import jwt
 
+from jwt import PyJWTError
+
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.token.exceptions import TokenSignatureError
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import unique_id
@@ -125,10 +128,15 @@ class TokenBase(CoreObject):
 
         :param str token: token to get it's payload.
 
+        :raises TokenSignatureError: token signature error.
+
         :rtype: dict
         """
 
-        return self._get_payload(token, verify=True)
+        try:
+            return self._get_payload(token, verify=True)
+        except PyJWTError as error:
+            raise TokenSignatureError(error)
 
     def _get_payload(self, token, **options):
         """

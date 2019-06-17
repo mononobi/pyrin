@@ -13,4 +13,4 @@ class HashingPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.hashing.component'
+    COMPONENT_NAME = 'security.hashing.component'

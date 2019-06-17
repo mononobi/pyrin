@@ -13,4 +13,4 @@ class RouterPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.api.router.component'
+    COMPONENT_NAME = 'api.router.component'

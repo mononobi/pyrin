@@ -13,4 +13,4 @@ class PackagingPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.packaging.component'
+    COMPONENT_NAME = 'packaging.component'

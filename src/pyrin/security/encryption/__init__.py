@@ -13,4 +13,4 @@ class EncryptionPackage(Package):
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.encryption.component'
+    COMPONENT_NAME = 'security.encryption.component'

@@ -21,7 +21,8 @@ def http_error_handler(exception):
     :param HTTPException exception: exception instance.
 
     :returns: tuple(dict(int code: error code,
-                         str message: error message), int code: error code)
+                         str message: error message),
+                    int code: error code)
 
     :rtype: tuple(dict, int)
     """
@@ -58,7 +59,8 @@ def server_unknown_error_handler(exception):
     :param Exception exception: exception instance.
 
     :returns: tuple(dict(int code: error code,
-                         str message: error message), int code: error code)
+                         str message: error message),
+                    int code: error code)
 
     :rtype: tuple(dict, int)
     """
@@ -72,7 +74,7 @@ def _log_error(exception):
     """
     logs the specified exception.
 
-    :param Exception exception: exception that raised on error.
+    :param Exception exception: exception that caused on error.
     """
 
     logging_services.exception('Application error details: [{message}]'

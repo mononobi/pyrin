@@ -13,4 +13,4 @@ class ConfigurationPackage(Package):
 
     NAME = __name__
     DEPENDS = ['pyrin.converters.deserializer']
-    COMPONENT_NAME = 'pyrin.configuration.component'
+    COMPONENT_NAME = 'configuration.component'

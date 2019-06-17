@@ -8,11 +8,9 @@ import jwt
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, Context
-from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
-    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
-    TokenIsBlackListedError
+    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError
 from pyrin.security.token.handlers.base import TokenBase
 from pyrin.utils.custom_print import print_warning
 
@@ -185,9 +183,6 @@ class TokenManager(CoreObject):
         :rtype: dict
         """
 
-        if self.is_in_blacklist(token, **options):
-            raise TokenIsBlackListedError('Input token is blacklisted.')
-
         handler_name = self._get_handler_name(token)
         return self._get_token_handler(handler_name=handler_name).get_payload(token, **options)
 
@@ -263,27 +258,3 @@ class TokenManager(CoreObject):
         """
 
         return config_services.get('security', 'token', 'default_token_handler')
-
-    def add_to_blacklist(self, token, **options):
-        """
-        adds the given token into blacklist.
-
-        :param str token: token to be added into blacklist.
-
-        :raises CoreNotImplementedError: core not implemented error.
-        """
-
-        raise CoreNotImplementedError()
-
-    def is_in_blacklist(self, token, **options):
-        """
-        gets a value indicating that given token is blacklisted.
-
-        :param str token: token to be checked is blacklisted.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: bool
-        """
-
-        raise CoreNotImplementedError()

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-role package.
+session package.
 """
 
 from pyrin.packaging.context import Package
 
 
-class RolePackage(Package):
+class SessionPackage(Package):
     """
-    role package class.
+    session package class.
     """
 
     NAME = __name__
     DEPENDS = []
-    COMPONENT_NAME = 'pyrin.security.role.component'
+    COMPONENT_NAME = 'security.session.component'
