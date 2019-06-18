@@ -7,6 +7,7 @@ import re
 
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.encryption.exceptions import DecryptionError
 from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueError, \
     EncryptionHandlerMismatchError
 from pyrin.security.utils import key_helper
@@ -119,14 +120,19 @@ class EncrypterBase(CoreObject):
 
         :param str full_encrypted_value: full encrypted value to be decrypted.
 
+        :raises DecryptionError: decryption error.
+
         :rtype: str
         """
 
-        self._validate_format(full_encrypted_value, **options)
-        encrypted_part = self._get_encrypted_part(self._prepare_input(full_encrypted_value),
-                                                  **options)
+        try:
+            self._validate_format(full_encrypted_value, **options)
+            encrypted_part = self._get_encrypted_part(self._prepare_input(full_encrypted_value),
+                                                      **options)
 
-        return self._decrypt(encrypted_part, **options)
+            return self._decrypt(encrypted_part, **options)
+        except Exception as error:
+            raise DecryptionError(error) from error
 
     def _decrypt(self, value, **options):
         """

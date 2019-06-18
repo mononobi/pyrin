@@ -54,6 +54,10 @@ def decrypt(full_encrypted_value, **options):
 
     :param str full_encrypted_value: full encrypted value to be decrypted.
 
+    :raises InvalidEncryptionValueError: invalid encryption value error.
+    :raises EncryptionHandlerNotFoundError: encryption handler not found error.
+    :raises DecryptionError: decryption error.
+
     :rtype: str
     """
 

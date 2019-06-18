@@ -21,6 +21,13 @@ class EncryptionManagerBusinessException(CoreBusinessException,
     pass
 
 
+class DecryptionError(EncryptionManagerBusinessException):
+    """
+    decryption error.
+    """
+    pass
+
+
 class InvalidEncryptionHandlerTypeError(EncryptionManagerException):
     """
     invalid encryption handler type error.

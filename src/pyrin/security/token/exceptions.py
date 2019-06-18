@@ -3,8 +3,6 @@
 token exceptions module.
 """
 
-from jwt.exceptions import PyJWTError
-
 from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
@@ -23,9 +21,16 @@ class TokenManagerBusinessException(CoreBusinessException,
     pass
 
 
-class TokenManagerVerificationFailedException(TokenManagerBusinessException):
+class TokenDecodingError(TokenManagerBusinessException):
     """
-    token manager verification failed exception.
+    token decoding error.
+    """
+    pass
+
+
+class TokenVerificationError(TokenDecodingError):
+    """
+    token verification error.
     """
     pass
 
@@ -44,7 +49,7 @@ class DuplicatedTokenHandlerError(TokenManagerException):
     pass
 
 
-class TokenHandlerNotFoundError(TokenManagerVerificationFailedException):
+class TokenHandlerNotFoundError(TokenVerificationError):
     """
     token handler not found error.
     """
@@ -58,14 +63,14 @@ class InvalidTokenHandlerNameError(TokenManagerException):
     pass
 
 
-class TokenKidHeaderNotSpecifiedError(TokenManagerVerificationFailedException):
+class TokenKidHeaderNotSpecifiedError(TokenVerificationError):
     """
     token kid header not specified error.
     """
     pass
 
 
-class TokenKidHeaderNotFoundError(TokenManagerVerificationFailedException):
+class TokenKidHeaderNotFoundError(TokenVerificationError):
     """
     token kid header not found error.
     """
@@ -75,20 +80,5 @@ class TokenKidHeaderNotFoundError(TokenManagerVerificationFailedException):
 class DuplicatedTokenKidHeaderError(TokenManagerException):
     """
     duplicated token kid header error.
-    """
-    pass
-
-
-class TokenIsBlackListedError(TokenManagerVerificationFailedException):
-    """
-    token is black listed error.
-    """
-    pass
-
-
-class TokenSignatureError(TokenManagerVerificationFailedException,
-                          PyJWTError):
-    """
-    token signature error.
     """
     pass

@@ -3,6 +3,9 @@
 protected route handler module.
 """
 
+import pyrin.security.authorization.services as authorization_services
+import pyrin.security.session.services as session_services
+
 from pyrin.api.router.handlers.base import RouteBase
 
 
@@ -92,18 +95,33 @@ class ProtectedRoute(RouteBase):
 
         return True
 
-    def dispatch(self, request, **options):
+    def dispatch(self, client_request, **options):
         """
         dispatch the current route.
 
-        :param CoreRequest request: current request object.
+        :param CoreRequest client_request: client request object.
+
+        :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises AuthorizationFailedError: authorization failed error.
 
         :returns: view function's result.
 
         :rtype: object
         """
 
-        return super(ProtectedRoute, self).dispatch(request, **options)
+        self._authorize()
+        return super(ProtectedRoute, self).dispatch(client_request, **options)
+
+    def _authorize(self):
+        """
+        authorizes the route permissions for current user.
+
+        :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises AuthorizationFailedError: authorization failed error.
+        """
+
+        user = session_services.get_current_user()
+        authorization_services.authorize(user, self._permissions)
 
 
 class SimpleProtectedRoute(ProtectedRoute):
@@ -180,15 +198,15 @@ class SimpleProtectedRoute(ProtectedRoute):
 
         super(SimpleProtectedRoute, self).__init__(rule, **options)
 
-    def _call_view_function(self, request, **options):
+    def _call_view_function(self, client_request, **options):
         """
         calls the route's view function.
 
-        :param CoreRequest request: current request object.
+        :param CoreRequest client_request: client request object.
 
         :returns: view function's result.
 
         :rtype: object
         """
 
-        return self._view_function(**(request.view_args or {}))
+        return self._view_function(**(client_request.view_args or {}))

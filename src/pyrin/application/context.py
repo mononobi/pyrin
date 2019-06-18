@@ -100,7 +100,6 @@ class Component(CoreObject):
             raise InvalidComponentNameError('Component name should not be blank.')
 
         component_custom_key = options.get('component_custom_key', DEFAULT_COMPONENT_KEY)
-
         return component_name, component_custom_key
 
 
@@ -146,14 +145,12 @@ class CoreRequest(Request):
 
         self.request_id = uuid_utils.generate()
         self.request_date = datetime.utcnow()
-        self.token = None
         self.client_ip = None
         self.context = Context()
         a = self.method
         b = self.query_string
         c = self.args
         d = self.view_args
-        j = 0
 
     def __str__(self):
         result = 'request id: [{request_id}], request date: [{request_date}], route: [{route}]'

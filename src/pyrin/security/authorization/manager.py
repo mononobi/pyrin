@@ -4,9 +4,11 @@ authorization manager module.
 """
 
 import pyrin.security.services as security_services
+import pyrin.security.session.services as session_services
 
 from pyrin.core.context import CoreObject
-from pyrin.security.authorization.exceptions import AuthorizationFailedError
+from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
+    UserNotAuthenticatedError, AuthorizationManagerBusinessException
 
 
 class AuthorizationManager(CoreObject):
@@ -27,10 +29,15 @@ class AuthorizationManager(CoreObject):
         :param Union[object, list[object]] permission_ids: permission ids to check
                                                            user authorization.
 
+        :raises UserNotAuthenticatedError: user not authenticated error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 
-        # we must check if input permission_ids is not iterable, make it manually.
+        if user is None:
+            raise UserNotAuthenticatedError('User has not been authenticated.')
+
+        # we must check whether input permission_ids is iterable.
+        # if not, we make it manually.
         permission_ids_collection = permission_ids
         if not isinstance(permission_ids, (list, set, tuple)):
             permission_ids_collection = [permission_ids]
@@ -54,3 +61,11 @@ class AuthorizationManager(CoreObject):
         """
 
         user = options.get('user', None)
+        if user is None:
+            user = session_services.get_current_user()
+
+        try:
+            self.authorize(user, permission_ids, **options)
+            return True
+        except AuthorizationManagerBusinessException:
+            return False

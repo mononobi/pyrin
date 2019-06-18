@@ -13,6 +13,7 @@ from flask.app import setupmethod
 
 import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
+import pyrin.security.authentication.services as authentication_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
@@ -279,8 +280,10 @@ class Application(Flask):
         if self.get_status() != ApplicationStatusEnum.RUNNING:
             return DEFAULT_COMPONENT_KEY
 
-        with request:
-            return request.context.get('component_custom_key', DEFAULT_COMPONENT_KEY)
+        # application module is the only place that we should access request
+        # directly and not from session services, because of circular calling problem.
+        with request as client_request:
+            return client_request.context.get('component_custom_key', DEFAULT_COMPONENT_KEY)
 
     def _load(self, **options):
         """
@@ -357,24 +360,56 @@ class Application(Flask):
         return value of the view or error handlers. this does not have to
         be a response object. in order to convert the return value to a
         proper response object, call `make_response` function.
+
+        :raises AuthenticationFailedError: authentication failed error.
         """
 
         # we have to override whole `dispatch_request` method to be able to customize it,
         # because of flask design that everything is embedded inside
         # the `dispatch_request` method.
-        with request:
-            if request.routing_exception is not None:
-                self.raise_routing_exception(request)
 
-            route = request.url_rule
+        # application module is the only place that we should access request
+        # directly and not from session services, because of circular calling problem.
+        with request as client_request:
+            if client_request.routing_exception is not None:
+                self.raise_routing_exception(client_request)
+
+            self._authenticate(client_request)
+            route = client_request.url_rule
+
             # if we provide automatic options for this URL and the
             # request came with the OPTIONS method, reply automatically.
             if getattr(route, 'provide_automatic_options', False) \
-               and request.method == 'OPTIONS':
+               and client_request.method == 'OPTIONS':
                 return self.make_default_options_response()
 
-            # otherwise dispatch the handler for that route.
-            return route.dispatch(request)
+            # otherwise dispatch the handler for this route.
+            return route.dispatch(client_request)
+
+    def _extract_token(self, client_request):
+        """
+        extracts token from request header if available.
+
+        :param CoreRequest client_request: request object.
+
+        :returns: token
+
+        :rtype: str
+        """
+
+        return client_request.headers.get('Authorization', None)
+
+    def _authenticate(self, client_request):
+        """
+        authenticates given request.
+
+        :param CoreRequest client_request: request to be authenticated.
+
+        :raises AuthenticationFailedError: authentication failed error.
+        """
+
+        token = self._extract_token(request)
+        authentication_services.authenticate(token)
 
     def make_response(self, rv):
         """

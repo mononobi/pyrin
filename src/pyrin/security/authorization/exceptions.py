@@ -5,6 +5,7 @@ authorization exceptions module.
 
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreBusinessException, CoreException
+from pyrin.security.authentication.exceptions import AuthenticationFailedError
 
 
 class AuthorizationManagerException(CoreException):
@@ -30,3 +31,10 @@ class AuthorizationFailedError(AuthorizationManagerBusinessException):
     def __init__(self, *args, **kwargs):
         super(AuthorizationFailedError, self).__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.FORBIDDEN
+
+
+class UserNotAuthenticatedError(AuthenticationFailedError,
+                                AuthorizationManagerBusinessException):
+    """
+    user not authenticated error.
+    """
