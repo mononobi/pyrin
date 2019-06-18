@@ -8,7 +8,8 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.security.authentication.exceptions import InvalidComponentCustomKeyError
+from pyrin.security.authentication.exceptions import InvalidComponentCustomKeyError, \
+    AuthenticationFailedError
 from pyrin.security.token.exceptions import TokenVerificationError
 
 
@@ -34,7 +35,7 @@ class AuthenticationManager(CoreObject):
 
         try:
             payload = token_services.get_payload(token, **options)
-            self._validate_payload(payload, **options)
+            self._validate(payload, **options)
             self._push_data(payload, **options)
 
         except TokenVerificationError:
@@ -45,6 +46,7 @@ class AuthenticationManager(CoreObject):
         pushes the specified inputs into request context.
 
         :param dict payload: payload data of authenticated token.
+        :type payload: dict(str type: token type)
 
         :raises CoreNotImplementedError: core not implemented error.
         """
@@ -65,12 +67,31 @@ class AuthenticationManager(CoreObject):
 
         session_services.add_request_context('component_custom_key', value)
 
-    def _validate_payload(self, payload, **options):
+    def _validate(self, payload, **options):
         """
         validates the given payload.
         an error will be raised if validation fails.
 
         :param dict payload: payload data to be validated.
+        :type payload: dict(str type: token type)
+
+        :raises AuthenticationFailedError: authentication failed error.
+        """
+
+        token_type = payload.get('type', None)
+        if token_type != 'access':
+            raise AuthenticationFailedError('Authentication could not be done '
+                                            'with a refresh token.')
+
+        self._validate_extra(payload, **options)
+
+    def _validate_extra(self, payload, **options):
+        """
+        validates the given payload for extra security items.
+        an error will be raised if validation fails.
+
+        :param dict payload: payload data to be validated.
+        :type payload: dict(str type: token type)
 
         :raises CoreNotImplementedError: core not implemented error.
         :raises AuthenticationFailedError: authentication failed error.

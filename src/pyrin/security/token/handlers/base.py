@@ -227,7 +227,8 @@ class TokenBase(CoreObject):
         common_required = self._get_common_required_claims()
         expire_duration = self._get_access_token_lifetime()
         expiration = common_required['iat'] + expire_duration
-        common_required.update(exp=expiration)
+        common_required.update(exp=expiration,
+                               type='access')
 
         return common_required
 
@@ -245,7 +246,8 @@ class TokenBase(CoreObject):
         common_required = self._get_common_required_claims()
         expire_duration = self._get_refresh_token_lifetime()
         expiration = common_required['iat'] + expire_duration
-        common_required.update(exp=expiration)
+        common_required.update(exp=expiration,
+                               type='refresh')
 
         return common_required
 
