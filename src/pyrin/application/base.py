@@ -621,7 +621,9 @@ class Application(Flask):
             self._authenticate(client_request)
 
         except Exception as error:
-            logging_services.exception('{message}'.format(message=str(error)))
+            logging_services.exception('{client_request} - {message}'
+                                       .format(message=str(error),
+                                               client_request=client_request))
 
         process_start_time = time()
         logging_services.info('{client_request} received.'
