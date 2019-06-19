@@ -6,7 +6,8 @@ session manager module.
 from flask import request
 
 from pyrin.core.context import CoreObject
-from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError
+from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
+    CouldNotOverwriteCurrentUserError, InvalidUserError, InvalidComponentCustomKeyError
 
 
 class SessionManager(CoreObject):
@@ -21,7 +22,27 @@ class SessionManager(CoreObject):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('user', None)
+        return self.get_current_request().user
+
+    def set_current_user(self, user):
+        """
+        sets current user.
+
+        :param dict user: user object.
+
+        :raises InvalidUserError: invalid user error.
+        :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
+        """
+
+        if user is None:
+            raise InvalidUserError('Request user could not be None.')
+
+        if self.get_current_user() is not None:
+            raise CouldNotOverwriteCurrentUserError('User has been already set for '
+                                                    'current request, it could not '
+                                                    'be overwritten.')
+
+        self.get_current_request().user = user
 
     def get_current_request(self):
         """
@@ -66,13 +87,45 @@ class SessionManager(CoreObject):
         :rtype: bool
         """
 
-        return self.get_current_payload().get('is_fresh', False)
+        return self.get_current_token_payload().get('is_fresh', False)
 
-    def get_current_payload(self):
+    def get_current_token_payload(self):
         """
-        gets current request context's payload.
+        gets current request's token payload.
 
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('payload', {})
+        return self.get_current_request_context().get('token_payload', {})
+
+    def get_current_token_header(self):
+        """
+        gets current request's token header.
+
+        :rtype: dict
+        """
+
+        return self.get_current_request_context().get('token_header', {})
+
+    def set_component_custom_key(self, value):
+        """
+        sets the component custom key.
+
+        :param object value: component custom key value.
+
+        :raises InvalidComponentCustomKeyError: invalid component custom key error.
+        """
+
+        if value is None:
+            raise InvalidComponentCustomKeyError('Component custom key could not be None.')
+
+        self.get_current_request().component_custom_key = value
+
+    def get_component_custom_key(self):
+        """
+        gets component custom key.
+
+        :rtype: object
+        """
+
+        return self.get_current_request().component_custom_key

@@ -26,3 +26,24 @@ class InvalidRequestContextKeyNameError(SessionManagerException):
     invalid request context key name error.
     """
     pass
+
+
+class CouldNotOverwriteCurrentUserError(SessionManagerException):
+    """
+    could not overwrite current user error.
+    """
+    pass
+
+
+class InvalidUserError(SessionManagerException):
+    """
+    invalid user error.
+    """
+    pass
+
+
+class InvalidComponentCustomKeyError(SessionManagerException):
+    """
+    invalid component custom key error.
+    """
+    pass

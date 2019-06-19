@@ -30,10 +30,3 @@ class AuthenticationFailedError(AuthenticationManagerBusinessException):
     def __init__(self, *args, **kwargs):
         super(CoreBusinessException, self).__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.UNAUTHORIZED
-
-
-class InvalidComponentCustomKeyError(AuthenticationManagerException):
-    """
-    invalid component custom key.
-    """
-    pass

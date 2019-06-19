@@ -17,6 +17,19 @@ def get_current_user():
     return get_component(SessionPackage.COMPONENT_NAME).get_current_user()
 
 
+def set_current_user(user):
+    """
+    sets current user.
+
+    :param dict user: user object.
+
+    :raises InvalidUserError: invalid user error.
+    :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).set_current_user(user)
+
+
 def get_current_request():
     """
     gets current request object.
@@ -62,11 +75,43 @@ def is_fresh():
     return get_component(SessionPackage.COMPONENT_NAME).is_fresh()
 
 
-def get_current_payload():
+def get_current_token_payload():
     """
-    gets current request context's payload.
+    gets current request's token payload.
 
     :rtype: dict
     """
 
-    return get_component(SessionPackage.COMPONENT_NAME).get_current_payload()
+    return get_component(SessionPackage.COMPONENT_NAME).get_current_token_payload()
+
+
+def get_current_token_header():
+    """
+    gets current request's token header.
+
+    :rtype: dict
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_current_token_header()
+
+
+def set_component_custom_key(value):
+    """
+    sets the component custom key.
+
+    :param object value: component custom key value.
+
+    :raises InvalidComponentCustomKeyError: invalid component custom key error.
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).set_component_custom_key(value)
+
+
+def get_component_custom_key():
+    """
+    gets component custom key.
+
+    :rtype: object
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_component_custom_key()

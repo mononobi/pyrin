@@ -14,6 +14,7 @@ from flask.app import setupmethod
 import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
+import pyrin.security.session.services as session_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
@@ -267,8 +268,7 @@ class Application(Flask):
 
     def _extract_component_custom_key(self):
         """
-        gets `component_custom_key` from request context if available,
-        otherwise gets the default component key.
+        gets `component_custom_key` from current request.
         note that if application is in any state other than `RUNNING`,
         it always returns the default component key.
 
@@ -280,10 +280,10 @@ class Application(Flask):
         if self.get_status() != ApplicationStatusEnum.RUNNING:
             return DEFAULT_COMPONENT_KEY
 
-        # application module is the only place that we should access request
+        # this method is the only place that we should access request
         # directly and not from session services, because of circular calling problem.
         with request as client_request:
-            return client_request.context.get('component_custom_key', DEFAULT_COMPONENT_KEY)
+            return client_request.component_custom_key
 
     def _load(self, **options):
         """
@@ -368,36 +368,21 @@ class Application(Flask):
         # because of flask design that everything is embedded inside
         # the `dispatch_request` method.
 
-        # application module is the only place that we should access request
-        # directly and not from session services, because of circular calling problem.
-        with request as client_request:
-            if client_request.routing_exception is not None:
-                self.raise_routing_exception(client_request)
+        client_request = session_services.get_current_request()
+        if client_request.routing_exception is not None:
+            self.raise_routing_exception(client_request)
 
-            self._authenticate(client_request)
-            route = client_request.url_rule
+        self._authenticate(client_request)
+        route = client_request.url_rule
 
-            # if we provide automatic options for this URL and the
-            # request came with the OPTIONS method, reply automatically.
-            if getattr(route, 'provide_automatic_options', False) \
-               and client_request.method == 'OPTIONS':
-                return self.make_default_options_response()
+        # if we provide automatic options for this URL and the
+        # request came with the OPTIONS method, reply automatically.
+        if getattr(route, 'provide_automatic_options', False) \
+           and client_request.method == 'OPTIONS':
+            return self.make_default_options_response()
 
-            # otherwise dispatch the handler for this route.
-            return route.dispatch(client_request)
-
-    def _extract_token(self, client_request):
-        """
-        extracts token from request header if available.
-
-        :param CoreRequest client_request: request object.
-
-        :returns: token
-
-        :rtype: str
-        """
-
-        return client_request.headers.get('Authorization', None)
+        # otherwise dispatch the handler for this route.
+        return route.dispatch(client_request)
 
     def _authenticate(self, client_request):
         """
@@ -408,8 +393,7 @@ class Application(Flask):
         :raises AuthenticationFailedError: authentication failed error.
         """
 
-        token = self._extract_token(request)
-        authentication_services.authenticate(token)
+        authentication_services.authenticate(client_request)
 
     def make_response(self, rv):
         """
@@ -607,3 +591,18 @@ class Application(Flask):
             return
 
         load_dotenv_(env_file)
+
+    def process_response(self, response):
+        """
+        this method is overridden to add required attributes into response object.
+
+        :param CoreResponse response: response object.
+
+        :rtype: CoreResponse
+        """
+
+        response.user = session_services.get_current_user()
+        response.request_date = session_services.get_current_request().request_date
+        response.request_id = session_services.get_current_request().request_id
+
+        return super(Application, self).process_response(response)

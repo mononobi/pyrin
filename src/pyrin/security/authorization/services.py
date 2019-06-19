@@ -7,7 +7,7 @@ from pyrin.application.services import get_component
 from pyrin.security.authorization import AuthorizationPackage
 
 
-def authorize(user, permission_ids, **options):
+def authorize(user, permissions, **options):
     """
     authorizes the given user for specified permissions.
     if user does not have each one of specified permissions,
@@ -15,28 +15,30 @@ def authorize(user, permission_ids, **options):
 
     :param dict user: user identity to authorize permissions for.
 
-    :param Union[object, list[object]] permission_ids: permission ids to check
-                                                       user authorization.
+    :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
+                                                                    for user authorization.
 
     :raises UserNotAuthenticatedError: user not authenticated error.
     :raises AuthorizationFailedError: authorization failed error.
     """
 
     return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user,
-                                                                        permission_ids,
+                                                                        permissions,
                                                                         **options)
 
 
-def is_authorized(permission_ids, **options):
+def is_authorized(permissions, **options):
     """
     gets a value indicating that specified user is authorized for given permissions.
 
-    :param list[object] permission_ids: permission ids to check for authorization.
+    :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
+                                                                    for authorization.
 
-    :keyword dic user: user identity to be checked for authorization.
+    :keyword dict user: user identity to be checked for authorization.
+                        if not provided, current user will be used.
 
     :rtype: bool
     """
 
-    return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(
-        permission_ids, **options)
+    return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(permissions,
+                                                                            **options)

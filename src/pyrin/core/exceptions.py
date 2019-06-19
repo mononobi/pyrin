@@ -86,7 +86,8 @@ class CoreNotImplementedError(CoreException, NotImplementedError):
 
     def __init__(self, *args, **kwargs):
         super(CoreNotImplementedError, self).__init__('This method does not have '
-                                                      'an implementation.')
+                                                      'an implementation.',
+                                                      *args, **kwargs)
 
 
 class CoreTypeError(CoreException, TypeError):

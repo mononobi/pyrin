@@ -18,7 +18,7 @@ class AuthorizationManager(CoreObject):
     the top level application must extend this class considering business requirements.
     """
 
-    def authorize(self, user, permission_ids, **options):
+    def authorize(self, user, permissions, **options):
         """
         authorizes the given user for specified permissions.
         if user does not have each one of specified permissions,
@@ -26,8 +26,8 @@ class AuthorizationManager(CoreObject):
 
         :param dict user: user identity to authorize permissions for.
 
-        :param Union[object, list[object]] permission_ids: permission ids to check
-                                                           user authorization.
+        :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
+                                                                        for user authorization.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
         :raises AuthorizationFailedError: authorization failed error.
@@ -36,26 +36,29 @@ class AuthorizationManager(CoreObject):
         if user is None:
             raise UserNotAuthenticatedError('User has not been authenticated.')
 
-        # we must check whether input permission_ids is iterable.
+        # we must check whether input permissions object is iterable.
         # if not, we make it manually.
-        permission_ids_collection = permission_ids
-        if not isinstance(permission_ids, (list, set, tuple)):
-            permission_ids_collection = [permission_ids]
+        permissions_collection = permissions
+        if not isinstance(permissions, (list, set, tuple)):
+            permissions_collection = [permissions]
 
+        permission_ids = [item.get_id() for item in permissions_collection]
         user_permission_ids = security_services.get_user_permission_ids(user, **options)
 
-        if not set(permission_ids_collection) <= set(user_permission_ids):
+        if not set(permission_ids) <= set(user_permission_ids):
             message = 'User [{user}] has not required permission(s) [{permission_ids}].'
             raise AuthorizationFailedError(message.format(user=str(user),
                                                           permission_ids=permission_ids))
 
-    def is_authorized(self, permission_ids, **options):
+    def is_authorized(self, permissions, **options):
         """
         gets a value indicating that specified user is authorized for given permissions.
 
-        :param list[object] permission_ids: permission ids to check for authorization.
+        :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
+                                                                        for authorization.
 
-        :keyword dic user: user identity to be checked for authorization.
+        :keyword dict user: user identity to be checked for authorization.
+                            if not provided, current user will be used.
 
         :rtype: bool
         """
@@ -65,7 +68,7 @@ class AuthorizationManager(CoreObject):
             user = session_services.get_current_user()
 
         try:
-            self.authorize(user, permission_ids, **options)
+            self.authorize(user, permissions, **options)
             return True
         except AuthorizationManagerBusinessException:
             return False

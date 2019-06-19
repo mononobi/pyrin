@@ -96,8 +96,8 @@ class Component(CoreObject):
         :rtype: tuple(str, object)
         """
 
-        if component_name is None or component_name.strip() == '':
-            raise InvalidComponentNameError('Component name should not be blank.')
+        if component_name is None or len(component_name.strip()) <= 0:
+            raise InvalidComponentNameError('Component name should not be None.')
 
         component_custom_key = options.get('component_custom_key', DEFAULT_COMPONENT_KEY)
         return component_name, component_custom_key
@@ -124,10 +124,24 @@ class CoreResponse(Response):
     def __init__(self, response=None, **kwargs):
         super(CoreResponse, self).__init__(response, **kwargs)
 
+        self.request_id = None
+        self.request_date = None
+        self.response_date = datetime.utcnow()
+        self.user = None
+        self.context = Context()
+
     @classmethod
     def force_type(cls, response, environ=None):
         response = cls.response_converter(response)
         return super(CoreResponse, cls).force_type(response, environ)
+
+    def __str__(self):
+        result = 'request id: [{request_id}], request date: [{request_date}], ' \
+                 'user: [{user}], response date: [{response_date}]'
+        return result.format(request_id=self.request_id,
+                             request_date=self.request_date,
+                             user=self.user,
+                             response_date=self.response_date)
 
 
 class CoreRequest(Request):
@@ -143,17 +157,22 @@ class CoreRequest(Request):
                  shallow=False, **options):
         super(CoreRequest, self).__init__(environ, populate_request, shallow)
 
-        self.request_id = uuid_utils.generate()
+        self.request_id = uuid_utils.generate_uuid4()
         self.request_date = datetime.utcnow()
-        self.client_ip = None
+        self.user = None
+        self.component_custom_key = DEFAULT_COMPONENT_KEY
         self.context = Context()
-        a = self.method
-        b = self.query_string
-        c = self.args
-        d = self.view_args
+        self.client_ip = self.environ.get('HTTP_X_REAL_IP',
+                                          self.environ.get('REMOTE_ADDR', None))
 
     def __str__(self):
-        result = 'request id: [{request_id}], request date: [{request_date}], route: [{route}]'
+        result = 'request id: [{request_id}], request date: [{request_date}], ' \
+                 'user: [{user}], client_ip: [{client_ip}], route: [{route}], ' \
+                 'method: [{method}], component_custom_key: [{component}]'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
-                             route=self.path)
+                             user=self.user,
+                             client_ip=self.client_ip,
+                             route=self.path,
+                             method=self.method,
+                             component=self.component_custom_key)
