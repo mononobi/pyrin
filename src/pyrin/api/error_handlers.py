@@ -6,6 +6,7 @@ api error handlers module.
 from werkzeug.exceptions import HTTPException
 
 import pyrin.logging.services as logging_services
+import pyrin.security.session.services as session_services
 
 from pyrin.application.decorators import error_handler
 from pyrin.core.context import DTO
@@ -77,4 +78,7 @@ def _log_error(exception):
     :param Exception exception: exception that caused on error.
     """
 
-    logging_services.exception('{message}'.format(message=str(exception)))
+    client_request = session_services.get_current_request()
+    logging_services.exception('{client_request} - {message}'
+                               .format(client_request=client_request,
+                                       message=str(exception)))
