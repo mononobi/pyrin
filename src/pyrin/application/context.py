@@ -136,12 +136,12 @@ class CoreResponse(Response):
         return super(CoreResponse, cls).force_type(response, environ)
 
     def __str__(self):
-        result = 'request id: [{request_id}], request date: [{request_date}], ' \
-                 'user: [{user}], response date: [{response_date}]'
-        return result.format(request_id=self.request_id,
+        result = 'request id: [{request_id}], response date: [{response_date}], ' \
+                 'request date: [{request_date}], user: [{user}]'
+        return result.format(response_date=self.response_date,
+                             request_id=self.request_id,
                              request_date=self.request_date,
-                             user=self.user,
-                             response_date=self.response_date)
+                             user=self.user)
 
 
 class CoreRequest(Request):

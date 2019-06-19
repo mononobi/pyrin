@@ -77,5 +77,4 @@ def _log_error(exception):
     :param Exception exception: exception that caused on error.
     """
 
-    logging_services.exception('Application error details: [{message}]'
-                               .format(message=str(exception)))
+    logging_services.exception('{message}'.format(message=str(exception)))

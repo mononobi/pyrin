@@ -9,7 +9,6 @@ import pyrin.security.session.services as session_services
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
-from pyrin.security.token.exceptions import TokenVerificationError
 
 
 class AuthenticationManager(CoreObject):
@@ -51,8 +50,8 @@ class AuthenticationManager(CoreObject):
             self._validate_required(header, payload, **options)
             self._push_required_data(header, payload, **options)
 
-        except TokenVerificationError:
-            return
+        except Exception as error:
+            raise AuthenticationFailedError(error) from error
 
     def _extract_token(self, client_request):
         """

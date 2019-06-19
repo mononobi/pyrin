@@ -7,6 +7,8 @@ import signal
 import sys
 import os.path
 
+from time import time
+
 from dotenv import load_dotenv as load_dotenv_
 from flask import Flask, request
 from flask.app import setupmethod
@@ -15,6 +17,7 @@ import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
+import pyrin.logging.services as logging_services
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
@@ -372,7 +375,6 @@ class Application(Flask):
         if client_request.routing_exception is not None:
             self.raise_routing_exception(client_request)
 
-        self._authenticate(client_request)
         route = client_request.url_rule
 
         # if we provide automatic options for this URL and the
@@ -606,3 +608,33 @@ class Application(Flask):
         response.request_id = session_services.get_current_request().request_id
 
         return super(Application, self).process_response(response)
+
+    def full_dispatch_request(self):
+        """
+        dispatches the request and on top of that performs request pre and
+        postprocessing as well as http exception catching and error handling.
+        this method has been overridden to log before and after request dispatching.
+        """
+
+        client_request = session_services.get_current_request()
+        try:
+            self._authenticate(client_request)
+
+        except Exception as error:
+            logging_services.exception('{message}'.format(message=str(error)))
+
+        process_start_time = time()
+        logging_services.info('{client_request} received.'
+                              .format(client_request=client_request))
+
+        response = super(Application, self).full_dispatch_request()
+
+        process_end_time = time()
+        logging_services.info('{client_request} executed in [{time} ms].'
+                              .format(client_request=client_request,
+                                      time='{:0.3f}'
+                                      .format((process_end_time - process_start_time) * 1000)))
+
+        logging_services.debug('{response} sent.'.format(response=response))
+
+        return response

@@ -44,8 +44,9 @@ def audit(func):
             raise ex
         finally:
             end_time = time.time()
-            logging_services.debug('Duration of function call [{name}]: {milliseconds} ms'
+            logging_services.debug('Duration of function call [{name}]: [{time} ms].'
                                    .format(name=func.__name__,
-                                           milliseconds=(end_time - start_time) * 1000))
+                                           time='{:0.5f}'
+                                           .format((end_time - start_time) * 1000)))
 
     return update_wrapper(decorator, func)
