@@ -10,7 +10,7 @@ from flask import Request, Response, jsonify
 import pyrin.utils.unique_id as uuid_utils
 
 from pyrin.application.exceptions import ComponentAttributeError, InvalidComponentNameError
-from pyrin.core.context import Context, CoreObject
+from pyrin.core.context import Context, CoreObject, DTO
 from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
@@ -161,14 +161,14 @@ class CoreRequest(Request):
         self.request_date = datetime.utcnow()
         self.user = None
         self.component_custom_key = DEFAULT_COMPONENT_KEY
+        self.client_ip = self._get_client_ip()
+        self.inputs = self._get_inputs()
         self.context = Context()
-        self.client_ip = self.environ.get('HTTP_X_REAL_IP',
-                                          self.environ.get('REMOTE_ADDR', None))
 
     def __str__(self):
-        result = 'request id: [{request_id}], request date: [{request_date}], ' \
-                 'user: [{user}], client_ip: [{client_ip}], route: [{route}], ' \
-                 'method: [{method}], component_custom_key: [{component}]'
+        result = 'method: [{method}], route: [{route}], request id: [{request_id}], ' \
+                 'request date: [{request_date}], user: [{user}], client_ip: [{client_ip}], ' \
+                 'component_custom_key: [{component}]'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
                              user=self.user,
@@ -176,3 +176,34 @@ class CoreRequest(Request):
                              route=self.path,
                              method=self.method,
                              component=self.component_custom_key)
+
+    def _get_client_ip(self):
+        """
+        gets client ip from request if available.
+
+        :rtype: str
+        """
+
+        return self.environ.get('HTTP_X_REAL_IP', self.environ.get('REMOTE_ADDR', None))
+
+    def _get_inputs(self):
+        """
+        gets request inputs.
+
+        :rtype: dict
+        """
+
+        return DTO(**(self.view_args or {}),
+                   **(self.get_json(force=True, silent=True) or {}),
+                   query_params=self.args,
+                   files=self.files)
+
+    def get_safe_content_length(self):
+        """
+        gets content bytes length of this request if available.
+        otherwise returns 0.
+
+        :rtype: int
+        """
+
+        return self.content_length or 0

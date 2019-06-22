@@ -6,11 +6,10 @@ route base handler module.
 from werkzeug.routing import Rule
 
 import pyrin.configuration.services as config_services
+import pyrin.security.session.services as session_services
 
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
-    MaxContentLengthLimitMismatchError
-from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreNotImplementedError
+    MaxContentLengthLimitMismatchError, LargeContentError
 
 
 class RouteBase(Rule):
@@ -76,7 +75,6 @@ class RouteBase(Rule):
                                          it will cause an error.
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
-
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
@@ -122,44 +120,55 @@ class RouteBase(Rule):
                                                .format(function=str(self._view_function),
                                                        route=str(self)))
 
-    def is_login_required(self):
+    def handle(self, inputs, **options):
         """
-        gets a value indicating that accessing this route needs a valid token.
+        handles the current route.
 
-        :raises CoreNotImplementedError: core not implemented error.
+        :param dict inputs: view function inputs.
 
-        :rtype: bool
-        """
-
-        raise CoreNotImplementedError()
-
-    def dispatch(self, client_request, **options):
-        """
-        dispatch the current route.
-
-        :param CoreRequest client_request: client request object.
+        :raises LargeContentError: large content error.
 
         :returns: view function's result.
 
         :rtype: object
         """
 
-        return self._call_view_function(client_request, **options)
+        self._validate_content_length()
+        return self._handle(inputs, **options)
 
-    def _call_view_function(self, client_request, **options):
+    def _handle(self, inputs, **options):
+        """
+        handles the current route.
+
+        :param dict inputs: view function inputs.
+
+        :returns: view function's result.
+
+        :rtype: object
+        """
+
+        return self._call_view_function(inputs, **options)
+
+    def _validate_content_length(self):
+        """
+        validates content length for this route.
+
+        :raises LargeContentError: large content error.
+        """
+
+        client_request = session_services.get_current_request()
+        if client_request.get_safe_content_length() > self._max_content_length:
+            raise LargeContentError('Request content is too large.')
+
+    def _call_view_function(self, inputs, **options):
         """
         calls the route's view function.
 
-        :param CoreRequest client_request: client request object.
+        :param dict inputs: view function inputs.
 
         :returns: view function's result.
 
         :rtype: object
         """
 
-        method_inputs = DTO(**(client_request.view_args or {}),
-                            **(client_request.get_json(force=True, silent=True) or {}),
-                            query_params=client_request.args,
-                            files=client_request.files)
-
-        return self._view_function(**method_inputs)
+        return self._view_function(**inputs)

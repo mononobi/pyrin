@@ -71,17 +71,7 @@ class PublicRoute(RouteBase):
                                          it will cause an error.
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
-
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
         super(PublicRoute, self).__init__(rule, **options)
-
-    def is_login_required(self):
-        """
-        gets a value indicating that accessing this route needs a valid token.
-
-        :rtype: bool
-        """
-
-        return False

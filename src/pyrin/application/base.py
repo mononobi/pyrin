@@ -383,8 +383,8 @@ class Application(Flask):
            and client_request.method == 'OPTIONS':
             return self.make_default_options_response()
 
-        # otherwise dispatch the handler for this route.
-        return route.dispatch(client_request)
+        # otherwise call the handler for this route.
+        return route.handle(client_request.inputs)
 
     def _authenticate(self, client_request):
         """
@@ -626,8 +626,10 @@ class Application(Flask):
                                                client_request=client_request))
 
         process_start_time = time()
-        logging_services.info('{client_request} received.'
-                              .format(client_request=client_request))
+        logging_services.info('{client_request} received. '
+                              'params: [{params}]'
+                              .format(client_request=client_request,
+                                      params=client_request.inputs))
 
         response = super(Application, self).full_dispatch_request()
 
@@ -637,6 +639,9 @@ class Application(Flask):
                                       time='{:0.3f}'
                                       .format((process_end_time - process_start_time) * 1000)))
 
-        logging_services.debug('{response} sent.'.format(response=response))
+        logging_services.debug('{response} returned. '
+                               'result: [{result}]'
+                               .format(response=response,
+                                       result=response.get_data(as_text=True)))
 
         return response

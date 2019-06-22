@@ -7,6 +7,7 @@ import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
 
 from pyrin.api.router.handlers.base import RouteBase
+from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError
 
 
 class ProtectedRoute(RouteBase):
@@ -76,7 +77,6 @@ class ProtectedRoute(RouteBase):
                                          it will cause an error.
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
-
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
@@ -86,20 +86,11 @@ class ProtectedRoute(RouteBase):
         if not isinstance(self._permissions, (tuple, list, set)):
             self._permissions = (self._permissions,)
 
-    def is_login_required(self):
+    def _handle(self, inputs, **options):
         """
-        gets a value indicating that accessing this route needs a valid token.
+        handles the current route.
 
-        :rtype: bool
-        """
-
-        return True
-
-    def dispatch(self, client_request, **options):
-        """
-        dispatch the current route.
-
-        :param CoreRequest client_request: client request object.
+        :param dict inputs: view function inputs.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
         :raises AuthorizationFailedError: authorization failed error.
@@ -110,7 +101,7 @@ class ProtectedRoute(RouteBase):
         """
 
         self._authorize()
-        return super(ProtectedRoute, self).dispatch(client_request, **options)
+        return super(ProtectedRoute, self)._handle(inputs, **options)
 
     def _authorize(self):
         """
@@ -124,16 +115,17 @@ class ProtectedRoute(RouteBase):
         authorization_services.authorize(user, self._permissions)
 
 
-class SimpleProtectedRoute(ProtectedRoute):
+class FreshProtectedRoute(ProtectedRoute):
     """
-    simple protected route class for flask compatibility.
-    this class just passes the `request.view_args` to the view function as input params.
-    normally you should never use this route type, use `ProtectedRoute` instead.
+    fresh protected route class.
+    this class should be used to manage application protected api routes that
+    need valid fresh token. fresh token means a token that has been created
+    by providing user credentials to server.
     """
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of SimpleProtectedRoute.
+        initializes a new instance of FreshProtectedRoute.
 
         :param str rule: unique url rule to register this route for.
                          routes with duplicated urls will be overwritten
@@ -149,9 +141,9 @@ class SimpleProtectedRoute(ProtectedRoute):
         :keyword str endpoint: the endpoint for the registered url rule. pyrin
                                itself assumes the rule as endpoint if not provided.
 
-        :keyword dict defaults: an optional dict with defaults for other rules with the
-                                same endpoint. this is a bit tricky but useful if you
-                                want to have unique urls.
+        :keyword dict defaults: an optional dict with defaults for other rules with the same
+                                endpoint. this is a bit tricky but useful if you want
+                                to have unique urls.
 
         :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
                                 only matches for the `default_subdomain` of the map. if the map is
@@ -161,17 +153,17 @@ class SimpleProtectedRoute(ProtectedRoute):
                                       for this rule. if not specified the `Map` setting is used.
 
         :keyword bool build_only: set this to True and the rule will never match but will
-                                  create a url that can be build. this is useful if you have
-                                  resources on a subdomain or folder that are not handled by
-                                  the WSGI application (like static data)
+                                  create a url that can be build. this is useful if you
+                                  have resources on a subdomain or folder that are not
+                                  handled by the WSGI application (like static data)
 
-        :keyword Union[string, Callable] redirect_to: if given this must be either a string
-                                                      or callable. in case of a callable it's
+        :keyword Union[string, Callable] redirect_to: if given this must be either a string or
+                                                      callable. in case of a callable it's
                                                       called with the url adapter that triggered
                                                       the match and the values of the url as
                                                       keyword arguments and has to return the
-                                                      target for the redirect, otherwise it has
-                                                      to be a string with placeholders
+                                                      target for the redirect, otherwise it
+                                                      has to be a string with placeholders
                                                       in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
@@ -192,21 +184,23 @@ class SimpleProtectedRoute(ProtectedRoute):
                                          it will cause an error.
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
-
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
-        super(SimpleProtectedRoute, self).__init__(rule, **options)
+        super(FreshProtectedRoute, self).__init__(rule, **options)
 
-    def _call_view_function(self, client_request, **options):
+    def _authorize(self):
         """
-        calls the route's view function.
+        authorizes the route permissions for current user.
+        also checks that the user has a fresh token.
 
-        :param CoreRequest client_request: client request object.
-
-        :returns: view function's result.
-
-        :rtype: object
+        :raises FreshTokenRequiredError: fresh token required error.
+        :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises AuthorizationFailedError: authorization failed error.
         """
 
-        return self._view_function(**(client_request.view_args or {}))
+        if not session_services.is_fresh():
+            raise FreshTokenRequiredError('Fresh token is required to '
+                                          'access the requested resource.')
+
+        super(FreshProtectedRoute, self)._authorize()

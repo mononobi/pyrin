@@ -22,6 +22,12 @@ def api(url, **options):
                                   if the requester has not a valid token.
                                   defaults to True if not provided.
 
+    :keyword bool fresh_token: specifies that this route could not be accessed
+                               if the requester has not a valid fresh token.
+                               fresh token means a token that has been created by
+                               providing user credentials to server.
+                               defaults to False if not provided.
+
     :keyword bool replace: specifies that this route must replace
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.

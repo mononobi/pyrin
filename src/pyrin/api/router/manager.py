@@ -5,7 +5,8 @@ router manager module.
 
 import pyrin.application.services as application_services
 
-from pyrin.api.router.handlers.protected import ProtectedRoute
+from pyrin.api.router.exceptions import RouteAuthenticationMismatchError
+from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
 from pyrin.core.context import CoreObject
 
@@ -37,6 +38,12 @@ class RouterManager(CoreObject):
                                       if the requester has not a valid token.
                                       defaults to True if not provided.
 
+        :keyword bool fresh_token: specifies that this route could not be accessed
+                                   if the requester has not a valid fresh token.
+                                   fresh token means a token that has been created by
+                                   providing user credentials to server.
+                                   defaults to False if not provided.
+
         :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
@@ -47,15 +54,27 @@ class RouterManager(CoreObject):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :raises RouteAuthenticationMismatchError: route authentication mismatch error.
+
         :rtype: RouteBase
         """
 
         login_required = options.get('login_required', True)
+        fresh_token = options.get('fresh_token', False)
 
-        if login_required is False:
+        if login_required is False and fresh_token is False:
             return PublicRoute(rule, **options)
-        else:
+        elif login_required is True and fresh_token is False:
             return ProtectedRoute(rule, **options)
+        elif login_required is True and fresh_token is True:
+            return FreshProtectedRoute(rule, **options)
+        else:
+            raise RouteAuthenticationMismatchError('"login_required={login}" and '
+                                                   '"fresh_token={fresh}" in route '
+                                                   '[{route}] are incompatible.'
+                                                   .format(login=login_required,
+                                                           fresh=fresh_token,
+                                                           route=rule))
 
     def add_route(self, url, endpoint=None, view_func=None,
                   provide_automatic_options=None, **options):
@@ -87,6 +106,12 @@ class RouterManager(CoreObject):
         :keyword bool login_required: specifies that this route could not be accessed
                                       if the requester has not a valid token.
                                       defaults to True if not provided.
+
+        :keyword bool fresh_token: specifies that this route could not be accessed
+                                   if the requester has not a valid fresh token.
+                                   fresh token means a token that has been created by
+                                   providing user credentials to server.
+                                   defaults to False if not provided.
 
         :keyword bool replace: specifies that this route must replace
                                any existing route with the same url or raise

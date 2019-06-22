@@ -31,6 +31,12 @@ def create_route(rule, **options):
                                   if the requester has not a valid token.
                                   defaults to True if not provided.
 
+    :keyword bool fresh_token: specifies that this route could not be accessed
+                               if the requester has not a valid fresh token.
+                               fresh token means a token that has been created by
+                               providing user credentials to server.
+                               defaults to False if not provided.
+
     :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                 to access this route's resource.
 
@@ -40,6 +46,8 @@ def create_route(rule, **options):
                                      note that this value should be lesser than or equal
                                      to `max_content_length` api config key, otherwise
                                      it will cause an error.
+
+    :raises RouteAuthenticationMismatchError: route authentication mismatch error.
 
     :rtype: RouteBase
     """
@@ -77,6 +85,12 @@ def add_route(url, endpoint=None, view_func=None,
     :keyword bool login_required: specifies that this route could not be accessed
                                   if the requester has not a valid token.
                                   defaults to True if not provided.
+
+    :keyword bool fresh_token: specifies that this route could not be accessed
+                               if the requester has not a valid fresh token.
+                               fresh token means a token that has been created by
+                               providing user credentials to server.
+                               defaults to False if not provided.
 
     :keyword bool replace: specifies that this route must replace
                            any existing route with the same url or raise
