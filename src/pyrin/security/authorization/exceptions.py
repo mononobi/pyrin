@@ -38,3 +38,10 @@ class UserNotAuthenticatedError(AuthenticationFailedError,
     """
     user not authenticated error.
     """
+
+
+class UserIsNotActiveError(AuthorizationFailedError):
+    """
+    user is not active error.
+    """
+    pass

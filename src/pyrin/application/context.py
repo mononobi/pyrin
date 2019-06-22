@@ -163,6 +163,7 @@ class CoreRequest(Request):
         self.component_custom_key = DEFAULT_COMPONENT_KEY
         self.client_ip = self._get_client_ip()
         self.inputs = self._get_inputs()
+        self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
 
     def __str__(self):
@@ -198,7 +199,7 @@ class CoreRequest(Request):
                    query_params=self.args,
                    files=self.files)
 
-    def get_safe_content_length(self):
+    def _get_safe_content_length(self):
         """
         gets content bytes length of this request if available.
         otherwise returns 0.

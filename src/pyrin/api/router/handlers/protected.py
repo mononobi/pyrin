@@ -93,6 +93,7 @@ class ProtectedRoute(RouteBase):
         :param dict inputs: view function inputs.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
 
         :returns: view function's result.
@@ -108,11 +109,23 @@ class ProtectedRoute(RouteBase):
         authorizes the route permissions for current user.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 
         user = session_services.get_current_user()
-        authorization_services.authorize(user, self._permissions)
+        authorization_services.authorize(user, self.get_permissions())
+
+    def get_permissions(self):
+        """
+        gets all required permissions to access this route.
+
+        :returns: tuple(PermissionBase)
+
+        :rtype: tuple
+        """
+
+        return self._permissions
 
 
 class FreshProtectedRoute(ProtectedRoute):
@@ -196,6 +209,7 @@ class FreshProtectedRoute(ProtectedRoute):
 
         :raises FreshTokenRequiredError: fresh token required error.
         :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 

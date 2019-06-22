@@ -6,7 +6,7 @@ permission manager module.
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
-    InvalidPermissionIDError, DuplicatedPermissionError, PermissionNotFoundError
+    DuplicatedPermissionError
 
 
 class PermissionManager(CoreObject):
@@ -34,7 +34,6 @@ class PermissionManager(CoreObject):
         :param PermissionBase instance: permission instance to be registered.
 
         :raises InvalidPermissionTypeError: invalid permission type error.
-        :raises InvalidPermissionIDError: invalid permission id error.
         :raises DuplicatedPermissionError: duplicated permission error.
         """
 
@@ -43,16 +42,12 @@ class PermissionManager(CoreObject):
                                              'not an instance of PermissionBase.'
                                              .format(instance=str(instance)))
 
-        if instance.get_id() is None:
-            raise InvalidPermissionIDError('Permission [{instance}] has invalid id.'
-                                           .format(instance=str(instance)))
-
-        if instance.get_id() in self.__permissions.keys():
-            raise DuplicatedPermissionError('Permission [{instance}] has been '
+        if instance in self.__permissions.keys():
+            raise DuplicatedPermissionError('Permission [{permission_id}] has been '
                                             'already registered.'
-                                            .format(instance=str(instance)))
+                                            .format(permission_id=str(instance)))
 
-        self.__permissions[instance.get_id()] = instance
+        self.__permissions[instance] = instance
         instance.synchronize(**options)
 
     def get_permissions(self, **options):
@@ -63,25 +58,6 @@ class PermissionManager(CoreObject):
         """
 
         return self.__permissions.values()
-
-    def get_permission(self, permission_id, **options):
-        """
-        gets the specified permission with given permission id.
-
-        :param object permission_id: permission id.
-                                     it must be an immutable type
-                                     to be usable as dict key.
-
-        :raises PermissionNotFoundError: permission not found error.
-
-        :rtype: PermissionBase
-        """
-
-        if permission_id not in self.__permissions.keys():
-            raise PermissionNotFoundError('Permission [{permission_id}] not found.'
-                                          .format(permission_id=permission_id))
-
-        return self.__permissions[permission_id]
 
     def synchronize_all(self, **options):
         """

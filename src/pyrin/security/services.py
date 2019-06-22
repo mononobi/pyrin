@@ -65,3 +65,15 @@ def get_user_permission_ids(user, **options):
     """
 
     return get_component(SecurityPackage.COMPONENT_NAME).get_user_permission_ids(user, **options)
+
+
+def is_active(user, **options):
+    """
+    gets a value indicating that given user is active.
+
+    :param dict user: user to check is active.
+
+    :rtype: bool
+    """
+
+    return get_component(SecurityPackage.COMPONENT_NAME).is_active(user, **options)

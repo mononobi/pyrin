@@ -15,21 +15,12 @@ class PermissionBase(CoreObject):
     all application permissions must be subclassed from this.
     """
 
-    def __init__(self, permission_id, description, **options):
+    def __init__(self, *args, **options):
         """
         initializes an instance of PermissionBase.
-
-        :param object permission_id: permission id.
-                                     it must be an immutable type to
-                                     be usable as dict key.
-
-        :param str description: permission description.
         """
 
         CoreObject.__init__(self)
-
-        self._id = permission_id
-        self.description = description
 
         permission_services.register_permission(self, **options)
 
@@ -57,21 +48,22 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def get_id(self):
-        """
-        gets permission id.
-        it must be an immutable type to be usable as dict key.
-
-        :rtype: object
-        """
-
-        return self._id
-
     def synchronize(self, **options):
         """
         synchronizes the current permission object with database.
 
         :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    def get_id(self):
+        """
+        gets permission id.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: object
         """
 
         raise CoreNotImplementedError()

@@ -28,22 +28,8 @@ class InvalidPermissionTypeError(PermissionManagerException):
     pass
 
 
-class InvalidPermissionIDError(PermissionManagerException):
-    """
-    invalid permission id error.
-    """
-    pass
-
-
 class DuplicatedPermissionError(PermissionManagerException):
     """
     duplicated permission error.
-    """
-    pass
-
-
-class PermissionNotFoundError(PermissionManagerBusinessException):
-    """
-    permission not found error.
     """
     pass

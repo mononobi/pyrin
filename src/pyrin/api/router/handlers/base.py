@@ -157,7 +157,7 @@ class RouteBase(Rule):
         """
 
         client_request = session_services.get_current_request()
-        if client_request.get_safe_content_length() > self._max_content_length:
+        if client_request.safe_content_length > self.get_max_content_length():
             raise LargeContentError('Request content is too large.')
 
     def _call_view_function(self, inputs, **options):
@@ -172,3 +172,21 @@ class RouteBase(Rule):
         """
 
         return self._view_function(**inputs)
+
+    def get_view_function(self):
+        """
+        gets this route's view function.
+
+        :rtype: callable
+        """
+
+        return self._view_function
+
+    def get_max_content_length(self):
+        """
+        gets this route's max content bytes length.
+
+        :rtype: int
+        """
+
+        return self._max_content_length

@@ -33,7 +33,7 @@ class SecurityManager(CoreObject):
         """
 
         if password is None or len(password) == 0:
-            raise InvalidPasswordLengthError('Input password has invalid invalid.')
+            raise InvalidPasswordLengthError('Input password has invalid length.')
 
         decrypted_password = password
         is_encrypted = options.get('is_encrypted', False)
@@ -91,3 +91,16 @@ class SecurityManager(CoreObject):
             raise InvalidUserError('Input user could not be None.')
 
         return self.get_permission_ids(user=user)
+
+    def is_active(self, user, **options):
+        """
+        gets a value indicating that given user is active.
+
+        :param dict user: user to check is active.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
