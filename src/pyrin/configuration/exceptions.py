@@ -13,9 +13,16 @@ class ConfigurationManagerException(CoreException):
     pass
 
 
-class ConfigurationStoreException(CoreException):
+class ConfigurationStoreException(ConfigurationManagerException):
     """
     configuration store exception.
+    """
+    pass
+
+
+class ConfigurationStoreAttributeNotFoundException(ConfigurationStoreException):
+    """
+    configuration store attribute not found exception.
     """
     pass
 
@@ -48,14 +55,14 @@ class ConfigurationFileNotFoundError(ConfigurationManagerException):
     pass
 
 
-class ConfigurationStoreKeyNotFoundError(ConfigurationStoreException):
+class ConfigurationStoreKeyNotFoundError(ConfigurationStoreAttributeNotFoundException):
     """
     configuration store key not found error.
     """
     pass
 
 
-class ConfigurationStoreSectionNotFoundError(ConfigurationStoreException):
+class ConfigurationStoreSectionNotFoundError(ConfigurationStoreAttributeNotFoundException):
     """
     configuration store section not found error.
     """

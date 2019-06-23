@@ -102,6 +102,32 @@ def get(store_name, section, key, **options):
                                                                   key, **options)
 
 
+def get_active(store_name, key, **options):
+    """
+    gets the value of given key from active section of given config store.
+    if this store does not have an active section, it raises an error.
+
+    :param str store_name: config store name.
+    :param str key: config key to get it's value.
+
+    :keyword object default_value: default value if key not present in config section.
+                                   if not provided, error will be raised.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                    section not found error.
+
+    :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                key not found error.
+
+    :rtype: object
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active(store_name,
+                                                                         key, **options)
+
+
 def get_section_names(store_name, **options):
     """
     gets all available section names of given config store.
@@ -167,6 +193,8 @@ def get_all(store_name, **options):
     given config store in a flat dict, eliminating the sections.
     note that if there are same key names in different
     sections, it raises an error to prevent overwriting values.
+    also note that if the config store contains `active` section,
+    then the result of `get_active_section` method would be returned.
 
     :param str store_name: config store name.
 
@@ -184,9 +212,9 @@ def get_all(store_name, **options):
     return get_component(ConfigurationPackage.COMPONENT_NAME).get_all(store_name, **options)
 
 
-def get_active(store_name, **options):
+def get_active_section(store_name, **options):
     """
-    gets the active configuration available in given config store.
+    gets the active section available in given config store.
     this method gets the section that it's name is under [active]
     section, for example:
 
@@ -223,4 +251,5 @@ def get_active(store_name, **options):
     :rtype: dict
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active_section(store_name,
+                                                                                 **options)

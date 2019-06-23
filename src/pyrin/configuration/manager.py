@@ -188,6 +188,30 @@ class ConfigurationManager(CoreObject):
 
         return self._get_config_store(store_name).get(section, key, **options)
 
+    def get_active(self, store_name, key, **options):
+        """
+        gets the value of given key from active section of given config store.
+        if this store does not have an active section, it raises an error.
+
+        :param str store_name: config store name.
+        :param str key: config key to get it's value.
+
+        :keyword object default_value: default value if key not present in config section.
+                                       if not provided, error will be raised.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+        :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                        section not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
+
+        :rtype: object
+        """
+
+        return self._get_config_store(store_name).get_active(key, **options)
+
     def get_section_names(self, store_name, **options):
         """
         gets all available section names of given config store.
@@ -251,6 +275,8 @@ class ConfigurationManager(CoreObject):
         given config store in a flat dict, eliminating the sections.
         note that if there are same key names in different
         sections, it raises an error to prevent overwriting values.
+        also note that if the config store contains `active` section,
+        then the result of `get_active_section` method would be returned.
 
         :param str store_name: config store name.
 
@@ -267,9 +293,9 @@ class ConfigurationManager(CoreObject):
 
         return self._get_config_store(store_name).get_all(**options)
 
-    def get_active(self, store_name, **options):
+    def get_active_section(self, store_name, **options):
         """
-        gets the active configuration available in given config store.
+        gets the active section available in given config store.
         this method gets the section that it's name is under [active]
         section, for example:
 
@@ -306,7 +332,7 @@ class ConfigurationManager(CoreObject):
         :rtype: dict
         """
 
-        return self._get_config_store(store_name).get_active(**options)
+        return self._get_config_store(store_name).get_active_section(**options)
 
     def _get_config_store(self, name):
         """

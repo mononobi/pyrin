@@ -13,7 +13,7 @@ from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
     ConfigurationStoreDuplicateKeyError, ConfigurationEnvironmentVariableNotFoundError, \
-    InvalidConfigurationEnvironmentVariableValueError
+    InvalidConfigurationEnvironmentVariableValueError, ConfigurationStoreAttributeNotFoundException
 
 
 class ConfigStore(CoreObject):
@@ -104,6 +104,28 @@ class ConfigStore(CoreObject):
 
         return options.get('default_value')
 
+    def get_active(self, key, **options):
+        """
+        gets the value of given key from active section of this config store.
+        if this store does not have an active section, it raises an error.
+
+        :param str key: config key to get it's value.
+
+        :keyword object default_value: default value if key not present in config section.
+                                       if not provided, error will be raised.
+
+        :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                        section not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
+
+        :rtype: object
+        """
+
+        active_section = self._get_active_section_name()
+        return self.get(active_section, key, **options)
+
     def get_section_names(self, **options):
         """
         gets all available section names of config store.
@@ -166,7 +188,7 @@ class ConfigStore(CoreObject):
         note that if there are same key names in different
         sections, it raises an error to prevent overwriting values.
         also note that if this config store contains `active` section,
-        then the result of `get_active` method would be returned.
+        then the result of `get_active_section` method would be returned.
 
         :keyword callable converter: a callable to use as case converter for keys.
                                      it should be a callable with a signature
@@ -181,9 +203,8 @@ class ConfigStore(CoreObject):
         # trying to get active config if available.
         active_config = None
         try:
-            active_config = self.get_active(**options)
-        except (ConfigurationStoreSectionNotFoundError,
-                ConfigurationStoreKeyNotFoundError):
+            active_config = self.get_active_section(**options)
+        except ConfigurationStoreAttributeNotFoundException:
             pass
 
         if active_config is not None:
@@ -234,9 +255,9 @@ class ConfigStore(CoreObject):
 
         return value
 
-    def get_active(self, **options):
+    def get_active_section(self, **options):
         """
-        gets the active configuration available in related file.
+        gets the active section available in related config file.
         this method gets the section that it's name is under [active]
         section, for example:
 
@@ -269,8 +290,8 @@ class ConfigStore(CoreObject):
         :rtype: dict
         """
 
-        selected_name = self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
-        return self.get_section(str(selected_name), **options)
+        active_section = self._get_active_section_name()
+        return self.get_section(active_section, **options)
 
     def _get_sections(self, **options):
         """
@@ -317,7 +338,8 @@ class ConfigStore(CoreObject):
                 raise ConfigurationEnvironmentVariableNotFoundError('Configuration environment '
                                                                     'variable [{key}] not found.'
                                                                     .format(key=key))
-        if len(value.strip()) == 0:
+
+        if value is not None and len(value.strip()) == 0:
             if silent is not True:
                 raise InvalidConfigurationEnvironmentVariableValueError('Configuration '
                                                                         'environment variable '
@@ -343,6 +365,21 @@ class ConfigStore(CoreObject):
                     env_value = self._get_from_env(key, **options)
                     self._configs[section_name][key] = env_value
 
+    def _get_active_section_name(self):
+        """
+        gets the active section name of this config store if available.
+        if the store does not have an active section, it raises an error.
+
+        :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                section not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
+
+        :rtype: str
+        """
+
+        return self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
+
     def __repr__(self):
         return self._name
-
