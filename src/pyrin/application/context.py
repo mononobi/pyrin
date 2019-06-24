@@ -143,6 +143,9 @@ class CoreResponse(Response):
                              request_date=self.request_date,
                              user=self.user)
 
+    def __hash__(self):
+        return hash(self.request_id)
+
 
 class CoreRequest(Request):
     """
@@ -177,6 +180,9 @@ class CoreRequest(Request):
                              route=self.path,
                              method=self.method,
                              component=self.component_custom_key)
+
+    def __hash__(self):
+        return hash(self.request_id)
 
     def _get_client_ip(self):
         """

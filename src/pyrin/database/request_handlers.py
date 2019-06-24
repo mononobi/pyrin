@@ -15,17 +15,24 @@ from pyrin.database.exceptions import DatabaseOperationError
 @after_request_handler()
 def finalize_transaction(response):
     """
-    this method will manage all database transactions during a request lifecycle.
-
-    :raises DatabaseOperationError: database operation error.
+    this method will finalize database transaction of each request.
+    we should not raise any exception in request handlers, so we return
+    an error response in case of any exception.
     """
 
     if response.status_code >= ClientErrorResponseCodeEnum.BAD_REQUEST:
         return response
+
     try:
-        raise NotImplementedError('hey you')
-        database_services.get_current_session().commit()
-        return response
-    except DatabaseError as error:
-        database_services.get_current_session().rollback()
-        raise DatabaseOperationError(error) from error
+        store = database_services.get_current_store()
+        session_factory = database_services.get_session_factory()
+        try:
+            store.commit()
+            return response
+        except DatabaseError as error:
+            store.rollback()
+            raise DatabaseOperationError(error) from error
+        finally:
+            session_factory.remove()
+    except Exception as error:
+        raise error

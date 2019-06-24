@@ -18,22 +18,32 @@ class CoreDeclarative(CoreObject):
     it will be used to create a declarative base for all models.
     """
 
+    # holds the table name in database.
+    __tablename__ = None
+
+    # holds all foreign keys of current table. it should be in the following patterns.
+    # (current_table.id, reference_table.id)
+    # (current_table.name, reference_table.name), (current_table.desc, reference_table.desc)
+    __foreign_key__ = None
+
+    def __init__(self):
+        """
+        initializes an instance of CoreDeclarative.
+        """
+
+        CoreObject.__init__(self)
+
     def save(self):
         """
         saves the current entity.
-
-        :raises DatabaseOperationError: database operation error.
         """
 
-        database_services.get_current_session().add(self)
-        self._flush()
+        database_services.get_current_store().add(self)
         return self
 
     def update(self, **kwargs):
         """
         updates the current entity with given values.
-
-        :raises DatabaseOperationError: database operation error.
         """
 
         for attr, value in kwargs.items():
@@ -43,12 +53,9 @@ class CoreDeclarative(CoreObject):
     def delete(self):
         """
         deletes the current entity.
-
-        :raises DatabaseOperationError: database operation error.
         """
 
-        database_services.get_current_session().delete(self)
-        self._flush()
+        database_services.get_current_store().delete(self)
 
     def _flush(self):
         """
@@ -57,13 +64,14 @@ class CoreDeclarative(CoreObject):
         :raises DatabaseOperationError: database operation error.
         """
 
+        store = database_services.get_current_store()
         try:
-            database_services.get_current_session().flush()
+            store.flush()
         except DatabaseError as error:
-            database_services.get_current_session().rollback()
+            store.rollback()
             raise DatabaseOperationError(error) from error
 
 
 # this entity should be used as the base entity for all application entities.
 CoreEntity = declarative_base(cls=CoreDeclarative)
-CoreEntity.query = database_services.get_current_session().query_property()
+CoreEntity.query = database_services.get_session_factory().query_property()

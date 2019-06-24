@@ -130,3 +130,10 @@ class CoreFileNotFoundError(CoreException, FileNotFoundError):
     core file not found error.
     """
     pass
+
+
+class CoreNameError(CoreException, NameError):
+    """
+    core name error.
+    """
+    pass
