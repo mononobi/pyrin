@@ -45,3 +45,7 @@
 
 16. each manager and other classes implementing business, should have their own exception
     class, which underlying business errors will subclass form it.
+
+17. utils package of each package should only be referenced from inside of that package
+    or subpackages. to make a util globally available, we should implement it
+    inside `pyrin.utils` package.
