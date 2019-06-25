@@ -137,11 +137,12 @@ class CoreResponse(Response):
 
     def __str__(self):
         result = 'request id: [{request_id}], response date: [{response_date}], ' \
-                 'request date: [{request_date}], user: [{user}]'
+                 'request date: [{request_date}], user: [{user}], status_code: [{status_code}]'
         return result.format(response_date=self.response_date,
                              request_id=self.request_id,
                              request_date=self.request_date,
-                             user=self.user)
+                             user=self.user,
+                             status_code=self.status_code)
 
     def __hash__(self):
         return hash(self.request_id)

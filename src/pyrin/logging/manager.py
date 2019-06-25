@@ -35,7 +35,7 @@ class LoggingManager(CoreObject):
         :param str config_file_path: config file path.
         """
 
-        logging.config.fileConfig(config_file_path)
+        logging.config.fileConfig(config_file_path, disable_existing_loggers=True)
 
     def reload_configs(self, **options):
         """

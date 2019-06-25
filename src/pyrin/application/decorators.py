@@ -123,6 +123,29 @@ def after_request_handler():
     return decorator
 
 
+def teardown_request_handler():
+    """
+    decorator to register a function into application teardown request handlers.
+
+    :rtype: callable
+    """
+
+    def decorator(func):
+        """
+        decorates the given function and registers it into application teardown request handlers.
+
+        :param callable func: function to register it into application teardown request handlers.
+
+        :rtype: callable
+        """
+
+        application_services.register_teardown_request_handler(func)
+
+        return func
+
+    return decorator
+
+
 def route_factory():
     """
     decorator to register a function as application route factory.

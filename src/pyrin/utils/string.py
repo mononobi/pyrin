@@ -26,4 +26,3 @@ def lower(value):
     """
 
     return value.lower()
-

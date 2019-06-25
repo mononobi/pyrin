@@ -9,9 +9,9 @@ import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
 from pyrin.application.decorators import error_handler
-from pyrin.core.context import DTO
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreException
+from pyrin.utils import response
 
 
 @error_handler(HTTPException)
@@ -29,8 +29,7 @@ def http_error_handler(exception):
     """
 
     _log_error(exception)
-    return DTO(code=exception.code,
-               message=exception.description), exception.code
+    return response.make_exception_response(exception)
 
 
 @error_handler(CoreException)
@@ -48,8 +47,7 @@ def server_error_handler(exception):
     """
 
     _log_error(exception)
-    return DTO(code=exception.code,
-               message=exception.description), exception.code
+    return response.make_exception_response(exception)
 
 
 @error_handler(Exception)
@@ -67,8 +65,9 @@ def server_unknown_error_handler(exception):
     """
 
     _log_error(exception)
-    return DTO(code=ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR,
-               message=str(exception)), ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+    return response.make_exception_response(exception,
+                                            code=ServerErrorResponseCodeEnum.
+                                            INTERNAL_SERVER_ERROR)
 
 
 def _log_error(exception):

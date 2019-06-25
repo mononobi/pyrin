@@ -66,6 +66,8 @@ class DatabaseManager(CoreObject):
         """
         creates a database scoped session factory and binds it to
         current engine and returns it.
+        the scope is current request, so each request will get
+        it's own session from start to end.
 
         :returns: database session
         :rtype: Session

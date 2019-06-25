@@ -101,6 +101,18 @@ def register_after_request_handler(func):
     _get_app().after_request(func)
 
 
+def register_teardown_request_handler(func):
+    """
+    registers the given function into application teardown request handlers.
+    teardown request handlers should not return any value
+    and also should not raise any exception.
+
+    :param callable func: function to register it into teardown request handlers.
+    """
+
+    _get_app().teardown_request(func)
+
+
 def add_url_rule(rule, endpoint=None, view_func=None,
                  provide_automatic_options=None, **options):
     """

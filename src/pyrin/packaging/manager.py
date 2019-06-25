@@ -76,8 +76,15 @@ class PackagingManager(CoreObject):
 
         self.load(package_name)
 
+        # component module should be loaded first if available, in case of
+        # any other module needed package services in top level objects.
+        component_module = '{package_name}.component'.format(package_name=package_name)
+        if component_module in module_names:
+            self.load(component_module, **options)
+
         for module in module_names:
-            self.load(module, **options)
+            if module != component_module:
+                self.load(module, **options)
 
         self._loaded_packages.append(package_name)
 

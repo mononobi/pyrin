@@ -603,9 +603,10 @@ class Application(Flask):
         :rtype: CoreResponse
         """
 
+        client_request = session_services.get_current_request()
+        response.request_date = client_request.request_date
+        response.request_id = client_request.request_id
         response.user = session_services.get_current_user()
-        response.request_date = session_services.get_current_request().request_date
-        response.request_id = session_services.get_current_request().request_id
 
         return super(Application, self).process_response(response)
 
