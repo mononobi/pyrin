@@ -9,7 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 import pyrin.database.services as database_services
 
 from pyrin.core.context import CoreObject
-from pyrin.database.exceptions import DatabaseOperationError
 
 
 class CoreDeclarative(CoreObject):
@@ -69,7 +68,7 @@ class CoreDeclarative(CoreObject):
             store.flush()
         except DatabaseError as error:
             store.rollback()
-            raise DatabaseOperationError(error) from error
+            raise error
 
 
 # this entity should be used as the base entity for all application entities.

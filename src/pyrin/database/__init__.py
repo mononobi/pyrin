@@ -12,8 +12,7 @@ class DatabasePackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.configuration',
-               'pyrin.logging']
+    DEPENDS = ['pyrin.configuration']
 
     COMPONENT_NAME = 'database.component'
     CONFIG_STORE_NAMES = ['database']

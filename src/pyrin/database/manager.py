@@ -3,13 +3,18 @@
 database manager module.
 """
 
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 import pyrin.configuration.services as config_services
+import pyrin.database.services as database_services
+import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.context import CoreObject
+from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
+from pyrin.utils import response as response_utils
 
 
 class DatabaseManager(CoreObject):
@@ -55,7 +60,7 @@ class DatabaseManager(CoreObject):
         """
         creates a database engine using database configuration store and returns it.
 
-        :returns: database engine.
+        :returns: database engine
         :rtype: Engine
         """
 
@@ -76,3 +81,66 @@ class DatabaseManager(CoreObject):
         session_configs = config_services.get_section('database', 'session')
         return scoped_session(sessionmaker(bind=self.__engine, **session_configs),
                               scopefunc=session_services.get_current_request)
+
+    def finalize_transaction(self, response):
+        """
+        this method will finalize database transaction of each request.
+        we should not raise any exception in request handlers, so we return
+        an error response in case of any exception.
+        note that normally you should never call this method manually.
+
+        :param CoreResponse response: response object.
+
+        :rtype: CoreResponse
+        """
+
+        client_request = None
+        try:
+            client_request = session_services.get_current_request()
+            store = database_services.get_current_store()
+            session_factory = database_services.get_session_factory()
+            try:
+                if response.status_code >= ClientErrorResponseCodeEnum.BAD_REQUEST:
+                    store.rollback()
+                    return response
+
+                store.commit()
+                return response
+            except DatabaseError as error:
+                store.rollback()
+                raise error
+            finally:
+                session_factory.remove()
+        except Exception as error:
+            logging_services.exception('{client_request} - {message}'
+                                       .format(message=str(error),
+                                               client_request=client_request))
+
+            return response_utils.make_exception_response(error,
+                                                          code=ServerErrorResponseCodeEnum.
+                                                          INTERNAL_SERVER_ERROR)
+
+    def cleanup_session(self, exception):
+        """
+        this method will cleanup database session of each request in
+        case of any unhandled exception. we should not raise any exception
+        in teardown request handlers, so we just log the exception.
+        note that normally you should never call this method manually.
+
+        :param Exception exception: exception instance.
+        """
+
+        if exception is not None:
+            client_request = None
+            try:
+                client_request = session_services.get_current_request()
+                session_factory = database_services.get_session_factory()
+                session_factory.remove()
+
+                logging_services.exception('{client_request} - {message}'
+                                           .format(message=str(exception),
+                                                   client_request=client_request))
+            except Exception as error:
+                logging_services.exception('{client_request} - {message}'
+                                           .format(message=str(error),
+                                                   client_request=client_request))

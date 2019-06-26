@@ -34,6 +34,8 @@ def get_current_request():
     """
     gets current request object.
 
+    :raises RuntimeError: runtime error.
+
     :rtype: CoreRequest
     """
 
@@ -115,3 +117,15 @@ def get_component_custom_key():
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_component_custom_key()
+
+
+def get_safe_current_request():
+    """
+    gets current request object in a safe manner.
+    meaning that if the request does not exist in current context, it will
+    return a None object instead of raising an error.
+
+    :rtype: CoreRequest
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_request()

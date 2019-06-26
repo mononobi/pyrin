@@ -15,6 +15,7 @@ class APIPackage(Package):
 
     NAME = __name__
     DEPENDS = ['pyrin.configuration']
+    COMPONENT_NAME = 'api.component'
     CONFIG_STORE_NAMES = ['api']
 
     def _load_configs(self, config_services):

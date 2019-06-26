@@ -4,7 +4,7 @@ router handlers exceptions module.
 """
 
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
 
 
@@ -15,7 +15,8 @@ class RouterHandlerException(CoreException):
     pass
 
 
-class RouterHandlerBusinessException(RouterHandlerException):
+class RouterHandlerBusinessException(CoreBusinessException,
+                                     RouterHandlerException):
     """
     router handler business exception.
     """

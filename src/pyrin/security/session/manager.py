@@ -48,6 +48,8 @@ class SessionManager(CoreObject):
         """
         gets current request object.
 
+        :raises RuntimeError: runtime error.
+
         :rtype: CoreRequest
         """
 
@@ -129,3 +131,17 @@ class SessionManager(CoreObject):
         """
 
         return self.get_current_request().component_custom_key
+
+    def get_safe_current_request(self):
+        """
+        gets current request object in a safe manner.
+        meaning that if the request does not exist in current context, it will
+        return a None object instead of raising an error.
+
+        :rtype: CoreRequest
+        """
+
+        try:
+            return self.get_current_request()
+        except Exception:
+            return None

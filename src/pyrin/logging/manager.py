@@ -6,9 +6,13 @@ logging manager module.
 import logging
 import logging.config
 
+from logging import Logger
+
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
+from pyrin.logging.adapters import RequestInfoLoggerAdapter, BaseLoggerAdapter
+from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError
 
 
 class LoggingManager(CoreObject):
@@ -27,6 +31,7 @@ class LoggingManager(CoreObject):
 
         self._config_file_path = config_services.get_file_path(self.CONFIG_STORE_NAME)
         self._load_configs(self._config_file_path)
+        self._wrap_all_loggers()
 
     def _load_configs(self, config_file_path):
         """
@@ -36,6 +41,69 @@ class LoggingManager(CoreObject):
         """
 
         logging.config.fileConfig(config_file_path, disable_existing_loggers=True)
+
+    def _wrap_root_logger(self):
+        """
+        wraps the root logger into an adapter.
+        """
+
+        logging.root = self._wrap_logger(logging.root)
+
+    def _get_all_loggers(self):
+        """
+        gets a dictionary containing all available loggers.
+
+        :returns: dict(str name: Logger instance)
+
+        :rtype: dict
+        """
+
+        return logging.root.manager.loggerDict
+
+    def _wrap_logger(self, logger):
+        """
+        wraps the given logger into an adapter and returns it.
+
+        :param Logger logger: logger instance to be wrapped.
+
+        :rtype: BaseLoggerAdapter
+        """
+
+        return RequestInfoLoggerAdapter(logger)
+
+    def _wrap_all_loggers(self):
+        """
+        wraps all available loggers into an adapter.
+        """
+
+        self._wrap_root_logger()
+
+        for name, logger in self._get_all_loggers().items():
+            if isinstance(logger, Logger):
+                self._set_logger_adapter(name, self._wrap_logger(logger))
+
+    def _set_logger_adapter(self, name, adapter):
+        """
+        sets the logger adapter instance with the specified name into logging loggerDict.
+
+        :param str name: name of the logger adapter.
+        :param BaseLoggerAdapter adapter: logger adapter instance.
+
+        :raises InvalidLoggerAdapterTypeError: invalid logger adapter type error.
+        :raises LoggerNotExistedError: logger not existed error.
+        """
+
+        if not isinstance(adapter, BaseLoggerAdapter):
+            raise InvalidLoggerAdapterTypeError('Input parameter [{adapter}] is not an '
+                                                'instance of BaseLoggerAdapter.'
+                                                .format(adapter=str(adapter)))
+
+        loggers = self._get_all_loggers()
+        if name not in loggers.keys():
+            raise LoggerNotExistedError('Logger [{name}] does not exist.'
+                                        .format(name=name))
+
+        loggers[name] = adapter
 
     def reload_configs(self, **options):
         """
@@ -52,10 +120,15 @@ class LoggingManager(CoreObject):
 
         :returns: specified logger.
 
-        :rtype: Logger
+        :rtype: BaseLoggerAdapter
         """
 
-        return logging.getLogger(name)
+        logger = logging.getLogger(name)
+        adapter = logger
+        if not isinstance(adapter, BaseLoggerAdapter):
+            adapter = self._wrap_logger(logger)
+
+        return adapter
 
     def debug(self, msg, *args, **kwargs):
         """
