@@ -18,3 +18,10 @@ class InvalidPackageNameError(PackagingManagerException):
     invalid package name error.
     """
     pass
+
+
+class InvalidPackagingHookTypeError(PackagingManagerException):
+    """
+    invalid packaging hook type error.
+    """
+    pass

@@ -244,6 +244,21 @@ class Application(Flask):
 
         self._components[component.get_id()] = component
 
+    def _get_safe_current_request(self):
+        """
+        gets current request in a safe manner.
+        meaning that if there is no request in current context,
+        returns None instead of raising an error.
+
+        :rtype: CoreRequest
+        """
+
+        try:
+            with request:
+                return request
+        except Exception:
+            return None
+
     def get_component(self, component_name, **options):
         """
         gets the specified application component.
@@ -285,8 +300,11 @@ class Application(Flask):
 
         # this method is the only place that we should access request
         # directly and not from session services, because of circular calling problem.
-        with request as client_request:
+        client_request = self._get_safe_current_request()
+        if client_request is not None:
             return client_request.component_custom_key
+
+        return DEFAULT_COMPONENT_KEY
 
     def _load(self, **options):
         """
@@ -622,26 +640,20 @@ class Application(Flask):
             self._authenticate(client_request)
 
         except Exception as error:
-            logging_services.exception('{client_request} - {message}'
-                                       .format(message=str(error),
-                                               client_request=client_request))
+            logging_services.exception(str(error))
 
         process_start_time = time()
-        logging_services.info('{client_request} received. '
-                              'params: [{params}]'
-                              .format(client_request=client_request,
-                                      params=client_request.inputs))
+        logging_services.info('request received with params: [{params}]'
+                              .format(params=client_request.inputs))
 
         response = super(Application, self).full_dispatch_request()
 
         process_end_time = time()
-        logging_services.info('{client_request} executed in [{time} ms].'
-                              .format(client_request=client_request,
-                                      time='{:0.3f}'
+        logging_services.info('request executed in [{time} ms].'
+                              .format(time='{:0.3f}'
                                       .format((process_end_time - process_start_time) * 1000)))
 
-        logging_services.debug('{response} returned. '
-                               'result: [{result}]'
+        logging_services.debug('[{response}] returned with result: [{result}]'
                                .format(response=response,
                                        result=response.get_data(as_text=True)))
 

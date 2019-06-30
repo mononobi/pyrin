@@ -25,7 +25,12 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         LoggerAdapter.__init__(self, logger, {})
 
+        # these attributes has been added for compatibility
+        # with loggers common api.
         self.handlers = logger.handlers
+        self.level = logger.level
+        self.propagate = logger.propagate
+        self.parent = logger.parent
 
     def process(self, msg, kwargs):
         """
@@ -66,6 +71,6 @@ class RequestInfoLoggerAdapter(BaseLoggerAdapter):
         """
 
         client_request = session_services.get_safe_current_request()
-        custom_message = '{client_request} - {message}'.format(client_request=client_request,
-                                                               message=msg)
+        custom_message = '[{client_request}]: {message}'.format(client_request=client_request,
+                                                                message=msg)
         return custom_message, kwargs

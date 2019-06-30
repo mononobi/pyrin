@@ -136,8 +136,8 @@ class CoreResponse(Response):
         return super(CoreResponse, cls).force_type(response, environ)
 
     def __str__(self):
-        result = 'request id: [{request_id}], response date: [{response_date}], ' \
-                 'request date: [{request_date}], user: [{user}], status_code: [{status_code}]'
+        result = 'request id: "{request_id}", response date: "{response_date}", ' \
+                 'request date: "{request_date}", user: "{user}", status_code: "{status_code}"'
         return result.format(response_date=self.response_date,
                              request_id=self.request_id,
                              request_date=self.request_date,
@@ -171,9 +171,9 @@ class CoreRequest(Request):
         self.context = Context()
 
     def __str__(self):
-        result = 'method: [{method}], route: [{route}], request id: [{request_id}], ' \
-                 'request date: [{request_date}], user: [{user}], client_ip: [{client_ip}], ' \
-                 'component_custom_key: [{component}]'
+        result = 'method: "{method}", route: "{route}", request id: "{request_id}", ' \
+                 'request date: "{request_date}", user: "{user}", client_ip: "{client_ip}", ' \
+                 'component_custom_key: "{component}"'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
                              user=self.user,

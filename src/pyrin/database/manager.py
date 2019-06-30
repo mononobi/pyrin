@@ -22,6 +22,7 @@ class DatabaseManager(CoreObject):
     database manager class.
     """
 
+    LOGGER = logging_services.get_logger('database')
     _CONFIGS_PREFIX = 'sqlalchemy_'
 
     def __init__(self):
@@ -112,10 +113,7 @@ class DatabaseManager(CoreObject):
             finally:
                 session_factory.remove()
         except Exception as error:
-            logging_services.exception('{client_request} - {message}'
-                                       .format(message=str(error),
-                                               client_request=client_request))
-
+            self.LOGGER.exception(str(error))
             return response_utils.make_exception_response(error,
                                                           code=ServerErrorResponseCodeEnum.
                                                           INTERNAL_SERVER_ERROR)
@@ -131,16 +129,10 @@ class DatabaseManager(CoreObject):
         """
 
         if exception is not None:
-            client_request = None
             try:
-                client_request = session_services.get_current_request()
                 session_factory = database_services.get_session_factory()
                 session_factory.remove()
+                self.LOGGER.exception(str(exception))
 
-                logging_services.exception('{client_request} - {message}'
-                                           .format(message=str(exception),
-                                                   client_request=client_request))
             except Exception as error:
-                logging_services.exception('{client_request} - {message}'
-                                           .format(message=str(error),
-                                                   client_request=client_request))
+                self.LOGGER.exception(str(error))

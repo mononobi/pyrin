@@ -31,7 +31,6 @@ class LoggingManager(CoreObject):
 
         self._config_file_path = config_services.get_file_path(self.CONFIG_STORE_NAME)
         self._load_configs(self._config_file_path)
-        self._wrap_all_loggers()
 
     def _load_configs(self, config_file_path):
         """
@@ -82,6 +81,14 @@ class LoggingManager(CoreObject):
             if isinstance(logger, Logger):
                 self._set_logger_adapter(name, self._wrap_logger(logger))
 
+    def wrap_all_loggers(self):
+        """
+        wraps all available loggers into an adapter.
+        normally, this method should not be called manually.
+        """
+
+        self._wrap_all_loggers()
+
     def _set_logger_adapter(self, name, adapter):
         """
         sets the logger adapter instance with the specified name into logging loggerDict.
@@ -127,6 +134,7 @@ class LoggingManager(CoreObject):
         adapter = logger
         if not isinstance(adapter, BaseLoggerAdapter):
             adapter = self._wrap_logger(logger)
+            self._set_logger_adapter(name, adapter)
 
         return adapter
 

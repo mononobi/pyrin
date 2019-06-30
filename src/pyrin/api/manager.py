@@ -4,7 +4,6 @@ api manager module.
 """
 
 import pyrin.logging.services as logging_services
-import pyrin.security.session.services as session_services
 
 from pyrin.core.context import CoreObject
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
@@ -16,6 +15,8 @@ class APIManager(CoreObject):
     api manager class.
     """
 
+    LOGGER = logging_services.get_logger('api')
+
     def handle_http_error(self, exception):
         """
         handles http exceptions.
@@ -26,7 +27,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self._log_error(exception)
+        self.LOGGER.exception(str(exception))
         return response_utils.make_exception_response(exception)
 
     def handle_server_error(self, exception):
@@ -39,7 +40,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self._log_error(exception)
+        self.LOGGER.exception(str(exception))
         return response_utils.make_exception_response(exception)
 
     def handle_server_unknown_error(self, exception):
@@ -52,19 +53,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self._log_error(exception)
+        self.LOGGER.exception(str(exception))
         return response_utils.make_exception_response(exception,
                                                       code=ServerErrorResponseCodeEnum.
                                                       INTERNAL_SERVER_ERROR)
-
-    def _log_error(self, exception):
-        """
-        logs the specified exception.
-
-        :param Exception exception: exception that caused on error.
-        """
-
-        client_request = session_services.get_current_request()
-        logging_services.exception('{client_request} - {message}'
-                                   .format(client_request=client_request,
-                                           message=str(exception)))

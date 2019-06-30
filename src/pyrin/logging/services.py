@@ -15,6 +15,15 @@ def reload_configs(**options):
     return get_component(LoggingPackage.COMPONENT_NAME).reload_configs(**options)
 
 
+def wrap_all_loggers():
+    """
+    wraps all available loggers into an adapter.
+    normally, this method should not be called manually.
+    """
+
+    get_component(LoggingPackage.COMPONENT_NAME).wrap_all_loggers()
+
+
 def get_logger(name, **options):
     """
     gets the logger based on input parameters.

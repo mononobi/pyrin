@@ -26,3 +26,15 @@ def load(module_name, **options):
     """
 
     return get_component(PackagingPackage.COMPONENT_NAME).load(module_name, **options)
+
+
+def register_hook(instance):
+    """
+    registers the given instance into packaging hooks.
+
+    :param PackagingHookBase instance: packaging hook instance to be registered.
+
+    :raises InvalidPackagingHookTypeError: invalid packaging hook type error.
+    """
+
+    get_component(PackagingPackage.COMPONENT_NAME).register_hook(instance)
