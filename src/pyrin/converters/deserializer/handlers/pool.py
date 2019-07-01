@@ -42,12 +42,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
 
         StringPatternDeserializerBase.__init__(self, **options)
 
-        self._converter_map = {self.POOL_REGEX: Pool,
-                               self.NULL_POOL_REGEX: NullPool,
-                               self.ASSERTION_POOL_REGEX: AssertionPool,
-                               self.QUEUE_POOL_REGEX: QueuePool,
-                               self.SINGLETON_THREAD_POOL_REGEX: SingletonThreadPool,
-                               self.STATIC_POOL_REGEX: StaticPool}
+        self._converter_map = self._get_converter_map()
 
     def deserialize(self, value, **options):
         """
@@ -81,3 +76,19 @@ class PoolDeserializer(StringPatternDeserializerBase):
                 (self.QUEUE_POOL_REGEX, 9),
                 (self.SINGLETON_THREAD_POOL_REGEX, 19),
                 (self.STATIC_POOL_REGEX, 10)]
+
+    def _get_converter_map(self):
+        """
+        gets converter map dictionary.
+
+        :returns: dict(Pattern format: Pool pool)
+
+        :rtype: dict
+        """
+
+        return {self.POOL_REGEX: Pool,
+                self.NULL_POOL_REGEX: NullPool,
+                self.ASSERTION_POOL_REGEX: AssertionPool,
+                self.QUEUE_POOL_REGEX: QueuePool,
+                self.SINGLETON_THREAD_POOL_REGEX: SingletonThreadPool,
+                self.STATIC_POOL_REGEX: StaticPool}

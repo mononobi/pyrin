@@ -3,17 +3,15 @@
 deserializer datetime module.
 """
 
-from datetime import date, datetime
-
-from pyrin.converters.deserializer.handlers.base import StringDeserializerBase
+from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.core.globals import NULL
-from pyrin.utils.datetime.converter import DEFAULT_DATE_FORMAT, DEFAULT_TIME_FORMAT_UTC, \
-    DEFAULT_DATE_TIME_FORMAT_UTC, to_datetime
+from pyrin.utils.datetime import DEFAULT_DATE_TIME_UTC_REGEX, DEFAULT_DATE_REGEX, \
+    DEFAULT_TIME_UTC_REGEX, to_datetime, to_date, to_time
 
 
 @deserializer()
-class DateDeserializer(StringDeserializerBase):
+class DateDeserializer(StringPatternDeserializerBase):
     """
     date deserializer class.
     """
@@ -22,13 +20,14 @@ class DateDeserializer(StringDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of custom accepted formats and
-                                                         their length for date deserialization.
+        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+                                                             and their length for date
+                                                             deserialization.
 
-        :type accepted_formats: list[tuple(str format, int length)]
+        :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringDeserializerBase.__init__(self, **options)
+        StringPatternDeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
@@ -40,42 +39,37 @@ class DateDeserializer(StringDeserializerBase):
         :rtype: date
         """
 
-        if not self.is_deserializable(value, **options):
+        deserializable, pattern = self.is_deserializable(value, **options)
+        if not deserializable:
             return NULL
 
         value = value.strip()
         converted_date = None
 
-        for format_string, length in self.get_accepted_formats():
-            try:
-                converted_date = to_datetime(value, format=format_string)
-                if converted_date is not None:
-                    break
+        try:
+            converted_date = to_date(value)
+            if converted_date is not None:
+                return converted_date
 
-                continue
-            except ValueError:
-                continue
-
-        if converted_date is not None:
-            return converted_date.date()
-
-        return NULL
+            return NULL
+        except Exception:
+            return NULL
 
     def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(str format, int length))
+        :return: list(tuple(Pattern format, int length))
 
-        :rtype: list(tuple(str, int))
+        :rtype: list(tuple(Pattern, int))
         """
 
-        return [DEFAULT_DATE_FORMAT]
+        return [(DEFAULT_DATE_REGEX, 10)]
 
 
 @deserializer()
-class TimeDeserializer(StringDeserializerBase):
+class TimeDeserializer(StringPatternDeserializerBase):
     """
     time deserializer class.
     """
@@ -84,13 +78,14 @@ class TimeDeserializer(StringDeserializerBase):
         """
         creates an instance of TimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted formats and
-                                                         their length for time deserialization.
+        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+                                                             and their length for time
+                                                             deserialization.
 
-        :type accepted_formats: list[tuple(str format, int length)]
+        :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringDeserializerBase.__init__(self, **options)
+        StringPatternDeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
@@ -102,42 +97,37 @@ class TimeDeserializer(StringDeserializerBase):
         :rtype: time
         """
 
-        if not self.is_deserializable(value, **options):
+        deserializable, pattern = self.is_deserializable(value, **options)
+        if not deserializable:
             return NULL
 
         value = value.strip()
         converted_time = None
 
-        for format_string, length in self.get_accepted_formats():
-            try:
-                converted_time = to_datetime(value, format=format_string)
-                if converted_time is not None:
-                    break
+        try:
+            converted_time = to_time(value)
+            if converted_time is not None:
+                return converted_time
 
-                continue
-            except ValueError:
-                continue
-
-        if converted_time is not None:
-            return converted_time.timetz()
-
-        return NULL
+            return NULL
+        except Exception:
+            return NULL
 
     def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(str format, int length))
+        :return: list(tuple(Pattern format, int length))
 
-        :rtype: list(tuple(str, int))
+        :rtype: list(tuple(Pattern, int))
         """
 
-        return [DEFAULT_TIME_FORMAT_UTC]
+        return [(DEFAULT_TIME_UTC_REGEX, 14)]
 
 
 @deserializer()
-class DateTimeDeserializer(StringDeserializerBase):
+class DateTimeDeserializer(StringPatternDeserializerBase):
     """
     datetime deserializer class.
     """
@@ -146,13 +136,14 @@ class DateTimeDeserializer(StringDeserializerBase):
         """
         creates an instance of DateTimeDeserializer.
 
-        :keyword list[tuple(str, int)] accepted_formats: a list of all accepted formats and
-                                                         their length for datetime deserialization.
+        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+                                                             and their length for datetime
+                                                             deserialization.
 
-        :type accepted_formats: list[tuple(str format, int length)]
+        :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringDeserializerBase.__init__(self, **options)
+        StringPatternDeserializerBase.__init__(self, **options)
 
     def deserialize(self, value, **options):
         """
@@ -164,35 +155,30 @@ class DateTimeDeserializer(StringDeserializerBase):
         :rtype: datetime
         """
 
-        if not self.is_deserializable(value, **options):
+        deserializable, pattern = self.is_deserializable(value, **options)
+        if not deserializable:
             return NULL
 
         value = value.strip()
         converted_datetime = None
 
-        for format_string, length in self.get_accepted_formats():
-            try:
-                converted_datetime = to_datetime(value, format=format_string)
-                if converted_datetime is not None:
-                    break
+        try:
+            converted_datetime = to_datetime(value)
+            if converted_datetime is not None:
+                return converted_datetime
 
-                continue
-            except ValueError:
-                continue
-
-        if converted_datetime is not None:
-            return converted_datetime
-
-        return NULL
+            return NULL
+        except Exception:
+            return NULL
 
     def get_default_formats(self):
         """
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(str format, int length))
+        :return: list(tuple(Pattern format, int length))
 
-        :rtype: list(tuple(str, int))
+        :rtype: list(tuple(Pattern, int))
         """
 
-        return [DEFAULT_DATE_TIME_FORMAT_UTC]
+        return [(DEFAULT_DATE_TIME_UTC_REGEX, 25)]

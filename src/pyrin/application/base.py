@@ -143,7 +143,7 @@ class Application(Flask):
         sets the application status.
         status must be from ApplicationStatusEnum.
 
-        :param int status: application status.
+        :param str status: application status.
 
         raises InvalidApplicationStatusError: invalid application status error.
         """
@@ -158,7 +158,7 @@ class Application(Flask):
         """
         gets the application status.
 
-        :rtype: int
+        :rtype: str
         """
 
         return self.__status
@@ -180,7 +180,7 @@ class Application(Flask):
         replace = options.get('replace', False)
         if replace is not True and key in self._context:
             raise DuplicateContextKeyError('Key [{key}] is already available in application '
-                                           'context and `replace=True` option is not set, so '
+                                           'context and "replace=True" option is not set, so '
                                            'the new value could not be added.'
                                            .format(key=key))
 

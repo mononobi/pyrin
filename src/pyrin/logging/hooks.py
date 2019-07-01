@@ -29,4 +29,5 @@ class PackagingHook(PackagingHookBase):
 
         # we must wrap all available loggers into an adapter
         # to inject request info into every log record.
+        # it does not affect sqlalchemy logs.
         logging_services.wrap_all_loggers()

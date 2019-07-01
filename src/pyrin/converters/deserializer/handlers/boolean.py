@@ -35,8 +35,7 @@ class BooleanDeserializer(StringPatternDeserializerBase):
 
         StringPatternDeserializerBase.__init__(self, **options)
 
-        self._converter_map = {self.TRUE_REGEX: True,
-                               self.FALSE_REGEX: False}
+        self._converter_map = self._get_converter_map()
 
     def deserialize(self, value, **options):
         """
@@ -66,3 +65,15 @@ class BooleanDeserializer(StringPatternDeserializerBase):
 
         return [(self.TRUE_REGEX, 4),
                 (self.FALSE_REGEX, 5)]
+
+    def _get_converter_map(self):
+        """
+        gets converter map dictionary.
+
+        :returns: dict(Pattern format: bool value)
+
+        :rtype: dict
+        """
+
+        return {self.TRUE_REGEX: True,
+                self.FALSE_REGEX: False}
