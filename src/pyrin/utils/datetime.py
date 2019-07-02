@@ -153,8 +153,6 @@ def utc_now():
     """
     gets current datetime in utc timezone with zero offset.
 
-    :returns: timezone aware utc datetime.
-
     :rtype: datetime
     """
 
