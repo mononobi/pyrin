@@ -65,7 +65,8 @@ class RSA256Encrypter(RSAEncrypterBase):
             algorithm=hashes.SHA256(),
             label=None)).decode(APPLICATION_ENCODING)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -74,7 +75,7 @@ class RSA256Encrypter(RSAEncrypterBase):
         :rtype: tuple(str, str)
         """
 
-        return RSAEncrypterBase.generate_key(self, length=2048)
+        return RSAEncrypterBase.generate_key(length=2048)
 
     def _load_keys(self, **options):
         """

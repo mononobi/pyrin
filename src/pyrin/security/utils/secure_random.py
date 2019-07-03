@@ -21,8 +21,11 @@ def get_bytes(**options):
     :rtype: bytes
     """
 
-    length = options.get('length', config_services.get('security', 'general',
-                                                       'default_secure_random_size'))
+    length = options.get('length', None)
+    if length is None:
+        length = config_services.get('security', 'general',
+                                     'default_secure_random_size')
+
     return secrets.token_bytes(length)
 
 
@@ -36,8 +39,11 @@ def get_hex(**options):
     :rtype: str
     """
 
-    length = options.get('length', config_services.get('security', 'general',
-                                                       'default_secure_random_size'))
+    length = options.get('length', None)
+    if length is None:
+        length = config_services.get('security', 'general',
+                                     'default_secure_random_size')
+
     return secrets.token_hex(length)
 
 
@@ -51,6 +57,9 @@ def get_url_safe(**options):
     :rtype: str
     """
 
-    length = options.get('length', config_services.get('security', 'general',
-                                                       'default_secure_random_size'))
+    length = options.get('length', None)
+    if length is None:
+        length = config_services.get('security', 'general',
+                                     'default_secure_random_size')
+
     return secrets.token_urlsafe(length)

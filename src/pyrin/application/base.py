@@ -482,7 +482,7 @@ class Application(Flask):
 
         # checking whether is there any registered route with the same url.
         old_rule = None
-        for rule_item in self.url_map._rules:
+        for rule_item in self.url_map.iter_rules(endpoint=None):
             if rule_item.rule == rule:
                 old_rule = rule_item
                 break

@@ -67,11 +67,12 @@ class AES128Encrypter(SymmetricEncrypterBase):
 
         return self._encrypter.decrypt(value).decode(APPLICATION_ENCODING)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
         :rtype: str
         """
 
-        return self._encrypter.generate_key()
+        return Fernet.generate_key().decode(APPLICATION_ENCODING)

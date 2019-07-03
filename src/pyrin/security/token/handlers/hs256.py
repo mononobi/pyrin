@@ -41,7 +41,8 @@ class HS256Token(SymmetricTokenBase):
 
         return 'HS256'
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -52,9 +53,9 @@ class HS256Token(SymmetricTokenBase):
         :rtype: str
         """
 
-        key_length = options.get('length',
-                                 config_services.get('security', 'token',
-                                                     'hs256_key_length'))
+        key_length = options.get('length', None)
+        if key_length is None:
+            key_length = config_services.get('security', 'token', 'hs256_key_length')
 
         return secure_random.get_url_safe(length=key_length)
 

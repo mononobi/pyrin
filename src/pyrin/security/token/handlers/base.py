@@ -329,7 +329,8 @@ class TokenBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -380,7 +381,8 @@ class SymmetricTokenBase(TokenBase):
 
         return self._get_encoding_key(**options)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -410,7 +412,8 @@ class AsymmetricTokenBase(TokenBase):
         # we pass the algorithm of token handler as the name of it.
         TokenBase.__init__(self, self._get_algorithm(**options), **options)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -444,7 +447,8 @@ class RSTokenBase(AsymmetricTokenBase):
 
         self._load_keys(**options)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid public/private key for this handler and returns it.
 

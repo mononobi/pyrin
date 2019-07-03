@@ -23,9 +23,9 @@ def generate_rsa_key(**options):
     :rtype: tuple(str, str)
     """
 
-    key_size = options.get('length',
-                           config_services.get('security', 'general',
-                                               'rsa_default_key_length'))
+    key_size = options.get('length', None)
+    if key_size is None:
+        key_size = config_services.get('security', 'general', 'rsa_default_key_length')
 
     key = rsa.generate_private_key(public_exponent=65537,
                                    key_size=key_size,

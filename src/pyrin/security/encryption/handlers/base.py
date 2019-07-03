@@ -145,7 +145,8 @@ class EncrypterBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -311,7 +312,8 @@ class SymmetricEncrypterBase(EncrypterBase):
 
         return self._get_encryption_key(**options)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -342,7 +344,8 @@ class AsymmetricEncrypterBase(EncrypterBase):
         # we pass the algorithm of encryption handler as the name of it.
         EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -395,7 +398,8 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
 
         return self._private_key
 
-    def generate_key(self, **options):
+    @classmethod
+    def generate_key(cls, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
