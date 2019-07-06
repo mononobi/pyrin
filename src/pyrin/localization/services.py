@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+"""
+localization services module.
+"""
+
+from pyrin.application.services import get_component
+from pyrin.localization import LocalizationPackage
+
+
+def set_locale_selector(func):
+    """
+    sets the given function as locale selector.
+
+    :param callable func: function to be set as locale selector.
+
+    :raises InvalidLocaleSelectorTypeError: invalid locale selector type error.
+
+    :raises LocaleSelectorHasBeenAlreadySetError: locale selector has been
+                                                  already set error.
+    """
+
+    get_component(LocalizationPackage.COMPONENT_NAME).set_locale_selector(func)
+
+
+def set_timezone_selector(func):
+    """
+    sets the given function as timezone selector.
+
+    :param callable func: function to be set as timezone selector.
+
+    :raises InvalidTimezoneSelectorTypeError: invalid timezone selector type error.
+
+    :raises TimezoneSelectorHasBeenAlreadySetError: timezone selector has been
+                                                    already set error.
+    """
+
+    get_component(LocalizationPackage.COMPONENT_NAME).set_timezone_selector(func)

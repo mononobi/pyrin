@@ -20,7 +20,7 @@ def add_context(key, value, **options):
     :raises DuplicateContextKeyError: duplicate context key error.
     """
 
-    _get_app().add_context(key, value, **options)
+    get_current_app().add_context(key, value, **options)
 
 
 def get_context(key):
@@ -32,7 +32,7 @@ def get_context(key):
     :rtype: object
     """
 
-    return _get_app().get_context(key)
+    return get_current_app().get_context(key)
 
 
 def register_component(component, **options):
@@ -53,7 +53,7 @@ def register_component(component, **options):
     :raises DuplicateComponentIDError: duplicate component id error.
     """
 
-    _get_app().register_component(component, **options)
+    get_current_app().register_component(component, **options)
 
 
 def get_component(component_name):
@@ -65,7 +65,7 @@ def get_component(component_name):
     :rtype: Component
     """
 
-    return _get_app().get_component(component_name)
+    return get_current_app().get_component(component_name)
 
 
 def register_error_handler(code_or_exception, func):
@@ -78,7 +78,7 @@ def register_error_handler(code_or_exception, func):
     :param callable func: function to register it as an error handler.
     """
 
-    _get_app().register_error_handler(code_or_exception, func)
+    get_current_app().register_error_handler(code_or_exception, func)
 
 
 def register_before_request_handler(func):
@@ -88,7 +88,7 @@ def register_before_request_handler(func):
     :param callable func: function to register it into before request handlers.
     """
 
-    _get_app().before_request(func)
+    get_current_app().before_request(func)
 
 
 def register_after_request_handler(func):
@@ -98,7 +98,7 @@ def register_after_request_handler(func):
     :param callable func: function to register it into after request handlers.
     """
 
-    _get_app().after_request(func)
+    get_current_app().after_request(func)
 
 
 def register_teardown_request_handler(func):
@@ -110,7 +110,7 @@ def register_teardown_request_handler(func):
     :param callable func: function to register it into teardown request handlers.
     """
 
-    _get_app().teardown_request(func)
+    get_current_app().teardown_request(func)
 
 
 def add_url_rule(rule, endpoint=None, view_func=None,
@@ -151,8 +151,8 @@ def add_url_rule(rule, endpoint=None, view_func=None,
     :raises DuplicateRouteURLError: duplicate route url error.
     """
 
-    _get_app().add_url_rule(rule, endpoint, view_func,
-                            provide_automatic_options, **options)
+    get_current_app().add_url_rule(rule, endpoint, view_func,
+                                   provide_automatic_options, **options)
 
 
 def register_route_factory(factory):
@@ -165,7 +165,7 @@ def register_route_factory(factory):
     :raises InvalidRouteFactoryTypeError: invalid route factory type error.
     """
 
-    _get_app().register_route_factory(factory)
+    get_current_app().register_route_factory(factory)
 
 
 def get_settings_path():
@@ -175,7 +175,7 @@ def get_settings_path():
     :rtype: str
     """
 
-    return _get_app().get_settings_path()
+    return get_current_app().get_settings_path()
 
 
 def configure(config_store):
@@ -186,4 +186,14 @@ def configure(config_store):
     :param dict config_store: a dictionary containing configuration key/values.
     """
 
-    _get_app().configure(config_store)
+    get_current_app().configure(config_store)
+
+
+def get_current_app():
+    """
+    gets the instance of current running application.
+
+    :rtype: Application
+    """
+
+    return _get_app()

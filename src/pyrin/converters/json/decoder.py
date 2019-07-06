@@ -8,8 +8,8 @@ from json.scanner import py_make_scanner
 
 from flask.json import JSONDecoder
 
-from pyrin.utils.datetime import DEFAULT_DATE_TIME_UTC_REGEX, \
-    DEFAULT_DATE_REGEX, DEFAULT_TIME_UTC_REGEX, to_datetime, to_date, to_time
+from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, \
+    DEFAULT_DATE_ISO_REGEX, DEFAULT_TIME_ISO_REGEX, to_date, to_time, to_datetime_utc
 
 
 def scanstring_extended(s, end, strict=True):
@@ -18,11 +18,11 @@ def scanstring_extended(s, end, strict=True):
     """
 
     s, end = scanstring(s, end, strict)
-    if DEFAULT_DATE_TIME_UTC_REGEX.match(s):
-        return to_datetime(s), end
-    elif DEFAULT_DATE_REGEX.match(s):
+    if DEFAULT_DATE_TIME_ISO_REGEX.match(s):
+        return to_datetime_utc(s), end
+    elif DEFAULT_DATE_ISO_REGEX.match(s):
         return to_date(s), end
-    elif DEFAULT_TIME_UTC_REGEX.match(s):
+    elif DEFAULT_TIME_ISO_REGEX.match(s):
         return to_time(s), end
     else:
         return s, end

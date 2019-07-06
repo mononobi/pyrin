@@ -6,8 +6,8 @@ deserializer datetime module.
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.core.globals import NULL
-from pyrin.utils.datetime import DEFAULT_DATE_TIME_UTC_REGEX, DEFAULT_DATE_REGEX, \
-    DEFAULT_TIME_UTC_REGEX, to_datetime, to_date, to_time
+from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, DEFAULT_DATE_ISO_REGEX, \
+    DEFAULT_TIME_ISO_REGEX, to_date, to_time, to_datetime_utc
 
 
 @deserializer()
@@ -65,7 +65,7 @@ class DateDeserializer(StringPatternDeserializerBase):
         :rtype: list(tuple(Pattern, int))
         """
 
-        return [(DEFAULT_DATE_REGEX, 10)]
+        return [(DEFAULT_DATE_ISO_REGEX, 10)]
 
 
 @deserializer()
@@ -123,7 +123,7 @@ class TimeDeserializer(StringPatternDeserializerBase):
         :rtype: list(tuple(Pattern, int))
         """
 
-        return [(DEFAULT_TIME_UTC_REGEX, 14)]
+        return [(DEFAULT_TIME_ISO_REGEX, 14)]
 
 
 @deserializer()
@@ -163,7 +163,7 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         converted_datetime = None
 
         try:
-            converted_datetime = to_datetime(value)
+            converted_datetime = to_datetime_utc(value)
             if converted_datetime is not None:
                 return converted_datetime
 
@@ -181,4 +181,4 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         :rtype: list(tuple(Pattern, int))
         """
 
-        return [(DEFAULT_DATE_TIME_UTC_REGEX, 25)]
+        return [(DEFAULT_DATE_TIME_ISO_REGEX, 25)]

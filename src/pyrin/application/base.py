@@ -12,6 +12,7 @@ from time import time
 from dotenv import load_dotenv as load_dotenv_
 from flask import Flask, request
 from flask.app import setupmethod
+from flask.ctx import has_request_context
 
 import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
@@ -253,11 +254,11 @@ class Application(Flask):
         :rtype: CoreRequest
         """
 
-        try:
+        if has_request_context() is True:
             with request:
                 return request
-        except Exception:
-            return None
+
+        return None
 
     def get_component(self, component_name, **options):
         """

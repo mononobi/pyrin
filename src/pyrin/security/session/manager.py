@@ -4,6 +4,7 @@ session manager module.
 """
 
 from flask import request
+from flask.ctx import has_request_context
 
 from pyrin.core.context import CoreObject
 from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
@@ -141,7 +142,7 @@ class SessionManager(CoreObject):
         :rtype: CoreRequest
         """
 
-        try:
+        if has_request_context() is True:
             return self.get_current_request()
-        except Exception:
-            return None
+
+        return None

@@ -8,8 +8,7 @@ from datetime import datetime, date, time
 from flask.json import JSONEncoder
 
 from pyrin.utils import encoding
-from pyrin.utils.datetime import to_datetime_string, to_date_string, \
-    to_time_string
+from pyrin.utils.datetime import to_date_string, to_datetime_string_utc, to_time_string_utc
 
 
 class CoreJSONEncoder(JSONEncoder):
@@ -28,11 +27,11 @@ class CoreJSONEncoder(JSONEncoder):
         """
 
         if isinstance(o, datetime):
-            return to_datetime_string(o)
+            return to_datetime_string_utc(o)
         if isinstance(o, date):
             return to_date_string(o)
         if isinstance(o, time):
-            return to_time_string(o)
+            return to_time_string_utc(o)
         if isinstance(o, bytes):
             return encoding.bytes_to_base64_string(o)
 

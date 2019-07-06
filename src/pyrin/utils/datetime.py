@@ -11,18 +11,18 @@ import pytz
 import aniso8601
 
 
-# default datetime regular expression pattern with utc offset.
+# default iso datetime regular expression pattern with utc offset.
 # example: '2015-12-24T23:40:15+03:30'
-DEFAULT_DATE_TIME_UTC_REGEX = \
+DEFAULT_DATE_TIME_ISO_REGEX = \
     re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d:[0-5]\d$')
 
-# default date regular expression pattern.
+# default iso date regular expression pattern.
 # example: '2015-12-24'
-DEFAULT_DATE_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\d$')
+DEFAULT_DATE_ISO_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\d$')
 
-# default time regular expression pattern with utc offset.
+# default iso time regular expression pattern with utc offset.
 # example: '23:40:15+03:30'
-DEFAULT_TIME_UTC_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d:[0-5]\d$')
+DEFAULT_TIME_ISO_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d:[0-5]\d$')
 
 
 def to_datetime_string(value):
