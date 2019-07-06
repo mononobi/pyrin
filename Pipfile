@@ -30,6 +30,7 @@ setuptools = "*"
 colorama = "*"
 python-dotenv = "*"
 cryptography = "*"
+flask-babel = "*"
 
 [requires]
 python_version = "3.7"
