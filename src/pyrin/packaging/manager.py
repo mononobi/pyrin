@@ -16,7 +16,7 @@ from pyrin.packaging.exceptions import InvalidPackageNameError, \
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
-    CORE_PACKAGES
+    CORE_PACKAGES, TEST_PACKAGES
 from pyrin.utils.path import resolve_application_root_path
 
 
@@ -161,6 +161,7 @@ class PackagingManager(CoreObject):
         # in the form of {package_name: [modules]}.
         core_components = {}
         application_components = {}
+        test_components = {}
 
         for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
 
@@ -265,6 +266,45 @@ class PackagingManager(CoreObject):
         """
 
         return self._is_core_component(module_name)
+
+    def _is_test_component(self, component_name):
+        """
+        gets a value indicating that given component is a test component.
+
+        :param str component_name: full package or module name.
+
+        :rtype: bool
+        """
+
+        for test in TEST_PACKAGES:
+            if component_name.startswith(test):
+                return True
+
+        return False
+
+    def _is_test_package(self, package_name):
+        """
+        gets a value indicating that given package is a test package.
+
+        :param str package_name: full package name.
+                                 example package_name = 'test.api'
+
+        :rtype: bool
+        """
+
+        return self._is_test_component(package_name)
+
+    def _is_test_module(self, module_name):
+        """
+        gets a value indicating that given module is a test module.
+
+        :param str module_name: full module name.
+                                example module_name = 'test.api.error_handlers'
+
+        :rtype: bool
+        """
+
+        return self._is_test_component(module_name)
 
     def _get_package_name(self, path):
         """

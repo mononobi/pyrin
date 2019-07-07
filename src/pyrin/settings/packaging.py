@@ -34,4 +34,4 @@ CUSTOM_PACKAGES = ('', )
 # these packages are used for unit testing and should not be loaded by default.
 # package names must be fully qualified.
 # example: `tests.api`
-TEST_PACKAGES = ('', )
+TEST_PACKAGES = ('tests', )
