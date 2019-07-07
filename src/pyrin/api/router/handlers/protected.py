@@ -8,6 +8,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.api.router.handlers.base import RouteBase
 from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError
+from pyrin.core.globals import _
 
 
 class ProtectedRoute(RouteBase):
@@ -214,7 +215,7 @@ class FreshProtectedRoute(ProtectedRoute):
         """
 
         if not session_services.is_fresh():
-            raise FreshTokenRequiredError('Fresh token is required to '
-                                          'access the requested resource.')
+            raise FreshTokenRequiredError(_('Fresh token is required to '
+                                            'access the requested resource.'))
 
         super(FreshProtectedRoute, self)._authorize()

@@ -6,6 +6,7 @@ security manager module.
 import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
+from pyrin.core.globals import _
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.exceptions import InvalidPasswordLengthError, InvalidUserError, \
@@ -33,7 +34,7 @@ class SecurityManager(CoreObject):
         """
 
         if password is None or len(password) == 0:
-            raise InvalidPasswordLengthError('Input password has invalid length.')
+            raise InvalidPasswordLengthError(_('Input password has invalid length.'))
 
         decrypted_password = password
         is_encrypted = options.get('is_encrypted', False)
@@ -55,7 +56,7 @@ class SecurityManager(CoreObject):
         """
 
         if text is None or len(text) == 0:
-            raise InvalidEncryptionTextLengthError('Input text has invalid length.')
+            raise InvalidEncryptionTextLengthError(_('Input text has invalid length.'))
 
         return encryption_services.encrypt(text)
 
@@ -88,7 +89,7 @@ class SecurityManager(CoreObject):
         """
 
         if user is None:
-            raise InvalidUserError('Input user could not be None.')
+            raise InvalidUserError(_('Input user could not be None.'))
 
         return self.get_permission_ids(user=user)
 

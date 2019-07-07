@@ -170,6 +170,9 @@ class CoreRequest(Request):
         self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
 
+        self._extract_locale()
+        self._extract_timezone()
+
     def __str__(self):
         result = 'method: "{method}", route: "{route}", request id: "{request_id}", ' \
                  'request date: "{request_date}", user: "{user}", client_ip: "{client_ip}", ' \
@@ -215,3 +218,19 @@ class CoreRequest(Request):
         """
 
         return self.content_length or 0
+
+    def _extract_locale(self):
+        """
+        extracts locale name from request query params and puts it into request context.
+        """
+
+        if 'lang' in self.args.keys():
+            self.context.update(locale=self.args.get('lang'))
+
+    def _extract_timezone(self):
+        """
+        extracts timezone name from request query params and puts it into request context.
+        """
+
+        if 'tz' in self.args.keys():
+            self.context.update(timezone=self.args.get('tz'))

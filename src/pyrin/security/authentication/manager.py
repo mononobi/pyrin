@@ -6,6 +6,7 @@ authentication manager module.
 import pyrin.security.token.services as token_services
 import pyrin.security.session.services as session_services
 
+from pyrin.core.globals import _
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
@@ -122,11 +123,11 @@ class AuthenticationManager(CoreObject):
         """
 
         if payload is None:
-            raise AuthenticationFailedError('Payload data could not be None.')
+            raise AuthenticationFailedError(_('Payload data could not be None.'))
 
         token_type = payload.get('type', None)
         if token_type != 'access':
-            raise AuthenticationFailedError('Access token is required for authentication.')
+            raise AuthenticationFailedError(_('Access token is required for authentication.'))
 
         self._validate_custom(header, payload, **options)
 

@@ -5,6 +5,9 @@ localization manager module.
 
 from flask_babel import Babel
 
+import pyrin.security.session.services as session_services
+import pyrin.configuration.services as config_services
+
 from pyrin.core.context import CoreObject
 from pyrin.application.services import get_current_app
 from pyrin.localization.exceptions import InvalidLocaleSelectorTypeError, \
@@ -71,3 +74,31 @@ class LocalizationManager(CoreObject):
                                                          'set and could not be overwritten.')
 
         self._babel.timezone_selector_func = func
+
+    def get_current_locale(self):
+        """
+        gets the current locale that should be used for current request.
+
+        :rtype: str
+        """
+
+        current_locale = session_services.get_current_request_context().get('locale', None)
+        if current_locale is None:
+            current_locale = config_services.get('localization', 'general',
+                                                 'babel_default_locale')
+
+        return current_locale
+
+    def get_current_timezone(self):
+        """
+        gets the current timezone that should be used for current request.
+
+        :rtype: str
+        """
+
+        current_timezone = session_services.get_current_request_context().get('timezone', None)
+        if current_timezone is None:
+            current_timezone = config_services.get('localization', 'general',
+                                                   'babel_default_timezone')
+
+        return current_timezone

@@ -8,6 +8,7 @@ from werkzeug.routing import Rule
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 
+from pyrin.core.globals import _
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError
 
@@ -158,7 +159,7 @@ class RouteBase(Rule):
 
         client_request = session_services.get_current_request()
         if client_request.safe_content_length > self.get_max_content_length():
-            raise LargeContentError('Request content is too large.')
+            raise LargeContentError(_('Request content is too large.'))
 
     def _call_view_function(self, inputs, **options):
         """
