@@ -16,7 +16,7 @@ from pyrin.packaging.exceptions import InvalidPackageNameError, \
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
-    CORE_PACKAGES, TEST_PACKAGES
+    CORE_PACKAGES, TEST_PACKAGES, LOAD_TEST_PACKAGES
 from pyrin.utils.path import resolve_application_root_path
 
 
@@ -49,10 +49,15 @@ class PackagingManager(CoreObject):
 
         print_info('Loading application components...')
 
-        core_packages, application_packages = self._get_loadable_components(**options)
+        core_packages, application_packages, test_packages = \
+            self._get_loadable_components(**options)
 
         self._load_components(core_packages, **options)
         self._load_components(application_packages, **options)
+
+        if LOAD_TEST_PACKAGES is True:
+            self._load_components(test_packages, **options)
+
         self._after_packages_loaded()
 
         print_info('Total of [{count}] packages loaded.'
@@ -146,15 +151,17 @@ class PackagingManager(CoreObject):
         """
         gets all package and module names that should be loaded.
 
-        :returns: tuple(core_components, application_components)
+        :returns: tuple(core_components, application_components, test_components)
 
         :type core_components: dict(list[str] package_name: modules)
 
         :type application_components: dict(list[str] package_name: modules)
 
+        :type test_components: dict(list[str] package_name: modules)
+
         :type package_name: list(str module: module name)
 
-        :rtype: tuple(dict(str: list[str]), dict(str: list[str]))
+        :rtype: tuple(dict(str: list[str]), dict(str: list[str]), dict(str: list[str]))
         """
 
         # a dictionary containing all package names and their respective modules.
@@ -176,6 +183,8 @@ class PackagingManager(CoreObject):
 
                 if self._is_core_package(package_name):
                     core_components[package_name] = []
+                elif self._is_test_package(package_name):
+                    test_components[package_name] = []
                 else:
                     application_components[package_name] = []
 
@@ -191,10 +200,12 @@ class PackagingManager(CoreObject):
 
                     if self._is_core_module(full_module_name):
                         core_components[package_name].append(full_module_name)
+                    elif self._is_test_module(full_module_name):
+                        test_components[package_name].append(full_module_name)
                     else:
                         application_components[package_name].append(full_module_name)
 
-        return core_components, application_components
+        return core_components, application_components, test_components
 
     def _is_ignored_package(self, package_name):
         """
