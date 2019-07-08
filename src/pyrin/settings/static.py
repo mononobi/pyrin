@@ -24,4 +24,4 @@ APPLICATION_ENCODING = 'utf-8'
 DEFAULT_COMPONENT_KEY = 0
 
 # determines that @audit decorator should be enabled to log decorated methods.
-AUDIT_LOG = True
+AUDIT_LOG = False

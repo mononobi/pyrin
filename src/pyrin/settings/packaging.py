@@ -35,3 +35,6 @@ CUSTOM_PACKAGES = ('', )
 # package names must be fully qualified.
 # example: `tests.api`
 TEST_PACKAGES = ('tests', )
+
+# determines that test packages should be loaded.
+LOAD_TEST_PACKAGES = True
