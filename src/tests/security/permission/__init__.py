@@ -2,15 +2,3 @@
 """
 permission package.
 """
-
-from pyrin.packaging import Package
-
-
-class PermissionPackage(Package):
-    """
-    permission package class.
-    """
-
-    NAME = __name__
-    DEPENDS = []
-    COMPONENT_NAME = 'security.permission.component'

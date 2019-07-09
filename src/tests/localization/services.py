@@ -38,7 +38,6 @@ def set_timezone_selector(func):
     get_component(LocalizationPackage.COMPONENT_NAME).set_timezone_selector(func)
 
 
-@locale_selector()
 def get_current_locale():
     """
     gets the current locale that should be used for current request.
@@ -49,7 +48,6 @@ def get_current_locale():
     return get_component(LocalizationPackage.COMPONENT_NAME).get_current_locale()
 
 
-@timezone_selector()
 def get_current_timezone():
     """
     gets the current timezone that should be used for current request.

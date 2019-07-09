@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-encryption package.
+common package.
 """

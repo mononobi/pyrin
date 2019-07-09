@@ -6,10 +6,10 @@ pyrin tests main package.
 import signal
 
 from pyrin.utils.custom_print import print_error
-from tests.application.base import TestApplication
+from pyrin.application.base import Application
 
 
-class PyrinTestApplication(TestApplication):
+class PyrinTestApplication(Application):
     """
     pyrin test application class.
     test server should create an instance of this class on startup.
@@ -46,7 +46,7 @@ class PyrinTestApplication(TestApplication):
                                 manually defined.
         """
 
-        TestApplication.__init__(self, self.get_application_name(), **options)
+        Application.__init__(self, self.get_application_name(), **options)
 
         # handling all signals that their default action is `terminate`,
         # to log if something goes wrong.
