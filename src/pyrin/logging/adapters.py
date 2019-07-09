@@ -32,6 +32,28 @@ class BaseLoggerAdapter(LoggerAdapter):
         self.propagate = logger.propagate
         self.parent = logger.parent
 
+    def addHandler(self, hdlr):
+        """
+        adds the specified handler to this logger.
+        this method has been added for compatibility
+        with loggers common api.
+
+        :param Handler hdlr: logger handler to be added.
+        """
+
+        self.logger.addHandler(hdlr)
+
+    def removeHandler(self, hdlr):
+        """
+        removes the specified handler from this logger.
+        this method has been added for compatibility
+        with loggers common api.
+
+        :param Handler hdlr: logger handler to be removed.
+        """
+
+        self.logger.removeHandler(hdlr)
+
     def process(self, msg, kwargs):
         """
         processes the logging message and keyword arguments passed in to

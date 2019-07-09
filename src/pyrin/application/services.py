@@ -168,6 +168,16 @@ def register_route_factory(factory):
     get_current_app().register_route_factory(factory)
 
 
+def get_current_route_factory():
+    """
+    gets current route factory in use.
+
+    :rtype: callable
+    """
+
+    return get_current_app().get_current_route_factory()
+
+
 def get_settings_path():
     """
     gets the application settings path.
@@ -176,6 +186,16 @@ def get_settings_path():
     """
 
     return get_current_app().get_settings_path()
+
+
+def get_configs():
+    """
+    gets a shallow copy of application's configuration dictionary.
+
+    :rtype: dict
+    """
+
+    return get_current_app().get_configs()
 
 
 def configure(config_store):

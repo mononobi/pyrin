@@ -7,8 +7,9 @@ import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
 
 from pyrin.api.router.handlers.base import RouteBase
-from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError
+from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError, PermissionTypeError
 from pyrin.core.globals import _
+from pyrin.security.permission.base import PermissionBase
 
 
 class ProtectedRoute(RouteBase):
@@ -79,6 +80,7 @@ class ProtectedRoute(RouteBase):
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises PermissionTypeError: permission type error.
         """
 
         super(ProtectedRoute, self).__init__(rule, **options)
@@ -86,6 +88,10 @@ class ProtectedRoute(RouteBase):
         self._permissions = options.get('permissions', ())
         if not isinstance(self._permissions, (tuple, list, set)):
             self._permissions = (self._permissions,)
+
+        if not all(isinstance(item, PermissionBase) for item in self._permissions):
+            raise PermissionTypeError('All route permissions must be an '
+                                      'instance of PermissionBase.')
 
     def _handle(self, inputs, **options):
         """
@@ -199,6 +205,7 @@ class FreshProtectedRoute(ProtectedRoute):
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises PermissionTypeError: permission type error.
         """
 
         super(FreshProtectedRoute, self).__init__(rule, **options)

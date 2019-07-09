@@ -122,6 +122,12 @@ class Application(Flask):
         # setting the application instance in global 'pyrin' level variable.
         _set_app(self)
 
+        # we should load application at this stage to be able to perform pytest
+        # tests after application has been fully loaded. because if we call
+        # application.run(), we could not continue execution of other codes.
+        self._load()
+        self._set_status(ApplicationStatusEnum.RUNNING)
+
     @setupmethod
     def _register_required_components(self):
         """
@@ -372,8 +378,6 @@ class Application(Flask):
                                  directory to the directory containing the first file found.
         """
 
-        self._load()
-        self._set_status(ApplicationStatusEnum.RUNNING)
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 
     def dispatch_request(self):
@@ -533,6 +537,7 @@ class Application(Flask):
 
         sys.exit(options.get('status', 0))
 
+    @setupmethod
     def register_route_factory(self, factory):
         """
         registers a route factory as application url rule class.
@@ -547,7 +552,21 @@ class Application(Flask):
             raise InvalidRouteFactoryTypeError('Input parameter [{factory}] is not callable.'
                                                .format(factory=str(factory)))
 
+        print_warning('Registered route factory [{old_factory}] is '
+                      'going to be replaced by a new route factory [{new_factory}].'
+                      .format(old_factory=str(self.url_rule_class),
+                              new_factory=str(factory)))
+
         self.url_rule_class = factory
+
+    def get_current_route_factory(self):
+        """
+        gets current route factory in use.
+
+        :rtype: callable
+        """
+
+        return self.url_rule_class
 
     def get_settings_path(self):
         """
@@ -557,6 +576,15 @@ class Application(Flask):
         """
 
         return self.get_context(self.SETTINGS_CONTEXT_KEY)
+
+    def get_configs(self):
+        """
+        gets a shallow copy of application's configuration dictionary.
+
+        :rtype: dict
+        """
+
+        return self.config.copy()
 
     def _resolve_settings_path(self, **options):
         """

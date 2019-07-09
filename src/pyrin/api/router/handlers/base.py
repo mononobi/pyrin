@@ -79,13 +79,18 @@ class RouteBase(Rule):
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
+        methods = options.get('methods', ())
+        if not isinstance(methods, (tuple, list, set)):
+            methods = (methods,)
+            options.update(methods=methods)
+
         # we should call super method with exact param names because it
         # does not have `**options` in it's signature and raises an error
         # if extra keywords passed to it. maybe flask fixes it in the future.
         super(RouteBase, self).__init__(rule,
                                         defaults=options.get('defaults', None),
                                         subdomain=options.get('subdomain', None),
-                                        methods=options.get('methods', None),
+                                        methods=methods,
                                         build_only=options.get('build_only', False),
                                         endpoint=options.get('endpoint', None),
                                         strict_slashes=options.get('strict_slashes', None),
