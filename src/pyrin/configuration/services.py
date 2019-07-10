@@ -21,8 +21,7 @@ def load_configuration(name, **options):
     :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                       path not existed error.
 
-    :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                   not found error.
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(name,
@@ -43,8 +42,7 @@ def load_configurations(*names, **options):
     :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                       path not existed error.
 
-    :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                   not found error.
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(*names,

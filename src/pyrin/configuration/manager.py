@@ -71,8 +71,7 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                           path not existed error.
 
-        :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                       not found error.
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         file_path = self._get_relevant_file_path(name, **options)
@@ -93,8 +92,7 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                           path not existed error.
 
-        :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                       not found error.
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         for single_name in names:
@@ -113,8 +111,7 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                           path not existed error.
 
-        :raises ConfigurationRelatedFileNotFoundError: configuration related file
-                                                       not found error.
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         if not os.path.isdir(self._settings_path):
