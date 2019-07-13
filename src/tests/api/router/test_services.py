@@ -16,7 +16,7 @@ from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.api.router.handlers.exceptions import MaxContentLengthLimitMismatchError, \
     InvalidViewFunctionTypeError, PermissionTypeError
 
-from tests.common.mock_context import PermissionMock
+from tests.security.permission.context import PermissionMock
 from tests.common.mock_functions import mock_view_function
 
 

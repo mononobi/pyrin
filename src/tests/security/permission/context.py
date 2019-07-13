@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-common mock context module.
+permission context module.
 """
 
 from pyrin.security.permission.base import PermissionBase

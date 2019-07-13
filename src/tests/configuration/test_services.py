@@ -15,7 +15,8 @@ import pyrin.utils.string as string_utils
 
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationFileNotFoundError, ConfigurationStoreNotFoundError, \
-    ConfigurationStoreSectionNotFoundError, ConfigurationStoreKeyNotFoundError
+    ConfigurationStoreSectionNotFoundError, ConfigurationStoreKeyNotFoundError, \
+    ConfigurationStoreDuplicateKeyError
 
 from tests.common.utils import create_settings_file, delete_settings_file
 
@@ -474,69 +475,124 @@ def test_get_section_keys_invalid_section():
         config_services.get_section_keys('application', 'missing_section')
 
 
-def get_all(store_name, **options):
+def test_get_all():
     """
     gets all available key/values from different sections of
     given config store in a flat dict, eliminating the sections.
-    note that if there are same key names in different
-    sections, it raises an error to prevent overwriting values.
-    also note that if the config store contains `active` section,
-    then the result of `get_active_section` method would be returned.
-
-    :param str store_name: config store name.
-
-    :keyword callable converter: a callable to use as case converter for keys.
-                                 it should be a callable with a signature
-                                 similar to below example:
-                                 case_converter(input_dict).
-
-    :raises ConfigurationStoreNotFoundError: configuration store not found error.
-    :raises ConfigurationStoreDuplicateKeyError: configuration store duplicate key error.
-
-    :rtype: dict
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).get_all(store_name, **options)
+    values = config_services.get_all('api')
+    assert all(name in values.keys() for name in ['max_content_length',
+                                                  'restricted_max_content_length',
+                                                  'use_x_sendfile',
+                                                  'json_as_ascii',
+                                                  'json_sort_keys',
+                                                  'jsonify_mimetype'])
 
 
-def get_active_section(store_name, **options):
+def test_get_all_from_active():
     """
-    gets the active section available in given config store.
-    this method gets the section that it's name is under [active]
-    section, for example:
-
-    [active]
-    selected: production
-
-    [production]
-    id: 123
-    name: prod
-
-    [development]
-    id: 233
-    name: dev
-
-    this will return all key/values available under [production].
-    if the config store has not an [active] section, this method
-    raises an error.
-
-    :param str store_name: config store name.
-
-    :keyword callable converter: a callable to use as case converter.
-                                 it should be a callable with a signature
-                                 similar to below example:
-                                 case_converter(input_dict).
-
-    :raises ConfigurationStoreNotFoundError: configuration store not found error.
-
-    :raises ConfigurationStoreSectionNotFoundError: configuration store section
-                                                    not found error.
-
-    :raises ConfigurationStoreKeyNotFoundError: configuration store
-                                                key not found error.
-
-    :rtype: dict
+    gets all available key/values from different sections of
+    given config store which has an active section in a flat dict.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active_section(store_name,
-                                                                                 **options)
+    values = config_services.get_all('environment')
+    assert all(name in values.keys() for name in ['env',
+                                                  'debug',
+                                                  'testing',
+                                                  'unit_testing'])
+
+    assert values.get('env') == 'testing'
+
+
+def test_get_all_duplicate_key():
+    """
+    gets all available key/values from different sections of
+    given config store which has a duplicate key in two different sections.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreDuplicateKeyError):
+        config_services.load_configuration('duplicate_key')
+        config_services.get_all('duplicate_key')
+
+
+def test_get_all_invalid_store():
+    """
+    gets all available key/values from different sections of
+    given config store which is unavailable, it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreNotFoundError):
+        config_services.get_all('missing_store')
+
+
+def test_get_all_uppercase_keys():
+    """
+    gets all available key/values from different sections of
+    given config store converted into uppercase keys.
+    """
+
+    values = config_services.get_all('application',
+                                     converter=string_utils.upper)
+
+    assert all(name in values.keys() for name in ['TITLE',
+                                                  'BASE_CURRENCY',
+                                                  'ENCODING',
+                                                  'FLASK_LOG_LEVEL'])
+
+    assert values.get('TITLE') == 'pyrin_tests'
+
+
+def test_get_active_section():
+    """
+    gets all key/values from the active section available in given config store.
+    """
+
+    section = config_services.get_active_section('database')
+
+    assert all(name in section.keys() for name in ['sqlalchemy_case_sensitive',
+                                                   'sqlalchemy_echo',
+                                                   'sqlalchemy_isolation_level',
+                                                   'sqlalchemy_pool_pre_ping'])
+
+    assert section.get('sqlalchemy_poolclass') == QueuePool
+
+
+def test_get_active_section_no_active():
+    """
+    gets all key/values from the active section available in
+    given config store which has no active section.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreSectionNotFoundError):
+        config_services.get_active_section('application')
+
+
+def test_get_active_section_invalid_store():
+    """
+    gets all key/values from the active section available in
+    given config store which is unavailable.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreNotFoundError):
+        config_services.get_active_section('missing_store')
+
+
+def test_get_active_section_uppercase_keys():
+    """
+    gets all key/values from the active section available in
+    given config store in uppercase keys.
+    """
+
+    section = config_services.get_active_section('communication',
+                                                 converter=string_utils.upper)
+
+    assert all(name in section.keys() for name in ['SERVER_NAME',
+                                                   'SERVER_IP',
+                                                   'SERVER_PORT',
+                                                   'SERVER_PROTOCOL'])
+
+    assert section.get('SERVER_NAME') == 'localhost.localdomain:9083'
