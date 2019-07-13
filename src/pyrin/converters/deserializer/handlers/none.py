@@ -42,7 +42,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
 
         :param str value: value to be deserialized.
 
-        :rtype: none
+        :rtype: None
         """
 
         deserializable, pattern = self.is_deserializable(value, **options)

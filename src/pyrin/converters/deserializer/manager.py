@@ -34,7 +34,7 @@ class DeserializerManager(CoreObject):
 
         :param object value: value to be deserialized.
 
-        :rtype: object
+        :rtype: any
         """
 
         options.update(accepted_type=type(value))

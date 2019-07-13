@@ -30,7 +30,7 @@ class DeserializerBase(CoreObject):
 
         :returns: deserialized value.
 
-        :rtype: object
+        :rtype: any
         """
 
         raise CoreNotImplementedError()
@@ -103,7 +103,7 @@ class StringDeserializerBase(DeserializerBase):
 
         :returns: deserialized value.
 
-        :rtype: object
+        :rtype: any
         """
 
         raise CoreNotImplementedError()
@@ -240,7 +240,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
 
         if StringDeserializerBase.is_deserializable(self, value, **options):
             for pattern, length in self.get_accepted_formats():
-                if pattern.match(value):
+                if pattern.match(value.strip()):
                     return True, pattern
 
         return False, None

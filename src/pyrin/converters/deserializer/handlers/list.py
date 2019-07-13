@@ -121,7 +121,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
         temp_list = []
         for item in items:
             if len(item.strip()) > 0:
-                temp_list.append(item)
+                temp_list.append(item.strip())
 
         # this deserializer does not handle nested lists, so it won't
         # check whether each item is deserializable or not.

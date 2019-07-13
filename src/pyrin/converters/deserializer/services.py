@@ -14,7 +14,7 @@ def deserialize(value, **options):
 
     :param object value: value to be deserialized.
 
-    :rtype: object
+    :rtype: any
     """
 
     return get_component(DeserializerPackage.COMPONENT_NAME).deserialize(value, **options)
