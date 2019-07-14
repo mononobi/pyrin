@@ -296,8 +296,11 @@ def test_get_for_different_stores():
     server_name = config_services.get('communication', 'test', 'server_name')
     assert server_name == 'localhost.localdomain:9083'
 
-    auto_flush = config_services.get('database', 'session', 'autoflush')
+    auto_flush = config_services.get('database', 'request_scoped_session', 'autoflush')
     assert auto_flush is True
+
+    auto_commit = config_services.get('database', 'thread_scoped_session', 'autocommit')
+    assert auto_commit is True
 
     pool = config_services.get('database', 'test', 'sqlalchemy_poolclass')
     assert issubclass(pool, QueuePool)
