@@ -25,7 +25,7 @@ class RequestScopedSessionFactory(SessionFactoryBase):
 
         SessionFactoryBase.__init__(self, **options)
 
-    def create_session_factory(self, engine):
+    def _create_session_factory(self, engine):
         """
         creates a database request scoped session factory and binds it to
         given engine and returns it.

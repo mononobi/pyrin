@@ -201,13 +201,13 @@ class DatabaseManager(CoreObject):
 
             if replace is not True:
                 raise DuplicatedSessionFactoryError('There is another registered session factory '
-                                                    'with is_request_bounded={bounded} but '
+                                                    'with "is_request_bounded={bounded}" but '
                                                     '"replace" option is not set, so session '
                                                     'factory [{instance}] could not be registered.'
                                                     .format(bounded=instance.is_request_bounded(),
                                                             instance=str(instance)))
 
-            old_instance = self.__session_factories[instance.get_name()]
+            old_instance = self.__session_factories[instance.is_request_bounded()]
             print_warning('Session factory [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(instance)))

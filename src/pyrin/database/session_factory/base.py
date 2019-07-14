@@ -32,6 +32,24 @@ class SessionFactoryBase(CoreObject):
         :rtype: Session
         """
 
+        session = self._create_session_factory(engine)
+        setattr(session, 'session_factory_name', self.get_name())
+        setattr(session, 'is_request_bounded', self.is_request_bounded())
+        return session
+
+    def _create_session_factory(self, engine):
+        """
+        creates a database session factory and binds it to
+        given engine and returns it.
+
+        :param Engine engine: database engine.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: database session
+        :rtype: Session
+        """
+
         raise CoreNotImplementedError()
 
     def is_request_bounded(self):
