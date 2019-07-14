@@ -129,3 +129,13 @@ def get_safe_current_request():
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_request()
+
+
+def is_request_context_available():
+    """
+    gets a value indicating that request context is available for usage.
+
+    :rtype: bool
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).is_request_context_available()

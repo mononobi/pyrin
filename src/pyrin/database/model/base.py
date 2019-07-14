@@ -3,7 +3,6 @@
 database base module.
 """
 
-from sqlalchemy.exc import DatabaseError
 from sqlalchemy.ext.declarative import declarative_base
 
 import pyrin.database.services as database_services
@@ -56,21 +55,10 @@ class CoreDeclarative(CoreObject):
 
         database_services.get_current_store().delete(self)
 
-    def _flush(self):
-        """
-        flushes the instructions into database but not committing.
-
-        :raises DatabaseOperationError: database operation error.
-        """
-
-        store = database_services.get_current_store()
-        try:
-            store.flush()
-        except DatabaseError as error:
-            store.rollback()
-            raise error
-
 
 # this entity should be used as the base entity for all application entities.
 CoreEntity = declarative_base(cls=CoreDeclarative)
-CoreEntity.query = database_services.get_session_factory().query_property()
+
+# TODO: the below line must be removed completely so everyone forced to
+#  query on objects from store itself, not from the model.
+CoreEntity.query = database_services.get_session_factory(request_bounded=True).query_property()

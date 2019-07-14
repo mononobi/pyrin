@@ -142,7 +142,16 @@ class SessionManager(CoreObject):
         :rtype: CoreRequest
         """
 
-        if has_request_context() is True:
+        if self.is_request_context_available() is True:
             return self.get_current_request()
 
         return None
+
+    def is_request_context_available(self):
+        """
+        gets a value indicating that request context is available for usage.
+
+        :rtype: bool
+        """
+
+        return has_request_context()
