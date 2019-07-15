@@ -197,13 +197,13 @@ def test_error_root_log_with_info_level(caplog):
 
 def test_debug_new_logger(caplog):
     """
-    emits a log with debug level into new_logger.
+    emits a log with debug level into debug_new_logger.
     """
 
     caplog.clear()
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.DEBUG, logger='new_logger')
-    message = 'this is a debug new_logger log.'
+    logger = logging_services.get_logger('debug_new_logger')
+    caplog.set_level(logging.DEBUG, logger='debug_new_logger')
+    message = 'this is a debug_new_logger log.'
     logger.debug(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
@@ -213,13 +213,13 @@ def test_debug_new_logger(caplog):
 
 def test_info_new_logger(caplog):
     """
-    emits a log with info level into new_logger.
+    emits a log with info level into info_new_logger.
     """
 
     caplog.clear()
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.INFO, logger='new_logger')
-    message = 'this is an info new_logger log.'
+    logger = logging_services.get_logger('info_new_logger')
+    caplog.set_level(logging.INFO, logger='info_new_logger')
+    message = 'this is an info_new_logger log.'
     logger.info(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
@@ -229,13 +229,13 @@ def test_info_new_logger(caplog):
 
 def test_warning_new_logger(caplog):
     """
-    emits a log with warning level into new_logger.
+    emits a log with warning level into warning_new_logger.
     """
 
     caplog.clear()
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.WARNING, logger='new_logger')
-    message = 'this is a warning new_logger log.'
+    logger = logging_services.get_logger('warning_new_logger')
+    caplog.set_level(logging.WARNING, logger='warning_new_logger')
+    message = 'this is a warning_new_logger log.'
     logger.warning(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
@@ -245,13 +245,13 @@ def test_warning_new_logger(caplog):
 
 def test_error_new_logger(caplog):
     """
-    emits a log with error level into new_logger.
+    emits a log with error level into error_new_logger.
     """
 
     caplog.clear()
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.ERROR, logger='new_logger')
-    message = 'this is an error new_logger log.'
+    logger = logging_services.get_logger('error_new_logger')
+    caplog.set_level(logging.ERROR, logger='error_new_logger')
+    message = 'this is an error_new_logger log.'
     logger.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
@@ -261,14 +261,14 @@ def test_error_new_logger(caplog):
 
 def test_exception_new_logger(caplog):
     """
-    emits a log with error level into new_logger with exception info.
+    emits a log with error level into exception_new_logger with exception info.
     """
 
-    message = 'this is an error with exception new_logger log.'
-    logger = logging_services.get_logger('new_logger')
+    message = 'this is an error with exception_new_logger log.'
+    logger = logging_services.get_logger('exception_new_logger')
     try:
         caplog.clear()
-        caplog.set_level(logging.ERROR, logger='new_logger')
+        caplog.set_level(logging.ERROR, logger='exception_new_logger')
         raise ValueError(message)
     except ValueError as error:
         logger.exception(str(error))
@@ -284,13 +284,13 @@ def test_exception_new_logger(caplog):
 
 def test_critical_new_logger(caplog):
     """
-    emits a log with critical level into new_logger.
+    emits a log with critical level into critical_new_logger.
     """
 
     caplog.clear()
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.CRITICAL, logger='new_logger')
-    message = 'this is a critical new_logger log.'
+    logger = logging_services.get_logger('critical_new_logger')
+    caplog.set_level(logging.CRITICAL, logger='critical_new_logger')
+    message = 'this is a critical_new_logger log.'
     logger.critical(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
@@ -300,14 +300,14 @@ def test_critical_new_logger(caplog):
 
 def test_debug_new_logger_log_with_warning_level(caplog):
     """
-    emits a log with debug level into new_logger which has warning level.
+    emits a log with debug level into debug_to_warning_new_logger which has warning level.
     it should not be present in logs.
     """
 
     caplog.clear()
-    message = 'this is a debug new_logger log that should not be emitted.'
-    logger = logging_services.get_logger('new_logger')
-    caplog.set_level(logging.WARNING, logger='new_logger')
-    logger.info(message)
+    message = 'this is a debug_to_warning_new_logger log that should not be emitted.'
+    logger = logging_services.get_logger('debug_to_warning_new_logger')
+    caplog.set_level(logging.WARNING, logger='debug_to_warning_new_logger')
+    logger.debug(message)
     assert caplog.records is None or len(caplog.records) == 0
     caplog.clear()
