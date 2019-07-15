@@ -65,10 +65,13 @@ class LoggingManager(CoreObject):
 
         :param Logger logger: logger instance to be wrapped.
 
-        :rtype: BaseLoggerAdapter
+        :rtype: Union[BaseLoggerAdapter, Logger]
         """
 
-        return RequestInfoLoggerAdapter(logger)
+        if isinstance(logger, Logger):
+            return RequestInfoLoggerAdapter(logger)
+
+        return logger
 
     def _wrap_all_loggers(self):
         """
@@ -112,6 +115,18 @@ class LoggingManager(CoreObject):
 
         loggers[name] = adapter
 
+    def get_all_loggers(self):
+        """
+        gets a dictionary containing all available loggers.
+        it returns a shallow copy of loggers dict.
+
+        :returns: dict(str name: Logger instance)
+
+        :rtype: dict
+        """
+
+        return self._get_all_loggers().copy()
+
     def reload_configs(self, **options):
         """
         reloads all logging configurations from config file.
@@ -132,7 +147,7 @@ class LoggingManager(CoreObject):
 
         logger = logging.getLogger(name)
         adapter = logger
-        if not isinstance(adapter, BaseLoggerAdapter):
+        if isinstance(adapter, Logger):
             adapter = self._wrap_logger(logger)
             self._set_logger_adapter(name, adapter)
 

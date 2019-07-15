@@ -78,11 +78,16 @@ class LocalizationManager(CoreObject):
     def get_current_locale(self):
         """
         gets the current locale that should be used for current request.
+        it never raises an error and returns the default locale if anything goes wrong.
 
         :rtype: str
         """
 
-        current_locale = session_services.get_current_request_context().get('locale', None)
+        current_locale = None
+        current_request = session_services.get_safe_current_request()
+        if current_request is not None:
+            current_locale = current_request.context.get('locale', None)
+
         if current_locale is None:
             current_locale = config_services.get('localization', 'general',
                                                  'babel_default_locale')
@@ -92,11 +97,16 @@ class LocalizationManager(CoreObject):
     def get_current_timezone(self):
         """
         gets the current timezone that should be used for current request.
+        it never raises an error and returns the default locale if anything goes wrong.
 
         :rtype: str
         """
 
-        current_timezone = session_services.get_current_request_context().get('timezone', None)
+        current_timezone = None
+        current_request = session_services.get_safe_current_request()
+        if current_request is not None:
+            current_timezone = current_request.context.get('timezone', None)
+
         if current_timezone is None:
             current_timezone = config_services.get('localization', 'general',
                                                    'babel_default_timezone')

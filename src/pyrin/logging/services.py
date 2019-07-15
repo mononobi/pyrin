@@ -7,6 +7,19 @@ from pyrin.application.services import get_component
 from pyrin.logging import LoggingPackage
 
 
+def get_all_loggers():
+    """
+    gets a dictionary containing all available loggers.
+    it returns a shallow copy of loggers dict.
+
+    :returns: dict(str name: Logger instance)
+
+    :rtype: dict
+    """
+
+    return get_component(LoggingPackage.COMPONENT_NAME).get_all_loggers()
+
+
 def reload_configs(**options):
     """
     reloads all logging configurations from config file.

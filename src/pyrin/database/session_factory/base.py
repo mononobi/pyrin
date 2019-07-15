@@ -26,8 +26,6 @@ class SessionFactoryBase(CoreObject):
 
         :param Engine engine: database engine.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :returns: database session
         :rtype: Session
         """

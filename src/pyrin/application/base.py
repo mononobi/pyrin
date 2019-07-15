@@ -272,12 +272,20 @@ class Application(Flask):
 
         :param str component_name: component name.
 
+        :keyword object component_custom_key: component custom key.
+                                              if not provided, tries to get it from
+                                              request object, if not found,
+                                              `DEFAULT_COMPONENT_KEY` will be used.
+
         :raises InvalidComponentNameError: invalid component name error.
 
         :rtype: Component
         """
 
-        component_custom_key = self._extract_component_custom_key()
+        component_custom_key = options.get('component_custom_key', None)
+
+        if component_custom_key is None:
+            component_custom_key = self._extract_component_custom_key()
 
         # checking whether is there any custom implementation.
         component_custom_id = \
