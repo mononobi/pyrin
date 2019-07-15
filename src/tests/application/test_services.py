@@ -10,12 +10,13 @@ import pytest
 import pyrin.application.services as application_services
 import pyrin.utils.path as path_utils
 
+from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.application.context import Component
 from pyrin.core.context import CoreObject
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
     DuplicateRouteURLError, InvalidRouteFactoryTypeError, InvalidComponentTypeError, \
-    InvalidComponentNameError
+    InvalidComponentNameError, ComponentAttributeError
 
 from tests import PyrinTestApplication
 from tests.common.mock_functions import mock_view_function, mock_route_factory
@@ -71,6 +72,57 @@ def test_register_component():
     assert application_services.get_component('component1') == component
 
 
+def test_register_component_with_custom_key():
+    """
+    registers given application component with custom key.
+    """
+
+    default_component = Component('default_component')
+    custom_component = Component('default_component', component_custom_key=1000)
+    application_services.register_component(default_component)
+    application_services.register_component(custom_component)
+    assert application_services.get_component('default_component') == default_component
+    assert application_services.get_component('default_component',
+                                              component_custom_key=1000) == custom_component
+
+
+def test_register_component_with_custom_key_duplicate():
+    """
+    registers given application component with duplicated custom key.
+    it should raise an error.
+    """
+
+    with pytest.raises(DuplicateComponentIDError):
+        default_component = Component('default_component_duplicate')
+        custom_component1 = Component('default_component_duplicate', component_custom_key=1000)
+        custom_component2 = Component('default_component_duplicate', component_custom_key=1000)
+        application_services.register_component(default_component)
+        application_services.register_component(custom_component1)
+        application_services.register_component(custom_component2)
+
+
+def test_register_component_with_custom_key_duplicate_with_replace():
+    """
+    registers given application component with duplicated custom key and replace option.
+    it should not raise an error.
+    """
+
+    default_component = Component('default_component_duplicate_replace')
+    custom_component1 = Component('default_component_duplicate_replace',
+                                  component_custom_key=2000)
+    custom_component2 = Component('default_component_duplicate_replace',
+                                  component_custom_key=2000)
+    application_services.register_component(default_component)
+    application_services.register_component(custom_component1)
+    application_services.register_component(custom_component2, replace=True)
+    assert application_services.get_component('default_component_duplicate_replace') \
+        == default_component
+
+    assert application_services.get_component('default_component_duplicate_replace',
+                                              component_custom_key=2000) \
+        == custom_component2
+
+
 def test_register_component_with_invalid_type():
     """
     registers given application component with invalid type.
@@ -118,6 +170,42 @@ def test_register_component_duplicate_with_replace():
     assert application_services.get_component('component_duplicate2') == component_duplicate
 
 
+def test_get_component_with_invalid_name():
+    """
+    gets the application component with given name which is unavailable.
+    it should raise an error.
+    """
+
+    with pytest.raises(ComponentAttributeError):
+        application_services.get_component('missing_component')
+
+
+def test_get_component_with_invalid_custom_key():
+    """
+    gets the application component with given custom key which is unavailable.
+    it should not raise an error and must get the default component.
+    """
+
+    component = Component('component_with_invalid_key')
+    custom_component = Component('component_with_invalid_key', component_custom_key=3000)
+    application_services.register_component(component)
+    application_services.register_component(custom_component)
+    assert application_services.get_component('component_with_invalid_key',
+                                              component_custom_key=999) == component
+
+
+def test_get_component_with_default_key():
+    """
+    gets the application component with default key.
+    """
+
+    component = Component('component_with_default_key')
+    application_services.register_component(component)
+    assert application_services.get_component('component_with_default_key',
+                                              component_custom_key=DEFAULT_COMPONENT_KEY) \
+        == component
+
+
 def test_get_all_components():
     """
     gets all application components and asserts that all required components are available.
@@ -139,8 +227,8 @@ def test_get_all_components():
                   'security.session.component',
                   'security.token.component']
 
-    for component in components:
-        assert application_services.get_component(component) is not None
+    assert all(application_services.get_component(component) is not None
+               for component in components)
 
 
 def test_add_url_rule():
@@ -227,10 +315,10 @@ def test_configure():
 
     app_configs = application_services.get_configs()
     assert all(name in app_configs for name in
-               ['FAKE_NAME', 'FAKE_ID', 'FAKE_NUMBER', 'FAKE_VALUE']) is True
+               ['FAKE_NAME', 'FAKE_ID', 'FAKE_NUMBER', 'FAKE_VALUE'])
 
-    assert all(name in app_configs for name in
-               ['fake_name', 'fake_id', 'fake_number', 'fake_value']) is False
+    assert not any(name in app_configs for name in
+                   ['fake_name', 'fake_id', 'fake_number', 'fake_value'])
 
 
 def test_all_configs_available():
@@ -242,7 +330,7 @@ def test_all_configs_available():
     assert all(name in app_configs for name in ['TITLE', 'BASE_CURRENCY', 'ENCODING',
                                                 'FLASK_LOG_LEVEL', 'SERVER_NAME', 'SERVER_IP',
                                                 'SERVER_PORT', 'SERVER_PROTOCOL', 'ENV',
-                                                'DEBUG', 'TESTING', 'UNIT_TESTING']) is True
+                                                'DEBUG', 'TESTING', 'UNIT_TESTING'])
 
 
 def test_all_configs_values():

@@ -9,9 +9,8 @@ import pyrin.database.services as database_services
 
 from pyrin.core.context import CoreObject
 from pyrin.database.exceptions import DuplicatedSessionFactoryError, InvalidSessionFactoryTypeError
-
-from tests.database.session_factory.request_scoped import RequestScopedSessionFactoryMock
-from tests.database.session_factory.thread_scoped import ThreadScopedSessionFactoryMock
+from pyrin.database.session_factory.request_scoped import RequestScopedSessionFactory
+from pyrin.database.session_factory.thread_scoped import ThreadScopedSessionFactory
 
 
 def test_get_current_store_unbounded():
@@ -73,7 +72,7 @@ def test_register_session_factory_duplicate_bounded():
     """
 
     with pytest.raises(DuplicatedSessionFactoryError):
-        instance = RequestScopedSessionFactoryMock()
+        instance = RequestScopedSessionFactory()
         database_services.register_session_factory(instance)
 
 
@@ -84,7 +83,7 @@ def test_register_session_factory_duplicate_unbounded():
     """
 
     with pytest.raises(DuplicatedSessionFactoryError):
-        instance = ThreadScopedSessionFactoryMock()
+        instance = ThreadScopedSessionFactory()
         database_services.register_session_factory(instance)
 
 
@@ -94,5 +93,5 @@ def test_register_session_factory_duplicate_with_replace():
     it should not raise an error.
     """
 
-    instance = RequestScopedSessionFactoryMock()
+    instance = RequestScopedSessionFactory()
     database_services.register_session_factory(instance, replace=True)
