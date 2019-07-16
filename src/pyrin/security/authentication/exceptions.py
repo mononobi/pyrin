@@ -30,3 +30,17 @@ class AuthenticationFailedError(AuthenticationManagerBusinessException):
     def __init__(self, *args, **kwargs):
         super(AuthenticationFailedError, self).__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.UNAUTHORIZED
+
+
+class AccessTokenRequiredError(AuthenticationFailedError):
+    """
+    access token required error.
+    """
+    pass
+
+
+class InvalidPayloadDataError(AuthenticationFailedError):
+    """
+    invalid payload data error.
+    """
+    pass

@@ -9,7 +9,8 @@ import pyrin.security.session.services as session_services
 from pyrin.core.globals import _
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.security.authentication.exceptions import AuthenticationFailedError
+from pyrin.security.authentication.exceptions import AuthenticationFailedError, \
+    AccessTokenRequiredError, InvalidPayloadDataError
 
 
 class AuthenticationManager(CoreObject):
@@ -27,6 +28,8 @@ class AuthenticationManager(CoreObject):
         :param CoreRequest client_request: request to be authenticated.
 
         :raises AuthenticationFailedError: authentication failed error.
+        :raises InvalidPayloadDataError: invalid payload data error.
+        :raises AccessTokenRequiredError: access token required error.
         """
 
         token = self._extract_token(client_request)
@@ -43,6 +46,8 @@ class AuthenticationManager(CoreObject):
         :param str token: token to be authenticated.
 
         :raises AuthenticationFailedError: authentication failed error.
+        :raises InvalidPayloadDataError: invalid payload data error.
+        :raises AccessTokenRequiredError: access token required error.
         """
 
         try:
@@ -51,6 +56,8 @@ class AuthenticationManager(CoreObject):
             self._validate_required(header, payload, **options)
             self._push_required_data(header, payload, **options)
 
+        except AuthenticationFailedError:
+            raise
         except Exception as error:
             raise AuthenticationFailedError(error) from error
 
@@ -119,15 +126,16 @@ class AuthenticationManager(CoreObject):
         :param dict payload: payload data to be validated.
         :type payload: dict(str type: token type)
 
-        :raises AuthenticationFailedError: authentication failed error.
+        :raises InvalidPayloadDataError: invalid payload data error.
+        :raises AccessTokenRequiredError: access token required error.
         """
 
         if payload is None:
-            raise AuthenticationFailedError(_('Payload data could not be None.'))
+            raise InvalidPayloadDataError(_('Payload data could not be None.'))
 
         token_type = payload.get('type', None)
         if token_type != 'access':
-            raise AuthenticationFailedError(_('Access token is required for authentication.'))
+            raise AccessTokenRequiredError(_('Access token is required for authentication.'))
 
         self._validate_custom(header, payload, **options)
 

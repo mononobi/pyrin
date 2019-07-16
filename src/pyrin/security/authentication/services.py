@@ -15,6 +15,8 @@ def authenticate(client_request, **options):
     :param CoreRequest client_request: request to be authenticated.
 
     :raises AuthenticationFailedError: authentication failed error.
+    :raises InvalidPayloadDataError: invalid payload data error.
+    :raises AccessTokenRequiredError: access token required error.
     """
 
     return get_component(AuthenticationPackage.COMPONENT_NAME).authenticate(client_request,
