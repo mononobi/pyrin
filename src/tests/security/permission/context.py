@@ -45,7 +45,6 @@ class PermissionMock(PermissionBase):
         """
         synchronizes the current permission object with database.
         """
-
         pass
 
     def get_id(self):
