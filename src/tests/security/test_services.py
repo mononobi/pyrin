@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-security services module.
+security test_services module.
 """
 
 from pyrin.application.services import get_component
 from pyrin.security import SecurityPackage
 
 
-def get_password_hash(password, **options):
+def test_get_password_hash():
     """
     gets the given password's hash.
 
@@ -20,10 +20,9 @@ def get_password_hash(password, **options):
     :rtype: str
     """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).get_password_hash(password, **options)
 
 
-def encrypt(text, **options):
+def test_encrypt():
     """
     encrypts the given text and returns the encrypted value.
 
@@ -34,10 +33,9 @@ def encrypt(text, **options):
     :rtype: str
     """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).encrypt(text, **options)
 
 
-def get_permission_ids(**options):
+def test_get_permission_ids():
     """
     gets permission ids according to given inputs.
 
@@ -48,7 +46,6 @@ def get_permission_ids(**options):
     :rtype: list[object]
     """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).get_permission_ids(**options)
 
 
 def get_user_permission_ids(user, **options):
@@ -64,8 +61,6 @@ def get_user_permission_ids(user, **options):
     :rtype: list[object]
     """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).get_user_permission_ids(user, **options)
-
 
 def is_active(user, **options):
     """
@@ -75,5 +70,3 @@ def is_active(user, **options):
 
     :rtype: bool
     """
-
-    return get_component(SecurityPackage.COMPONENT_NAME).is_active(user, **options)

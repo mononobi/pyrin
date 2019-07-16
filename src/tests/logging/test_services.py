@@ -12,6 +12,14 @@ import pyrin.logging.services as logging_services
 from pyrin.logging.adapters import RequestInfoLoggerAdapter
 
 
+def test_reload_configs():
+    """
+    reloads all logging configurations from config file.
+    """
+
+    logging_services.reload_configs()
+
+
 def test_get_all_loggers_initial():
     """
     checks all initial required loggers are loaded.
@@ -30,14 +38,6 @@ def test_get_all_loggers_packages():
 
     loggers = logging_services.get_all_loggers()
     assert all(name in loggers.keys() for name in ['api', 'database'])
-
-
-def test_reload_configs():
-    """
-    reloads all logging configurations from config file.
-    """
-
-    logging_services.reload_configs()
 
 
 def test_wrap_all_loggers():
@@ -310,4 +310,36 @@ def test_debug_new_logger_log_with_warning_level(caplog):
     caplog.set_level(logging.WARNING, logger='debug_to_warning_new_logger')
     logger.debug(message)
     assert caplog.records is None or len(caplog.records) == 0
+    caplog.clear()
+
+
+def test_error_new_logger_log_with_info_level(caplog):
+    """
+    emits a log with error level into error_to_info_new_logger which has info level.
+    it should be present in logs.
+    """
+
+    caplog.clear()
+    message = 'this is an error_to_info_new_logger log that should be emitted.'
+    logger = logging_services.get_logger('error_to_info_new_logger')
+    caplog.set_level(logging.INFO, logger='error_to_info_new_logger')
+    logger.error(message)
+    assert caplog.records is not None and len(caplog.records) > 0
+    assert message in caplog.records[0].message
+    assert 'None' in caplog.records[0].message
+    caplog.clear()
+
+
+def test_error_database(caplog):
+    """
+    emits a log with error level into database logger.
+    """
+
+    caplog.clear()
+    logger = logging_services.get_logger('database')
+    message = 'this is an error database log.'
+    logger.error(message)
+    assert caplog.records is not None and len(caplog.records) > 0
+    assert message in caplog.records[0].message
+    assert 'None' in caplog.records[0].message
     caplog.clear()

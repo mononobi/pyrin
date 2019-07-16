@@ -22,9 +22,7 @@ def authorize(user, permissions, **options):
     :raises AuthorizationFailedError: authorization failed error.
     """
 
-    return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user,
-                                                                        permissions,
-                                                                        **options)
+    pass
 
 
 def is_authorized(permissions, **options):
