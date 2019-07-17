@@ -34,7 +34,7 @@ class AuthorizationFailedError(AuthorizationManagerBusinessException):
 
 
 class UserNotAuthenticatedError(AuthenticationFailedError,
-                                AuthorizationManagerBusinessException):
+                                AuthorizationFailedError):
     """
     user not authenticated error.
     """

@@ -180,7 +180,7 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                     key not found error.
 
-        :rtype: object
+        :rtype: any
         """
 
         return self._get_config_store(store_name).get(section, key, **options)
@@ -204,7 +204,7 @@ class ConfigurationManager(CoreObject):
         :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                     key not found error.
 
-        :rtype: object
+        :rtype: any
         """
 
         return self._get_config_store(store_name).get_active(key, **options)

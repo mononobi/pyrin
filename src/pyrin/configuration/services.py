@@ -93,7 +93,7 @@ def get(store_name, section, key, **options):
     :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                 key not found error.
 
-    :rtype: object
+    :rtype: any
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).get(store_name, section,
@@ -119,7 +119,7 @@ def get_active(store_name, key, **options):
     :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                 key not found error.
 
-    :rtype: object
+    :rtype: any
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).get_active(store_name,

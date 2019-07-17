@@ -9,7 +9,7 @@ import pyrin.security.session.services as session_services
 from pyrin.core.globals import _
 from pyrin.core.context import CoreObject
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
-    UserNotAuthenticatedError, AuthorizationManagerBusinessException, UserIsNotActiveError
+    UserNotAuthenticatedError, UserIsNotActiveError
 
 
 class AuthorizationManager(CoreObject):
@@ -74,7 +74,7 @@ class AuthorizationManager(CoreObject):
             user = session_services.get_current_user()
 
         try:
-            self.authorize(user, permissions, **options)
+            self.authorize(user, permissions)
             return True
-        except AuthorizationManagerBusinessException:
+        except AuthorizationFailedError:
             return False

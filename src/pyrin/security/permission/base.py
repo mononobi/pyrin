@@ -36,6 +36,19 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    def __eq__(self, other):
+        """
+        this method must be implemented in all subclasses to get the correct
+        comparison between current and other permission.
+
+        :param PermissionBase other: other permission instance to be
+                                     compared to the current one.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
     def __str__(self):
         """
         this method must be implemented in all subclasses to

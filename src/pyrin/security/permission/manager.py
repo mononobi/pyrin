@@ -24,7 +24,7 @@ class PermissionManager(CoreObject):
         CoreObject.__init__(self)
 
         # holds a dict of all application's loaded permissions.
-        # in the form of dict(permission_id: PermissionBase)
+        # in the form of dict(str permission_id: PermissionBase permission)
         self.__permissions = Context()
 
     def register_permission(self, instance, **options):
@@ -42,12 +42,12 @@ class PermissionManager(CoreObject):
                                              'not an instance of PermissionBase.'
                                              .format(instance=str(instance)))
 
-        if instance in self.__permissions.keys():
-            raise DuplicatedPermissionError('Permission [{permission_id}] has been '
+        if instance.get_id() in self.__permissions.keys():
+            raise DuplicatedPermissionError('Permission [{permission}] has been '
                                             'already registered.'
-                                            .format(permission_id=str(instance)))
+                                            .format(permission=str(instance)))
 
-        self.__permissions[instance] = instance
+        self.__permissions[instance.get_id()] = instance
         instance.synchronize(**options)
 
     def get_permissions(self, **options):

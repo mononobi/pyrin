@@ -88,6 +88,8 @@ class EncryptionManager(CoreObject):
                                    if not provided, default handler from
                                    relevant configs will be used.
 
+        :raises EncryptionHandlerNotFoundError: encryption handler not found error.
+
         :rtype: str
         """
 
@@ -120,6 +122,8 @@ class EncryptionManager(CoreObject):
         :keyword int length: the length of generated key in bytes.
                              note that some encryption handlers may not accept custom
                              key length so this value would be ignored on those handlers.
+
+        :raises EncryptionHandlerNotFoundError: encryption handler not found error.
 
         :rtype: Union[str, tuple(str, str)]
         """

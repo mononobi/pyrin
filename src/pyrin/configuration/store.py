@@ -88,7 +88,7 @@ class ConfigStore(CoreObject):
         :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                     key not found error.
 
-        :rtype: object
+        :rtype: any
         """
 
         section_data = self.get_section(section, **options)
@@ -120,7 +120,7 @@ class ConfigStore(CoreObject):
         :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                     key not found error.
 
-        :rtype: object
+        :rtype: any
         """
 
         active_section = self._get_active_section_name()
