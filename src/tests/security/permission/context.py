@@ -22,22 +22,14 @@ class PermissionMock(PermissionBase):
         PermissionBase.__init__(self, permission_id, **options)
 
     def __hash__(self):
-        """
-        this method must be implemented in all subclasses to
-        calculate the correct hash of current permission.
-
-        :rtype: int
-        """
 
         return hash(self._id)
 
-    def __str__(self):
-        """
-        this method must be implemented in all subclasses to
-        get the correct string representation of current permission.
+    def __eq__(self, other):
 
-        :rtype: str
-        """
+        return other.get_id() == self.get_id()
+
+    def __str__(self):
 
         return str(self._id)
 

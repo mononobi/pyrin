@@ -57,8 +57,8 @@ def test_create_route_protected_with_permissions():
     """
 
     permissions = []
-    permissions.append(PermissionMock(id_utils.generate_uuid4()))
-    permissions.append(PermissionMock(id_utils.generate_uuid4()))
+    permissions.append(PermissionMock(str(id_utils.generate_uuid4())))
+    permissions.append(PermissionMock(str(id_utils.generate_uuid4())))
 
     route = router_services.create_route('/api/router/protected',
                                          methods=HTTPMethodEnum.DELETE,
@@ -75,7 +75,7 @@ def test_create_route_fresh_protected_with_single_permission():
     it should create a fresh protected route.
     """
 
-    permission = PermissionMock(id_utils.generate_uuid4())
+    permission = PermissionMock(str(id_utils.generate_uuid4()))
     route = router_services.create_route('/api/router/fresh_protected_with_permission',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
@@ -94,7 +94,7 @@ def test_create_route_protected_with_invalid_permissions():
 
     with pytest.raises(PermissionTypeError):
         permissions = []
-        permissions.append(PermissionMock(id_utils.generate_uuid4()))
+        permissions.append(PermissionMock(str(id_utils.generate_uuid4())))
         permissions.append(1)
 
         route = router_services.create_route('/api/router/invalid_permission',
@@ -169,7 +169,7 @@ def test_add_route():
     adds a new protected route in application routes.
     """
 
-    permission = PermissionMock(id_utils.generate_uuid4())
+    permission = PermissionMock(str(id_utils.generate_uuid4()))
     router_services.add_route('/tests/api/router/fake_route',
                               view_func=mock_view_function,
                               methods=HTTPMethodEnum.GET,
@@ -184,7 +184,7 @@ def test_add_route_duplicate():
     """
 
     with pytest.raises(DuplicateRouteURLError):
-        permission = PermissionMock(id_utils.generate_uuid4())
+        permission = PermissionMock(str(id_utils.generate_uuid4()))
         router_services.add_route('/tests/api/router/duplicate_route',
                                   view_func=mock_view_function,
                                   methods=HTTPMethodEnum.GET,
@@ -205,8 +205,8 @@ def test_add_route_duplicate_with_replace():
     """
 
     permissions = []
-    permissions.append(PermissionMock(id_utils.generate_uuid4()))
-    permissions.append(PermissionMock(id_utils.generate_uuid4()))
+    permissions.append(PermissionMock(str(id_utils.generate_uuid4())))
+    permissions.append(PermissionMock(str(id_utils.generate_uuid4())))
     router_services.add_route('/tests/api/router/duplicate_route_with_replace',
                               view_func=mock_view_function,
                               methods=HTTPMethodEnum.POST,

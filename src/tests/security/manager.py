@@ -3,8 +3,10 @@
 security manager module.
 """
 
-from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.manager import SecurityManager
+
+from tests.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
+    PERMISSION_TEST_THREE
 
 
 class TestSecurityManager(SecurityManager):
@@ -18,14 +20,17 @@ class TestSecurityManager(SecurityManager):
 
         :keyword dict user: user identity to get it's permission ids.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :returns: list[permission_ids]
 
-        :rtype: list[object]
+        :rtype: list[str]
         """
 
-        raise CoreNotImplementedError()
+        permission_ids = []
+        permission_ids.extend([PERMISSION_TEST_ONE.get_id(),
+                               PERMISSION_TEST_TWO.get_id(),
+                               PERMISSION_TEST_THREE.get_id()])
+
+        return permission_ids
 
     def is_active(self, user, **options):
         """
@@ -33,9 +38,7 @@ class TestSecurityManager(SecurityManager):
 
         :param dict user: user to check is active.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bool
         """
 
-        raise CoreNotImplementedError()
+        return user is not None
