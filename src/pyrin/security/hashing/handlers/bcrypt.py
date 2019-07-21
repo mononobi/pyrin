@@ -136,9 +136,9 @@ class BcryptHashing(HashingBase):
         text_bytes = text.encode(APPLICATION_ENCODING)
         size = len(text_bytes)
         if size > self.MAX_SIZE:
-            raise BcryptMaxSizeLimitError('Size of input string [{text}] is [{input_size}] bytes '
+            raise BcryptMaxSizeLimitError('Size of input string is [{input_size}] bytes '
                                           'which is larger than bcrypt\'s [{limit}] bytes limit.'
-                                          .format(text=text, input_size=size,
+                                          .format(input_size=size,
                                                   limit=self.MAX_SIZE))
 
         return text_bytes
