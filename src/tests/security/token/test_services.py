@@ -12,7 +12,7 @@ from pyrin.core.context import DTO
 from pyrin.security.token.handlers.rs256 import RS256Token
 from pyrin.security.token.exceptions import DuplicatedTokenHandlerError, \
     DuplicatedTokenKidHeaderError, InvalidTokenHandlerTypeError, TokenHandlerNotFoundError, \
-    TokenVerificationError
+    TokenDecodingError
 
 from tests.security.token.handlers.hs256_test_token import HS256TestToken
 
@@ -308,46 +308,93 @@ def test_get_payload_invalid():
     decodes an invalid token. it should raise an error.
     """
 
-    with pytest.raises(Exception):
+    with pytest.raises(TokenDecodingError):
         token_services.get_payload('invalid.fake.token')
 
 
-def get_unverified_payload(token, **options):
+def test_get_unverified_payload_access():
     """
-    decodes token and gets the payload data without verifying the signature.
-    note that returned payload must not be trusted for any critical operations.
-
-    :param str token: token to get it's payload.
-
-    :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
-    :raises TokenKidHeaderNotFoundError: token kid header not found error.
-    :raises TokenHandlerNotFoundError: token handler not found error.
-    :raises TokenDecodingError: token decoding error.
-
-    :rtype: dict
+    decodes an access token and gets the payload data without verifying the signature.
     """
 
+    token = token_services.generate_access_token({})
+    payload_data = token_services.get_unverified_payload(token)
+    header_data = token_services.get_unverified_header(token)
+    assert token is not None
+    assert payload_data is not None
+    assert header_data is not None
+    assert all(name in header_data for name in ['kid', 'alg', 'typ'])
+    assert all(name in payload_data for name in ['jti', 'iat', 'type', 'exp', 'is_fresh'])
 
-def get_unverified_header(token, **options):
+
+def test_get_unverified_payload_refresh():
+    """
+    decodes a refresh token and gets the payload data without verifying the signature.
+    """
+
+    token = token_services.generate_refresh_token({})
+    payload_data = token_services.get_unverified_payload(token)
+    header_data = token_services.get_unverified_header(token)
+    assert token is not None
+    assert payload_data is not None
+    assert header_data is not None
+    assert all(name in header_data for name in ['kid', 'alg', 'typ'])
+    assert all(name in payload_data for name in ['jti', 'iat', 'type', 'exp', 'is_fresh'])
+
+
+def test_get_unverified_payload_invalid():
+    """
+    decodes an invalid token. it should raise an error.
+    """
+
+    with pytest.raises(TokenDecodingError):
+        token_services.get_unverified_payload('invalid.fake.token')
+
+
+def test_get_unverified_header():
     """
     gets the header dict of token without verifying the signature.
-    note that the returned header must not be trusted for critical operations.
-
-    :param str token: token to get it's header.
-
-    :rtype: dict
     """
 
+    headers = DTO(title='header title', id=20)
+    token = token_services.generate_access_token({}, custom_headers=headers)
+    header_data = token_services.get_unverified_header(token)
+    assert all(name in header_data for name in ['kid', 'alg', 'typ', 'title', 'id'])
+    assert header_data.get('title') == headers.get('title')
+    assert header_data.get('id') == headers.get('id')
 
-def generate_key(handler_name, **options):
+
+def test_get_unverified_header_invalid():
     """
-    generates a valid key for the given handler and returns it.
-
-    :param str handler_name: token handler name to be used.
-
-    :keyword int length: the length of generated key in bytes.
-                         note that some token handlers may not accept custom
-                         key length so this value would be ignored on those handlers.
-
-    :rtype: Union[str, tuple(str, str)]
+    gets the header dict of an invalid token. it should raise an error.
     """
+
+    with pytest.raises(TokenDecodingError):
+        token_services.get_unverified_header('invalid.fake.token')
+
+
+def test_generate_key_rs256():
+    """
+    generates a valid key for rs256 handler and returns it.
+    """
+
+    public_key, private_key = token_services.generate_key('RS256')
+    assert public_key is not None and private_key is not None
+
+
+def test_generate_key_hs256():
+    """
+    generates a valid key for hs256 handler and returns it.
+    """
+
+    key = token_services.generate_key('HS256')
+    assert key is not None
+
+
+def test_generate_key_invalid_handler():
+    """
+    generates a key for an invalid handler. it should raise an error.
+    """
+
+    with pytest.raises(TokenHandlerNotFoundError):
+        token_services.generate_key('missing_handler')

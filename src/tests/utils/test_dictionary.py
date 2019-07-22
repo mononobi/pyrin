@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-utils dictionary module.
+utils test_dictionary module.
 """
 
-import pyrin.utils.string as string_utils
-
-from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreTypeError
+import pyrin.utils.dictionary as dict_utils
 
 
 def change_key_case(value, converter, **options):
@@ -36,6 +33,12 @@ def change_key_case(value, converter, **options):
             val = change_key_case(val, converter, **options)
         result_dict[converter(key)] = val
     return result_dict
+
+
+def test_change_key_case():
+    """
+
+    """
 
 
 def make_key_upper(value):
