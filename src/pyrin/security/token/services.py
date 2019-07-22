@@ -131,6 +131,8 @@ def get_unverified_header(token, **options):
 
     :param str token: token to get it's header.
 
+    :raises TokenDecodingError: token decoding error.
+
     :rtype: dict
     """
 

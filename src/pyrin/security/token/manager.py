@@ -10,7 +10,8 @@ import pyrin.configuration.services as config_services
 from pyrin.core.context import CoreObject, Context
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
-    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError
+    TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
+    TokenDecodingError
 from pyrin.security.token.handlers.base import TokenBase
 from pyrin.utils.custom_print import print_warning
 
@@ -207,10 +208,15 @@ class TokenManager(CoreObject):
 
         :param str token: token to get it's header.
 
+        :raises TokenDecodingError: token decoding error.
+
         :rtype: dict
         """
 
-        return jwt.get_unverified_header(token)
+        try:
+            return jwt.get_unverified_header(token)
+        except Exception as error:
+            raise TokenDecodingError(error) from error
 
     def generate_key(self, handler_name, **options):
         """
@@ -233,6 +239,7 @@ class TokenManager(CoreObject):
 
         :param str token: token to get it's handler name.
 
+        :raises TokenDecodingError: token decoding error.
         :raises TokenKidHeaderNotSpecifiedError: token kid header not specified error.
         :raises TokenKidHeaderNotFoundError: token kid header not found error.
 
