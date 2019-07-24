@@ -13,6 +13,8 @@ def change_key_case(value, converter, **options):
     """
     returns a copy of input dict with all it's keys
     and nested keys cases modified using given converter.
+    note that this only considers direct nested dicts, if there is a
+    list that contains a dict as value, this method won't change that.
 
     :param dict value: dict to change it's keys cases.
 
@@ -42,6 +44,8 @@ def make_key_upper(value):
     """
     returns a copy of input dict with all it's
     keys and nested keys cases made upper.
+    note that this only considers direct nested dicts, if there is a
+    list that contains a dict as value, this method won't change that.
 
     :param dict value: dict to make it's keys uppercase.
 
@@ -55,6 +59,8 @@ def make_key_lower(value):
     """
     returns a copy of input dict with all it's
     keys and nested keys cases made lower.
+    note that this only considers direct nested dicts, if there is a
+    list that contains a dict as value, this method won't change that.
 
     :param dict value: dict to make it's keys lowercase.
 
