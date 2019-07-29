@@ -13,7 +13,7 @@ def resolve_application_root_path():
     :rtype: str
     """
 
-    current_module_directory = os.path.dirname(__file__)
+    current_module_directory = os.path.abspath(os.path.dirname(__file__))
     current_module_path = os.path.join(current_module_directory, 'path')
     current_module_path = current_module_path.replace('/', '.')
     current_module_name = __name__
