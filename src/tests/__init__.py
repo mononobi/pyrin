@@ -3,6 +3,7 @@
 pyrin tests main package.
 """
 
+import os
 import signal
 
 from pyrin.utils.custom_print import print_error
@@ -95,7 +96,7 @@ class PyrinTestApplication(Application):
         :rtype: str
         """
 
-        return __path__[0]
+        return os.path.abspath(__path__[0])
 
     @classmethod
     def get_application_name(cls):

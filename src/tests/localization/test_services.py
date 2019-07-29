@@ -30,7 +30,7 @@ def test_set_locale_selector_already_set():
     """
 
     with pytest.raises(LocaleSelectorHasBeenAlreadySetError):
-        locale_services.set_locale_selector(locale_services.locale_selector)
+        locale_services.set_locale_selector(locale_services.get_current_locale)
 
 
 def test_set_timezone_selector_invalid_type():
@@ -50,7 +50,7 @@ def test_set_timezone_selector_already_set():
     """
 
     with pytest.raises(TimezoneSelectorHasBeenAlreadySetError):
-        locale_services.set_timezone_selector(locale_services.timezone_selector)
+        locale_services.set_timezone_selector(locale_services.get_current_timezone)
 
 
 def test_get_current_locale():
