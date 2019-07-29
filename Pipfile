@@ -32,6 +32,7 @@ python-dotenv = "*"
 cryptography = "*"
 flask-babel = "*"
 pytest = "*"
+uwsgi = "*"
 
 [requires]
 python_version = "3.7"
