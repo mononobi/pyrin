@@ -80,7 +80,7 @@ cp ../../src/.env /var/app_root/pyrin_framework/app/.env
 cp ../../Pipfile.lock /var/app_root/pyrin_framework/Pipfile.lock
 cp ../../Pipfile /var/app_root/pyrin_framework/Pipfile
 
-# setting up pipenv environment.
+# creating pipenv environment.
 cd /var/app_root/pyrin_framework/ || exit 1
 export PIPENV_VENV_IN_PROJECT=1
 pipenv install --ignore-pipfile
