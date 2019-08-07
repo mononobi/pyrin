@@ -34,6 +34,19 @@ else
     echo "syslog is already installed."
 fi
 
+# installing python2.7
+python27_path=$(command -v python2.7)
+python27_length=${#python27_path}
+
+if [ "$python27_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
+then
+    echo "Installing python2.7 and dependencies."
+    apt-get install python2.7
+    apt install python-pip
+else
+    echo "python2.7 is already installed."
+fi
+
 # installing python3.7
 python_path=$(command -v python3.7)
 python_length=${#python_path}
