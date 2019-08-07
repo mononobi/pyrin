@@ -46,16 +46,16 @@ chown -R root:www-data /var/log/pyrin/
 chmod -R 770 /var/log/pyrin/
 
 # making application backup directory and file.
-if [ ! -d "/var/app_root/backup" ]
+if [ ! -d "/var/app_root/backup/pyrin_framework" ]
 then
-    mkdir -p /var/app_root/backup/
+    mkdir -p /var/app_root/backup/pyrin_framework/
 fi
 
 if [ -d "/var/app_root/pyrin_framework" ]
 then
     echo "Archiving and cleaning up previous installation."
     name=$(date "+%Y.%m.%d.%H.%M.%S")
-    tar -czf /var/app_root/backup/"pyrin_framework.$name.tar.gz" /var/app_root/pyrin_framework
+    tar -czf /var/app_root/backup/pyrin_framework/"pyrin_framework.$name.tar.gz" /var/app_root/pyrin_framework
     rm -r /var/app_root/pyrin_framework
 else
     echo "Performing fresh installation."
