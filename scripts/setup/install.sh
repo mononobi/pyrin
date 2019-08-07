@@ -76,6 +76,9 @@ cp -r ../../src/pyrin/ /var/app_root/pyrin_framework/app/pyrin/
 # copying .env file.
 cp ../../src/.env /var/app_root/pyrin_framework/app/.env
 
+# copying run-test.sh file.
+cp ./run-test.sh /var/app_root/pyrin_framework/app/run-test.sh
+
 # copying pipenv required files.
 cp ../../Pipfile.lock /var/app_root/pyrin_framework/Pipfile.lock
 cp ../../Pipfile /var/app_root/pyrin_framework/Pipfile
@@ -94,3 +97,18 @@ chown -R $user_name /var/app_root/
 echo
 echo "\e[0;32m ** Installation completed ** \e[0m"
 echo
+
+run_test="n"
+# shellcheck disable=SC2039
+read -r -p "Run pyrin tests now? [y/N] " run_test
+
+run_test_length=${#run_test}
+if [ "$run_test_length" = "0" ]
+then
+    run_test="n"
+fi
+
+if [ "$run_test" = "Y" ] || [ "$run_test" = "y" ]
+then
+    /var/app_root/pyrin_framework/app/run-test.sh
+fi
