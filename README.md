@@ -9,3 +9,13 @@ pyrin could be used as the main package of an application, so other application 
 pyrin point of view is to build an application that is more decoupled, so making it possible to have customized implementations of different packages and also making it easier to write unit-test packages.
 
 another major fact of pyrin is to avoid centralized locations for application features, so a team of multiple developers be able to work on the same repository without facing conflicts here and there. and also reducing the chances of annoying bugs due to forgetting to register something in somewhere.
+
+# code edit and running tests in pycharm
+
+You could open the project in pycharm and it will create required pipenv for you.
+
+Then you could run start_test.py script in pycharm.
+
+# installation
+
+You could execute the install.sh script placed in scripts/setup to install pyrin systemwide, then you'll be able to run tests using run-test.sh script placed in scripts/setup.
