@@ -40,27 +40,52 @@ python27_length=${#python27_path}
 
 if [ "$python27_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
 then
-    echo "Installing python2.7 and dependencies."
+    echo "Installing python2.7"
     apt-get install python2.7
-    apt install python-pip
 else
     echo "python2.7 is already installed."
 fi
 
-# installing python3.7
-python_path=$(command -v python3.7)
-python_length=${#python_path}
+# installing pip.
+pip_path=$(command -v pip)
+pip_length=${#pip_path}
 
-if [ "$python_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
+if [ "$pip_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
 then
-    echo "Installing python3.7 and dependencies."
+    echo "Installing pip."
+    apt-get install python-pip
+else
+    echo "pip is already installed."
+fi
+
+# installing python3.7
+python37_path=$(command -v python3.7)
+python37_length=${#python37_path}
+
+if [ "$python37_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
+then
+    echo "Installing python3.7"
     apt update
     apt install software-properties-common
     add-apt-repository ppa:deadsnakes/ppa
     apt install python3.7
-    apt-get install python3-pip
 else
     echo "python3.7 is already installed."
+fi
+
+# installing pip3
+pip3_path=$(command -v pip3)
+pip3_length=${#pip3_path}
+
+if [ "$pip3_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
+then
+    echo "Installing pip3"
+    apt update
+    apt install software-properties-common
+    add-apt-repository ppa:deadsnakes/ppa
+    apt-get install python3-pip
+else
+    echo "pip3 is already installed."
 fi
 
 # installing pipenv.

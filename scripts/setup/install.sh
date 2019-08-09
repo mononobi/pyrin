@@ -42,7 +42,7 @@ fi
 mkdir -p /var/log/pyrin/
 
 # setting permissions for log directory.
-chown -R root:www-data /var/log/pyrin/
+chown -R $user_name:www-data /var/log/pyrin/
 chmod -R 770 /var/log/pyrin/
 
 # making application backup directory and file.
@@ -63,15 +63,14 @@ fi
 
 # making up required directory.
 mkdir -p /var/app_root/pyrin_framework/app/
-chown -R $user_name /var/app_root/
 
 echo "Copying applications."
+# copying pyrin application.
+cp -r ../../src/pyrin/ /var/app_root/pyrin_framework/app/pyrin/
+
 # copying tests application.
 cp -r ../../src/tests/ /var/app_root/pyrin_framework/app/tests/
 cp ../../src/start_test.py /var/app_root/pyrin_framework/app/start_test.py
-
-# copying pyrin application.
-cp -r ../../src/pyrin/ /var/app_root/pyrin_framework/app/pyrin/
 
 # copying .env file.
 cp ../../src/.env /var/app_root/pyrin_framework/app/.env
@@ -95,7 +94,7 @@ cd "$working_dir" || exit 1
 chown -R $user_name /var/app_root/
 
 echo
-echo "\e[0;32m ** Installation completed ** \e[0m"
+echo "\e[0;32m** Installation completed **\e[0m"
 echo
 
 run_test="n"
