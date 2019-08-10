@@ -10,12 +10,11 @@ pyrin point of view is to build an application that is more decoupled, so making
 
 another major fact of pyrin is to avoid centralized locations for application features, so a team of multiple developers be able to work on the same repository without facing conflicts here and there. and also reducing the chances of annoying bugs due to forgetting to register something in somewhere.
 
-# code edit and running tests in pycharm
+# code editing and running tests in pycharm
 
-You could open the project in pycharm and it will create required pipenv for you.
-
-Then you could run start_test.py script in pycharm.
+you could open the project in pycharm and it will create required pipenv for you.
+then you could run src/start_test.py script in pycharm.
 
 # installation
 
-You could execute the install.sh script placed in scripts/setup to install pyrin systemwide, then you'll be able to run tests using run-test.sh script placed in scripts/setup.
+you could execute the scripts/setup/install.sh script to install pyrin system-wide, then you'll be able to run tests using scripts/setup/run-test.sh script.
