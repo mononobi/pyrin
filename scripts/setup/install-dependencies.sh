@@ -22,6 +22,18 @@ else
     echo "gcc is already installed."
 fi
 
+# installing g++.
+gpp_path=$(command -v g++)
+gpp_length=${#gpp_path}
+
+if [ "$gpp_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
+then
+    echo "Installing g++."
+    apt-get install g++
+else
+    echo "g++ is already installed."
+fi
+
 # installing syslog.
 syslog_path=$(command -v syslog-ng)
 syslog_length=${#syslog_path}
