@@ -20,12 +20,24 @@ of multiple developers be able to work on the same repository without facing con
 and there. and also reducing the chances of annoying bugs due to forgetting to register
 something in somewhere.
 
-# code editing and running tests in pycharm
+# prerequisites
 
-open the project in pycharm and it will create required pipenv.
-then run the src/start_test.py script in pycharm.
+to be able to run tests, it is required to create a .env file inside src directory
+containing all the configuration keys that have null value in their corresponding
+settings file. a sample .env file is available in samples/dotenv.
+
+# code editing in pycharm
+
+open the project in pycharm and it will create required pipenv environment.
+then you could start developing the application.
+
+# running tests in pycharm
+
+add a new script in pycharm's edit configurations dialog and choose the src/start_test.py
+script. then run or debug it.
 
 # installation
 
-execute the scripts/setup/install.sh script to install pyrin system-wide, then you'll be
-able to run tests using scripts/setup/run-test.sh script.
+to install the application, you must put a valid .env file inside src directory.
+then execute the scripts/setup/install.sh script to install pyrin system-wide, then you'll be
+able to run tests using /var/app_root/pyrin_framework/app/run-test.sh script.
