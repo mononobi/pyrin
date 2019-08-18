@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 force_update="n"
 # shellcheck disable=SC2039

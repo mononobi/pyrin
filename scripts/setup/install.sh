@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # installing dependencies.
 ./install-dependencies.sh
