@@ -28,7 +28,8 @@ settings file. a sample .env file is available in samples/dotenv.
 
 # code editing in pycharm
 
-open the project in pycharm and it will create required pipenv environment.
+first you should execute the scripts/setup/install-dependencies.sh script.
+then open the project in pycharm and it will create required pipenv environment.
 then you could start developing the application.
 
 # running tests in pycharm
