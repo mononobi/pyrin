@@ -94,7 +94,7 @@ cd "$working_dir" || exit 1
 chown -R $user_name /var/app_root/
 
 echo
-echo "\e[0;32m** Installation completed **\e[0m"
+echo -e "\e[0;32m** Installation completed **\e[0m"
 echo
 
 run_test="n"
