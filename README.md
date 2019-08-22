@@ -42,3 +42,8 @@ script. then run or debug it.
 to install the application, you must put a valid .env file inside src directory.
 then execute the scripts/setup/install.sh script to install pyrin system-wide, then you'll be
 able to run tests using /var/app_root/pyrin_framework/app/run-test.sh script.
+
+# uninstallation
+
+to uninstall the application from system, you should execute the scripts/setup/uninstall.sh
+script. be aware that uninstallation process will not make any backup of installed version.
