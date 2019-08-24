@@ -73,7 +73,7 @@ def test_load_configuration_for_all():
                      'communication',
                      'database',
                      'environment',
-                     'localization',
+                     'globalization',
                      'security']
 
     for store in config_stores:
@@ -269,7 +269,7 @@ def test_get_from_not_available_key():
     """
 
     with pytest.raises(ConfigurationStoreKeyNotFoundError):
-        config_services.get('localization', 'general', 'fake_key')
+        config_services.get('globalization', 'locale', 'fake_key')
 
 
 def test_get_from_not_available_key_with_default_value():
@@ -279,7 +279,7 @@ def test_get_from_not_available_key_with_default_value():
     it should not raise an error and should return the default value.
     """
 
-    value = config_services.get('localization', 'general', 'fake_key', default_value=123)
+    value = config_services.get('globalization', 'locale', 'fake_key', default_value=123)
     assert value == 123
 
 
@@ -308,7 +308,7 @@ def test_get_for_different_stores():
     env = config_services.get('environment', 'test', 'env')
     assert env == 'testing'
 
-    locale_dir = config_services.get('localization', 'general', 'babel_translation_directories')
+    locale_dir = config_services.get('globalization', 'locale', 'babel_translation_directories')
     assert locale_dir == 'locale'
 
     secret_key = config_services.get('security', 'general', 'secret_key')

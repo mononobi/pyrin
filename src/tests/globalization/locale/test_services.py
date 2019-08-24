@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-localization test_services module.
+locale test_services module.
 """
 
 import pytest
 
-import pyrin.localization.services as locale_services
+import pyrin.globalization.locale.services as locale_services
 import pyrin.configuration.services as config_services
 
-from pyrin.localization.exceptions import InvalidLocaleSelectorTypeError, \
+from pyrin.globalization.locale.exceptions import InvalidLocaleSelectorTypeError, \
     LocaleSelectorHasBeenAlreadySetError, InvalidTimezoneSelectorTypeError, \
     TimezoneSelectorHasBeenAlreadySetError
 
@@ -60,7 +60,7 @@ def test_get_current_locale():
     """
 
     locale = locale_services.get_current_locale()
-    default_locale = config_services.get('localization', 'general',
+    default_locale = config_services.get('globalization', 'locale',
                                          'babel_default_locale')
 
     assert locale == default_locale
@@ -73,7 +73,7 @@ def test_get_current_timezone():
     """
 
     timezone = locale_services.get_current_timezone()
-    default_timezone = config_services.get('localization', 'general',
+    default_timezone = config_services.get('globalization', 'locale',
                                            'babel_default_timezone')
 
     assert timezone == default_timezone
