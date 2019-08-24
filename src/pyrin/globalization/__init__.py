@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-localization package.
+globalization package.
 """
 
 import pyrin.application.services as application_services
@@ -8,15 +8,14 @@ import pyrin.application.services as application_services
 from pyrin.packaging.context import Package
 
 
-class LocalizationPackage(Package):
+class GlobalizationPackage(Package):
     """
-    localization package class.
+    globalization package class.
     """
 
     NAME = __name__
     DEPENDS = ['pyrin.configuration']
-    COMPONENT_NAME = 'localization.component'
-    CONFIG_STORE_NAMES = ['localization']
+    CONFIG_STORE_NAMES = ['globalization']
 
     def _load_configs(self, config_services):
         """
@@ -34,5 +33,5 @@ class LocalizationPackage(Package):
                                        importing it inside this method.
         """
 
-        flat_configs = config_services.get_all('localization')
+        flat_configs = config_services.get_all('globalization')
         application_services.configure(flat_configs)

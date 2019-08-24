@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-localization manager module.
+locale manager module.
 """
 
 from flask_babel import Babel
@@ -10,19 +10,19 @@ import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
 from pyrin.application.services import get_current_app
-from pyrin.localization.exceptions import InvalidLocaleSelectorTypeError, \
+from pyrin.globalization.locale.exceptions import InvalidLocaleSelectorTypeError, \
     InvalidTimezoneSelectorTypeError, LocaleSelectorHasBeenAlreadySetError, \
     TimezoneSelectorHasBeenAlreadySetError
 
 
-class LocalizationManager(CoreObject):
+class LocaleManager(CoreObject):
     """
-    localization manager class.
+    locale manager class.
     """
 
     def __init__(self, **options):
         """
-        initializes an instance of LocalizationManager.
+        initializes an instance of LocaleManager.
         """
 
         CoreObject.__init__(self)
@@ -89,7 +89,7 @@ class LocalizationManager(CoreObject):
             current_locale = current_request.context.get('locale', None)
 
         if current_locale is None:
-            current_locale = config_services.get('localization', 'general',
+            current_locale = config_services.get('globalization', 'locale',
                                                  'babel_default_locale')
 
         return current_locale
@@ -108,7 +108,7 @@ class LocalizationManager(CoreObject):
             current_timezone = current_request.context.get('timezone', None)
 
         if current_timezone is None:
-            current_timezone = config_services.get('localization', 'general',
+            current_timezone = config_services.get('globalization', 'locale',
                                                    'babel_default_timezone')
 
         return current_timezone

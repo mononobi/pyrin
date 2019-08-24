@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-localization services module.
+locale services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.localization import LocalizationPackage
+from pyrin.globalization.locale import LocalePackage
 
 
 def set_locale_selector(func):
@@ -19,7 +19,7 @@ def set_locale_selector(func):
                                                   already set error.
     """
 
-    get_component(LocalizationPackage.COMPONENT_NAME).set_locale_selector(func)
+    get_component(LocalePackage.COMPONENT_NAME).set_locale_selector(func)
 
 
 def set_timezone_selector(func):
@@ -34,7 +34,7 @@ def set_timezone_selector(func):
                                                     already set error.
     """
 
-    get_component(LocalizationPackage.COMPONENT_NAME).set_timezone_selector(func)
+    get_component(LocalePackage.COMPONENT_NAME).set_timezone_selector(func)
 
 
 def get_current_locale():
@@ -45,7 +45,7 @@ def get_current_locale():
     :rtype: str
     """
 
-    return get_component(LocalizationPackage.COMPONENT_NAME).get_current_locale()
+    return get_component(LocalePackage.COMPONENT_NAME).get_current_locale()
 
 
 def get_current_timezone():
@@ -56,4 +56,4 @@ def get_current_timezone():
     :rtype: str
     """
 
-    return get_component(LocalizationPackage.COMPONENT_NAME).get_current_timezone()
+    return get_component(LocalePackage.COMPONENT_NAME).get_current_timezone()
