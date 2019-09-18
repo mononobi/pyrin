@@ -32,6 +32,9 @@ python-dotenv = "*"
 cryptography = "*"
 flask-babel = "*"
 pytest = "*"
+pluggy = "*"
+zipp = "*"
+importlib-metadata = "*"
 
 [requires]
 python_version = "3.7"
