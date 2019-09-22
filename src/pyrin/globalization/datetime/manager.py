@@ -25,16 +25,16 @@ class DateTimeManager(CoreObject):
         CoreObject.__init__(self)
 
         default_timezone = config_services.get('globalization', 'datetime', 'default_timezone')
-        self.__active_timezone = pytz.timezone(default_timezone)
+        self.__current_timezone = pytz.timezone(default_timezone)
 
-    def get_current_datetime(self):
+    def now(self):
         """
-        gets current datetime in application default timezone.
+        gets current datetime based on application current timezone.
 
         :rtype: datetime
         """
 
-        return datetime.now(self.get_active_timezone())
+        return datetime.now(self.get_current_timezone())
 
     def get_normalized_datetime(self, value):
         """
@@ -45,11 +45,11 @@ class DateTimeManager(CoreObject):
         :rtype: datetime
         """
 
-    def get_active_timezone(self):
+    def get_current_timezone(self):
         """
-        gets the application active timezone.
+        gets the application current timezone.
 
         :rtype: tzinfo
         """
 
-        return self.__active_timezone
+        return self.__current_timezone

@@ -7,16 +7,31 @@ from pyrin.application.services import get_component
 from pyrin.globalization.datetime import DateTimePackage
 
 
-def set_locale_selector(func):
+def now():
     """
-    sets the given function as locale selector.
+    gets current datetime based on application current timezone.
 
-    :param callable func: function to be set as locale selector.
-
-    :raises InvalidLocaleSelectorTypeError: invalid locale selector type error.
-
-    :raises LocaleSelectorHasBeenAlreadySetError: locale selector has been
-                                                  already set error.
+    :rtype: datetime
     """
 
-    get_component(DateTimePackage.COMPONENT_NAME).set_locale_selector(func)
+    return get_component(DateTimePackage.COMPONENT_NAME).now()
+
+
+def get_normalized_datetime(value):
+    """
+    normalizes the input value to application default timezone.
+
+    :param datetime value: value to get it's application default timezone equivalent.
+
+    :rtype: datetime
+    """
+
+
+def get_current_timezone():
+    """
+    gets the application current timezone.
+
+    :rtype: tzinfo
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).get_current_timezone()
