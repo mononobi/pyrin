@@ -36,15 +36,6 @@ class DateTimeManager(CoreObject):
 
         return datetime.now(self.get_current_timezone())
 
-    def get_normalized_datetime(self, value):
-        """
-        normalizes the input value to application default timezone.
-
-        :param datetime value: value to get it's application default timezone equivalent.
-
-        :rtype: datetime
-        """
-
     def get_current_timezone(self):
         """
         gets the application current timezone.
