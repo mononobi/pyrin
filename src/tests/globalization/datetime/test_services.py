@@ -3,8 +3,6 @@
 datetime test_services module.
 """
 
-import pytest
-
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.configuration.services as config_services
 
@@ -14,15 +12,8 @@ def test_now():
     gets current datetime based on application current timezone.
     """
 
-    return datetime_services.now()
-
-
-def test_get_normalized_datetime():
-    """
-    normalizes the input value to application default timezone.
-
-    :rtype: datetime
-    """
+    current = datetime_services.now()
+    assert current is not None
 
 
 def test_get_current_timezone():
