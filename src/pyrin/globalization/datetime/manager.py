@@ -87,9 +87,9 @@ class DateTimeManager(CoreObject):
         adds the application current timezone info into input
         value if it has no timezone info.
 
-        :param Union[datetime, date] value: value to add timezone info into it.
+        :param datetime value: value to add timezone info into it.
 
-        :rtype: Union[datetime, date]
+        :rtype: datetime
         """
 
         localized_value = value
@@ -115,7 +115,7 @@ class DateTimeManager(CoreObject):
 
     def to_date_string(self, value):
         """
-        gets the date string representation of input with default format.
+        gets the date string representation of input value.
         if the value has no timezone info, it adds the application
         current timezone info into it.
         example: `2015-12-24`
@@ -129,15 +129,19 @@ class DateTimeManager(CoreObject):
 
     def to_time_string(self, value):
         """
-        gets the time string representation of input datetime with utc offset.
-        example: `23:40:15+03:30`
+        gets the time string representation of input value.
+        if the value has no timezone info, it adds the application
+        current timezone info into it.
+        example: `23:40:15`
 
         :param Union[datetime, time] value: input object to be converted.
 
         :rtype: str
         """
 
-        localized_value = self._add_timezone_info(value)
+        localized_value = value
+        if isinstance(value, datetime):
+            localized_value = self._add_timezone_info(value)
         return datetime_utils.to_time_string(localized_value)
 
     def to_datetime(self, value):
@@ -172,5 +176,4 @@ class DateTimeManager(CoreObject):
         :rtype: time
         """
 
-        converted_time = datetime_utils.to_time(value)
-        return self._add_timezone_info(converted_time)
+        return datetime_utils.to_time(value)

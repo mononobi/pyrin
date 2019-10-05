@@ -80,7 +80,7 @@ def to_datetime_string(value):
 
 def to_date_string(value):
     """
-    gets the date string representation of input with default format.
+    gets the date string representation of input value.
     if the value has no timezone info, it adds the application
     current timezone info into it.
     example: `2015-12-24`
@@ -95,8 +95,10 @@ def to_date_string(value):
 
 def to_time_string(value):
     """
-    gets the time string representation of input datetime with utc offset.
-    example: `23:40:15+03:30`
+    gets the time string representation of input value.
+    if the value has no timezone info, it adds the application
+    current timezone info into it.
+    example: `23:40:15`
 
     :param Union[datetime, time] value: input object to be converted.
 

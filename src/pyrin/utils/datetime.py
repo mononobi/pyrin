@@ -72,7 +72,7 @@ def to_date_string(value):
 def to_time_string(value):
     """
     gets the time string representation of input datetime with utc offset.
-    example: `23:40:15+03:30`
+    example: `23:40:15`
 
     :param Union[datetime, time] value: input object to be converted.
 
@@ -89,7 +89,7 @@ def to_time_string(value):
 def to_time_string_utc(value):
     """
     gets the time string representation of input datetime in utc with zero offset.
-    example: `22:40:15+00:00`
+    example: `22:40:15`
 
     :param Union[datetime, time] value: input object to be converted.
 
