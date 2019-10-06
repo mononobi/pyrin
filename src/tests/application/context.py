@@ -4,7 +4,7 @@ application context module.
 """
 
 import pyrin.utils.unique_id as uuid_utils
-import pyrin.utils.datetime as datetime_utils
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.core.context import CoreObject, Context
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
@@ -22,7 +22,7 @@ class CoreRequestMock(CoreObject):
         super(CoreObject, self).__init__()
 
         self.request_id = uuid_utils.generate_uuid4()
-        self.request_date = datetime_utils.utc_now()
+        self.request_date = datetime_services.now()
         self.user = None
         self.component_custom_key = DEFAULT_COMPONENT_KEY
         self.context = Context()

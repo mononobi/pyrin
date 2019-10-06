@@ -47,7 +47,7 @@ def test_deserialize_datetime():
 
     value = deserializer_services.deserialize('2019-09-01T20:12:15+00:30')
     assert value.day == 1 and value.month == 9 and value.year == 2019 and \
-        value.second == 15 and value.minute == 42 and value.hour == 19
+        value.second == 15 and value.minute == 12 and value.hour == 20
 
 
 def test_deserialize_date():
