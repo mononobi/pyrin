@@ -24,6 +24,10 @@ DEFAULT_DATE_ISO_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\d$')
 # example: '23:40:15+03:30'
 DEFAULT_TIME_ISO_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d[+-][0-1]\d:[0-5]\d$')
 
+# default iso time regular expression pattern without utc offset.
+# example: '23:40:15'
+DEFAULT_TIME_NO_TIMEZONE_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d$')
+
 
 def to_datetime_string(value):
     """

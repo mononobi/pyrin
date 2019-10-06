@@ -6,7 +6,7 @@ application context module.
 from flask import Request, Response, jsonify
 
 import pyrin.utils.unique_id as uuid_utils
-import pyrin.utils.datetime as datetime_utils
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.application.exceptions import ComponentAttributeError, InvalidComponentNameError
 from pyrin.core.context import Context, CoreObject, DTO
@@ -125,7 +125,7 @@ class CoreResponse(Response):
 
         self.request_id = None
         self.request_date = None
-        self.response_date = datetime_utils.utc_now()
+        self.response_date = datetime_services.now()
         self.user = None
         self.context = Context()
 
@@ -161,7 +161,7 @@ class CoreRequest(Request):
         super(CoreRequest, self).__init__(environ, populate_request, shallow)
 
         self.request_id = uuid_utils.generate_uuid4()
-        self.request_date = datetime_utils.utc_now()
+        self.request_date = datetime_services.now()
         self.user = None
         self.component_custom_key = DEFAULT_COMPONENT_KEY
         self.client_ip = self._get_client_ip()
