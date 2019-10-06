@@ -59,12 +59,21 @@ def test_deserialize_date():
     assert value.day == 1 and value.month == 9 and value.year == 2019
 
 
-def test_deserialize_time():
+def test_deserialize_time_with_timezone():
     """
-    deserializes the given time value from string.
+    deserializes the given time value which has timezone from string.
     """
 
     value = deserializer_services.deserialize('20:12:15+00:30')
+    assert value.second == 15 and value.minute == 12 and value.hour == 20
+
+
+def test_deserialize_time_without_timezone():
+    """
+    deserializes the given time value which has no timezone from string.
+    """
+
+    value = deserializer_services.deserialize('20:12:15')
     assert value.second == 15 and value.minute == 12 and value.hour == 20
 
 
