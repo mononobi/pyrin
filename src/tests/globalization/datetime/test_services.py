@@ -210,3 +210,24 @@ def test_to_time_without_timezone():
     assert time_object is not None
     assert time_object.tzinfo is None
     assert time_object.hour == 18 and time_object.minute == 10 and time_object.second == 22
+
+
+def test_timezone_exists_valid():
+    """
+    gets a value indicating that a timezone with the given name exists.
+    """
+
+    assert datetime_services.timezone_exists('UTC') is True
+    assert datetime_services.timezone_exists('Iran') is True
+    assert datetime_services.timezone_exists('Europe/Berlin') is True
+
+
+def test_timezone_exists_invalid():
+    """
+    gets a value indicating that a timezone with the given name does not exist.
+    """
+
+    assert datetime_services.timezone_exists('fake') is not True
+    assert datetime_services.timezone_exists('') is not True
+    assert datetime_services.timezone_exists('  ') is not True
+    assert datetime_services.timezone_exists(None) is not True

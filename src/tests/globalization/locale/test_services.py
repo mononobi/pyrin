@@ -77,3 +77,27 @@ def test_get_current_timezone():
                                            'babel_default_timezone')
 
     assert timezone == default_timezone
+
+
+def test_locale_exists_valid():
+    """
+    gets a value indicating that a locale with the given name exists.
+    """
+
+    assert locale_services.locale_exists('fa') is True
+    assert locale_services.locale_exists('fA') is True
+    assert locale_services.locale_exists('en') is True
+    assert locale_services.locale_exists('FR') is True
+
+
+def test_locale_exists_invalid():
+    """
+    gets a value indicating that a locale with the given name does not exist.
+    """
+
+    assert locale_services.locale_exists('11') is not True
+    assert locale_services.locale_exists('fake') is not True
+    assert locale_services.locale_exists('fa.ir') is not True
+    assert locale_services.locale_exists('') is not True
+    assert locale_services.locale_exists(' ') is not True
+    assert locale_services.locale_exists(None) is not True
