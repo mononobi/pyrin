@@ -177,3 +177,14 @@ class DateTimeManager(CoreObject):
         """
 
         return datetime_utils.to_time(value)
+
+    def timezone_exists(self, timezone_name):
+        """
+        gets a value indicating that a timezone with the given name exists.
+
+        :param str timezone_name: timezone name to check for existence.
+
+        :rtype: bool
+        """
+
+        return timezone_name in pytz.all_timezones_set

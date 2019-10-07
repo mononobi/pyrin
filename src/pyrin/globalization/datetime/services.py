@@ -142,3 +142,15 @@ def to_time(value):
     """
 
     return get_component(DateTimePackage.COMPONENT_NAME).to_time(value)
+
+
+def timezone_exists(timezone_name):
+    """
+    gets a value indicating that a timezone with the given name exists.
+
+    :param str timezone_name: timezone name to check for existence.
+
+    :rtype: bool
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).timezone_exists(timezone_name)

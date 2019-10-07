@@ -4,9 +4,11 @@ locale manager module.
 """
 
 from flask_babel import Babel
+from babel import localedata
 
 import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.core.context import CoreObject
 from pyrin.application.services import get_current_app
@@ -88,7 +90,7 @@ class LocaleManager(CoreObject):
         if current_request is not None:
             current_locale = current_request.context.get('locale', None)
 
-        if current_locale is None:
+        if self.locale_exists(current_locale) is not True:
             current_locale = config_services.get('globalization', 'locale',
                                                  'babel_default_locale')
 
@@ -107,8 +109,19 @@ class LocaleManager(CoreObject):
         if current_request is not None:
             current_timezone = current_request.context.get('timezone', None)
 
-        if current_timezone is None:
+        if datetime_services.timezone_exists(current_timezone) is not True:
             current_timezone = config_services.get('globalization', 'locale',
                                                    'babel_default_timezone')
 
         return current_timezone
+
+    def locale_exists(self, locale_name):
+        """
+        gets a value indicating that a locale with the given name exists.
+
+        :param str locale_name: locale name to check for existence.
+
+        :rtype: bool
+        """
+
+        return localedata.exists(locale_name)

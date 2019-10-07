@@ -57,3 +57,15 @@ def get_current_timezone():
     """
 
     return get_component(LocalePackage.COMPONENT_NAME).get_current_timezone()
+
+
+def locale_exists(locale_name):
+    """
+    gets a value indicating that a locale with the given name exists.
+
+    :param str locale_name: locale name to check for existence.
+
+    :rtype: bool
+    """
+
+    return get_component(LocalePackage.COMPONENT_NAME).locale_exists(locale_name)
