@@ -19,6 +19,9 @@ class CoreDeclarative(CoreObject):
     # holds the table name in database.
     __tablename__ = None
 
+    # holds the extra arguments for table.
+    __table_args__ = None
+
     # holds all foreign keys of current table. it should be in the following patterns.
     # (current_table.id, reference_table.id)
     # (current_table.name, reference_table.name), (current_table.desc, reference_table.desc)
