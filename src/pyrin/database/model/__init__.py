@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database model package.
+model package.
 """
 
 from pyrin.packaging.context import Package
