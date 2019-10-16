@@ -44,6 +44,9 @@ def handle_server_unknown_error(exception):
     """
     handles unknown server internal exceptions.
     note that normally you should never call this method manually.
+    in any environment which debug mode is false, the original error
+    message will be replaced by a generic error message before being
+    sent to client for security reasons.
 
     :param Exception exception: exception instance.
 

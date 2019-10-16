@@ -4,10 +4,12 @@ api manager module.
 """
 
 import pyrin.logging.services as logging_services
+import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.utils import response as response_utils
+from pyrin.core.globals import _
 
 
 class APIManager(CoreObject):
@@ -47,6 +49,9 @@ class APIManager(CoreObject):
         """
         handles unknown server internal exceptions.
         note that normally you should never call this method manually.
+        in any environment which debug mode is false, the original error
+        message will be replaced by a generic error message before being
+        sent to client for security reasons.
 
         :param Exception exception: exception instance.
 
@@ -54,6 +59,14 @@ class APIManager(CoreObject):
         """
 
         self.LOGGER.exception(str(exception))
-        return response_utils.make_exception_response(exception,
-                                                      code=ServerErrorResponseCodeEnum.
-                                                      INTERNAL_SERVER_ERROR)
+
+        if config_services.get_active('environment', 'debug') is True:
+            return response_utils.make_exception_response(exception,
+                                                          code=ServerErrorResponseCodeEnum.
+                                                          INTERNAL_SERVER_ERROR)
+
+        return response_utils.make_error_response(_('Application has been encountered an error. '
+                                                    'Please contact the support team if problem '
+                                                    'persists.'),
+                                                  code=ServerErrorResponseCodeEnum.
+                                                  INTERNAL_SERVER_ERROR)
