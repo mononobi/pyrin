@@ -17,7 +17,7 @@ IGNORED_PACKAGES = ('pyrin.packaging',
 # example for module name: `enumerations`
 # notice that if only module name is provided, then all modules
 # matching the provided name will be ignored from loading.
-IGNORED_MODULES = ('', )
+IGNORED_MODULES = ()
 
 # core packages of system that should be loaded before other packages.
 # package names must be fully qualified.
@@ -28,7 +28,7 @@ CORE_PACKAGES = ('pyrin',)
 # this packages will replace default behavior of system.
 # package names must be fully qualified.
 # example: `app.custom.converters.json`
-CUSTOM_PACKAGES = ('', )
+CUSTOM_PACKAGES = ()
 
 # test packages that should be loaded after all other packages.
 # these packages are used for unit testing and should not be loaded by default.
