@@ -22,8 +22,8 @@ def entity_to_dict(entity):
         return DTO()
 
     entity_class = type(entity)
-    all_columns = (prop.key for prop in class_mapper(entity_class).iterate_properties
-                   if isinstance(prop, ColumnProperty))
+    all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
+                   if isinstance(prop, ColumnProperty)]
 
     result = DTO()
     for attr in dir(entity):
@@ -47,8 +47,8 @@ def dict_to_entity(dict_value, entity_class):
     if dict_value is None or len(dict_value.keys()) == 0:
         return result
 
-    all_columns = (prop.key for prop in class_mapper(entity_class).iterate_properties
-                   if isinstance(prop, ColumnProperty))
+    all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
+                   if isinstance(prop, ColumnProperty)]
 
     for key in dict_value.keys():
         if key in all_columns:
