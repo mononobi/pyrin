@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-sqlalchemy utils.
+utils sqlalchemy module.
 """
 
 from sqlalchemy.orm import class_mapper, ColumnProperty
