@@ -17,7 +17,7 @@ IGNORED_PACKAGES = ('pyrin.packaging',
 # example for module name: `enumerations`
 # notice that if only module name is provided, then all modules
 # matching the provided name will be ignored from loading.
-IGNORED_MODULES = ()
+IGNORED_MODULES = ('', )
 
 # core packages of system that should be loaded before other packages.
 # package names must be fully qualified.
