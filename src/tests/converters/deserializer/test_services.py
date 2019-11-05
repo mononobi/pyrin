@@ -12,7 +12,8 @@ import pyrin.converters.deserializer.services as deserializer_services
 from pyrin.core.context import DTO
 from pyrin.core.globals import NULL
 from pyrin.converters.deserializer.handlers.boolean import BooleanDeserializer
-from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer
+from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer, \
+    StringDictionaryDeserializer
 from pyrin.converters.deserializer.handlers.list import ListDeserializer, StringListDeserializer
 from pyrin.converters.deserializer.handlers.none import NoneDeserializer
 from pyrin.converters.deserializer.handlers.number import IntegerDeserializer, FloatDeserializer
@@ -24,7 +25,7 @@ from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeErro
     DuplicatedDeserializerError
 
 
-def test_deserialize_bool():
+def test_deserialize_bool_from_string():
     """
     deserializes the given boolean value from string.
     """
@@ -39,7 +40,7 @@ def test_deserialize_bool():
     assert value is False
 
 
-def test_deserialize_datetime():
+def test_deserialize_datetime_from_string():
     """
     deserializes the given datetime value from string.
     note that all date times will be normalized into utc with 0 offset.
@@ -50,7 +51,7 @@ def test_deserialize_datetime():
         value.second == 15 and value.minute == 12 and value.hour == 20
 
 
-def test_deserialize_date():
+def test_deserialize_date_from_string():
     """
     deserializes the given date value from string.
     """
@@ -59,7 +60,7 @@ def test_deserialize_date():
     assert value.day == 1 and value.month == 9 and value.year == 2019
 
 
-def test_deserialize_time_with_timezone():
+def test_deserialize_time_with_timezone_from_string():
     """
     deserializes the given time value which has timezone from string.
     """
@@ -68,7 +69,7 @@ def test_deserialize_time_with_timezone():
     assert value.second == 15 and value.minute == 12 and value.hour == 20
 
 
-def test_deserialize_time_without_timezone():
+def test_deserialize_time_without_timezone_from_string():
     """
     deserializes the given time value which has no timezone from string.
     """
@@ -77,7 +78,7 @@ def test_deserialize_time_without_timezone():
     assert value.second == 15 and value.minute == 12 and value.hour == 20
 
 
-def test_deserialize_none():
+def test_deserialize_none_from_string():
     """
     deserializes the given none value from string.
     """
@@ -92,7 +93,7 @@ def test_deserialize_none():
     assert value is None
 
 
-def test_deserialize_int():
+def test_deserialize_int_from_string():
     """
     deserializes the given integer value from string.
     """
@@ -104,7 +105,7 @@ def test_deserialize_int():
     assert value == -2032221
 
 
-def test_deserialize_float():
+def test_deserialize_float_from_string():
     """
     deserializes the given float value from string.
     """
@@ -119,7 +120,7 @@ def test_deserialize_float():
     assert value == 0.02
 
 
-def test_deserialize_pool():
+def test_deserialize_pool_from_string():
     """
     deserializes the given pool class from string.
     """
@@ -131,7 +132,7 @@ def test_deserialize_pool():
     assert issubclass(value, AssertionPool)
 
 
-def test_deserialize_list():
+def test_deserialize_list_from_string():
     """
     deserializes the given list from string.
     """
@@ -140,13 +141,84 @@ def test_deserialize_list():
     assert value == [1, 2, 3, 55]
 
 
-def test_deserialize_tuple():
+def test_deserialize_list_from_empty_string():
+    """
+    deserializes the given list from empty string.
+    """
+
+    value = deserializer_services.deserialize('[]')
+    assert value is not None
+    assert isinstance(value, list)
+    assert len(value) == 0
+
+
+def test_deserialize_tuple_from_string():
     """
     deserializes the given tuple from string.
     """
 
     value = deserializer_services.deserialize('( 22,   2,  3 ,   100 )')
     assert value == (22, 2, 3, 100)
+
+
+def test_deserialize_tuple_from_empty_string():
+    """
+    deserializes the given tuple from empty string.
+    """
+
+    value = deserializer_services.deserialize('()')
+    assert value is not None
+    assert isinstance(value, tuple)
+    assert len(value) == 0
+
+
+def test_deserialize_dictionary_from_string():
+    """
+    deserializes the given dictionary from string.
+    """
+
+    dict_string = '{"bool_value": true, "datetime_value": "2000-10-20T12:10:43+00:00",' \
+                  ' "date_value": "2004-11-01", "invalid_date_value": "2008-08-1",' \
+                  ' "list_value": ["1", "False "], "list_string": "[ 1, -2.3, 0.01.1, null]",' \
+                  ' "tuple_string": "(3, false ,-0)", "none_value": "none", ' \
+                  ' "int_value": "1001 ", "float_value": " 2.4 ", "invalid_int": "1 2", ' \
+                  ' "positive_float": " +405.0023", "pool_class": "assertionPool"}'
+
+    converted_values = deserializer_services.deserialize(dict_string)
+    assert converted_values is not None
+    assert isinstance(converted_values, dict)
+    assert converted_values.get('bool_value') is True
+    assert converted_values.get('invalid_date_value') == '2008-08-1'
+    assert converted_values.get('list_value') == [1, False]
+    assert converted_values.get('list_string') == [1, -2.3, '0.01.1', None]
+    assert converted_values.get('tuple_string') == (3, False, 0)
+    assert converted_values.get('none_value') is None
+    assert converted_values.get('int_value') == 1001
+    assert converted_values.get('float_value') == 2.4
+    assert converted_values.get('invalid_int') == '1 2'
+    assert converted_values.get('positive_float') == 405.0023
+    assert issubclass(converted_values.get('pool_class'), AssertionPool)
+
+    datetime_value = converted_values.get('datetime_value')
+    assert datetime_value.day == 20 and datetime_value.month == 10 and \
+        datetime_value.year == 2000 and datetime_value.second == 43 and \
+        datetime_value.minute == 10 and datetime_value.hour == 12
+
+    date_value = converted_values.get('date_value')
+    assert date_value.day == 1 and date_value.month == 11 and date_value.year == 2004
+
+
+def test_deserialize_dictionary_from_empty_string():
+    """
+    deserializes the given dictionary from empty string.
+    """
+
+    dict_string = '{}'
+
+    converted_value = deserializer_services.deserialize(dict_string)
+    assert converted_value is not None
+    assert isinstance(converted_value, dict)
+    assert len(converted_value.keys()) == 0
 
 
 def test_deserialize_list_items():
@@ -167,9 +239,9 @@ def test_deserialize_tuple_items():
     assert value == (1, True, -2, QueuePool, None)
 
 
-def test_deserialize_dictionary():
+def test_deserialize_dictionary_items():
     """
-    deserializes the given dictionary.
+    deserializes the given dictionary items from dictionary.
     """
 
     values = DTO(bool_value='true', datetime_value='2000-10-20T12:10:43+00:00',
@@ -180,6 +252,8 @@ def test_deserialize_dictionary():
                  invalid_int='1 2', positive_float=' +405.0023', pool_class='assertionPool')
 
     converted_values = deserializer_services.deserialize(values)
+    assert converted_values is not None
+    assert isinstance(converted_values, dict)
     assert converted_values.get('bool_value') is True
     assert converted_values.get('invalid_date_value') == '2008-08-1'
     assert converted_values.get('list_value') == [1, False]
@@ -270,14 +344,14 @@ def test_get_deserializers():
     """
 
     values = deserializer_services.get_deserializers()
-    assert len(values) == 13
+    assert len(values) == 14
     assert all(type(item) in [StringTupleDeserializer, TupleDeserializer,
                               PoolDeserializer, FloatDeserializer,
                               IntegerDeserializer, NoneDeserializer,
                               StringListDeserializer, ListDeserializer,
-                              DictionaryDeserializer, TimeDeserializer,
-                              DateTimeDeserializer, DateDeserializer,
-                              BooleanDeserializer] for item in values)
+                              DictionaryDeserializer, StringDictionaryDeserializer,
+                              TimeDeserializer, DateTimeDeserializer,
+                              DateDeserializer, BooleanDeserializer] for item in values)
 
 
 def test_get_deserializers_string():
@@ -286,7 +360,7 @@ def test_get_deserializers_string():
     """
 
     values = deserializer_services.get_deserializers(accepted_type=str)
-    assert len(values) == 10
+    assert len(values) == 11
 
 
 def test_get_deserializers_tuple():
