@@ -17,7 +17,7 @@ from pyrin.database.session_factory.base import SessionFactoryBase
 from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
-    DuplicatedSessionFactoryError, SessionFactoryNotExistedError
+    DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError
 
 
 class DatabaseManager(CoreObject):
@@ -35,13 +35,25 @@ class DatabaseManager(CoreObject):
 
         CoreObject.__init__(self)
 
-        self.__engine = self._create_engine()
+        # contains the application default database engine.
+        self.__engine = self._create_default_engine()
+
+        # a dictionary containing engines for different bounded databases.
+        # in the form of: {str bind_name: Engine engine}
+        self.__bounded_engines = self._create_bounded_engines()
 
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
         self.__session_factories = {}
+
+        # a dictionary containing all entity classes that should be bounded
+        # into a database other than the default one.
+        # in the form of: {type entity: str bind_name}
+        self.__binds = {}
+
+        self.__entity_to_engine_map = {}
 
     def get_current_store(self):
         """
@@ -106,16 +118,52 @@ class DatabaseManager(CoreObject):
 
         return self.__session_factories.get(request_bounded)
 
-    def _create_engine(self):
+    def _create_default_engine(self):
         """
-        creates a database engine using database configuration store and returns it.
+        creates the default database engine using database
+        configuration store and returns it.
 
         :returns: database engine
         :rtype: Engine
         """
 
         database_configs = config_services.get_active_section('database')
-        return engine_from_config(database_configs, prefix=self._CONFIGS_PREFIX)
+        return self._create_engine(database_configs)
+
+    def _create_engine(self, database_configs, **kwargs):
+        """
+        creates a database engine using specified database configuration and returns it.
+        each provided key from kwargs will override the corresponding
+        key in database_configs dict. note that kwargs should not have any prefix.
+
+        :param dict database_configs: database configs that should be used.
+
+        :returns: database engine
+        :rtype: Engine
+        """
+
+        return engine_from_config(database_configs, prefix=self._CONFIGS_PREFIX, **kwargs)
+
+    def _create_bounded_engines(self):
+        """
+        creates all required bounded engines if any and returns them.
+
+        :returns: dict(str bind_name: Engine engine)
+        :rtype: dict(str, Engine)
+        """
+
+        engines = {}
+        base_database_configs = config_services.get_active_section('database')
+        binds = config_services.get_section('database', 'binds')
+
+        if len(binds.keys()) <= 0:
+            return engines
+
+        for key in binds.keys():
+            engine = self._create_engine(base_database_configs, url=binds[key])
+            engines[key] = engine
+
+        return engines
 
     def finalize_transaction(self, response):
         """
@@ -215,3 +263,25 @@ class DatabaseManager(CoreObject):
         # registering new session factory.
         self.__session_factories[instance.is_request_bounded()] = \
             instance.create_session_factory(self.__engine)
+
+    def register_bind(self, cls, bind_name, **options):
+        """
+        binds the given model class with specified bind database.
+
+        :param CoreEntity cls: CoreEntity subclass to be bounded.
+        :param str bind_name: bind name to be associated with the model class.
+
+        :raises InvalidEntityTypeError: invalid entity type error.
+        """
+
+        # we have to import CoreEntity inside this method to
+        # prevent early access to database.services before being available.
+        from pyrin.database.model.base import CoreEntity
+
+        if not issubclass(cls, CoreEntity):
+            raise InvalidEntityTypeError('Input parameter [{cls}] is '
+                                         'not a subclass of CoreEntity.'
+                                         .format(cls=str(cls)))
+
+        # registering model into database binds.
+        self.__binds[cls] = bind_name

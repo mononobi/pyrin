@@ -32,3 +32,10 @@ class SessionFactoryNotExistedError(DatabaseManagerException):
     session factory not existed error.
     """
     pass
+
+
+class InvalidEntityTypeError(DatabaseManagerException):
+    """
+    invalid entity type error.
+    """
+    pass

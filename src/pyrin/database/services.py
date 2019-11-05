@@ -88,3 +88,16 @@ def register_session_factory(instance, **options):
 
     return get_component(DatabasePackage.COMPONENT_NAME).register_session_factory(instance,
                                                                                   **options)
+
+
+def register_bind(cls, bind_name, **options):
+    """
+    binds the given model class with specified bind database.
+
+    :param CoreEntity cls: CoreEntity subclass to be bounded.
+    :param str bind_name: bind name to be associated with the model class.
+
+    :raises InvalidEntityTypeError: invalid entity type error.
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).register_bind(cls, bind_name, **options)

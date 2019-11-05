@@ -43,3 +43,34 @@ def session_factory(*args, **kwargs):
         return cls
 
     return decorator
+
+
+def bind(name, **options):
+    """
+    decorator to bind a model class to a database.
+
+    :param str name: bind name to associate with the model.
+
+    :raises InvalidEntityTypeError: invalid entity type error.
+
+    :returns: model class.
+
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given model class and binds it with the specified database.
+
+        :param type cls: model class.
+
+        :returns: model class.
+
+        :rtype: type
+        """
+
+        database_services.register_bind(cls, name, **options)
+
+        return cls
+
+    return decorator

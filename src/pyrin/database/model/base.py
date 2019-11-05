@@ -25,8 +25,8 @@ class CoreDeclarative(CoreObject):
     __table_args__ = None
 
     # holds all foreign keys of current table. it should be in the following patterns.
-    # (current_table.id, reference_table.id)
-    # (current_table.name, reference_table.name), (current_table.desc, reference_table.desc)
+    # ('current_table.id', 'reference_table.id')
+    # ('current_table.age', 'reference_table.age'), ('current_table.no', 'reference_table.no')
     __foreign_key__ = None
 
     # holds the name of the sequence used for table's primary key column.
@@ -82,6 +82,6 @@ class CoreDeclarative(CoreObject):
 # this entity should be used as the base entity for all application entities.
 CoreEntity = declarative_base(cls=CoreDeclarative)
 
-# TODO: the below line must be removed completely so everyone forced to
+# TODO: the below line must be removed completely so everyone forces to
 #  query on objects from store itself, not from the model.
 CoreEntity.query = database_services.get_session_factory(request_bounded=True).query_property()
