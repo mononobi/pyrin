@@ -40,7 +40,7 @@ class RequestScopedSessionFactory(SessionFactoryBase):
 
         session_configs = config_services.get_section('database', 'request_scoped_session')
         return scoped_session(sessionmaker(bind=engine, **session_configs),
-                              scopefunc=session_services.get_current_request)
+                              scopefunc=session_services.get_safe_current_request)
 
     def is_request_bounded(self):
         """
