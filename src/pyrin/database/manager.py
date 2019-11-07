@@ -17,7 +17,8 @@ from pyrin.database.session_factory.base import SessionFactoryBase
 from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
-    DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError
+    DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError, \
+    InvalidDatabaseBindError
 
 
 class DatabaseManager(CoreObject):
@@ -38,22 +39,25 @@ class DatabaseManager(CoreObject):
         # contains the application default database engine.
         self.__engine = self._create_default_engine()
 
+        # a dictionary containing all entity classes that should be bounded
+        # into a database other than the default one.
+        # in the form of: {type entity: str bind_name}
+        self.__binds = {}
+
         # a dictionary containing engines for different bounded databases.
         # in the form of: {str bind_name: Engine engine}
         self.__bounded_engines = self._create_bounded_engines()
+
+        # a dictionary containing all entity types that are bounded to a
+        # different database than the default one.
+        # in the form of: {type entity: Engine engine}
+        self.__entity_to_engine_map = {}
 
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
         self.__session_factories = {}
-
-        # a dictionary containing all entity classes that should be bounded
-        # into a database other than the default one.
-        # in the form of: {type entity: str bind_name}
-        self.__binds = {}
-
-        self.__entity_to_engine_map = {}
 
     def get_current_store(self):
         """
@@ -154,7 +158,7 @@ class DatabaseManager(CoreObject):
 
         engines = {}
         base_database_configs = config_services.get_active_section('database')
-        binds = config_services.get_section('database', 'binds')
+        binds = config_services.get_active_section('database.binds')
 
         if len(binds.keys()) <= 0:
             return engines
@@ -285,3 +289,35 @@ class DatabaseManager(CoreObject):
 
         # registering model into database binds.
         self.__binds[cls] = bind_name
+
+    def _map_entity_to_engine(self):
+        """
+        maps all application entities to relevant engines.
+
+        :raises InvalidDatabaseBindError: invalid database bind error.
+        """
+
+        binds = config_services.get_active_section('database.binds')
+
+        for entity, bind_name in self.__binds.items():
+            if bind_name not in binds:
+                raise InvalidDatabaseBindError('Database bind name [{bind_name}] for entity '
+                                               '[{entity_name}] is not available in '
+                                               'database.binds.config file.'
+                                               .format(bind_name=bind_name,
+                                                       entity_name=str(entity)))
+
+            self.__entity_to_engine_map[entity] = self.__bounded_engines[bind_name]
+
+    def configure_session_factories(self):
+        """
+        configures all application session factories.
+        normally, you should not call this method manually.
+
+        :raises InvalidDatabaseBindError: invalid database bind error.
+        """
+
+        self._map_entity_to_engine()
+
+        for key in self.__session_factories.keys():
+            self.__session_factories[key].configure(binds=self.__entity_to_engine_map)

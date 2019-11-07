@@ -39,3 +39,10 @@ class InvalidEntityTypeError(DatabaseManagerException):
     invalid entity type error.
     """
     pass
+
+
+class InvalidDatabaseBindError(DatabaseManagerException):
+    """
+    invalid database bind error.
+    """
+    pass

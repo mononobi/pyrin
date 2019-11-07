@@ -101,3 +101,14 @@ def register_bind(cls, bind_name, **options):
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).register_bind(cls, bind_name, **options)
+
+
+def configure_session_factories():
+    """
+    configures all application session factories.
+    normally, you should not call this method manually.
+
+    :raises InvalidDatabaseBindError: invalid database bind error.
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).configure_session_factories()

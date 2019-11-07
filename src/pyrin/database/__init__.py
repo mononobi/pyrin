@@ -16,4 +16,5 @@ class DatabasePackage(Package):
                'pyrin.logging']
 
     COMPONENT_NAME = 'database.component'
-    CONFIG_STORE_NAMES = ['database']
+    CONFIG_STORE_NAMES = ['database',
+                          'database.binds']
