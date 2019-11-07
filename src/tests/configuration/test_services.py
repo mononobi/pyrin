@@ -300,7 +300,7 @@ def test_get_for_different_stores():
     assert auto_flush is True
 
     auto_commit = config_services.get('database', 'thread_scoped_session', 'autocommit')
-    assert auto_commit is True
+    assert auto_commit is False
 
     pool = config_services.get('database', 'test', 'sqlalchemy_poolclass')
     assert issubclass(pool, QueuePool)

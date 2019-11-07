@@ -20,7 +20,7 @@ def test_get_current_store_unbounded():
 
     store = database_services.get_current_store()
     assert store is not None
-    assert store.autocommit is True
+    assert store.autocommit is False
 
 
 def test_get_session_factory_current():
