@@ -19,6 +19,7 @@ import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
+import pyrin.utils.misc as misc_utils
 
 from pyrin import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
@@ -246,6 +247,14 @@ class Application(Flask):
                                                         instance=str(component)))
 
             old_instance = self._components[component.get_id()]
+
+            # we should update all attributes of new component with values from
+            # old_instance to prevent loss of any attribute value (for example values
+            # that has been added using decorators).
+            # this has an obvious caveat, and it is that child classes could not do
+            # any customizations on parent attributes in their `__init__` method.
+            component = self._set_component_attributes(old_instance, component)
+
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(component)))
 
@@ -695,3 +704,19 @@ class Application(Flask):
                                        result=response.get_data(as_text=True)))
 
         return response
+
+    def _set_component_attributes(self, old_instance, new_instance):
+        """
+        sets all attributes from old_instance into new_instance.
+
+        :param Component old_instance: old component instance to get attributes from.
+        :param Component new_instance: new component instance to set its attributes.
+
+        :rtype: Component
+        """
+
+        if old_instance is None or new_instance is None:
+            return new_instance
+
+        attributes = vars(old_instance)
+        return misc_utils.set_attributes(new_instance, **attributes)
