@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-utils models module.
+common models module.
 """
 
 from sqlalchemy import Column, Unicode, Integer

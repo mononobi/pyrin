@@ -7,7 +7,7 @@ import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.context import DTO
 
-from tests.utils.models import SampleEntity
+from tests.common.models import SampleEntity
 
 
 def test_entity_to_dict():

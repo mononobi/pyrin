@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-common mock functions module.
+common mock_functions module.
 """
 
 

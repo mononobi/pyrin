@@ -72,6 +72,7 @@ def test_load_configuration_for_all():
                      'api',
                      'communication',
                      'database',
+                     'database.binds',
                      'environment',
                      'globalization',
                      'security']
