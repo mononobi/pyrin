@@ -181,9 +181,7 @@ class DatabaseManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        client_request = None
         try:
-            client_request = session_services.get_current_request()
             store = database_services.get_current_store()
             session_factory = database_services.get_session_factory()
             try:

@@ -83,8 +83,4 @@ class CoreDeclarative(CoreObject):
 
 
 # this entity should be used as the base entity for all application entities.
-CoreEntity = declarative_base(cls=CoreDeclarative)
-
-# TODO: the below line must be removed completely so everyone forces to
-#  query on objects from store itself, not from the model.
-CoreEntity.query = database_services.get_session_factory(request_bounded=True).query_property()
+CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity')
