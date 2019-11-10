@@ -159,8 +159,8 @@ def test_register_component_duplicate():
 
 def test_register_component_duplicate_with_replace():
     """
-    registers given duplicate application component and
-    with replace option and should not raise an error.
+    registers given duplicate application component with
+    replace option and should not raise an error.
     """
 
     component = Component('component_duplicate2')
@@ -168,6 +168,38 @@ def test_register_component_duplicate_with_replace():
     application_services.register_component(component)
     application_services.register_component(component_duplicate, replace=True)
     assert application_services.get_component('component_duplicate2') == component_duplicate
+
+
+def test_register_component_duplicate_with_replace_with_custom_attributes():
+    """
+    registers given duplicate application component which has custom
+    attributes that should be passed to new component with
+    replace option and should not raise an error.
+    """
+
+    component = Component('component_duplicate_with_custom_attrs')
+    component_duplicate = Component('component_duplicate_with_custom_attrs')
+    setattr(component, '__private_field', True)
+    setattr(component, '_protected_field', 21)
+    setattr(component, 'public_field', 'public')
+    setattr(component_duplicate, 'child_attribute', 100)
+    setattr(component_duplicate, '__private_field', False)
+    application_services.register_component(component)
+    application_services.register_component(component_duplicate, replace=True)
+
+    newly_added_component = application_services.get_component(
+        'component_duplicate_with_custom_attrs')
+
+    assert newly_added_component is not None
+    assert hasattr(newly_added_component, '__private_field') is True
+    assert hasattr(newly_added_component, '_protected_field') is True
+    assert hasattr(newly_added_component, 'public_field') is True
+    assert hasattr(newly_added_component, 'child_attribute') is True
+
+    assert getattr(newly_added_component, '__private_field') is True
+    assert getattr(newly_added_component, '_protected_field') == 21
+    assert getattr(newly_added_component, 'public_field') == 'public'
+    assert getattr(newly_added_component, 'child_attribute') == 100
 
 
 def test_get_component_with_invalid_name():

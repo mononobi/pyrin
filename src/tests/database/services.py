@@ -19,17 +19,6 @@ def get_binds():
     return get_component(TestDatabasePackage.COMPONENT_NAME).get_binds()
 
 
-def get_bounded_engines():
-    """
-    gets a shallow copy of bounded engines dictionary.
-
-    :returns: dict(str bind_name: Engine engine)
-    :rtype: dict(str: Engine)
-    """
-
-    return get_component(TestDatabasePackage.COMPONENT_NAME).get_bounded_engines()
-
-
 def get_entity_to_engine_map():
     """
     gets a shallow copy of entity to engine map dictionary.
@@ -39,3 +28,13 @@ def get_entity_to_engine_map():
     """
 
     return get_component(TestDatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
+
+
+def remove_bind(entity):
+    """
+    removes the given entity from binds dictionary.
+
+    :param type entity: entity type to be removed.
+    """
+
+    return get_component(TestDatabasePackage.COMPONENT_NAME).remove_bind(entity)

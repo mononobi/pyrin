@@ -26,17 +26,7 @@ class TestDatabaseManager(DatabaseManager):
         :rtype: dict(type: str)
         """
 
-        return self.__binds.copy()
-
-    def get_bounded_engines(self):
-        """
-        gets a shallow copy of bounded engines dictionary.
-
-        :returns: dict(str bind_name: Engine engine)
-        :rtype: dict(str: Engine)
-        """
-
-        return self.__bounded_engines.copy()
+        return self._binds.copy()
 
     def get_entity_to_engine_map(self):
         """
@@ -46,4 +36,13 @@ class TestDatabaseManager(DatabaseManager):
         :rtype: dict(type: Engine)
         """
 
-        return self.__entity_to_engine_map.copy()
+        return self._entity_to_engine_map.copy()
+
+    def remove_bind(self, entity):
+        """
+        removes the given entity from binds dictionary.
+
+        :param type entity: entity type to be removed.
+        """
+
+        self._binds.pop(entity)
