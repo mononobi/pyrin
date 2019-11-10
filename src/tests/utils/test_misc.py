@@ -115,6 +115,4 @@ def test_extract_attributes_with_unavailable_attributes():
         instance = CoreObject()
         attributes = DTO(name='fake_name', age=23, is_valid=True)
         instance = misc_utils.set_attributes(instance, **attributes)
-        extracted_attrs = misc_utils.extract_attributes(instance, *['name', 'age',
-                                                                    'is_valid',
-                                                                    'extra_attr'])
+        misc_utils.extract_attributes(instance, *['name', 'age', 'is_valid', 'extra_attr'])
