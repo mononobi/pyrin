@@ -10,10 +10,10 @@ def set_attributes(instance, **kwargs):
     """
     sets the provided keyword arguments as attributes in given object instance.
 
-    :param object instance: instance to set attributes for.
+    :param CoreObject instance: instance to set attributes for.
 
     :returns: instance with updated attributes.
-    :rtype: object
+    :rtype: CoreObject
     """
 
     if instance is None:
@@ -29,7 +29,7 @@ def extract_attributes(instance, *attributes):
     """
     extracts all attributes with given names from provided object instance.
 
-    :param object instance: instance to extract attributes from.
+    :param CoreObject instance: instance to extract attributes from.
     :param attributes: list of all attribute names that should be extracted.
 
     :raises CoreAttributeError: core attribute error.

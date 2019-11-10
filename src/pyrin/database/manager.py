@@ -39,25 +39,25 @@ class DatabaseManager(CoreObject):
         # contains the application default database engine.
         self.__engine = self._create_default_engine()
 
-        # a dictionary containing all entity classes that should be bounded
-        # into a database other than the default one.
-        # in the form of: {type entity: str bind_name}
-        self.__binds = {}
-
         # a dictionary containing engines for different bounded databases.
         # in the form of: {str bind_name: Engine engine}
         self.__bounded_engines = self._create_bounded_engines()
 
+        # a dictionary containing all entity classes that should be bounded
+        # into a database other than the default one.
+        # in the form of: {type entity: str bind_name}
+        self._binds = {}
+
         # a dictionary containing all entity types that are bounded to a
         # different database than the default one.
         # in the form of: {type entity: Engine engine}
-        self.__entity_to_engine_map = {}
+        self._entity_to_engine_map = {}
 
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
-        self.__session_factories = {}
+        self._session_factories = {}
 
     def get_current_store(self):
         """
@@ -114,13 +114,13 @@ class DatabaseManager(CoreObject):
         :rtype: Session
         """
 
-        if request_bounded not in self.__session_factories.keys():
+        if request_bounded not in self._session_factories.keys():
             raise SessionFactoryNotExistedError('Session factory with '
                                                 'request_bounded={bounded} '
                                                 'is not available.'
                                                 .format(bounded=request_bounded))
 
-        return self.__session_factories.get(request_bounded)
+        return self._session_factories.get(request_bounded)
 
     def _create_default_engine(self):
         """
@@ -248,7 +248,7 @@ class DatabaseManager(CoreObject):
                                                  .format(instance=str(instance)))
 
         # checking whether is there any registered instance with the same name.
-        if instance.is_request_bounded() in self.__session_factories.keys():
+        if instance.is_request_bounded() in self._session_factories.keys():
             replace = options.get('replace', False)
 
             if replace is not True:
@@ -259,13 +259,13 @@ class DatabaseManager(CoreObject):
                                                     .format(bounded=instance.is_request_bounded(),
                                                             instance=str(instance)))
 
-            old_instance = self.__session_factories[instance.is_request_bounded()]
+            old_instance = self._session_factories[instance.is_request_bounded()]
             print_warning('Session factory [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(instance)))
 
         # registering new session factory.
-        self.__session_factories[instance.is_request_bounded()] = \
+        self._session_factories[instance.is_request_bounded()] = \
             instance.create_session_factory(self.__engine)
 
     def register_bind(self, cls, bind_name, **options):
@@ -288,7 +288,7 @@ class DatabaseManager(CoreObject):
                                          .format(cls=str(cls)))
 
         # registering model into database binds.
-        self.__binds[cls] = bind_name
+        self._binds[cls] = bind_name
 
     def _map_entity_to_engine(self):
         """
@@ -299,7 +299,7 @@ class DatabaseManager(CoreObject):
 
         binds = config_services.get_active_section('database.binds')
 
-        for entity, bind_name in self.__binds.items():
+        for entity, bind_name in self._binds.items():
             if bind_name not in binds:
                 raise InvalidDatabaseBindError('Database bind name [{bind_name}] for entity '
                                                '[{entity_name}] is not available in '
@@ -307,7 +307,7 @@ class DatabaseManager(CoreObject):
                                                .format(bind_name=bind_name,
                                                        entity_name=str(entity)))
 
-            self.__entity_to_engine_map[entity] = self.__bounded_engines[bind_name]
+            self._entity_to_engine_map[entity] = self.__bounded_engines[bind_name]
 
     def configure_session_factories(self):
         """
@@ -319,5 +319,5 @@ class DatabaseManager(CoreObject):
 
         self._map_entity_to_engine()
 
-        for key in self.__session_factories.keys():
-            self.__session_factories[key].configure(binds=self.__entity_to_engine_map)
+        for key in self._session_factories.keys():
+            self._session_factories[key].configure(binds=self._entity_to_engine_map)
