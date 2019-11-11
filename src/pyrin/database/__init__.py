@@ -12,6 +12,7 @@ class DatabasePackage(Package):
     """
 
     NAME = __name__
+
     DEPENDS = ['pyrin.configuration',
                'pyrin.logging']
 
