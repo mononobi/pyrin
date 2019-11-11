@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-model package.
+database model package.
 """
 
 from pyrin.packaging.context import Package
@@ -12,4 +12,4 @@ class DatabaseModelPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.database.session_factory']
+    DEPENDS = []
