@@ -77,7 +77,8 @@ class CoreDeclarative(CoreObject):
 
         if self.__primary_key_sequence__ in (None, ''):
             raise SequenceHasNotSetError('No primary key sequence has been set '
-                                         'for table [{table}].'.format(table=self.__tablename__))
+                                         'for entity [{name}].'
+                                         .format(name=self.__class__.__name__))
 
         return sequence_services.get_next_value(self.__primary_key_sequence__)
 
