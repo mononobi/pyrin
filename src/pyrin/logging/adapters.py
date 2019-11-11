@@ -25,7 +25,7 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         LoggerAdapter.__init__(self, logger, {})
 
-        # these attributes has been added for compatibility
+        # these attributes have been added for compatibility
         # with loggers common api.
         self.handlers = logger.handlers
         self.level = logger.level
