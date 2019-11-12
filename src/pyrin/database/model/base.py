@@ -27,11 +27,6 @@ class CoreDeclarative(CoreObject):
     #                   'extend_existing': True}
     __table_args__ = None
 
-    # holds all foreign keys of current table. it should be in the following patterns:
-    # ('current_table.id', 'reference_table.id')
-    # ('current_table.age', 'reference_table.age'), ('current_table.no', 'reference_table.no')
-    __foreign_key__ = None
-
     # holds the name of the sequence used for table's primary key column.
     __primary_key_sequence__ = None
 
