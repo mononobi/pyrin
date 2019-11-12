@@ -278,7 +278,7 @@ def test_get_payload_access():
     decodes access token using correct handler and gets the payload data.
     """
 
-    token = token_services.generate_access_token({})
+    token = token_services.generate_access_token(DTO())
     payload_data = token_services.get_payload(token)
     header_data = token_services.get_unverified_header(token)
     assert token is not None
@@ -293,7 +293,7 @@ def test_get_payload_refresh():
     decodes refresh token using correct handler and gets the payload data.
     """
 
-    token = token_services.generate_refresh_token({})
+    token = token_services.generate_refresh_token(DTO())
     payload_data = token_services.get_payload(token)
     header_data = token_services.get_unverified_header(token)
     assert token is not None
@@ -317,7 +317,7 @@ def test_get_unverified_payload_access():
     decodes an access token and gets the payload data without verifying the signature.
     """
 
-    token = token_services.generate_access_token({})
+    token = token_services.generate_access_token(DTO())
     payload_data = token_services.get_unverified_payload(token)
     header_data = token_services.get_unverified_header(token)
     assert token is not None
@@ -332,7 +332,7 @@ def test_get_unverified_payload_refresh():
     decodes a refresh token and gets the payload data without verifying the signature.
     """
 
-    token = token_services.generate_refresh_token({})
+    token = token_services.generate_refresh_token(DTO())
     payload_data = token_services.get_unverified_payload(token)
     header_data = token_services.get_unverified_header(token)
     assert token is not None
@@ -357,7 +357,7 @@ def test_get_unverified_header():
     """
 
     headers = DTO(title='header title', id=20)
-    token = token_services.generate_access_token({}, custom_headers=headers)
+    token = token_services.generate_access_token(DTO(), custom_headers=headers)
     header_data = token_services.get_unverified_header(token)
     assert all(name in header_data for name in ['kid', 'alg', 'typ', 'title', 'id'])
     assert header_data.get('title') == headers.get('title')

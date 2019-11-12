@@ -89,7 +89,7 @@ def client_request_no_identity_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    payload = {}
+    payload = DTO()
     token = token_services.generate_access_token(payload)
     session_services.get_current_request().headers['Authorization'] = token
 

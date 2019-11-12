@@ -3,6 +3,7 @@
 session manager module.
 """
 
+from pyrin.core.context import DTO
 from pyrin.security.session.manager import SessionManager
 from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
     InvalidComponentCustomKeyError
@@ -93,7 +94,7 @@ class TestSessionManager(SessionManager):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_payload', {})
+        return self.get_current_request_context().get('token_payload', DTO())
 
     def get_current_token_header(self):
         """
@@ -102,7 +103,7 @@ class TestSessionManager(SessionManager):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_header', {})
+        return self.get_current_request_context().get('token_header', DTO())
 
     def set_component_custom_key(self, value):
         """

@@ -12,7 +12,7 @@ import pyrin.utils.path as path_utils
 
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.application.context import Component
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
     DuplicateRouteURLError, InvalidRouteFactoryTypeError, InvalidComponentTypeError, \
@@ -341,7 +341,7 @@ def test_configure():
     all keys will be converted to uppercase for flask compatibility.
     """
 
-    configs = {}
+    configs = DTO()
     configs.update(fake_name='fake_name', fake_id='fake_id',
                    fake_number=33, fake_value='fake_value')
     application_services.configure(configs)
