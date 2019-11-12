@@ -7,7 +7,7 @@ import jwt
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, Context
+from pyrin.core.context import CoreObject, Context, DTO
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
     TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
@@ -32,7 +32,7 @@ class TokenManager(CoreObject):
 
         # a dictionary containing the relation between each kid to the handler name.
         # in the form of: {str kid: str handler_name}
-        self._kid_to_handler_map = {}
+        self._kid_to_handler_map = DTO()
 
     def register_token_handler(self, instance, **options):
         """

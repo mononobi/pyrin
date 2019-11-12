@@ -6,7 +6,7 @@ session manager module.
 from flask import request
 from flask.ctx import has_request_context
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, DTO
 from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
     CouldNotOverwriteCurrentUserError, InvalidUserError, InvalidComponentCustomKeyError
 
@@ -99,7 +99,7 @@ class SessionManager(CoreObject):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_payload', {})
+        return self.get_current_request_context().get('token_payload', DTO())
 
     def get_current_token_header(self):
         """
@@ -108,7 +108,7 @@ class SessionManager(CoreObject):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_header', {})
+        return self.get_current_request_context().get('token_header', DTO())
 
     def set_component_custom_key(self, value):
         """

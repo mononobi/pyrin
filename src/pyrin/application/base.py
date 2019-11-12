@@ -30,6 +30,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidApplicationStatusError
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
+from pyrin.core.context import DTO
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
@@ -448,7 +449,7 @@ class Application(Flask):
         """
 
         if rv is None:
-            rv = {}
+            rv = DTO()
 
         return super(Application, self).make_response(rv)
 

@@ -9,7 +9,7 @@ from importlib import import_module
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, DTO
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     InvalidPackagingHookTypeError
@@ -121,7 +121,7 @@ class PackagingManager(CoreObject):
 
         # a dictionary containing all dependent package names and their respective modules.
         # in the form of {package_name: [modules]}.
-        dependent_components = {}
+        dependent_components = DTO()
 
         for package in components.keys():
             package_class = self._get_package_class(package)
@@ -166,9 +166,9 @@ class PackagingManager(CoreObject):
 
         # a dictionary containing all package names and their respective modules.
         # in the form of {package_name: [modules]}.
-        core_components = {}
-        application_components = {}
-        test_components = {}
+        core_components = DTO()
+        application_components = DTO()
+        test_components = DTO()
 
         for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
 

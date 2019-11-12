@@ -3,6 +3,7 @@
 utils misc module.
 """
 
+from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreAttributeError
 
 
@@ -38,10 +39,11 @@ def extract_attributes(instance, *attributes):
     :rtype: dict(str: object)
     """
 
-    if instance is None:
-        return {}
+    result = DTO()
 
-    result = {}
+    if instance is None:
+        return result
+
     for name in attributes:
         if not hasattr(instance, name):
             raise CoreAttributeError('Object [{object}] has no attribute [{name}].'

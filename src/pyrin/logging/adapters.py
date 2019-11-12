@@ -7,6 +7,7 @@ from logging import LoggerAdapter
 
 import pyrin.security.session.services as session_services
 
+from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 
 
@@ -23,7 +24,7 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param Logger logger: logger instance to be wrapped.
         """
 
-        LoggerAdapter.__init__(self, logger, {})
+        LoggerAdapter.__init__(self, logger, DTO())
 
         # these attributes have been added for compatibility
         # with loggers common api.

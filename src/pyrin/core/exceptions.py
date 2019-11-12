@@ -55,16 +55,6 @@ class CoreException(Exception):
         return self.description
 
 
-class CoreDatabaseException(CoreException):
-    """
-    base class for all application database exceptions.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(CoreDatabaseException, self).__init__(*args, **kwargs)
-        self.code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
-
-
 class CoreBusinessException(CoreException):
     """
     base class for all application business exceptions.

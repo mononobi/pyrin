@@ -55,7 +55,7 @@ class TokenBase(CoreObject):
         :rtype: str
         """
 
-        updated_payload = payload or {}
+        updated_payload = payload or DTO()
         updated_payload.update(**self._get_access_token_required_claims())
 
         return self._generate_token(updated_payload, **options)
@@ -77,7 +77,7 @@ class TokenBase(CoreObject):
         :rtype: str
         """
 
-        updated_payload = payload or {}
+        updated_payload = payload or DTO()
         updated_payload.update(**self._get_refresh_token_required_claims())
 
         # refresh tokens never could be fresh.
@@ -106,10 +106,10 @@ class TokenBase(CoreObject):
         """
 
         is_fresh = options.get('is_fresh', False)
-        updated_payload = payload or {}
+        updated_payload = payload or DTO()
         updated_payload.update(is_fresh=is_fresh)
 
-        custom_headers = options.get('custom_headers', {})
+        custom_headers = options.get('custom_headers', DTO())
         custom_headers.update(**self._get_common_required_headers())
 
         return jwt.encode(updated_payload,

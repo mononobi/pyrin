@@ -11,7 +11,7 @@ import pyrin.database.services as database_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.session_factory.base import SessionFactoryBase
 from pyrin.utils import response as response_utils
@@ -46,18 +46,18 @@ class DatabaseManager(CoreObject):
         # a dictionary containing all entity classes that should be bounded
         # into a database other than the default one.
         # in the form of: {type entity: str bind_name}
-        self._binds = {}
+        self._binds = DTO()
 
         # a dictionary containing all entity types that are bounded to a
         # different database than the default one.
         # in the form of: {type entity: Engine engine}
-        self._entity_to_engine_map = {}
+        self._entity_to_engine_map = DTO()
 
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
-        self._session_factories = {}
+        self._session_factories = DTO()
 
     def get_current_store(self):
         """
@@ -156,7 +156,7 @@ class DatabaseManager(CoreObject):
         :rtype: dict(str, Engine)
         """
 
-        engines = {}
+        engines = DTO()
         base_database_configs = config_services.get_active_section('database')
         binds = config_services.get_active_section('database.binds')
 
