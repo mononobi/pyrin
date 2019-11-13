@@ -22,7 +22,7 @@ class TestSecurityManager(SecurityManager):
 
         :returns: list[permission_ids]
 
-        :rtype: list[str]
+        :rtype: list
         """
 
         permission_ids = []
