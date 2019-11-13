@@ -23,7 +23,7 @@ class TestDatabaseManager(DatabaseManager):
         gets a shallow copy of binds dictionary.
 
         :returns: dict(type entity: str bind_name)
-        :rtype: dict(type: str)
+        :rtype: dict
         """
 
         return self._binds.copy()
@@ -33,7 +33,7 @@ class TestDatabaseManager(DatabaseManager):
         gets a shallow copy of entity to engine map dictionary.
 
         :returns: dict(type entity: Engine engine)
-        :rtype: dict(type: Engine)
+        :rtype: dict
         """
 
         return self._entity_to_engine_map.copy()
