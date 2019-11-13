@@ -51,7 +51,7 @@ def get_deserializers(**options):
 
     :returns: list[DeserializerBase]
 
-    :rtype: dict
+    :rtype: list
     """
 
     for_type = options.get('for_type', None)
