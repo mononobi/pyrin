@@ -423,7 +423,7 @@ class AsymmetricTokenBase(TokenBase):
 
         :returns tuple(str public_key, str private_key)
 
-        :rtype: tuple(str, str)
+        :rtype: tuple
         """
 
         raise CoreNotImplementedError()
@@ -458,7 +458,7 @@ class RSTokenBase(AsymmetricTokenBase):
 
         :returns tuple(str public_key, str private_key)
 
-        :rtype: tuple(str, str)
+        :rtype: tuple
         """
 
         return key_helper.generate_rsa_key(**options)
