@@ -27,7 +27,7 @@ def test_entity_to_dict():
     result = sqlalchemy_utils.entity_to_dict(entity)
 
     assert isinstance(result, dict) is True
-    assert len(result.keys()) == 3
+    assert len(result) == 3
     assert result['id'] == id
     assert result['name'] == name
     assert result['age'] == age
@@ -42,7 +42,7 @@ def test_entity_to_dict_with_none_entity():
     result = sqlalchemy_utils.entity_to_dict(None)
 
     assert isinstance(result, dict) is True
-    assert len(result.keys()) == 0
+    assert len(result) == 0
 
 
 def test_dict_to_entity():

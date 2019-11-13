@@ -218,7 +218,7 @@ def test_deserialize_dictionary_from_empty_string():
     converted_value = deserializer_services.deserialize(dict_string)
     assert converted_value is not None
     assert isinstance(converted_value, dict)
-    assert len(converted_value.keys()) == 0
+    assert len(converted_value) == 0
 
 
 def test_deserialize_list_items():

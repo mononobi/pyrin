@@ -110,7 +110,7 @@ def test_register_bind():
 
     database_services.register_bind(SampleTestEntity, 'local')
     binds = extended_database_services.get_binds()
-    assert len(binds.keys()) >= 1
+    assert len(binds) >= 1
     assert SampleTestEntity in binds.keys()
     assert binds[SampleTestEntity] == 'local'
     database_services.configure_session_factories()
@@ -149,7 +149,7 @@ def test_get_binds():
 
     binds = extended_database_services.get_binds()
 
-    assert len(binds.keys()) >= 2
+    assert len(binds) >= 2
     assert BoundedLocalEntity in binds.keys()
     assert binds[BoundedLocalEntity] == 'local'
     assert BoundedTestEntity in binds.keys()
@@ -165,7 +165,7 @@ def test_get_entity_to_engine_map():
     active_section = config_services.get_active_section('database.binds')
 
     assert entity_to_engine_map is not None
-    assert len(entity_to_engine_map.keys()) >= 2
+    assert len(entity_to_engine_map) >= 2
     assert BoundedLocalEntity in entity_to_engine_map.keys()
     assert BoundedTestEntity in entity_to_engine_map.keys()
 

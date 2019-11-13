@@ -37,12 +37,12 @@ def test_set_attributes_with_no_attributes():
     """
 
     instance = CoreObject()
-    count = len(vars(instance).keys())
+    count = len(vars(instance))
     attributes = DTO()
     instance = misc_utils.set_attributes(instance, **attributes)
 
     assert instance is not None
-    assert len(vars(instance).keys()) == count
+    assert len(vars(instance)) == count
 
 
 def test_set_attributes_with_none_instance():
@@ -69,7 +69,7 @@ def test_extract_attributes():
     extracted_attrs = misc_utils.extract_attributes(instance, *attributes.keys())
 
     assert extracted_attrs is not None
-    assert len(extracted_attrs.keys()) == 3
+    assert len(extracted_attrs) == 3
     assert extracted_attrs.get('name') == 'fake_name'
     assert extracted_attrs.get('age') == 23
     assert extracted_attrs.get('is_valid') is True
@@ -87,7 +87,7 @@ def test_extract_attributes_with_no_attributes():
     extracted_attrs = misc_utils.extract_attributes(instance, *[])
 
     assert extracted_attrs is not None
-    assert len(extracted_attrs.keys()) == 0
+    assert len(extracted_attrs) == 0
 
 
 def test_extract_attributes_with_none_instance():
@@ -101,7 +101,7 @@ def test_extract_attributes_with_none_instance():
     extracted_attrs = misc_utils.extract_attributes(instance, *attributes.keys())
 
     assert extracted_attrs is not None
-    assert len(extracted_attrs.keys()) == 0
+    assert len(extracted_attrs) == 0
 
 
 def test_extract_attributes_with_unavailable_attributes():
