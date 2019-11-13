@@ -153,7 +153,7 @@ class DatabaseManager(CoreObject):
         creates all required bounded engines if any and returns them.
 
         :returns: dict(str bind_name: Engine engine)
-        :rtype: dict(str, Engine)
+        :rtype: dict
         """
 
         engines = DTO()
