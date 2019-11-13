@@ -317,5 +317,6 @@ class DatabaseManager(CoreObject):
 
         self._map_entity_to_engine()
 
-        for key in self._session_factories.keys():
-            self._session_factories[key].configure(binds=self._entity_to_engine_map)
+        if len(self._entity_to_engine_map) > 0:
+            for key in self._session_factories.keys():
+                self._session_factories[key].configure(binds=self._entity_to_engine_map)
