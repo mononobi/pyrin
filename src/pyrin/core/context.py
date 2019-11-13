@@ -34,7 +34,7 @@ class DTO(dict):
         if not other or not isinstance(other, DTO):
             return False
         keys = self.keys()
-        if len(keys) != len(other.keys()):
+        if len(keys) != len(other):
             return False
         for key in keys:
             if self.get(key, None) != other.get(key, None):

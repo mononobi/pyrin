@@ -160,7 +160,7 @@ class DatabaseManager(CoreObject):
         base_database_configs = config_services.get_active_section('database')
         binds = config_services.get_active_section('database.binds')
 
-        if len(binds.keys()) <= 0:
+        if len(binds) <= 0:
             return engines
 
         for key in binds.keys():

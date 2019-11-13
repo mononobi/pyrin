@@ -144,7 +144,7 @@ class PackagingManager(CoreObject):
                 dependent_components[package] = components[package]
 
         # now, go through dependent components if any, and try to load them.
-        if len(dependent_components.keys()) > 0:
+        if len(dependent_components) > 0:
             self._load_components(dependent_components, **options)
 
     def _get_loadable_components(self, **options):

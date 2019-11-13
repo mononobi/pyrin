@@ -44,7 +44,7 @@ def dict_to_entity(dict_value, entity_class):
     """
 
     result = entity_class()
-    if dict_value is None or len(dict_value.keys()) == 0:
+    if dict_value is None or len(dict_value) == 0:
         return result
 
     all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
