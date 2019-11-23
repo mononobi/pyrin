@@ -3,6 +3,8 @@
 utils sqlalchemy module.
 """
 
+from sqlalchemy.orm import lazyload
+from sqlalchemy import func
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
 from pyrin.core.context import DTO
@@ -103,3 +105,29 @@ def like_end(value):
         value = ''
 
     return '{value}%'.format(value=value)
+
+
+def count(query, *columns):
+    """
+    executes a count(*) query using given query object and returns the result.
+
+    this method generates a sql query like below:
+    select count(*)
+    from table
+    where ...
+
+    you should always use this method instead of sqlalchemy query.count()
+    method. because query.count() is inefficient.
+
+    :param Query query: sqlalchemy query object.
+    :param list columns: columns to perform count on them.
+                         defaults to `*` if not provided.
+
+    :rtype: int
+    """
+
+    statement = query.options(lazyload('*')).statement.with_only_columns(
+        [func.count(*columns)]).order_by(None)
+    result = query.session.execute(statement).scalar()
+
+    return result

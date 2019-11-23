@@ -458,7 +458,7 @@ class Application(Flask):
             rv = DTO(items=rv)
 
         # we should wrap all single values into a dict before returning it to client.
-        if not isinstance(rv, (tuple, dict)):
+        if not isinstance(rv, (tuple, dict, CoreResponse)):
             rv = DTO(value=rv)
 
         return super(Application, self).make_response(rv)
