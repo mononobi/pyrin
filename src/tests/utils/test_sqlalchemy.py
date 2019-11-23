@@ -76,3 +76,72 @@ def test_dict_to_entity_with_none_dict():
     assert entity.id is None
     assert entity.name is None
     assert entity.age is None
+
+
+def test_like_both():
+    """
+    gets a copy of string with `%` attached to both
+    ends of it to use in like operator.
+    """
+
+    value = 'sample_string'
+    result = sqlalchemy_utils.like_both(value)
+
+    assert result == '%sample_string%'
+
+
+def test_like_both_with_none_value():
+    """
+    gets a copy of string which is None with `%` attached to both
+    ends of it to use in like operator.
+    """
+
+    result = sqlalchemy_utils.like_both(None)
+
+    assert result == '%%'
+
+
+def test_like_begin():
+    """
+    gets a copy of string with `%` attached to beginning
+    of it to use in like operator.
+    """
+
+    value = 'sample_string'
+    result = sqlalchemy_utils.like_begin(value)
+
+    assert result == '%sample_string'
+
+
+def test_like_begin_with_none_value():
+    """
+    gets a copy of string which is None with `%` attached
+    to beginning of it to use in like operator.
+    """
+
+    result = sqlalchemy_utils.like_begin(None)
+
+    assert result == '%'
+
+
+def test_like_end():
+    """
+    gets a copy of string with `%` attached to end
+    of it to use in like operator.
+    """
+
+    value = 'sample_string'
+    result = sqlalchemy_utils.like_end(value)
+
+    assert result == 'sample_string%'
+
+
+def test_like_end_with_none_value():
+    """
+    gets a copy of string which is None with `%` attached
+    to end of it to use in like operator.
+    """
+
+    result = sqlalchemy_utils.like_end(None)
+
+    assert result == '%'
