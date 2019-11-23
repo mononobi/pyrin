@@ -457,6 +457,10 @@ class Application(Flask):
         if isinstance(rv, list):
             rv = DTO(items=rv)
 
+        # we should wrap all single values into a dict before returning it to client.
+        if not isinstance(rv, (tuple, dict)):
+            rv = DTO(value=rv)
+
         return super(Application, self).make_response(rv)
 
     @setupmethod
