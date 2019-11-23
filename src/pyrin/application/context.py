@@ -7,6 +7,7 @@ from flask import Request, Response, jsonify
 
 import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.application.exceptions import ComponentAttributeError, InvalidComponentNameError
 from pyrin.core.context import Context, CoreObject, DTO
@@ -168,6 +169,10 @@ class CoreRequest(Request):
         self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
 
+        # holds the converted values available in query
+        # string, this value will only calculated once.
+        self._converted_args = None
+
         self._extract_locale()
         self._extract_timezone()
 
@@ -199,6 +204,14 @@ class CoreRequest(Request):
         """
         gets request inputs.
 
+        not that if the same keyword is available in different param
+        holders, the value will be replaced and no error will be raised.
+        the replacement priority is as follows:
+        view_args -> body -> query_strings -> files
+
+        for example, if a keyword named 'sample_key' is available in both body and
+        query_strings, the value of query_strings will be available at the end.
+
         :param bool silent: specifies that if an error occurred on processing
                             json body, it should not raise an error.
                             defaults to False.
@@ -206,10 +219,15 @@ class CoreRequest(Request):
         :rtype: dict
         """
 
-        return DTO(**(self.view_args or {}),
-                   **(self.get_json(force=True, silent=silent) or {}),
-                   query_params=self.args,
-                   files=self.files)
+        if self._converted_args is None:
+            self._converted_args = deserializer_services.deserialize(self.args)
+
+        result = DTO(**(self.view_args or {}))
+        result.update(**(self.get_json(silent=silent) or {}))
+        result.update(**(self._converted_args or {}))
+        result.update(files=self.files)
+
+        return result
 
     def _get_safe_content_length(self):
         """
