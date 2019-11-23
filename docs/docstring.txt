@@ -32,6 +32,11 @@ def function(name, **options):
     :type Car: dict(str name: car name,
                     str model: car model).
 
+    :keyword int customer_type: customer type.
+    :note customer_type:
+        REAL = 1
+        LEGAL = 2
+
     :raises RuntimeException: runtime exception.
 
     :returns: tuple(dict(int code: error code,

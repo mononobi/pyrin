@@ -1,2 +1,6 @@
 1. maximum line length for every line is 100 characters.
    longer lines should be wrapped into multiple lines.
+
+2. application package and module names could be plural if needed.
+
+3. entity names and table names must be singular.
