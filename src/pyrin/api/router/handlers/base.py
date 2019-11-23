@@ -8,7 +8,7 @@ from werkzeug.routing import Rule
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 
-from pyrin.core.globals import _
+from pyrin.core.globals import _, LIST_TYPES
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError
 
@@ -80,7 +80,7 @@ class RouteBase(Rule):
         """
 
         methods = options.get('methods', ())
-        if not isinstance(methods, (tuple, list, set)):
+        if not isinstance(methods, LIST_TYPES):
             methods = (methods,)
             options.update(methods=methods)
 
@@ -112,11 +112,9 @@ class RouteBase(Rule):
                                                      '[{restricted}] for route [{route}] is '
                                                      'greater than global limit which is '
                                                      '[{global_limit}].'
-                                                     .format(restricted=
-                                                             restricted_length,
+                                                     .format(restricted=restricted_length,
                                                              route=rule,
-                                                             global_limit=
-                                                             global_limit))
+                                                             global_limit=global_limit))
 
         self._max_content_length = restricted_length
 

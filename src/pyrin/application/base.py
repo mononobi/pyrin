@@ -31,6 +31,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.context import DTO
+from pyrin.core.globals import LIST_TYPES
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
@@ -157,7 +158,7 @@ class Application(Flask):
         raises InvalidApplicationStatusError: invalid application status error.
         """
 
-        if not ApplicationStatusEnum.has_value(status):
+        if status not in ApplicationStatusEnum:
             raise InvalidApplicationStatusError('Application status [{state}] is not valid.'
                                                 .format(state=status))
 
@@ -425,7 +426,7 @@ class Application(Flask):
             return self.make_default_options_response()
 
         # otherwise call the handler for this route.
-        return route.handle(client_request.inputs)
+        return route.handle(client_request.get_inputs())
 
     def _authenticate(self, client_request):
         """
@@ -450,6 +451,11 @@ class Application(Flask):
 
         if rv is None:
             rv = DTO()
+
+        # we could not return a list as response, so we wrap the
+        # result in a dict when we want to return a list.
+        if isinstance(rv, list):
+            rv = DTO(items=rv)
 
         return super(Application, self).make_response(rv)
 
@@ -493,7 +499,7 @@ class Application(Flask):
         """
 
         methods = options.get('methods', ())
-        if not isinstance(methods, (tuple, list, set)):
+        if not isinstance(methods, LIST_TYPES):
             options.update(methods=(methods,))
 
         replace = options.get('replace', False)
@@ -691,7 +697,7 @@ class Application(Flask):
 
         process_start_time = time()
         logging_services.info('request received with params: [{params}]'
-                              .format(params=client_request.inputs))
+                              .format(params=client_request.get_inputs(silent=True)))
 
         response = super(Application, self).full_dispatch_request()
 

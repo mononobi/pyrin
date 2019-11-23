@@ -55,3 +55,51 @@ def dict_to_entity(dict_value, entity_class):
             setattr(result, key, dict_value[key])
 
     return result
+
+
+def like_both(value):
+    """
+    gets a copy of string with `%` attached to both
+    ends of it to use in like operator.
+
+    :param str value: value to be processed.
+
+    :rtype: str
+    """
+
+    if value is None:
+        value = ''
+
+    return '%{value}%'.format(value=value)
+
+
+def like_begin(value):
+    """
+    gets a copy of string with `%` attached to beginning
+    of it to use in like operator.
+
+    :param str value: value to be processed.
+
+    :rtype: str
+    """
+
+    if value is None:
+        value = ''
+
+    return '%{value}'.format(value=value)
+
+
+def like_end(value):
+    """
+    gets a copy of string with `%` attached to end
+    of it to use in like operator.
+
+    :param str value: value to be processed.
+
+    :rtype: str
+    """
+
+    if value is None:
+        value = ''
+
+    return '{value}%'.format(value=value)

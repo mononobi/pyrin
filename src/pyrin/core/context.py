@@ -44,7 +44,7 @@ class DTO(dict):
 
 class CoreObject(object):
     """
-    base class for all application classes.
+    base object for all application objects.
     """
 
     def __init__(self):

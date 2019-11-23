@@ -10,7 +10,34 @@ class CoreEnumMeta(EnumMeta):
     """
     base enum metaclass.
     """
-    pass
+
+    def __contains__(cls, member):
+        """
+        gets a value indicating that given input existed in
+        the enumeration values.
+
+        this method is overridden to be able to check
+        for existence with `in` keyword. for example:
+        has_value = 'value' in SomeEnum
+
+        :param Union[int, str, CoreEnum] member: value to be checked for existence.
+
+        :rtype: bool
+        """
+
+        if isinstance(member, CoreEnum):
+            return EnumMeta.__contains__(cls, member)
+
+        return member in cls._get_values()
+
+    def _get_values(cls):
+        """
+        gets a set of all enumeration values.
+
+        :rtype: set
+        """
+
+        return set(member.value for member in cls._member_map_.values())
 
 
 class CoreEnum(Enum, metaclass=CoreEnumMeta):
@@ -22,8 +49,8 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
     def __get__(self, instance, owner):
         """
         this method is overridden to be able to access enum
-        member value without having to write `enum_member.value`.
-        this causes `enum_member.name` to become unavailable.
+        member value without having to write `enum.member.value`.
+        this causes `enum.member.name` to become unavailable.
         """
 
         return self.value
@@ -39,16 +66,17 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
         return set(item.value for item in cls)
 
     @classmethod
-    def has_value(cls, value):
+    def contains(cls, value):
         """
-        gets a value indicating that given input existed in the enumeration values.
+        gets a value indicating that given input existed in
+        the enumeration values.
 
-        :param Union[int, str] value: value to be checked for existence.
+        :param Union[int, str, CoreEnum] value: value to be checked for existence.
 
         :rtype: bool
         """
 
-        return any(value == item.value for item in cls)
+        return value in cls
 
 
 class HTTPMethodEnum(CoreEnum):

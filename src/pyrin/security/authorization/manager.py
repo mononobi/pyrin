@@ -6,7 +6,7 @@ authorization manager module.
 import pyrin.security.services as security_services
 import pyrin.security.session.services as session_services
 
-from pyrin.core.globals import _
+from pyrin.core.globals import _, LIST_TYPES
 from pyrin.core.context import CoreObject
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
     UserNotAuthenticatedError, UserIsNotActiveError
@@ -45,7 +45,7 @@ class AuthorizationManager(CoreObject):
         # we must check whether input permissions object is iterable.
         # if not, we make it manually.
         permissions_collection = permissions
-        if not isinstance(permissions, (list, set, tuple)):
+        if not isinstance(permissions, LIST_TYPES):
             permissions_collection = [permissions]
 
         permission_ids = [item.get_id() for item in permissions_collection]

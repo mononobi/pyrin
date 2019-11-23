@@ -165,7 +165,6 @@ class CoreRequest(Request):
         self.user = None
         self.component_custom_key = DEFAULT_COMPONENT_KEY
         self.client_ip = self._get_client_ip()
-        self.inputs = self._get_inputs()
         self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
 
@@ -196,15 +195,19 @@ class CoreRequest(Request):
 
         return self.environ.get('HTTP_X_REAL_IP', self.environ.get('REMOTE_ADDR', None))
 
-    def _get_inputs(self):
+    def get_inputs(self, silent=False):
         """
         gets request inputs.
+
+        :param bool silent: specifies that if an error occurred on processing
+                            json body, it should not raise an error.
+                            defaults to False.
 
         :rtype: dict
         """
 
         return DTO(**(self.view_args or {}),
-                   **(self.get_json(force=True, silent=True) or {}),
+                   **(self.get_json(force=True, silent=silent) or {}),
                    query_params=self.args,
                    files=self.files)
 
