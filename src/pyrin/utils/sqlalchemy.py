@@ -168,6 +168,9 @@ def add_range_clause(clauses, column, value_lower, value_upper,
     :rtype: list
     """
 
+    if value_lower is None and value_upper is None:
+        return
+
     if value_lower is not None and value_upper is not None and value_lower > value_upper:
         raise CoreValueError(_('Invalid range is given.'))
 
