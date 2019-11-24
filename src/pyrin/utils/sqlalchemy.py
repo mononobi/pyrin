@@ -107,27 +107,33 @@ def like_end(value):
     return '{value}%'.format(value=value)
 
 
-def count(query, *columns):
+def count(query, column=None):
     """
-    executes a count(*) query using given query object and returns the result.
+    executes a count query using given query object and returns the result.
 
     this method generates a sql query like below:
-    select count(*)
+    select count(column)
     from table
     where ...
 
-    you should always use this method instead of sqlalchemy query.count()
-    method. because query.count() is inefficient.
+    you should always use this method instead of sqlalchemy session.query.count()
+    because session.query.count() is inefficient.
 
     :param Query query: sqlalchemy query object.
-    :param list columns: columns to perform count on them.
-                         defaults to `*` if not provided.
+
+    :param Column column: column to perform count on it.
+                          defaults to `*` if not provided.
 
     :rtype: int
     """
 
+    func_count = func.count()
+    if column is not None:
+        func_count = func.count(column)
+
     statement = query.options(lazyload('*')).statement.with_only_columns(
-        [func.count(*columns)]).order_by(None)
+        [func_count]).order_by(None)
+
     result = query.session.execute(statement).scalar()
 
     return result
