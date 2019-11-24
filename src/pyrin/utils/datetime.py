@@ -5,7 +5,7 @@ utils datetime module.
 
 import re
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 import aniso8601
@@ -176,3 +176,57 @@ def normalized_utc(value):
 
     utc = pytz.utc
     return utc.normalize(value)
+
+
+def trunc(value):
+    """
+    truncates the input datetime value to just date, with default time info.
+    it is really a datetime with time info set to 00:00:00.
+
+    :param datetime value: datetime to be truncated.
+
+    :rtype: datetime
+    """
+
+    return datetime(value.year, value.month, value.day)
+
+
+def begin_of_day(value):
+    """
+    gets a datetime representing the begin of day for given datetime.
+    it is really a datetime with time info set to 00:00:00.
+
+    :param datetime value: value to get its begin of day.
+
+    :rtype: datetime
+    """
+
+    return trunc(value)
+
+
+def end_of_day(value):
+    """
+    gets a datetime representing the end of day for given datetime.
+    it is really a datetime with time info set to 23:59:59.999999
+
+    :param datetime value: value to get its end of day.
+
+    :rtype: datetime
+    """
+
+    return add_days(trunc(value), 1) - timedelta(milliseconds=1)
+
+
+def add_days(value, days):
+    """
+    adds the given number of days to specified value and returns it.
+
+    :param datetime value: value to add days to it.
+
+    :param int days: number of days to add.
+                     it could be negative if needed.
+
+    :rtype: datetime
+    """
+
+    return value + timedelta(days)

@@ -7,7 +7,11 @@ from sqlalchemy.orm import lazyload
 from sqlalchemy import func
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
+import pyrin.utils.datetime as datetime_utils
+
 from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreValueError
+from pyrin.core.globals import _
 
 
 def entity_to_dict(entity):
@@ -137,3 +141,93 @@ def count(query, column=None):
     result = query.session.execute(statement).scalar()
 
     return result
+
+
+def add_range_clause(clauses, column, value_lower, value_upper,
+                     include_equal_to_lower=True,
+                     include_equal_to_upper=True):
+    """
+    adds range comparison into given clauses using specified inputs.
+
+    :param list clauses: clause list to add range clause to it.
+    :param Column column: entity column to add range clause for it.
+    :param object value_lower: lower bound of range clause.
+    :param object value_upper: upper bound of range clause.
+
+    :param include_equal_to_lower: specifies that lower value
+                                   should be considered in range.
+                                   defaults to True if not provided.
+
+    :param include_equal_to_upper: specifies that upper value
+                                   should be considered in range.
+                                   defaults to True if not provided.
+
+    :raises CoreValueError: core value error.
+
+    :returns: updated conditions list.
+    :rtype: list
+    """
+
+    if value_lower is not None and value_upper is not None and value_lower > value_upper:
+        raise CoreValueError(_('Invalid range is given.'))
+
+    if value_lower is not None and value_lower == value_upper:
+        clauses.append(column == value_lower)
+    else:
+        if value_lower is not None:
+            if include_equal_to_lower is True:
+                clauses.append(column >= value_lower)
+            else:
+                clauses.append(column > value_lower)
+        if value_upper is not None:
+            if include_equal_to_upper is True:
+                clauses.append(column <= value_upper)
+            else:
+                clauses.append(column < value_upper)
+
+
+def add_date_range_clause(clauses, column, date_lower, date_upper,
+                          include_equal_to_lower=True,
+                          include_equal_to_upper=True,
+                          **options):
+    """
+    adds date range comparison into given clauses using specified inputs.
+
+    :param list clauses: clause list to add range clause to it.
+    :param Column column: entity column to add range clause for it.
+    :param datetime date_lower: lower bound of range clause.
+    :param datetime date_upper: upper bound of range clause.
+
+    :param include_equal_to_lower: specifies that lower date
+                                   should be considered in range.
+                                   defaults to True if not provided.
+
+    :param include_equal_to_upper: specifies that upper date
+                                   should be considered in range.
+                                   defaults to True if not provided.
+
+    :keyword bool consider_begin_of_day: specifies that consider begin
+                                         of day for lower date.
+                                         defaults to True if not provided.
+
+    :keyword bool consider_end_of_day: specifies that consider end
+                                       of day for upper date.
+                                       defaults to True if not provided.
+
+    :raises CoreValueError: core value error.
+
+    :returns: updated conditions list.
+    :rtype: list
+    """
+
+    consider_begin_of_day = options.get('consider_begin_of_day', True)
+    consider_end_of_day = options.get('consider_end_of_day', True)
+
+    if date_lower is not None and consider_begin_of_day is True:
+        date_lower = datetime_utils.begin_of_day(date_lower)
+
+    if date_upper is not None and consider_end_of_day is True:
+        date_upper = datetime_utils.end_of_day(date_upper)
+
+    add_range_clause(clauses, column, date_lower, date_upper,
+                     include_equal_to_lower, include_equal_to_upper)
