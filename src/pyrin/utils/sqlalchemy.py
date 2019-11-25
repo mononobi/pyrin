@@ -11,7 +11,7 @@ import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreValueError
-from pyrin.core.globals import _
+from pyrin.core.globals import _, LIST_TYPES
 
 
 def entity_to_dict(entity):
@@ -163,9 +163,6 @@ def add_range_clause(clauses, column, value_lower, value_upper,
                                    defaults to True if not provided.
 
     :raises CoreValueError: core value error.
-
-    :returns: updated conditions list.
-    :rtype: list
     """
 
     if value_lower is None and value_upper is None:
@@ -218,9 +215,6 @@ def add_date_range_clause(clauses, column, date_lower, date_upper,
                                        defaults to True if not provided.
 
     :raises CoreValueError: core value error.
-
-    :returns: updated conditions list.
-    :rtype: list
     """
 
     consider_begin_of_day = options.get('consider_begin_of_day', True)
@@ -234,3 +228,19 @@ def add_date_range_clause(clauses, column, date_lower, date_upper,
 
     add_range_clause(clauses, column, date_lower, date_upper,
                      include_equal_to_lower, include_equal_to_upper)
+
+
+def add_list_clause(clauses, column, value):
+    """
+    adds list or single comparison into clauses based on given value.
+
+    :param list clauses: clause list to add comparison clause to it.
+    :param Column column: entity column to add comparison clause for it.
+    :param Union[object, list[object]] value: value to add comparison for it.
+    """
+
+    if value is not None:
+        if isinstance(value, LIST_TYPES):
+            clauses.append(column.in_(value))
+        else:
+            clauses.append(column == value)
