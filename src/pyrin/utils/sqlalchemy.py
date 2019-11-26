@@ -244,3 +244,19 @@ def add_list_clause(clauses, column, value):
             clauses.append(column.in_(value))
         else:
             clauses.append(column == value)
+
+
+def add_like_clause(clauses, column, value, string_wrapper=like_both):
+    """
+    adds like clause into clauses based on given inputs.
+
+    :param list clauses: clause list to add like clause to it.
+    :param Column column: entity column to add like clause for it.
+    :param object value: value to add like clause for it.
+    :param callable string_wrapper: a callable to provide a string
+                                    to be used as value in like clause.
+                                    defaults to `like_both` if not provided.
+    """
+
+    if value is not None:
+        clauses.append(column.like(string_wrapper(value)))
