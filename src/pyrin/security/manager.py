@@ -92,16 +92,3 @@ class SecurityManager(CoreObject):
             raise InvalidUserError(_('Input user could not be None.'))
 
         return self.get_permission_ids(user=user)
-
-    def is_active(self, user, **options):
-        """
-        gets a value indicating that given user is active.
-
-        :param dict user: user to check is active.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: bool
-        """
-
-        raise CoreNotImplementedError()
