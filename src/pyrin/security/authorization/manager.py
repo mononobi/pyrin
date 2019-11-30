@@ -4,6 +4,7 @@ authorization manager module.
 """
 
 import pyrin.security.services as security_services
+import pyrin.security.users.services as user_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _, LIST_TYPES
@@ -38,23 +39,23 @@ class AuthorizationManager(CoreObject):
         if user is None:
             raise UserNotAuthenticatedError(_('User has not been authenticated.'))
 
-        if not security_services.is_active(user, **options):
+        if not user_services.is_active(user, **options):
             message = _('User [{user}] is not active.')
             raise UserIsNotActiveError(message.format(user=str(user)))
 
         # we must check whether input permissions object is iterable.
         # if not, we make it manually.
-        permissions_collection = permissions
+        required_permissions = permissions
         if not isinstance(permissions, LIST_TYPES):
-            permissions_collection = [permissions]
+            required_permissions = [permissions]
 
-        permission_ids = [item.get_id() for item in permissions_collection]
+        required_permission_ids = [item.get_id() for item in required_permissions]
         user_permission_ids = security_services.get_user_permission_ids(user, **options)
 
-        if not set(permission_ids) <= set(user_permission_ids):
+        if not set(required_permission_ids) <= set(user_permission_ids):
             message = _('User [{user}] has not required permission(s) [{permission_ids}].')
             raise AuthorizationFailedError(message.format(user=str(user),
-                                                          permission_ids=permission_ids))
+                                                          permission_ids=required_permission_ids))
 
     def is_authorized(self, permissions, **options):
         """
