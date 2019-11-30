@@ -250,11 +250,12 @@ class Application(Flask):
 
             old_instance = self._components[component.get_id()]
 
-            # we should update all attributes of new component with values from
-            # old_instance to prevent loss of any attribute value (for example values
+            # we should update all list and dict attributes of new component with values
+            # from old_instance to prevent loss of any attribute value (for example values
             # that has been added using decorators).
             # this has an obvious caveat, and it is that child classes could not do
-            # any customizations on parent attributes in their `__init__` method.
+            # any customizations on parent's list and dict attributes in their
+            # `__init__` method.
             component = self._set_component_attributes(old_instance, component)
 
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
@@ -718,7 +719,7 @@ class Application(Flask):
 
     def _set_component_attributes(self, old_instance, new_instance):
         """
-        sets all attributes from old_instance into new_instance.
+        sets all list and dict attributes from old_instance into new_instance.
 
         :param Component old_instance: old component instance to get attributes from.
         :param Component new_instance: new component instance to set its attributes.
@@ -729,5 +730,10 @@ class Application(Flask):
         if old_instance is None or new_instance is None:
             return new_instance
 
-        attributes = vars(old_instance)
-        return misc_utils.set_attributes(new_instance, **attributes)
+        all_attributes = vars(old_instance)
+        required_attributes = DTO()
+        for attribute_name in all_attributes.keys():
+            if isinstance(all_attributes[attribute_name], (list, dict)):
+                required_attributes[attribute_name] = all_attributes[attribute_name]
+
+        return misc_utils.set_attributes(new_instance, **required_attributes)
