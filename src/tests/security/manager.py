@@ -31,14 +31,3 @@ class TestSecurityManager(SecurityManager):
                                PERMISSION_TEST_THREE.get_id()])
 
         return permission_ids
-
-    def is_active(self, user, **options):
-        """
-        gets a value indicating that given user is active.
-
-        :param dict user: user to check is active.
-
-        :rtype: bool
-        """
-
-        return user is not None
