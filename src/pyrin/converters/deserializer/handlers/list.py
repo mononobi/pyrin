@@ -80,6 +80,10 @@ class StringListDeserializer(StringPatternDeserializerBase):
     for example: [1, (2, 4), [5, 4]] will not be deserialized.
     """
 
+    # default min for this deserializer is 2 because
+    # it should at least has [ and ] at both ends.
+    DEFAULT_MIN = 2
+
     # matches a list inside string, all of these values will be matched.
     # example: [], [1], [1,], [1,2], [1,2,]
     # it won't accept nested collections, all of these values won't match.

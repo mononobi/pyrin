@@ -69,6 +69,10 @@ class FloatDeserializer(StringPatternDeserializerBase):
     float deserializer class.
     """
 
+    # default min for this deserializer is 3 because it
+    # should at least has two digits and a dot between them.
+    DEFAULT_MIN = 3
+
     # matches the float inside string.
     # example: 0.12, 2.32, 1.0, 0.0, -1.6, +5.06
     # all of these values will be matched.

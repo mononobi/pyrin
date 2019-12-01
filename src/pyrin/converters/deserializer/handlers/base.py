@@ -67,8 +67,8 @@ class StringDeserializerBase(DeserializerBase):
     # these values will be used for accepted
     # formats that have no length restriction.
     UNDEF_LENGTH = None
-    _DEFAULT_MIN = 1
-    _DEFAULT_MAX = 1000000
+    DEFAULT_MIN = 1
+    DEFAULT_MAX = 1000000
 
     def __init__(self, **options):
         """
@@ -188,7 +188,7 @@ class StringDeserializerBase(DeserializerBase):
         # if there is any format with length=UNDEF_LENGTH,
         # we should not enforce length restriction on values.
         if self.UNDEF_LENGTH in [item[1] for item in self.get_accepted_formats()]:
-            return self._DEFAULT_MIN, self._DEFAULT_MAX
+            return self.DEFAULT_MIN, self.DEFAULT_MAX
 
         return min([item[1] for item in self.get_accepted_formats()]), \
             max([item[1] for item in self.get_accepted_formats()])

@@ -76,6 +76,10 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
     string dictionary deserializer class.
     """
 
+    # default min for this deserializer is 2 because
+    # it should at least has { and } at both ends.
+    DEFAULT_MIN = 2
+
     # matches a dictionary inside string, all of these values will be matched.
     # example: {}, {22: 1}, {'key1': 1, 'key2': 2}
     DICT_REGEX = re.compile(r'^{.*}$')
