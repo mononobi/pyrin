@@ -11,6 +11,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.core.context import DTO
 from pyrin.core.globals import NULL
+from pyrin.converters.deserializer.handlers.string import StringDeserializer
 from pyrin.converters.deserializer.handlers.boolean import BooleanDeserializer
 from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer, \
     StringDictionaryDeserializer
@@ -76,6 +77,23 @@ def test_deserialize_time_without_timezone_from_string():
 
     value = deserializer_services.deserialize('20:12:15')
     assert value.second == 15 and value.minute == 12 and value.hour == 20
+
+
+def test_deserialize_string_from_string():
+    """
+    deserializes the given string value from string.
+    it should not convert the value to it's real type
+    because of the enclosing single or double quotes.
+    """
+
+    value = deserializer_services.deserialize('"nuLL"')
+    assert value == 'nuLL'
+
+    value = deserializer_services.deserialize("'123'")
+    assert value == '123'
+
+    value = deserializer_services.deserialize('"true"')
+    assert value == 'true'
 
 
 def test_deserialize_none_from_string():
@@ -182,7 +200,8 @@ def test_deserialize_dictionary_from_string():
                   ' "list_value": ["1", "False "], "list_string": "[ 1, -2.3, 0.01.1, null]",' \
                   ' "tuple_string": "(3, false ,-0)", "none_value": "none", ' \
                   ' "int_value": "1001 ", "float_value": " 2.4 ", "invalid_int": "1 2", ' \
-                  ' "positive_float": " +405.0023", "pool_class": "assertionPool"}'
+                  ' "positive_float": " +405.0023", "pool_class": "assertionPool",' \
+                  ' "single_string": "\'14\'"}'
 
     converted_values = deserializer_services.deserialize(dict_string)
     assert converted_values is not None
@@ -197,6 +216,7 @@ def test_deserialize_dictionary_from_string():
     assert converted_values.get('float_value') == 2.4
     assert converted_values.get('invalid_int') == '1 2'
     assert converted_values.get('positive_float') == 405.0023
+    assert converted_values.get('single_string') == '14'
     assert issubclass(converted_values.get('pool_class'), AssertionPool)
 
     datetime_value = converted_values.get('datetime_value')
@@ -249,7 +269,8 @@ def test_deserialize_dictionary_items():
                  list_value=['1', 'False '], list_string='[ 1,  -2.3,  0.01.1,  null]',
                  tuple_value=(' 23', 'None', ' -78 '), tuple_string='(3,  false ,  -0)',
                  none_value='none', int_value='1001 ', float_value=' 2.4 ',
-                 invalid_int='1 2', positive_float=' +405.0023', pool_class='assertionPool')
+                 invalid_int='1 2', positive_float=' +405.0023', pool_class='assertionPool',
+                 force_double_string='"123"', force_single_string="'true'")
 
     converted_values = deserializer_services.deserialize(values)
     assert converted_values is not None
@@ -265,6 +286,8 @@ def test_deserialize_dictionary_items():
     assert converted_values.get('float_value') == 2.4
     assert converted_values.get('invalid_int') == '1 2'
     assert converted_values.get('positive_float') == 405.0023
+    assert converted_values.get('force_double_string') == '123'
+    assert converted_values.get('force_single_string') == 'true'
     assert issubclass(converted_values.get('pool_class'), AssertionPool)
 
     datetime_value = converted_values.get('datetime_value')
@@ -303,6 +326,9 @@ def test_deserialize_failure():
     assert value == NULL
 
     value = deserializer_services.deserialize('invalidPool')
+    assert value == NULL
+
+    value = deserializer_services.deserialize('"mismatch_quoted''')
     assert value == NULL
 
     value = deserializer_services.deserialize(None)
@@ -344,14 +370,15 @@ def test_get_deserializers():
     """
 
     values = deserializer_services.get_deserializers()
-    assert len(values) == 14
+    assert len(values) == 15
     assert all(type(item) in [StringTupleDeserializer, TupleDeserializer,
                               PoolDeserializer, FloatDeserializer,
                               IntegerDeserializer, NoneDeserializer,
                               StringListDeserializer, ListDeserializer,
                               DictionaryDeserializer, StringDictionaryDeserializer,
                               TimeDeserializer, DateTimeDeserializer,
-                              DateDeserializer, BooleanDeserializer] for item in values)
+                              DateDeserializer, BooleanDeserializer,
+                              StringDeserializer] for item in values)
 
 
 def test_get_deserializers_string():
@@ -360,7 +387,7 @@ def test_get_deserializers_string():
     """
 
     values = deserializer_services.get_deserializers(accepted_type=str)
-    assert len(values) == 11
+    assert len(values) == 12
 
 
 def test_get_deserializers_tuple():
