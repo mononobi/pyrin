@@ -207,10 +207,10 @@ class CoreRequest(Request):
         not that if the same keyword is available in different param
         holders, the value will be replaced and no error will be raised.
         the replacement priority is as follows:
-        view_args -> body -> query_strings -> files
+        query_strings -> body -> view_args -> files
 
         for example, if a keyword named 'sample_key' is available in both body and
-        query_strings, the value of query_strings will be available at the end.
+        query_strings, the value of body will be available at the end.
 
         :param bool silent: specifies that if an error occurred on processing
                             json body, it should not raise an error.
@@ -222,9 +222,9 @@ class CoreRequest(Request):
         if self._converted_args is None:
             self._converted_args = deserializer_services.deserialize(self.args)
 
-        result = DTO(**(self.view_args or {}))
+        result = DTO(**(self._converted_args or {}))
         result.update(**(self.get_json(silent=silent) or {}))
-        result.update(**(self._converted_args or {}))
+        result.update(**(self.view_args or {}))
         result.update(files=self.files)
 
         return result
