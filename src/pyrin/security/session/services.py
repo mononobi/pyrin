@@ -131,6 +131,18 @@ def get_safe_current_request():
     return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_request()
 
 
+def get_safe_current_user():
+    """
+    gets current user in a safe manner.
+    meaning that if the request does not exist in current context, it will
+    return a None object instead of raising an error.
+
+    :rtype: dict
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_user()
+
+
 def is_request_context_available():
     """
     gets a value indicating that request context is available for usage.

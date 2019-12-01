@@ -147,6 +147,21 @@ class SessionManager(CoreObject):
 
         return None
 
+    def get_safe_current_user(self):
+        """
+        gets current user in a safe manner.
+        meaning that if the request does not exist in current context, it will
+        return a None object instead of raising an error.
+
+        :rtype: dict
+        """
+
+        current_request = self.get_safe_current_request()
+        if current_request is None:
+            return None
+
+        return current_request.user
+
     def is_request_context_available(self):
         """
         gets a value indicating that request context is available for usage.
