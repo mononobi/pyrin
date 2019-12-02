@@ -17,7 +17,8 @@ from pyrin.core.globals import _, LIST_TYPES
 def entity_to_dict(entity):
     """
     converts the given entity into a dict and returns it.
-    the result dict only contains the columns of the entity.
+    the result dict only contains the columns of the entity
+    which their `hidden` attribute is set to False.
 
     :param CoreEntity entity: entity to be converted.
     
@@ -29,7 +30,7 @@ def entity_to_dict(entity):
 
     entity_class = type(entity)
     all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
-                   if isinstance(prop, ColumnProperty)]
+                   if isinstance(prop, ColumnProperty) and prop.columns[0].hidden is False]
 
     result = DTO()
     for attr in dir(entity):
