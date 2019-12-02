@@ -7,7 +7,7 @@ import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.context import DTO
 
-from tests.common.models import SampleEntity
+from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity
 
 
 def test_entity_to_dict():
@@ -43,6 +43,34 @@ def test_entity_to_dict_with_none_entity():
 
     assert isinstance(result, dict) is True
     assert len(result) == 0
+
+
+def test_entity_to_dict_with_hidden_column():
+    """
+    converts the given entity into a dict and returns it.
+    the entity has a hidden column which should not be
+    present in result dict.
+    """
+
+    id = 1000
+    name = 'no name'
+    age = 32
+    hidden_field = 'I am hidden.'
+
+    entity = SampleWithHiddenFieldEntity()
+    entity.id = id
+    entity.name = name
+    entity.age = age
+    entity.hidden_field = hidden_field
+
+    result = sqlalchemy_utils.entity_to_dict(entity)
+
+    assert isinstance(result, dict) is True
+    assert len(result) == 3
+    assert result['id'] == id
+    assert result['name'] == name
+    assert result['age'] == age
+    assert 'hidden_field' not in result.keys()
 
 
 def test_dict_to_entity():

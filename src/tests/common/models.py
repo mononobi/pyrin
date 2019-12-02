@@ -3,10 +3,11 @@
 common models module.
 """
 
-from sqlalchemy import Column, Unicode, Integer
+from sqlalchemy import Unicode, Integer
 
 from pyrin.database.decorators import bind
 from pyrin.database.model.base import CoreEntity
+from pyrin.database.sqlalchemy.schema import CoreColumn
 
 
 class SampleEntity(CoreEntity):
@@ -16,9 +17,9 @@ class SampleEntity(CoreEntity):
 
     __tablename__ = 'sample_table'
 
-    id = Column(name='id', type_=Integer, primary_key=True, autoincrement=False)
-    name = Column(name='name', type_=Unicode)
-    age = Column(name='age', type_=Integer)
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
 
 
 @bind('local')
@@ -29,9 +30,9 @@ class BoundedLocalEntity(CoreEntity):
 
     __tablename__ = 'bounded_local_table'
 
-    id = Column(name='id', type_=Integer, primary_key=True, autoincrement=False)
-    name = Column(name='name', type_=Unicode)
-    age = Column(name='age', type_=Integer)
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
 
 
 @bind('test')
@@ -42,9 +43,9 @@ class BoundedTestEntity(CoreEntity):
 
     __tablename__ = 'bounded_test_table'
 
-    id = Column(name='id', type_=Integer, primary_key=True, autoincrement=False)
-    name = Column(name='name', type_=Unicode)
-    age = Column(name='age', type_=Integer)
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
 
 
 class SampleTestEntity(CoreEntity):
@@ -54,6 +55,19 @@ class SampleTestEntity(CoreEntity):
 
     __tablename__ = 'sample_test_table'
 
-    id = Column(name='id', type_=Integer, primary_key=True, autoincrement=False)
-    name = Column(name='name', type_=Unicode)
-    age = Column(name='age', type_=Integer)
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
+
+
+class SampleWithHiddenFieldEntity(CoreEntity):
+    """
+    sample with hidden field entity class.
+    """
+
+    __tablename__ = 'sample_with_hidden_field_table'
+
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
+    hidden_field = CoreColumn(name='hidden_field', type_=Unicode, hidden=True)
