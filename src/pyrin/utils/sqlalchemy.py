@@ -33,9 +33,8 @@ def entity_to_dict(entity):
                    if isinstance(prop, ColumnProperty) and prop.columns[0].hidden is False]
 
     result = DTO()
-    for attr in dir(entity):
-        if attr in all_columns:
-            result[attr] = getattr(entity, attr)
+    for attr in all_columns:
+        result[attr] = entity.__dict__[attr]
 
     return result
 
