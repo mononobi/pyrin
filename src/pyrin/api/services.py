@@ -7,7 +7,7 @@ from werkzeug.exceptions import HTTPException
 
 from pyrin.application.decorators import error_handler
 from pyrin.application.services import get_component
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 from pyrin.api import APIPackage
 
 
@@ -25,11 +25,28 @@ def handle_http_error(exception):
     return get_component(APIPackage.COMPONENT_NAME).handle_http_error(exception)
 
 
+@error_handler(CoreBusinessException)
+def handle_server_business_error(exception):
+    """
+    handles server internal core business exceptions.
+    note that normally you should never call this method manually.
+
+    :param CoreBusinessException exception: core business exception instance.
+
+    :rtype: CoreResponse
+    """
+
+    return get_component(APIPackage.COMPONENT_NAME).handle_server_business_error(exception)
+
+
 @error_handler(CoreException)
 def handle_server_error(exception):
     """
     handles server internal core exceptions.
     note that normally you should never call this method manually.
+    in any environment which debug mode is False, the original error
+    message will be replaced by a generic error message before being
+    sent to client for security reasons.
 
     :param CoreException exception: core exception instance.
 
@@ -44,7 +61,7 @@ def handle_server_unknown_error(exception):
     """
     handles unknown server internal exceptions.
     note that normally you should never call this method manually.
-    in any environment which debug mode is false, the original error
+    in any environment which debug mode is False, the original error
     message will be replaced by a generic error message before being
     sent to client for security reasons.
 

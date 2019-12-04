@@ -32,12 +32,12 @@ class APIManager(CoreObject):
         self.LOGGER.exception(str(exception))
         return response_utils.make_exception_response(exception)
 
-    def handle_server_error(self, exception):
+    def handle_server_business_error(self, exception):
         """
-        handles server internal core exceptions.
+        handles server internal core business exceptions.
         note that normally you should never call this method manually.
 
-        :param CoreException exception: core exception instance.
+        :param CoreBusinessException exception: core business exception instance.
 
         :rtype: CoreResponse
         """
@@ -45,11 +45,32 @@ class APIManager(CoreObject):
         self.LOGGER.exception(str(exception))
         return response_utils.make_exception_response(exception)
 
+    def handle_server_error(self, exception):
+        """
+        handles server internal core exceptions.
+        note that normally you should never call this method manually.
+        in any environment which debug mode is False, the original error
+        message will be replaced by a generic error message before being
+        sent to client for security reasons.
+
+        :param CoreException exception: core exception instance.
+
+        :rtype: CoreResponse
+        """
+
+        self.LOGGER.exception(str(exception))
+
+        if config_services.get_active('environment', 'debug') is True:
+            return response_utils.make_exception_response(exception)
+
+        return response_utils.make_error_response(self._get_generic_error_message(),
+                                                  code=exception.code)
+
     def handle_server_unknown_error(self, exception):
         """
         handles unknown server internal exceptions.
         note that normally you should never call this method manually.
-        in any environment which debug mode is false, the original error
+        in any environment which debug mode is False, the original error
         message will be replaced by a generic error message before being
         sent to client for security reasons.
 
@@ -65,8 +86,17 @@ class APIManager(CoreObject):
                                                           code=ServerErrorResponseCodeEnum.
                                                           INTERNAL_SERVER_ERROR)
 
-        return response_utils.make_error_response(_('Application has been encountered an error. '
-                                                    'Please contact the support team if problem '
-                                                    'persists.'),
+        return response_utils.make_error_response(self._get_generic_error_message(),
                                                   code=ServerErrorResponseCodeEnum.
                                                   INTERNAL_SERVER_ERROR)
+
+    def _get_generic_error_message(self):
+        """
+        gets generic error message to be sent to client
+        for any environment which debug mode is False.
+
+        :rtype: str
+        """
+
+        return _('Application has been encountered an error. Please '
+                 'contact the support team if problem persists.')
