@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-sqlalchemy schema module.
+model schema module.
 """
 
 from sqlalchemy import Column

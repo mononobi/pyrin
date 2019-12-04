@@ -5,7 +5,6 @@ utils sqlalchemy module.
 
 from sqlalchemy.orm import lazyload
 from sqlalchemy import func
-from sqlalchemy.orm import class_mapper, ColumnProperty
 
 import pyrin.utils.datetime as datetime_utils
 
@@ -28,38 +27,21 @@ def entity_to_dict(entity):
     if entity is None:
         return DTO()
 
-    entity_class = type(entity)
-    all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
-                   if isinstance(prop, ColumnProperty) and prop.columns[0].hidden is False]
-
-    result = DTO()
-    for attr in all_columns:
-        result[attr] = entity.__dict__[attr]
-
-    return result
+    return entity.to_dict()
 
 
-def dict_to_entity(dict_value, entity_class):
+def dict_to_entity(entity_class, **kwargs):
     """
-    converts the given dict into an specified entity and returns it.
+    converts the given keyword arguments into
+    an specified entity and returns it.
 
-    :param dict dict_value: dict to be converted.
     :param type entity_class: the result entity class type.
 
     :rtype: CoreEntity
     """
 
     result = entity_class()
-    if dict_value is None or len(dict_value) == 0:
-        return result
-
-    all_columns = [prop.key for prop in class_mapper(entity_class).iterate_properties
-                   if isinstance(prop, ColumnProperty)]
-
-    for key in dict_value.keys():
-        if key in all_columns:
-            setattr(result, key, dict_value[key])
-
+    result.from_dict(**kwargs)
     return result
 
 
