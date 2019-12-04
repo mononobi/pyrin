@@ -126,10 +126,7 @@ def test_entity_to_dict_list():
     entity3.name = 'name3'
     entity3.age = 30
 
-    entities = []
-    entities.append(entity1)
-    entities.append(entity2)
-    entities.append(entity3)
+    entities = [entity1, entity2, entity3]
 
     result = sqlalchemy_utils.entity_to_dict_list(entities)
 
@@ -167,8 +164,7 @@ def test_entity_to_dict_list_with_single_item():
     entity1.name = 'name1'
     entity1.age = 10
 
-    entities = []
-    entities.append(entity1)
+    entities = [entity1]
 
     result = sqlalchemy_utils.entity_to_dict_list(entities)
 
