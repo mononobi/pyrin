@@ -83,7 +83,7 @@ def test_dict_to_entity():
     age = 40
 
     dict_value = DTO(id=id, name=name, age=age, ignored_key='nothing')
-    entity = sqlalchemy_utils.dict_to_entity(dict_value, SampleEntity)
+    entity = sqlalchemy_utils.dict_to_entity(SampleEntity, **dict_value)
 
     assert entity is not None
     assert entity.id == id
@@ -98,7 +98,7 @@ def test_dict_to_entity_with_none_dict():
     it should get an entity with default values.
     """
 
-    entity = sqlalchemy_utils.dict_to_entity(None, SampleEntity)
+    entity = sqlalchemy_utils.dict_to_entity(SampleEntity)
 
     assert entity is not None
     assert entity.id is None

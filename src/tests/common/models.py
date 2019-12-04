@@ -7,7 +7,7 @@ from sqlalchemy import Unicode, Integer
 
 from pyrin.database.decorators import bind
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.sqlalchemy.schema import CoreColumn
+from pyrin.database.model.schema import CoreColumn
 
 
 class SampleEntity(CoreEntity):
