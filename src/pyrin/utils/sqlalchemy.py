@@ -45,6 +45,27 @@ def dict_to_entity(entity_class, **kwargs):
     return result
 
 
+def entity_to_dict_list(entities):
+    """
+    converts the given list of entities into a
+    list of dicts and returns the result.
+
+    :param list[CoreEntity] entities: list of entities.
+
+    :returns list[dict]
+    :rtype list
+    """
+
+    results = []
+    if entities is None or len(entities) <= 0:
+        return results
+
+    for single_entity in entities:
+        results.append(single_entity.to_dict())
+
+    return results
+
+
 def like_both(value):
     """
     gets a copy of string with `%` attached to both
