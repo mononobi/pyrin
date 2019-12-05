@@ -29,7 +29,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self.LOGGER.exception(str(exception))
+        self._log_exception(exception)
         return response_utils.make_exception_response(exception)
 
     def handle_server_business_error(self, exception):
@@ -42,7 +42,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self.LOGGER.exception(str(exception))
+        self._log_exception(exception)
         return response_utils.make_exception_response(exception)
 
     def handle_server_error(self, exception):
@@ -58,8 +58,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self.LOGGER.exception(str(exception))
-
+        self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
             return response_utils.make_exception_response(exception)
 
@@ -79,8 +78,7 @@ class APIManager(CoreObject):
         :rtype: CoreResponse
         """
 
-        self.LOGGER.exception(str(exception))
-
+        self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
             return response_utils.make_exception_response(exception,
                                                           code=ServerErrorResponseCodeEnum.
@@ -100,3 +98,12 @@ class APIManager(CoreObject):
 
         return _('Application has been encountered an error. Please '
                  'contact the support team if problem persists.')
+
+    def _log_exception(self, exception):
+        """
+        logs the input exception.
+
+        :param Exception exception: exception instance to be logged.
+        """
+
+        self.LOGGER.exception(str(exception))
