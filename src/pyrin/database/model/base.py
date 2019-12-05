@@ -116,7 +116,7 @@ class CoreDeclarative(CoreObject):
 
         result = DTO()
         for col in self.exposed_columns():
-            result[col] = self.__dict__[col]
+            result[col] = getattr(self, col)
 
         return result
 
