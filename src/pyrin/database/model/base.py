@@ -40,8 +40,32 @@ class CoreDeclarative(CoreObject):
 
         CoreObject.__init__(self)
 
+        if not hasattr(self, '_all_columns'):
+            self._set_all_columns(None)
+
+        if not hasattr(self, '_exposed_columns'):
+            self._set_exposed_columns(None)
+
         self._set_name(self.__class__.__name__)
         self.from_dict(False, **kwargs)
+
+    def _set_all_columns(self, columns):
+        """
+        sets all column names attribute for this class.
+
+        :param tuple[str] columns: column names.
+        """
+
+        self.__class__._all_columns = columns
+
+    def _set_exposed_columns(self, columns):
+        """
+        sets exposed column names attribute for this class.
+
+        :param tuple[str] columns: column names.
+        """
+
+        self.__class__._exposed_columns = columns
 
     def save(self):
         """
@@ -85,29 +109,36 @@ class CoreDeclarative(CoreObject):
     def all_columns(self):
         """
         gets all column names of entity.
+        column names will be calculated once and cached.
 
-        :returns: list[str]
-        :rtype: list
+        :returns: tuple[str]
+        :rtype: tuple
         """
 
-        all_columns = [prop.key for prop in class_mapper(type(self)).iterate_properties
-                       if isinstance(prop, ColumnProperty)]
+        if self._all_columns is None:
+            all_columns = tuple(prop.key for prop in class_mapper(type(self)).iterate_properties
+                                if isinstance(prop, ColumnProperty))
+            self._set_all_columns(all_columns)
 
-        return all_columns
+        return self._all_columns
 
     def exposed_columns(self):
         """
         gets exposed column names of entity, which
         are those that have `hidden=False`.
+        column names will be calculated once and cached.
 
-        :returns: list[str]
-        :rtype: list
+        :returns: tuple[str]
+        :rtype: tuple
         """
 
-        all_columns = [prop.key for prop in class_mapper(type(self)).iterate_properties
-                       if isinstance(prop, ColumnProperty) and prop.columns[0].hidden is False]
+        if self._exposed_columns is None:
+            exposed_columns = tuple(prop.key for prop in class_mapper(type(self)).
+                                    iterate_properties if isinstance(prop, ColumnProperty)
+                                    and prop.columns[0].hidden is False)
+            self._set_exposed_columns(exposed_columns)
 
-        return all_columns
+        return self._exposed_columns
 
     def to_dict(self):
         """
