@@ -9,7 +9,7 @@ from sqlalchemy import func
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreValueError
+from pyrin.core.exceptions import CoreAssertionError
 from pyrin.core.globals import _, LIST_TYPES
 
 
@@ -62,6 +62,54 @@ def entity_to_dict_list(entities):
 
     for single_entity in entities:
         results.append(single_entity.to_dict())
+
+    return results
+
+
+def tuple_to_dict(columns, values):
+    """
+    converts values tuple into a dict using given columns tuple.
+
+    :param tuple[Column] columns: columns.
+    :param tuple values: values to map to columns.
+
+    :rtype: dict
+    """
+
+    if columns is None or values is None or len(columns) <= 0 or len(values) <= 0:
+        return DTO()
+
+    columns_length = len(columns)
+    values_length = len(values)
+
+    if columns_length != values_length:
+        raise CoreAssertionError('length of columns which is [{column}] and '
+                                 'values which is [{value}] does not match.'
+                                 .format(column=columns_length,
+                                         value=values_length))
+
+    column_names = tuple(col.key for col in columns)
+    return DTO(zip(column_names, values))
+
+
+def tuple_to_dict_list(columns, values):
+    """
+    converts the given list of values tuple into a list
+    of dicts using given columns tuple.
+
+    :param tuple[Column] columns: columns.
+    :param list[tuple] values: list of values.
+
+    :returns list[dict]
+    :rtype: list
+    """
+
+    results = []
+    if columns is None or values is None or len(columns) <= 0 or len(values) <= 0:
+        return results
+
+    for single_value in values:
+        results.append(tuple_to_dict(columns, single_value))
 
     return results
 
@@ -164,15 +212,14 @@ def add_range_clause(clauses, column, value_lower, value_upper,
     :param include_equal_to_upper: specifies that upper value
                                    should be considered in range.
                                    defaults to True if not provided.
-
-    :raises CoreValueError: core value error.
     """
 
     if value_lower is None and value_upper is None:
         return
 
+    # we swap the upper and lower values in case of user mistake.
     if value_lower is not None and value_upper is not None and value_lower > value_upper:
-        raise CoreValueError(_('Invalid range is given.'))
+        value_lower, value_upper = value_upper, value_lower
 
     if value_lower is not None and value_lower == value_upper:
         clauses.append(column == value_lower)
@@ -216,8 +263,6 @@ def add_date_range_clause(clauses, column, date_lower, date_upper,
     :keyword bool consider_end_of_day: specifies that consider end
                                        of day for upper date.
                                        defaults to True if not provided.
-
-    :raises CoreValueError: core value error.
     """
 
     consider_begin_of_day = options.get('consider_begin_of_day', True)
