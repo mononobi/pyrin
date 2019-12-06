@@ -73,7 +73,7 @@ def test_entity_to_dict_with_hidden_column():
     assert result['id'] == id
     assert result['name'] == name
     assert result['age'] == age
-    assert 'hidden_field' not in result.keys()
+    assert 'hidden_field' not in result
 
 
 def test_dict_to_entity():

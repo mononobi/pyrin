@@ -5,6 +5,7 @@ common models module.
 
 from sqlalchemy import Unicode, Integer
 
+from pyrin.core.context import DTO
 from pyrin.database.decorators import bind
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.schema import CoreColumn
@@ -60,14 +61,23 @@ class SampleTestEntity(CoreEntity):
     age = CoreColumn(name='age', type_=Integer)
 
 
-class SampleWithHiddenFieldEntity(CoreEntity):
+class SampleWithHiddenFieldBaseEntity(CoreEntity):
     """
-    sample with hidden field entity class.
+    sample with hidden field base entity class.
     """
 
     __tablename__ = 'sample_with_hidden_field_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+
+
+class SampleWithHiddenFieldEntity(SampleWithHiddenFieldBaseEntity):
+    """
+    sample with hidden field entity class.
+    """
+
+    __table_args__ = DTO(extend_existing=True)
+
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
     hidden_field = CoreColumn(name='hidden_field', type_=Unicode, hidden=True)
