@@ -3,7 +3,6 @@
 database manager module.
 """
 
-from sqlalchemy.exc import DatabaseError
 from sqlalchemy import engine_from_config
 
 import pyrin.configuration.services as config_services
@@ -191,9 +190,9 @@ class DatabaseManager(CoreObject):
 
                 store.commit()
                 return response
-            except DatabaseError as error:
+            except Exception:
                 store.rollback()
-                raise error
+                raise
             finally:
                 session_factory.remove()
         except Exception as error:
@@ -214,9 +213,9 @@ class DatabaseManager(CoreObject):
 
         if exception is not None:
             try:
+                self.LOGGER.exception(str(exception))
                 session_factory = database_services.get_session_factory()
                 session_factory.remove()
-                self.LOGGER.exception(str(exception))
 
             except Exception as error:
                 self.LOGGER.exception(str(error))

@@ -9,6 +9,7 @@ import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 
 from pyrin.database.decorators import session_factory
+from pyrin.database.orm.query.base import CoreQuery
 from pyrin.database.session_factory.base import SessionFactoryBase
 
 
@@ -39,7 +40,7 @@ class RequestScopedSessionFactory(SessionFactoryBase):
         """
 
         session_configs = config_services.get_section('database', 'request_scoped_session')
-        return scoped_session(sessionmaker(bind=engine, **session_configs),
+        return scoped_session(sessionmaker(bind=engine, query_cls=CoreQuery, **session_configs),
                               scopefunc=session_services.get_safe_current_request)
 
     def is_request_bounded(self):
