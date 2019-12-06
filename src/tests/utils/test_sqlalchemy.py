@@ -3,9 +3,12 @@
 utils test_sqlalchemy module.
 """
 
+import pytest
+
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreAssertionError
 
 from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity
 
@@ -202,6 +205,129 @@ def test_entity_to_dict_list_with_none():
 
     assert isinstance(result, list)
     assert len(result) == 0
+
+
+def test_tuple_to_dict():
+    """
+    converts values tuple into a dict using given columns tuple.
+    """
+
+    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
+    values = ('this is name', 1000, 22)
+
+    result = sqlalchemy_utils.tuple_to_dict(columns, values)
+
+    assert isinstance(result, dict)
+    assert len(result) == 3
+
+    assert result.get('name', None) == 'this is name'
+    assert result.get('id', None) == 1000
+    assert result.get('age', None) == 22
+
+
+def test_tuple_to_dict_with_none_items():
+    """
+    converts values tuple into a dict using given columns tuple.
+    it should return an empty dict in different scenarios.
+    """
+
+    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
+    values = ('this is name', 1000, 22)
+
+    result1 = sqlalchemy_utils.tuple_to_dict(None, values)
+    result2 = sqlalchemy_utils.tuple_to_dict(columns, None)
+    result3 = sqlalchemy_utils.tuple_to_dict((), values)
+    result4 = sqlalchemy_utils.tuple_to_dict(columns, ())
+
+    assert isinstance(result1, dict)
+    assert isinstance(result2, dict)
+    assert isinstance(result3, dict)
+    assert isinstance(result4, dict)
+
+    assert len(result1) == 0
+    assert len(result2) == 0
+    assert len(result3) == 0
+    assert len(result4) == 0
+
+
+def test_tuple_to_dict_with_different_lengths():
+    """
+    converts values tuple into a dict using given columns tuple.
+    columns and values length does not match, it should raise an error.
+    """
+
+    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
+    values = ('this is name', 1000, 22, 'extra value')
+
+    with pytest.raises(CoreAssertionError):
+        sqlalchemy_utils.tuple_to_dict(columns, values)
+
+
+def test_tuple_to_dict_list():
+    """
+    converts the given list of values tuple into a list
+    of dicts using given columns tuple.
+    """
+
+    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
+    values1 = ('name1', 1000, 10)
+    values2 = ('name2', 2000, 20)
+    values3 = ('name3', 3000, 30)
+    values = [values1, values2, values3]
+
+    results = sqlalchemy_utils.tuple_to_dict_list(columns, values)
+
+    assert isinstance(results, list)
+    assert len(results) == 3
+
+    dict1 = results[0]
+    dict2 = results[1]
+    dict3 = results[2]
+
+    assert isinstance(dict1, dict)
+    assert isinstance(dict2, dict)
+    assert isinstance(dict3, dict)
+
+    assert dict1.get('id', None) == 1000
+    assert dict2.get('id', None) == 2000
+    assert dict3.get('id', None) == 3000
+
+    assert dict1.get('name', None) == 'name1'
+    assert dict2.get('name', None) == 'name2'
+    assert dict3.get('name', None) == 'name3'
+
+    assert dict1.get('age', None) == 10
+    assert dict2.get('age', None) == 20
+    assert dict3.get('age', None) == 30
+
+
+def test_tuple_to_dict_list_with_none_items():
+    """
+    converts the given list of values tuple into a list
+    of dicts using given columns tuple.
+    it should return an empty list in different scenarios.
+    """
+
+    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
+    values1 = ('name1', 1000, 10)
+    values2 = ('name2', 2000, 20)
+    values3 = ('name3', 3000, 30)
+    values = [values1, values2, values3]
+
+    result1 = sqlalchemy_utils.tuple_to_dict_list(None, values)
+    result2 = sqlalchemy_utils.tuple_to_dict_list(columns, None)
+    result3 = sqlalchemy_utils.tuple_to_dict_list((), values)
+    result4 = sqlalchemy_utils.tuple_to_dict_list(columns, [])
+
+    assert isinstance(result1, list)
+    assert isinstance(result2, list)
+    assert isinstance(result3, list)
+    assert isinstance(result4, list)
+
+    assert len(result1) == 0
+    assert len(result2) == 0
+    assert len(result3) == 0
+    assert len(result4) == 0
 
 
 def test_like_both():
