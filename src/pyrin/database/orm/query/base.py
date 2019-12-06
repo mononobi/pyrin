@@ -8,8 +8,9 @@ import inspect
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from pyrin.core.globals import LIST_TYPES
+from pyrin.core.globals import LIST_TYPES, _
 from pyrin.database.model.base import CoreEntity
+from pyrin.database.orm.query.exceptions import ColumnNotAllowedError
 
 
 class CoreQuery(Query):
@@ -43,6 +44,8 @@ class CoreQuery(Query):
                                                           you set `valid_entities=SomeEntity`
                                                           then the query will not be executed
                                                            and an error would be raised.
+
+        :raises ColumnNotAllowedError: column not allowed error.
         """
 
         valid_entities = options.get('valid_entities', None)
@@ -69,7 +72,7 @@ class CoreQuery(Query):
                                                         this value must be a tuple of all class
                                                         types of that entities.
 
-        :raises
+        :raises ColumnNotAllowedError: column not allowed error.
         """
 
         valid_classes = set(entity for entity in valid_entities if inspect.isclass(entity)
@@ -85,5 +88,6 @@ class CoreQuery(Query):
 
         all_requested_classes = requested_classes.union(requested_classes_by_column)
 
-        if all_requested_classes > valid_classes:
-            raise
+        if not all_requested_classes <= valid_classes:
+            raise ColumnNotAllowedError(_('Requested columns are not '
+                                          'allowed in current service.'))
