@@ -10,7 +10,7 @@ import pyrin.database.services as database_services
 import pyrin.database.sequence.services as sequence_services
 
 from pyrin.core.context import CoreObject, DTO
-from pyrin.database.model.exceptions import SequenceHasNotSetError
+from pyrin.database.model.exceptions import SequenceHasNotSetError, ColumnNotExistedError
 
 
 class CoreDeclarative(CoreObject):
@@ -31,12 +31,17 @@ class CoreDeclarative(CoreObject):
     # holds the name of the sequence used for table's primary key column.
     __primary_key_sequence__ = None
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         initializes an instance of CoreDeclarative.
+
+        :raises ColumnNotExistedError: column not existed error.
         """
 
         CoreObject.__init__(self)
+
+        self._set_name(self.__class__.__name__)
+        self.from_dict(False, **kwargs)
 
     def save(self):
         """
@@ -73,7 +78,7 @@ class CoreDeclarative(CoreObject):
         if self.__primary_key_sequence__ in (None, ''):
             raise SequenceHasNotSetError('No primary key sequence has been set '
                                          'for entity [{name}].'
-                                         .format(name=self.__class__.__name__))
+                                         .format(name=self.get_name()))
 
         return sequence_services.get_next_value(self.__primary_key_sequence__)
 
@@ -120,17 +125,29 @@ class CoreDeclarative(CoreObject):
 
         return result
 
-    def from_dict(self, **kwargs):
+    def from_dict(self, silent_on_invalid_column=True, **kwargs):
         """
         updates the column values of the entity from those
         values that are available in input keyword arguments.
+
+        :keyword bool silent_on_invalid_column: specifies that if a key is not available
+                                                in entity columns, do not raise an error.
+                                                defaults to True if not provided.
+
+        :raises ColumnNotExistedError: column not existed error.
         """
 
         all_columns = self.all_columns()
         for key, value in kwargs.items():
             if key in all_columns:
                 setattr(self, key, value)
+            else:
+                if silent_on_invalid_column is False:
+                    raise ColumnNotExistedError('Entity [{entity}] does not have '
+                                                'a column named [{column}].'
+                                                .format(entity=self.get_name(),
+                                                        column=key))
 
 
 # this entity should be used as the base entity for all application entities.
-CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity')
+CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity', constructor=None)
