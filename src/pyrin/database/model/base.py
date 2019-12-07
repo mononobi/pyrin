@@ -34,6 +34,9 @@ class CoreDeclarative(CoreObject):
     def __init__(self, *args, **kwargs):
         """
         initializes an instance of CoreDeclarative.
+        note that this method will only be called on user code, meaning
+        that results returned by orm from database will not call __init__
+        of each entity.
 
         :raises ColumnNotExistedError: column not existed error.
         """

@@ -20,8 +20,8 @@ class DatabaseORMQueryBusinessException(DatabaseORMQueryException):
     pass
 
 
-class ColumnNotAllowedError(DatabaseORMQueryBusinessException):
+class DataCouldNotBeFetchedError(DatabaseORMQueryBusinessException):
     """
-    column not allowed error.
+    data could not be fetched error.
     """
     pass

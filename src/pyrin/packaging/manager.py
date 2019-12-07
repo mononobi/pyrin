@@ -4,6 +4,7 @@ packaging manager module.
 """
 
 import os
+import inspect
 
 from importlib import import_module
 
@@ -40,6 +41,11 @@ class PackagingManager(CoreObject):
         # `pyrin.application` and `pyrin.packaging` will be loaded at
         # the beginning, so they will not included in this list.
         self._loaded_packages = []
+
+        # holds the instance of all loaded modules.
+        # in the form of: {str module_name: Module module}
+        self._loaded_modules = DTO()
+
         self.__hooks = []
 
     def load_components(self, **options):
@@ -58,6 +64,7 @@ class PackagingManager(CoreObject):
         if LOAD_TEST_PACKAGES is True:
             self._load_components(test_packages, **options)
 
+        self._init_entity_classes()
         self._after_packages_loaded()
 
         print_info('Total of [{count}] packages loaded.'
@@ -71,6 +78,18 @@ class PackagingManager(CoreObject):
         for hook in self._get_hooks():
             hook.after_packages_loaded()
 
+    def _init_entity_classes(self):
+        """
+        initializes all entity classes of the application.
+        it actually just creates an instance of each entity class.
+        this is required because initializing entities on
+        every request causes performance degrade.
+        """
+
+        entities = self._get_entity_classes()
+        for entity_class in entities:
+            entity_class()
+
     def load(self, module_name, **options):
         """
         loads the specified module.
@@ -81,7 +100,10 @@ class PackagingManager(CoreObject):
         :rtype: Module
         """
 
-        return import_module(module_name)
+        module = import_module(module_name)
+        self._loaded_modules[module.__name__] = module
+
+        return module
 
     def _load_component(self, package_name, module_names, **options):
         """
@@ -399,12 +421,31 @@ class PackagingManager(CoreObject):
         package_class = None
 
         for cls in module.__dict__.values():
-            try:
-                if cls is not Package and issubclass(cls, Package):
-                    package_class = cls
-            except TypeError:
-                pass
+            if inspect.isclass(cls) and cls is not Package and issubclass(cls, Package):
+                package_class = cls
         return package_class
+
+    def _get_entity_classes(self):
+        """
+        gets the entity classes implemented in all loaded
+        modules if available, otherwise returns an empty list.
+
+        :returns: list[type]
+        :rtype: list
+        """
+
+        # we have to import CoreEntity inside this method to prevent
+        # early access to database services when it is not available.
+        from pyrin.database.model.base import CoreEntity
+
+        entity_classes = []
+
+        for module in self._loaded_modules.values():
+            for cls in module.__dict__.values():
+                if inspect.isclass(cls) and cls is not CoreEntity \
+                        and issubclass(cls, CoreEntity):
+                    entity_classes.append(cls)
+        return list(dict.fromkeys(entity_classes))
 
     def _is_dependencies_loaded(self, dependencies):
         """
