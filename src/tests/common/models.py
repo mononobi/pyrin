@@ -80,4 +80,4 @@ class SampleWithHiddenFieldEntity(SampleWithHiddenFieldBaseEntity):
 
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
-    hidden_field = CoreColumn(name='hidden_field', type_=Unicode, hidden=True)
+    hidden_field = CoreColumn(name='hidden_field', type_=Unicode, exposed=False)

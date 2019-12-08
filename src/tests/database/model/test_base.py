@@ -61,7 +61,7 @@ def test_all_columns():
 def test_exposed_columns():
     """
     gets exposed column names of entity.
-    exposed columns are those that have `hidden=False`
+    exposed columns are those that have `exposed=True`
     """
 
     entity = SampleWithHiddenFieldEntity()
