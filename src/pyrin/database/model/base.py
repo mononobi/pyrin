@@ -35,7 +35,7 @@ class CoreDeclarative(CoreObject):
         """
         initializes an instance of CoreDeclarative.
         note that this method will only be called on user code, meaning
-        that results returned by orm from database will not call __init__
+        that results returned by orm from database will not call `__init__`
         of each entity.
 
         :raises ColumnNotExistedError: column not existed error.
@@ -128,7 +128,7 @@ class CoreDeclarative(CoreObject):
     def exposed_columns(self):
         """
         gets exposed column names of entity, which
-        are those that have `hidden=False`.
+        are those that have `exposed=True`.
         column names will be calculated once and cached.
 
         :returns: tuple[str]
@@ -138,7 +138,7 @@ class CoreDeclarative(CoreObject):
         if self._exposed_columns is None:
             exposed_columns = tuple(prop.key for prop in class_mapper(type(self)).
                                     iterate_properties if isinstance(prop, ColumnProperty)
-                                    and prop.columns[0].hidden is False)
+                                    and prop.columns[0].exposed is True)
             self._set_exposed_columns(exposed_columns)
 
         return self._exposed_columns
@@ -147,8 +147,8 @@ class CoreDeclarative(CoreObject):
         """
         converts the entity into a dict and returns it.
         the result dict only contains the exposed columns of
-        the entity which are those that their `hidden` attribute
-        is set to False.
+        the entity which are those that their `exposed` attribute
+        is set to True.
 
         :rtype: dict
         """

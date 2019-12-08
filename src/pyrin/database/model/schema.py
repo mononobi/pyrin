@@ -94,10 +94,10 @@ class CoreColumn(Column):
         :param str comment: optional string that will render an sql comment
                             on table creation.
 
-        :keyword bool hidden: specifies that the column should not be
-                              exposed on entity to dict conversion.
-                              defaults to False if not provided.
+        :keyword bool exposed: specifies that the column should be
+                               exposed on entity to dict conversion.
+                               defaults to True if not provided.
         """
 
-        self.hidden = kwargs.pop('hidden', False)
+        self.exposed = kwargs.pop('exposed', True)
         super(CoreColumn, self).__init__(*args, **kwargs)
