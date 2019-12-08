@@ -11,7 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from pyrin.core.globals import LIST_TYPES, _
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.orm.query.exceptions import DataCouldNotBeFetchedError
+from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError
 
 
 @inspection._self_inspects
@@ -30,7 +30,7 @@ class CoreQuery(Query):
         :param tuple entities: entities or columns that are needed for query.
         :param Session session: optional session object to bind this query to it.
 
-        :keyword Union[type, tuple[type]] bound: class type of the entities that this
+        :keyword Union[type, tuple[type]] scope: class type of the entities that this
                                                  query instance will work on. if the
                                                  query is working on multiple entities,
                                                  this value must be a tuple of all class
@@ -38,39 +38,39 @@ class CoreQuery(Query):
 
                                                  for example: if you set
                                                  `entities=SomeEntity.id, AnotherEntity.name`
-                                                 you should leave `bound=None` to skip validation
+                                                 you should leave `scope=None` to skip validation
                                                  or you could set
-                                                 `bound=(SomeEntity, AnotherEntity)`
+                                                 `scope=(SomeEntity, AnotherEntity)`
                                                  this way validation succeeds, but if
-                                                 you set `bound=SomeEntity`
+                                                 you set `scope=SomeEntity`
                                                  then the query will not be executed
                                                  and an error would be raised.
 
-        :raises DataCouldNotBeFetchedError: data could not be fetched error.
+        :raises ColumnsOutOfScopeError: columns out of scope error.
         """
 
-        bound = options.get('bound', None)
-        if bound is not None:
-            self._prepare_validation(entities, bound)
+        scope = options.get('scope', None)
+        if scope is not None:
+            self._prepare_validation(entities, scope)
 
         super(CoreQuery, self).__init__(entities, session)
 
-    def _validate_bound(self, entities, bound):
+    def _validate_scope(self, entities, scope):
         """
-        validates the query for given entities based on provided bound.
+        validates the query for given entities based on provided scope.
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param Union[type, tuple[type]] bound: class type of the entities that this
+        :param Union[type, tuple[type]] scope: class type of the entities that this
                                                query instance will work on. if the
                                                query is working on multiple entities,
                                                this value must be a tuple of all class
                                                types of that entities.
 
-        :raises DataCouldNotBeFetchedError: data could not be fetched error.
+        :raises ColumnsOutOfScopeError: columns out of scope error.
         """
 
-        bound_classes = set(entity for entity in bound if inspect.isclass(entity)
+        scope_classes = set(entity for entity in scope if inspect.isclass(entity)
                             and issubclass(entity, CoreEntity))
 
         requested_classes = set(entity for entity in entities if inspect.isclass(entity)
@@ -83,35 +83,35 @@ class CoreQuery(Query):
 
         all_requested_classes = requested_classes.union(requested_classes_by_column)
 
-        if not all_requested_classes.issubset(bound_classes):
-            raise DataCouldNotBeFetchedError(_('Requested data could not be fetched. '
-                                               'Please revise the requested fields.'))
+        if not all_requested_classes.issubset(scope_classes):
+            raise ColumnsOutOfScopeError(_('Requested columns are out of scope of this '
+                                           'query. Please revise the requested columns.'))
 
-    def _prepare_validation(self, entities, bound):
+    def _prepare_validation(self, entities, scope):
         """
-        prepares entities and bound and validates them if required.
+        prepares entities and scope and validates them if required.
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param Union[type, tuple[type]] bound: class type of the entities that this
+        :param Union[type, tuple[type]] scope: class type of the entities that this
                                                query instance will work on. if the
                                                query is working on multiple entities,
                                                this value must be a tuple of all class
                                                types of that entities.
 
-        :raises DataCouldNotBeFetchedError: data could not be fetched error.
+        :raises ColumnsOutOfScopeError: columns out of scope error.
         """
 
-        if bound is None or entities is None:
+        if scope is None or entities is None:
             return
 
-        if not isinstance(bound, LIST_TYPES):
-            bound = tuple(bound)
+        if not isinstance(scope, LIST_TYPES):
+            scope = tuple(scope)
 
         if not isinstance(entities, LIST_TYPES):
             entities = tuple(entities)
 
-        if len(bound) <= 0 or len(entities) <= 0:
+        if len(scope) <= 0 or len(entities) <= 0:
             return
 
-        self._validate_bound(entities, bound)
+        self._validate_scope(entities, scope)

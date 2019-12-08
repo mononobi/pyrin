@@ -20,8 +20,8 @@ class DatabaseORMQueryBusinessException(DatabaseORMQueryException):
     pass
 
 
-class DataCouldNotBeFetchedError(DatabaseORMQueryBusinessException):
+class ColumnsOutOfScopeError(DatabaseORMQueryBusinessException):
     """
-    data could not be fetched error.
+    columns out of scope error.
     """
     pass
