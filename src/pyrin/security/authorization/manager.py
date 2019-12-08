@@ -49,10 +49,10 @@ class AuthorizationManager(CoreObject):
         if not isinstance(permissions, LIST_TYPES):
             required_permissions = [permissions]
 
-        required_permission_ids = [item.get_id() for item in required_permissions]
-        user_permission_ids = security_services.get_user_permission_ids(user, **options)
+        required_permission_ids = set(item.get_id() for item in required_permissions)
+        user_permission_ids = set(security_services.get_user_permission_ids(user, **options))
 
-        if not set(required_permission_ids) <= set(user_permission_ids):
+        if not required_permission_ids.issubset(user_permission_ids):
             message = _('User [{user}] has not required permission(s) [{permission_ids}].')
             raise AuthorizationFailedError(message.format(user=str(user),
                                                           permission_ids=required_permission_ids))

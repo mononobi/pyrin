@@ -83,7 +83,7 @@ class CoreQuery(Query):
 
         all_requested_classes = requested_classes.union(requested_classes_by_column)
 
-        if not all_requested_classes <= limit_classes:
+        if not all_requested_classes.issubset(limit_classes):
             raise DataCouldNotBeFetchedError(_('Requested data could not be fetched. '
                                                'Please revise the requested fields.'))
 
