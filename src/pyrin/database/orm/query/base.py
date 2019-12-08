@@ -106,10 +106,10 @@ class CoreQuery(Query):
             return
 
         if not isinstance(scope, LIST_TYPES):
-            scope = tuple(scope)
+            scope = (scope,)
 
         if not isinstance(entities, LIST_TYPES):
-            entities = tuple(entities)
+            entities = (entities,)
 
         if len(scope) <= 0 or len(entities) <= 0:
             return
