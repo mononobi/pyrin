@@ -36,7 +36,7 @@ class DatabaseManager(CoreObject):
         CoreObject.__init__(self)
 
         # contains the application default database engine.
-        self.__engine = self._create_default_engine()
+        self.___engine = self._create_default_engine()
 
         # a dictionary containing engines for different bounded databases.
         # in the form of: {str bind_name: Engine engine}
@@ -263,7 +263,7 @@ class DatabaseManager(CoreObject):
 
         # registering new session factory.
         self._session_factories[instance.is_request_bounded()] = \
-            instance.create_session_factory(self.__engine)
+            instance.create_session_factory(self._get_engine())
 
     def register_bind(self, cls, bind_name, **options):
         """
@@ -319,3 +319,12 @@ class DatabaseManager(CoreObject):
         if len(self._entity_to_engine_map) > 0:
             for key in self._session_factories.keys():
                 self._session_factories[key].configure(binds=self._entity_to_engine_map)
+
+    def _get_engine(self):
+        """
+        gets database default engine.
+
+        :rtype: Engine
+        """
+
+        return self.___engine

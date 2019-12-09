@@ -719,7 +719,9 @@ class Application(Flask):
 
     def _set_component_attributes(self, old_instance, new_instance):
         """
-        sets all list and dict attributes from old_instance into new_instance.
+        replaces all list and dict attributes from old instance into new instance.
+        all the attributes which their name starts with three underscores will also
+        be replaced from old instance into new instance.
 
         :param Component old_instance: old component instance to get attributes from.
         :param Component new_instance: new component instance to set its attributes.
@@ -733,7 +735,8 @@ class Application(Flask):
         all_attributes = vars(old_instance)
         required_attributes = DTO()
         for attribute_name in all_attributes.keys():
-            if isinstance(all_attributes[attribute_name], (list, dict)):
+            if isinstance(all_attributes[attribute_name], (list, dict)) \
+                    or '___' in attribute_name:
                 required_attributes[attribute_name] = all_attributes[attribute_name]
 
         return misc_utils.set_attributes(new_instance, **required_attributes)
