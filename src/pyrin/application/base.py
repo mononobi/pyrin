@@ -255,8 +255,7 @@ class Application(Flask):
             # from old_instance to prevent loss of any attribute value (for example values
             # that has been added using decorators).
             # this has an obvious caveat, and it is that child classes could not do
-            # any customizations on these attributes in their
-            # `__init__` method.
+            # any customizations on these attributes in their `__init__` method.
             component = self._set_component_attributes(old_instance, component)
 
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
