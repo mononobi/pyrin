@@ -250,11 +250,12 @@ class Application(Flask):
 
             old_instance = self._components[component.get_id()]
 
-            # we should update all list and dict attributes of new component with values
+            # we should update all list and dict attributes and also those that have
+            # three consecutive underscores in their names of new component with values
             # from old_instance to prevent loss of any attribute value (for example values
             # that has been added using decorators).
             # this has an obvious caveat, and it is that child classes could not do
-            # any customizations on parent's list and dict attributes in their
+            # any customizations on these attributes in their
             # `__init__` method.
             component = self._set_component_attributes(old_instance, component)
 
