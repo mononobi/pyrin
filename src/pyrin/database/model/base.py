@@ -43,12 +43,6 @@ class CoreDeclarative(CoreObject):
 
         CoreObject.__init__(self)
 
-        if not hasattr(self, '_all_columns'):
-            self._set_all_columns(None)
-
-        if not hasattr(self, '_exposed_columns'):
-            self._set_exposed_columns(None)
-
         self._set_name(self.__class__.__name__)
         self.from_dict(False, **kwargs)
 
@@ -118,7 +112,8 @@ class CoreDeclarative(CoreObject):
         :rtype: tuple
         """
 
-        if self._all_columns is None:
+        columns = getattr(self, '_all_columns', None)
+        if columns is None:
             all_columns = tuple(prop.key for prop in class_mapper(type(self)).iterate_properties
                                 if isinstance(prop, ColumnProperty))
             self._set_all_columns(all_columns)
@@ -135,7 +130,8 @@ class CoreDeclarative(CoreObject):
         :rtype: tuple
         """
 
-        if self._exposed_columns is None:
+        columns = getattr(self, '_exposed_columns', None)
+        if columns is None:
             exposed_columns = tuple(prop.key for prop in class_mapper(type(self)).
                                     iterate_properties if isinstance(prop, ColumnProperty)
                                     and prop.columns[0].exposed is True)
