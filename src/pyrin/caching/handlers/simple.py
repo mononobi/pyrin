@@ -18,7 +18,7 @@ class SimpleCachingHandler(DictCachingHandlerBase):
         initializes an instance of DictCachingHandlerBase.
         """
 
-        options.update(timeout=config_services.get('caching', 'simple', 'simple_timeout'),
-                       max_length=config_services.get('caching', 'simple', 'simple_max_length'))
+        options.update(timeout=config_services.get('caching', 'simple', 'timeout'),
+                       max_length=config_services.get('caching', 'simple', 'max_length'))
 
         DictCachingHandlerBase.__init__(self, 'simple', **options)

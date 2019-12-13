@@ -18,7 +18,6 @@ class MemcachedCachingHandler(CachingHandlerBase):
         initializes an instance of MemcachedCachingHandler.
         """
 
-        options.update(timeout=config_services.get('caching', 'memcached',
-                                                   'memcached_timeout'))
+        options.update(timeout=config_services.get('caching', 'memcached', 'timeout'))
 
         CachingHandlerBase.__init__(self, 'memcached', **options)
