@@ -169,9 +169,9 @@ class CoreRequest(Request):
         self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
 
-        # holds the converted values available in query
-        # string, this value will only calculated once.
-        self._converted_args = None
+        # holds the inputs of request. this value will be
+        # calculated once per each request and cached.
+        self.__inputs = None
 
         self._extract_locale()
         self._extract_timezone()
@@ -219,15 +219,14 @@ class CoreRequest(Request):
         :rtype: dict
         """
 
-        if self._converted_args is None:
-            self._converted_args = deserializer_services.deserialize(self.args)
+        if self.__inputs is None:
+            converted_args = deserializer_services.deserialize(self.args)
+            self.__inputs = DTO(**(converted_args or {}))
+            self.__inputs.update(**(self.get_json(silent=silent) or {}))
+            self.__inputs.update(**(self.view_args or {}))
+            self.__inputs.update(files=self.files)
 
-        result = DTO(**(self._converted_args or {}))
-        result.update(**(self.get_json(silent=silent) or {}))
-        result.update(**(self.view_args or {}))
-        result.update(files=self.files)
-
-        return result
+        return self.__inputs
 
     def _get_safe_content_length(self):
         """
