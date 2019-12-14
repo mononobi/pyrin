@@ -13,7 +13,7 @@ import pyrin.configuration.services as config_services
 from pyrin.core.context import CoreObject, DTO
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
-    InvalidPackagingHookTypeError
+    InvalidPackagingHookTypeError, ComponentModuleNotFoundError
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info
 from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
@@ -92,21 +92,34 @@ class PackagingManager(CoreObject):
 
         return module
 
-    def _load_component(self, package_name, module_names, **options):
+    def _load_component(self, package_name, module_names, component_name, **options):
         """
         loads the given component.
 
         :param str package_name: full package name to be loaded.
         :param list[str] module_names: full module names to be loaded.
+        :param str component_name: component name of this package.
+
+        :raises ComponentModuleNotFoundError: component module not found error.
         """
 
         self.load(package_name)
 
         # component module should be loaded first if available, in case of
         # any other module needed package services in top level objects.
-        component_module = '{package_name}.component'.format(package_name=package_name)
-        if component_module in module_names:
+        component_module = None
+        if component_name is not None:
+            root_package = package_name.split('.')[0]
+            component_module = '{root_package}.{component}'.format(root_package=root_package,
+                                                                   component=component_name)
+
+        if component_module is not None and component_module in module_names:
             self.load(component_module, **options)
+        elif component_module is not None and component_module not in module_names:
+            raise ComponentModuleNotFoundError('Component module [{name}] not '
+                                               'found in [{package}] package.'
+                                               .format(name=component_module,
+                                                       package=package_name))
 
         for module in module_names:
             if module != component_module:
@@ -144,11 +157,15 @@ class PackagingManager(CoreObject):
                 self._is_dependencies_loaded(package_class.DEPENDS) is True) and \
                self._is_parent_loaded(package) is True:
 
+                instance = None
                 if package_class is not None:
                     instance = package_class()
                     instance.load_configs(config_services)
 
-                self._load_component(package, components[package], **options)
+                component_name = None
+                if instance is not None:
+                    component_name = instance.COMPONENT_NAME
+                self._load_component(package, components[package], component_name, **options)
             else:
                 dependent_components[package] = components[package]
 
@@ -401,7 +418,7 @@ class PackagingManager(CoreObject):
         :param str package_name: full package name.
                                  example package_name = `pyrin.api`.
 
-        :rtype: Union[Package, None]
+        :rtype: type
         """
 
         module = self.load(package_name)

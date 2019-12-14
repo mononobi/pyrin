@@ -25,3 +25,10 @@ class InvalidPackagingHookTypeError(PackagingManagerException):
     invalid packaging hook type error.
     """
     pass
+
+
+class ComponentModuleNotFoundError(PackagingManagerException):
+    """
+    component module not found error.
+    """
+    pass
