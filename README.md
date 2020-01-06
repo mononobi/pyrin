@@ -1,6 +1,6 @@
 # pyrin
 
-a core application to build apps using flask on top of it.
+core application to build apps using flask on top of it.
 
 pyrin is an application framework built on top of flask micro-framework to make 
 life easier for developers who want to develop an enterprise application 
