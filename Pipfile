@@ -35,6 +35,8 @@ pytest = "*"
 pluggy = "*"
 zipp = "*"
 importlib-metadata = "*"
+babel = "*"
+asn1crypto = "*"
 
 [requires]
 python_version = "3.7"
