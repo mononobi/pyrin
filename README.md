@@ -47,3 +47,8 @@ able to run tests using /var/app_root/pyrin_framework/app/run-test.sh script.
 
 to uninstall the application from system, you should execute the scripts/setup/uninstall.sh
 script. be aware that uninstallation process will not make any backup of installed version.
+
+# demo application
+
+a demo application developed using pyrin framework is available at:
+https://github.com/mononobi/pyrin-sample
