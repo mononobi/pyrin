@@ -274,6 +274,14 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
+        # this if condition is to make it possible for the top level
+        # application package name to start with any of core packages names.
+        # for example: 'pyrin_sample'
+        root_package = component_name.split('.')[0]
+        root_core_packages = [name.split('.')[0] for name in CORE_PACKAGES]
+        if root_package not in root_core_packages:
+            return False
+
         for core in CORE_PACKAGES:
             if component_name.startswith(core):
                 return True
