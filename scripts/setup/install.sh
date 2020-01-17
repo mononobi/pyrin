@@ -75,6 +75,9 @@ cp ../../src/start_test.py /var/app_root/pyrin_framework/app/start_test.py
 # copying .env file.
 cp ../../src/.env /var/app_root/pyrin_framework/app/.env
 
+# copying resources
+cp -r ../../resources/ /var/app_root/pyrin_framework/resources/
+
 # copying run-test.sh file.
 cp ./run-test.sh /var/app_root/pyrin_framework/app/run-test.sh
 
