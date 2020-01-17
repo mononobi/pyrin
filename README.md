@@ -26,6 +26,8 @@ to be able to run tests, it is required to create a .env file inside src directo
 containing all the configuration keys that have null value in their corresponding
 settings file. a sample .env file is available in samples/dotenv.
 
+an entry with 'pyrin.server' value should also be created in /etc/hosts file.
+
 # code editing in pycharm
 
 first you should execute the scripts/setup/install-dependencies.sh script.
