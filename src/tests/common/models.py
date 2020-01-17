@@ -9,6 +9,7 @@ from pyrin.core.context import DTO
 from pyrin.database.decorators import bind
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.schema import CoreColumn
+from pyrin.database.orm.types.custom import GUID
 
 
 class SampleEntity(CoreEntity):
@@ -18,7 +19,7 @@ class SampleEntity(CoreEntity):
 
     __tablename__ = 'sample_table'
 
-    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    id = CoreColumn(name='id', type_=GUID, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
 
