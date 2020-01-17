@@ -22,11 +22,13 @@ something in somewhere.
 
 # prerequisites
 
-to be able to run tests, it is required to create a .env file inside src directory
-containing all the configuration keys that have null value in their corresponding
-settings file. a sample .env file is available in samples/dotenv.
+to be able to run tests, it is required to:
 
-an entry with 'pyrin.server' value should also be created in /etc/hosts file.
+1. create a .env file inside src directory containing all the configuration 
+   keys that have null value in their corresponding settings file. a sample .env 
+   file is available in samples/dotenv.
+
+2. an entry with 'pyrin.server' value should also be created in /etc/hosts file.
 
 # code editing in pycharm
 
