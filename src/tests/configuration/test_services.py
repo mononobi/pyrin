@@ -295,7 +295,7 @@ def test_get_for_different_stores():
     assert restricted_max_content_length < max_content_length
 
     server_name = config_services.get('communication', 'test', 'server_name')
-    assert server_name == 'localhost.localdomain:9083'
+    assert server_name == 'pyrin.server:9083'
 
     auto_flush = config_services.get('database', 'request_scoped_session', 'autoflush')
     assert auto_flush is True
@@ -599,4 +599,4 @@ def test_get_active_section_uppercase_keys():
                                                    'SERVER_PORT',
                                                    'SERVER_PROTOCOL'])
 
-    assert section.get('SERVER_NAME') == 'localhost.localdomain:9083'
+    assert section.get('SERVER_NAME') == 'pyrin.server:9083'

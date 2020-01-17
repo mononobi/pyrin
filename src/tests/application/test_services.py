@@ -392,7 +392,7 @@ def test_all_configs_values():
     assert app_configs['BASE_CURRENCY'] == 'IRR'
     assert app_configs['ENCODING'] == 'utf-8'
     assert app_configs['FLASK_LOG_LEVEL'] == 'DEBUG'
-    assert app_configs['SERVER_NAME'] == 'localhost.localdomain:9083'
+    assert app_configs['SERVER_NAME'] == 'pyrin.server:9083'
     assert app_configs['SERVER_IP'] == '127.0.0.1'
     assert app_configs['SERVER_PORT'] == 9083
     assert app_configs['SERVER_PROTOCOL'] == 'ssl'
