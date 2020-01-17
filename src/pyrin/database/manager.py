@@ -10,6 +10,7 @@ import pyrin.database.services as database_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
+from pyrin.database.model.base import CoreEntity
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.session_factory.base import SessionFactoryBase
@@ -42,15 +43,19 @@ class DatabaseManager(CoreObject):
         # in the form of: {str bind_name: Engine engine}
         self.__bounded_engines = self._create_bounded_engines()
 
-        # a dictionary containing all entity classes that should be bounded
-        # into a database other than the default one.
+        # a dictionary containing all entity classes that should be
+        # bounded into a database engine other than the default one.
         # in the form of: {type entity: str bind_name}
         self._binds = DTO()
 
-        # a dictionary containing all entity types that are bounded to a
-        # different database than the default one.
+        # a dictionary containing entity to engine map for those entities that
+        # should be bounded to a different database engine than the default one.
         # in the form of: {type entity: Engine engine}
         self._entity_to_engine_map = DTO()
+
+        # a dictionary containing engine to tables map for all tables.
+        # in the form of: {Engine engine: list[Table] tables}
+        self._engine_to_table_map = DTO()
 
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
@@ -275,10 +280,6 @@ class DatabaseManager(CoreObject):
         :raises InvalidEntityTypeError: invalid entity type error.
         """
 
-        # we have to import CoreEntity inside this method to
-        # prevent early access to database.services before being available.
-        from pyrin.database.model.base import CoreEntity
-
         if not issubclass(cls, CoreEntity):
             raise InvalidEntityTypeError('Input parameter [{cls}] is '
                                          'not a subclass of CoreEntity.'
@@ -289,7 +290,8 @@ class DatabaseManager(CoreObject):
 
     def _map_entity_to_engine(self):
         """
-        maps all application entities to relevant engines.
+        maps all application entities that should be bounded to a
+        database engine other than the default one to relevant engines.
 
         :raises InvalidDatabaseBindError: invalid database bind error.
         """
@@ -304,7 +306,7 @@ class DatabaseManager(CoreObject):
                                                .format(bind_name=bind_name,
                                                        entity_name=str(entity)))
 
-            self._entity_to_engine_map[entity] = self.__bounded_engines[bind_name]
+            self._entity_to_engine_map[entity] = self._get_bounded_engines()[bind_name]
 
     def configure_session_factories(self):
         """
@@ -314,7 +316,7 @@ class DatabaseManager(CoreObject):
         :raises InvalidDatabaseBindError: invalid database bind error.
         """
 
-        self._map_entity_to_engine()
+        self._map_all()
 
         if len(self._entity_to_engine_map) > 0:
             for key in self._session_factories.keys():
@@ -328,3 +330,55 @@ class DatabaseManager(CoreObject):
         """
 
         return self.___engine
+
+    def _get_bounded_engines(self):
+        """
+        gets database bounded engines.
+
+        :returns: dict(str bind_name: Engine engine)
+        :rtype: dict
+        """
+
+        return self.__bounded_engines
+
+    def create_all(self):
+        """
+        creates all entities on database engine.
+        """
+
+        for engine, tables in self._engine_to_table_map.items():
+            if tables is not None and len(tables) > 0:
+                CoreEntity.metadata.create_all(engine, tables)
+
+    def drop_all(self):
+        """
+        drops all entities on database engine.
+        """
+
+        for engine, tables in self._engine_to_table_map.items():
+            if tables is not None and len(tables) > 0:
+                CoreEntity.metadata.drop_all(engine, tables)
+
+    def _map_engine_to_table(self):
+        """
+        maps all engines to relevant tables.
+        """
+
+        all_tables = DTO(**CoreEntity.metadata.tables)
+        for entity, engine in self._entity_to_engine_map.items():
+            if engine not in self._engine_to_table_map:
+                self._engine_to_table_map[engine] = []
+
+            self._engine_to_table_map[engine].append(all_tables.pop(entity.table_name()))
+
+        # all remaining tables are associated with default engine.
+        if len(all_tables) > 0:
+            self._engine_to_table_map[self._get_engine()] = list(all_tables.values())
+
+    def _map_all(self):
+        """
+        maps all required entities and tables to relevant engines.
+        """
+
+        self._map_entity_to_engine()
+        self._map_engine_to_table()

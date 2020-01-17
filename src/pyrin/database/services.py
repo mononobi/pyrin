@@ -112,3 +112,19 @@ def configure_session_factories():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).configure_session_factories()
+
+
+def create_all():
+    """
+    creates all entities on database engine.
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).create_all()
+
+
+def drop_all():
+    """
+    drops all entities on database engine.
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).drop_all()

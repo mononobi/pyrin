@@ -178,6 +178,16 @@ class CoreDeclarative(CoreObject):
                                                 .format(entity=self.get_name(),
                                                         column=key))
 
+    @classmethod
+    def table_name(cls):
+        """
+        gets the table name that this entity represents in database.
+
+        :rtype: str
+        """
+
+        return cls.__tablename__
+
 
 # this entity should be used as the base entity for all application entities.
 CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity', constructor=None)
