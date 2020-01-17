@@ -111,3 +111,11 @@ venv.bak/
 
 # vscode stuff
 /.vscode
+
+# database stuff
+/resources/database/database.db
+/resources/database/database.bind.local.db
+/resources/database/database.bind.test.db
+database.db
+database.bind.local.db
+database.bind.test.db
