@@ -30,6 +30,28 @@ def get_entity_to_engine_map():
     return get_component(TestDatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
 
 
+def get_engine_to_table_map():
+    """
+    gets a shallow copy of engine to table map dictionary.
+
+    :returns: dict(Engine engine: list[Table] tables)
+    :rtype: dict
+    """
+
+    return get_component(TestDatabasePackage.COMPONENT_NAME).get_engine_to_table_map()
+
+
+def get_all_engines():
+    """
+    gets all database engines.
+
+    :returns: list[Engine]
+    :rtype: list
+    """
+
+    return get_component(TestDatabasePackage.COMPONENT_NAME).get_all_engines()
+
+
 def remove_bind(entity):
     """
     removes the given entity from binds dictionary.

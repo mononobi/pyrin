@@ -49,6 +49,18 @@ class BoundedTestEntity(CoreEntity):
     age = CoreColumn(name='age', type_=Integer)
 
 
+class ManualBoundedLocalEntity(CoreEntity):
+    """
+    manual bounded local entity class.
+    """
+
+    __tablename__ = 'manual_bounded_local_table'
+
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    age = CoreColumn(name='age', type_=Integer)
+
+
 class SampleTestEntity(CoreEntity):
     """
     sample test entity class.

@@ -176,3 +176,14 @@ def test_from_dict_with_hidden_column():
     assert entity.name == name
     assert entity.age == age
     assert entity.hidden_field == hidden_field
+
+
+def test_table_name():
+    """
+    gets the table name that this entity represents in database.
+    """
+
+    entity = SampleWithHiddenFieldEntity()
+
+    assert entity.table_name() == 'sample_with_hidden_field_table'
+    assert entity.table_name() == SampleWithHiddenFieldEntity.table_name()

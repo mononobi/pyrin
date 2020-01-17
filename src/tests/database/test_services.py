@@ -9,14 +9,15 @@ import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject
-from pyrin.database.exceptions import DuplicatedSessionFactoryError, \
-    InvalidSessionFactoryTypeError, InvalidEntityTypeError, InvalidDatabaseBindError
 from pyrin.database.session_factory.request_scoped import RequestScopedSessionFactory
 from pyrin.database.session_factory.thread_scoped import ThreadScopedSessionFactory
+from pyrin.database.exceptions import DuplicatedSessionFactoryError, \
+    InvalidSessionFactoryTypeError, InvalidEntityTypeError, InvalidDatabaseBindError
 
 import tests.database.services as extended_database_services
 
-from tests.common.models import BoundedLocalEntity, BoundedTestEntity, SampleTestEntity
+from tests.common.models import BoundedLocalEntity, BoundedTestEntity, SampleTestEntity, \
+    ManualBoundedLocalEntity
 
 
 def test_get_current_store_unbounded():
@@ -108,11 +109,11 @@ def test_register_bind():
     registers a model into binds list.
     """
 
-    database_services.register_bind(SampleTestEntity, 'local')
+    database_services.register_bind(ManualBoundedLocalEntity, 'local')
     binds = extended_database_services.get_binds()
-    assert len(binds) >= 1
-    assert SampleTestEntity in binds.keys()
-    assert binds[SampleTestEntity] == 'local'
+    assert len(binds) >= 2
+    assert ManualBoundedLocalEntity in binds
+    assert binds[ManualBoundedLocalEntity] == 'local'
     database_services.configure_session_factories()
 
 
@@ -150,9 +151,9 @@ def test_get_binds():
     binds = extended_database_services.get_binds()
 
     assert len(binds) >= 2
-    assert BoundedLocalEntity in binds.keys()
+    assert BoundedLocalEntity in binds
     assert binds[BoundedLocalEntity] == 'local'
-    assert BoundedTestEntity in binds.keys()
+    assert BoundedTestEntity in binds
     assert binds[BoundedTestEntity] == 'test'
 
 
@@ -166,8 +167,8 @@ def test_get_entity_to_engine_map():
 
     assert entity_to_engine_map is not None
     assert len(entity_to_engine_map) >= 2
-    assert BoundedLocalEntity in entity_to_engine_map.keys()
-    assert BoundedTestEntity in entity_to_engine_map.keys()
+    assert BoundedLocalEntity in entity_to_engine_map
+    assert BoundedTestEntity in entity_to_engine_map
 
     local_engine = entity_to_engine_map[BoundedLocalEntity]
     test_engine = entity_to_engine_map[BoundedTestEntity]
@@ -176,3 +177,32 @@ def test_get_entity_to_engine_map():
     assert test_engine is not None
     assert str(local_engine.url) == active_section['local']
     assert str(test_engine.url) == active_section['test']
+
+
+def test_get_engine_to_table_map():
+    """
+    gets engine to table map dictionary.
+    """
+
+    engine_to_table_map = extended_database_services.get_engine_to_table_map()
+    all_engines = extended_database_services.get_all_engines()
+
+    assert engine_to_table_map is not None
+    assert len(engine_to_table_map) >= 3
+    assert all(engine in engine_to_table_map for engine in all_engines)
+
+
+def test_create_all():
+    """
+    creates all entities on database engine.
+    """
+
+    database_services.create_all()
+
+
+def test_drop_all():
+    """
+    drops all entities on database engine.
+    """
+
+    database_services.drop_all()

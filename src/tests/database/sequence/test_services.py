@@ -11,22 +11,25 @@ import pyrin.database.sequence.services as sequence_services
 from pyrin.database.services import get_current_store
 
 
-def test_get_next_value():
+def test_get_next_value(connection_string):
     """
     gets the next value of given sequence.
+    note that sqlite database does not support sequences.
+    so we do not test it on sqlite.
     """
 
-    store = get_current_store()
-    name = 'test_get_next_value_seq'
-    sequence = Sequence(name, start=1, increment=1, minvalue=1)
-    create_statement = CreateSequence(sequence)
-    store.execute(create_statement)
-    try:
-        first_value = sequence_services.get_next_value(name)
-        second_value = sequence_services.get_next_value(name)
-        third_value = sequence_services.get_next_value(name)
+    if 'sqlite' not in connection_string.lower():
+        store = get_current_store()
+        name = 'test_get_next_value_seq'
+        sequence = Sequence(name, start=1, increment=1, minvalue=1)
+        create_statement = CreateSequence(sequence)
+        store.execute(create_statement)
+        try:
+            first_value = sequence_services.get_next_value(name)
+            second_value = sequence_services.get_next_value(name)
+            third_value = sequence_services.get_next_value(name)
 
-        assert first_value == 1 and second_value == 2 and third_value == 3
-    finally:
-        drop_statement = DropSequence(sequence)
-        store.execute(drop_statement)
+            assert first_value == 1 and second_value == 2 and third_value == 3
+        finally:
+            drop_statement = DropSequence(sequence)
+            store.execute(drop_statement)
