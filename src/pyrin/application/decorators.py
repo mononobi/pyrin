@@ -169,3 +169,34 @@ def route_factory():
         return func
 
     return decorator
+
+
+def application_hook():
+    """
+    decorator to register an application hook.
+
+    :raises InvalidApplicationHookTypeError: invalid application hook type error.
+
+    :returns: application hook class.
+
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given class and registers an instance
+        of it into available application hooks.
+
+        :param type cls: application hook class.
+
+        :returns: application hook class.
+
+        :rtype: type
+        """
+
+        instance = cls()
+        application_services.register_hook(instance)
+
+        return cls
+
+    return decorator

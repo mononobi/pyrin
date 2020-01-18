@@ -222,3 +222,15 @@ def get_current_app():
     """
 
     return _get_app()
+
+
+def register_hook(instance):
+    """
+    registers the given instance into application hooks.
+
+    :param ApplicationHookBase instance: application hook instance to be registered.
+
+    :raises InvalidApplicationHookTypeError: invalid application hook type error.
+    """
+
+    get_current_app().register_hook(instance)

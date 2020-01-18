@@ -27,7 +27,8 @@ from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError
+    InvalidApplicationStatusError, InvalidApplicationHookTypeError
+from pyrin.application.hooks import ApplicationHookBase
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.context import DTO
@@ -108,6 +109,7 @@ class Application(Flask):
         """
 
         self.__status = ApplicationStatusEnum.INITIALIZING
+        self.__hooks = []
 
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
@@ -347,6 +349,9 @@ class Application(Flask):
         # to be able to use configuration package.
         self._load_configs(**options)
 
+        # calling `after_application_loaded` method of all registered hooks.
+        self._after_application_loaded()
+
     def _load_configs(self, **options):
         """
         loads all configurations related to application package.
@@ -397,6 +402,9 @@ class Application(Flask):
                                  files to set environment variables. will also change the working
                                  directory to the directory containing the first file found.
         """
+
+        # calling `before_application_start` method of all registered hooks.
+        self._before_application_start()
 
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 
@@ -740,3 +748,44 @@ class Application(Flask):
                 required_attributes[attribute_name] = all_attributes[attribute_name]
 
         return misc_utils.set_attributes(new_instance, **required_attributes)
+
+    def _get_hooks(self):
+        """
+        gets all registered hooks.
+
+        :rtype: list[ApplicationHookBase]
+        """
+
+        return self.__hooks
+
+    def register_hook(self, instance):
+        """
+        registers the given instance into application hooks.
+
+        :param ApplicationHookBase instance: application hook instance to be registered.
+
+        :raises InvalidApplicationHookTypeError: invalid application hook type error.
+        """
+
+        if not isinstance(instance, ApplicationHookBase):
+            raise InvalidApplicationHookTypeError('Input parameter [{instance}] is '
+                                                  'not an instance of ApplicationHookBase.'
+                                                  .format(instance=str(instance)))
+
+        self.__hooks.append(instance)
+
+    def _after_application_loaded(self):
+        """
+        this method will call `after_application_loaded` method of all registered hooks.
+        """
+
+        for hook in self._get_hooks():
+            hook.after_application_loaded()
+
+    def _before_application_start(self):
+        """
+        this method will call `before_application_start` method of all registered hooks.
+        """
+
+        for hook in self._get_hooks():
+            hook.before_application_start()

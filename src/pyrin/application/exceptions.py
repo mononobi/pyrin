@@ -81,3 +81,10 @@ class InvalidApplicationStatusError(ApplicationException):
     invalid application status error.
     """
     pass
+
+
+class InvalidApplicationHookTypeError(ApplicationException):
+    """
+    invalid application hook type error.
+    """
+    pass
