@@ -9,7 +9,7 @@ import pyrin.security.hashing.services as hashing_services
 from pyrin.core.globals import _
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.security.exceptions import InvalidPasswordLengthError, InvalidUserError, \
+from pyrin.security.exceptions import InvalidPasswordLengthError, \
     InvalidEncryptionTextLengthError
 
 
@@ -60,35 +60,16 @@ class SecurityManager(CoreObject):
 
         return encryption_services.encrypt(text)
 
-    def get_permission_ids(self, **options):
+    def has_permission(self, user, permissions, **options):
         """
-        gets permission ids according to given inputs.
+        gets a value indicating that given user has the specified permissions.
 
-        :keyword dict user: user identity to get it's permission ids.
+        :param dict user: user identity to check its permissions.
+        :param list[PermissionBase] permissions: permissions to check for user.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns: list[permission_ids]
-
-        :rtype: list[object]
+        :rtype: bool
         """
 
         raise CoreNotImplementedError()
-
-    def get_user_permission_ids(self, user, **options):
-        """
-        gets specified user's permission ids.
-
-        :param dict user: user identity to get it's permission ids.
-
-        :raises InvalidUserError: invalid user error.
-
-        :returns: list[permission_ids]
-
-        :rtype: list[object]
-        """
-
-        if user is None:
-            raise InvalidUserError(_('Input user could not be None.'))
-
-        return self.get_permission_ids(user=user)

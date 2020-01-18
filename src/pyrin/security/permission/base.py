@@ -21,7 +21,6 @@ class PermissionBase(CoreObject):
         """
 
         CoreObject.__init__(self)
-
         permission_services.register_permission(self, **options)
 
     def __hash__(self):
@@ -57,6 +56,19 @@ class PermissionBase(CoreObject):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
+    def __repr__(self):
+        """
+        this method must be implemented in all subclasses to
+        get the correct string representation of current permission.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        :return:
         """
 
         raise CoreNotImplementedError()

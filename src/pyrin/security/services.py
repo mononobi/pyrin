@@ -37,31 +37,15 @@ def encrypt(text, **options):
     return get_component(SecurityPackage.COMPONENT_NAME).encrypt(text, **options)
 
 
-def get_permission_ids(**options):
+def has_permission(user, permissions, **options):
     """
-    gets permission ids according to given inputs.
+    gets a value indicating that given user has the specified permissions.
 
-    :keyword dict user: user identity to get it's permission ids.
+    :param dict user: user identity to check its permissions.
+    :param list[PermissionBase] permissions: permissions to check for user.
 
-    :returns: list[permission_ids]
-
-    :rtype: list[object]
-    """
-
-    return get_component(SecurityPackage.COMPONENT_NAME).get_permission_ids(**options)
-
-
-def get_user_permission_ids(user, **options):
-    """
-    gets specified user's permission ids.
-
-    :param dict user: user identity to get it's permission ids.
-
-    :raises InvalidUserError: invalid user error.
-
-    :returns: list[permission_ids]
-
-    :rtype: list[object]
+    :rtype: bool
     """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).get_user_permission_ids(user, **options)
+    return get_component(SecurityPackage.COMPONENT_NAME).has_permission(user, permissions,
+                                                                        **options)

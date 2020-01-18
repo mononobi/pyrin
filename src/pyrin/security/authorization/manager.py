@@ -49,28 +49,24 @@ class AuthorizationManager(CoreObject):
         if not isinstance(permissions, LIST_TYPES):
             required_permissions = [permissions]
 
-        required_permission_ids = set(item.get_id() for item in required_permissions)
-        user_permission_ids = set(security_services.get_user_permission_ids(user, **options))
-
-        if not required_permission_ids.issubset(user_permission_ids):
-            message = _('User [{user}] has not required permission(s) [{permission_ids}].')
+        if security_services.has_permission(user, required_permissions, **options) is not True:
+            message = _('User [{user}] does not have required permission(s) {permissions}.')
             raise AuthorizationFailedError(message.format(user=str(user),
-                                                          permission_ids=required_permission_ids))
+                                                          permissions=str(required_permissions)))
 
-    def is_authorized(self, permissions, **options):
+    def is_authorized(self, permissions, user=None, **options):
         """
         gets a value indicating that specified user is authorized for given permissions.
 
         :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                         for authorization.
 
-        :keyword dict user: user identity to be checked for authorization.
-                            if not provided, current user will be used.
+        :param dict user: user identity to be checked for authorization.
+                          if not provided, current user will be used.
 
         :rtype: bool
         """
 
-        user = options.get('user', None)
         if user is None:
             user = session_services.get_current_user()
 
