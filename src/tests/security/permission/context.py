@@ -19,11 +19,12 @@ class PermissionMock(PermissionBase):
         """
 
         self._id = permission_id
+        self.name = 'SamplePermission'
         PermissionBase.__init__(self, permission_id, **options)
 
     def __hash__(self):
 
-        return hash(self._id)
+        return hash(self.get_id())
 
     def __eq__(self, other):
 
@@ -31,7 +32,10 @@ class PermissionMock(PermissionBase):
 
     def __str__(self):
 
-        return str(self._id)
+        return '{id}-{name}'.format(id=self.get_id(), name=self.name)
+
+    def __repr__(self):
+        return str(self)
 
     def synchronize(self, **options):
         """

@@ -3,6 +3,7 @@
 security manager module.
 """
 
+from pyrin.core.globals import LIST_TYPES
 from pyrin.security.manager import SecurityManager
 
 from tests.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
@@ -14,20 +15,23 @@ class TestSecurityManager(SecurityManager):
     test security manager class.
     """
 
-    def get_permission_ids(self, **options):
+    def has_permission(self, user, permissions, **options):
         """
-        gets permission ids according to given inputs.
+        gets a value indicating that given user has the specified permissions.
 
-        :keyword dict user: user identity to get it's permission ids.
+        :param dict user: user identity to check its permissions.
+        :param list[PermissionBase] permissions: permissions to check for user.
 
-        :returns: list[permission_ids]
-
-        :rtype: list
+        :rtype: bool
         """
 
-        permission_ids = []
-        permission_ids.extend([PERMISSION_TEST_ONE.get_id(),
-                               PERMISSION_TEST_TWO.get_id(),
-                               PERMISSION_TEST_THREE.get_id()])
+        required_permissions = permissions
+        if not isinstance(permissions, LIST_TYPES):
+            required_permissions = [permissions]
 
-        return permission_ids
+        needed_permissions = set(required_permissions)
+        user_permissions = {PERMISSION_TEST_ONE,
+                            PERMISSION_TEST_TWO,
+                            PERMISSION_TEST_THREE}
+
+        return needed_permissions.issubset(user_permissions)
