@@ -20,6 +20,7 @@ class PermissionMock(PermissionBase):
 
         self._id = permission_id
         self.name = 'SamplePermission'
+
         PermissionBase.__init__(self, permission_id, **options)
 
     def __hash__(self):
@@ -28,7 +29,14 @@ class PermissionMock(PermissionBase):
 
     def __eq__(self, other):
 
+        if not isinstance(other, PermissionMock):
+            return False
+
         return other.get_id() == self.get_id()
+
+    def __ne__(self, other):
+
+        return not self == other
 
     def __str__(self):
 
@@ -46,6 +54,7 @@ class PermissionMock(PermissionBase):
     def get_id(self):
         """
         gets permission id.
+        note that this object must be fully unique for each different permission.
 
         :rtype: str
         """
