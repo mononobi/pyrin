@@ -25,8 +25,8 @@ class PermissionBase(CoreObject):
 
     def __hash__(self):
         """
-        this method must be implemented in all subclasses to
-        calculate the correct hash of current permission.
+        this method must be implemented in all subclasses
+        to get the correct hash of current permission.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -38,12 +38,29 @@ class PermissionBase(CoreObject):
     def __eq__(self, other):
         """
         this method must be implemented in all subclasses to get the correct
-        comparison between current and other permission.
+        comparison between current and other permission for equality.
 
         :param PermissionBase other: other permission instance to be
                                      compared to the current one.
 
         :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    def __ne__(self, other):
+        """
+        this method must be implemented in all subclasses to get the correct
+        comparison between current and other permission for not equality.
+
+        :param PermissionBase other: other permission instance to be
+                                     compared to the current one.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
         """
 
         raise CoreNotImplementedError()
@@ -68,7 +85,6 @@ class PermissionBase(CoreObject):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: str
-        :return:
         """
 
         raise CoreNotImplementedError()
@@ -85,6 +101,7 @@ class PermissionBase(CoreObject):
     def get_id(self):
         """
         gets permission id.
+        note that this object must be fully unique for each different permission.
 
         :raises CoreNotImplementedError: core not implemented error.
 
