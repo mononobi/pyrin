@@ -26,7 +26,7 @@ class AuthorizationManager(CoreObject):
         if user does not have each one of specified permissions,
         an error will be raised.
 
-        :param dict user: user identity to authorize permissions for.
+        :param any user: user identity to authorize permissions for.
 
         :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                         for user authorization.
@@ -61,8 +61,8 @@ class AuthorizationManager(CoreObject):
         :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                         for authorization.
 
-        :param dict user: user identity to be checked for authorization.
-                          if not provided, current user will be used.
+        :param any user: user identity to be checked for authorization.
+                         if not provided, current user will be used.
 
         :rtype: bool
         """

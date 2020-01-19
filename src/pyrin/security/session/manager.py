@@ -20,7 +20,7 @@ class SessionManager(CoreObject):
         """
         gets current user.
 
-        :rtype: dict
+        :rtype: any
         """
 
         return self.get_current_request().user
@@ -29,7 +29,7 @@ class SessionManager(CoreObject):
         """
         sets current user.
 
-        :param dict user: user object.
+        :param any user: user object.
 
         :raises InvalidUserError: invalid user error.
         :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
@@ -153,7 +153,7 @@ class SessionManager(CoreObject):
         meaning that if the request does not exist in current context, it will
         return a None object instead of raising an error.
 
-        :rtype: dict
+        :rtype: any
         """
 
         current_request = self.get_safe_current_request()

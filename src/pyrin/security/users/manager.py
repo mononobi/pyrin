@@ -18,7 +18,7 @@ class UsersManager(CoreObject):
         """
         gets a value indicating that given user is active.
 
-        :param dict user: user to check its active status.
+        :param any user: user to check its active status.
 
         :raises CoreNotImplementedError: core not implemented error.
 
