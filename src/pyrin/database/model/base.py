@@ -3,6 +3,8 @@
 model base module.
 """
 
+import inspect
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
@@ -48,15 +50,17 @@ class CoreDeclarative(CoreObject):
         self.from_dict(False, **kwargs)
 
     def __eq__(self, other):
-        if isinstance(other, type(self)):
+        if isinstance(other, self._get_root_base_class()):
             return self.primary_key() == other.primary_key()
+
         return False
 
     def __ne__(self, other):
         return not self == other
 
     def __hash__(self):
-        return hash(self.primary_key())
+        return hash('{base_type}{pk}'.format(base_type=self._get_root_base_class(),
+                                             pk=self.primary_key()))
 
     def __repr__(self):
         return '<{module}.{class_} [{pk}]>'.format(module=self.__module__,
@@ -66,6 +70,24 @@ class CoreDeclarative(CoreObject):
     def __str__(self):
         return str(self.primary_key())
 
+    def _get_root_base_class(self):
+        """
+        gets root base class of this entity and caches it.
+        root base class is the class which is direct subclass
+        of CoreEntity in inheritance hierarchy.
+        for example: {Base -> CoreEntity, A -> Base, B -> A}
+        root base class of A, B and Base is Base class.
+
+        :rtype: CoreEntity
+        """
+
+        if getattr(self, '_root_base_class', None) is None:
+            bases = inspect.getmro(type(self))
+            base_entity_index = bases.index(CoreEntity) - 1
+            self.__class__._root_base_class = bases[base_entity_index]
+
+        return self.__class__._root_base_class
+
     def _set_all_columns(self, columns):
         """
         sets all column names attribute for this class.
@@ -73,7 +95,10 @@ class CoreDeclarative(CoreObject):
         :param tuple[str] columns: column names.
         """
 
-        self.__class__._all_columns = columns
+        if getattr(self, '_all_columns', None) is None:
+            self.__class__._all_columns = DTO()
+
+        self.__class__._all_columns[type(self)] = columns
 
     def _set_exposed_columns(self, columns):
         """
@@ -82,7 +107,10 @@ class CoreDeclarative(CoreObject):
         :param tuple[str] columns: column names.
         """
 
-        self.__class__._exposed_columns = columns
+        if getattr(self, '_exposed_columns', None) is None:
+            self.__class__._exposed_columns = DTO()
+
+        self.__class__._exposed_columns[type(self)] = columns
 
     def save(self):
         """
@@ -151,13 +179,13 @@ class CoreDeclarative(CoreObject):
         :rtype: tuple
         """
 
-        columns = getattr(self, '_all_columns', None)
+        columns = self._get_all_columns()
         if columns is None:
             all_columns = tuple(prop.key for prop in class_mapper(type(self)).iterate_properties
                                 if isinstance(prop, ColumnProperty))
             self._set_all_columns(all_columns)
 
-        return self._all_columns
+        return self._get_all_columns()
 
     def exposed_columns(self):
         """
@@ -169,14 +197,45 @@ class CoreDeclarative(CoreObject):
         :rtype: tuple
         """
 
-        columns = getattr(self, '_exposed_columns', None)
+        columns = self._get_exposed_columns()
         if columns is None:
             exposed_columns = tuple(prop.key for prop in class_mapper(type(self)).
                                     iterate_properties if isinstance(prop, ColumnProperty)
                                     and prop.columns[0].exposed is True)
             self._set_exposed_columns(exposed_columns)
 
-        return self._exposed_columns
+        return self._get_exposed_columns()
+
+    def _get_all_columns(self):
+        """
+        gets all column names of entity.
+        returns None if not found.
+
+        :returns: tuple[str]
+        :rtype: tuple
+        """
+
+        columns = getattr(self, '_all_columns', None)
+        if columns is not None:
+            return columns.get(type(self), None)
+
+        return None
+
+    def _get_exposed_columns(self):
+        """
+        gets exposed column names of entity, which
+        are those that have `exposed=True`.
+        returns None if not found.
+
+        :returns: tuple[str]
+        :rtype: tuple
+        """
+
+        columns = getattr(self, '_exposed_columns', None)
+        if columns is not None:
+            return columns.get(type(self), None)
+
+        return None
 
     def to_dict(self):
         """
