@@ -45,11 +45,14 @@ class PermissionMock(PermissionBase):
     def __repr__(self):
         return str(self)
 
-    def synchronize(self, **options):
+    def to_entity(self):
         """
-        synchronizes the current permission object with database.
+        gets the equivalent entity of current permission.
+
+        :rtype: CoreEntity
         """
-        pass
+
+        return None
 
     def get_id(self):
         """
