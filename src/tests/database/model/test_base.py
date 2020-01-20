@@ -53,7 +53,7 @@ def test_all_columns():
     """
 
     entity = SampleWithHiddenFieldEntity()
-    fields = ['age', 'id', 'name', 'hidden_field']
+    fields = ['age', 'sub_id', 'id', 'name', 'hidden_field']
 
     assert set(fields) == set(entity.all_columns())
 
@@ -65,7 +65,7 @@ def test_exposed_columns():
     """
 
     entity = SampleWithHiddenFieldEntity()
-    fields = ['age', 'id', 'name']
+    fields = ['age', 'id', 'sub_id', 'name']
 
     assert set(fields) == set(entity.exposed_columns())
 
@@ -102,12 +102,14 @@ def test_to_dict_with_hidden_column():
     """
 
     id = 1000
+    sub_id = 'id_1000'
     name = 'no name'
     age = 32
     hidden_field = 'I am hidden.'
 
     entity = SampleWithHiddenFieldEntity()
     entity.id = id
+    entity.sub_id = sub_id
     entity.name = name
     entity.age = age
     entity.hidden_field = hidden_field
@@ -115,8 +117,9 @@ def test_to_dict_with_hidden_column():
     result = entity.to_dict()
 
     assert isinstance(result, dict) is True
-    assert len(result) == 3
+    assert len(result) == 4
     assert result['id'] == id
+    assert result['sub_id'] == sub_id
     assert result['name'] == name
     assert result['age'] == age
     assert 'hidden_field' not in result
@@ -187,3 +190,67 @@ def test_table_name():
 
     assert entity.table_name() == 'sample_with_hidden_field_table'
     assert entity.table_name() == SampleWithHiddenFieldEntity.table_name()
+
+
+def test_entity_equal():
+    """
+    compares different entities which are equal in different scenarios.
+    """
+
+    entity1 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='joe')
+    entity2 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='adrian')
+
+    assert entity1 == entity2
+
+    entity3 = SampleEntity(id='2000', name='carol')
+    entity4 = SampleEntity(id='2000', name='martin')
+
+    assert entity3 == entity4
+
+
+def test_entity_not_equal():
+    """
+    compares different entities which are not equal in different scenarios.
+    """
+
+    entity1 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='adrian')
+    entity2 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_2000', name='adrian')
+
+    assert entity1 != entity2
+
+    entity3 = SampleEntity(id='2000', name='carol')
+    entity4 = SampleEntity(id='5', name='martin')
+
+    assert entity3 != entity4
+
+
+def test_entity_hash_equal():
+    """
+    compares different entities hashes which are equal in different scenarios.
+    """
+
+    entity1 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='joe')
+    entity2 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='adrian')
+
+    assert hash(entity1) == hash(entity2)
+
+    entity3 = SampleEntity(id='2000', name='carol')
+    entity4 = SampleEntity(id='2000', name='martin')
+
+    assert hash(entity3) == hash(entity4)
+
+
+def test_entity_hash_not_equal():
+    """
+    compares different entities hashes which are not equal in different scenarios.
+    """
+
+    entity1 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_1000', name='adrian')
+    entity2 = SampleWithHiddenFieldEntity(id=1000, sub_id='sub_2000', name='adrian')
+
+    assert hash(entity1) != hash(entity2)
+
+    entity3 = SampleEntity(id='2000', name='carol')
+    entity4 = SampleEntity(id='5', name='martin')
+
+    assert hash(entity3) != hash(entity4)

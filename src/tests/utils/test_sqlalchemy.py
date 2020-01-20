@@ -56,12 +56,14 @@ def test_entity_to_dict_with_hidden_column():
     """
 
     id = 1000
+    sub_id = 'sub_1000'
     name = 'no name'
     age = 32
     hidden_field = 'I am hidden.'
 
     entity = SampleWithHiddenFieldEntity()
     entity.id = id
+    entity.sub_id = sub_id
     entity.name = name
     entity.age = age
     entity.hidden_field = hidden_field
@@ -69,8 +71,9 @@ def test_entity_to_dict_with_hidden_column():
     result = sqlalchemy_utils.entity_to_dict(entity)
 
     assert isinstance(result, dict) is True
-    assert len(result) == 3
+    assert len(result) == 4
     assert result['id'] == id
+    assert result['sub_id'] == sub_id
     assert result['name'] == name
     assert result['age'] == age
     assert 'hidden_field' not in result

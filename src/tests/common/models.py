@@ -23,6 +23,15 @@ class SampleEntity(CoreEntity):
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
 
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: str
+        """
+
+        return self.id
+
 
 @bind('local')
 class BoundedLocalEntity(CoreEntity):
@@ -35,6 +44,15 @@ class BoundedLocalEntity(CoreEntity):
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
+
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: int
+        """
+
+        return self.id
 
 
 @bind('test')
@@ -49,6 +67,15 @@ class BoundedTestEntity(CoreEntity):
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
 
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: int
+        """
+
+        return self.id
+
 
 class ManualBoundedLocalEntity(CoreEntity):
     """
@@ -60,6 +87,15 @@ class ManualBoundedLocalEntity(CoreEntity):
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
+
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: int
+        """
+
+        return self.id
 
 
 class SampleTestEntity(CoreEntity):
@@ -73,6 +109,15 @@ class SampleTestEntity(CoreEntity):
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
 
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: int
+        """
+
+        return self.id
+
 
 class SampleWithHiddenFieldBaseEntity(CoreEntity):
     """
@@ -82,6 +127,17 @@ class SampleWithHiddenFieldBaseEntity(CoreEntity):
     __tablename__ = 'sample_with_hidden_field_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    sub_id = CoreColumn(name='sub_id', type_=Unicode, primary_key=True)
+
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :returns tuple(int, str)
+        :rtype: tuple
+        """
+
+        return self.id, self.sub_id
 
 
 class SampleWithHiddenFieldEntity(SampleWithHiddenFieldBaseEntity):
