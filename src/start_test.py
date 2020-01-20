@@ -7,20 +7,41 @@ import os
 
 import pytest
 
-import pyrin.utils.path as path_utils
+from pyrin.utils.custom_print import print_warning
+from pyrin.utils.path import resolve_application_root_path
 
 from tests import PyrinTestApplication
 
 
 def cleanup():
     """
-    cleanups pytest caches after running all tests.
+    cleanups the environment after running all tests.
     """
 
-    root_path = path_utils.resolve_application_root_path()
+    drop_schema()
+    remove_cache()
+
+
+def remove_cache():
+    """
+    removes pytest cache directory.
+    """
+
+    root_path = resolve_application_root_path()
     cache_path = os.path.join(root_path, '.pytest_cache')
     command = 'rm -r {path}'.format(path=cache_path)
     os.system(command)
+
+
+def drop_schema():
+    """
+    drops all database models.
+    """
+
+    import pyrin.database.services as database_services
+
+    print_warning('Dropping all models...')
+    database_services.drop_all()
 
 
 # the if condition is to ensure that multiprocessing
