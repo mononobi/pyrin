@@ -10,6 +10,7 @@ import pyrin.database.services as database_services
 import pyrin.database.sequence.services as sequence_services
 
 from pyrin.core.context import CoreObject, DTO
+from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.model.exceptions import SequenceHasNotSetError, ColumnNotExistedError
 
 
@@ -29,7 +30,7 @@ class CoreDeclarative(CoreObject):
     __table_args__ = None
 
     # holds the name of the sequence used for table's primary key column.
-    __primary_key_sequence__ = None
+    __sequence_name__ = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -45,6 +46,25 @@ class CoreDeclarative(CoreObject):
 
         self._set_name(self.__class__.__name__)
         self.from_dict(False, **kwargs)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.primary_key() == other.primary_key()
+        return False
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return hash(self.primary_key())
+
+    def __repr__(self):
+        return '<{module}.{class_} [{pk}]>'.format(module=self.__module__,
+                                                   class_=self.__class__.__name__,
+                                                   pk=str(self.primary_key()))
+
+    def __str__(self):
+        return str(self.primary_key())
 
     def _set_all_columns(self, columns):
         """
@@ -87,21 +107,40 @@ class CoreDeclarative(CoreObject):
 
         database_services.get_current_store().delete(self)
 
-    def new_primary_key(self):
+    def next_sequence_value(self):
         """
-        gets a new primary key using `__primary_key_sequence__` value.
+        gets the next sequence value of this entity
+        using `__sequence_name__` value.
 
         :raises SequenceHasNotSetError: sequence has not set error.
 
         :rtype: int
         """
 
-        if self.__primary_key_sequence__ in (None, ''):
+        if self.__sequence_name__ in (None, ''):
             raise SequenceHasNotSetError('No primary key sequence has been set '
                                          'for entity [{name}].'
                                          .format(name=self.get_name()))
 
-        return sequence_services.get_next_value(self.__primary_key_sequence__)
+        return sequence_services.get_next_value(self.__sequence_name__)
+
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        note that the returning value of this method will be used
+        as a way to compare two different entities of the same type.
+        so if your table does not have a primary key, you could either
+        not implement this method and do not compare instances of this type
+        or you could implement another logic in this method to make comparisons
+        possible and correct. the returning value of this method must be hashable.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: object
+        """
+
+        raise CoreNotImplementedError()
 
     def all_columns(self):
         """
