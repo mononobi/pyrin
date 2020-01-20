@@ -352,6 +352,9 @@ class Application(Flask):
         # calling `after_application_loaded` method of all registered hooks.
         self._after_application_loaded()
 
+        # calling `before_application_start` method of all registered hooks.
+        self._before_application_start()
+
     def _load_configs(self, **options):
         """
         loads all configurations related to application package.
@@ -402,9 +405,6 @@ class Application(Flask):
                                  files to set environment variables. will also change the working
                                  directory to the directory containing the first file found.
         """
-
-        # calling `before_application_start` method of all registered hooks.
-        self._before_application_start()
 
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 

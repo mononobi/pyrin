@@ -237,18 +237,26 @@ class CoreDeclarative(CoreObject):
 
         return None
 
-    def to_dict(self):
+    def to_dict(self, exposed_only=True):
         """
         converts the entity into a dict and returns it.
         the result dict only contains the exposed columns of
         the entity which are those that their `exposed` attribute
         is set to True.
 
+        :param bool exposed_only: if set to False, it returns all
+                                  columns of the entity as dict.
+                                  if not provided, defaults to True.
+
         :rtype: dict
         """
 
+        columns_collection = self.exposed_columns
+        if exposed_only is False:
+            columns_collection = self.all_columns
+
         result = DTO()
-        for col in self.exposed_columns():
+        for col in columns_collection():
             result[col] = getattr(self, col)
 
         return result

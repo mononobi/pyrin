@@ -13,13 +13,17 @@ from pyrin.core.exceptions import CoreAssertionError
 from pyrin.core.globals import _, LIST_TYPES
 
 
-def entity_to_dict(entity):
+def entity_to_dict(entity, exposed_only=True):
     """
     converts the given entity into a dict and returns it.
     the result dict only contains the columns of the entity
     which their `hidden` attribute is set to False.
 
     :param CoreEntity entity: entity to be converted.
+
+    :param bool exposed_only: if set to False, it returns all
+                              columns of the entity as dict.
+                              if not provided, defaults to True.
     
     :rtype: dict
     """
@@ -27,7 +31,7 @@ def entity_to_dict(entity):
     if entity is None:
         return DTO()
 
-    return entity.to_dict()
+    return entity.to_dict(exposed_only)
 
 
 def dict_to_entity(entity_class, **kwargs):
@@ -45,12 +49,16 @@ def dict_to_entity(entity_class, **kwargs):
     return result
 
 
-def entity_to_dict_list(entities):
+def entity_to_dict_list(entities, exposed_only=True):
     """
     converts the given list of entities into a
     list of dicts and returns the result.
 
     :param list[CoreEntity] entities: list of entities.
+
+    :param bool exposed_only: if set to False, it returns all
+                              columns of the entity as dict.
+                              if not provided, defaults to True.
 
     :returns list[dict]
     :rtype list
@@ -61,7 +69,7 @@ def entity_to_dict_list(entities):
         return results
 
     for single_entity in entities:
-        results.append(single_entity.to_dict())
+        results.append(single_entity.to_dict(exposed_only))
 
     return results
 

@@ -89,11 +89,13 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def synchronize(self, **options):
+    def to_entity(self):
         """
-        synchronizes the current permission object with database.
+        gets the equivalent entity of current permission.
 
         :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: CoreEntity
         """
 
         raise CoreNotImplementedError()

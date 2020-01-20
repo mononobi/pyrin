@@ -4,6 +4,7 @@ permission manager module.
 """
 
 from pyrin.core.context import CoreObject, Context
+from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     DuplicatedPermissionError
@@ -48,7 +49,6 @@ class PermissionManager(CoreObject):
                                             .format(permission=str(instance)))
 
         self.__permissions[instance.get_id()] = instance
-        instance.synchronize(**options)
 
     def get_permissions(self, **options):
         """
@@ -62,7 +62,9 @@ class PermissionManager(CoreObject):
     def synchronize_all(self, **options):
         """
         synchronizes all permissions with database.
+        it creates or updates the available permissions.
+
+        :raises CoreNotImplementedError: core not implemented error.
         """
 
-        for permission in self.get_permissions(**options):
-            permission.synchronize(**options)
+        raise CoreNotImplementedError()
