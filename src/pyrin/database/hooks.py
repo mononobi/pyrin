@@ -56,11 +56,15 @@ class ApplicationHook(ApplicationHookBase):
 
         # we should check whether it is required to drop
         # all entities in database on server startup.
-        if config_services.get('database', 'general', 'drop_on_startup') is True and \
-                config_services.get_active('environment', 'env') == 'development' and \
-                config_services.get_active('environment', 'debug') is True:
-            print_warning('Dropping all models...')
-            database_services.drop_all()
+        if config_services.get('database', 'general', 'drop_on_startup') is True:
+            environment = config_services.get_active('environment', 'env')
+            debug = config_services.get_active('environment', 'debug')
+            unit_testing = config_services.get_active('environment', 'unit_testing')
+
+            if (environment == 'development' and debug is True) or \
+                    (environment == 'testing' and unit_testing is True):
+                print_warning('Dropping all models...')
+                database_services.drop_all()
 
         # we should check whether it is required to create
         # all entities in database on server startup.
