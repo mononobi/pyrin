@@ -3,13 +3,11 @@
 security permissions module.
 """
 
-import pyrin.utils.unique_id as unique_id_utils
-
-from tests.security.permission.context import PermissionMock
+from tests.security.permission.base import PermissionMock
 
 
-PERMISSION_TEST_ONE = PermissionMock(str(unique_id_utils.generate_uuid4()))
-PERMISSION_TEST_TWO = PermissionMock(str(unique_id_utils.generate_uuid4()))
-PERMISSION_TEST_THREE = PermissionMock(str(unique_id_utils.generate_uuid4()))
-PERMISSION_TEST_FOUR = PermissionMock(str(unique_id_utils.generate_uuid4()))
-PERMISSION_TEST_FIVE = PermissionMock(str(unique_id_utils.generate_uuid4()))
+PERMISSION_TEST_ONE = PermissionMock(1, 'permission_one')
+PERMISSION_TEST_TWO = PermissionMock(2, 'permission_two')
+PERMISSION_TEST_THREE = PermissionMock(3, 'permission_three')
+PERMISSION_TEST_FOUR = PermissionMock(4, 'permission_four')
+PERMISSION_TEST_FIVE = PermissionMock(5, 'permission_five')

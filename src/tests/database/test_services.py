@@ -104,17 +104,20 @@ def test_register_session_factory_duplicate_with_replace():
     database_services.register_session_factory(instance, replace=True)
 
 
-def test_register_bind():
+# we have to put manual binding here to be available before tests get started.
+database_services.register_bind(ManualBoundedLocalEntity, 'local')
+database_services.configure_session_factories()
+
+
+def test_register_bind_manual():
     """
-    registers a model into binds list.
+    checks that above register bind has been done.
     """
 
-    database_services.register_bind(ManualBoundedLocalEntity, 'local')
     binds = extended_database_services.get_binds()
     assert len(binds) >= 2
     assert ManualBoundedLocalEntity in binds
     assert binds[ManualBoundedLocalEntity] == 'local'
-    database_services.configure_session_factories()
 
 
 def test_register_bind_invalid_type():
@@ -192,7 +195,7 @@ def test_get_engine_to_table_map():
     assert all(engine in engine_to_table_map for engine in all_engines)
 
 
-def test_create_all():
+def skipped_test_create_all():
     """
     creates all entities on database engine.
     """
@@ -200,7 +203,7 @@ def test_create_all():
     database_services.create_all()
 
 
-def test_drop_all():
+def skipped_test_drop_all():
     """
     drops all entities on database engine.
     """

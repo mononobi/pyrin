@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-permission context module.
+permission base module.
 """
 
 from pyrin.security.permission.base import PermissionBase
+
+from tests.security.permission.models import PermissionEntity
 
 
 class PermissionMock(PermissionBase):
@@ -11,36 +13,33 @@ class PermissionMock(PermissionBase):
     permission mock class.
     """
 
-    def __init__(self, permission_id, **options):
+    def __init__(self, permission_id, description, **options):
         """
         initializes an instance of PermissionMock.
 
-        :param str permission_id: permission unique id.
+        :param int permission_id: permission id.
+        :param str description: permission description.
         """
 
-        self._id = permission_id
-        self.name = 'SamplePermission'
+        self.id = permission_id
+        self.description = description
 
-        PermissionBase.__init__(self, permission_id, **options)
+        PermissionBase.__init__(self, **options)
 
     def __hash__(self):
-
         return hash(self.get_id())
 
     def __eq__(self, other):
-
         if not isinstance(other, PermissionMock):
             return False
 
         return other.get_id() == self.get_id()
 
     def __ne__(self, other):
-
         return not self == other
 
     def __str__(self):
-
-        return '{id}-{name}'.format(id=self.get_id(), name=self.name)
+        return '{id}-{description}'.format(id=self.get_id(), description=self.description)
 
     def __repr__(self):
         return str(self)
@@ -49,10 +48,11 @@ class PermissionMock(PermissionBase):
         """
         gets the equivalent entity of current permission.
 
-        :rtype: CoreEntity
+        :rtype: PermissionEntity
         """
 
-        return None
+        entity = PermissionEntity(id=self.id, description=self.description)
+        return entity
 
     def get_id(self):
         """
@@ -62,4 +62,4 @@ class PermissionMock(PermissionBase):
         :rtype: str
         """
 
-        return self._id
+        return self.id
