@@ -8,7 +8,8 @@ import pytest
 from pyrin.core.context import DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError
 
-from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity
+from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity, RightChildEntity, \
+    LeftChildEntity, BaseEntity, SubBaseEntity, SampleTestEntity
 
 
 def test_init():
@@ -52,10 +53,25 @@ def test_all_columns():
     gets all column names of entity.
     """
 
-    entity = SampleWithHiddenFieldEntity()
-    fields = ['age', 'sub_id', 'id', 'name', 'hidden_field']
+    entity1 = SampleWithHiddenFieldEntity()
+    fields1 = ['age', 'sub_id', 'id', 'name', 'hidden_field']
 
-    assert set(fields) == set(entity.all_columns())
+    assert set(fields1) == set(entity1.all_columns())
+
+    entity2 = BaseEntity()
+    fields2 = ['id']
+
+    assert set(fields2) == set(entity2.all_columns())
+
+    entity3 = SubBaseEntity()
+    fields3 = ['id', 'age']
+
+    assert set(fields3) == set(entity3.all_columns())
+
+    entity4 = RightChildEntity()
+    fields4 = ['id', 'age', 'grade']
+
+    assert set(fields4) == set(entity4.all_columns())
 
 
 def test_exposed_columns():
@@ -64,10 +80,25 @@ def test_exposed_columns():
     exposed columns are those that have `exposed=True`
     """
 
-    entity = SampleWithHiddenFieldEntity()
-    fields = ['age', 'id', 'sub_id', 'name']
+    entity1 = SampleWithHiddenFieldEntity()
+    fields1 = ['age', 'id', 'sub_id', 'name']
 
-    assert set(fields) == set(entity.exposed_columns())
+    assert set(fields1) == set(entity1.exposed_columns())
+
+    entity2 = BaseEntity()
+    fields2 = ['id']
+
+    assert set(fields2) == set(entity2.exposed_columns())
+
+    entity3 = SubBaseEntity()
+    fields3 = ['id', 'age']
+
+    assert set(fields3) == set(entity3.exposed_columns())
+
+    entity4 = RightChildEntity()
+    fields4 = ['id', 'age', 'grade']
+
+    assert set(fields4) == set(entity4.exposed_columns())
 
 
 def test_to_dict():
@@ -207,6 +238,22 @@ def test_entity_equal():
 
     assert entity3 == entity4
 
+    right_child1 = RightChildEntity(id=1000)
+    left_child1 = LeftChildEntity(id=1000)
+
+    assert right_child1 == left_child1
+
+    base_entity1 = BaseEntity(id=10)
+    base_entity2 = BaseEntity(id=10)
+
+    assert base_entity1 == base_entity2
+
+    right_child2 = RightChildEntity(id=1000)
+    sub_base_entity1 = SubBaseEntity(id=1000)
+
+    assert right_child2 == sub_base_entity1
+    assert sub_base_entity1 == right_child2
+
 
 def test_entity_not_equal():
     """
@@ -222,6 +269,27 @@ def test_entity_not_equal():
     entity4 = SampleEntity(id='5', name='martin')
 
     assert entity3 != entity4
+
+    right_child1 = RightChildEntity(id=1000)
+    left_child1 = LeftChildEntity(id=2000)
+
+    assert right_child1 != left_child1
+
+    base_entity1 = BaseEntity(id=20)
+    base_entity2 = BaseEntity(id=10)
+
+    assert base_entity1 != base_entity2
+
+    right_child2 = RightChildEntity(id=2000)
+    sub_base_entity1 = SubBaseEntity(id=1000)
+
+    assert right_child2 != sub_base_entity1
+    assert sub_base_entity1 != right_child2
+
+    different_entity1 = SampleTestEntity(id=1000)
+    different_entity2 = RightChildEntity(id=1000)
+
+    assert different_entity1 != different_entity2
 
 
 def test_entity_hash_equal():
@@ -239,6 +307,21 @@ def test_entity_hash_equal():
 
     assert hash(entity3) == hash(entity4)
 
+    right_child1 = RightChildEntity(id=1000)
+    left_child1 = LeftChildEntity(id=1000)
+
+    assert hash(right_child1) == hash(left_child1)
+
+    base_entity1 = BaseEntity(id=10)
+    base_entity2 = BaseEntity(id=10)
+
+    assert hash(base_entity1) == hash(base_entity2)
+
+    right_child2 = RightChildEntity(id=1000)
+    sub_base_entity1 = SubBaseEntity(id=1000)
+
+    assert hash(right_child2) == hash(sub_base_entity1)
+
 
 def test_entity_hash_not_equal():
     """
@@ -254,3 +337,23 @@ def test_entity_hash_not_equal():
     entity4 = SampleEntity(id='5', name='martin')
 
     assert hash(entity3) != hash(entity4)
+
+    right_child1 = RightChildEntity(id=1000)
+    left_child1 = LeftChildEntity(id=2000)
+
+    assert hash(right_child1) != hash(left_child1)
+
+    base_entity1 = BaseEntity(id=20)
+    base_entity2 = BaseEntity(id=10)
+
+    assert hash(base_entity1) != hash(base_entity2)
+
+    right_child2 = RightChildEntity(id=2000)
+    sub_base_entity1 = SubBaseEntity(id=1000)
+
+    assert hash(right_child2) != hash(sub_base_entity1)
+
+    different_entity1 = SampleTestEntity(id=1000)
+    different_entity2 = RightChildEntity(id=1000)
+
+    assert hash(different_entity1) != hash(different_entity2)

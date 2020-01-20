@@ -19,7 +19,7 @@ class SampleEntity(CoreEntity):
 
     __tablename__ = 'sample_table'
 
-    id = CoreColumn(name='id', type_=GUID, primary_key=True, autoincrement=False)
+    id = CoreColumn(name='id', type_=GUID, primary_key=True)
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
 
@@ -150,3 +150,52 @@ class SampleWithHiddenFieldEntity(SampleWithHiddenFieldBaseEntity):
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
     hidden_field = CoreColumn(name='hidden_field', type_=Unicode, exposed=False)
+
+
+class BaseEntity(CoreEntity):
+    """
+    base entity class.
+    """
+
+    __tablename__ = 'base_table'
+
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+
+    def primary_key(self):
+        """
+        gets the primary key value of this table.
+
+        :rtype: int
+        """
+
+        return self.id
+
+
+class SubBaseEntity(BaseEntity):
+    """
+    sub base entity class.
+    """
+
+    __table_args__ = DTO(extend_existing=True)
+
+    age = CoreColumn(name='age', type_=Integer)
+
+
+class RightChildEntity(SubBaseEntity):
+    """
+    right child entity class.
+    """
+
+    __table_args__ = DTO(extend_existing=True)
+
+    grade = CoreColumn(name='grade', type_=Integer)
+
+
+class LeftChildEntity(SubBaseEntity):
+    """
+    left child entity class.
+    """
+
+    __table_args__ = DTO(extend_existing=True)
+
+    point = CoreColumn(name='point', type_=Integer)
