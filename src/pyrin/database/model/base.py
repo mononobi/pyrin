@@ -41,6 +41,10 @@ class CoreDeclarative(CoreObject):
         that results returned by orm from database will not call `__init__`
         of each entity.
 
+        it also sets attributes on the constructed instance using the
+        names and values in `kwargs`. note that only keys that are present
+        as mapped columns of the instance's class are allowed.
+
         :raises ColumnNotExistedError: column not existed error.
         """
 
