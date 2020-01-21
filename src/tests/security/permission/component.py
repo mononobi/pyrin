@@ -6,12 +6,12 @@ permission component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.security.permission import TestPermissionPackage
-from tests.security.permission.manager import TestPermissionManager
+from tests.security.permission import PermissionPackage
+from tests.security.permission.manager import PermissionManager
 
 
-@component(TestPermissionPackage.COMPONENT_NAME, replace=True)
-class TestPermissionComponent(Component, TestPermissionManager):
+@component(PermissionPackage.COMPONENT_NAME, replace=True)
+class PermissionComponent(Component, PermissionManager):
     """
-    test permission component class.
+    permission component class.
     """

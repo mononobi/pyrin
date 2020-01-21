@@ -7,12 +7,13 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.context import DTO
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
-from pyrin.security.authentication.manager import AuthenticationManager
+from pyrin.security.authentication.manager import AuthenticationManager as \
+    BaseAuthenticationManager
 
 
-class TestAuthenticationManager(AuthenticationManager):
+class AuthenticationManager(BaseAuthenticationManager):
     """
-    test authentication manager class.
+    authentication manager class.
     """
 
     def _push_custom_data(self, header, payload, **options):

@@ -6,12 +6,12 @@ security component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.security import TestSecurityPackage
-from tests.security.manager import TestSecurityManager
+from tests.security import SecurityPackage
+from tests.security.manager import SecurityManager
 
 
-@component(TestSecurityPackage.COMPONENT_NAME, replace=True)
-class TestSecurityComponent(Component, TestSecurityManager):
+@component(SecurityPackage.COMPONENT_NAME, replace=True)
+class SecurityComponent(Component, SecurityManager):
     """
-    test security component class.
+    security component class.
     """

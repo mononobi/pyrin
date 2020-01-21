@@ -6,12 +6,12 @@ users component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.security.users import TestUsersPackage
-from tests.security.users.manager import TestUsersManager
+from tests.security.users import UsersPackage
+from tests.security.users.manager import UsersManager
 
 
-@component(TestUsersPackage.COMPONENT_NAME, replace=True)
-class TestUsersComponent(Component, TestUsersManager):
+@component(UsersPackage.COMPONENT_NAME, replace=True)
+class UsersComponent(Component, UsersManager):
     """
-    test users component class.
+    users component class.
     """

@@ -104,22 +104,6 @@ def test_register_session_factory_duplicate_with_replace():
     database_services.register_session_factory(instance, replace=True)
 
 
-# we have to put manual binding here to be available before tests get started.
-database_services.register_bind(ManualBoundedLocalEntity, 'local')
-database_services.configure_session_factories()
-
-
-def test_register_bind_manual():
-    """
-    checks that above register bind has been done.
-    """
-
-    binds = extended_database_services.get_binds()
-    assert len(binds) >= 2
-    assert ManualBoundedLocalEntity in binds
-    assert binds[ManualBoundedLocalEntity] == 'local'
-
-
 def test_register_bind_invalid_type():
     """
     registers an object which has invalid type into binds list.
@@ -153,11 +137,13 @@ def test_get_binds():
 
     binds = extended_database_services.get_binds()
 
-    assert len(binds) >= 2
+    assert len(binds) >= 3
     assert BoundedLocalEntity in binds
     assert binds[BoundedLocalEntity] == 'local'
     assert BoundedTestEntity in binds
     assert binds[BoundedTestEntity] == 'test'
+    assert ManualBoundedLocalEntity in binds
+    assert binds[ManualBoundedLocalEntity] == 'local'
 
 
 def test_get_entity_to_engine_map():
@@ -195,7 +181,9 @@ def test_get_engine_to_table_map():
     assert all(engine in engine_to_table_map for engine in all_engines)
 
 
-def skipped_test_create_all():
+@pytest.mark.skip('we should not create database between '
+                  'tests, server has created it on startup.')
+def test_create_all():
     """
     creates all entities on database engine.
     """
@@ -203,7 +191,9 @@ def skipped_test_create_all():
     database_services.create_all()
 
 
-def skipped_test_drop_all():
+@pytest.mark.skip('we should not drop database between '
+                  'tests, server will do it at the end.')
+def test_drop_all():
     """
     drops all entities on database engine.
     """

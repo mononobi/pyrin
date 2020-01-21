@@ -6,12 +6,12 @@ session component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.security.session import TestSessionPackage
-from tests.security.session.manager import TestSessionManager
+from tests.security.session import SessionPackage
+from tests.security.session.manager import SessionManager
 
 
-@component(TestSessionPackage.COMPONENT_NAME, replace=True)
-class TestSessionComponent(Component, TestSessionManager):
+@component(SessionPackage.COMPONENT_NAME, replace=True)
+class SessionComponent(Component, SessionManager):
     """
-    test session component class.
+    session component class.
     """

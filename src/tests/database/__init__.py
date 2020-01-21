@@ -6,9 +6,9 @@ database package.
 from pyrin.packaging.context import Package
 
 
-class TestDatabasePackage(Package):
+class DatabasePackage(Package):
     """
-    test database package class.
+    database package class.
     """
 
     NAME = __name__

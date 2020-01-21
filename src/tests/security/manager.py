@@ -4,15 +4,15 @@ security manager module.
 """
 
 from pyrin.core.globals import LIST_TYPES
-from pyrin.security.manager import SecurityManager
+from pyrin.security.manager import SecurityManager as BaseSecurityManager
 
 from tests.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
     PERMISSION_TEST_THREE
 
 
-class TestSecurityManager(SecurityManager):
+class SecurityManager(BaseSecurityManager):
     """
-    test security manager class.
+    security manager class.
     """
 
     def has_permission(self, user, permissions, **options):

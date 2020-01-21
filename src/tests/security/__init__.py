@@ -6,9 +6,9 @@ security package.
 from pyrin.packaging.context import Package
 
 
-class TestSecurityPackage(Package):
+class SecurityPackage(Package):
     """
-    test security package class.
+    security package class.
     """
 
     NAME = __name__

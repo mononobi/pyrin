@@ -3,20 +3,20 @@
 database manager module.
 """
 
-from pyrin.database.manager import DatabaseManager
+from pyrin.database.manager import DatabaseManager as BaseDatabaseManager
 
 
-class TestDatabaseManager(DatabaseManager):
+class DatabaseManager(BaseDatabaseManager):
     """
-    test database manager class.
+    database manager class.
     """
 
     def __init__(self):
         """
-        initializes an instance of TestDatabaseManager.
+        initializes an instance of DatabaseManager.
         """
 
-        DatabaseManager.__init__(self)
+        BaseDatabaseManager.__init__(self)
 
     def get_binds(self):
         """

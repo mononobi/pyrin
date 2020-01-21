@@ -3,12 +3,12 @@
 users manager module.
 """
 
-from pyrin.security.users.manager import UsersManager
+from pyrin.security.users.manager import UsersManager as BaseUsersManager
 
 
-class TestUsersManager(UsersManager):
+class UsersManager(BaseUsersManager):
     """
-    test users manager class.
+    users manager class.
     """
 
     def is_active(self, user, **options):

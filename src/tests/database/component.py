@@ -6,12 +6,12 @@ database component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.database import TestDatabasePackage
-from tests.database.manager import TestDatabaseManager
+from tests.database import DatabasePackage
+from tests.database.manager import DatabaseManager
 
 
-@component(TestDatabasePackage.COMPONENT_NAME, replace=True)
-class TestDatabaseComponent(Component, TestDatabaseManager):
+@component(DatabasePackage.COMPONENT_NAME, replace=True)
+class DatabaseComponent(Component, DatabaseManager):
     """
-    test database component class.
+    database component class.
     """

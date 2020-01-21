@@ -6,9 +6,9 @@ authentication package.
 from pyrin.packaging.context import Package
 
 
-class TestAuthenticationPackage(Package):
+class AuthenticationPackage(Package):
     """
-    test authentication package class.
+    authentication package class.
     """
 
     NAME = __name__

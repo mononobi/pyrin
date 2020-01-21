@@ -6,9 +6,9 @@ users package.
 from pyrin.packaging import Package
 
 
-class TestUsersPackage(Package):
+class UsersPackage(Package):
     """
-    test users package class.
+    users package class.
     """
 
     NAME = __name__

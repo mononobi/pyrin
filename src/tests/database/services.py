@@ -5,7 +5,7 @@ database services module.
 
 from pyrin.application.services import get_component
 
-from tests.database import TestDatabasePackage
+from tests.database import DatabasePackage
 
 
 def get_binds():
@@ -16,7 +16,7 @@ def get_binds():
     :rtype: dict
     """
 
-    return get_component(TestDatabasePackage.COMPONENT_NAME).get_binds()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_binds()
 
 
 def get_entity_to_engine_map():
@@ -27,7 +27,7 @@ def get_entity_to_engine_map():
     :rtype: dict
     """
 
-    return get_component(TestDatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
 
 
 def get_engine_to_table_map():
@@ -38,7 +38,7 @@ def get_engine_to_table_map():
     :rtype: dict
     """
 
-    return get_component(TestDatabasePackage.COMPONENT_NAME).get_engine_to_table_map()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_engine_to_table_map()
 
 
 def get_all_engines():
@@ -49,7 +49,7 @@ def get_all_engines():
     :rtype: list
     """
 
-    return get_component(TestDatabasePackage.COMPONENT_NAME).get_all_engines()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_all_engines()
 
 
 def remove_bind(entity):
@@ -59,4 +59,4 @@ def remove_bind(entity):
     :param type entity: entity type to be removed.
     """
 
-    return get_component(TestDatabasePackage.COMPONENT_NAME).remove_bind(entity)
+    return get_component(DatabasePackage.COMPONENT_NAME).remove_bind(entity)

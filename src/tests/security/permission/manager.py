@@ -6,23 +6,23 @@ permission manager module.
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.database.services import get_current_store
-from pyrin.security.permission.manager import PermissionManager
+from pyrin.security.permission.manager import PermissionManager as BasePermissionManager
 from pyrin.utils.sqlalchemy import entity_to_dict_list
 
 from tests.security.permission.models import PermissionEntity
 
 
-class TestPermissionManager(PermissionManager):
+class PermissionManager(BasePermissionManager):
     """
-    test permission manager class.
+    permission manager class.
     """
 
     def __init__(self):
         """
-        initializes an instance of TestPermissionManager.
+        initializes an instance of PermissionManager.
         """
 
-        PermissionManager.__init__(self)
+        BasePermissionManager.__init__(self)
 
     def synchronize_all(self, **options):
         """

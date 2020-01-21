@@ -77,6 +77,7 @@ class BoundedTestEntity(CoreEntity):
         return self.id
 
 
+@bind('local')
 class ManualBoundedLocalEntity(CoreEntity):
     """
     manual bounded local entity class.

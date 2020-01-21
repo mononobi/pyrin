@@ -6,9 +6,9 @@ permission package.
 from pyrin.packaging.context import Package
 
 
-class TestPermissionPackage(Package):
+class PermissionPackage(Package):
     """
-    test permission package class.
+    permission package class.
     """
 
     NAME = __name__

@@ -3,22 +3,22 @@
 session manager module.
 """
 
-from pyrin.security.session.manager import SessionManager
+from pyrin.security.session.manager import SessionManager as BaseSessionManager
 
 from tests.application.context import CoreRequestMock
 
 
-class TestSessionManager(SessionManager):
+class SessionManager(BaseSessionManager):
     """
-    test session manager class.
+    session manager class.
     """
 
     def __init__(self):
         """
-        initializes an instance of TestSessionManager.
+        initializes an instance of SessionManager.
         """
 
-        SessionManager.__init__(self)
+        BaseSessionManager.__init__(self)
 
         self.__current_request_mock = None
 

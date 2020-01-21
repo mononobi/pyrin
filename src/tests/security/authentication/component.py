@@ -6,12 +6,12 @@ authentication component module.
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
 
-from tests.security.authentication import TestAuthenticationPackage
-from tests.security.authentication.manager import TestAuthenticationManager
+from tests.security.authentication import AuthenticationPackage
+from tests.security.authentication.manager import AuthenticationManager
 
 
-@component(TestAuthenticationPackage.COMPONENT_NAME, replace=True)
-class TestAuthenticationComponent(Component, TestAuthenticationManager):
+@component(AuthenticationPackage.COMPONENT_NAME, replace=True)
+class AuthenticationComponent(Component, AuthenticationManager):
     """
-    test authentication component class.
+    authentication component class.
     """

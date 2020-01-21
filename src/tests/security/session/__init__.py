@@ -6,9 +6,9 @@ session package.
 from pyrin.packaging.context import Package
 
 
-class TestSessionPackage(Package):
+class SessionPackage(Package):
     """
-    test session package class.
+    session package class.
     """
 
     NAME = __name__
