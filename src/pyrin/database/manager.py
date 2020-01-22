@@ -10,6 +10,7 @@ import pyrin.database.services as database_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
+from pyrin.database.hooks import DatabaseHookBase
 from pyrin.database.model.base import CoreEntity
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
@@ -18,7 +19,7 @@ from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
     DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError, \
-    InvalidDatabaseBindError
+    InvalidDatabaseBindError, InvalidDatabaseHookTypeError
 
 
 class DatabaseManager(CoreObject):
@@ -52,15 +53,14 @@ class DatabaseManager(CoreObject):
         # in the form of: {type entity: Engine engine}
         self._entity_to_engine_map = DTO()
 
-        # a dictionary containing engine to tables map for all tables.
-        # in the form of: {Engine engine: list[Table] tables}
-        self._engine_to_table_map = DTO()
-
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
         self._session_factories = DTO()
+
+        # database hooks holder.
+        self.__hooks = []
 
     def get_current_store(self):
         """
@@ -268,7 +268,7 @@ class DatabaseManager(CoreObject):
 
         # registering new session factory.
         self._session_factories[instance.is_request_bounded()] = \
-            instance.create_session_factory(self._get_engine())
+            instance.create_session_factory(self.get_engine())
 
     def register_bind(self, cls, bind_name, **options):
         """
@@ -306,7 +306,7 @@ class DatabaseManager(CoreObject):
                                                .format(bind_name=bind_name,
                                                        entity_name=str(entity)))
 
-            self._entity_to_engine_map[entity] = self._get_bounded_engines()[bind_name]
+            self._entity_to_engine_map[entity] = self.get_bounded_engines()[bind_name]
 
     def configure_session_factories(self):
         """
@@ -316,13 +316,15 @@ class DatabaseManager(CoreObject):
         :raises InvalidDatabaseBindError: invalid database bind error.
         """
 
-        self._map_all()
+        self._map_entity_to_engine()
 
-        if len(self._entity_to_engine_map) > 0:
+        if len(self.get_entity_to_engine_map()) > 0:
             for key in self._session_factories.keys():
-                self._session_factories[key].configure(binds=self._entity_to_engine_map)
+                self._session_factories[key].configure(binds=self.get_entity_to_engine_map())
 
-    def _get_engine(self):
+        self._after_session_factories_configured()
+
+    def get_engine(self):
         """
         gets database default engine.
 
@@ -331,7 +333,7 @@ class DatabaseManager(CoreObject):
 
         return self.___engine
 
-    def _get_bounded_engines(self):
+    def get_bounded_engines(self):
         """
         gets database bounded engines.
 
@@ -341,44 +343,47 @@ class DatabaseManager(CoreObject):
 
         return self.__bounded_engines
 
-    def create_all(self):
+    def get_entity_to_engine_map(self):
         """
-        creates all entities on database engine.
-        """
+        gets entity to engine map.
 
-        for engine, tables in self._engine_to_table_map.items():
-            if tables is not None and len(tables) > 0:
-                CoreEntity.metadata.create_all(engine, tables)
-
-    def drop_all(self):
-        """
-        drops all entities on database engine.
+        :returns: dict(type entity, Engine engine)
+        :rtype: dict
         """
 
-        for engine, tables in self._engine_to_table_map.items():
-            if tables is not None and len(tables) > 0:
-                CoreEntity.metadata.drop_all(engine, tables)
+        return self._entity_to_engine_map
 
-    def _map_engine_to_table(self):
+    def _get_hooks(self):
         """
-        maps all engines to relevant tables.
-        """
+        gets all registered hooks.
 
-        all_tables = DTO(**CoreEntity.metadata.tables)
-        for entity, engine in self._entity_to_engine_map.items():
-            if engine not in self._engine_to_table_map:
-                self._engine_to_table_map[engine] = []
-
-            self._engine_to_table_map[engine].append(all_tables.pop(entity.table_name()))
-
-        # all remaining tables are associated with default engine.
-        if len(all_tables) > 0:
-            self._engine_to_table_map[self._get_engine()] = list(all_tables.values())
-
-    def _map_all(self):
-        """
-        maps all required entities and tables to relevant engines.
+        :returns: list[DatabaseHookBase]
+        :rtype: list
         """
 
-        self._map_entity_to_engine()
-        self._map_engine_to_table()
+        return self.__hooks
+
+    def register_hook(self, instance):
+        """
+        registers the given instance into database hooks.
+
+        :param DatabaseHookBase instance: database hook instance to be registered.
+
+        :raises InvalidDatabaseHookTypeError: invalid database hook type error.
+        """
+
+        if not isinstance(instance, DatabaseHookBase):
+            raise InvalidDatabaseHookTypeError('Input parameter [{instance}] is '
+                                               'not an instance of DatabaseHookBase.'
+                                               .format(instance=str(instance)))
+
+        self.__hooks.append(instance)
+
+    def _after_session_factories_configured(self):
+        """
+        this method will call `after_session_factories_configured`
+        method of all registered hooks.
+        """
+
+        for hook in self._get_hooks():
+            hook.after_session_factories_configured()

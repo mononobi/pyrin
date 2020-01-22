@@ -114,17 +114,45 @@ def configure_session_factories():
     return get_component(DatabasePackage.COMPONENT_NAME).configure_session_factories()
 
 
-def create_all():
+def get_engine():
     """
-    creates all entities on database engine.
-    """
+    gets database default engine.
 
-    return get_component(DatabasePackage.COMPONENT_NAME).create_all()
-
-
-def drop_all():
-    """
-    drops all entities on database engine.
+    :rtype: Engine
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).drop_all()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_engine()
+
+
+def get_bounded_engines():
+    """
+    gets database bounded engines.
+
+    :returns: dict(str bind_name: Engine engine)
+    :rtype: dict
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_bounded_engines()
+
+
+def get_entity_to_engine_map():
+    """
+    gets entity to engine map.
+
+    :returns: dict(type entity, Engine engine)
+    :rtype: dict
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
+
+
+def register_hook(instance):
+    """
+    registers the given instance into database hooks.
+
+    :param DatabaseHookBase instance: database hook instance to be registered.
+
+    :raises InvalidDatabaseHookTypeError: invalid database hook type error.
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).register_hook(instance)

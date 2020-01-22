@@ -74,3 +74,34 @@ def bind(name, **options):
         return cls
 
     return decorator
+
+
+def database_hook():
+    """
+    decorator to register a database hook.
+
+    :raises InvalidDatabaseHookTypeError: invalid database hook type error.
+
+    :returns: database hook class.
+
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given class and registers an instance
+        of it into available database hooks.
+
+        :param type cls: database hook class.
+
+        :returns: database hook class.
+
+        :rtype: type
+        """
+
+        instance = cls()
+        database_services.register_hook(instance)
+
+        return cls
+
+    return decorator
