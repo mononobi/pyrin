@@ -7,6 +7,8 @@ import os
 
 import pytest
 
+import pyrin.database.migration.services as migration_services
+
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.path import resolve_application_root_path
 
@@ -56,8 +58,6 @@ def drop_schema():
     """
     drops all database models.
     """
-
-    import pyrin.database.migration.services as migration_services
 
     print_warning('Dropping all models...')
     migration_services.drop_all()
