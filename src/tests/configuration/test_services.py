@@ -517,8 +517,8 @@ def test_get_all_duplicate_key():
     """
 
     with pytest.raises(ConfigurationStoreDuplicateKeyError):
-        config_services.load_configuration('duplicate_key')
-        config_services.get_all('duplicate_key')
+        config_services.load_configuration('duplicate.key')
+        config_services.get_all('duplicate.key')
 
 
 def test_get_all_invalid_store():
