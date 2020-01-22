@@ -27,7 +27,6 @@ class DatabaseManager(CoreObject):
     """
 
     LOGGER = logging_services.get_logger('database')
-    _CONFIGS_PREFIX = 'sqlalchemy_'
 
     def __init__(self):
         """
@@ -150,7 +149,8 @@ class DatabaseManager(CoreObject):
         :rtype: Engine
         """
 
-        return engine_from_config(database_configs, prefix=self._CONFIGS_PREFIX, **kwargs)
+        configs_prefix = config_services.get('database', 'general', 'configs_prefix')
+        return engine_from_config(database_configs, prefix=configs_prefix, **kwargs)
 
     def _create_bounded_engines(self):
         """
