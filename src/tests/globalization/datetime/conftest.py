@@ -19,7 +19,7 @@ def current_timezone_name():
     :rtype: str
     """
 
-    return config_services.get('globalization', 'datetime', 'default_timezone')
+    return config_services.get('globalization', 'locale', 'babel_default_timezone')
 
 
 @pytest.fixture(scope='function')
@@ -30,7 +30,7 @@ def current_timezone():
     :rtype: tzinfo
     """
 
-    current_tz_name = config_services.get('globalization', 'datetime', 'default_timezone')
+    current_tz_name = config_services.get('globalization', 'locale', 'babel_default_timezone')
     return pytz.timezone(current_tz_name)
 
 
