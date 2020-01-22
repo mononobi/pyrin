@@ -28,26 +28,6 @@ class DatabaseManager(BaseDatabaseManager):
 
         return self._binds.copy()
 
-    def get_entity_to_engine_map(self):
-        """
-        gets a shallow copy of entity to engine map dictionary.
-
-        :returns: dict(type entity: Engine engine)
-        :rtype: dict
-        """
-
-        return self._entity_to_engine_map.copy()
-
-    def get_engine_to_table_map(self):
-        """
-        gets a shallow copy of engine to table map dictionary.
-
-        :returns: dict(Engine engine: list[Table] tables)
-        :rtype: dict
-        """
-
-        return self._engine_to_table_map.copy()
-
     def get_all_engines(self):
         """
         gets all database engines.
@@ -56,8 +36,8 @@ class DatabaseManager(BaseDatabaseManager):
         :rtype: list
         """
 
-        engines = [self._get_engine()]
-        engines.extend([engine for engine in self._get_bounded_engines().values()])
+        engines = [self.get_engine()]
+        engines.extend([engine for engine in self.get_bounded_engines().values()])
 
         return engines
 

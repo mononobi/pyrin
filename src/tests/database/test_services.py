@@ -151,7 +151,7 @@ def test_get_entity_to_engine_map():
     gets entity to engine map dictionary.
     """
 
-    entity_to_engine_map = extended_database_services.get_entity_to_engine_map()
+    entity_to_engine_map = database_services.get_entity_to_engine_map()
     active_section = config_services.get_active_section('database.binds')
 
     assert entity_to_engine_map is not None
@@ -166,36 +166,3 @@ def test_get_entity_to_engine_map():
     assert test_engine is not None
     assert str(local_engine.url) == active_section['local']
     assert str(test_engine.url) == active_section['test']
-
-
-def test_get_engine_to_table_map():
-    """
-    gets engine to table map dictionary.
-    """
-
-    engine_to_table_map = extended_database_services.get_engine_to_table_map()
-    all_engines = extended_database_services.get_all_engines()
-
-    assert engine_to_table_map is not None
-    assert len(engine_to_table_map) >= 3
-    assert all(engine in engine_to_table_map for engine in all_engines)
-
-
-@pytest.mark.skip('we should not create database between '
-                  'tests, server has created it on startup.')
-def test_create_all():
-    """
-    creates all entities on database engine.
-    """
-
-    database_services.create_all()
-
-
-@pytest.mark.skip('we should not drop database between '
-                  'tests, server will do it at the end.')
-def test_drop_all():
-    """
-    drops all entities on database engine.
-    """
-
-    database_services.drop_all()

@@ -19,28 +19,6 @@ def get_binds():
     return get_component(DatabasePackage.COMPONENT_NAME).get_binds()
 
 
-def get_entity_to_engine_map():
-    """
-    gets a shallow copy of entity to engine map dictionary.
-
-    :returns: dict(type entity: Engine engine)
-    :rtype: dict
-    """
-
-    return get_component(DatabasePackage.COMPONENT_NAME).get_entity_to_engine_map()
-
-
-def get_engine_to_table_map():
-    """
-    gets a shallow copy of engine to table map dictionary.
-
-    :returns: dict(Engine engine: list[Table] tables)
-    :rtype: dict
-    """
-
-    return get_component(DatabasePackage.COMPONENT_NAME).get_engine_to_table_map()
-
-
 def get_all_engines():
     """
     gets all database engines.
