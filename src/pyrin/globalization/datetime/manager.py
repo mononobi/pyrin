@@ -26,8 +26,8 @@ class DateTimeManager(CoreObject):
         CoreObject.__init__(self)
 
         default_timezone_name = config_services.get('globalization',
-                                                    'datetime',
-                                                    'default_timezone')
+                                                    'locale',
+                                                    'babel_default_timezone')
         self.__current_timezone = pytz.timezone(default_timezone_name)
 
     def now(self):
