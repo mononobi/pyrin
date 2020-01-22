@@ -28,14 +28,14 @@ class MetaDataAdapter(CoreObject):
 
         CoreObject.__init__(self)
         self.metadata = deepcopy(metadata)
-        self.process_tables(self.metadata, tables)
+        self._process_tables(self.metadata, tables)
         self.schema = self.metadata.schema
         self.naming_convention = self.metadata.naming_convention
         self.info = self.metadata.info
         self.bind = self.metadata.bind
         self.tables = self.metadata.tables
 
-    def process_tables(self, metadata, tables):
+    def _process_tables(self, metadata, tables):
         """
         processes the tables that this metadata must represent.
 
