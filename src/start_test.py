@@ -57,10 +57,10 @@ def drop_schema():
     drops all database models.
     """
 
-    import pyrin.database.services as database_services
+    import pyrin.database.migration.services as migration_services
 
     print_warning('Dropping all models...')
-    database_services.drop_all()
+    migration_services.drop_all()
 
 
 # the if condition is to ensure that multiprocessing
