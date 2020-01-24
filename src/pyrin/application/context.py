@@ -264,4 +264,5 @@ class ApplicationSingletonMeta(UniqueSingletonMeta):
     this is a thread-safe implementation of singleton.
     """
 
+    instance = None
     _lock = Lock()
