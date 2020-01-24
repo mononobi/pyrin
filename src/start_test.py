@@ -9,7 +9,7 @@ import pytest
 
 import pyrin.database.migration.services as migration_services
 
-from pyrin.utils.custom_print import print_warning
+from pyrin.utils.custom_print import print_warning, print_info
 from pyrin.utils.path import resolve_application_root_path
 
 from tests import PyrinTestApplication
@@ -24,8 +24,13 @@ def remove(name):
 
     root_path = resolve_application_root_path()
     file_path = os.path.join(root_path, name)
-    command = 'rm -r {path}'.format(path=file_path)
-    os.system(command)
+    file_path = os.path.abspath(file_path)
+
+    if os.path.exists(file_path):
+        command = 'rm -r {path}'.format(path=file_path)
+        os.system(command)
+    else:
+        print_info('Path [{file}] does not exist.'.format(file=file_path))
 
 
 def cleanup():
@@ -63,10 +68,25 @@ def drop_schema():
     migration_services.drop_all()
 
 
+def start_tests(coverage=False):
+    """
+    starts tests.
+
+    :param bool coverage: specifies that tests should run with coverage support.
+                          note that for debugging tests, it might be required to
+                          start tests without coverage.
+    """
+
+    args = []
+    if coverage is True:
+        args = ['--cov-config=tests/settings/pytest.coverage.config', '--cov=pyrin']
+
+    pytest.main(args)
+    cleanup()
+
+
 # the if condition is to ensure that multiprocessing
 # on windows works as expected.
 if __name__ == '__main__':
     app = PyrinTestApplication()
-    pytest.main(['--cov-config=tests/settings/pytest.coverage.config',
-                 '--cov=pyrin'])
-    cleanup()
+    start_tests(coverage=True)
