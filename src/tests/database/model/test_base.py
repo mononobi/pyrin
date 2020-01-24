@@ -5,8 +5,12 @@ model test_services module.
 
 import pytest
 
+from sqlalchemy import Integer, Unicode
+
 from pyrin.core.context import DTO
+from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.exceptions import ColumnNotExistedError
+from pyrin.database.model.schema import CoreColumn
 
 from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity, RightChildEntity, \
     LeftChildEntity, BaseEntity, SubBaseEntity, SampleTestEntity
@@ -357,3 +361,50 @@ def test_entity_hash_not_equal():
     different_entity2 = RightChildEntity(id=1000)
 
     assert hash(different_entity1) != hash(different_entity2)
+
+
+def test_entity_with_schema_table_fullname():
+    """
+    checks whether schema name is reflected in table fullname.
+    note that sqlite does not support schemas, so we have to define
+    this entity inside this method to prevent from adding it to
+    `CoreEntity.metadata` which produces an error on sqlite.
+    """
+
+    class SampleWithSchemaEntity(CoreEntity):
+        """
+        sample with schema entity class.
+        """
+
+        __tablename__ = 'sample_with_schema_table'
+        __table_args__ = DTO(schema='my_schema')
+
+        id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+        sub_id = CoreColumn(name='sub_id', type_=Unicode, primary_key=True)
+
+        def primary_key(self):
+            """
+            gets the primary key value of this table.
+
+            :returns tuple(int, str)
+            :rtype: tuple
+            """
+
+            return self.id, self.sub_id
+
+    entity = SampleWithSchemaEntity(id=10, sub_id='sub_10')
+
+    assert entity.table_fullname() == 'my_schema.sample_with_schema_table'
+    assert entity.table_name() == 'sample_with_schema_table'
+    assert entity.table_schema() == 'my_schema'
+
+
+def test_entity_without_schema_table_fullname():
+    """
+    checks whether schema name is not reflected in table fullname.
+    """
+
+    entity = BaseEntity(id=10)
+
+    assert entity.table_fullname() == entity.table_name()
+    assert entity.table_schema() == ''
