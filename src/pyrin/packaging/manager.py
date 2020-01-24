@@ -82,11 +82,12 @@ class PackagingManager(Manager):
 
         print_info('Loading application components...')
 
-        core_packages, application_packages, test_packages = \
+        core_packages, application_packages, custom_packages, test_packages = \
             self._get_loadable_components(**options)
 
         self._load_components(core_packages, **options)
         self._load_components(application_packages, **options)
+        self._load_components(custom_packages, **options)
 
         if self._configs.load_test_packages is True:
             self._load_components(test_packages, **options)
@@ -204,23 +205,28 @@ class PackagingManager(Manager):
         """
         gets all package and module names that should be loaded.
 
-        :returns: tuple(core_components, application_components, test_components)
+        :returns: tuple(core_components, application_components,
+                        custom_components, test_components)
 
         :type core_components: dict(list[str] package_name: modules)
 
         :type application_components: dict(list[str] package_name: modules)
 
+        :type custom_components: dict(list[str] package_name: modules)
+
         :type test_components: dict(list[str] package_name: modules)
 
         :type package_name: list(str module: module name)
 
-        :rtype: tuple(dict(str: list[str]), dict(str: list[str]), dict(str: list[str]))
+        :rtype: tuple(dict(str: list[str]), dict(str: list[str]),
+                      dict(str: list[str]), dict(str: list[str]))
         """
 
         # a dictionary containing all package names and their respective modules.
         # in the form of {package_name: [modules]}.
         core_components = DTO()
         application_components = DTO()
+        custom_components = DTO()
         test_components = DTO()
 
         for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
@@ -236,6 +242,8 @@ class PackagingManager(Manager):
 
                 if self._is_core_package(package_name):
                     core_components[package_name] = []
+                elif self._is_custom_package(package_name):
+                    custom_components[package_name] = []
                 elif self._is_test_package(package_name):
                     test_components[package_name] = []
                 else:
@@ -253,12 +261,14 @@ class PackagingManager(Manager):
 
                     if self._is_core_module(full_module_name):
                         core_components[package_name].append(full_module_name)
+                    elif self._is_custom_module(full_module_name):
+                        custom_components[package_name].append(full_module_name)
                     elif self._is_test_module(full_module_name):
                         test_components[package_name].append(full_module_name)
                     else:
                         application_components[package_name].append(full_module_name)
 
-        return core_components, application_components, test_components
+        return core_components, application_components, custom_components, test_components
 
     def _is_ignored_package(self, package_name):
         """
@@ -338,6 +348,45 @@ class PackagingManager(Manager):
         """
 
         return self._is_core_component(module_name)
+
+    def _is_custom_component(self, component_name):
+        """
+        gets a value indicating that given component is a custom component.
+
+        :param str component_name: full package or module name.
+
+        :rtype: bool
+        """
+
+        for custom in self._configs.custom_packages:
+            if component_name.startswith(custom):
+                return True
+
+        return False
+
+    def _is_custom_package(self, package_name):
+        """
+        gets a value indicating that given package is a custom package.
+
+        :param str package_name: full package name.
+                                 example package_name = 'custom.api'
+
+        :rtype: bool
+        """
+
+        return self._is_custom_component(package_name)
+
+    def _is_custom_module(self, module_name):
+        """
+        gets a value indicating that given module is a custom module.
+
+        :param str module_name: full module name.
+                                example module_name = 'custom.api.error_handlers'
+
+        :rtype: bool
+        """
+
+        return self._is_custom_component(module_name)
 
     def _is_test_component(self, component_name):
         """
