@@ -298,6 +298,39 @@ class CoreDeclarative(CoreObject):
 
         return cls.__tablename__
 
+    @classmethod
+    def table_schema(cls):
+        """
+        gets the table schema that this entity represents in database.
+        it might be an empty string if schema is not set for this entity.
+
+        :rtype: str
+        """
+
+        schema = ''
+        if cls.__table_args__ is not None:
+            schema = cls.__table_args__.get('schema', '')
+
+        return schema.strip()
+
+    @classmethod
+    def table_fullname(cls):
+        """
+        gets the table fullname that this entity represents in database.
+        fullname is `schema.table_name` if schema is available, otherwise it
+        defaults to `table_name`.
+
+        :rtype: str
+        """
+
+        schema = cls.table_schema()
+        name = cls.table_name()
+
+        if schema not in (None, '') and not schema.isspace():
+            return '{schema}.{name}'.format(schema=schema, name=name)
+        else:
+            return name
+
 
 # this entity should be used as the base entity for all application entities.
 CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity', constructor=None)

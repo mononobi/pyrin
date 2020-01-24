@@ -61,7 +61,7 @@ class DatabaseMigrationManager(Manager):
             if engine not in self._engine_to_table_map:
                 self._engine_to_table_map[engine] = []
 
-            self._engine_to_table_map[engine].append(all_tables.pop(entity.table_name()))
+            self._engine_to_table_map[engine].append(all_tables.pop(entity.table_fullname()))
             self._bind_to_metadata(engine, self._engine_to_table_map[engine])
 
         # all remaining tables are associated with default engine.
