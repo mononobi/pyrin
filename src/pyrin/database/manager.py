@@ -12,7 +12,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.database.model.base import CoreEntity
-from pyrin.core.context import CoreObject, DTO, Manager
+from pyrin.core.context import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.session_factory.base import SessionFactoryBase
 from pyrin.utils import response as response_utils
@@ -34,7 +34,7 @@ class DatabaseManager(Manager):
         initializes an instance of DatabaseManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         # contains the application default database engine.
         self.___engine = self._create_default_engine()

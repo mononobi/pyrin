@@ -5,7 +5,7 @@ hashing manager module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, Context, Manager
+from pyrin.core.context import Context, Manager
 from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
     InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError, \
     InvalidHashError
@@ -23,7 +23,7 @@ class HashingManager(Manager):
         initializes an instance of HashingManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         self._hashing_handlers = Context()
         self._separator = '$'

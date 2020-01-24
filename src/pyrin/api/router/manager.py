@@ -127,4 +127,6 @@ class RouterManager(Manager):
         :raises DuplicateRouteURLError: duplicate route url error.
         """
 
-        application_services.add_url_rule(url, view_func=view_func, **options)
+        application_services.add_url_rule(url, endpoint=endpoint, view_func=view_func,
+                                          provide_automatic_options=provide_automatic_options,
+                                          **options)

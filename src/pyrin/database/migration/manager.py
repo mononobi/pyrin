@@ -6,7 +6,7 @@ database migration manager module.
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, DTO, Manager
+from pyrin.core.context import DTO, Manager
 from pyrin.database.migration.adapters import MetaDataAdapter
 from pyrin.database.model.base import CoreEntity
 
@@ -21,7 +21,7 @@ class DatabaseMigrationManager(Manager):
         initializes an instance of DatabaseMigrationManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         # a dictionary containing engine to tables map for all tables.
         # in the form of: {Engine engine: list[Table] tables}

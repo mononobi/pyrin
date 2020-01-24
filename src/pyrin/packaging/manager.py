@@ -13,7 +13,7 @@ import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 
 from pyrin.packaging import PackagingPackage
-from pyrin.core.context import CoreObject, DTO, Manager
+from pyrin.core.context import DTO, Manager
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     InvalidPackagingHookTypeError, ComponentModuleNotFoundError
@@ -32,7 +32,7 @@ class PackagingManager(Manager):
         creates a new instance of PackagingManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         # holds the absolute path of application root directory where
         # the main package is located. for example `/var/app_root/`.

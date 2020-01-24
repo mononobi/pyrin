@@ -8,7 +8,7 @@ import os
 import pyrin.application.services as application_services
 
 from pyrin.configuration.store import ConfigStore
-from pyrin.core.context import CoreObject, Context, Manager
+from pyrin.core.context import Context, Manager
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationSettingsPathNotExistedError, ConfigurationStoreNotFoundError, \
     ConfigurationFileNotFoundError
@@ -24,7 +24,7 @@ class ConfigurationManager(Manager):
         initializes an instance of ConfigurationManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         self._config_stores = Context()
         self._settings_path = application_services.get_settings_path()

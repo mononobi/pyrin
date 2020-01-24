@@ -11,7 +11,7 @@ from logging import Logger
 import pyrin.configuration.services as config_services
 
 from pyrin.logging import LoggingPackage
-from pyrin.core.context import CoreObject, Manager
+from pyrin.core.context import Manager
 from pyrin.logging.adapters import RequestInfoLoggerAdapter, BaseLoggerAdapter
 from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError
 
@@ -26,7 +26,7 @@ class LoggingManager(Manager):
         initializes an instance of LoggingManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         self._config_file_path = config_services.get_file_path(
             LoggingPackage.LOGGER_HANDLERS_STORE_NAME)

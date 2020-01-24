@@ -4,7 +4,7 @@ deserializer manager module.
 """
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
-from pyrin.core.context import CoreObject, Context, Manager
+from pyrin.core.context import Context, Manager
 from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
@@ -21,7 +21,7 @@ class DeserializerManager(Manager):
         initializes and instance of DeserializerManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         # a dictionary containing information of registered deserializers.
         # example: dic(tuple(class_name, type): instance)

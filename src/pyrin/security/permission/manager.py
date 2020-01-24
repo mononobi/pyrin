@@ -3,7 +3,7 @@
 permission manager module.
 """
 
-from pyrin.core.context import CoreObject, Context, Manager
+from pyrin.core.context import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
@@ -22,7 +22,7 @@ class PermissionManager(Manager):
         initializes an instance of PermissionManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         # holds a dict of all application's loaded permissions.
         # in the form of dict(str permission_id: PermissionBase permission)

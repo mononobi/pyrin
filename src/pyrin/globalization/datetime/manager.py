@@ -10,7 +10,7 @@ import pytz
 import pyrin.configuration.services as config_services
 import pyrin.utils.datetime as datetime_utils
 
-from pyrin.core.context import CoreObject, Manager
+from pyrin.core.context import Manager
 
 
 class DateTimeManager(Manager):
@@ -23,7 +23,7 @@ class DateTimeManager(Manager):
         initializes an instance of DateTimeManager.
         """
 
-        CoreObject.__init__(self)
+        Manager.__init__(self)
 
         default_timezone_name = config_services.get('globalization',
                                                     'locale',
