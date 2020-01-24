@@ -65,7 +65,7 @@ def test_load_configuration_invalid_name_with_silent():
 
 def test_load_configuration_for_all():
     """
-    checks all configs has been loaded.
+    checks all configs have been loaded.
     """
 
     config_stores = ['application',
@@ -75,10 +75,10 @@ def test_load_configuration_for_all():
                      'database.binds',
                      'environment',
                      'globalization',
-                     'security']
+                     'security',
+                     'logging']
 
     for store in config_stores:
-        sections = []
         sections = config_services.get_section_names(store)
         assert sections is not None and len(sections) > 0
 
@@ -90,6 +90,24 @@ def test_load_configuration_not_done_for_logging_handlers():
 
     with pytest.raises(ConfigurationStoreNotFoundError):
         config_services.get_section_names('logging.handlers')
+
+
+def test_load_configuration_not_done_for_packaging():
+    """
+    checks that `packaging` config store not being loaded.
+    """
+
+    with pytest.raises(ConfigurationStoreNotFoundError):
+        config_services.get_section_names('packaging')
+
+
+def test_load_configuration_not_done_for_pytest_coverage():
+    """
+    checks that `pytest.coverage` config store not being loaded.
+    """
+
+    with pytest.raises(ConfigurationStoreNotFoundError):
+        config_services.get_section_names('pytest.coverage')
 
 
 def test_load_configurations():

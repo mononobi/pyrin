@@ -193,3 +193,19 @@ def test_generate_key_invalid_handler():
 
     with pytest.raises(EncryptionHandlerNotFoundError):
         encryption_services.generate_key('missing handler')
+
+
+def test_encrypter_is_singleton():
+    """
+    tests that different types of encrypters are singleton.
+    """
+
+    encrypter1 = AES128Encrypter()
+    encrypter2 = AES128Encrypter()
+
+    assert encrypter1 == encrypter2
+
+    encrypter3 = RSA256Encrypter()
+    encrypter4 = RSA256Encrypter()
+
+    assert encrypter3 == encrypter4

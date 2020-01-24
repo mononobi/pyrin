@@ -430,3 +430,24 @@ def test_get_deserializers_not_supported_type():
 
     values = deserializer_services.get_deserializers(accepted_type=bool)
     assert len(values) == 0
+
+
+def test_deserializer_is_singleton():
+    """
+    tests that different types of deserializers are singleton.
+    """
+
+    deserializer1 = DictionaryDeserializer()
+    deserializer2 = DictionaryDeserializer()
+
+    assert deserializer1 == deserializer2
+
+    values = deserializer_services.get_deserializers(accepted_type=dict)
+    assert len(values) == 1
+    assert values[0] == deserializer1
+    assert values[0] == deserializer2
+
+    deserializer3 = StringListDeserializer()
+    deserializer4 = StringListDeserializer()
+
+    assert deserializer3 == deserializer4

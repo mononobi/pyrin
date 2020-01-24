@@ -10,13 +10,14 @@ import pytest
 import pyrin.application.services as application_services
 import pyrin.utils.path as path_utils
 
+from pyrin.application.base import Application
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.application.context import Component
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
     DuplicateRouteURLError, InvalidRouteFactoryTypeError, InvalidComponentTypeError, \
-    InvalidComponentNameError, ComponentAttributeError
+    InvalidComponentNameError, ComponentAttributeError, ApplicationInstanceAlreadySetError
 
 from tests import PyrinTestApplication
 from tests.common.mock_functions import mock_view_function, mock_route_factory
@@ -262,6 +263,8 @@ def test_get_all_components():
                   'api.router.component',
                   'configuration.component',
                   'database.component',
+                  'database.migration.component',
+                  'database.sequence.component',
                   'globalization.locale.component',
                   'globalization.datetime.component',
                   'logging.component',
@@ -273,7 +276,10 @@ def test_get_all_components():
                   'security.hashing.component',
                   'security.permission.component',
                   'security.session.component',
-                  'security.token.component']
+                  'security.token.component',
+                  'security.users.component',
+                  'packaging.component',
+                  'caching.component']
 
     assert all(application_services.get_component(component) is not None
                for component in components)
@@ -408,3 +414,21 @@ def test_get_current_app():
     """
 
     assert isinstance(application_services.get_current_app(), PyrinTestApplication)
+
+
+def test_application_is_singleton():
+    """
+    tests that application instance is singleton.
+    """
+
+    app = PyrinTestApplication()
+    assert app == application_services.get_current_app()
+
+
+def test_application_overwriting_is_forbidden():
+    """
+    tests that application overwriting is forbidden.
+    """
+
+    with pytest.raises(ApplicationInstanceAlreadySetError):
+        app = Application('name')

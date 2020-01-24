@@ -10,6 +10,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.core.context import DTO
 from pyrin.security.token.handlers.rs256 import RS256Token
+from pyrin.security.token.handlers.hs256 import HS256Token
 from pyrin.security.token.exceptions import DuplicatedTokenHandlerError, \
     DuplicatedTokenKidHeaderError, InvalidTokenHandlerTypeError, TokenHandlerNotFoundError, \
     TokenDecodingError
@@ -398,3 +399,19 @@ def test_generate_key_invalid_handler():
 
     with pytest.raises(TokenHandlerNotFoundError):
         token_services.generate_key('missing_handler')
+
+
+def test_token_is_singleton():
+    """
+    tests that different types of tokens are singleton.
+    """
+
+    token1 = RS256Token()
+    token2 = RS256Token()
+
+    assert token1 == token2
+
+    token3 = HS256Token()
+    token4 = HS256Token()
+
+    assert token3 == token4

@@ -9,6 +9,7 @@ import pyrin.security.hashing.services as hashing_services
 import pyrin.configuration.services as config_services
 
 from pyrin.security.hashing.handlers.bcrypt import BcryptHashing
+from pyrin.security.hashing.handlers.pbkdf2 import PBKDF2Hashing
 from pyrin.security.hashing.handlers.exceptions import BcryptMaxSizeLimitError
 from pyrin.security.hashing.exceptions import DuplicatedHashingHandlerError, \
     InvalidHashingHandlerTypeError
@@ -112,3 +113,19 @@ def test_is_match_pbkdf2():
     value = hashing_services.generate_hash('text', handler_name='PBKDF2')
     is_match = hashing_services.is_match('text', value)
     assert is_match is True
+
+
+def test_hashing_handler_is_singleton():
+    """
+    tests that different types of hashing handlers are singleton.
+    """
+
+    handler1 = BcryptHashing()
+    handler2 = BcryptHashing()
+
+    assert handler1 == handler2
+
+    handler3 = PBKDF2Hashing()
+    handler4 = PBKDF2Hashing()
+
+    assert handler3 == handler4

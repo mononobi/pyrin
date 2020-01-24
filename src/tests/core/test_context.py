@@ -3,7 +3,7 @@
 core test_context module.
 """
 
-from pyrin.core.context import DTO
+from pyrin.core.context import DTO, Manager, Hook
 
 
 def test_dto_equal():
@@ -116,3 +116,25 @@ def test_dto_not_equal():
     data14[data_equal1] = data_equal1
 
     assert data13 != data14
+
+
+def test_manager_is_singleton():
+    """
+    tests that different types of managers are singleton.
+    """
+
+    manager1 = Manager()
+    manager2 = Manager()
+
+    assert manager1 == manager2
+
+
+def test_hook_is_singleton():
+    """
+    tests that different types of hooks are singleton.
+    """
+
+    hook1 = Hook()
+    hook2 = Hook()
+
+    assert hook1 == hook2

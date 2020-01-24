@@ -166,3 +166,19 @@ def test_get_entity_to_engine_map():
     assert test_engine is not None
     assert str(local_engine.url) == active_section['local']
     assert str(test_engine.url) == active_section['test']
+
+
+def test_session_factory_is_singleton():
+    """
+    tests that different types of session factories are singleton.
+    """
+
+    session_factory1 = RequestScopedSessionFactory()
+    session_factory2 = RequestScopedSessionFactory()
+
+    assert session_factory1 == session_factory2
+
+    session_factory3 = ThreadScopedSessionFactory()
+    session_factory4 = ThreadScopedSessionFactory()
+
+    assert session_factory3 == session_factory4
