@@ -88,3 +88,10 @@ class InvalidApplicationHookTypeError(ApplicationException):
     invalid application hook type error.
     """
     pass
+
+
+class ApplicationInMigrationModeError(ApplicationException):
+    """
+    application in migration mode error.
+    """
+    pass

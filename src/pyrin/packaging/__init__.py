@@ -12,5 +12,5 @@ class PackagingPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
     COMPONENT_NAME = 'packaging.component'
+    CONFIG_STORE_NAMES = ['packaging']

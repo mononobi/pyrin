@@ -8,16 +8,17 @@ import inspect
 
 from importlib import import_module
 
+import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
+import pyrin.utils.configuration as config_utils
 
+from pyrin.packaging import PackagingPackage
 from pyrin.core.context import CoreObject, DTO
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     InvalidPackagingHookTypeError, ComponentModuleNotFoundError
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info
-from pyrin.settings.packaging import IGNORED_MODULES, IGNORED_PACKAGES, \
-    CORE_PACKAGES, TEST_PACKAGES, LOAD_TEST_PACKAGES
 from pyrin.utils.path import resolve_application_root_path
 
 
@@ -48,10 +49,36 @@ class PackagingManager(CoreObject):
 
         self.__hooks = []
 
+        # configs will be filled from packaging config file.
+        self._configs = DTO()
+
+    def _load_configs(self):
+        """
+        loads packaging configs from application's settings directory.
+        """
+
+        configs = config_utils.load(self._get_config_file_path())
+        self._configs = configs.get('general')
+
+    def _get_config_file_path(self):
+        """
+        gets packaging config file path.
+
+        :rtype: str
+        """
+
+        settings_directory = application_services.get_settings_path()
+        config_file_name = '{store}.config'.format(store=PackagingPackage.CONFIG_STORE_NAMES[0])
+        config_path = os.path.join(settings_directory, config_file_name)
+
+        return os.path.abspath(config_path)
+
     def load_components(self, **options):
         """
         loads required packages and modules for application startup.
         """
+
+        self._load_configs()
 
         print_info('Loading application components...')
 
@@ -61,7 +88,7 @@ class PackagingManager(CoreObject):
         self._load_components(core_packages, **options)
         self._load_components(application_packages, **options)
 
-        if LOAD_TEST_PACKAGES is True:
+        if self._configs.load_test_packages is True:
             self._load_components(test_packages, **options)
 
         self._after_packages_loaded()
@@ -149,7 +176,7 @@ class PackagingManager(CoreObject):
             package_class = self._get_package_class(package)
 
             # checking whether this package has any dependencies.
-            # if so, check those dependencies has been loaded or not.
+            # if so, check those dependencies have been loaded or not.
             # if not, then put this package into dependent_packages and
             # load it later. otherwise load it now.
             if (package_class is None or
@@ -243,7 +270,7 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        for ignored in IGNORED_PACKAGES:
+        for ignored in self._configs.ignored_packages:
             if package_name.startswith(ignored):
                 return True
 
@@ -259,7 +286,7 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        for ignored in IGNORED_MODULES:
+        for ignored in self._configs.ignored_modules:
             if module_name.endswith(ignored):
                 return True
 
@@ -278,11 +305,11 @@ class PackagingManager(CoreObject):
         # application package name to start with any of core packages names.
         # for example: 'pyrin_sample'
         root_package = component_name.split('.')[0]
-        root_core_packages = [name.split('.')[0] for name in CORE_PACKAGES]
+        root_core_packages = [name.split('.')[0] for name in self._configs.core_packages]
         if root_package not in root_core_packages:
             return False
 
-        for core in CORE_PACKAGES:
+        for core in self._configs.core_packages:
             if component_name.startswith(core):
                 return True
 
@@ -321,7 +348,7 @@ class PackagingManager(CoreObject):
         :rtype: bool
         """
 
-        for test in TEST_PACKAGES:
+        for test in self._configs.test_packages:
             if component_name.startswith(test):
                 return True
 

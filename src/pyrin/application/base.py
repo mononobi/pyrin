@@ -27,7 +27,7 @@ from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, InvalidApplicationHookTypeError
+    InvalidApplicationStatusError, InvalidApplicationHookTypeError, ApplicationInMigrationModeError
 from pyrin.application.hooks import ApplicationHookBase
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
@@ -106,10 +106,16 @@ class Application(Flask):
                                 this cannot be achieved (for instance if the package
                                 is a python 3 namespace package) and needs to be
                                 manually defined.
+
+        :keyword bool migration: specifies that the application has been run to
+                                 do a migration. some application hooks will not
+                                 get fired when the app runs in migration mode.
+                                 defaults to False, if not provided.
         """
 
         self.__status = ApplicationStatusEnum.INITIALIZING
         self.__hooks = []
+        self._migration = options.pop('migration', False)
 
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
@@ -132,6 +138,14 @@ class Application(Flask):
         # application.run(), we could not continue execution of other codes.
         self._load()
         self._set_status(ApplicationStatusEnum.RUNNING)
+
+    def is_migration(self):
+        """
+        gets a value indication that application has been started in migration mode.
+        some application hooks will not fire in this mode. like 'before_application_start'.
+        """
+
+        return self._migration
 
     @setupmethod
     def _register_required_components(self):
@@ -353,7 +367,9 @@ class Application(Flask):
         self._after_application_loaded()
 
         # calling `before_application_start` method of all registered hooks.
-        self._before_application_start()
+        # this hook should not be called when the app is in migration mode.
+        if self.is_migration() is False:
+            self._before_application_start()
 
     def _load_configs(self, **options):
         """
@@ -404,7 +420,13 @@ class Application(Flask):
         :param bool load_dotenv: load the nearest `.env` and `.flaskenv`
                                  files to set environment variables. will also change the working
                                  directory to the directory containing the first file found.
+
+        :raises ApplicationInMigrationModeError: application in migration mode error.
         """
+
+        if self.is_migration() is True:
+            raise ApplicationInMigrationModeError('Application has been initialized in '
+                                                  'migration mode, so it could not be run.')
 
         super(Application, self).run(host, port, debug, load_dotenv, **options)
 

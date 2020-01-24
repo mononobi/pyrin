@@ -8,8 +8,7 @@ import time
 from functools import update_wrapper
 
 import pyrin.logging.services as logging_services
-
-from pyrin.settings.static import AUDIT_LOG
+import pyrin.configuration.services as config_services
 
 
 def audit(func):
@@ -33,7 +32,7 @@ def audit(func):
         :returns: function result.
         """
 
-        if not AUDIT_LOG:
+        if config_services.get_active('logging', 'audit_log') is not True:
             return func(*args, **kwargs)
 
         start_time = time.time()
