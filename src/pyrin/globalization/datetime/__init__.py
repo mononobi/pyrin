@@ -13,3 +13,4 @@ class DateTimePackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'globalization.datetime.component'
+    DEPENDS = ['pyrin.configuration']
