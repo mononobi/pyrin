@@ -5,11 +5,11 @@ sequence manager module.
 
 from sqlalchemy import Sequence
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.database.services import get_current_store
 
 
-class SequenceManager(CoreObject):
+class SequenceManager(Manager):
     """
     sequence manager class.
     """

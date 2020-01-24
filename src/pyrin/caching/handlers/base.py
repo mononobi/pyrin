@@ -13,6 +13,7 @@ import pyrin.configuration.services as config_services
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
 class CacheItem(CoreObject):
@@ -58,7 +59,19 @@ class CacheItem(CoreObject):
         return (time.time() * 1000) - self.timeout > self.create_time * 1000
 
 
-class CachingHandlerBase(CoreObject):
+class CachingHandlerSingletonMeta(MultiSingletonMeta):
+    """
+    caching handler singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
     """
     caching handler base class.
     """

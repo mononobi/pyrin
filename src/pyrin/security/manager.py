@@ -7,13 +7,13 @@ import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
 from pyrin.core.globals import _
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.exceptions import InvalidPasswordLengthError, \
     InvalidEncryptionTextLengthError
 
 
-class SecurityManager(CoreObject):
+class SecurityManager(Manager):
     """
     security manager class.
     this class is intended to provide some services needed in pyrin application.

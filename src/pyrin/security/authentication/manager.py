@@ -7,13 +7,13 @@ import pyrin.security.token.services as token_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError, \
     AccessTokenRequiredError, InvalidPayloadDataError
 
 
-class AuthenticationManager(CoreObject):
+class AuthenticationManager(Manager):
     """
     authentication manager class.
     this class is intended to be an interface for top level application's

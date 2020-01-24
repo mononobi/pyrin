@@ -3,7 +3,7 @@
 application services module.
 """
 
-from pyrin import _get_app
+from pyrin.application.container import _get_app
 
 
 def add_context(key, value, **options):

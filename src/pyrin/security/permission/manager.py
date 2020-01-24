@@ -3,14 +3,14 @@
 permission manager module.
 """
 
-from pyrin.core.context import CoreObject, Context
+from pyrin.core.context import CoreObject, Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     DuplicatedPermissionError
 
 
-class PermissionManager(CoreObject):
+class PermissionManager(Manager):
     """
     permission manager class.
     this class is intended to be an interface for top level application's permission

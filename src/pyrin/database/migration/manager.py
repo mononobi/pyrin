@@ -6,12 +6,12 @@ database migration manager module.
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.context import CoreObject, DTO, Manager
 from pyrin.database.migration.adapters import MetaDataAdapter
 from pyrin.database.model.base import CoreEntity
 
 
-class DatabaseMigrationManager(CoreObject):
+class DatabaseMigrationManager(Manager):
     """
     database migration manager class.
     """

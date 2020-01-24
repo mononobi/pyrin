@@ -3,7 +3,10 @@
 core context module.
 """
 
+from threading import Lock
+
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
 class DTO(dict):
@@ -139,7 +142,19 @@ class Context(DTO):
         raise ContextAttributeError('Property [{name}] not found.'.format(name=key))
 
 
-class Hook(CoreObject):
+class HookSingletonMeta(MultiSingletonMeta):
+    """
+    hook singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class Hook(CoreObject, metaclass=HookSingletonMeta):
     """
     base hook class.
     all application hook classes must be subclassed from this one.
@@ -148,6 +163,32 @@ class Hook(CoreObject):
     def __init__(self):
         """
         initializes an instance of Hook.
+        """
+
+        CoreObject.__init__(self)
+
+
+class ManagerSingletonMeta(MultiSingletonMeta):
+    """
+    manager singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class Manager(CoreObject, metaclass=ManagerSingletonMeta):
+    """
+    base manager class.
+    all application manager classes must be subclassed from this one.
+    """
+
+    def __init__(self):
+        """
+        initializes an instance of Manager.
         """
 
         CoreObject.__init__(self)

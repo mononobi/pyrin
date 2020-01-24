@@ -5,7 +5,7 @@ encryption manager module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, Context
+from pyrin.core.context import CoreObject, Context, Manager
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
     EncryptionHandlerNotFoundError, InvalidEncryptedValueError
@@ -13,7 +13,7 @@ from pyrin.security.encryption.handlers.base import EncrypterBase
 from pyrin.utils.custom_print import print_warning
 
 
-class EncryptionManager(CoreObject):
+class EncryptionManager(Manager):
     """
     encryption manager class.
     """

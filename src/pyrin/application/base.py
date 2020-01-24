@@ -21,7 +21,7 @@ import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.utils.misc as misc_utils
 
-from pyrin import _set_app
+from pyrin.application.container import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
@@ -36,7 +36,7 @@ from pyrin.core.globals import LIST_TYPES
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
-    ApplicationComponent
+    ApplicationComponent, ApplicationSingletonMeta
 from pyrin.application.context import Component
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
@@ -45,7 +45,7 @@ from pyrin.utils.dictionary import make_key_upper
 from pyrin.utils.path import resolve_application_root_path
 
 
-class Application(Flask):
+class Application(Flask, metaclass=ApplicationSingletonMeta):
     """
     application class.
     server must initialize an instance of this class at startup.

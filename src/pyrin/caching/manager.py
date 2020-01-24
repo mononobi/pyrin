@@ -3,10 +3,10 @@
 caching manager module.
 """
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 
 
-class CachingManager(CoreObject):
+class CachingManager(Manager):
     """
     caching manager class.
     """

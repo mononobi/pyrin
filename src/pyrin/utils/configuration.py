@@ -6,6 +6,7 @@ utils configuration module.
 from configparser import ConfigParser
 
 from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreFileNotFoundError
 
 
 def load(file_path):
@@ -14,15 +15,15 @@ def load(file_path):
 
     :param str file_path: file path to be loaded.
 
-    :raises FileNotFoundError: file not found error.
+    :raises CoreFileNotFoundError: core file not found error.
 
     :rtype: dict
     """
 
     parser = ConfigParser()
     if len(parser.read(file_path)) == 0:
-        raise FileNotFoundError('Configuration file [{file}] not found.'
-                                .format(file=file_path))
+        raise CoreFileNotFoundError('Configuration file [{file}] not found.'
+                                    .format(file=file_path))
 
     sections = DTO()
     for section in parser.sections():

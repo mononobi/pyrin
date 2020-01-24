@@ -6,13 +6,13 @@ api manager module.
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.utils import response as response_utils
 from pyrin.core.globals import _
 
 
-class APIManager(CoreObject):
+class APIManager(Manager):
     """
     api manager class.
     """

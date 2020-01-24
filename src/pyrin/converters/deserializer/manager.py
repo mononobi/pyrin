@@ -4,14 +4,14 @@ deserializer manager module.
 """
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
-from pyrin.core.context import CoreObject, Context
+from pyrin.core.context import CoreObject, Context, Manager
 from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
     DuplicatedDeserializerError
 
 
-class DeserializerManager(CoreObject):
+class DeserializerManager(Manager):
     """
     deserializer manager class.
     """

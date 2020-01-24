@@ -3,6 +3,8 @@
 application context module.
 """
 
+from threading import Lock
+
 from flask import Request, Response, jsonify
 
 import pyrin.utils.unique_id as uuid_utils
@@ -14,6 +16,7 @@ from pyrin.core.context import Context, CoreObject, DTO
 from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
+from pyrin.utils.singleton import UniqueSingletonMeta
 
 
 class ApplicationContext(Context):
@@ -253,3 +256,12 @@ class CoreRequest(Request):
 
         if 'tz' in self.args.keys():
             self.context.update(timezone=self.args.get('tz'))
+
+
+class ApplicationSingletonMeta(UniqueSingletonMeta):
+    """
+    application singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    _lock = Lock()

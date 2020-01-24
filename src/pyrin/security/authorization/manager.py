@@ -8,12 +8,12 @@ import pyrin.security.users.services as user_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _, LIST_TYPES
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
     UserNotAuthenticatedError, UserIsNotActiveError
 
 
-class AuthorizationManager(CoreObject):
+class AuthorizationManager(Manager):
     """
     authorization manager class.
     this class is intended to provide some services needed in pyrin application.

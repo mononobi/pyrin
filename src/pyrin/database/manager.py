@@ -12,7 +12,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.database.model.base import CoreEntity
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.context import CoreObject, DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.session_factory.base import SessionFactoryBase
 from pyrin.utils import response as response_utils
@@ -22,7 +22,7 @@ from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
     InvalidDatabaseBindError, InvalidDatabaseHookTypeError
 
 
-class DatabaseManager(CoreObject):
+class DatabaseManager(Manager):
     """
     database manager class.
     """

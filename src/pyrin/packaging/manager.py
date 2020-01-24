@@ -13,7 +13,7 @@ import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 
 from pyrin.packaging import PackagingPackage
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.context import CoreObject, DTO, Manager
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     InvalidPackagingHookTypeError, ComponentModuleNotFoundError
@@ -22,7 +22,7 @@ from pyrin.utils.custom_print import print_info
 from pyrin.utils.path import resolve_application_root_path
 
 
-class PackagingManager(CoreObject):
+class PackagingManager(Manager):
     """
     packaging manager class.
     """

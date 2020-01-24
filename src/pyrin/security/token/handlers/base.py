@@ -5,6 +5,8 @@ token handlers base module.
 
 import time
 
+from threading import Lock
+
 import jwt
 
 import pyrin.configuration.services as config_services
@@ -15,9 +17,22 @@ from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodin
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import unique_id
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class TokenBase(CoreObject):
+class TokenSingletonMeta(MultiSingletonMeta):
+    """
+    token singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class TokenBase(CoreObject, metaclass=TokenSingletonMeta):
     """
     token base class.
     """

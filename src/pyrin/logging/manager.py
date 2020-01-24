@@ -11,12 +11,12 @@ from logging import Logger
 import pyrin.configuration.services as config_services
 
 from pyrin.logging import LoggingPackage
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, Manager
 from pyrin.logging.adapters import RequestInfoLoggerAdapter, BaseLoggerAdapter
 from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError
 
 
-class LoggingManager(CoreObject):
+class LoggingManager(Manager):
     """
     logging manager class.
     """

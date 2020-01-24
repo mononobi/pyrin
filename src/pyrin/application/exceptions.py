@@ -95,3 +95,10 @@ class ApplicationInMigrationModeError(ApplicationException):
     application in migration mode error.
     """
     pass
+
+
+class ApplicationInstanceAlreadySetError(ApplicationException):
+    """
+    application instance already set error.
+    """
+    pass

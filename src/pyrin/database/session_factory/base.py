@@ -3,11 +3,26 @@
 database session factory base module.
 """
 
+from threading import Lock
+
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class SessionFactoryBase(CoreObject):
+class SessionFactorySingletonMeta(MultiSingletonMeta):
+    """
+    session factory singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class SessionFactoryBase(CoreObject, metaclass=SessionFactorySingletonMeta):
     """
     session factory base class.
     """

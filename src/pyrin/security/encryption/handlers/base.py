@@ -5,6 +5,8 @@ encryption handlers base module.
 
 import re
 
+from threading import Lock
+
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.encryption.exceptions import DecryptionError
@@ -13,9 +15,22 @@ from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueE
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import encoding
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class EncrypterBase(CoreObject):
+class EncrypterSingletonMeta(MultiSingletonMeta):
+    """
+    encrypter singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class EncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
     """
     encrypter base class.
     all application encrypters must subclass this.

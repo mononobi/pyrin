@@ -3,11 +3,11 @@
 users manager module.
 """
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 
 
-class UsersManager(CoreObject):
+class UsersManager(Manager):
     """
     users manager class.
     this class is intended to provide some services needed in pyrin application.

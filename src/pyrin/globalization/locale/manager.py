@@ -10,14 +10,14 @@ import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.datetime.services as datetime_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, Manager
 from pyrin.application.services import get_current_app
 from pyrin.globalization.locale.exceptions import InvalidLocaleSelectorTypeError, \
     InvalidTimezoneSelectorTypeError, LocaleSelectorHasBeenAlreadySetError, \
     TimezoneSelectorHasBeenAlreadySetError
 
 
-class LocaleManager(CoreObject):
+class LocaleManager(Manager):
     """
     locale manager class.
     """

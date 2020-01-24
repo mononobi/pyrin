@@ -10,10 +10,10 @@ import pytz
 import pyrin.configuration.services as config_services
 import pyrin.utils.datetime as datetime_utils
 
-from pyrin.core.context import CoreObject
+from pyrin.core.context import CoreObject, Manager
 
 
-class DateTimeManager(CoreObject):
+class DateTimeManager(Manager):
     """
     datetime manager class.
     """

@@ -3,11 +3,26 @@
 deserializer base module.
 """
 
+from threading import Lock
+
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class DeserializerBase(CoreObject):
+class DeserializerSingletonMeta(MultiSingletonMeta):
+    """
+    deserializer singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+
+class DeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
     """
     base deserializer class.
     """
