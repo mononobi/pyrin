@@ -5,7 +5,7 @@ utils singleton module.
 
 from threading import Lock
 
-from pyrin.core.exceptions import CoreNotImplementedError, CoreAssertionError
+from pyrin.core.exceptions import CoreNotImplementedError
 
 
 class SingletonMetaBase(type):
@@ -22,9 +22,6 @@ class SingletonMetaBase(type):
             if cls._has_instance() is False:
                 instance = super().__call__(*args, **kwargs)
                 cls._register_instance(instance)
-            # else:
-            #     raise CoreAssertionError('[{class_name}] is a singleton class.'
-            #                              .format(class_name=str(cls)))
         finally:
             if cls._lock.locked():
                 cls._lock.release()
