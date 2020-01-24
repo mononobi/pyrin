@@ -83,13 +83,13 @@ def test_load_configuration_for_all():
         assert sections is not None and len(sections) > 0
 
 
-def test_load_configuration_not_done_for_logging():
+def test_load_configuration_not_done_for_logging_handlers():
     """
-    checks that `logging` config store not being loaded.
+    checks that `logging.handlers` config store not being loaded.
     """
 
     with pytest.raises(ConfigurationStoreNotFoundError):
-        config_services.get_section_names('logging')
+        config_services.get_section_names('logging.handlers')
 
 
 def test_load_configurations():
