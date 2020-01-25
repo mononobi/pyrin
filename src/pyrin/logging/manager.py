@@ -75,14 +75,39 @@ class LoggingManager(Manager):
 
     def _wrap_all_loggers(self):
         """
-        wraps all available loggers into an adapter.
+        wraps all available loggers into an adapter to
+        inject request info into every log.
+
+        note that we should not wrap sqlalchemy and alembic loggers,
+        because it does not affect on sqlalchemy loggers and they
+        never have request info in emitted logs, I don't know the reason.
+        but wrapping them actually has a side effect which leads to some errors.
+        so we do not wrap them in the first place.
         """
 
         self._wrap_root_logger()
 
         for name, logger in self._get_all_loggers().items():
-            if isinstance(logger, Logger):
+            if isinstance(logger, Logger) and self._should_be_wrapped(logger) is True:
                 self._set_logger_adapter(name, self._wrap_logger(logger))
+
+    def _should_be_wrapped(self, logger):
+        """
+        gets a value indication that given logger should be wrapped.
+
+        note that we should not wrap sqlalchemy and alembic loggers,
+        because it does not affect on sqlalchemy loggers and they
+        never have request info in emitted logs, I don't know the reason.
+        but wrapping them actually has a side effect which leads to some errors.
+        so we do not wrap them in the first place.
+
+        :param Logger logger: logger to check should it be wrapped.
+
+        :rtype: bool
+        """
+
+        unwrapped_loggers = config_services.get('logging', 'general', 'unwrapped_loggers')
+        return all(item not in logger.name for item in unwrapped_loggers)
 
     def wrap_all_loggers(self):
         """
