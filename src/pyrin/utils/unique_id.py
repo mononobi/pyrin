@@ -13,7 +13,7 @@ def generate(**options):
     :keyword callable generator: uuid generator function.
                                  if not provided, defaults to uuid4.
 
-    :rtype: UUID
+    :rtype: uuid.UUID
     """
 
     generator = options.get('generator', uuid.uuid4)
@@ -24,7 +24,7 @@ def generate_uuid4():
     """
     generates a unique id using uuid4.
 
-    :rtype: UUID
+    :rtype: uuid.UUID
     """
 
     return generate(generator=uuid.uuid4)
@@ -34,7 +34,7 @@ def generate_uuid1():
     """
     generates a unique id using uuid1.
 
-    :rtype: UUID
+    :rtype: uuid.UUID
     """
 
     return generate(generator=uuid.uuid1)

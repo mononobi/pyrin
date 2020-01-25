@@ -5,12 +5,14 @@ database orm types custom module.
 
 import uuid
 
-from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy.types import CHAR
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.dialects.postgresql import UUID
 
+from pyrin.database.orm.types.base import CoreCustomType
 
-class GUID(TypeDecorator):
+
+class GUID(CoreCustomType):
     """
     guid type class.
 
@@ -29,6 +31,7 @@ class GUID(TypeDecorator):
 
         :rtype: TypeEngine
         """
+
         if dialect.name == 'postgresql':
             return dialect.type_descriptor(UUID())
         elif dialect.name == 'mssql':
@@ -40,7 +43,7 @@ class GUID(TypeDecorator):
         """
         receive a bound parameter value to be converted.
 
-        :param UUID value: data to operate upon. it could be `None`.
+        :param TypeEngine value: data to operate upon. it could be `None`.
         :param Dialect dialect: the dialect in use.
 
         :rtype: str
@@ -54,7 +57,6 @@ class GUID(TypeDecorator):
             if not isinstance(value, uuid.UUID):
                 return "%.32x" % uuid.UUID(value).int
             else:
-                # hex string
                 return "%.32x" % value.int
 
     def process_result_value(self, value, dialect):
@@ -64,7 +66,7 @@ class GUID(TypeDecorator):
         :param str value: data to operate upon. it could be `None`.
         :param Dialect dialect: the dialect in use.
 
-        :rtype: UUID
+        :rtype: uuid.UUID
         """
 
         if value is None:
@@ -73,3 +75,23 @@ class GUID(TypeDecorator):
             if not isinstance(value, uuid.UUID):
                 value = uuid.UUID(value)
             return value
+
+    def compare_against_backend(self, dialect, conn_type):
+        """
+        returns True if this type is the same as the given database type,
+        or None to allow the default implementation to compare these
+        types. a return value of False means the given type does not
+        match this type.
+
+        :param Dialect dialect: the dialect in use.
+        :param TypeEngine conn_type: type of the returned value from database.
+
+        :rtype: bool
+        """
+
+        if dialect.name == 'postgresql':
+            return isinstance(conn_type, UUID)
+        elif dialect.name == 'mssql':
+            return isinstance(conn_type, UNIQUEIDENTIFIER)
+        else:
+            return isinstance(conn_type, CHAR)
