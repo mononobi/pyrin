@@ -11,7 +11,7 @@ def is_active(user, **options):
     """
     gets a value indicating that given user is active.
 
-    :param any user: user to check its active status.
+    :param user: user to check its active status.
 
     :rtype: bool
     """

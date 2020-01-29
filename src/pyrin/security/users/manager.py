@@ -18,7 +18,7 @@ class UsersManager(Manager):
         """
         gets a value indicating that given user is active.
 
-        :param any user: user to check its active status.
+        :param user: user to check its active status.
 
         :raises CoreNotImplementedError: core not implemented error.
 

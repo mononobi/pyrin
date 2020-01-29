@@ -64,7 +64,7 @@ class SecurityManager(Manager):
         """
         gets a value indicating that given user has the specified permissions.
 
-        :param any user: user identity to check its permissions.
+        :param user: user identity to check its permissions.
         :param list[PermissionBase] permissions: permissions to check for user.
 
         :raises CoreNotImplementedError: core not implemented error.

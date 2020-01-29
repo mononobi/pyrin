@@ -19,8 +19,6 @@ class SessionManager(Manager):
     def get_current_user(self):
         """
         gets current user.
-
-        :rtype: any
         """
 
         return self.get_current_request().user
@@ -29,7 +27,7 @@ class SessionManager(Manager):
         """
         sets current user.
 
-        :param any user: user object.
+        :param user: user object.
 
         :raises InvalidUserError: invalid user error.
         :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
@@ -152,8 +150,6 @@ class SessionManager(Manager):
         gets current user in a safe manner.
         meaning that if the request does not exist in current context, it will
         return a None object instead of raising an error.
-
-        :rtype: any
         """
 
         current_request = self.get_safe_current_request()

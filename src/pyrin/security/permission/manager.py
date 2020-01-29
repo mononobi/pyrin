@@ -4,7 +4,6 @@ permission manager module.
 """
 
 from pyrin.core.context import Context, Manager
-from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     DuplicatedPermissionError
@@ -63,8 +62,7 @@ class PermissionManager(Manager):
         """
         synchronizes all permissions with database.
         it creates or updates the available permissions.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        if you don't need permissions in your application
+        leave this method not implemented.
         """
-
-        raise CoreNotImplementedError()
+        pass

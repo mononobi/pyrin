@@ -10,8 +10,6 @@ from pyrin.security.session import SessionPackage
 def get_current_user():
     """
     gets current user.
-
-    :rtype: any
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_current_user()
@@ -21,7 +19,7 @@ def set_current_user(user):
     """
     sets current user.
 
-    :param any user: user object.
+    :param user: user object.
 
     :raises InvalidUserError: invalid user error.
     :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
@@ -136,8 +134,6 @@ def get_safe_current_user():
     gets current user in a safe manner.
     meaning that if the request does not exist in current context, it will
     return a None object instead of raising an error.
-
-    :rtype: any
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_user()

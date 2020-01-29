@@ -26,7 +26,7 @@ class AuthorizationManager(Manager):
         if user does not have each one of specified permissions,
         an error will be raised.
 
-        :param any user: user identity to authorize permissions for.
+        :param user: user identity to authorize permissions for.
 
         :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                         for user authorization.
@@ -61,7 +61,7 @@ class AuthorizationManager(Manager):
         :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                         for authorization.
 
-        :param any user: user identity to be checked for authorization.
+        :param user: user identity to be checked for authorization.
                          if not provided, current user will be used.
 
         :rtype: bool
