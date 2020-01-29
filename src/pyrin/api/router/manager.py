@@ -59,6 +59,10 @@ class RouterManager(Manager):
         :rtype: RouteBase
         """
 
+        route = self._create_route(rule, **options)
+        if route is not None:
+            return route
+
         login_required = options.get('login_required', True)
         fresh_token = options.get('fresh_token', False)
 
@@ -75,6 +79,52 @@ class RouterManager(Manager):
                                                    .format(login=login_required,
                                                            fresh=fresh_token,
                                                            route=rule))
+
+    def _create_route(self, rule, **options):
+        """
+        creates the appropriate route based on the input parameters.
+        this method is intended to be overridden by subclasses to provided
+        custom `RouteBase` types, it should always return a `RouteBase`
+        object or `None`.
+
+        :param str rule: unique url rule to register this route for.
+                         routes with duplicated urls will be overwritten
+                         if `replace=True` option is provided, otherwise an error
+                         will be raised.
+
+        :keyword tuple(str) methods: http methods that this route could handle.
+                                     if not provided, defaults to `GET`, `HEAD`
+                                     and `OPTIONS`.
+
+        :keyword callable view_function: a function to be called on accessing this route.
+
+        :keyword str endpoint: the endpoint for the registered url rule. pyrin
+                               itself assumes the url rule as endpoint if not provided.
+
+        :keyword bool login_required: specifies that this route could not be accessed
+                                      if the requester has not a valid token.
+                                      defaults to True if not provided.
+
+        :keyword bool fresh_token: specifies that this route could not be accessed
+                                   if the requester has not a valid fresh token.
+                                   fresh token means a token that has been created by
+                                   providing user credentials to server.
+                                   defaults to False if not provided.
+
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
+                                                    to access this route's resource.
+
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :rtype: RouteBase
+        """
+
+        return None
 
     def add_route(self, url, endpoint=None, view_func=None,
                   provide_automatic_options=None, **options):

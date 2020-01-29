@@ -19,6 +19,7 @@ import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
+import pyrin.database.model.services as model_services
 import pyrin.utils.misc as misc_utils
 
 from pyrin.application.container import _set_app
@@ -43,6 +44,8 @@ from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning, print_error
 from pyrin.utils.dictionary import make_key_upper
 from pyrin.utils.path import resolve_application_root_path
+from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict, \
+    entity_to_dict_list, entity_to_dict
 
 
 class Application(Flask, metaclass=ApplicationSingletonMeta):
@@ -472,13 +475,19 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
 
     def make_response(self, rv):
         """
-        converts the return value from a view function to an instance of dict.
-        if the return value is None, it returns an empty dict as return value.
+        converts the return value from a view function
+        to an instance of `CoreResponse`.
+
+        note that the `rv` value before passing to base method must
+        be a `tuple`, `dict`, `str` or `CoreResponse`. otherwise
+        the value will not be json serialized and it causes an error.
 
         :param object rv: the return value from the view function.
 
-        :rtype: object.
+        :rtype: CoreResponse
         """
+
+        rv = self._convert_result(rv)
 
         if rv is None:
             rv = DTO()
@@ -493,6 +502,30 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
             rv = DTO(value=rv)
 
         return super(Application, self).make_response(rv)
+
+    def _convert_result(self, rv):
+        """
+        converts the return value if needed.
+        this method could be overridden in subclasses.
+
+        :param object rv: the return value from the view function.
+
+        :rtype: object
+        """
+
+        if isinstance(rv, list) and len(rv) > 0:
+            if model_services.is_abstract_keyed_tuple(rv[0]):
+                rv = keyed_tuple_to_dict_list(rv)
+            elif model_services.is_core_entity(rv[0]):
+                rv = entity_to_dict_list(rv)
+
+        elif model_services.is_abstract_keyed_tuple(rv):
+            rv = keyed_tuple_to_dict(rv)
+
+        elif model_services.is_core_entity(rv):
+            rv = entity_to_dict(rv)
+
+        return rv
 
     @setupmethod
     def add_url_rule(self, rule, endpoint=None, view_func=None,

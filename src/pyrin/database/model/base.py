@@ -12,8 +12,8 @@ import pyrin.database.services as database_services
 import pyrin.database.sequence.services as sequence_services
 
 from pyrin.core.context import CoreObject, DTO
-from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.database.model.exceptions import SequenceHasNotSetError, ColumnNotExistedError
+from pyrin.database.model.exceptions import SequenceHasNotSetError, ColumnNotExistedError, \
+    EntityNotHashableError
 
 
 class CoreDeclarative(CoreObject):
@@ -55,7 +55,10 @@ class CoreDeclarative(CoreObject):
 
     def __eq__(self, other):
         if isinstance(other, self._get_root_base_class()):
-            return self.primary_key() == other.primary_key()
+            if self.primary_key() is not None:
+                return self.primary_key() == other.primary_key()
+            else:
+                return self is other
 
         return False
 
@@ -63,13 +66,18 @@ class CoreDeclarative(CoreObject):
         return not self == other
 
     def __hash__(self):
-        return hash('{base_type}{pk}'.format(base_type=self._get_root_base_class(),
-                                             pk=self.primary_key()))
+        if self.primary_key() is None:
+            raise EntityNotHashableError('Entity [{entity}] does not have '
+                                         'a primary key so it is not hashable.'
+                                         .format(entity=self.get_name()))
+
+        return hash('{root_base}.{pk}'.format(root_base=self._get_root_base_class(),
+                                              pk=self.primary_key()))
 
     def __repr__(self):
-        return '<{module}.{class_} [{pk}]>'.format(module=self.__module__,
-                                                   class_=self.__class__.__name__,
-                                                   pk=str(self.primary_key()))
+        return '<{module}.{name} [{pk}]>'.format(module=self.__module__,
+                                                 name=self.get_name(),
+                                                 pk=str(self.primary_key()))
 
     def __str__(self):
         return str(self.primary_key())
@@ -149,30 +157,27 @@ class CoreDeclarative(CoreObject):
         :rtype: int
         """
 
-        if self.__sequence_name__ in (None, ''):
-            raise SequenceHasNotSetError('No primary key sequence has been set '
-                                         'for entity [{name}].'
-                                         .format(name=self.get_name()))
+        if self.__sequence_name__ in (None, '') or self.__sequence_name__.isspace():
+            raise SequenceHasNotSetError('No sequence has been set for entity [{entity}].'
+                                         .format(entity=self.get_name()))
 
         return sequence_services.get_next_value(self.__sequence_name__)
 
     def primary_key(self):
         """
-        gets the primary key value of this table.
+        gets the primary key value of this entity.
 
-        note that the returning value of this method will be used
-        as a way to compare two different entities of the same type.
-        so if your table does not have a primary key, you could either
-        not implement this method and do not compare instances of this type
-        or you could implement another logic in this method to make comparisons
-        possible and correct. the returning value of this method must be hashable.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        note that the returning value of this method will be used as a way
+        to compare two different entities of the same type. so if your table
+        does not have a primary key, you could either not implement this method
+        and leave comparison to base in the form of `self is other` or you could
+        implement another logic in this method to make comparisons possible and
+        correct. the returning value of this method must be hashable.
 
         :rtype: object
         """
 
-        raise CoreNotImplementedError()
+        return None
 
     def all_columns(self):
         """
@@ -302,7 +307,7 @@ class CoreDeclarative(CoreObject):
     def table_schema(cls):
         """
         gets the table schema that this entity represents in database.
-        it might be an empty string if schema is not set for this entity.
+        it might be an empty string if schema has not been set for this entity.
 
         :rtype: str
         """

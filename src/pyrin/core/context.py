@@ -71,7 +71,7 @@ class CoreObject(object):
     def get_name(self):
         """
         gets the name of the object.
-        if name is not available, returns objects's class name.
+        if name is not available, returns its class name.
 
         :rtype: str
         """

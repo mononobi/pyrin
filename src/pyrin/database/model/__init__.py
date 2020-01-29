@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-database model package.
+model package.
 """
 
 from pyrin.packaging.context import Package
 
 
-class DatabaseModelPackage(Package):
+class ModelPackage(Package):
     """
-    database model package class.
+    model package class.
     """
 
     NAME = __name__
-    DEPENDS = []
+    COMPONENT_NAME = 'database.model.component'

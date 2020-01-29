@@ -9,7 +9,6 @@ from sqlalchemy import func
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreAssertionError
 from pyrin.core.globals import _, LIST_TYPES
 
 
@@ -69,55 +68,41 @@ def entity_to_dict_list(entities, exposed_only=True):
         return results
 
     for single_entity in entities:
-        results.append(single_entity.to_dict(exposed_only))
+        results.append(entity_to_dict(single_entity, exposed_only))
 
     return results
 
 
-def tuple_to_dict(columns, values):
+def keyed_tuple_to_dict(value):
     """
-    converts values tuple into a dict using given columns tuple.
+    converts the given `AbstractKeyedTuple` object into a dict.
 
-    :param tuple[Column] columns: columns.
-    :param tuple values: values to map to columns.
+    :param AbstractKeyedTuple value: value to be converted.
 
     :rtype: dict
     """
 
-    if columns is None or values is None or len(columns) <= 0 or len(values) <= 0:
+    if value is None or len(value) <= 0:
         return DTO()
 
-    columns_length = len(columns)
-    values_length = len(values)
-
-    if columns_length != values_length:
-        raise CoreAssertionError('length of columns which is [{column}] and '
-                                 'values which is [{value}] does not match.'
-                                 .format(column=columns_length,
-                                         value=values_length))
-
-    column_names = tuple(col.key for col in columns)
-    return DTO(zip(column_names, values))
+    return DTO(zip(value.keys(), value))
 
 
-def tuple_to_dict_list(columns, values):
+def keyed_tuple_to_dict_list(values):
     """
-    converts the given list of values tuple into a list
-    of dicts using given columns tuple.
+    converts the given list of `AbstractKeyedTuple` objects into a list of dicts.
 
-    :param tuple[Column] columns: columns.
-    :param list[tuple] values: list of values.
+    :param list[AbstractKeyedTuple] values: values to be converted.
 
-    :returns list[dict]
-    :rtype: list
+    :rtype: dict
     """
 
     results = []
-    if columns is None or values is None or len(columns) <= 0 or len(values) <= 0:
+    if values is None or len(values) <= 0:
         return results
 
     for single_value in values:
-        results.append(tuple_to_dict(columns, single_value))
+        results.append(keyed_tuple_to_dict(single_value))
 
     return results
 

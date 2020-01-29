@@ -25,3 +25,10 @@ class ColumnNotExistedError(DatabaseModelException):
     column not existed error.
     """
     pass
+
+
+class EntityNotHashableError(DatabaseModelException):
+    """
+    entity not hashable error.
+    """
+    pass
