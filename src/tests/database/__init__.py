@@ -3,13 +3,12 @@
 database package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.database import DatabasePackage as BaseDatabasePackage
 
 
-class DatabasePackage(Package):
+class DatabasePackage(BaseDatabasePackage):
     """
     database package class.
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'database.component'

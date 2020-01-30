@@ -3,14 +3,12 @@
 users package.
 """
 
-from pyrin.packaging import Package
+from pyrin.security.users import UsersPackage as BaseUsersPackage
 
 
-class UsersPackage(Package):
+class UsersPackage(BaseUsersPackage):
     """
     users package class.
     """
 
     NAME = __name__
-    DEPENDS = []
-    COMPONENT_NAME = 'security.users.component'

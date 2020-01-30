@@ -3,13 +3,12 @@
 permission package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.security.permission import PermissionPackage as BasePermissionPackage
 
 
-class PermissionPackage(Package):
+class PermissionPackage(BasePermissionPackage):
     """
     permission package class.
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'security.permission.component'

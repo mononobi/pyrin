@@ -3,13 +3,12 @@
 session package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.security.session import SessionPackage as BaseSessionPackage
 
 
-class SessionPackage(Package):
+class SessionPackage(BaseSessionPackage):
     """
     session package class.
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'security.session.component'

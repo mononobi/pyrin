@@ -3,14 +3,12 @@
 authentication package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.security.authentication import AuthenticationPackage as BaseAuthenticationPackage
 
 
-class AuthenticationPackage(Package):
+class AuthenticationPackage(BaseAuthenticationPackage):
     """
     authentication package class.
     """
 
     NAME = __name__
-    DEPENDS = []
-    COMPONENT_NAME = 'security.authentication.component'

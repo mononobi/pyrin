@@ -3,13 +3,12 @@
 security package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.security import SecurityPackage as BaseSecurityPackage
 
 
-class SecurityPackage(Package):
+class SecurityPackage(BaseSecurityPackage):
     """
     security package class.
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'security.component'
