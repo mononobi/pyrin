@@ -1,6 +1,7 @@
-1. manager class must inherit from CoreObject class.
+1. each manager class must inherit from `pyrin.core.context.Manager class`.
 
-2. component class must inherit from Component class and also it's respective manager class.
+2. each component class must inherit from `pyrin.application.context.Component` class and
+   also it's respective manager class.
 
 3. every access to a package functionality must be done through package's services module,
    not the manager, even if the caller module is resided inside the same package of that manager,
@@ -49,3 +50,8 @@
 17. utils package of each package should only be referenced from inside of that package
     or subpackages. to make a util globally available, we should implement it
     inside `pyrin.utils` package.
+
+18. in each package which extends an already available package, the manager of
+    that package must be subclassed from original package's manager class.
+    also the package class (inside __init__.py) of that package, must be subclassed
+    from original package's package class.
