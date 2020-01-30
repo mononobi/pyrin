@@ -3,26 +3,14 @@
 deserializer base module.
 """
 
-from threading import Lock
-
+from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
+from pyrin.converters.deserializer.handler import AbstractDeserializerBase
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.utils.singleton import MultiSingletonMeta
+from pyrin.core.globals import NULL
 
 
-class DeserializerSingletonMeta(MultiSingletonMeta):
-    """
-    deserializer singleton meta class.
-    this is a thread-safe implementation of singleton.
-    """
-
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
-    _instances = dict()
-    _lock = Lock()
-
-
-class DeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
+class DeserializerBase(AbstractDeserializerBase):
     """
     base deserializer class.
     """
@@ -33,6 +21,7 @@ class DeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
         """
 
         CoreObject.__init__(self)
+        self._next_handler = None
 
     def deserialize(self, value, **options):
         """
@@ -41,14 +30,49 @@ class DeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
 
         :param object value: value to be deserialized.
 
+        :returns: deserialized value.
+        """
+
+        deserialized_value = self._deserialize(value, **options)
+
+        if deserialized_value is NULL:
+            if self._next_handler is not None:
+                return self._next_handler.deserialize(value, **options)
+
+        return deserialized_value
+
+    def _deserialize(self, value, **options):
+        """
+        deserializes the given value.
+        returns `NULL` object if deserialization fails.
+        this method is intended to be overridden in subclasses.
+
+        :param object value: value to be deserialized.
+
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: deserialized value.
-
-        :rtype: any
         """
 
         raise CoreNotImplementedError()
+
+    def set_next(self, deserializer):
+        """
+        sets the next deserializer handler and returns it.
+
+        :param Union[DeserializerBase, None] deserializer: deserializer instance to
+                                                           be set as next handler.
+
+        :rtype: DeserializerBase
+        """
+
+        if deserializer is not None and not isinstance(deserializer, DeserializerBase):
+            raise InvalidDeserializerTypeError('Input parameter [{instance}] is not '
+                                               'an instance of DeserializerBase.'
+                                               .format(instance=deserializer))
+
+        self._next_handler = deserializer
+        return deserializer
 
     def is_deserializable(self, value, **options):
         """
@@ -107,18 +131,17 @@ class StringDeserializerBase(DeserializerBase):
         # to be deserialized by this deserializer.
         self._min_length, self._max_length = self._calculate_accepted_length()
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes the given value.
         returns `NULL` object if deserialization fails.
+        this method is intended to be overridden in subclasses.
 
         :param str value: value to be deserialized.
 
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: deserialized value.
-
-        :rtype: any
         """
 
         raise CoreNotImplementedError()

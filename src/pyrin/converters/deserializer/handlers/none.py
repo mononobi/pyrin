@@ -35,7 +35,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
 
         StringPatternDeserializerBase.__init__(self, **options)
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes the given value.
         returns `NULL` object if deserialization fails.

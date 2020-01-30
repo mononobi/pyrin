@@ -44,7 +44,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
 
         self._converter_map = self._get_converter_map()
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes the given value.
         returns `NULL` object if deserialization fails.

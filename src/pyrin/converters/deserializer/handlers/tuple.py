@@ -26,7 +26,7 @@ class TupleDeserializer(DeserializerBase):
 
         DeserializerBase.__init__(self, **options)
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes every possible value available in input tuple.
         and gets a new deserialized tuple.
@@ -103,7 +103,7 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
 
         StringPatternDeserializerBase.__init__(self, **options)
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes the given value.
         returns `NULL` object if deserialization fails.

@@ -29,7 +29,7 @@ class DictionaryDeserializer(DeserializerBase):
 
         DeserializerBase.__init__(self, **options)
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes every possible value available in input dictionary.
         and gets a new deserialized dictionary, leaving the input unchanged.
@@ -97,7 +97,7 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
 
         StringPatternDeserializerBase.__init__(self, **options)
 
-    def deserialize(self, value, **options):
+    def _deserialize(self, value, **options):
         """
         deserializes the given value.
         returns `NULL` object if deserialization fails.

@@ -3,7 +3,7 @@
 deserializer manager module.
 """
 
-from pyrin.converters.deserializer.handlers.base import DeserializerBase
+from pyrin.converters.deserializer.handler import AbstractDeserializerBase
 from pyrin.core.context import Context, Manager
 from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
@@ -24,7 +24,7 @@ class DeserializerManager(Manager):
         Manager.__init__(self)
 
         # a dictionary containing information of registered deserializers.
-        # example: dic(tuple(class_name, type): instance)
+        # example: dic(type accepted_type: list[DeserializerBase] instances)
         self._deserializers = Context()
 
     def deserialize(self, value, **options):
@@ -33,8 +33,6 @@ class DeserializerManager(Manager):
         returns `NULL` object if deserialization fails.
 
         :param object value: value to be deserialized.
-
-        :rtype: any
         """
 
         options.update(accepted_type=type(value))
@@ -53,69 +51,123 @@ class DeserializerManager(Manager):
         """
         registers a new deserializer or replaces the existing one
         if `replace=True` is provided. otherwise, it raises an error
-        on adding an instance which it's name and accepted type is already available
-        in registered deserializers.
+        on adding a deserializer which is already registered.
 
-        :param DeserializerBase instance: deserializer to be registered.
-                                          it must be an instance of DeserializerBase.
+        :param AbstractDeserializerBase instance: deserializer to be registered.
+                                                  it must be an instance of
+                                                  AbstractDeserializerBase.
 
         :keyword bool replace: specifies that if there is another registered
                                deserializer with the same name and accepted type,
-                               replace it with the new one, otherwise raise
-                               an error. defaults to False.
+                               replace it with the new one, otherwise raise an error.
+                               defaults to False.
 
         :raises InvalidDeserializerTypeError: invalid deserializer type error.
         :raises DuplicatedDeserializerError: duplicated deserializer error.
         """
 
-        if not isinstance(instance, DeserializerBase):
+        if not isinstance(instance, AbstractDeserializerBase):
             raise InvalidDeserializerTypeError('Input parameter [{instance}] is '
-                                               'not an instance of DeserializerBase.'
+                                               'not an instance of AbstractDeserializerBase.'
                                                .format(instance=str(instance)))
 
-        # checking whether is there any registered instance
-        # with the same name and accepted type.
-        if (instance.get_name(), instance.get_accepted_type()) in self._deserializers.keys():
-            replace = options.get('replace', False)
+        previous_instances = self._deserializers.get(instance.get_accepted_type(), [])
+        if instance.get_accepted_type() in self._deserializers:
+            if len(previous_instances) > 0:
+                old_instance = self._get_deserializer_with_name(instance.get_name(),
+                                                                previous_instances)
+                if old_instance is not None:
+                    replace = options.get('replace', False)
+                    if replace is not True:
+                        raise DuplicatedDeserializerError('There is another registered '
+                                                          'deserializer with name [{name}] '
+                                                          'for accepted type [{accepted_type}] '
+                                                          'but "replace" option is not set, so '
+                                                          'deserializer [{instance}] could not '
+                                                          'be registered.'
+                                                          .format(name=instance.get_name(),
+                                                                  accepted_type=instance.
+                                                                  get_accepted_type(),
+                                                                  instance=str(instance)))
 
-            if replace is not True:
-                raise DuplicatedDeserializerError('There is another registered deserializer '
-                                                  'with name [{name}] and accepted type '
-                                                  '[{accepted_type}] but "replace" option is '
-                                                  'not set, so deserializer [{instance}] '
-                                                  'could not be registered.'
-                                                  .format(name=instance.get_name(),
-                                                          accepted_type=instance.
-                                                          get_accepted_type(),
-                                                          instance=str(instance)))
+                    print_warning('Deserializer [{old_instance}] is going '
+                                  'to be replaced by [{new_instance}].'
+                                  .format(old_instance=str(old_instance),
+                                          new_instance=str(instance)))
 
-            old_instance = self._deserializers[(instance.get_name(), instance.get_accepted_type())]
-            print_warning('Deserializer [{old_instance}] is going '
-                          'to be replaced by [{new_instance}].'
-                          .format(old_instance=str(old_instance), new_instance=str(instance)))
+                    previous_instances.remove(old_instance)
 
-        # registering new deserializer.
-        self._deserializers[(instance.get_name(), instance.get_accepted_type())] = instance
+        previous_instances.append(instance)
+        self._set_next_handlers(previous_instances)
+        self._deserializers[instance.get_accepted_type()] = previous_instances
+
+    def _set_next_handlers(self, deserializers):
+        """
+        sets next handler for each deserializer in the input list.
+
+        :param list[AbstractDeserializerBase] deserializers: list of deserializers.
+        """
+
+        length = len(deserializers)
+        for i in range(length):
+            if i == length - 1:
+                deserializers[i].set_next(None)
+            else:
+                deserializers[i].set_next(deserializers[i + 1])
+
+    def _get_deserializer_with_name(self, name, deserializers):
+        """
+        gets a deserializer with the given name from input deserializers list.
+        if not available, it returns None.
+
+        :param str name: deserializer name to get its instance.
+        :param list[AbstractDeserializerBase] deserializers: list of deserializers.
+
+        :raises DuplicatedDeserializerError: duplicated deserializer error.
+
+        :rtype: AbstractDeserializerBase
+        """
+
+        result = [item for item in deserializers if item.get_name() == name]
+
+        if result is None or len(result) <= 0:
+            return None
+
+        if len(result) > 1:
+            raise DuplicatedDeserializerError('There are multiple deserializers with '
+                                              'name [{name}]. it could be due to a '
+                                              'bug in registering deserializers.'
+                                              .format(name=name))
+        if len(result) == 1:
+            return result[0]
 
     def get_deserializers(self, **options):
         """
         gets all registered deserializers.
         it could filter deserializers for a specific type if provided.
+        it only returns the first deserializer for each type, because
+        all deserializers for a given type, are chained together.
 
         :keyword type accepted_type: specifies to get deserializers which are registered for the
                                      accepted type. if not provided, all deserializers
                                      will be returned.
 
-        :rtype: list[DeserializerBase]
+        :rtype: list[AbstractDeserializerBase]
         """
 
         accepted_type = options.get('accepted_type', None)
 
-        # getting all deserializers.
         if accepted_type is None:
-            return [value for value in self._deserializers.values()]
+            all_deserializers = []
+            for deserializer_type in self._deserializers:
+                all_deserializers.append(self._deserializers[deserializer_type][0])
+            return all_deserializers
+        else:
+            deserializer_keys = [key for key in self._deserializers
+                                 if issubclass(accepted_type, key)]
 
-        # getting deserializers for given type.
-        deserializer_keys = [key for key in self._deserializers.keys()
-                             if issubclass(accepted_type, key[1])]
-        return [self._deserializers[key] for key in deserializer_keys]
+            specific_deserializers = []
+            for key in deserializer_keys:
+                specific_deserializers.append(self._deserializers[key][0])
+
+            return specific_deserializers
