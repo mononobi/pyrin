@@ -11,7 +11,7 @@ class Package(CoreObject):
     """
     base package class.
     all application python packages should be subclassed from this.
-    except some base packages like `application` and `packaging` that
+    except some base packages like `application`, `core` and `utils` that
     should not implement Package class.
     """
 
@@ -29,8 +29,13 @@ class Package(CoreObject):
     # and are always available before any other package gets loaded.
     DEPENDS = []
 
-    # component name should be unique for each instance unless it's intended
-    # to replace an already available one.
+    # component name should be unique for each package unless it's intended
+    # to replace an already available one. it should be fully qualified name
+    # omitting the root application package name (for example `pyrin`), pointing to
+    # a real file inside the package (omitting `.py` extension).
+    # for example: `api.component` or `security.session.component` or 'my_package.my_component'
+    # packages that need to extend (replace) an already available package, must
+    # be subclassed from parent package and should not set this attribute.
     COMPONENT_NAME = None
 
     # component custom key should be unique for each instance unless it's intended
