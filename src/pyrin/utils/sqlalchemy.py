@@ -5,10 +5,12 @@ utils sqlalchemy module.
 
 from sqlalchemy.orm import lazyload
 from sqlalchemy import func
+from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
+from pyrin.core.exceptions import CoreValueError
 from pyrin.core.globals import _, LIST_TYPES
 
 
@@ -301,3 +303,33 @@ def add_like_clause(clauses, column, value, string_wrapper=like_both):
 
     if value is not None:
         clauses.append(column.like(string_wrapper(value)))
+
+
+def create_row_result(fields, values):
+    """
+    creates a row result object with given fields and values.
+    this object type is returned by sqlalchemy `Query` when there
+    is columns or multiple entities in query.
+
+    :param list[str] fields: field names of the result object.
+
+    :param list[object] values: values to be mapped to fields.
+                                they must be in the same order as fields.
+
+    :rtype: AbstractKeyedTuple
+    """
+
+    if fields is None or values is None:
+        raise CoreValueError('Input parameters "fields" and "values" must '
+                             'both be provided, they could not be None.')
+
+    if len(fields) != len(values):
+        raise CoreValueError('The length of "fields" which is [{fields}] '
+                             'and "values" which is [{values}] does not match.'
+                             .format(fields=len(fields),
+                                     values=len(values)))
+
+    keyed_tuple = lightweight_named_tuple('result', fields)
+    result = keyed_tuple(values)
+
+    return result

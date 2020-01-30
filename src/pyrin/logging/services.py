@@ -20,6 +20,24 @@ def get_all_loggers():
     return get_component(LoggingPackage.COMPONENT_NAME).get_all_loggers()
 
 
+def should_be_wrapped(logger):
+    """
+    gets a value indication that given logger should be wrapped.
+
+    note that we should not wrap sqlalchemy and alembic loggers,
+    because it does not affect on sqlalchemy loggers and they
+    never have request info in emitted logs, I don't know the reason.
+    but wrapping them actually has a side effect which leads to some errors.
+    so we do not wrap them in the first place.
+
+    :param Logger logger: logger to check should it be wrapped.
+
+    :rtype: bool
+    """
+
+    return get_component(LoggingPackage.COMPONENT_NAME).should_be_wrapped(logger)
+
+
 def reload_configs(**options):
     """
     reloads all logging configurations from config file.

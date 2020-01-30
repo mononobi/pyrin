@@ -88,10 +88,10 @@ class LoggingManager(Manager):
         self._wrap_root_logger()
 
         for name, logger in self._get_all_loggers().items():
-            if isinstance(logger, Logger) and self._should_be_wrapped(logger) is True:
+            if self.should_be_wrapped(logger) is True:
                 self._set_logger_adapter(name, self._wrap_logger(logger))
 
-    def _should_be_wrapped(self, logger):
+    def should_be_wrapped(self, logger):
         """
         gets a value indication that given logger should be wrapped.
 
@@ -105,6 +105,9 @@ class LoggingManager(Manager):
 
         :rtype: bool
         """
+
+        if not isinstance(logger, Logger):
+            return False
 
         unwrapped_loggers = config_services.get('logging', 'general', 'unwrapped_loggers')
         return all(item not in logger.name for item in unwrapped_loggers)
