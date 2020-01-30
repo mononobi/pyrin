@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer handler module.
+deserializer interface module.
 """
 
 from threading import Lock

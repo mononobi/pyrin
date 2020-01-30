@@ -4,7 +4,7 @@ deserializer base module.
 """
 
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
-from pyrin.converters.deserializer.handler import AbstractDeserializerBase
+from pyrin.converters.deserializer.interface import AbstractDeserializerBase
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
@@ -85,18 +85,6 @@ class DeserializerBase(AbstractDeserializerBase):
 
         return isinstance(value, self.get_accepted_type())
 
-    def get_accepted_type(self):
-        """
-        gets the accepted type for this deserializer
-        which could deserialize values from this type.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: type
-        """
-
-        raise CoreNotImplementedError()
-
 
 class StringDeserializerBase(DeserializerBase):
     """
@@ -130,21 +118,6 @@ class StringDeserializerBase(DeserializerBase):
         # min and max accepted length of strings
         # to be deserialized by this deserializer.
         self._min_length, self._max_length = self._calculate_accepted_length()
-
-    def _deserialize(self, value, **options):
-        """
-        deserializes the given value.
-        returns `NULL` object if deserialization fails.
-        this method is intended to be overridden in subclasses.
-
-        :param str value: value to be deserialized.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns: deserialized value.
-        """
-
-        raise CoreNotImplementedError()
 
     def is_deserializable(self, value, **options):
         """

@@ -14,8 +14,8 @@ def register_hashing_handler(instance, **options):
     on adding an instance which it's name is already available
     in registered handlers.
 
-    :param HashingBase instance: hashing handler to be registered.
-                                 it must be an instance of HashingBase.
+    :param AbstractHashingBase instance: hashing handler to be registered.
+                                         it must be an instance of AbstractHashingBase.
 
     :keyword bool replace: specifies that if there is another registered
                            handler with the same name, replace it with

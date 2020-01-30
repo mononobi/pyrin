@@ -9,7 +9,7 @@ from pyrin.core.context import Context, Manager
 from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
     InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError, \
     InvalidHashError
-from pyrin.security.hashing.handlers.base import HashingBase
+from pyrin.security.hashing.interface import AbstractHashingBase
 from pyrin.utils.custom_print import print_warning
 
 
@@ -35,8 +35,8 @@ class HashingManager(Manager):
         on adding an instance which it's name is already available
         in registered handlers.
 
-        :param HashingBase instance: hashing handler to be registered.
-                                     it must be an instance of HashingBase.
+        :param AbstractHashingBase instance: hashing handler to be registered.
+                                             it must be an instance of AbstractHashingBase.
 
         :keyword bool replace: specifies that if there is another registered
                                handler with the same name, replace it with
@@ -48,9 +48,9 @@ class HashingManager(Manager):
         :raises DuplicatedHashingHandlerError: duplicated hashing handler error.
         """
 
-        if not isinstance(instance, HashingBase):
+        if not isinstance(instance, AbstractHashingBase):
             raise InvalidHashingHandlerTypeError('Input parameter [{instance}] is '
-                                                 'not an instance of HashingBase.'
+                                                 'not an instance of AbstractHashingBase.'
                                                  .format(instance=str(instance)))
 
         if instance.get_name() is None or len(instance.get_name().strip()) == 0:
@@ -139,7 +139,7 @@ class HashingManager(Manager):
 
         :raises HashingHandlerNotFoundError: hashing handler not found error.
 
-        :rtype: HashingBase
+        :rtype: AbstractHashingBase
         """
 
         handler_name = options.get('handler_name', self._get_default_handler_name())

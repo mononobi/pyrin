@@ -14,8 +14,8 @@ def register_encryption_handler(instance, **options):
     on adding an instance which it's name is already available
     in registered handlers.
 
-    :param EncrypterBase instance: encryption handler to be registered.
-                                   it must be an instance of EncrypterBase.
+    :param AbstractEncrypterBase instance: encryption handler to be registered.
+                                           it must be an instance of AbstractEncrypterBase.
 
     :keyword bool replace: specifies that if there is another registered
                            handler with the same name, replace it with

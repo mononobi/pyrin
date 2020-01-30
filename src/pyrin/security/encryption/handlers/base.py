@@ -5,32 +5,18 @@ encryption handlers base module.
 
 import re
 
-from threading import Lock
-
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.encryption.exceptions import DecryptionError
 from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueError, \
     EncryptionHandlerMismatchError
+from pyrin.security.encryption.interface import AbstractEncrypterBase
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import encoding
-from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class EncrypterSingletonMeta(MultiSingletonMeta):
-    """
-    encrypter singleton meta class.
-    this is a thread-safe implementation of singleton.
-    """
-
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
-    _instances = dict()
-    _lock = Lock()
-
-
-class EncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
+class EncrypterBase(AbstractEncrypterBase):
     """
     encrypter base class.
     all application encrypters must subclass this.
@@ -156,22 +142,6 @@ class EncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
         :param bytes value: value to be decrypted.
 
         :rtype: str
-        """
-
-        raise CoreNotImplementedError()
-
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bytes.
-                             note that some encryption handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: Union[str, tuple(str, str)]
         """
 
         raise CoreNotImplementedError()
@@ -327,22 +297,6 @@ class SymmetricEncrypterBase(EncrypterBase):
 
         return self._get_encryption_key(**options)
 
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bytes.
-                             note that some encryption handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: str
-        """
-
-        raise CoreNotImplementedError()
-
 
 class AsymmetricEncrypterBase(EncrypterBase):
     """
@@ -358,22 +312,6 @@ class AsymmetricEncrypterBase(EncrypterBase):
 
         # we pass the algorithm of encryption handler as the name of it.
         EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
-
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid public/private key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bits.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns tuple(str public_key, str private_key)
-
-        :rtype: tuple(str, str)
-        """
-
-        raise CoreNotImplementedError()
 
 
 class RSAEncrypterBase(AsymmetricEncrypterBase):

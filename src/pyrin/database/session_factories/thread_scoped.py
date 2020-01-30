@@ -9,7 +9,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.database.decorators import session_factory
 from pyrin.database.orm.query.base import CoreQuery
-from pyrin.database.session_factory.base import SessionFactoryBase
+from pyrin.database.session_factories.base import SessionFactoryBase
 
 
 @session_factory()

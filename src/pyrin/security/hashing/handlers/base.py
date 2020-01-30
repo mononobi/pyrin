@@ -5,30 +5,16 @@ hashing handlers base module.
 
 import re
 
-from threading import Lock
-
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.hashing.handlers.exceptions import InvalidHashedValueError, \
     HashingHandlerMismatchError, HashingHandlerException
+from pyrin.security.hashing.interface import AbstractHashingBase
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import encoding
-from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class HashingSingletonMeta(MultiSingletonMeta):
-    """
-    hashing singleton meta class.
-    this is a thread-safe implementation of singleton.
-    """
-
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
-    _instances = dict()
-    _lock = Lock()
-
-
-class HashingBase(CoreObject, metaclass=HashingSingletonMeta):
+class HashingBase(AbstractHashingBase):
     """
     hashing base class.
     all application hashing handlers must be subclassed from this.

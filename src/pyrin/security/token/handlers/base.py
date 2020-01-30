@@ -5,8 +5,6 @@ token handlers base module.
 
 import time
 
-from threading import Lock
-
 import jwt
 
 import pyrin.configuration.services as config_services
@@ -14,25 +12,13 @@ import pyrin.configuration.services as config_services
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodingError
+from pyrin.security.token.interface import AbstractTokenBase
 from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import unique_id
-from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class TokenSingletonMeta(MultiSingletonMeta):
-    """
-    token singleton meta class.
-    this is a thread-safe implementation of singleton.
-    """
-
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
-    _instances = dict()
-    _lock = Lock()
-
-
-class TokenBase(CoreObject, metaclass=TokenSingletonMeta):
+class TokenBase(AbstractTokenBase):
     """
     token base class.
     """
@@ -344,34 +330,6 @@ class TokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bytes.
-                             note that some token handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: Union[str, tuple(str, str)]
-        """
-
-        raise CoreNotImplementedError()
-
-    def get_kid(self):
-        """
-        gets kid value to be used in token header for this handler.
-        it must be unique for each handler.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: str
-        """
-
-        raise CoreNotImplementedError()
-
 
 class SymmetricTokenBase(TokenBase):
     """
@@ -396,22 +354,6 @@ class SymmetricTokenBase(TokenBase):
 
         return self._get_encoding_key(**options)
 
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bytes.
-                             note that some token handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: str
-        """
-
-        raise CoreNotImplementedError()
-
 
 class AsymmetricTokenBase(TokenBase):
     """
@@ -426,22 +368,6 @@ class AsymmetricTokenBase(TokenBase):
 
         # we pass the algorithm of token handler as the name of it.
         TokenBase.__init__(self, self._get_algorithm(**options), **options)
-
-    @classmethod
-    def generate_key(cls, **options):
-        """
-        generates a valid public/private key for this handler and returns it.
-
-        :keyword int length: the length of generated key in bits.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns tuple(str public_key, str private_key)
-
-        :rtype: tuple
-        """
-
-        raise CoreNotImplementedError()
 
 
 class RSTokenBase(AsymmetricTokenBase):

@@ -74,8 +74,9 @@ def register_session_factory(instance, **options):
     on adding an instance which it's is_request_bounded() is already available
     in registered session factories.
 
-    :param SessionFactoryBase instance: session factory to be registered.
-                                        it must be an instance of SessionFactoryBase.
+    :param AbstractSessionFactoryBase instance: session factory to be registered.
+                                                it must be an instance of
+                                                AbstractSessionFactoryBase.
 
     :keyword bool replace: specifies that if there is another registered
                            session factory with the same is_request_bounded(),

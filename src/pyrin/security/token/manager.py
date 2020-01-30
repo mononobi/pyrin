@@ -12,7 +12,7 @@ from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
     TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
     TokenDecodingError
-from pyrin.security.token.handlers.base import TokenBase
+from pyrin.security.token.interface import AbstractTokenBase
 from pyrin.utils.custom_print import print_warning
 
 
@@ -41,8 +41,8 @@ class TokenManager(Manager):
         on adding an instance which it's name is already available
         in registered handlers.
 
-        :param TokenBase instance: token handler to be registered.
-                                   it must be an instance of TokenBase.
+        :param AbstractTokenBase instance: token handler to be registered.
+                                           it must be an instance of AbstractTokenBase.
 
         :keyword bool replace: specifies that if there is another registered
                                handler with the same name, replace it with
@@ -55,9 +55,9 @@ class TokenManager(Manager):
         :raises DuplicatedTokenKidHeaderError: duplicated token kid header error.
         """
 
-        if not isinstance(instance, TokenBase):
+        if not isinstance(instance, AbstractTokenBase):
             raise InvalidTokenHandlerTypeError('Input parameter [{instance}] is '
-                                               'not an instance of TokenBase.'
+                                               'not an instance of AbstractTokenBase.'
                                                .format(instance=str(instance)))
 
         if instance.get_name() is None or len(instance.get_name().strip()) == 0:
@@ -100,7 +100,7 @@ class TokenManager(Manager):
 
         :raises TokenHandlerNotFoundError: token handler not found error.
 
-        :rtype: TokenBase
+        :rtype: AbstractTokenBase
         """
 
         handler_name = options.get('handler_name', self._get_default_handler_name())

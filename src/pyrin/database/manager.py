@@ -14,7 +14,7 @@ from pyrin.database.hooks import DatabaseHookBase
 from pyrin.database.model.base import CoreEntity
 from pyrin.core.context import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
-from pyrin.database.session_factory.base import SessionFactoryBase
+from pyrin.database.interface import AbstractSessionFactoryBase
 from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
@@ -232,8 +232,9 @@ class DatabaseManager(Manager):
         on adding an instance which it's is_request_bounded() is already available
         in registered session factories.
 
-        :param SessionFactoryBase instance: session factory to be registered.
-                                            it must be an instance of SessionFactoryBase.
+        :param AbstractSessionFactoryBase instance: session factory to be registered.
+                                                    it must be an instance of
+                                                    AbstractSessionFactoryBase.
 
         :keyword bool replace: specifies that if there is another registered
                                session factory with the same is_request_bounded(),
@@ -244,9 +245,9 @@ class DatabaseManager(Manager):
         :raises DuplicatedSessionFactoryError: duplicated session factory error.
         """
 
-        if not isinstance(instance, SessionFactoryBase):
+        if not isinstance(instance, AbstractSessionFactoryBase):
             raise InvalidSessionFactoryTypeError('Input parameter [{instance}] is '
-                                                 'not an instance of SessionFactoryBase.'
+                                                 'not an instance of AbstractSessionFactoryBase.'
                                                  .format(instance=str(instance)))
 
         # checking whether is there any registered instance with the same name.

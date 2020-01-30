@@ -9,7 +9,7 @@ from pyrin.core.context import Context, Manager
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
     EncryptionHandlerNotFoundError, InvalidEncryptedValueError
-from pyrin.security.encryption.handlers.base import EncrypterBase
+from pyrin.security.encryption.interface import AbstractEncrypterBase
 from pyrin.utils.custom_print import print_warning
 
 
@@ -35,8 +35,9 @@ class EncryptionManager(Manager):
         on adding an instance which it's name is already available
         in registered handlers.
 
-        :param EncrypterBase instance: encryption handler to be registered.
-                                       it must be an instance of EncrypterBase.
+        :param AbstractEncrypterBase instance: encryption handler to be registered.
+                                               it must be an instance of
+                                               AbstractEncrypterBase.
 
         :keyword bool replace: specifies that if there is another registered
                                handler with the same name, replace it with
@@ -48,9 +49,9 @@ class EncryptionManager(Manager):
         :raises DuplicatedEncryptionHandlerError: duplicated encryption handler error.
         """
 
-        if not isinstance(instance, EncrypterBase):
+        if not isinstance(instance, AbstractEncrypterBase):
             raise InvalidEncryptionHandlerTypeError('Input parameter [{instance}] is '
-                                                    'not an instance of EncrypterBase.'
+                                                    'not an instance of AbstractEncrypterBase.'
                                                     .format(instance=str(instance)))
 
         if instance.get_name() is None or len(instance.get_name().strip()) == 0:
@@ -140,7 +141,7 @@ class EncryptionManager(Manager):
 
         :raises EncryptionHandlerNotFoundError: encryption handler not found error.
 
-        :rtype: EncrypterBase
+        :rtype: AbstractEncrypterBase
         """
 
         handler_name = options.get('handler_name', self._get_default_handler_name())
