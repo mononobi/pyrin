@@ -57,7 +57,8 @@ class Package(CoreObject):
         """
 
         if len(self.CONFIG_STORE_NAMES) > 0:
-            config_services.load_configurations(*self.CONFIG_STORE_NAMES)
+            config_services.load_configurations(*self.CONFIG_STORE_NAMES,
+                                                ignore_on_existed=True)
 
         self._load_configs(config_services)
 

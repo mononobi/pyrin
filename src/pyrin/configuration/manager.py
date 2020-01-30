@@ -12,6 +12,7 @@ from pyrin.core.context import Context, Manager
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationSettingsPathNotExistedError, ConfigurationStoreNotFoundError, \
     ConfigurationFileNotFoundError
+from pyrin.utils.custom_print import print_warning
 
 
 class ConfigurationManager(Manager):
@@ -36,13 +37,25 @@ class ConfigurationManager(Manager):
         :param str name: config store name.
         :param str file_path: config file full path.
 
+        :keyword bool ignore_on_existed: specifies that it should not raise an
+                                         error if a config store with given name
+                                         has been already loaded.
+                                         defaults to False if not provided.
+
         :raises ConfigurationStoreExistedError: configuration store existed error.
         """
 
-        if name in self._config_stores.keys():
-            raise ConfigurationStoreExistedError('Config store with name [{name}] already '
-                                                 'existed, config file names must be unique.'
-                                                 .format(name=name))
+        ignore = options.get('ignore_on_existed', False)
+        if name in self._config_stores:
+            if ignore is not True:
+                raise ConfigurationStoreExistedError('Config store with name [{name}] already '
+                                                     'existed, config file names must be unique.'
+                                                     .format(name=name))
+            else:
+                print_warning('Config store with name [{name}] already '
+                              'existed, it will be ignored.'
+                              .format(name=name))
+                return
 
         self._config_stores[name] = ConfigStore(name, file_path, **options)
 
@@ -68,10 +81,16 @@ class ConfigurationManager(Manager):
                               for the given name not found, ignore it.
                               otherwise raise an error. defaults to False.
 
+        :keyword bool ignore_on_existed: specifies that it should not raise an
+                                         error if a config store with given name
+                                         has been already loaded.
+                                         defaults to False if not provided.
+
         :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                           path not existed error.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
+        :raises ConfigurationStoreExistedError: configuration store existed error.
         """
 
         file_path = self._get_relevant_file_path(name, **options)
@@ -89,10 +108,16 @@ class ConfigurationManager(Manager):
                               for any of the given names not found, ignore it.
                               otherwise raise an error. defaults to False.
 
+        :keyword bool ignore_on_existed: specifies that it should not raise an
+                                         error if a config store with given name
+                                         has been already loaded.
+                                         defaults to False if not provided.
+
         :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                           path not existed error.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
+        :raises ConfigurationStoreExistedError: configuration store existed error.
         """
 
         for single_name in names:

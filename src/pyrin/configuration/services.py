@@ -18,10 +18,16 @@ def load_configuration(name, **options):
                           for the given name not found, ignore it.
                           otherwise raise an error. defaults to False.
 
+    :keyword bool ignore_on_existed: specifies that it should not raise an
+                                     error if a config store with given name
+                                     has been already loaded.
+                                     defaults to False if not provided.
+
     :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                       path not existed error.
 
     :raises ConfigurationFileNotFoundError: configuration file not found error.
+    :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(name,
@@ -39,10 +45,16 @@ def load_configurations(*names, **options):
                           for any of the given names not found, ignore it.
                           otherwise raise an error. defaults to False.
 
+    :keyword bool ignore_on_existed: specifies that it should not raise an
+                                     error if a config store with given name
+                                     has been already loaded.
+                                     defaults to False if not provided.
+
     :raises ConfigurationSettingsPathNotExistedError: configuration settings
                                                       path not existed error.
 
     :raises ConfigurationFileNotFoundError: configuration file not found error.
+    :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(*names,
