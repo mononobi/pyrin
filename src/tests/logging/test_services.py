@@ -46,7 +46,10 @@ def test_wrap_all_loggers():
     """
 
     loggers = logging_services.get_all_loggers()
-    assert not any(isinstance(logger, Logger) for logger in loggers.values())
+
+    assert not any(isinstance(logger, Logger) for logger in loggers.values()
+                   if logging_services.should_be_wrapped(logger) is True)
+
     assert any(isinstance(logger, RequestInfoLoggerAdapter) for logger in loggers.values())
 
 

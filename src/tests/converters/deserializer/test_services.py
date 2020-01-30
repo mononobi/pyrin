@@ -9,19 +9,12 @@ from sqlalchemy.pool import QueuePool, AssertionPool
 
 import pyrin.converters.deserializer.services as deserializer_services
 
+from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.core.context import DTO
 from pyrin.core.globals import NULL
-from pyrin.converters.deserializer.handlers.string import StringDeserializer
 from pyrin.converters.deserializer.handlers.boolean import BooleanDeserializer
-from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer, \
-    StringDictionaryDeserializer
-from pyrin.converters.deserializer.handlers.list import ListDeserializer, StringListDeserializer
-from pyrin.converters.deserializer.handlers.none import NoneDeserializer
-from pyrin.converters.deserializer.handlers.number import IntegerDeserializer, FloatDeserializer
-from pyrin.converters.deserializer.handlers.pool import PoolDeserializer
-from pyrin.converters.deserializer.handlers.tuple import TupleDeserializer, StringTupleDeserializer
-from pyrin.converters.deserializer.handlers.datetime import DateDeserializer, \
-    DateTimeDeserializer, TimeDeserializer
+from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer
+from pyrin.converters.deserializer.handlers.list import StringListDeserializer
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \
     DuplicatedDeserializerError
 
@@ -370,15 +363,8 @@ def test_get_deserializers():
     """
 
     values = deserializer_services.get_deserializers()
-    assert len(values) == 15
-    assert all(type(item) in [StringTupleDeserializer, TupleDeserializer,
-                              PoolDeserializer, FloatDeserializer,
-                              IntegerDeserializer, NoneDeserializer,
-                              StringListDeserializer, ListDeserializer,
-                              DictionaryDeserializer, StringDictionaryDeserializer,
-                              TimeDeserializer, DateTimeDeserializer,
-                              DateDeserializer, BooleanDeserializer,
-                              StringDeserializer] for item in values)
+    assert len(values) == 4
+    assert all(isinstance(item, DeserializerBase) for item in values)
 
 
 def test_get_deserializers_string():
@@ -387,7 +373,7 @@ def test_get_deserializers_string():
     """
 
     values = deserializer_services.get_deserializers(accepted_type=str)
-    assert len(values) == 12
+    assert len(values) == 1
 
 
 def test_get_deserializers_tuple():

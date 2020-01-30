@@ -8,7 +8,7 @@ import pytest
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreAssertionError
+from pyrin.core.exceptions import CoreAssertionError, CoreValueError
 
 from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity
 
@@ -210,15 +210,16 @@ def test_entity_to_dict_list_with_none():
     assert len(result) == 0
 
 
-def test_tuple_to_dict():
+def test_keyed_tuple_to_dict():
     """
-    converts values tuple into a dict using given columns tuple.
+    converts values list into a dict using given columns list.
     """
 
-    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
-    values = ('this is name', 1000, 22)
+    values = ['this is name', 1000, 22]
+    fields = ['name', 'id', 'age']
 
-    result = sqlalchemy_utils.tuple_to_dict(columns, values)
+    row_result = sqlalchemy_utils.create_row_result(fields, values)
+    result = sqlalchemy_utils.keyed_tuple_to_dict(row_result)
 
     assert isinstance(result, dict)
     assert len(result) == 3
@@ -228,57 +229,40 @@ def test_tuple_to_dict():
     assert result.get('age', None) == 22
 
 
-def test_tuple_to_dict_with_none_items():
+def test_keyed_tuple_to_dict_with_none_items():
     """
-    converts values tuple into a dict using given columns tuple.
+    converts values list into a dict using given columns list.
     it should return an empty dict in different scenarios.
     """
 
-    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
-    values = ('this is name', 1000, 22)
-
-    result1 = sqlalchemy_utils.tuple_to_dict(None, values)
-    result2 = sqlalchemy_utils.tuple_to_dict(columns, None)
-    result3 = sqlalchemy_utils.tuple_to_dict((), values)
-    result4 = sqlalchemy_utils.tuple_to_dict(columns, ())
+    result1 = sqlalchemy_utils.keyed_tuple_to_dict(None)
+    result2 = sqlalchemy_utils.keyed_tuple_to_dict([])
 
     assert isinstance(result1, dict)
     assert isinstance(result2, dict)
-    assert isinstance(result3, dict)
-    assert isinstance(result4, dict)
 
     assert len(result1) == 0
     assert len(result2) == 0
-    assert len(result3) == 0
-    assert len(result4) == 0
 
 
-def test_tuple_to_dict_with_different_lengths():
+def test_keyed_tuple_to_dict_list():
     """
-    converts values tuple into a dict using given columns tuple.
-    columns and values length does not match, it should raise an error.
+    converts the given list of values list into a list
+    of dicts using given columns list.
     """
 
-    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
-    values = ('this is name', 1000, 22, 'extra value')
-
-    with pytest.raises(CoreAssertionError):
-        sqlalchemy_utils.tuple_to_dict(columns, values)
-
-
-def test_tuple_to_dict_list():
-    """
-    converts the given list of values tuple into a list
-    of dicts using given columns tuple.
-    """
-
-    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
-    values1 = ('name1', 1000, 10)
-    values2 = ('name2', 2000, 20)
-    values3 = ('name3', 3000, 30)
+    columns = ['name', 'id', 'age']
+    values1 = ['name1', 1000, 10]
+    values2 = ['name2', 2000, 20]
+    values3 = ['name3', 3000, 30]
     values = [values1, values2, values3]
 
-    results = sqlalchemy_utils.tuple_to_dict_list(columns, values)
+    rows = []
+    for single_value in values:
+        row = sqlalchemy_utils.create_row_result(columns, single_value)
+        rows.append(row)
+
+    results = sqlalchemy_utils.keyed_tuple_to_dict_list(rows)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -304,33 +288,49 @@ def test_tuple_to_dict_list():
     assert dict3.get('age', None) == 30
 
 
-def test_tuple_to_dict_list_with_none_items():
+def test_keyed_tuple_to_dict_list_with_none_items():
     """
-    converts the given list of values tuple into a list
-    of dicts using given columns tuple.
-    it should return an empty list in different scenarios.
+    converts the given list of values list into a list
+    of dicts using given columns list.
+    it should return an empty list or a list with empty
+    dicts in different scenarios.
     """
 
-    columns = (SampleEntity.name, SampleEntity.id, SampleEntity.age)
-    values1 = ('name1', 1000, 10)
-    values2 = ('name2', 2000, 20)
-    values3 = ('name3', 3000, 30)
-    values = [values1, values2, values3]
+    columns = []
+    values = [[], []]
 
-    result1 = sqlalchemy_utils.tuple_to_dict_list(None, values)
-    result2 = sqlalchemy_utils.tuple_to_dict_list(columns, None)
-    result3 = sqlalchemy_utils.tuple_to_dict_list((), values)
-    result4 = sqlalchemy_utils.tuple_to_dict_list(columns, [])
+    rows = []
+    for single_value in values:
+        row = sqlalchemy_utils.create_row_result(columns, single_value)
+        rows.append(row)
 
-    assert isinstance(result1, list)
-    assert isinstance(result2, list)
-    assert isinstance(result3, list)
-    assert isinstance(result4, list)
+    results = sqlalchemy_utils.keyed_tuple_to_dict_list(rows)
 
-    assert len(result1) == 0
-    assert len(result2) == 0
-    assert len(result3) == 0
-    assert len(result4) == 0
+    assert isinstance(results, list)
+    assert len(results) == 2
+    assert isinstance(results[0], dict)
+    assert isinstance(results[1], dict)
+    assert len(results[0]) == 0
+    assert len(results[1]) == 0
+
+    results2 = sqlalchemy_utils.keyed_tuple_to_dict_list([None, None])
+
+    assert isinstance(results2, list)
+    assert len(results2) == 2
+    assert isinstance(results2[0], dict)
+    assert isinstance(results2[1], dict)
+    assert len(results2[0]) == 0
+    assert len(results2[1]) == 0
+
+    results3 = sqlalchemy_utils.keyed_tuple_to_dict_list(None)
+
+    assert isinstance(results3, list)
+    assert len(results3) == 0
+
+    results4 = sqlalchemy_utils.keyed_tuple_to_dict_list([])
+
+    assert isinstance(results4, list)
+    assert len(results4) == 0
 
 
 def test_like_both():
@@ -400,3 +400,42 @@ def test_like_end_with_none_value():
     result = sqlalchemy_utils.like_end(None)
 
     assert result == '%'
+
+
+def test_create_row_result():
+    """
+    creates a row result from values list and columns names.
+    """
+
+    columns = ['name', 'id', 'age']
+    values = ['this is name', 1000, 22]
+
+    result = sqlalchemy_utils.create_row_result(columns, values)
+
+    assert result is not None
+    assert result.name == 'this is name'
+    assert result.id == 1000
+    assert result.age == 22
+
+
+def test_create_row_result_with_mismatch_length():
+    """
+    creates a row result from values list and columns names.
+    it should raise an error because columns and values length does not match.
+    """
+
+    columns = ['name', 'id', 'age']
+    values = ['this is name', 1000, 22, 'extra']
+
+    with pytest.raises(CoreAssertionError):
+        sqlalchemy_utils.create_row_result(columns, values)
+
+
+def test_create_row_result_with_none_values():
+    """
+    creates a row result from values list and columns names.
+    it should raise an error because columns and values are None.
+    """
+
+    with pytest.raises(CoreValueError):
+        sqlalchemy_utils.create_row_result(None, None)
