@@ -5,18 +5,18 @@ configuration store module.
 
 import os
 
-from configparser import ConfigParser
-
 import pyrin.converters.deserializer.services as deserializer_services
+import pyrin.utils.configuration as config_utils
 
 from pyrin.core.context import CoreObject, DTO
-from pyrin.core.globals import NULL
+from pyrin.core.exceptions import CoreFileNotFoundError
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
     ConfigurationStoreDuplicateKeyError, ConfigurationEnvironmentVariableNotFoundError, \
-    InvalidConfigurationEnvironmentVariableValueError, ConfigurationStoreAttributeNotFoundException
+    InvalidConfigurationEnvironmentVariableValueError, \
+    ConfigurationStoreAttributeNotFoundException
 
 
 class ConfigStore(CoreObject):
@@ -34,6 +34,8 @@ class ConfigStore(CoreObject):
 
         :param str name: config store name.
         :param str config_file_path: full path of config file.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         CoreObject.__init__(self)
@@ -50,18 +52,11 @@ class ConfigStore(CoreObject):
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
-        parser = ConfigParser()
-        if len(parser.read(self._config_file_path)) == 0:
-            raise ConfigurationFileNotFoundError('Configuration file [{file}] not found.'
-                                                 .format(file=self._config_file_path))
-
-        for section in parser.sections():
-            values = parser.items(section)
-            dic_values = DTO()
-            for single_value in values:
-                dic_values[single_value[0]] = single_value[1]
-
-            self._configs[section] = deserializer_services.deserialize(dic_values, **options)
+        try:
+            self._configs = config_utils.load(self._config_file_path,
+                                              deserializer_services.deserialize)
+        except CoreFileNotFoundError as error:
+            raise ConfigurationFileNotFoundError(error) from error
 
         self._sync_with_env(**options)
 
@@ -364,10 +359,7 @@ class ConfigStore(CoreObject):
                 if value is None:
                     env_value = self._get_from_env(key, **options)
                     converted_value = deserializer_services.deserialize(env_value)
-                    if converted_value is not NULL:
-                        env_value = converted_value
-
-                    self._configs[section_name][key] = env_value
+                    self._configs[section_name][key] = converted_value
 
     def _get_active_section_name(self):
         """

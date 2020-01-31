@@ -30,9 +30,12 @@ class DeserializerManager(Manager):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
-        returns `NULL` object if deserialization fails.
+        returns deserialized object on success or returns
+        the same input value if deserialization fails.
 
         :param object value: value to be deserialized.
+
+        :returns: deserialized object
         """
 
         options.update(accepted_type=type(value))
@@ -45,7 +48,7 @@ class DeserializerManager(Manager):
                 return deserialized_value
             continue
 
-        return deserialized_value
+        return value
 
     def register_deserializer(self, instance, **options):
         """

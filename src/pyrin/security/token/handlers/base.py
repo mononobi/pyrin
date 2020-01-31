@@ -11,6 +11,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodingError
 from pyrin.security.token.interface import AbstractTokenBase
 from pyrin.security.utils import key_helper
@@ -229,7 +230,7 @@ class TokenBase(AbstractTokenBase):
         expire_duration = self._get_access_token_lifetime()
         expiration = common_required['iat'] + expire_duration
         common_required.update(exp=expiration,
-                               type='access')
+                               type=TokenTypeEnum.ACCESS)
 
         return common_required
 
@@ -248,7 +249,7 @@ class TokenBase(AbstractTokenBase):
         expire_duration = self._get_refresh_token_lifetime()
         expiration = common_required['iat'] + expire_duration
         common_required.update(exp=expiration,
-                               type='refresh')
+                               type=TokenTypeEnum.REFRESH)
 
         return common_required
 

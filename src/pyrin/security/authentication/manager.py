@@ -8,6 +8,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _
 from pyrin.core.context import Manager
+from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError, \
     AccessTokenRequiredError, InvalidPayloadDataError
@@ -72,7 +73,7 @@ class AuthenticationManager(Manager):
         :rtype: str
         """
 
-        return client_request.headers.get('Authorization', None)
+        return client_request.context.get('authorization', None)
 
     def _push_required_data(self, header, payload, **options):
         """
@@ -134,7 +135,7 @@ class AuthenticationManager(Manager):
             raise InvalidPayloadDataError(_('Payload data could not be None.'))
 
         token_type = payload.get('type', None)
-        if token_type != 'access':
+        if token_type != TokenTypeEnum.ACCESS:
             raise AccessTokenRequiredError(_('Access token is required for authentication.'))
 
         self._validate_custom(header, payload, **options)

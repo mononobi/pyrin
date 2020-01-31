@@ -171,6 +171,7 @@ class CoreRequest(Request):
         self.client_ip = self._get_client_ip()
         self.safe_content_length = self._get_safe_content_length()
         self.context = Context()
+        self.context.update(authorization=self._get_authorization_header())
 
         # holds the inputs of request. this value will be
         # calculated once per each request and cached.
@@ -202,6 +203,15 @@ class CoreRequest(Request):
         """
 
         return self.environ.get('HTTP_X_REAL_IP', self.environ.get('REMOTE_ADDR', None))
+
+    def _get_authorization_header(self):
+        """
+        gets the authorization header if available, otherwise returns None.
+
+        :rtype: str
+        """
+
+        return self.headers.get('Authorization', None)
 
     def get_inputs(self, silent=False):
         """

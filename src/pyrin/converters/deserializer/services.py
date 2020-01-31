@@ -10,9 +10,12 @@ from pyrin.application.services import get_component
 def deserialize(value, **options):
     """
     deserializes the given value.
-    returns `NULL` object if deserialization fails.
+    returns deserialized object on success or returns
+    the same input value if deserialization fails.
 
     :param object value: value to be deserialized.
+
+    :returns: deserialized object
     """
 
     return get_component(DeserializerPackage.COMPONENT_NAME).deserialize(value, **options)

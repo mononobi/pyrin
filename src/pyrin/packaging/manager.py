@@ -27,6 +27,8 @@ class PackagingManager(Manager):
     packaging manager class.
     """
 
+    PYRIN_PACKAGE_NAME = 'pyrin'
+
     def __init__(self):
         """
         creates a new instance of PackagingManager.
@@ -82,15 +84,18 @@ class PackagingManager(Manager):
 
         print_info('Loading application components...')
 
-        core_packages, application_packages, custom_packages, test_packages = \
-            self._get_loadable_components(**options)
+        pyrin_packages, extended_application_packages, \
+            other_application_packages, custom_packages, \
+            extended_test_packages, other_test_packages = self._get_loadable_components(**options)
 
-        self._load_components(core_packages, **options)
-        self._load_components(application_packages, **options)
+        self._load_components(pyrin_packages, **options)
+        self._load_components(extended_application_packages, **options)
+        self._load_components(other_application_packages, **options)
         self._load_components(custom_packages, **options)
 
         if self._configs.load_test_packages is True:
-            self._load_components(test_packages, **options)
+            self._load_components(extended_test_packages, **options)
+            self._load_components(other_test_packages, **options)
 
         self._after_packages_loaded()
 
@@ -137,9 +142,7 @@ class PackagingManager(Manager):
         # any other module needed package services in top level objects.
         component_module = None
         if component_name is not None:
-            root_package = package_name.split('.')[0]
-            component_module = '{root_package}.{component}'.format(root_package=root_package,
-                                                                   component=component_name)
+            component_module = self._merge_module_name(package_name, component_name)
 
         if component_module is not None and component_module in module_names:
             self.load(component_module, **options)
@@ -163,10 +166,10 @@ class PackagingManager(Manager):
         """
         loads the given components considering their dependency on each other.
 
-        :param dict(str: list[str]) components: full package names and their
-                                                modules to be loaded.
+        :param dict components: full package names and their
+                                modules to be loaded.
 
-        :type components: dict(list[str] package_name: modules)
+        :type components: dict(str package_name: list[str] modules)
         """
 
         # a dictionary containing all dependent package names and their respective modules.
@@ -205,26 +208,31 @@ class PackagingManager(Manager):
         """
         gets all package and module names that should be loaded.
 
-        :returns: tuple(core_components, application_components,
-                        custom_components, test_components)
+        :returns: tuple(pyrin_components,
+                        extended_application_components,
+                        other_application_components,
+                        custom_components,
+                        extended_test_components,
+                        other_test_components)
 
-        :type core_components: dict(list[str] package_name: modules)
+        :type pyrin_components: dict(str package_name: list[str] modules)
 
-        :type application_components: dict(list[str] package_name: modules)
+        :type extended_application_components: dict(str package_name: list[str] modules)
 
-        :type custom_components: dict(list[str] package_name: modules)
+        :type other_application_components: dict(str package_name: list[str] modules)
 
-        :type test_components: dict(list[str] package_name: modules)
+        :type custom_components: dict(str package_name: list[str] modules)
 
-        :type package_name: list(str module: module name)
+        :type extended_test_components: dict(str package_name: list[str] modules)
 
-        :rtype: tuple(dict(str: list[str]), dict(str: list[str]),
-                      dict(str: list[str]), dict(str: list[str]))
+        :type other_test_components: dict(str package_name: list[str] modules)
+
+        :rtype: tuple
         """
 
         # a dictionary containing all package names and their respective modules.
         # in the form of {package_name: [modules]}.
-        core_components = DTO()
+        pyrin_components = DTO()
         application_components = DTO()
         custom_components = DTO()
         test_components = DTO()
@@ -240,8 +248,8 @@ class PackagingManager(Manager):
                 if self._is_ignored_package(package_name):
                     continue
 
-                if self._is_core_package(package_name):
-                    core_components[package_name] = []
+                if self._is_pyrin_package(package_name):
+                    pyrin_components[package_name] = []
                 elif self._is_custom_package(package_name):
                     custom_components[package_name] = []
                 elif self._is_test_package(package_name):
@@ -259,8 +267,8 @@ class PackagingManager(Manager):
                     if self._is_ignored_module(full_module_name):
                         continue
 
-                    if self._is_core_module(full_module_name):
-                        core_components[package_name].append(full_module_name)
+                    if self._is_pyrin_module(full_module_name):
+                        pyrin_components[package_name].append(full_module_name)
                     elif self._is_custom_module(full_module_name):
                         custom_components[package_name].append(full_module_name)
                     elif self._is_test_module(full_module_name):
@@ -268,7 +276,125 @@ class PackagingManager(Manager):
                     else:
                         application_components[package_name].append(full_module_name)
 
-        return core_components, application_components, custom_components, test_components
+        return self._detach_all(pyrin_components, application_components,
+                                custom_components, test_components)
+
+    def _detach_all(self, pyrin_components, application_components,
+                    custom_components, test_components):
+        """
+        detaches all given components into extended and other components.
+
+        :param dict pyrin_components: pyrin components.
+        :type pyrin_components: dict(str package_name: list[str] modules)
+
+        :param dict application_components: application components.
+        :type application_components: dict(str package_name: list[str] modules)
+
+        :param dict custom_components: custom components.
+        :type custom_components: dict(str package_name: list[str] modules)
+
+        :param dict test_components: test components.
+        :type test_components: dict(str package_name: list[str] modules)
+
+        :returns: tuple(pyrin_components,
+                        extended_application_components,
+                        other_application_components,
+                        custom_components,
+                        extended_test_components,
+                        other_test_components)
+
+        :type pyrin_components: dict(str package_name: list[str] modules)
+
+        :type extended_application_components: dict(str package_name: list[str] modules)
+
+        :type other_application_components: dict(str package_name: list[str] modules)
+
+        :type custom_components: dict(str package_name: list[str] modules)
+
+        :type extended_test_components: dict(str package_name: list[str] modules)
+
+        :type other_test_components: dict(str package_name: list[str] modules)
+
+        :rtype: tuple
+        """
+
+        extended_application_components, \
+            other_application_components = self._detach_extended_packages(
+                list(pyrin_components.keys()), application_components)
+
+        test_base_components = application_components
+        if len(application_components) <= 0:
+            test_base_components = pyrin_components
+        extended_test_components, \
+            other_test_components = self._detach_extended_packages(
+                list(test_base_components.keys()), test_components)
+
+        return pyrin_components, extended_application_components, \
+            other_application_components, custom_components, \
+            extended_test_components, other_test_components
+
+    def _detach_extended_packages(self, base_components, components):
+        """
+        detaches components which extend existing base components
+        from those which are new components.
+
+        :param list[str] base_components: base component names.
+
+        :param dict components: components which some of
+                                them extend base components.
+
+        :type components: dict(str package_name: list[str] modules)
+
+        :returns: tuple(extended_components, other_components)
+
+        :type extended_components: dict(str package_name: list[str] modules)
+        :type other_components: dict(str package_name: list[str] modules)
+
+        :rtype: tuple
+        """
+
+        extended_components = DTO()
+        other_components = DTO()
+        if len(components) > 0:
+            component_keys = list(components.keys())
+            root_name = self._get_root_package(component_keys[0])
+            base_names = [self._replace_root_package(item, root_name) for item in base_components]
+            for package in components:
+                if package in base_names:
+                    extended_components[package] = components[package]
+                else:
+                    other_components[package] = components[package]
+
+        return extended_components, other_components
+
+    def _replace_root_package(self, old_package, root_name):
+        """
+        replaces root package name in old package with given root name.
+
+        :param str old_package: old package fully qualified name.
+                                in the form of: `pyrin.api`
+
+        :param str root_name: root name to be put in old package name.
+                              in the form of: `my_root`
+        :rtype: str
+        """
+
+        parts = old_package.split('.')
+        parts.pop(0)
+        parts.insert(0, root_name)
+
+        return '.'.join(parts)
+
+    def _get_root_package(self, component_name):
+        """
+        gets the root package of given component.
+
+        :param str component_name: full package or module name.
+
+        :rtype: str
+        """
+
+        return component_name.split('.')[0]
 
     def _is_ignored_package(self, package_name):
         """
@@ -302,32 +428,20 @@ class PackagingManager(Manager):
 
         return False
 
-    def _is_core_component(self, component_name):
+    def _is_pyrin_component(self, component_name):
         """
-        gets a value indicating that given component is a core component.
+        gets a value indicating that given component is a pyrin component.
 
         :param str component_name: full package or module name.
 
         :rtype: bool
         """
 
-        # this if condition is to make it possible for the top level
-        # application package name to start with any of core packages names.
-        # for example: 'pyrin_sample'
-        root_package = component_name.split('.')[0]
-        root_core_packages = [name.split('.')[0] for name in self._configs.core_packages]
-        if root_package not in root_core_packages:
-            return False
+        return self._contains(self.PYRIN_PACKAGE_NAME, component_name)
 
-        for core in self._configs.core_packages:
-            if component_name.startswith(core):
-                return True
-
-        return False
-
-    def _is_core_package(self, package_name):
+    def _is_pyrin_package(self, package_name):
         """
-        gets a value indicating that given package is a core package.
+        gets a value indicating that given package is a pyrin package.
 
         :param str package_name: full package name.
                                  example package_name = 'pyrin.api'
@@ -335,11 +449,11 @@ class PackagingManager(Manager):
         :rtype: bool
         """
 
-        return self._is_core_component(package_name)
+        return self._is_pyrin_component(package_name)
 
-    def _is_core_module(self, module_name):
+    def _is_pyrin_module(self, module_name):
         """
-        gets a value indicating that given module is a core module.
+        gets a value indicating that given module is a pyrin module.
 
         :param str module_name: full module name.
                                 example module_name = 'pyrin.api.error_handlers'
@@ -347,7 +461,7 @@ class PackagingManager(Manager):
         :rtype: bool
         """
 
-        return self._is_core_component(module_name)
+        return self._is_pyrin_component(module_name)
 
     def _is_custom_component(self, component_name):
         """
@@ -359,7 +473,7 @@ class PackagingManager(Manager):
         """
 
         for custom in self._configs.custom_packages:
-            if component_name.startswith(custom):
+            if self._contains(custom, component_name) is True:
                 return True
 
         return False
@@ -398,7 +512,7 @@ class PackagingManager(Manager):
         """
 
         for test in self._configs.test_packages:
-            if component_name.startswith(test):
+            if self._contains(test, component_name) is True:
                 return True
 
         return False
@@ -427,6 +541,30 @@ class PackagingManager(Manager):
 
         return self._is_test_component(module_name)
 
+    def _contains(self, root, component_name):
+        """
+        gets a value indicating that given component
+        qualified name, is belonging to the provided root.
+
+        :param str root: root name that should be checked for component existence.
+                         example root = `application.custom`
+
+        :param str component_name: component name that should be
+                                   checked for existence in root.
+                                   example component_name = `application.custom.api`
+
+        :rtype: bool
+        """
+
+        parts_component = component_name.split('.')
+        parts_root = root.split('.')
+        if len(parts_component) < len(parts_root):
+            return False
+
+        component_root = '.'.join(parts_component[0:len(parts_root)])
+
+        return component_root == root
+
     def _get_package_name(self, path):
         """
         gets the full package name from provided path.
@@ -438,6 +576,22 @@ class PackagingManager(Manager):
         """
 
         return path.replace(self._root_directory, '').replace('/', '.')
+
+    def _merge_module_name(self, package_name, component_name):
+        """
+        merges package and component name and gets the fully qualified module name.
+
+        :param str package_name: package name.
+                                 example package_name = `pyrin.database`.
+
+        :param str component_name: component name.
+                                   example component_name = `database.component`.
+
+        :rtype: str
+        """
+
+        parts = component_name.split('.')
+        return self._get_module_name(package_name, parts[-1])
 
     def _get_module_name(self, package_name, module_name):
         """
