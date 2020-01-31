@@ -26,7 +26,7 @@ def client_request_unauthenticated():
     test_session_services.inject_new_request()
     payload = DTO(user_id=400)
     token = token_services.generate_access_token(payload, is_fresh=True)
-    session_services.get_current_request().headers['Authorization'] = token
+    session_services.get_current_request().context['authorization'] = token
 
     return session_services.get_current_request()
 
@@ -43,7 +43,7 @@ def client_request_authenticated():
     test_session_services.inject_new_request()
     payload = DTO(user_id=500)
     token = token_services.generate_access_token(payload, is_fresh=True)
-    session_services.get_current_request().headers['Authorization'] = token
+    session_services.get_current_request().context['authorization'] = token
     authentication_services.authenticate(session_services.get_current_request())
 
     return session_services.get_current_request()

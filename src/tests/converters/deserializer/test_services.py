@@ -11,7 +11,6 @@ import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
 from pyrin.core.context import DTO
-from pyrin.core.globals import NULL
 from pyrin.converters.deserializer.handlers.boolean import BooleanDeserializer
 from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer
 from pyrin.converters.deserializer.handlers.list import StringListDeserializer
@@ -295,37 +294,38 @@ def test_deserialize_dictionary_items():
 def test_deserialize_failure():
     """
     tests values that should not be deserialized.
+    it should return the same input value.
     """
 
     value = deserializer_services.deserialize('1 1')
-    assert value == NULL
+    assert value == '1 1'
 
     value = deserializer_services.deserialize('trues')
-    assert value == NULL
+    assert value == 'trues'
 
     value = deserializer_services.deserialize('2018-13-21T10:11:23-00:30')
-    assert value == NULL
+    assert value == '2018-13-21T10:11:23-00:30'
 
     value = deserializer_services.deserialize('[1, [2, 3], 5]')
-    assert value == NULL
+    assert value == '[1, [2, 3], 5]'
 
     value = deserializer_services.deserialize('(1, (2, 3), 5)')
-    assert value == NULL
+    assert value == '(1, (2, 3), 5)'
 
     value = deserializer_services.deserialize('non')
-    assert value == NULL
+    assert value == 'non'
 
     value = deserializer_services.deserialize('1.23.4')
-    assert value == NULL
+    assert value == '1.23.4'
 
     value = deserializer_services.deserialize('invalidPool')
-    assert value == NULL
+    assert value == 'invalidPool'
 
     value = deserializer_services.deserialize('"mismatch_quoted''')
-    assert value == NULL
+    assert value == '"mismatch_quoted'''
 
     value = deserializer_services.deserialize(None)
-    assert value == NULL
+    assert value is None
 
 
 def test_register_deserializer_invalid_type():
