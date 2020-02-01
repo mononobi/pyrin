@@ -6,7 +6,7 @@ utils configuration module.
 from configparser import ConfigParser
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreFileNotFoundError, CoreValueError
+from pyrin.utils.exceptions import InputNotCallableError, ConfigurationFileNotFoundError
 
 
 def load(file_path, converter=eval):
@@ -20,20 +20,20 @@ def load(file_path, converter=eval):
                                the callable should accept a single argument.
                                defaults to `eval` if not provided.
 
-    :raises CoreValueError: core value error.
-    :raises CoreFileNotFoundError: core file not found error.
+    :raises InputNotCallableError: input not callable error.
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
 
     :rtype: dict
     """
 
     if not callable(converter):
-        raise CoreValueError('Input parameter [{converter}] is not callable.'
-                             .format(converter=converter))
+        raise InputNotCallableError('Input parameter [{converter}] is not callable.'
+                                    .format(converter=converter))
 
     parser = ConfigParser()
     if len(parser.read(file_path)) == 0:
-        raise CoreFileNotFoundError('Configuration file [{file}] not found.'
-                                    .format(file=file_path))
+        raise ConfigurationFileNotFoundError('Configuration file [{file}] not found.'
+                                             .format(file=file_path))
 
     sections = DTO()
     for section in parser.sections():

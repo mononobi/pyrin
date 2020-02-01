@@ -8,8 +8,8 @@ import os
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.utils.configuration as config_utils
 
+from pyrin.utils.exceptions import ConfigurationFileNotFoundError as UtilsFileNotFoundError
 from pyrin.core.context import CoreObject, DTO
-from pyrin.core.exceptions import CoreFileNotFoundError
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
@@ -55,7 +55,7 @@ class ConfigStore(CoreObject):
         try:
             self._configs = config_utils.load(self._config_file_path,
                                               deserializer_services.deserialize)
-        except CoreFileNotFoundError as error:
+        except UtilsFileNotFoundError as error:
             raise ConfigurationFileNotFoundError(error) from error
 
         self._sync_with_env(**options)

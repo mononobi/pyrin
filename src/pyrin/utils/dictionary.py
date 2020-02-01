@@ -6,7 +6,7 @@ utils dictionary module.
 import pyrin.utils.string as string_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreTypeError
+from pyrin.utils.exceptions import InputNotCallableError
 
 
 def change_key_case(value, converter, **options):
@@ -23,14 +23,14 @@ def change_key_case(value, converter, **options):
                                similar to below example.
                                case_converter(input_dict).
 
-    :raises CoreTypeError: core type error.
+    :raises InputNotCallableError: input not callable error.
 
     :rtype: dict
     """
 
     if not callable(converter):
-        raise CoreTypeError('Input parameter [{converter}] is not callable.'
-                            .format(converter=str(converter)))
+        raise InputNotCallableError('Input parameter [{converter}] is not callable.'
+                                    .format(converter=str(converter)))
 
     result_dict = DTO()
     for key, val in value.items():

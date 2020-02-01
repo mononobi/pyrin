@@ -10,8 +10,9 @@ from sqlalchemy.util import lightweight_named_tuple
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreValueError, CoreAssertionError
 from pyrin.core.globals import _, LIST_TYPES
+from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
+    FieldsAndValuesCountMismatchError
 
 
 def entity_to_dict(entity, exposed_only=True):
@@ -316,21 +317,25 @@ def create_row_result(fields, values):
     :param list[object] values: values to be mapped to fields.
                                 they must be in the same order as fields.
 
-    :raises CoreValueError: core value error.
-    :raises CoreAssertionError: core assertion error.
+    :raises InvalidRowResultFieldsAndValuesError: invalid row result fields
+                                                  and values error.
+
+    :raises FieldsAndValuesCountMismatchError: fields and values count mismatch error.
 
     :rtype: AbstractKeyedTuple
     """
 
     if fields is None or values is None:
-        raise CoreValueError('Input parameters "fields" and "values" must '
-                             'both be provided, they could not be None.')
+        raise InvalidRowResultFieldsAndValuesError('Input parameters "fields" and '
+                                                   '"values" must both be provided, '
+                                                   'they could not be None.')
 
     if len(fields) != len(values):
-        raise CoreAssertionError('The length of "fields" which is [{fields}] '
-                                 'and "values" which is [{values}] does not match.'
-                                 .format(fields=len(fields),
-                                         values=len(values)))
+        raise FieldsAndValuesCountMismatchError('The length of "fields" which is '
+                                                '[{fields}] and "values" which is '
+                                                '[{values}] does not match.'
+                                                .format(fields=len(fields),
+                                                        values=len(values)))
 
     keyed_tuple = lightweight_named_tuple('result', fields)
     result = keyed_tuple(values)

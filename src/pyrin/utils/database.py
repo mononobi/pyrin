@@ -3,7 +3,8 @@
 utils database module.
 """
 
-from pyrin.core.exceptions import CoreValueError
+from pyrin.utils.exceptions import InvalidSchemaNameError, InvalidTableNameError, \
+    InvalidColumnNameError
 
 
 def get_schema_name(schema_name, database_name=None):
@@ -20,7 +21,7 @@ def get_schema_name(schema_name, database_name=None):
                               if not provided, database name
                               will be excluded from result string.
 
-    :raises CoreValueError: core value error.
+    :raises InvalidSchemaNameError: invalid schema name error.
 
     :returns: fully qualified schema name in the form of:
               `database_name.schema_name` or `schema_name`
@@ -38,7 +39,7 @@ def get_schema_name(schema_name, database_name=None):
     schema_name = schema_name.strip()
 
     if schema_name == '':
-        raise CoreValueError('Schema name could not be blank.')
+        raise InvalidSchemaNameError('Schema name could not be blank.')
 
     if database_name == '':
         return schema_name
@@ -62,7 +63,8 @@ def get_column_name(schema_name, table_name, column_name, database_name=None):
                               if not provided, database name
                               will be excluded from result string.
 
-    :raises CoreValueError: core value error.
+    :raises InvalidTableNameError: invalid table name error.
+    :raises InvalidColumnNameError: invalid column name error.
 
     :returns: fully qualified column name in the form of:
               `database_name.schema_name.table_name.column_name` or
@@ -83,10 +85,10 @@ def get_column_name(schema_name, table_name, column_name, database_name=None):
     column_name = column_name.strip()
 
     if table_name == '':
-        raise CoreValueError('Table name could not be blank.')
+        raise InvalidTableNameError('Table name could not be blank.')
 
     if column_name == '':
-        raise CoreValueError('Column name could not be blank.')
+        raise InvalidColumnNameError('Column name could not be blank.')
 
     return '{schema}.{table}.{column}'.format(schema=qualified_schema,
                                               table=table_name,
