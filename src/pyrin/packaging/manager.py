@@ -75,12 +75,25 @@ class PackagingManager(Manager, HookMixin):
 
         return os.path.abspath(config_path)
 
+    def _initialize_loaded_packages(self):
+        """
+        adds `pyrin.application` and `pyrin.packaging` into loaded packages.
+        those packages will load immediately and will not be added
+        to loaded packages through normal operations.
+        """
+
+        for package in self._configs.ignored_packages:
+            if package in ('pyrin.application', 'pyrin.packaging'):
+                if package not in self._loaded_packages:
+                    self._loaded_packages.append(package)
+
     def load_components(self, **options):
         """
         loads required packages and modules for application startup.
         """
 
         self._load_configs()
+        self._initialize_loaded_packages()
 
         print_info('Loading application components...')
 
