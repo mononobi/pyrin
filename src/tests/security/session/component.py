@@ -15,3 +15,4 @@ class SessionComponent(Component, SessionManager):
     """
     session component class.
     """
+    pass

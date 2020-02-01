@@ -15,3 +15,4 @@ class PermissionComponent(Component, PermissionManager):
     """
     permission component class.
     """
+    pass

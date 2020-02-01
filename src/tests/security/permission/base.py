@@ -24,7 +24,7 @@ class PermissionMock(PermissionBase):
         self.id = permission_id
         self.description = description
 
-        PermissionBase.__init__(self, **options)
+        super().__init__(**options)
 
     def __hash__(self):
         return hash(self.get_id())

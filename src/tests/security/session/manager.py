@@ -18,7 +18,7 @@ class SessionManager(BaseSessionManager):
         initializes an instance of SessionManager.
         """
 
-        BaseSessionManager.__init__(self)
+        super().__init__()
 
         self.__current_request_mock = None
 

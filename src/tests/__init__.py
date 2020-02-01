@@ -52,7 +52,7 @@ class PyrinTestApplication(Application):
                                  defaults to False, if not provided.
         """
 
-        Application.__init__(self, self.get_application_name(), **options)
+        super().__init__(self.get_application_name(), **options)
 
         # handling all signals that their default action is `terminate`,
         # to log if something goes wrong.

@@ -15,3 +15,4 @@ class SecurityComponent(Component, SecurityManager):
     """
     security component class.
     """
+    pass

@@ -19,7 +19,7 @@ class CoreRequestMock(CoreObject):
     charset = APPLICATION_ENCODING
 
     def __init__(self):
-        super(CoreObject, self).__init__()
+        super().__init__()
 
         self.request_id = uuid_utils.generate_uuid4()
         self.request_date = datetime_services.now()

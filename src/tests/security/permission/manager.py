@@ -22,7 +22,7 @@ class PermissionManager(BasePermissionManager):
         initializes an instance of PermissionManager.
         """
 
-        BasePermissionManager.__init__(self)
+        super().__init__()
 
     def synchronize_all(self, **options):
         """

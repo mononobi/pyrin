@@ -16,7 +16,7 @@ class DatabaseManager(BaseDatabaseManager):
         initializes an instance of DatabaseManager.
         """
 
-        BaseDatabaseManager.__init__(self)
+        super().__init__()
 
     def get_binds(self):
         """
