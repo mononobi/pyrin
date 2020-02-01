@@ -7,7 +7,8 @@ import pytest
 
 import pyrin.utils.database as database_utils
 
-from pyrin.core.exceptions import CoreValueError
+from pyrin.utils.exceptions import InvalidSchemaNameError, InvalidTableNameError, \
+    InvalidColumnNameError
 
 
 def test_get_schema_name():
@@ -42,7 +43,7 @@ def test_get_schema_name_with_invalid_schema():
     it should raise an error.
     """
 
-    with pytest.raises(CoreValueError):
+    with pytest.raises(InvalidSchemaNameError):
         database_utils.get_schema_name('  ', 'database')
 
 
@@ -81,7 +82,7 @@ def test_get_column_name_with_invalid_schema():
     it should raise an error.
     """
 
-    with pytest.raises(CoreValueError):
+    with pytest.raises(InvalidSchemaNameError):
         database_utils.get_column_name('  ', 'table', 'column', 'database')
 
 
@@ -92,7 +93,7 @@ def test_get_column_name_with_invalid_table():
     it should raise an error.
     """
 
-    with pytest.raises(CoreValueError):
+    with pytest.raises(InvalidTableNameError):
         database_utils.get_column_name('schema', None, 'column', 'database')
 
 
@@ -103,5 +104,5 @@ def test_get_column_name_with_invalid_column():
     it should raise an error.
     """
 
-    with pytest.raises(CoreValueError):
+    with pytest.raises(InvalidColumnNameError):
         database_utils.get_column_name('schema', 'table', '', 'database')

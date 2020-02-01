@@ -8,7 +8,8 @@ import pytest
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.exceptions import CoreAssertionError, CoreValueError
+from pyrin.utils.exceptions import FieldsAndValuesCountMismatchError, \
+    InvalidRowResultFieldsAndValuesError
 
 from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity
 
@@ -427,7 +428,7 @@ def test_create_row_result_with_mismatch_length():
     columns = ['name', 'id', 'age']
     values = ['this is name', 1000, 22, 'extra']
 
-    with pytest.raises(CoreAssertionError):
+    with pytest.raises(FieldsAndValuesCountMismatchError):
         sqlalchemy_utils.create_row_result(columns, values)
 
 
@@ -437,5 +438,5 @@ def test_create_row_result_with_none_values():
     it should raise an error because columns and values are None.
     """
 
-    with pytest.raises(CoreValueError):
+    with pytest.raises(InvalidRowResultFieldsAndValuesError):
         sqlalchemy_utils.create_row_result(None, None)
