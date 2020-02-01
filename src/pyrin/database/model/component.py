@@ -14,3 +14,4 @@ class ModelComponent(Component, ModelManager):
     """
     model component class.
     """
+    pass

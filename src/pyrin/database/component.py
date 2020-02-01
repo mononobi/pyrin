@@ -14,3 +14,4 @@ class DatabaseComponent(Component, DatabaseManager):
     """
     database component class.
     """
+    pass

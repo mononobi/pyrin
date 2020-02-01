@@ -5,13 +5,12 @@ hashing handlers base module.
 
 import re
 
-from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.security.hashing.handlers.exceptions import InvalidHashedValueError, \
-    HashingHandlerMismatchError, HashingHandlerException
 from pyrin.security.hashing.interface import AbstractHashingBase
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import encoding
+from pyrin.security.hashing.handlers.exceptions import InvalidHashedValueError, \
+    HashingHandlerMismatchError, HashingHandlerException
 
 
 class HashingBase(AbstractHashingBase):
@@ -31,7 +30,7 @@ class HashingBase(AbstractHashingBase):
         initializes an instance of HashingBase.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         # we set the algorithm of hashing handler as the name of it.
         self._set_name(self._get_algorithm(**options))

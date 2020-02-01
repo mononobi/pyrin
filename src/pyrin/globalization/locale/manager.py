@@ -27,7 +27,7 @@ class LocaleManager(Manager):
         initializes an instance of LocaleManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._babel = Babel(get_current_app(), configure_jinja=False)
 

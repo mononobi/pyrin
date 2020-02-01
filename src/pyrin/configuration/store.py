@@ -38,7 +38,7 @@ class ConfigStore(CoreObject):
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self._configs = DTO()
         self._name = name

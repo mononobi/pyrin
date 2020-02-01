@@ -20,7 +20,7 @@ class ApplicationHook(ApplicationHookBase):
         initializes an instance of ApplicationHook.
         """
 
-        ApplicationHookBase.__init__(self)
+        super().__init__()
 
     def before_application_start(self):
         """

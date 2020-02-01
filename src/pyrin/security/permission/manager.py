@@ -21,7 +21,7 @@ class PermissionManager(Manager):
         initializes an instance of PermissionManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         # holds a dict of all application's loaded permissions.
         # in the form of dict(str permission_id: PermissionBase permission)

@@ -25,7 +25,7 @@ class RSA256Encrypter(RSAEncrypterBase):
         initializes an instance of RSA256Encrypter.
         """
 
-        RSAEncrypterBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _get_algorithm(self, **options):
         """

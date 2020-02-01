@@ -14,3 +14,4 @@ class SequenceComponent(Component, SequenceManager):
     """
     sequence component class.
     """
+    pass

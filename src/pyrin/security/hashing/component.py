@@ -14,3 +14,4 @@ class HashingComponent(Component, HashingManager):
     """
     hashing component class.
     """
+    pass

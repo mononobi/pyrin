@@ -18,7 +18,7 @@ class PackagingHookBase(Hook):
         initializes an instance of PackagingHookBase.
         """
 
-        Hook.__init__(self)
+        super().__init__()
 
     def after_packages_loaded(self):
         """

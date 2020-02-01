@@ -9,7 +9,7 @@ import jwt
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodingError
@@ -31,7 +31,7 @@ class TokenBase(AbstractTokenBase):
         :param str name: token handler name.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self._set_name(name)
 
@@ -344,7 +344,7 @@ class SymmetricTokenBase(TokenBase):
         """
 
         # we pass the algorithm of token handler as the name of it.
-        TokenBase.__init__(self, self._get_algorithm(**options), **options)
+        super().__init__(self._get_algorithm(**options), **options)
 
     def _get_decoding_key(self, **options):
         """
@@ -368,7 +368,7 @@ class AsymmetricTokenBase(TokenBase):
         """
 
         # we pass the algorithm of token handler as the name of it.
-        TokenBase.__init__(self, self._get_algorithm(**options), **options)
+        super().__init__(self._get_algorithm(**options), **options)
 
 
 class RSTokenBase(AsymmetricTokenBase):
@@ -382,7 +382,7 @@ class RSTokenBase(AsymmetricTokenBase):
         initializes an instance of AsymmetricTokenBase.
         """
 
-        AsymmetricTokenBase.__init__(self, **options)
+        super().__init__(**options)
 
         self._private_key = None
         self._public_key = None

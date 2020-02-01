@@ -20,7 +20,7 @@ class RS256Token(RSTokenBase):
         initializes an instance of RS256Token.
         """
 
-        RSTokenBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _get_encoding_key(self, **options):
         """

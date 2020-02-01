@@ -20,7 +20,7 @@ class DatabaseHookBase(Hook):
         initializes an instance of DatabaseHookBase.
         """
 
-        Hook.__init__(self)
+        super().__init__()
 
     def after_session_factories_configured(self):
         """
@@ -41,7 +41,7 @@ class PackagingHook(PackagingHookBase):
         initializes an instance of PackagingHook.
         """
 
-        PackagingHookBase.__init__(self)
+        super().__init__()
 
     def after_packages_loaded(self):
         """

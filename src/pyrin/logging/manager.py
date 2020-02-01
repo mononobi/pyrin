@@ -26,7 +26,7 @@ class LoggingManager(Manager):
         initializes an instance of LoggingManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._config_file_path = config_services.get_file_path(
             LoggingPackage.LOGGER_HANDLERS_STORE_NAME)

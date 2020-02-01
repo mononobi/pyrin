@@ -8,12 +8,12 @@ import jwt
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import Context, DTO, Manager
+from pyrin.security.token.interface import AbstractTokenBase
+from pyrin.utils.custom_print import print_warning
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
     DuplicatedTokenHandlerError, TokenHandlerNotFoundError, InvalidTokenHandlerNameError, \
     TokenKidHeaderNotSpecifiedError, TokenKidHeaderNotFoundError, DuplicatedTokenKidHeaderError, \
     TokenDecodingError
-from pyrin.security.token.interface import AbstractTokenBase
-from pyrin.utils.custom_print import print_warning
 
 
 class TokenManager(Manager):
@@ -26,7 +26,7 @@ class TokenManager(Manager):
         initializes an instance of TokenManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._token_handlers = Context()
 

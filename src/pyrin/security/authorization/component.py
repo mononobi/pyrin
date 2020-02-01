@@ -14,3 +14,4 @@ class AuthorizationComponent(Component, AuthorizationManager):
     """
     authorization component class.
     """
+    pass

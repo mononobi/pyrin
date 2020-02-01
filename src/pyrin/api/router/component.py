@@ -14,3 +14,4 @@ class RouterComponent(Component, RouterManager):
     """
     router component class.
     """
+    pass

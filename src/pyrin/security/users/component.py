@@ -14,3 +14,4 @@ class UsersComponent(Component, UsersManager):
     """
     users component class.
     """
+    pass

@@ -14,3 +14,4 @@ class DatabaseMigrationComponent(Component, DatabaseMigrationManager):
     """
     database migration component class.
     """
+    pass

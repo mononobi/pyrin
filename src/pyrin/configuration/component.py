@@ -14,3 +14,4 @@ class ConfigurationComponent(Component, ConfigurationManager):
     """
     configuration component class.
     """
+    pass

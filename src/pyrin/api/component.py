@@ -14,3 +14,4 @@ class APIComponent(Component, APIManager):
     """
     api component class.
     """
+    pass

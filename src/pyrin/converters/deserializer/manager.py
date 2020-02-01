@@ -21,7 +21,7 @@ class DeserializerManager(Manager):
         initializes and instance of DeserializerManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         # a dictionary containing information of registered deserializers.
         # example: dic(type accepted_type: list[DeserializerBase] instances)

@@ -20,7 +20,7 @@ class PackagingHook(PackagingHookBase):
         initializes an instance of PackagingHook.
         """
 
-        PackagingHookBase.__init__(self)
+        super().__init__()
 
     def after_packages_loaded(self):
         """

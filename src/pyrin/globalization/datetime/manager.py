@@ -23,7 +23,7 @@ class DateTimeManager(Manager):
         initializes an instance of DateTimeManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         default_timezone_name = config_services.get('globalization',
                                                     'locale',

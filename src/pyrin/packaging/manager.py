@@ -12,29 +12,31 @@ import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 
+from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.context import DTO, Manager
 from pyrin.packaging.context import Package
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
-    InvalidPackagingHookTypeError, ComponentModuleNotFoundError
+    ComponentModuleNotFoundError
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info
 from pyrin.utils.path import resolve_application_root_path
 
 
-class PackagingManager(Manager):
+class PackagingManager(Manager, HookMixin):
     """
     packaging manager class.
     """
 
     PYRIN_PACKAGE_NAME = 'pyrin'
+    _hook_type = PackagingHookBase
 
     def __init__(self):
         """
         creates a new instance of PackagingManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         # holds the absolute path of application root directory where
         # the main package is located. for example `/var/app_root/`.
@@ -48,8 +50,6 @@ class PackagingManager(Manager):
         # holds the instance of all loaded modules.
         # in the form of: {str module_name: Module module}
         self._loaded_modules = DTO()
-
-        self.__hooks = []
 
         # configs will be filled from packaging config file.
         self._configs = DTO()
@@ -713,28 +713,3 @@ class PackagingManager(Manager):
             return True
 
         return self._is_dependencies_loaded([parent_package])
-
-    def _get_hooks(self):
-        """
-        gets all registered hooks.
-
-        :rtype: list[PackagingHookBase]
-        """
-
-        return self.__hooks
-
-    def register_hook(self, instance):
-        """
-        registers the given instance into packaging hooks.
-
-        :param PackagingHookBase instance: packaging hook instance to be registered.
-
-        :raises InvalidPackagingHookTypeError: invalid packaging hook type error.
-        """
-
-        if not isinstance(instance, PackagingHookBase):
-            raise InvalidPackagingHookTypeError('Input parameter [{instance}] is '
-                                                'not an instance of PackagingHookBase.'
-                                                .format(instance=str(instance)))
-
-        self.__hooks.append(instance)

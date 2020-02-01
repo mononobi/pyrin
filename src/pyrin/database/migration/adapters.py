@@ -26,7 +26,7 @@ class MetaDataAdapter(CoreObject):
         :param list[Tables] tables: tables that this metadata should represent.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
         self.metadata = deepcopy(metadata)
         self._process_tables(self.metadata, tables)
         self.schema = self.metadata.schema

@@ -13,3 +13,4 @@ class PackagingComponent(Component, PackagingManager):
     an instance of this class will be registered into application components
     on startup, and we shouldn't use `@component` decorator for this class.
     """
+    pass

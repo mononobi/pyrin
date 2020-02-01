@@ -23,7 +23,7 @@ class HashingManager(Manager):
         initializes an instance of HashingManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._hashing_handlers = Context()
         self._separator = '$'

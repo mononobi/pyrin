@@ -21,4 +21,4 @@ class SimpleCachingHandler(DictCachingHandlerBase):
         options.update(timeout=config_services.get('caching', 'simple', 'timeout'),
                        max_length=config_services.get('caching', 'simple', 'max_length'))
 
-        DictCachingHandlerBase.__init__(self, 'simple', **options)
+        super().__init__('simple', **options)

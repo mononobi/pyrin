@@ -32,7 +32,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringPatternDeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _deserialize(self, value, **options):
         """
@@ -89,7 +89,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringPatternDeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _deserialize(self, value, **options):
         """

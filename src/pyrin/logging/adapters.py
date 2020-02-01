@@ -24,7 +24,7 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param Logger logger: logger instance to be wrapped.
         """
 
-        LoggerAdapter.__init__(self, logger, DTO())
+        super().__init__(logger, DTO())
 
         # these attributes have been added for compatibility
         # with loggers common api.

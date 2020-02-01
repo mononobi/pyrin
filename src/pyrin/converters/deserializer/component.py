@@ -14,3 +14,4 @@ class DeserializerComponent(Component, DeserializerManager):
     """
     deserializer component class.
     """
+    pass

@@ -5,7 +5,6 @@ deserializer base module.
 
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
 from pyrin.converters.deserializer.interface import AbstractDeserializerBase
-from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
 
@@ -20,7 +19,7 @@ class DeserializerBase(AbstractDeserializerBase):
         initializes an instance of DeserializerBase.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
         self._next_handler = None
 
     def deserialize(self, value, **options):
@@ -108,7 +107,7 @@ class StringDeserializerBase(DeserializerBase):
         :type accepted_formats: list[tuple(str format, int length)]
         """
 
-        DeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
         self._accepted_formats = self.get_default_formats()
 
@@ -236,7 +235,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringDeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
     def is_deserializable(self, value, **options):
         """

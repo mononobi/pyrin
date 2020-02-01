@@ -21,7 +21,7 @@ class HS256Token(SymmetricTokenBase):
         initializes an instance of HS256Token.
         """
 
-        SymmetricTokenBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _get_encoding_key(self, **options):
         """

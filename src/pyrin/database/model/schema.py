@@ -100,4 +100,4 @@ class CoreColumn(Column):
         """
 
         self.exposed = kwargs.pop('exposed', True)
-        super(CoreColumn, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

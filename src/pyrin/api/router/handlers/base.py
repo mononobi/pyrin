@@ -87,16 +87,16 @@ class RouteBase(Rule):
         # we should call super method with exact param names because it
         # does not have `**options` in it's signature and raises an error
         # if extra keywords passed to it. maybe flask fixes it in the future.
-        super(RouteBase, self).__init__(rule,
-                                        defaults=options.get('defaults', None),
-                                        subdomain=options.get('subdomain', None),
-                                        methods=methods,
-                                        build_only=options.get('build_only', False),
-                                        endpoint=options.get('endpoint', None),
-                                        strict_slashes=options.get('strict_slashes', None),
-                                        redirect_to=options.get('redirect_to', None),
-                                        alias=options.get('alias', False),
-                                        host=options.get('host', None))
+        super().__init__(rule,
+                         defaults=options.get('defaults', None),
+                         subdomain=options.get('subdomain', None),
+                         methods=methods,
+                         build_only=options.get('build_only', False),
+                         endpoint=options.get('endpoint', None),
+                         strict_slashes=options.get('strict_slashes', None),
+                         redirect_to=options.get('redirect_to', None),
+                         alias=options.get('alias', False),
+                         host=options.get('host', None))
 
         self._view_function = options.get('view_function')
 
@@ -138,20 +138,19 @@ class RouteBase(Rule):
         """
 
         self._validate_content_length()
-        return self._handle(inputs, **options)
+        self._handle(inputs, **options)
+
+        return self._call_view_function(inputs, **options)
 
     def _handle(self, inputs, **options):
         """
         handles the current route.
+        routes which need to perform extra operations before
+        view function execution, must override this method.
 
         :param dict inputs: view function inputs.
-
-        :returns: view function's result.
-
-        :rtype: object
         """
-
-        return self._call_view_function(inputs, **options)
+        pass
 
     def _validate_content_length(self):
         """

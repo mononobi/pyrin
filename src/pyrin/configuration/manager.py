@@ -25,7 +25,7 @@ class ConfigurationManager(Manager):
         initializes an instance of ConfigurationManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._config_stores = Context()
         self._settings_path = application_services.get_settings_path()

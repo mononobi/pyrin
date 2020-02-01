@@ -14,3 +14,4 @@ class DateTimeComponent(Component, DateTimeManager):
     """
     datetime component class.
     """
+    pass

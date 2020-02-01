@@ -31,7 +31,7 @@ class CacheItem(CoreObject):
                             invalidation in milliseconds.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self.key = key
         self.value = deepcopy(value)
@@ -89,7 +89,7 @@ class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
                               value if not provided.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self._set_name(name)
         self._timeout = options.get('timeout', config_services.get('caching',
@@ -190,7 +190,7 @@ class DictCachingHandlerBase(CachingHandlerBase):
                               value if not provided.
         """
 
-        CachingHandlerBase.__init__(self, name, **options)
+        super().__init__(name, **options)
 
         self._max_length = options.get('max_length', config_services.get('caching',
                                                                          'general',

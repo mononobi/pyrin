@@ -20,4 +20,4 @@ class MemcachedCachingHandler(CachingHandlerBase):
 
         options.update(timeout=config_services.get('caching', 'memcached', 'timeout'))
 
-        CachingHandlerBase.__init__(self, 'memcached', **options)
+        super().__init__('memcached', **options)

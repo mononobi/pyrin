@@ -5,12 +5,12 @@ encryption manager module.
 
 import pyrin.configuration.services as config_services
 
+from pyrin.security.encryption.interface import AbstractEncrypterBase
+from pyrin.utils.custom_print import print_warning
 from pyrin.core.context import Context, Manager
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
     EncryptionHandlerNotFoundError, InvalidEncryptedValueError
-from pyrin.security.encryption.interface import AbstractEncrypterBase
-from pyrin.utils.custom_print import print_warning
 
 
 class EncryptionManager(Manager):
@@ -23,7 +23,7 @@ class EncryptionManager(Manager):
         initializes an instance of EncryptionManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         self._encryption_handlers = Context()
         self._separator = '$'

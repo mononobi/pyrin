@@ -24,7 +24,7 @@ class TupleDeserializer(DeserializerBase):
         creates an instance of TupleDeserializer.
         """
 
-        DeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _deserialize(self, value, **options):
         """
@@ -101,7 +101,7 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringPatternDeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _deserialize(self, value, **options):
         """

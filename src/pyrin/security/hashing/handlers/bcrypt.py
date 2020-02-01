@@ -38,7 +38,7 @@ class BcryptHashing(HashingBase):
         initializes an instance of BcryptHashing.
         """
 
-        HashingBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _generate_hash(self, text, **options):
         """

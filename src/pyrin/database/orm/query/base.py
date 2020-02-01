@@ -53,7 +53,7 @@ class CoreQuery(Query):
         if scope is not None:
             self._prepare_validation(entities, scope)
 
-        super(CoreQuery, self).__init__(entities, session)
+        super().__init__(entities, session)
 
     def _validate_scope(self, entities, scope):
         """

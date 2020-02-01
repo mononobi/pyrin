@@ -14,3 +14,4 @@ class LoggingComponent(Component, LoggingManager):
     """
     logging component class.
     """
+    pass

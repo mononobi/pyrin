@@ -65,7 +65,7 @@ class CoreObject(object):
     """
 
     def __init__(self):
-        object.__init__(self)
+        super().__init__()
         self.__name = None
 
     def get_name(self):
@@ -76,7 +76,7 @@ class CoreObject(object):
         :rtype: str
         """
 
-        if self.__name:
+        if self.__name is not None:
             return self.__name
         return self.__class__.__name__
 
@@ -106,7 +106,7 @@ class CoreObject(object):
         :param object value: attribute value.
         """
 
-        return object.__setattr__(self, name, value)
+        return super().__setattr__(name, value)
 
     def __setattr__(self, name, value):
         return self.setattr(name, value)
@@ -148,8 +148,6 @@ class HookSingletonMeta(MultiSingletonMeta):
     this is a thread-safe implementation of singleton.
     """
 
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
     _instances = dict()
     _lock = Lock()
 
@@ -159,13 +157,7 @@ class Hook(CoreObject, metaclass=HookSingletonMeta):
     base hook class.
     all application hook classes must be subclassed from this one.
     """
-
-    def __init__(self):
-        """
-        initializes an instance of Hook.
-        """
-
-        CoreObject.__init__(self)
+    pass
 
 
 class ManagerSingletonMeta(MultiSingletonMeta):
@@ -174,8 +166,6 @@ class ManagerSingletonMeta(MultiSingletonMeta):
     this is a thread-safe implementation of singleton.
     """
 
-    # a dictionary containing an instance of each type.
-    # in the form of: {type: instance}
     _instances = dict()
     _lock = Lock()
 
@@ -185,10 +175,4 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
     base manager class.
     all application manager classes must be subclassed from this one.
     """
-
-    def __init__(self):
-        """
-        initializes an instance of Manager.
-        """
-
-        CoreObject.__init__(self)
+    pass

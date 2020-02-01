@@ -24,7 +24,7 @@ class RequestScopedSessionFactory(SessionFactoryBase):
         initializes an instance of RequestScopedSessionFactory.
         """
 
-        SessionFactoryBase.__init__(self, **options)
+        super().__init__(**options)
 
     def _create_session_factory(self, engine):
         """

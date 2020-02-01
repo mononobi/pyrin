@@ -14,3 +14,4 @@ class TokenComponent(Component, TokenManager):
     """
     token component class.
     """
+    pass

@@ -74,4 +74,4 @@ class PublicRoute(RouteBase):
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
-        super(PublicRoute, self).__init__(rule, **options)
+        super().__init__(rule, **options)

@@ -28,12 +28,13 @@ from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, InvalidApplicationHookTypeError, ApplicationInMigrationModeError
+    InvalidApplicationStatusError, ApplicationInMigrationModeError
 from pyrin.application.hooks import ApplicationHookBase
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.context import DTO
 from pyrin.core.globals import LIST_TYPES
+from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
@@ -48,7 +49,7 @@ from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict
     entity_to_dict_list, entity_to_dict
 
 
-class Application(Flask, metaclass=ApplicationSingletonMeta):
+class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
     """
     application class.
     server must initialize an instance of this class at startup.
@@ -77,6 +78,7 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
+    _hook_type = ApplicationHookBase
 
     def __init__(self, import_name, **options):
         """
@@ -117,13 +119,16 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
         """
 
         self.__status = ApplicationStatusEnum.INITIALIZING
-        self.__hooks = []
         self._migration = options.pop('migration', False)
 
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
         # through a correct mechanism later.
-        super(Application, self).__init__(import_name, static_folder=None, **options)
+        super().__init__(import_name, static_folder=None, **options)
+
+        # Flask does not call 'super' in its '__init__' method.
+        # so we have to initialize HookMixin manually.
+        HookMixin.__init__(self)
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
@@ -431,7 +436,7 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
             raise ApplicationInMigrationModeError('Application has been initialized in '
                                                   'migration mode, so it could not be run.')
 
-        super(Application, self).run(host, port, debug, load_dotenv, **options)
+        super().run(host, port, debug, load_dotenv, **options)
 
     def dispatch_request(self):
         """
@@ -501,7 +506,7 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
         if not isinstance(rv, (tuple, dict, CoreResponse)):
             rv = DTO(value=rv)
 
-        return super(Application, self).make_response(rv)
+        return super().make_response(rv)
 
     def _convert_result(self, rv):
         """
@@ -607,8 +612,8 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
         # ugly way in comparison to overriding the whole `add_url_rule` function.
         options.update(view_function=view_func)
 
-        super(Application, self).add_url_rule(rule, endpoint, view_func,
-                                              provide_automatic_options, **options)
+        super().add_url_rule(rule, endpoint, view_func,
+                             provide_automatic_options, **options)
 
     def terminate(self, **options):
         """
@@ -747,7 +752,7 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
         response.request_id = client_request.request_id
         response.user = session_services.get_current_user()
 
-        return super(Application, self).process_response(response)
+        return super().process_response(response)
 
     def full_dispatch_request(self):
         """
@@ -767,7 +772,7 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
         logging_services.info('request received with params: [{params}]'
                               .format(params=client_request.get_inputs(silent=True)))
 
-        response = super(Application, self).full_dispatch_request()
+        response = super().full_dispatch_request()
 
         process_end_time = time()
         logging_services.info('request executed in [{time} ms].'
@@ -803,31 +808,6 @@ class Application(Flask, metaclass=ApplicationSingletonMeta):
                 required_attributes[attribute_name] = all_attributes[attribute_name]
 
         return misc_utils.set_attributes(new_instance, **required_attributes)
-
-    def _get_hooks(self):
-        """
-        gets all registered hooks.
-
-        :rtype: list[ApplicationHookBase]
-        """
-
-        return self.__hooks
-
-    def register_hook(self, instance):
-        """
-        registers the given instance into application hooks.
-
-        :param ApplicationHookBase instance: application hook instance to be registered.
-
-        :raises InvalidApplicationHookTypeError: invalid application hook type error.
-        """
-
-        if not isinstance(instance, ApplicationHookBase):
-            raise InvalidApplicationHookTypeError('Input parameter [{instance}] is '
-                                                  'not an instance of ApplicationHookBase.'
-                                                  .format(instance=str(instance)))
-
-        self.__hooks.append(instance)
 
     def _after_application_loaded(self):
         """

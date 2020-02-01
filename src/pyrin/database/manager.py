@@ -11,6 +11,7 @@ import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 
 from pyrin.database.hooks import DatabaseHookBase
+from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import CoreEntity
 from pyrin.core.context import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
@@ -19,22 +20,23 @@ from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
     DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError, \
-    InvalidDatabaseBindError, InvalidDatabaseHookTypeError
+    InvalidDatabaseBindError
 
 
-class DatabaseManager(Manager):
+class DatabaseManager(Manager, HookMixin):
     """
     database manager class.
     """
 
     LOGGER = logging_services.get_logger('database')
+    _hook_type = DatabaseHookBase
 
     def __init__(self):
         """
         initializes an instance of DatabaseManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         # contains the application default database engine.
         self.___engine = self._create_default_engine()
@@ -58,9 +60,6 @@ class DatabaseManager(Manager):
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
         self._session_factories = DTO()
-
-        # database hooks holder.
-        self.__hooks = []
 
     def get_current_store(self):
         """
@@ -353,32 +352,6 @@ class DatabaseManager(Manager):
         """
 
         return self._entity_to_engine_map
-
-    def _get_hooks(self):
-        """
-        gets all registered hooks.
-
-        :returns: list[DatabaseHookBase]
-        :rtype: list
-        """
-
-        return self.__hooks
-
-    def register_hook(self, instance):
-        """
-        registers the given instance into database hooks.
-
-        :param DatabaseHookBase instance: database hook instance to be registered.
-
-        :raises InvalidDatabaseHookTypeError: invalid database hook type error.
-        """
-
-        if not isinstance(instance, DatabaseHookBase):
-            raise InvalidDatabaseHookTypeError('Input parameter [{instance}] is '
-                                               'not an instance of DatabaseHookBase.'
-                                               .format(instance=str(instance)))
-
-        self.__hooks.append(instance)
 
     def _after_session_factories_configured(self):
         """

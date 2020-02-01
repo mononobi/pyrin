@@ -18,7 +18,7 @@ class ApplicationHookBase(Hook):
         initializes an instance of ApplicationHookBase.
         """
 
-        Hook.__init__(self)
+        super().__init__()
 
     def after_application_loaded(self):
         """

@@ -3,7 +3,6 @@
 database session factory base module.
 """
 
-from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.interface import AbstractSessionFactoryBase
 
@@ -18,7 +17,7 @@ class SessionFactoryBase(AbstractSessionFactoryBase):
         initializes an instance of SessionFactoryBase.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
     def create_session_factory(self, engine):
         """

@@ -12,7 +12,7 @@ class CoreException(Exception):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CoreException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._data = {}
         self._traceback = None
         self.code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
@@ -61,7 +61,7 @@ class CoreBusinessException(CoreException):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CoreBusinessException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
 
 
@@ -85,9 +85,8 @@ class CoreNotImplementedError(CoreException, NotImplementedError):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CoreNotImplementedError, self).__init__('This method does not have '
-                                                      'an implementation.',
-                                                      *args, **kwargs)
+        super().__init__('This method does not have an implementation.',
+                         *args, **kwargs)
 
 
 class CoreTypeError(CoreException, TypeError):
@@ -135,5 +134,12 @@ class CoreFileNotFoundError(CoreException, FileNotFoundError):
 class CoreNameError(CoreException, NameError):
     """
     core name error.
+    """
+    pass
+
+
+class InvalidHookTypeError(CoreException):
+    """
+    invalid hook type error.
     """
     pass

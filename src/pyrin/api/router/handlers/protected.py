@@ -83,7 +83,7 @@ class ProtectedRoute(RouteBase):
         :raises PermissionTypeError: permission type error.
         """
 
-        super(ProtectedRoute, self).__init__(rule, **options)
+        super().__init__(rule, **options)
 
         self._permissions = options.get('permissions', ())
         if not isinstance(self._permissions, LIST_TYPES):
@@ -96,20 +96,17 @@ class ProtectedRoute(RouteBase):
     def _handle(self, inputs, **options):
         """
         handles the current route.
+        routes which need to perform extra operations before
+        view function execution, must override this method.
 
         :param dict inputs: view function inputs.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
         :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
-
-        :returns: view function's result.
-
-        :rtype: object
         """
 
         self._authorize()
-        return super(ProtectedRoute, self)._handle(inputs, **options)
 
     def _authorize(self):
         """
@@ -208,7 +205,7 @@ class FreshProtectedRoute(ProtectedRoute):
         :raises PermissionTypeError: permission type error.
         """
 
-        super(FreshProtectedRoute, self).__init__(rule, **options)
+        super().__init__(rule, **options)
 
     def _authorize(self):
         """
@@ -225,4 +222,4 @@ class FreshProtectedRoute(ProtectedRoute):
             raise FreshTokenRequiredError(_('Fresh token is required to '
                                             'access the requested resource.'))
 
-        super(FreshProtectedRoute, self)._authorize()
+        super()._authorize()

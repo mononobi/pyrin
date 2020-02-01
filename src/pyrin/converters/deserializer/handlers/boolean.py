@@ -33,7 +33,7 @@ class BooleanDeserializer(StringPatternDeserializerBase):
         :type accepted_formats: list[tuple(Pattern format, int length)]
         """
 
-        StringPatternDeserializerBase.__init__(self, **options)
+        super().__init__(**options)
 
         self._converter_map = self._get_converter_map()
 

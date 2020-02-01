@@ -21,7 +21,7 @@ class DatabaseMigrationManager(Manager):
         initializes an instance of DatabaseMigrationManager.
         """
 
-        Manager.__init__(self)
+        super().__init__()
 
         # a dictionary containing engine to tables map for all tables.
         # in the form of: {Engine engine: list[Table] tables}

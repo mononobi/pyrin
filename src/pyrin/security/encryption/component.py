@@ -14,3 +14,4 @@ class EncryptionComponent(Component, EncryptionManager):
     """
     encryption component class.
     """
+    pass

@@ -14,3 +14,4 @@ class AuthenticationComponent(Component, AuthenticationManager):
     """
     authentication component class.
     """
+    pass

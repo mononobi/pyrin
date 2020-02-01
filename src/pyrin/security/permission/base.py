@@ -20,7 +20,7 @@ class PermissionBase(CoreObject):
         initializes an instance of PermissionBase.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
         permission_services.register_permission(self, **options)
 
     def __hash__(self):

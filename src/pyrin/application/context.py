@@ -70,7 +70,7 @@ class Component(CoreObject):
         :keyword object component_custom_key: component custom key.
         """
 
-        super(Component, self).__init__()
+        super().__init__()
 
         # component id is a tuple(str, object) and should be unique for each
         # instance unless it's intended to replace an already existing one.
@@ -125,7 +125,7 @@ class CoreResponse(Response):
     response_converter = jsonify
 
     def __init__(self, response=None, **kwargs):
-        super(CoreResponse, self).__init__(response, **kwargs)
+        super().__init__(response, **kwargs)
 
         self.request_id = None
         self.request_date = None
@@ -136,7 +136,7 @@ class CoreResponse(Response):
     @classmethod
     def force_type(cls, response, environ=None):
         response = cls.response_converter(response)
-        return super(CoreResponse, cls).force_type(response, environ)
+        return super().force_type(response, environ)
 
     def __str__(self):
         result = 'request id: "{request_id}", response date: "{response_date}", ' \
@@ -162,7 +162,7 @@ class CoreRequest(Request):
 
     def __init__(self, environ, populate_request=True,
                  shallow=False, **options):
-        super(CoreRequest, self).__init__(environ, populate_request, shallow)
+        super().__init__(environ, populate_request, shallow)
 
         self.request_id = uuid_utils.generate_uuid4()
         self.request_date = datetime_services.now()

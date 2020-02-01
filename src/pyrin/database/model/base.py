@@ -48,7 +48,7 @@ class CoreDeclarative(CoreObject):
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self._set_name(self.__class__.__name__)
         self.from_dict(False, **kwargs)

@@ -46,10 +46,3 @@ class InvalidDatabaseBindError(DatabaseManagerException):
     invalid database bind error.
     """
     pass
-
-
-class InvalidDatabaseHookTypeError(DatabaseManagerException):
-    """
-    invalid database hook type error.
-    """
-    pass

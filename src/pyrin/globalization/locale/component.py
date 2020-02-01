@@ -14,3 +14,4 @@ class LocaleComponent(Component, LocaleManager):
     """
     locale component class.
     """
+    pass

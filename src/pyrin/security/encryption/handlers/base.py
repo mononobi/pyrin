@@ -5,7 +5,6 @@ encryption handlers base module.
 
 import re
 
-from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.encryption.exceptions import DecryptionError
 from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueError, \
@@ -33,7 +32,7 @@ class EncrypterBase(AbstractEncrypterBase):
         :param str name: name of the encryption handler.
         """
 
-        CoreObject.__init__(self)
+        super().__init__()
 
         self._set_name(name)
 
@@ -286,7 +285,7 @@ class SymmetricEncrypterBase(EncrypterBase):
         """
 
         # we pass the algorithm of encryption handler as the name of it.
-        EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
+        super().__init__(self._get_algorithm(**options), **options)
 
     def _get_decryption_key(self, **options):
         """
@@ -311,7 +310,7 @@ class AsymmetricEncrypterBase(EncrypterBase):
         """
 
         # we pass the algorithm of encryption handler as the name of it.
-        EncrypterBase.__init__(self, self._get_algorithm(**options), **options)
+        super().__init__(self._get_algorithm(**options), **options)
 
 
 class RSAEncrypterBase(AsymmetricEncrypterBase):
@@ -326,7 +325,7 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
         initializes an instance of RSAEncrypterBase.
         """
 
-        AsymmetricEncrypterBase.__init__(self, **options)
+        super().__init__(**options)
 
         self._private_key = None
         self._public_key = None

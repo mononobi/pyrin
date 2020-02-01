@@ -14,3 +14,4 @@ class CachingComponent(Component, CachingManager):
     """
     caching component class.
     """
+    pass
