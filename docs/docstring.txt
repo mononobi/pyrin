@@ -1,21 +1,21 @@
-1. we don't set docstring for built-in functions, unless really necessary.
+* we don't set docstring for built-in functions, unless really necessary.
 
-2. all docstrings and comments must be lowercase, the only exception is for
-   specifying object types. example 1.
+* all docstrings and comments must be lowercase, the only exception is for
+  specifying object types. example 1.
 
-3. all docstrings and comments must end with a dot. the only exceptions are 
-   rtype and returns that should not have a trailing dot. example 1.
+* all docstrings and comments must end with a dot. the only exceptions are
+  rtype and returns that should not have a trailing dot. example 1.
 
-4. method docstring pattern for all custom functions (non-built-in)
-   are shown in examples 2, 3.
+* method docstring pattern for all custom functions (non-built-in)
+  are shown in examples 2, 3.
 
-5. in docstrings, all params, keywords, raises, returns and rtypes and the description
-   must be grouped by type with a single empty line between each group. and if any of the above
-   elements are more than a single line, then there should be an empty line on top and under
-   the multi-line element. example 4 shows this nicely.
+* in docstrings, all params, keywords, raises, returns and rtype and the description
+  must be grouped by type with a single empty line between each group. and if any of the above
+  elements are more than a single line, then there should be an empty line on top and under
+  the multi-line element. example 4 shows this nicely.
 
-6. in docstrings for packages and modules and classes we must mention the exact
-   package or module or class keyword at the end. example 5.
+* in docstrings for packages and modules and classes we must mention the exact
+  package or module or class keyword at the end. example 5.
 
 example 1:
 # this variable is for storing http method name of type CoreObject.
