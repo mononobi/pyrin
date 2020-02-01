@@ -1,57 +1,55 @@
-1. each manager class must inherit from `pyrin.core.context.Manager class`.
+* each manager class must inherit from `pyrin.core.context.Manager class`.
 
-2. each component class must inherit from `pyrin.application.context.Component` class and
-   also it's respective manager class.
+* each component class must inherit from `pyrin.application.context.Component` class and
+  also it's respective manager class.
 
-3. every access to a package functionality must be done through package's services module,
-   not the manager, even if the caller module is resided inside the same package of that manager,
-   the only exception is when the caller in the manager itself.
+* every access to a package functionality must be done through package's services module,
+  not the manager, even if the caller module is resided inside the same package of that manager,
+  the only exception is when the caller in the manager itself.
 
-4. in each package, the business must be implemented inside the manager, not anywhere else, so
-   modules like decorators, error_handlers, services, api should not have any business
-   implementation but some light weight code that uses the package functionality through
-   services module.
+* in each package, the business must be implemented inside the manager, not anywhere else, so
+  modules like decorators, error_handlers, services, api should not have any business
+  implementation but some light weight code that uses the package functionality through
+  services module.
 
-5. each package should subclass it's own custom exceptions from core exceptions and put them
-   inside `exceptions` module. the only type of exception that must be used directly and
-   without subclassing is CoreNotImplementedError.
+* each package should subclass it's own custom exceptions from core exceptions and put them
+  inside `exceptions` module. the only type of exception that must be used directly and
+  without subclassing is CoreNotImplementedError.
 
-6. `pyrin.utils` packages must use core exceptions and not implement their own custom exceptions.
+* signature of sibling methods in different layers (manager, services, api, ...) must be the
+  same (in 99% of occasions).
 
-7. signature of sibling methods in different layers (manager, services, api, ...) must be the
-   same (in 99% of occasions).
+* in each package, only the implementation (manager) module should call other packages services,
+  so every other module, should only call it's own package services module.
 
-8. in each package, only the implementation (manager) module should call other packages services,
-   so every other module, should only call it's own package services module.
+* except some base packages like `application`, `core` and `utils`, the rest of them
+  should subclass from Package in their `__init__` module and set the required attributes.
 
-9. except some base packages like `application` and `core`, the rest of them should
-   subclass from Package in their `__init__` module and set the required attributes.
+* those type of classes that has a very simple functionality (2 or less methods) should
+  be put inside `context` module of each package.
 
-10. those type of classes that has a very simple functionality (2 or less methods) should
-    be put inside `context` module of each package.
+* in handlers packages the base handlers should be put inside `base` module of each package.
 
-11. in handlers packages the base handlers should be put inside `base` module of each package.
+* those classes that has lots of functionality (3 or more methods) should be put inside
+  a module with the same name as the class itself.
 
-12. those classes that has lots of functionality (3 or more methods) should be put inside
-    a module with the same name as the class itself.
+* in each package, all dependencies (from root package itself and from all sub packages)
+  must be set in root package's `DEPENDS` attribute.
 
-13. in each package, all dependencies (from root package itself and from all sub packages)
-    must be set in root package's `DEPENDS` attribute.
+* in each package, all config stores (from root package itself and from all sub packages)
+  must be set in root package's `CONFIG_STORE_NAMES` attribute.
 
-14. in each package, all config stores (from root package itself and from all sub packages)
-    must be set in root package's `CONFIG_STORE_NAMES` attribute.
+* methods exposed in api modules, and their underlying services and manager methods,
+  should always have `**options` in their signature.
 
-15. methods exposed in api modules, and their underlying services and manager methods,
-    should always have `**options` in their signature.
+* each manager and other classes implementing business, should have their own exception
+  class, which underlying business errors will subclass from it.
 
-16. each manager and other classes implementing business, should have their own exception
-    class, which underlying business errors will subclass form it.
+* utils package of each package should only be referenced from inside of that package
+  or subpackages. to make a util globally available, we should implement it
+  inside `pyrin.utils` package.
 
-17. utils package of each package should only be referenced from inside of that package
-    or subpackages. to make a util globally available, we should implement it
-    inside `pyrin.utils` package.
-
-18. in each package which extends an already available package, the manager of
-    that package must be subclassed from original package's manager class.
-    also the package class (inside __init__.py) of that package, must be subclassed
-    from original package's package class.
+* in each package which extends an already available package, the manager of
+  that package must be subclassed from original package's manager class.
+  also the package class (inside __init__.py) of that package, must be subclassed
+  from original package's package class.
