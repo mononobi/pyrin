@@ -62,7 +62,7 @@ class AuthorizationManager(Manager):
                                                                         for authorization.
 
         :param user: user identity to be checked for authorization.
-                         if not provided, current user will be used.
+                     if not provided, current user will be used.
 
         :rtype: bool
         """

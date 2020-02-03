@@ -27,18 +27,19 @@ def authorize(user, permissions, **options):
                                                                         **options)
 
 
-def is_authorized(permissions, **options):
+def is_authorized(permissions, user=None, **options):
     """
     gets a value indicating that specified user is authorized for given permissions.
 
     :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
                                                                     for authorization.
 
-    :keyword user: user identity to be checked for authorization.
-                       if not provided, current user will be used.
+    :param user: user identity to be checked for authorization.
+                 if not provided, current user will be used.
 
     :rtype: bool
     """
 
     return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(permissions,
+                                                                            user,
                                                                             **options)

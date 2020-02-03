@@ -56,6 +56,19 @@ def register_component(component, **options):
     get_current_app().register_component(component, **options)
 
 
+def remove_component(component_id):
+    """
+    removes application component with given id.
+
+    :param tuple component_id: component id to be removed.
+    :type component_id: tuple(str, object)
+
+    :raises ComponentAttributeError: component attribute error.
+    """
+
+    get_current_app().remove_component(component_id)
+
+
 def get_component(component_name, **options):
     """
     gets the specified application component.

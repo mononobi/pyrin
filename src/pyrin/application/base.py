@@ -25,14 +25,10 @@ import pyrin.utils.misc as misc_utils
 from pyrin.application.container import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
-from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
-    InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
-    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, ApplicationInMigrationModeError
 from pyrin.application.hooks import ApplicationHookBase
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
-from pyrin.core.context import DTO
+from pyrin.core.context import DTO, Manager
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
@@ -47,6 +43,10 @@ from pyrin.utils.dictionary import make_key_upper
 from pyrin.utils.path import resolve_application_root_path
 from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict, \
     entity_to_dict_list, entity_to_dict
+from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
+    InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
+    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
+    InvalidApplicationStatusError, ApplicationInMigrationModeError, ComponentAttributeError
 
 
 class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
@@ -255,6 +255,14 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                                             'an instance of Component.'
                                             .format(component=str(component)))
 
+        if not isinstance(component, Manager):
+            raise InvalidComponentTypeError('Input parameter [{component}] is not '
+                                            'an instance of Manager. each component '
+                                            'class must be subclassed from its respective '
+                                            'manager class of the same package and that '
+                                            'manager class must be subclassed from Manager.'
+                                            .format(component=str(component)))
+
         if not isinstance(component.get_id(), tuple) or \
                 len(component.get_id()[0].strip()) == 0:
             raise InvalidComponentIDError('Component [{component}] has '
@@ -286,6 +294,23 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                           .format(old_instance=str(old_instance), new_instance=str(component)))
 
         self._components[component.get_id()] = component
+
+    def remove_component(self, component_id):
+        """
+        removes application component with given id.
+
+        :param tuple component_id: component id to be removed.
+        :type component_id: tuple(str, object)
+
+        :raises ComponentAttributeError: component attribute error.
+        """
+
+        if component_id not in self._components:
+            raise ComponentAttributeError('Component [{component_id}] is not '
+                                          'available in application components.'
+                                          .format(component_id=component_id))
+
+        self._components.pop(component_id)
 
     def _get_safe_current_request(self):
         """
