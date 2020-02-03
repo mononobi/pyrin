@@ -3,18 +3,25 @@
 database migration manager module.
 """
 
+from os import path
+
+from sqlalchemy import MetaData
+
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 
 from pyrin.core.context import DTO, Manager
-from pyrin.database.migration.adapters import MetaDataAdapter
+from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
 from pyrin.database.model.base import CoreEntity
+from pyrin.utils.path import resolve_application_root_path
 
 
 class DatabaseMigrationManager(Manager):
     """
     database migration manager class.
     """
+
+    DEFAULT_ENGINE_NAME = 'default'
 
     def __init__(self):
         """
@@ -62,62 +69,79 @@ class DatabaseMigrationManager(Manager):
                 self._engine_to_table_map[engine] = []
 
             self._engine_to_table_map[engine].append(all_tables.pop(entity.table_fullname()))
-            self._bind_to_metadata(engine, self._engine_to_table_map[engine])
 
         # all remaining tables are associated with default engine.
         if len(all_tables) > 0:
             self._engine_to_table_map[database_services.get_engine()] = list(all_tables.values())
-            self._bind_to_metadata(database_services.get_engine(),
-                                   self._engine_to_table_map[database_services.get_engine()])
 
     def get_connection_urls(self):
         """
         gets all databases connection urls from config store.
         it gets the values from active section of each store.
+        in case of sqlite usage, all urls will be made absolute.
 
         :returns: dict(str bind_name: str connection_url)
         :rtype: dict
         """
 
         connections = DTO()
-        connections['default'] = config_services.get_active('database', 'sqlalchemy_url')
+        connections[self.DEFAULT_ENGINE_NAME] = config_services.get_active('database',
+                                                                           'sqlalchemy_url')
         binds = config_services.get_active_section('database.binds')
         connections.update(**binds)
 
+        for name, url in connections.items():
+            connections[name] = self._get_absolute_connection_url(url)
+
         return connections
 
-    def _bind_to_metadata(self, engine, tables):
+    def _map_bind_to_metadata(self):
         """
-        binds given engine to a metadata representing the given tables.
-
-        :param Engine engine: engine object.
-        :param list[Table] tables: tables to be added to a metadata.
+        maps bind names of different engines to a
+        metadata representing the related tables.
         """
 
-        bounded_engines = database_services.get_bounded_engines()
-        bind_name = None
-        for key, value in bounded_engines.items():
-            if engine == value:
-                bind_name = key
-                break
+        for engine, tables in self._engine_to_table_map.items():
+            bounded_engines = database_services.get_bounded_engines()
+            bind_name_map = None
+            for bind_name, bounded_engine in bounded_engines.items():
+                if engine == bounded_engine:
+                    bind_name_map = bind_name
+                    break
 
-        if bind_name is None and engine == database_services.get_engine():
-            bind_name = 'default'
-        elif bind_name is None and engine != database_services.get_engine():
-            raise
+            if bind_name_map is None and engine == database_services.get_engine():
+                bind_name_map = self.DEFAULT_ENGINE_NAME
+            elif bind_name_map is None and engine != database_services.get_engine():
+                raise EngineBindNameNotFoundError('Could not find any bind name '
+                                                  'for database engine [{name}].'
+                                                  .format(name=str(engine)))
 
-        metadata = MetaDataAdapter(CoreEntity.metadata, tables)
-        self._bind_name_to_metadata_map[bind_name] = metadata
+            self._bind_name_to_metadata_map[bind_name_map] = self._add_to_metadata(tables)
 
     def get_bind_name_to_metadata_map(self):
         """
         gets bind name to metadata map.
 
-        :returns: dict(str bind_name: MetaDataAdapter metadata)
+        :returns: dict(str bind_name: MetaData metadata)
         :rtype: dict
         """
 
         return self._bind_name_to_metadata_map
+
+    def _add_to_metadata(self, tables):
+        """
+        adds given tables into a metadata and returns it.
+
+        :param list[Tables] tables: tables to be added into metadata.
+
+        :rtype: MetaData
+        """
+
+        metadata = MetaData()
+        for table in tables:
+            table.tometadata(metadata)
+
+        return metadata
 
     def configure_migration_data(self):
         """
@@ -125,3 +149,26 @@ class DatabaseMigrationManager(Manager):
         """
 
         self._map_engine_to_table()
+        self._map_bind_to_metadata()
+
+    def _get_absolute_connection_url(self, connection_url):
+        """
+        gets absolute path of given connection string if required.
+        it is only required when sqlite is in use.
+
+        :param str connection_url: connection url.
+
+        :rtype: str
+        """
+
+        if connection_url is None or 'sqlite' not in connection_url.lower() or \
+                connection_url.lower().startswith('sqlite:////') or \
+                'sqlite:///:memory:' in connection_url.lower():
+            return connection_url
+
+        root_path = resolve_application_root_path()
+        url = connection_url.replace('sqlite:///', '')
+        full_path = path.join(root_path, url)
+        absolute_path = path.abspath(full_path)
+
+        return 'sqlite:///{absolute_path}'.format(absolute_path=absolute_path)

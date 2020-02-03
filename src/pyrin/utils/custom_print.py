@@ -5,49 +5,92 @@ utils custom_print module.
 
 import colorama
 
+import pyrin.application.services as application_services
 
-def print_colorful(text, color):
+
+def print_colorful(text, color, force=False):
     """
     prints the given text into stdout using the given color.
+    if the application has been started in migration mode
+    it does not print the text.
 
     :param str text: text to be printed.
 
     :param int color: color of text to be printed.
                       it should be from `colorama.Fore` colors.
+
+    :param bool force: forces the printing, even if application
+                       has been started in migration mode.
+                       defaults to False if not provided.
     """
 
-    try:
-        colorama.init(autoreset=True)
-        print(str(color) + text)
-    finally:
-        colorama.deinit()
+    if application_services.is_migration() is False or force is True:
+        try:
+            colorama.init(autoreset=True)
+            print(str(color) + text)
+        finally:
+            colorama.deinit()
 
 
-def print_warning(text):
+def print_warning(text, force=False):
     """
     prints the given text into stdout as a warning.
+    if the application has been started in migration mode
+    it does not print the text.
 
     :param str text: text to be printed.
+
+    :param bool force: forces the printing, even if application
+                       has been started in migration mode.
+                       defaults to False if not provided.
     """
 
-    print_colorful(text, colorama.Fore.YELLOW)
+    print_colorful(text, colorama.Fore.YELLOW, force)
 
 
-def print_error(text):
+def print_error(text, force=False):
     """
     prints the given text into stdout as an error.
+    if the application has been started in migration mode
+    it does not print the text.
 
     :param str text: text to be printed.
+
+    :param bool force: forces the printing, even if application
+                       has been started in migration mode.
+                       defaults to False if not provided.
     """
 
-    print_colorful(text, colorama.Fore.RED)
+    print_colorful(text, colorama.Fore.RED, force)
 
 
-def print_info(text):
+def print_info(text, force=False):
     """
     prints the given text into stdout as an info.
+    if the application has been started in migration mode
+    it does not print the text.
 
     :param str text: text to be printed.
+
+    :param bool force: forces the printing, even if application
+                       has been started in migration mode.
+                       defaults to False if not provided.
     """
 
-    print_colorful(text, colorama.Fore.BLUE)
+    print_colorful(text, colorama.Fore.BLUE, force)
+
+
+def print_default(text, force=False):
+    """
+    prints the given text into stdout with default color.
+    if the application has been started in migration mode
+    it does not print the text.
+
+    :param str text: text to be printed.
+
+    :param bool force: forces the printing, even if application
+                       has been started in migration mode.
+                       defaults to False if not provided.
+    """
+
+    print_colorful(text, colorama.Fore.RESET, force)

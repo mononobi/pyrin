@@ -16,11 +16,11 @@ from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.context import DTO, Manager
 from pyrin.packaging.context import Package
+from pyrin.packaging.hooks import PackagingHookBase
+from pyrin.utils.custom_print import print_info, print_default
+from pyrin.utils.path import resolve_application_root_path
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     ComponentModuleNotFoundError
-from pyrin.packaging.hooks import PackagingHookBase
-from pyrin.utils.custom_print import print_info
-from pyrin.utils.path import resolve_application_root_path
 
 
 class PackagingManager(Manager, HookMixin):
@@ -171,9 +171,9 @@ class PackagingManager(Manager, HookMixin):
 
         self._loaded_packages.append(package_name)
 
-        print('[{package}] package loaded. including [{module_count}] modules.'
-              .format(package=package_name,
-                      module_count=len(module_names)))
+        print_default('[{package}] package loaded. including [{module_count}] modules.'
+                      .format(package=package_name,
+                              module_count=len(module_names)))
 
     def _load_components(self, components, **options):
         """
