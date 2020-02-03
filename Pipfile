@@ -39,6 +39,8 @@ babel = "*"
 asn1crypto = "*"
 pytest-cov = "*"
 alembic = "*"
+pygments = "*"
+fire = "*"
 
 [requires]
 python_version = "3.7"
