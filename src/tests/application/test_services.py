@@ -12,7 +12,6 @@ import pyrin.utils.path as path_utils
 
 from pyrin.application.base import Application
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
-from pyrin.application.context import Component
 from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
@@ -21,6 +20,13 @@ from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComp
 
 from tests import PyrinTestApplication
 from tests.common.mock_functions import mock_view_function, mock_route_factory
+from tests.application.context import ComponentMock, DatabaseComponentMock, \
+    DuplicateDatabaseComponentMock, ExtraDatabaseComponentMock, OnlyManagerMock, \
+    DuplicateExtraDatabaseComponentMock, ComponentWithInvalidNameMock, \
+    DuplicateComponentMock, DuplicateComponentForReplaceMock, \
+    ExtraDuplicateComponentForReplaceMock, ComponentWithCustomAttributesMock, \
+    DuplicateComponentWithCustomAttributesMock, OnlyComponentMock, \
+    ComponentWithInvalidCustomKeyMock, DuplicateComponentWithInvalidCustomKeyMock
 
 
 def test_add_context():
@@ -68,9 +74,10 @@ def test_register_component():
     registers given application component.
     """
 
-    component = Component('component1')
+    component = ComponentMock('component1')
     application_services.register_component(component)
     assert application_services.get_component('component1') == component
+    application_services.remove_component(component.get_id())
 
 
 def test_register_component_with_custom_key():
@@ -78,13 +85,14 @@ def test_register_component_with_custom_key():
     registers given application component with custom key.
     """
 
-    default_component = Component('default_component')
-    custom_component = Component('default_component', component_custom_key=1000)
-    application_services.register_component(default_component)
+    database_component = application_services.get_component('database.component')
+    custom_component = DatabaseComponentMock('database.component',
+                                             component_custom_key=1000)
     application_services.register_component(custom_component)
-    assert application_services.get_component('default_component') == default_component
-    assert application_services.get_component('default_component',
+    assert application_services.get_component('database.component') == database_component
+    assert application_services.get_component('database.component',
                                               component_custom_key=1000) == custom_component
+    application_services.remove_component(custom_component.get_id())
 
 
 def test_register_component_with_custom_key_duplicate():
@@ -93,13 +101,14 @@ def test_register_component_with_custom_key_duplicate():
     it should raise an error.
     """
 
+    custom_component = DuplicateDatabaseComponentMock('database.component',
+                                                      component_custom_key=1000)
+    application_services.register_component(custom_component)
+
     with pytest.raises(DuplicateComponentIDError):
-        default_component = Component('default_component_duplicate')
-        custom_component1 = Component('default_component_duplicate', component_custom_key=1000)
-        custom_component2 = Component('default_component_duplicate', component_custom_key=1000)
-        application_services.register_component(default_component)
-        application_services.register_component(custom_component1)
-        application_services.register_component(custom_component2)
+        application_services.register_component(custom_component)
+
+    application_services.remove_component(custom_component.get_id())
 
 
 def test_register_component_with_custom_key_duplicate_with_replace():
@@ -108,20 +117,22 @@ def test_register_component_with_custom_key_duplicate_with_replace():
     it should not raise an error.
     """
 
-    default_component = Component('default_component_duplicate_replace')
-    custom_component1 = Component('default_component_duplicate_replace',
-                                  component_custom_key=2000)
-    custom_component2 = Component('default_component_duplicate_replace',
-                                  component_custom_key=2000)
-    application_services.register_component(default_component)
+    default_database_component = application_services.get_component('database.component')
+    custom_component1 = ExtraDatabaseComponentMock('database.component',
+                                                   component_custom_key=2000)
+    custom_component2 = DuplicateExtraDatabaseComponentMock('database.component',
+                                                            component_custom_key=2000)
+
     application_services.register_component(custom_component1)
     application_services.register_component(custom_component2, replace=True)
-    assert application_services.get_component('default_component_duplicate_replace') \
-        == default_component
+    assert application_services.get_component('database.component') \
+        == default_database_component
 
-    assert application_services.get_component('default_component_duplicate_replace',
+    assert application_services.get_component('database.component',
                                               component_custom_key=2000) \
         == custom_component2
+
+    application_services.remove_component(custom_component2.get_id())
 
 
 def test_register_component_with_invalid_type():
@@ -135,6 +146,30 @@ def test_register_component_with_invalid_type():
         application_services.register_component(component)
 
 
+def test_register_component_with_invalid_type_only_manager():
+    """
+    registers given application component with invalid type.
+    it is only subclassed from Manager and not from Component.
+    it should raise an error.
+    """
+
+    with pytest.raises(InvalidComponentTypeError):
+        component = OnlyManagerMock()
+        application_services.register_component(component)
+
+
+def test_register_component_with_invalid_type_only_component():
+    """
+    registers given application component with invalid type.
+    it is only subclassed from Component and not from Manager.
+    it should raise an error.
+    """
+
+    with pytest.raises(InvalidComponentTypeError):
+        component = OnlyComponentMock('only_component')
+        application_services.register_component(component)
+
+
 def test_register_component_with_invalid_name():
     """
     registers given application component with invalid name.
@@ -142,7 +177,7 @@ def test_register_component_with_invalid_name():
     """
 
     with pytest.raises(InvalidComponentNameError):
-        component = Component('')
+        component = ComponentWithInvalidNameMock('')
         application_services.register_component(component)
 
 
@@ -151,11 +186,13 @@ def test_register_component_duplicate():
     registers given duplicate application component and should raise an error.
     """
 
+    component = DuplicateComponentMock('component_duplicate')
+    application_services.register_component(component)
+
     with pytest.raises(DuplicateComponentIDError):
-        component = Component('component_duplicate')
-        component_duplicate = Component('component_duplicate')
         application_services.register_component(component)
-        application_services.register_component(component_duplicate)
+
+    application_services.remove_component(component.get_id())
 
 
 def test_register_component_duplicate_with_replace():
@@ -164,11 +201,13 @@ def test_register_component_duplicate_with_replace():
     replace option and should not raise an error.
     """
 
-    component = Component('component_duplicate2')
-    component_duplicate = Component('component_duplicate2')
+    component = DuplicateComponentForReplaceMock('duplicate_for_replace')
+    component_duplicate = ExtraDuplicateComponentForReplaceMock('duplicate_for_replace')
     application_services.register_component(component)
     application_services.register_component(component_duplicate, replace=True)
-    assert application_services.get_component('component_duplicate2') == component_duplicate
+    assert application_services.get_component('duplicate_for_replace') == component_duplicate
+
+    application_services.remove_component(component_duplicate.get_id())
 
 
 def test_register_component_duplicate_with_replace_with_custom_attributes():
@@ -178,8 +217,8 @@ def test_register_component_duplicate_with_replace_with_custom_attributes():
     names that should be passed to new component with replace option.
     """
 
-    component = Component('component_duplicate_with_custom_attrs')
-    component_duplicate = Component('component_duplicate_with_custom_attrs')
+    component = ComponentWithCustomAttributesMock('duplicate_custom_attrs')
+    component_duplicate = DuplicateComponentWithCustomAttributesMock('duplicate_custom_attrs')
 
     setattr(component, '__private_field', True)
     setattr(component, '_protected_field', 21)
@@ -199,7 +238,7 @@ def test_register_component_duplicate_with_replace_with_custom_attributes():
     application_services.register_component(component_duplicate, replace=True)
 
     newly_added_component = application_services.get_component(
-        'component_duplicate_with_custom_attrs')
+        'duplicate_custom_attrs')
 
     assert newly_added_component is not None
     assert hasattr(newly_added_component, '__private_field') is True
@@ -216,6 +255,8 @@ def test_register_component_duplicate_with_replace_with_custom_attributes():
     assert getattr(newly_added_component, 'list_field') == [1, 2, 3]
     assert getattr(newly_added_component, 'dict_field') == dict(name='a', age=23)
     assert getattr(newly_added_component, '___old_attribute') == 'old'
+
+    application_services.remove_component(component_duplicate.get_id())
 
 
 def test_get_component_with_invalid_name():
@@ -234,12 +275,16 @@ def test_get_component_with_invalid_custom_key():
     it should not raise an error and must get the default component.
     """
 
-    component = Component('component_with_invalid_key')
-    custom_component = Component('component_with_invalid_key', component_custom_key=3000)
+    component = ComponentWithInvalidCustomKeyMock('component_with_invalid_key')
+    custom_component = DuplicateComponentWithInvalidCustomKeyMock('component_with_invalid_key',
+                                                                  component_custom_key=3000)
     application_services.register_component(component)
     application_services.register_component(custom_component)
     assert application_services.get_component('component_with_invalid_key',
                                               component_custom_key=999) == component
+
+    application_services.remove_component(component.get_id())
+    application_services.remove_component(custom_component.get_id())
 
 
 def test_get_component_with_default_key():
@@ -247,11 +292,10 @@ def test_get_component_with_default_key():
     gets the application component with default key.
     """
 
-    component = Component('component_with_default_key')
-    application_services.register_component(component)
-    assert application_services.get_component('component_with_default_key',
+    default_component = application_services.get_component('database.component')
+    assert application_services.get_component('database.component',
                                               component_custom_key=DEFAULT_COMPONENT_KEY) \
-        == component
+        == default_component
 
 
 def test_get_all_components():
