@@ -249,8 +249,9 @@ class DatabaseManager(Manager, HookMixin):
                                                  'not an instance of AbstractSessionFactoryBase.'
                                                  .format(instance=str(instance)))
 
-        # checking whether is there any registered instance with the same name.
-        if instance.is_request_bounded() in self._session_factories.keys():
+        # checking whether is there any registered
+        # instance with the same 'is_request_bounded()' value.
+        if instance.is_request_bounded() in self._session_factories:
             replace = options.get('replace', False)
 
             if replace is not True:
@@ -268,7 +269,7 @@ class DatabaseManager(Manager, HookMixin):
 
         # registering new session factory.
         self._session_factories[instance.is_request_bounded()] = \
-            instance.create_session_factory(self.get_engine())
+            instance.create_session_factory(self.get_default_engine())
 
     def register_bind(self, cls, bind_name, **options):
         """
@@ -319,12 +320,12 @@ class DatabaseManager(Manager, HookMixin):
         self._map_entity_to_engine()
 
         if len(self.get_entity_to_engine_map()) > 0:
-            for key in self._session_factories.keys():
+            for key in self._session_factories:
                 self._session_factories[key].configure(binds=self.get_entity_to_engine_map())
 
         self._after_session_factories_configured()
 
-    def get_engine(self):
+    def get_default_engine(self):
         """
         gets database default engine.
 
@@ -361,3 +362,17 @@ class DatabaseManager(Manager, HookMixin):
 
         for hook in self._get_hooks():
             hook.after_session_factories_configured()
+
+    def get_engine(self, entity_class):
+        """
+        gets the database engine which this entity is bounded to.
+
+        :param CoreEntity entity_class: entity class to get its bounded engine.
+
+        :rtype: Engine
+        """
+
+        if entity_class in self.get_entity_to_engine_map():
+            return self.get_entity_to_engine_map()[entity_class]
+
+        return self.get_default_engine()

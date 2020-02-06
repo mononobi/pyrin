@@ -24,7 +24,7 @@ def print_colorful(text, color, force=False):
                        defaults to False if not provided.
     """
 
-    if application_services.is_migration() is False or force is True:
+    if force is True or application_services.is_migration() is False:
         try:
             colorama.init(autoreset=True)
             print(str(color) + text)

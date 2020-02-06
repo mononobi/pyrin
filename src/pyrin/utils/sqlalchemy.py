@@ -10,7 +10,8 @@ from sqlalchemy.util import lightweight_named_tuple
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
-from pyrin.core.globals import _, LIST_TYPES
+from pyrin.core.globals import LIST_TYPES
+from pyrin.database.services import get_current_store
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError
 
@@ -185,9 +186,8 @@ def count(query, column=None):
     statement = query.options(lazyload('*')).statement.with_only_columns(
         [func_count]).order_by(None)
 
-    result = query.session.execute(statement).scalar()
-
-    return result
+    store = get_current_store()
+    return store.execute(statement).scalar()
 
 
 def add_range_clause(clauses, column, value_lower, value_upper,

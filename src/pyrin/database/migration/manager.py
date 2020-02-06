@@ -72,7 +72,8 @@ class DatabaseMigrationManager(Manager):
 
         # all remaining tables are associated with default engine.
         if len(all_tables) > 0:
-            self._engine_to_table_map[database_services.get_engine()] = list(all_tables.values())
+            self._engine_to_table_map[database_services.get_default_engine()] = \
+                list(all_tables.values())
 
     def get_connection_urls(self):
         """
@@ -109,9 +110,10 @@ class DatabaseMigrationManager(Manager):
                     bind_name_map = bind_name
                     break
 
-            if bind_name_map is None and engine == database_services.get_engine():
+            default_engine = database_services.get_default_engine()
+            if bind_name_map is None and engine == default_engine:
                 bind_name_map = self.DEFAULT_ENGINE_NAME
-            elif bind_name_map is None and engine != database_services.get_engine():
+            elif bind_name_map is None and engine != default_engine:
                 raise EngineBindNameNotFoundError('Could not find any bind name '
                                                   'for database engine [{name}].'
                                                   .format(name=str(engine)))

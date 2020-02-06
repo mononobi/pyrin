@@ -3,7 +3,6 @@
 database services module.
 """
 
-from pyrin.application.decorators import after_request_handler, teardown_request_handler
 from pyrin.application.services import get_component
 from pyrin.database import DatabasePackage
 
@@ -37,7 +36,6 @@ def get_session_factory(request_bounded=None):
     return get_component(DatabasePackage.COMPONENT_NAME).get_session_factory(request_bounded)
 
 
-@after_request_handler()
 def finalize_transaction(response):
     """
     this method will finalize database transaction of each request.
@@ -53,7 +51,6 @@ def finalize_transaction(response):
     return get_component(DatabasePackage.COMPONENT_NAME).finalize_transaction(response)
 
 
-@teardown_request_handler()
 def cleanup_session(exception):
     """
     this method will cleanup database session of each request in
@@ -115,14 +112,14 @@ def configure_session_factories():
     return get_component(DatabasePackage.COMPONENT_NAME).configure_session_factories()
 
 
-def get_engine():
+def get_default_engine():
     """
     gets database default engine.
 
     :rtype: Engine
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_engine()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_default_engine()
 
 
 def get_bounded_engines():
@@ -157,3 +154,15 @@ def register_hook(instance):
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).register_hook(instance)
+
+
+def get_engine(entity_class):
+    """
+    gets the database engine which this entity is bounded to.
+
+    :param CoreEntity entity_class: entity class to get its bounded engine.
+
+    :rtype: Engine
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_engine(entity_class)

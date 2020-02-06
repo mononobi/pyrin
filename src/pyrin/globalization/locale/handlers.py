@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-locale selectors module.
+locale handlers module.
 """
 
 import pyrin.globalization.locale.services as locale_services
