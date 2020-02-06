@@ -9,14 +9,15 @@ from sqlalchemy.schema import CreateSequence, DropSequence
 from sqlalchemy import Sequence
 
 import pyrin.database.sequence.services as sequence_services
+import pyrin.database.services as database_services
 
 from pyrin.database.services import get_current_store
 
-import tests.database.services as extended_database_services
 
-
-@pytest.mark.skipif('extended_database_services.get_all_engines()[0].name in ("sqlite")',
-                    'sqlite database does not support sequences, so this test has skipped.')
+@pytest.mark.skipif('database_services.get_default_engine().name in ("sqlite", "mssql")',
+                    'sqlite database does not support sequences, so this test has skipped.'
+                    'sqlalchemy currently does not support sql server sequence creation, '
+                    'so this test has skipped.')
 def test_get_next_value():
     """
     gets the next value of given sequence.

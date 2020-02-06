@@ -6,10 +6,12 @@ permission models module.
 from sqlalchemy import Unicode, SmallInteger
 
 from pyrin.core.context import DTO
+from pyrin.database.decorators import bind
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.schema import CoreColumn
 
 
+@bind('local')
 class PermissionBaseEntity(CoreEntity):
     """
     permission base entity class.

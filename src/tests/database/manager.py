@@ -36,7 +36,7 @@ class DatabaseManager(BaseDatabaseManager):
         :rtype: list
         """
 
-        engines = [self.get_engine()]
+        engines = [self.get_default_engine()]
         engines.extend([engine for engine in self.get_bounded_engines().values()])
 
         return engines
