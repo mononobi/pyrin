@@ -55,6 +55,11 @@ class DatabaseManager(Manager, HookMixin):
         # in the form of: {type entity: Engine engine}
         self._entity_to_engine_map = DTO()
 
+        # a dictionary containing table name to engine map for those entities that
+        # should be bounded to a different database engine than the default one.
+        # in the form of: {string table_name: Engine engine}
+        self._table_name_to_engine_map = DTO()
+
         # a dictionary containing session factories for request bounded and unbounded types.
         # in the for of: {bool request_bounded: Session session_factory}
         # it should have at most two different keys, True for request bounded
@@ -308,6 +313,8 @@ class DatabaseManager(Manager, HookMixin):
                                                        entity_name=str(entity)))
 
             self._entity_to_engine_map[entity] = self.get_bounded_engines()[bind_name]
+            self._table_name_to_engine_map[entity.table_name().lower()] = \
+                self.get_bounded_engines()[bind_name]
 
     def configure_session_factories(self):
         """
@@ -354,6 +361,16 @@ class DatabaseManager(Manager, HookMixin):
 
         return self._entity_to_engine_map
 
+    def get_table_name_to_engine_map(self):
+        """
+        gets table name to engine map.
+
+        :returns: dict(str table_name, Engine engine)
+        :rtype: dict
+        """
+
+        return self._table_name_to_engine_map
+
     def _after_session_factories_configured(self):
         """
         this method will call `after_session_factories_configured`
@@ -363,16 +380,22 @@ class DatabaseManager(Manager, HookMixin):
         for hook in self._get_hooks():
             hook.after_session_factories_configured()
 
-    def get_engine(self, entity_class):
+    def get_engine(self, entity_or_table):
         """
-        gets the database engine which this entity is bounded to.
+        gets the database engine which this entity or table is bounded to.
 
-        :param CoreEntity entity_class: entity class to get its bounded engine.
+        :param Union[CoreEntity, str] entity_or_table: entity class or table
+                                                       name to get its bounded engine.
 
         :rtype: Engine
         """
 
-        if entity_class in self.get_entity_to_engine_map():
-            return self.get_entity_to_engine_map()[entity_class]
+        if isinstance(entity_or_table, str):
+            entity_or_table = entity_or_table.lower()
+            if entity_or_table in self.get_table_name_to_engine_map():
+                return self.get_table_name_to_engine_map()[entity_or_table]
+
+        elif entity_or_table in self.get_entity_to_engine_map():
+            return self.get_entity_to_engine_map()[entity_or_table]
 
         return self.get_default_engine()

@@ -31,26 +31,9 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
     abstract cli handler base class.
     """
 
-    def __init__(self, **options):
-        """
-        initializes an instance of AbstractCLIHandlerBase.
-        """
-
-        super().__init__()
-
     def execute(self, **options):
         """
         executes the current cli command with given inputs.
-
-        :returns: execution result.
-        """
-
-        return self._execute(**options)
-
-    def _execute(self, **options):
-        """
-        executes the current cli command with given inputs.
-        this method is intended to be overridden by subclasses.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -130,7 +113,7 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         initializes an instance of CLIHandlerBase.
         """
 
-        super().__init__(**options)
+        super().__init__()
 
         self._options_meta_data = self._generate_cli_handler_options_metadata()
 
@@ -144,6 +127,15 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         """
 
         raise CoreNotImplementedError()
+
+    def execute(self, **options):
+        """
+        executes the current cli command with given inputs.
+
+        :returns: execution result.
+        """
+
+        return self._execute(**options)
 
     def _execute(self, **options):
         """

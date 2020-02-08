@@ -4,9 +4,10 @@ database orm session base module.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.util import find_tables
+from sqlalchemy.sql.elements import TextClause
 
 import pyrin.database.services as database_services
+import pyrin.database.orm.sql.services as sql_services
 
 from pyrin.database.exceptions import InvalidDatabaseBindError
 
@@ -29,9 +30,9 @@ class CoreSession(Session):
         which wraps it to bind to correct engine on different situations.
         for full documentation see the `sqlalchemy.orm.session.execute()` docs.
 
-        :param Union[object, str] clause: an executable statement `Executable`
-                                          expression such as `expression.select`
-                                          or string sql statement to be executed.
+        :param Union[Executable, str] clause: an executable statement `Executable`
+                                              expression such as `expression.select`
+                                              or string sql statement to be executed.
 
         :param Union[dict, list[dict]] params: optional dictionary, or list of
                                                dictionaries, containing bound
@@ -72,14 +73,16 @@ class CoreSession(Session):
             if bind is None:
                 raise InvalidDatabaseBindError('Database bind name [{bind_name}] '
                                                'is not available in '
-                                               'database.binds.config file.'
+                                               '[database.binds.config] file.'
                                                .format(bind_name=bind_name))
 
         return super().execute(clause, params, mapper, bind, **kw)
 
-    def get_bind(self, mapper=None, clause=None):
+    def get_bind(self, mapper=None, clause=None, **kw):
         """
         returns a `bind` to which this `CoreSession` is bound.
+        this method extends the `get_bind() method of `Session` by
+        trying to find bounded engine to tables of a raw string query.
 
         the `bind` is usually an instance of `Engine`,
         except in the case where the `CoreSession` has been
@@ -116,28 +119,26 @@ class CoreSession(Session):
         6. no bind can be found, `sqlalchemy.exc.UnboundExecutionError`
            is raised.
 
-        :param mapper: optional `mapper` mapped class or instance of
-                       `Mapper`. the bind can be derived from a `Mapper`
-                       first by consulting the `binds` map associated with this
-                       `Session`, and secondly by consulting the `Metadata`
-                       associated with the `Table` to which the `Mapper`
-                       is mapped for a bind.
+        :param CoreEntity mapper: a CoreEntity instance or class. the bind can be derived from
+                                  a `Mapper` first by consulting the `binds` map associated
+                                  with this `Session`, and secondly by consulting the
+                                  `Metadata` associated with the `Table` to which the
+                                  `Mapper` is mapped for a bind.
 
-        :param clause: a `ClauseElement` (i.e. `~.sql.expression.select`,
-                       `~.sql.expression.text`, etc.). if the `Mapper` argument
-                       is not present or could not produce a bind, the given expression
-                       construct will be searched for a bound element, typically a
-                       `Table` associated with `Metadata`.
+        :param Union[ClauseElement, str] clause: a raw string query or a `ClauseElement`
+                                                 (i.e. `~.sql.expression.select`,
+                                                 `~.sql.expression.text`, etc.). if the
+                                                 `Mapper` argument is not present or could not
+                                                 produce a bind, the given expression construct
+                                                 will be searched for a bound element, typically
+                                                 a `Table` associated with `Metadata`.
 
         :rtype: Engine
         """
 
-        result = super().get_bind(mapper, clause)
-        if clause is not None and result == database_services.get_default_engine():
-            if clause is not None:
-                for table in find_tables(clause, include_joins=True,
-                                         include_selects=True, include_crud=True):
-                    if table in self.__binds:
-                        return self.__binds[table]
+        if mapper is None and isinstance(clause, (TextClause, str)):
+            tables = sql_services.find_table_names(clause)
+            if len(tables) > 0:
+                return database_services.get_engine(tables[0])
 
-        return result
+        return super().get_bind(mapper, clause=clause)
