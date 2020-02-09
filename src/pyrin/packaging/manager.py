@@ -11,14 +11,15 @@ from importlib import import_module
 import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
+import pyrin.utils.path as path_utils
 
+from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.context import DTO, Manager
 from pyrin.packaging.context import Package
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
-from pyrin.utils.path import resolve_application_root_path
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     ComponentModuleNotFoundError
 
@@ -28,7 +29,6 @@ class PackagingManager(Manager, HookMixin):
     packaging manager class.
     """
 
-    PYRIN_PACKAGE_NAME = 'pyrin'
     _hook_type = PackagingHookBase
 
     def __init__(self):
@@ -38,13 +38,9 @@ class PackagingManager(Manager, HookMixin):
 
         super().__init__()
 
-        # holds the absolute path of application root directory where
-        # the main package is located. for example `/var/app_root/`.
-        self._root_directory = resolve_application_root_path()
+        self._pyrin_package_name = None
 
         # holds the loaded packages.
-        # `pyrin.application` and `pyrin.packaging` will be loaded at
-        # the beginning, so they will not included in this list.
         self._loaded_packages = []
 
         # holds the instance of all loaded modules.
@@ -53,6 +49,20 @@ class PackagingManager(Manager, HookMixin):
 
         # configs will be filled from packaging config file.
         self._configs = DTO()
+
+        # these will keep all loaded components for different
+        # categories inside them. extended components in each
+        # category are those that extending the exact component
+        # of their parent.
+        # in the form of: dict(str package_name: list[str] modules)
+        self._pyrin_components = DTO()
+        self._application_components = DTO()
+        self._custom_components = DTO()
+        self._test_components = DTO()
+        self._extended_application_components = DTO()
+        self._other_application_components = DTO()
+        self._extended_test_components = DTO()
+        self._other_test_components = DTO()
 
     def _load_configs(self):
         """
@@ -87,28 +97,44 @@ class PackagingManager(Manager, HookMixin):
                 if package not in self._loaded_packages:
                     self._loaded_packages.append(package)
 
+    def _initialize(self):
+        """
+        initializes required data.
+        """
+
+        self._pyrin_package_name = path_utils.get_main_package_name(PackagingManager.__module__)
+        self._load_configs()
+        self._initialize_loaded_packages()
+
+        self._pyrin_components.clear()
+        self._application_components.clear()
+        self._custom_components.clear()
+        self._test_components.clear()
+        self._extended_application_components.clear()
+        self._other_application_components.clear()
+        self._extended_test_components.clear()
+        self._other_test_components.clear()
+
     def load_components(self, **options):
         """
         loads required packages and modules for application startup.
         """
 
-        self._load_configs()
-        self._initialize_loaded_packages()
+        self._initialize()
 
         print_info('Loading application components...')
 
-        pyrin_packages, extended_application_packages, \
-            other_application_packages, custom_packages, \
-            extended_test_packages, other_test_packages = self._get_loadable_components(**options)
+        self._find_pyrin_loadable_components()
+        self._find_other_loadable_components()
 
-        self._load_components(pyrin_packages, **options)
-        self._load_components(extended_application_packages, **options)
-        self._load_components(other_application_packages, **options)
-        self._load_components(custom_packages, **options)
+        self._load_components(self._pyrin_components, **options)
+        self._load_components(self._extended_application_components, **options)
+        self._load_components(self._other_application_components, **options)
+        self._load_components(self._custom_components, **options)
 
         if self._configs.load_test_packages is True:
-            self._load_components(extended_test_packages, **options)
-            self._load_components(other_test_packages, **options)
+            self._load_components(self._extended_test_components, **options)
+            self._load_components(self._other_test_components, **options)
 
         self._after_packages_loaded()
 
@@ -217,58 +243,75 @@ class PackagingManager(Manager, HookMixin):
         if len(dependent_components) > 0:
             self._load_components(dependent_components, **options)
 
-    def _get_loadable_components(self, **options):
+    def _find_pyrin_loadable_components(self):
         """
-        gets all package and module names that should be loaded.
-
-        :returns: tuple(pyrin_components,
-                        extended_application_components,
-                        other_application_components,
-                        custom_components,
-                        extended_test_components,
-                        other_test_components)
-
-        :type pyrin_components: dict(str package_name: list[str] modules)
-
-        :type extended_application_components: dict(str package_name: list[str] modules)
-
-        :type other_application_components: dict(str package_name: list[str] modules)
-
-        :type custom_components: dict(str package_name: list[str] modules)
-
-        :type extended_test_components: dict(str package_name: list[str] modules)
-
-        :type other_test_components: dict(str package_name: list[str] modules)
-
-        :rtype: tuple
+        finds all package and module names that should
+        be loaded from pyrin package.
         """
 
-        # a dictionary containing all package names and their respective modules.
-        # in the form of {package_name: [modules]}.
-        pyrin_components = DTO()
-        application_components = DTO()
-        custom_components = DTO()
-        test_components = DTO()
+        application_root_path = application_services.get_application_root_path()
+        pyrin_path = application_services.get_pyrin_main_package_path()
+        self._find_loadable_components(application_root_path, include=pyrin_path)
 
-        for root, directories, file_names in os.walk(self._root_directory, followlinks=True):
+    def _find_other_loadable_components(self):
+        """
+        finds all package and module names that should
+        be loaded from other packages like application and test.
+        """
+
+        application_root_path = application_services.get_application_root_path()
+        pyrin_path = application_services.get_pyrin_main_package_path()
+        self._find_loadable_components(application_root_path, exclude=pyrin_path)
+
+    def _find_loadable_components(self, root_path, include=None,
+                                  exclude=None, **options):
+        """
+        finds all package and module names that should
+        be loaded included in given root path.
+
+        :param str root_path: root path to look for components inside it.
+
+        :param Union[str, list[str]] include: specify full directory names inside the
+                                              root path to just loop inside those.
+                                              otherwise it loops in all available
+                                              directories.
+
+        :param Union[str, list[str]] exclude: specify full directory names inside the
+                                              root path to ignore them. otherwise
+                                              it loops in all available directories.
+        """
+
+        if include is not None and not isinstance(include, LIST_TYPES):
+            include = [include]
+
+        if exclude is not None and not isinstance(exclude, LIST_TYPES):
+            exclude = [exclude]
+
+        for root, directories, file_names in os.walk(root_path, followlinks=True):
+            temp_dirs = list(directories)
+            for single_dir in temp_dirs:
+                visiting_path = os.path.abspath(os.path.join(root, single_dir))
+                if self._should_visit(include, exclude, visiting_path) is False:
+                    directories.remove(single_dir)
 
             for directory in directories:
                 combined_path = os.path.join(root, directory)
+
                 if not self._is_package(combined_path):
                     continue
 
-                package_name = self._get_package_name(combined_path)
+                package_name = self._get_package_name(combined_path, root_path)
                 if self._is_ignored_package(package_name):
                     continue
 
                 if self._is_pyrin_package(package_name):
-                    pyrin_components[package_name] = []
+                    self._pyrin_components[package_name] = []
                 elif self._is_custom_package(package_name):
-                    custom_components[package_name] = []
+                    self._custom_components[package_name] = []
                 elif self._is_test_package(package_name):
-                    test_components[package_name] = []
+                    self._test_components[package_name] = []
                 else:
-                    application_components[package_name] = []
+                    self._application_components[package_name] = []
 
                 files = os.listdir(combined_path)
                 for file_name in files:
@@ -281,70 +324,31 @@ class PackagingManager(Manager, HookMixin):
                         continue
 
                     if self._is_pyrin_module(full_module_name):
-                        pyrin_components[package_name].append(full_module_name)
+                        self._pyrin_components[package_name].append(full_module_name)
                     elif self._is_custom_module(full_module_name):
-                        custom_components[package_name].append(full_module_name)
+                        self._custom_components[package_name].append(full_module_name)
                     elif self._is_test_module(full_module_name):
-                        test_components[package_name].append(full_module_name)
+                        self._test_components[package_name].append(full_module_name)
                     else:
-                        application_components[package_name].append(full_module_name)
+                        self._application_components[package_name].append(full_module_name)
 
-        return self._detach_all(pyrin_components, application_components,
-                                custom_components, test_components)
+        self._detach_all()
 
-    def _detach_all(self, pyrin_components, application_components,
-                    custom_components, test_components):
+    def _detach_all(self):
         """
-        detaches all given components into extended and other components.
-
-        :param dict pyrin_components: pyrin components.
-        :type pyrin_components: dict(str package_name: list[str] modules)
-
-        :param dict application_components: application components.
-        :type application_components: dict(str package_name: list[str] modules)
-
-        :param dict custom_components: custom components.
-        :type custom_components: dict(str package_name: list[str] modules)
-
-        :param dict test_components: test components.
-        :type test_components: dict(str package_name: list[str] modules)
-
-        :returns: tuple(pyrin_components,
-                        extended_application_components,
-                        other_application_components,
-                        custom_components,
-                        extended_test_components,
-                        other_test_components)
-
-        :type pyrin_components: dict(str package_name: list[str] modules)
-
-        :type extended_application_components: dict(str package_name: list[str] modules)
-
-        :type other_application_components: dict(str package_name: list[str] modules)
-
-        :type custom_components: dict(str package_name: list[str] modules)
-
-        :type extended_test_components: dict(str package_name: list[str] modules)
-
-        :type other_test_components: dict(str package_name: list[str] modules)
-
-        :rtype: tuple
+        detaches all founded components into extended and other components.
         """
 
-        extended_application_components, \
-            other_application_components = self._detach_extended_packages(
-                list(pyrin_components.keys()), application_components)
+        self._extended_application_components, \
+            self._other_application_components = self._detach_extended_packages(
+                list(self._pyrin_components.keys()), self._application_components)
 
-        test_base_components = application_components
-        if len(application_components) <= 0:
-            test_base_components = pyrin_components
-        extended_test_components, \
-            other_test_components = self._detach_extended_packages(
-                list(test_base_components.keys()), test_components)
-
-        return pyrin_components, extended_application_components, \
-            other_application_components, custom_components, \
-            extended_test_components, other_test_components
+        test_base_components = self._application_components
+        if len(self._application_components) <= 0:
+            test_base_components = self._pyrin_components
+        self._extended_test_components, \
+            self._other_test_components = self._detach_extended_packages(
+                list(test_base_components.keys()), self._test_components)
 
     def _detach_extended_packages(self, base_components, components):
         """
@@ -407,7 +411,75 @@ class PackagingManager(Manager, HookMixin):
         :rtype: str
         """
 
-        return component_name.split('.')[0]
+        return path_utils.get_main_package_name(component_name)
+
+    def _is_included(self, include, visiting_path):
+        """
+        returns a value indicating that the given
+        visiting path is under include path.
+
+        :param list[str] include: full directory names inside the
+                                  root path to just loop inside those.
+                                  otherwise it loops in all available
+                                  directories.
+
+        :param str visiting_path: full path which must be checked for inclusion.
+
+        :rtype: bool
+        """
+
+        if include is None or len(include) <= 0:
+            return True
+
+        for path in include:
+            if visiting_path.startswith(path):
+                return True
+
+        return False
+
+    def _is_excluded(self, exclude, visiting_path):
+        """
+        returns a value indicating that the given
+        visiting path is under exclude path.
+
+        :param list[str] exclude: full directory names inside the
+                                  root path to ignore them. otherwise
+                                  it loops in all available directories.
+
+        :param str visiting_path: full path which must be checked for exclusion.
+
+        :rtype: bool
+        """
+
+        if exclude is None or len(exclude) <= 0:
+            return False
+
+        for path in exclude:
+            if visiting_path.startswith(path):
+                return True
+
+        return False
+
+    def _should_visit(self, include, exclude, visiting_path):
+        """
+        gets a value indicating that given path should be visited.
+
+        :param list[str] include: full directory names inside the
+                                  root path to just loop inside those.
+                                  otherwise it loops in all available
+                                  directories.
+
+        :param list[str] exclude: full directory names inside the
+                                  root path to ignore them. otherwise
+                                  it loops in all available directories.
+
+        :param str visiting_path: full path which must be checked for exclusion.
+
+        :rtype: bool
+        """
+
+        return self._is_included(include, visiting_path) is True and \
+            self._is_excluded(exclude, visiting_path) is False
 
     def _is_ignored_package(self, package_name):
         """
@@ -450,7 +522,7 @@ class PackagingManager(Manager, HookMixin):
         :rtype: bool
         """
 
-        return self._contains(self.PYRIN_PACKAGE_NAME, component_name)
+        return self._contains(self._pyrin_package_name, component_name)
 
     def _is_pyrin_package(self, package_name):
         """
@@ -578,17 +650,20 @@ class PackagingManager(Manager, HookMixin):
 
         return component_root == root
 
-    def _get_package_name(self, path):
+    def _get_package_name(self, path, root_path):
         """
-        gets the full package name from provided path.
+        gets the full package name for provided path.
 
         :param str path: full path of package.
                          example path = `/home/src/pyrin/database`.
 
+        :param str root_path: root path in which this path is located.
+                              example root_path = `/home/src`
+
         :rtype: str
         """
 
-        return path.replace(self._root_directory, '').replace('/', '.')
+        return path.replace(root_path, '').replace('/', '.').lstrip('.')
 
     def _merge_module_name(self, package_name, component_name):
         """

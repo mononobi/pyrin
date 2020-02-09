@@ -3,8 +3,6 @@
 application base module.
 """
 
-import signal
-import sys
 import os.path
 
 from time import time
@@ -21,11 +19,13 @@ import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.database.model.services as model_services
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.path as path_utils
 
 from pyrin.application.container import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.hooks import ApplicationHookBase
+from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.context import DTO, Manager
@@ -36,11 +36,9 @@ from pyrin.packaging.component import PackagingComponent
 from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
     ApplicationComponent, ApplicationSingletonMeta
 from pyrin.application.context import Component
-from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
-from pyrin.utils.custom_print import print_warning, print_error
+from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
-from pyrin.utils.path import resolve_application_root_path
 from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict, \
     entity_to_dict_list, entity_to_dict
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
@@ -49,10 +47,10 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError
 
 
-class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
+class Application(Flask, HookMixin, SignalMixin, metaclass=ApplicationSingletonMeta):
     """
     application class.
-    server must initialize an instance of this class at startup.
+    server must initialize an instance of a subclass of this class at startup.
     """
 
     # the application looks for these stores to configure itself.
@@ -67,6 +65,19 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
     # migrations path will be registered in application context with this key.
     MIGRATIONS_CONTEXT_KEY = 'migrations_path'
+
+    # locale path will be registered in application context with this key.
+    LOCALE_CONTEXT_KEY = 'locale_path'
+
+    # pyrin main package path will be registered in application context with this key.
+    PYRIN_PATH_CONTEXT_KEY = 'pyrin_path'
+
+    # application main package path will be registered in application context with this key.
+    APPLICATION_PATH_CONTEXT_KEY = 'application_path'
+
+    # application root path will be registered in application context with this key.
+    # root path is where application main package and other files are located.
+    ROOT_APPLICATION_PATH_CONTEXT_KEY = 'root_application_path'
 
     # default packaging component to be used by application.
     # if you want to change the default one, you could subclass
@@ -83,11 +94,9 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
     json_encoder = CoreJSONEncoder
     _hook_type = ApplicationHookBase
 
-    def __init__(self, import_name, **options):
+    def __init__(self, **options):
         """
         initializes an instance of Application.
-
-        :param str import_name: name of the main application package.
 
         :keyword bool host_matching: set `url_map.host_matching` attribute.
                                      defaults to False.
@@ -119,6 +128,15 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                                       scripting mode. some application hooks will not
                                       get fired when the app runs in scripting mode.
                                       defaults to False, if not provided.
+
+        :keyword str settings_directory: settings directory name.
+                                         if not provided, defaults to `settings`.
+
+        :keyword str migrations_directory: migrations directory name.
+                                           if not provided, defaults to `migrations`.
+
+        :keyword str locale_directory: locale directory name.
+                                       if not provided, defaults to `locale`.
         """
 
         self.__status = ApplicationStatusEnum.INITIALIZING
@@ -127,11 +145,12 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
         # through a correct mechanism later.
-        super().__init__(import_name, static_folder=None, **options)
+        super().__init__(self.get_application_name(), static_folder=None, **options)
 
         # Flask does not call 'super' in its '__init__' method.
-        # so we have to initialize HookMixin manually.
-        HookMixin.__init__(self)
+        # so we have to initialize other parents manually.
+        HookMixin.__init__(self, **options)
+        SignalMixin.__init__(self, **options)
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
@@ -141,13 +160,13 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         # because packaging package will not handle them.
         self._register_required_components()
 
-        # setting the application instance in global 'pyrin' level variable.
+        # setting the application instance in application container module.
         _set_app(self)
 
         # we should load application at this stage to be able to perform pytest
         # tests after application has been fully loaded. because if we call
         # application.run(), we could not continue execution of other codes.
-        self._load()
+        self._load(**options)
         self._set_status(ApplicationStatusEnum.RUNNING)
 
     def is_scripting_mode(self):
@@ -391,9 +410,14 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         """
 
         self._set_status(ApplicationStatusEnum.LOADING)
+        self._resolve_pyrin_main_package_path(**options)
+        self._resolve_application_main_package_path(**options)
+        self._resolve_application_root_path(**options)
+        self._resolve_settings_path(**options)
+        self._resolve_migrations_path(**options)
+        self._resolve_locale_path(**options)
         self._load_environment_variables()
-        self._resolve_settings_path()
-        self._resolve_migrations_path()
+
         packaging_services.load_components(**options)
 
         # we should call this method after loading components
@@ -644,25 +668,6 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         super().add_url_rule(rule, endpoint, view_func,
                              provide_automatic_options, **options)
 
-    def terminate(self, **options):
-        """
-        terminates the application.
-        this method should not be called directly.
-        it is defined for cases that application has to
-        be terminated for some unexpected reasons.
-
-        :keyword int status: status code to use for application exit.
-                             if not provided, status=0 will be used.
-        """
-
-        print_error('Terminating application [{name}].'.format(name=self.name))
-
-        # forcing termination after 10 seconds.
-        signal.alarm(10)
-        self._set_status(ApplicationStatusEnum.TERMINATED)
-
-        sys.exit(options.get('status', 0))
-
     @setupmethod
     def register_route_factory(self, factory):
         """
@@ -703,6 +708,51 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
         return self.get_context(self.SETTINGS_CONTEXT_KEY)
 
+    def get_migrations_path(self):
+        """
+        gets the application migrations path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.MIGRATIONS_CONTEXT_KEY)
+
+    def get_locale_path(self):
+        """
+        gets the application locale path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.LOCALE_CONTEXT_KEY)
+
+    def get_application_main_package_path(self):
+        """
+        gets the application main package path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.APPLICATION_PATH_CONTEXT_KEY)
+
+    def get_application_root_path(self):
+        """
+        gets the application root path in which application package is located.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY)
+
+    def get_pyrin_main_package_path(self):
+        """
+        gets pyrin main package path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.PYRIN_PATH_CONTEXT_KEY)
+
     def get_configs(self):
         """
         gets a shallow copy of application's configuration dictionary.
@@ -722,15 +772,15 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
         :raises ApplicationSettingsPathNotExistedError: application settings path
                                                         not existed error.
-
-        :rtype: str
         """
 
-        main_package_path = self._resolve_application_main_package_path(**options)
+        main_package_path = self.get_application_main_package_path()
 
         settings_path = '{main_package_path}/{settings_directory}' \
                         .format(main_package_path=main_package_path,
-                                settings_directory=options.get('settings', 'settings'))
+                                settings_directory=options.get('settings_directory',
+                                                               'settings'))
+        settings_path = os.path.abspath(settings_path)
 
         if not os.path.isdir(settings_path):
             raise ApplicationSettingsPathNotExistedError('Settings path [{path}] does not exist.'
@@ -745,30 +795,65 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
         :keyword str migrations_directory: migrations directory name.
                                            if not provided, defaults to `migrations`.
-
-        :rtype: str
         """
 
-        main_package_path = self._resolve_application_main_package_path(**options)
+        main_package_path = self.get_application_main_package_path()
 
         migrations_path = '{main_package_path}/{migrations_directory}' \
                           .format(main_package_path=main_package_path,
-                                  migrations_directory=options.get('migrations', 'migrations'))
+                                  migrations_directory=options.get('migrations_directory',
+                                                                   'migrations'))
+        migrations_path = os.path.abspath(migrations_path)
 
         self.add_context(self.MIGRATIONS_CONTEXT_KEY, migrations_path)
 
+    def _resolve_locale_path(self, **options):
+        """
+        resolves the application locale path. the resolved path will
+        be accessible by `LOCALE_CONTEXT_KEY` inside application context.
+
+        :keyword str locale_directory: locale directory name.
+                                       if not provided, defaults to `locale`.
+        """
+
+        main_package_path = self.get_application_main_package_path()
+
+        locale_path = '{main_package_path}/{locale_directory}' \
+                      .format(main_package_path=main_package_path,
+                              locale_directory=options.get('locale_directory',
+                                                           'locale'))
+        locale_path = os.path.abspath(locale_path)
+
+        self.add_context(self.LOCALE_CONTEXT_KEY, locale_path)
+
     def _resolve_application_main_package_path(self, **options):
         """
-        resolves the application main package path.
-        each derived class from Application, must override this method,
-        and resolve it's own main package path.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: str
+        resolves the application main package path and registers it
+        in application context with `APPLICATION_PATH_CONTEXT_KEY` key.
         """
 
-        raise CoreNotImplementedError()
+        main_package_path = path_utils.get_main_package_path(self.__module__)
+        self.add_context(self.APPLICATION_PATH_CONTEXT_KEY, main_package_path)
+
+    def _resolve_pyrin_main_package_path(self, **options):
+        """
+        resolves pyrin main package path and registers it
+        in application context with `PYRIN_PATH_CONTEXT_KEY` key.
+        """
+
+        pyrin_main_package = path_utils.get_main_package_path(Application.__module__)
+        self.add_context(self.PYRIN_PATH_CONTEXT_KEY, pyrin_main_package)
+
+    def _resolve_application_root_path(self, **options):
+        """
+        resolves application root path and registers it in application
+        context with `ROOT_APPLICATION_PATH_CONTEXT_KEY` key.
+        """
+
+        main_package_path = self.get_application_main_package_path()
+        root_path = os.path.join(main_package_path, '..')
+        root_path = os.path.abspath(root_path)
+        self.add_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY, root_path)
 
     def _load_environment_variables(self):
         """
@@ -776,7 +861,7 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         root path. if the file does not exist, it will be ignored.
         """
 
-        root_path = resolve_application_root_path()
+        root_path = self.get_application_root_path()
         env_file = os.path.join(root_path, '.env')
 
         if not os.path.isfile(env_file):
@@ -872,3 +957,21 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
         for hook in self._get_hooks():
             hook.before_application_start()
+
+    def get_application_name(self):
+        """
+        gets the application name.
+
+        :rtype: str
+        """
+
+        return path_utils.get_main_package_name(self.__module__)
+
+    def _prepare_termination(self, signal_number):
+        """
+        prepares for termination.
+
+        :param int signal_number: signal number that caused termination.
+        """
+
+        self._set_status(ApplicationStatusEnum.TERMINATED)

@@ -9,11 +9,11 @@ from sqlalchemy import MetaData
 
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
+import pyrin.application.services as application_services
 
 from pyrin.core.context import DTO, Manager
 from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
 from pyrin.database.model.base import CoreEntity
-from pyrin.utils.path import resolve_application_root_path
 
 
 class DatabaseMigrationManager(Manager):
@@ -168,7 +168,7 @@ class DatabaseMigrationManager(Manager):
                 'sqlite:///:memory:' in connection_url.lower():
             return connection_url
 
-        root_path = resolve_application_root_path()
+        root_path = application_services.get_application_root_path()
         url = connection_url.replace('sqlite:///', '')
         full_path = path.join(root_path, url)
         absolute_path = path.abspath(full_path)

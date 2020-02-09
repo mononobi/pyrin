@@ -206,6 +206,56 @@ def get_settings_path():
     return get_current_app().get_settings_path()
 
 
+def get_migrations_path():
+    """
+    gets the application migrations path.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_migrations_path()
+
+
+def get_locale_path():
+    """
+    gets the application locale path.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_locale_path()
+
+
+def get_application_main_package_path():
+    """
+    gets the application main package path.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_application_main_package_path()
+
+
+def get_application_root_path():
+    """
+    gets the application root path in which application package is located.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_application_root_path()
+
+
+def get_pyrin_main_package_path():
+    """
+    gets pyrin main package path.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_pyrin_main_package_path()
+
+
 def get_configs():
     """
     gets a shallow copy of application's configuration dictionary.
@@ -256,3 +306,13 @@ def is_scripting_mode():
     """
 
     return get_current_app().is_scripting_mode()
+
+
+def get_application_name():
+    """
+    gets the application name.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_application_name()
