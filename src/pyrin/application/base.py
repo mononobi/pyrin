@@ -47,7 +47,8 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError
 
 
-class Application(Flask, HookMixin, SignalMixin, metaclass=ApplicationSingletonMeta):
+class Application(Flask, HookMixin, SignalMixin,
+                  metaclass=ApplicationSingletonMeta):
     """
     application class.
     server must initialize an instance of a subclass of this class at startup.
