@@ -29,7 +29,7 @@ def get_context(key):
 
     :param str key: key for requested application context.
 
-    :rtype: object
+    :returns: related value to given key.
     """
 
     return get_current_app().get_context(key)

@@ -229,7 +229,7 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
         :param str key: key for requested application context.
 
-        :rtype: object
+        :returns: related value to given key.
         """
 
         return self._context[key]
