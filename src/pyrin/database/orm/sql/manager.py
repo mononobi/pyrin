@@ -180,8 +180,8 @@ class DatabaseORMSQLManager(Manager):
         :rtype: list
         """
 
-        from_seen = False
         select_seen = False
+        from_seen = False
         join_seen = False
         results = []
         for item in statement.tokens:
@@ -223,8 +223,8 @@ class DatabaseORMSQLManager(Manager):
         :rtype: str
         """
 
-        into_seen = False
         insert_seen = False
+        into_seen = False
         for item in statement.tokens:
             if insert_seen is True and into_seen is True:
                 if item.value not in (None, '') and not item.value.isspace() and \

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic handlers module.
+database migration alembic handlers package.
 """
 
 from pyrin.packaging.context import Package
@@ -12,4 +12,3 @@ class DatabaseMigrationAlembicHandlersPackage(Package):
     """
 
     NAME = __name__
-    ALEMBIC_CONFIG_STORE = 'alembic'

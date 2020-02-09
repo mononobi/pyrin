@@ -13,3 +13,4 @@ class DatabaseMigrationAlembicPackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'database.migration.alembic.component'
+    ALEMBIC_CONFIG_STORE = 'alembic'

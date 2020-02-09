@@ -3,34 +3,47 @@
 database migration alembic handlers base module.
 """
 
-import pyrin.configuration.services as config_services
-
-from pyrin.cli.interface import CLIHandlerBase
-from pyrin.database.migration.alembic.handlers import DatabaseMigrationAlembicHandlersPackage
+from pyrin.cli.interface import CLIHandlerOptionsMetadata
+from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 
 
-class AlembicCLIHandlerBase(CLIHandlerBase):
+class AlembicReportingCLIHandlerBase(AlembicCLIHandlerBase):
     """
-    alembic cli handler base class.
-    all alembic cli handlers must be subclassed from this.
+    alembic reporting cli handler base class.
+    all alembic reporting cli handlers must be subclassed from this.
     """
 
-    def __init__(self):
+    def _generate_common_cli_handler_options_metadata(self):
         """
-        initializes an instance of AlembicCLIHandlerBase.
+        generates common cli handler options metadata.
+
+        :rtype: list[CLIHandlerOptionsMetadata]
         """
 
-        super().__init__()
-        self._config_file_path = config_services.get_file_path(
-            DatabaseMigrationAlembicHandlersPackage.ALEMBIC_CONFIG_STORE)
+        common_options = super()._generate_common_cli_handler_options_metadata()
+        verbose = CLIHandlerOptionsMetadata('verbose', None, {True: '--verbose', False: None})
+        common_options.extend([verbose])
 
-    def _inject_common_cli_options(self, commands):
-        """
-        injecting some common cli options into the given list.
+        return common_options
 
-        :param list commands: a list of all commands and their
-                              values to be sent to cli command.
+
+class AlembicUpgradeDowngradeCLIHandlerBase(AlembicCLIHandlerBase):
+    """
+    alembic upgrade downgrade cli handler base class.
+    all alembic upgrade or downgrade cli handlers must be subclassed from this.
+    """
+
+    def _generate_common_cli_handler_options_metadata(self):
         """
-        bounded_options = ['alembic', '-c', self._config_file_path]
-        for i in range(len(bounded_options)):
-            commands.insert(i, bounded_options[i])
+        generates common cli handler options metadata.
+
+        :rtype: list[CLIHandlerOptionsMetadata]
+        """
+
+        common_options = super()._generate_common_cli_handler_options_metadata()
+        sql = CLIHandlerOptionsMetadata('sql', None, {True: '--sql', False: None})
+        tag = CLIHandlerOptionsMetadata('tag', '--tag')
+        revision = CLIHandlerOptionsMetadata('revision', None)
+        common_options.extend([sql, tag, revision])
+
+        return common_options

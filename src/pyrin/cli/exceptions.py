@@ -3,7 +3,6 @@
 cli exceptions module.
 """
 
-
 from pyrin.core.exceptions import CoreException
 
 
@@ -21,15 +20,15 @@ class MetaDataOptionsParamNameIsRequiredError(CLIManagerException):
     pass
 
 
-class MetaDataParamNameMustBePresentInMethodSignatureError(CLIManagerException):
+class ParamValueIsNotMappedToCLIError(CLIManagerException):
     """
-    metadata param name must be present in method signature error.
+    param value is not mapped to cli error.
     """
     pass
 
 
-class ParamValueIsNotMappedToCLIError(CLIManagerException):
+class InvalidCLIHandlerNameError(CLIManagerException):
     """
-    param value is not mapped to cli error.
+    invalid cli handler name error.
     """
     pass

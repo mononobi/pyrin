@@ -176,3 +176,21 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
     all application manager classes must be subclassed from this one.
     """
     pass
+
+
+class CLISingletonMeta(MultiSingletonMeta):
+    """
+    cli singleton meta class.
+    this is a thread-safe implementation of singleton.
+    """
+
+    _instances = dict()
+    _lock = Lock()
+
+
+class CLI(CoreObject, metaclass=CLISingletonMeta):
+    """
+    base cli class.
+    all application cli classes must be subclassed from this one.
+    """
+    pass

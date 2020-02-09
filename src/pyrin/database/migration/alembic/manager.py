@@ -4,7 +4,10 @@ database migration alembic manager module.
 """
 
 from pyrin.core.context import Manager, DTO
-from pyrin.utils.path import resolve_application_root_path
+from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
+from pyrin.utils.custom_print import print_warning
+from pyrin.database.migration.alembic.exceptions import InvalidAlembicCLIHandlerTypeError, \
+    DuplicatedAlembicCLIHandlerError, AlembicCLIHandlerNotFoundError
 
 
 class DatabaseMigrationAlembicManager(Manager):
@@ -12,11 +15,9 @@ class DatabaseMigrationAlembicManager(Manager):
     database migration alembic manager class.
     """
 
-    DEFAULT_ENGINE_NAME = 'default'
-
     def __init__(self):
         """
-        initializes an instance of DatabaseMigrationManager.
+        initializes an instance of DatabaseMigrationAlembicManager.
         """
 
         super().__init__()
@@ -24,49 +25,78 @@ class DatabaseMigrationAlembicManager(Manager):
         # a dictionary containing cli handlers
         # for different alembic commands.
         # in the form of: {str command name: CLIHandlerBase handler}
-        self.command_handlers = DTO()
+        self._cli_handlers = DTO()
 
-    def revision(self, message=None, autogenerate=True, sql=None,
-                 head=None, splice=None, branch_label=None,
-                 version_path=None, rev_id=None, depends_on=None):
+    def register_cli_handler(self, instance, **options):
         """
-        makes a revision for available databases.
+        registers a new alembic cli handler or replaces the existing one
+        if `replace=True` is provided. otherwise, it raises an error
+        on adding a cli handler which is already registered.
 
-        :param str message: message string to use with 'revision'.
+        :param AlembicCLIHandlerBase instance: alembic cli handler to be registered.
+                                               it must be an instance of
+                                               AlembicCLIHandlerBase.
 
-        :param bool autogenerate: populate revision script with candidate migration
-                                  operations, based on comparison of database to model.
+        :keyword bool replace: specifies that if there is another registered
+                               cli handler with the same name, replace it
+                               with the new one, otherwise raise an error.
+                               defaults to False.
 
-
-        :param bool sql: don't emit sql to database, just dump to standard
-                         output/file instead. see docs on offline mode.
-
-        :param str head: specify head revision or <branchname>@head to base new
-                         revision on.
-
-        :param bool splice: allow a non-head revision as the 'head' to splice onto.
-        :param str branch_label: specify a branch label to apply to the new revision.
-        :param str version_path: specify specific path from config for version file.
-        :param str rev_id: specify a hardcoded revision id instead of generating one.
-
-        :param Union[str, list[str]] depends_on: specify one or more revision identifiers
-                                                 which this revision should depend on.
+        :raises InvalidAlembicCLIHandlerTypeError: invalid alembic cli handler type error.
+        :raises DuplicatedAlembicCLIHandlerError: duplicated alembic cli handler error.
         """
-        try:
-            print(autogenerate)
-            command = ['alembic',
-                       '-c', settings_file,
-                       'revision', '--autogenerate']
-            subprocess.check_call(command)
-        except CalledProcessError as error:
-            print_warning(str(error), True)
 
-    def current(self):
-        command = ['alembic',
-                   '-c', settings_file,
-                   'current', '-v']
-        subprocess.check_call(command)
+        if not isinstance(instance, AlembicCLIHandlerBase):
+            raise InvalidAlembicCLIHandlerTypeError('Input parameter [{instance}] is '
+                                                    'not an instance of AlembicCLIHandlerBase.'
+                                                    .format(instance=str(instance)))
 
-    def upgrade(self):
-        command = 'alembic upgrade head'
-        subprocess.check_call(command)
+        if instance.get_name() in self._cli_handlers:
+            old_instance = self._cli_handlers.get(instance.get_name())
+            replace = options.get('replace', False)
+            if replace is not True:
+                raise DuplicatedAlembicCLIHandlerError('There is another registered '
+                                                       'cli handler with name [{name}] '
+                                                       'but "replace" option is not set, so '
+                                                       'cli handler [{instance}] could not '
+                                                       'be registered.'
+                                                       .format(name=instance.get_name(),
+                                                               instance=str(instance)))
+
+            print_warning('Alembic cli handler [{old_instance}] is going '
+                          'to be replaced by [{new_instance}].'
+                          .format(old_instance=str(old_instance),
+                                  new_instance=str(instance)))
+
+        self._cli_handlers[instance.get_name()] = instance
+
+    def _get_cli_handler(self, name):
+        """
+        gets an alembic cli handler with the given name.
+        if not available, it raises an error.
+
+        :param str name: alembic cli handler name to get its instance.
+
+        :raises AlembicCLIHandlerNotFoundError: alembic cli handler not found error.
+
+        :rtype: AlembicCLIHandlerBase
+        """
+
+        if name not in self._cli_handlers:
+            raise AlembicCLIHandlerNotFoundError('Alembic cli handler with name '
+                                                 '[{name}] not found.'
+                                                 .format(name=name))
+
+        return self._cli_handlers[name]
+
+    def execute(self, name, **options):
+        """
+        executes the handler with the given name with given inputs.
+
+        :param str name: handler name tobe executed.
+
+        :raises AlembicCLIHandlerNotFoundError: alembic cli handler not found error.
+        """
+
+        handler = self._get_cli_handler(name)
+        handler.execute(**options)
