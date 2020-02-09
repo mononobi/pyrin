@@ -22,21 +22,22 @@ def register_cli_handler(instance, **options):
                            with the new one, otherwise raise an error.
                            defaults to False.
 
-    :raises InvalidAlembicCLIHandlerTypeError: invalid alembic cli handler type error.
-    :raises DuplicatedAlembicCLIHandlerError: duplicated alembic cli handler error.
+    :raises InvalidCLIHandlerTypeError: invalid cli handler type error.
+    :raises DuplicatedCLIHandlerError: duplicated cli handler error.
     """
 
     get_component(DatabaseMigrationAlembicPackage.COMPONENT_NAME).register_cli_handler(instance,
                                                                                        **options)
 
 
-def execute(name, **options):
+def execute(handler_name, **options):
     """
     executes the handler with the given name with given inputs.
 
-    :param str name: handler name tobe executed.
+    :param str handler_name: handler name to be executed.
 
-    :raises AlembicCLIHandlerNotFoundError: alembic cli handler not found error.
+    :raises CLIHandlerNotFoundError: cli handler not found error.
     """
 
-    get_component(DatabaseMigrationAlembicPackage.COMPONENT_NAME).execute(name, **options)
+    get_component(DatabaseMigrationAlembicPackage.COMPONENT_NAME).execute(handler_name,
+                                                                          **options)

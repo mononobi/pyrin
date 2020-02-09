@@ -19,24 +19,3 @@ class DatabaseMigrationAlembicManagerBusinessException(CoreBusinessException,
     database migration alembic manager business exception.
     """
     pass
-
-
-class InvalidAlembicCLIHandlerTypeError(DatabaseMigrationAlembicManagerException):
-    """
-    invalid alembic cli handler type error.
-    """
-    pass
-
-
-class DuplicatedAlembicCLIHandlerError(DatabaseMigrationAlembicManagerException):
-    """
-    duplicated alembic cli handler error.
-    """
-    pass
-
-
-class AlembicCLIHandlerNotFoundError(DatabaseMigrationAlembicManagerBusinessException):
-    """
-    alembic cli handler not found error.
-    """
-    pass

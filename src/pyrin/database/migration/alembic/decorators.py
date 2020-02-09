@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer decorators module.
+database migration alembic decorators module.
 """
 
 import pyrin.database.migration.alembic.services as alembic_services
@@ -15,12 +15,11 @@ def alembic_cli_handler(**options):
                            with the new one, otherwise raise
                            an error. defaults to False.
 
-    :raises InvalidAlembicCLIHandlerTypeError: invalid alembic cli handler type error.
-    :raises DuplicatedAlembicCLIHandlerError: duplicated alembic cli handler error.
+    :raises InvalidCLIHandlerTypeError: invalid cli handler type error.
+    :raises DuplicatedCLIHandlerError: duplicated cli handler error.
 
     :returns: alembic cli handler class.
-
-    :rtype: type
+    :rtype: AlembicCLIHandlerBase
     """
 
     def decorator(cls):
@@ -28,11 +27,10 @@ def alembic_cli_handler(**options):
         decorates the given class and registers an instance
         of it into available alembic cli handlers.
 
-        :param type cls: alembic cli handler class.
+        :param AlembicCLIHandlerBase cls: alembic cli handler class.
 
         :returns: alembic cli handler class.
-
-        :rtype: type
+        :rtype: AlembicCLIHandlerBase
         """
 
         instance = cls()

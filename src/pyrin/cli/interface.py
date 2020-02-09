@@ -284,7 +284,9 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
                                                           '"param_value_to_cli_map" input of '
                                                           '"CLIHandlerOptionsMetadata" class '
                                                           'constructor with `None` value '
-                                                          'attached to those keys.')
+                                                          'attached to those keys.'
+                                                          .format(value=real_value,
+                                                                  name=metadata.param_name))
 
                 cli_value = metadata.param_value_to_cli_map.get(real_value, metadata.default)
                 if cli_value is not None:

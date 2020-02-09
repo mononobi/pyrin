@@ -3,9 +3,9 @@
 database migration alembic cli module.
 """
 
-import pyrin.database.migration.alembic.services as alembic_services
-
-from pyrin.core.context import CLI, DTO
+from pyrin.cli.decorators import cli
+from pyrin.core.context import CLI
+from pyrin.utils.datetime import get_current_timestamp
 
 
 class AlembicCLI(CLI):
@@ -14,6 +14,7 @@ class AlembicCLI(CLI):
     this class exposes all alembic cli commands.
     """
 
+    @cli
     def branches(self, verbose=False, help=False):
         """
         show current branch points.
@@ -21,10 +22,9 @@ class AlembicCLI(CLI):
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(verbose=verbose, help=help)
-        alembic_services.execute('branches', **inputs)
-
+    @cli
     def current(self, verbose=False, help=False):
         """
         display the current revision for a database.
@@ -32,10 +32,9 @@ class AlembicCLI(CLI):
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(verbose=verbose, help=help)
-        alembic_services.execute('current', **inputs)
-
+    @cli
     def downgrade(self, revision, sql=False, tag=None, help=False):
         """
         revert to a previous version.
@@ -51,10 +50,9 @@ class AlembicCLI(CLI):
 
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(revision=revision, sql=sql, tag=tag, help=help)
-        alembic_services.execute('downgrade', **inputs)
-
+    @cli
     def heads(self, resolve_dependencies=False, verbose=False, help=False):
         """
         show current available heads in the script directory.
@@ -63,10 +61,9 @@ class AlembicCLI(CLI):
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(resolve_dependencies=resolve_dependencies, verbose=verbose, help=help)
-        alembic_services.execute('heads', **inputs)
-
+    @cli
     def history(self, revision_range=None, indicate_current=False,
                 verbose=False, help=False):
         """
@@ -79,13 +76,9 @@ class AlembicCLI(CLI):
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(revision_range=revision_range,
-                     indicate_current=indicate_current,
-                     verbose=verbose, help=help)
-
-        alembic_services.execute('history', **inputs)
-
+    @cli
     def merge(self, revisions, message=None,
               branch_label=None, revision_id=None, help=False):
         """
@@ -105,13 +98,12 @@ class AlembicCLI(CLI):
         :param bool help: show the help message for this command.
         """
 
-        inputs = DTO(revisions=revisions,
-                     message=message,
-                     branch_label=branch_label,
-                     revision_id=revision_id, help=help)
+        if message is None:
+            message = get_current_timestamp()
 
-        alembic_services.execute('merge', **inputs)
+        return dict(message=message)
 
+    @cli
     def revision(self, message=None, autogenerate=True, sql=False,
                  head=None, splice=False, branch_label=None, version_path=None,
                  revision_id=None, depends_on=None, help=False):
@@ -143,18 +135,12 @@ class AlembicCLI(CLI):
         :param bool help: show the help message for this command.
         """
 
-        inputs = DTO(message=message,
-                     autogenerate=autogenerate,
-                     sql=sql, head=head,
-                     splice=splice,
-                     branch_label=branch_label,
-                     version_path=version_path,
-                     revision_id=revision_id,
-                     depends_on=depends_on,
-                     help=help)
+        if message is None:
+            message = get_current_timestamp()
 
-        alembic_services.execute('revision', **inputs)
+        return dict(message=message)
 
+    @cli
     def show(self, revision, help=False):
         """
         show the revision(s) denoted by the given symbol.
@@ -165,10 +151,9 @@ class AlembicCLI(CLI):
 
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(revision=revision, help=help)
-        alembic_services.execute('show', **inputs)
-
+    @cli
     def stamp(self, revisions, sql=False, tag=None, purge=False, help=False):
         """
         stamp the revision table with the given revision(s).
@@ -186,12 +171,9 @@ class AlembicCLI(CLI):
         :param bool purge: unconditionally erase the version table before stamping.
         :param bool help: show the help message for this command.
         """
+        pass
 
-        inputs = DTO(revisions=revisions, sql=sql,
-                     tag=tag, purge=purge, help=help)
-
-        alembic_services.execute('stamp', **inputs)
-
+    @cli
     def upgrade(self, revision, sql=False, tag=None, help=False):
         """
         upgrade to a later version.
@@ -207,6 +189,4 @@ class AlembicCLI(CLI):
 
         :param bool help: show the help message for this command.
         """
-
-        inputs = DTO(revision=revision, sql=sql, tag=tag, help=help)
-        alembic_services.execute('upgrade', **inputs)
+        pass
