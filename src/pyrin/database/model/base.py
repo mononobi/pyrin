@@ -9,11 +9,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
 import pyrin.database.services as database_services
-import pyrin.database.sequence.services as sequence_services
 
 from pyrin.core.context import CoreObject, DTO
-from pyrin.database.model.exceptions import SequenceHasNotSetError, ColumnNotExistedError, \
-    EntityNotHashableError
+from pyrin.database.model.exceptions import ColumnNotExistedError, EntityNotHashableError
 
 
 class CoreDeclarative(CoreObject):
@@ -30,9 +28,6 @@ class CoreDeclarative(CoreObject):
     # __table_args__ = {'schema': 'database_name.schema_name',
     #                   'extend_existing': True}
     __table_args__ = None
-
-    # holds the name of the sequence used for table's primary key column.
-    __sequence_name__ = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -146,22 +141,6 @@ class CoreDeclarative(CoreObject):
         """
 
         database_services.get_current_store().delete(self)
-
-    def next_sequence_value(self):
-        """
-        gets the next sequence value of this entity
-        using `__sequence_name__` value.
-
-        :raises SequenceHasNotSetError: sequence has not set error.
-
-        :rtype: int
-        """
-
-        if self.__sequence_name__ in (None, '') or self.__sequence_name__.isspace():
-            raise SequenceHasNotSetError('No sequence has been set for entity [{entity}].'
-                                         .format(entity=self.get_name()))
-
-        return sequence_services.get_next_value(self.__sequence_name__)
 
     def primary_key(self):
         """

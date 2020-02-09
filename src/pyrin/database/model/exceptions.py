@@ -13,13 +13,6 @@ class DatabaseModelException(CoreException):
     pass
 
 
-class SequenceHasNotSetError(DatabaseModelException):
-    """
-    sequence has not set error.
-    """
-    pass
-
-
 class ColumnNotExistedError(DatabaseModelException):
     """
     column not existed error.
