@@ -11,7 +11,7 @@ import pyrin.application.services as application_services
 def print_colorful(text, color, force=False):
     """
     prints the given text into stdout using the given color.
-    if the application has been started in migration mode
+    if the application has been started in scripting mode
     it does not print the text.
 
     :param str text: text to be printed.
@@ -20,11 +20,11 @@ def print_colorful(text, color, force=False):
                       it should be from `colorama.Fore` colors.
 
     :param bool force: forces the printing, even if application
-                       has been started in migration mode.
+                       has been started in scripting mode.
                        defaults to False if not provided.
     """
 
-    if force is True or application_services.is_migration() is False:
+    if force is True or application_services.is_scripting_mode() is False:
         try:
             colorama.init(autoreset=True)
             print(str(color) + text)
@@ -35,13 +35,13 @@ def print_colorful(text, color, force=False):
 def print_warning(text, force=False):
     """
     prints the given text into stdout as a warning.
-    if the application has been started in migration mode
+    if the application has been started in scripting mode
     it does not print the text.
 
     :param str text: text to be printed.
 
     :param bool force: forces the printing, even if application
-                       has been started in migration mode.
+                       has been started in scripting mode.
                        defaults to False if not provided.
     """
 
@@ -51,13 +51,13 @@ def print_warning(text, force=False):
 def print_error(text, force=False):
     """
     prints the given text into stdout as an error.
-    if the application has been started in migration mode
+    if the application has been started in scripting mode
     it does not print the text.
 
     :param str text: text to be printed.
 
     :param bool force: forces the printing, even if application
-                       has been started in migration mode.
+                       has been started in scripting mode.
                        defaults to False if not provided.
     """
 
@@ -67,13 +67,13 @@ def print_error(text, force=False):
 def print_info(text, force=False):
     """
     prints the given text into stdout as an info.
-    if the application has been started in migration mode
+    if the application has been started in scripting mode
     it does not print the text.
 
     :param str text: text to be printed.
 
     :param bool force: forces the printing, even if application
-                       has been started in migration mode.
+                       has been started in scripting mode.
                        defaults to False if not provided.
     """
 
@@ -83,13 +83,13 @@ def print_info(text, force=False):
 def print_default(text, force=False):
     """
     prints the given text into stdout with default color.
-    if the application has been started in migration mode
+    if the application has been started in scripting mode
     it does not print the text.
 
     :param str text: text to be printed.
 
     :param bool force: forces the printing, even if application
-                       has been started in migration mode.
+                       has been started in scripting mode.
                        defaults to False if not provided.
     """
 

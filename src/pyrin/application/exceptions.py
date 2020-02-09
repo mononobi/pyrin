@@ -83,9 +83,9 @@ class InvalidApplicationStatusError(ApplicationException):
     pass
 
 
-class ApplicationInMigrationModeError(ApplicationException):
+class ApplicationInScriptingModeError(ApplicationException):
     """
-    application in migration mode error.
+    application in scripting mode error.
     """
     pass
 

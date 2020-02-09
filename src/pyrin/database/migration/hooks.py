@@ -54,7 +54,7 @@ class ApplicationHook(ApplicationHookBase):
         this method will be called after application has been loaded.
         """
 
-        if application_services.is_migration() is False:
+        if application_services.is_scripting_mode() is False:
             if config_services.get('database', 'migration', 'drop_on_startup') is True:
                 environment = config_services.get_active('environment', 'env')
                 debug = config_services.get_active('environment', 'debug')

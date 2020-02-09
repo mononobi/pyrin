@@ -26,7 +26,7 @@ class ApplicationHook(ApplicationHookBase):
         """
         this method will be called before application gets started.
         note that this method will not get called when application
-        starts in migration mode.
+        starts in scripting mode.
         """
 
         # we should synchronize all application permissions with database.

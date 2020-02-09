@@ -46,7 +46,7 @@ from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, ApplicationInMigrationModeError, ComponentAttributeError
+    InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError
 
 
 class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
@@ -64,6 +64,9 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
 
     # settings path will be registered in application context with this key.
     SETTINGS_CONTEXT_KEY = 'settings_path'
+
+    # migrations path will be registered in application context with this key.
+    MIGRATIONS_CONTEXT_KEY = 'migrations_path'
 
     # default packaging component to be used by application.
     # if you want to change the default one, you could subclass
@@ -112,14 +115,14 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                                 is a python 3 namespace package) and needs to be
                                 manually defined.
 
-        :keyword bool migration: specifies that the application has been run to
-                                 do a migration. some application hooks will not
-                                 get fired when the app runs in migration mode.
-                                 defaults to False, if not provided.
+        :keyword bool scripting_mode: specifies that the application has been started in
+                                      scripting mode. some application hooks will not
+                                      get fired when the app runs in scripting mode.
+                                      defaults to False, if not provided.
         """
 
         self.__status = ApplicationStatusEnum.INITIALIZING
-        self._migration = options.pop('migration', False)
+        self._scripting_mode = options.pop('scripting_mode', False)
 
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
@@ -147,13 +150,13 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         self._load()
         self._set_status(ApplicationStatusEnum.RUNNING)
 
-    def is_migration(self):
+    def is_scripting_mode(self):
         """
-        gets a value indication that application has been started in migration mode.
+        gets a value indicating that application has been started in scripting mode.
         some application hooks will not fire in this mode. like 'before_application_start'.
         """
 
-        return self._migration
+        return self._scripting_mode
 
     @setupmethod
     def _register_required_components(self):
@@ -250,17 +253,17 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         :raises DuplicateComponentIDError: duplicate component id error.
         """
 
-        if not isinstance(component, Component):
-            raise InvalidComponentTypeError('Input parameter [{component}] is not '
-                                            'an instance of Component.'
-                                            .format(component=str(component)))
-
         if not isinstance(component, Manager):
             raise InvalidComponentTypeError('Input parameter [{component}] is not '
                                             'an instance of Manager. each component '
                                             'class must be subclassed from its respective '
                                             'manager class of the same package and that '
                                             'manager class must be subclassed from Manager.'
+                                            .format(component=str(component)))
+
+        if not isinstance(component, Component):
+            raise InvalidComponentTypeError('Input parameter [{component}] is not '
+                                            'an instance of Component.'
                                             .format(component=str(component)))
 
         if not isinstance(component.get_id(), tuple) or \
@@ -390,6 +393,7 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         self._set_status(ApplicationStatusEnum.LOADING)
         self._load_environment_variables()
         self._resolve_settings_path()
+        self._resolve_migrations_path()
         packaging_services.load_components(**options)
 
         # we should call this method after loading components
@@ -400,8 +404,8 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
         self._after_application_loaded()
 
         # calling `before_application_start` method of all registered hooks.
-        # this hook should not be called when the app is in migration mode.
-        if self.is_migration() is False:
+        # this hook should not be called when the app is in scripting mode.
+        if self.is_scripting_mode() is False:
             self._before_application_start()
 
     def _load_configs(self, **options):
@@ -454,12 +458,12 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                                  files to set environment variables. will also change the working
                                  directory to the directory containing the first file found.
 
-        :raises ApplicationInMigrationModeError: application in migration mode error.
+        :raises ApplicationInScriptingModeError: application in scripting mode error.
         """
 
-        if self.is_migration() is True:
-            raise ApplicationInMigrationModeError('Application has been initialized in '
-                                                  'migration mode, so it could not be run.')
+        if self.is_scripting_mode() is True:
+            raise ApplicationInScriptingModeError('Application has been initialized in '
+                                                  'scripting mode, so it could not be run.')
 
         super().run(host, port, debug, load_dotenv, **options)
 
@@ -711,7 +715,7 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
     def _resolve_settings_path(self, **options):
         """
         resolves the application settings path. the resolved path will
-        be accessible by `self.SETTINGS_CONTEXT_KEY` inside application context.
+        be accessible by `SETTINGS_CONTEXT_KEY` inside application context.
 
         :keyword str settings_directory: settings directory name.
                                          if not provided, defaults to `settings`.
@@ -733,6 +737,25 @@ class Application(Flask, HookMixin, metaclass=ApplicationSingletonMeta):
                                                          .format(path=settings_path))
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
+
+    def _resolve_migrations_path(self, **options):
+        """
+        resolves the application migrations path. the resolved path will
+        be accessible by `MIGRATIONS_CONTEXT_KEY` inside application context.
+
+        :keyword str migrations_directory: migrations directory name.
+                                           if not provided, defaults to `migrations`.
+
+        :rtype: str
+        """
+
+        main_package_path = self._resolve_application_main_package_path(**options)
+
+        migrations_path = '{main_package_path}/{migrations_directory}' \
+                          .format(main_package_path=main_package_path,
+                                  migrations_directory=options.get('migrations', 'migrations'))
+
+        self.add_context(self.MIGRATIONS_CONTEXT_KEY, migrations_path)
 
     def _resolve_application_main_package_path(self, **options):
         """

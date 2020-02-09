@@ -249,10 +249,10 @@ def register_hook(instance):
     get_current_app().register_hook(instance)
 
 
-def is_migration():
+def is_scripting_mode():
     """
-    gets a value indication that application has been started in migration mode.
+    gets a value indicating that application has been started in scripting mode.
     some application hooks will not fire in this mode. like 'before_application_start'.
     """
 
-    return get_current_app().is_migration()
+    return get_current_app().is_scripting_mode()
