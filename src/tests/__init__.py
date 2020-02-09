@@ -46,10 +46,10 @@ class PyrinTestApplication(Application):
                                 is a python 3 namespace package) and needs to be
                                 manually defined.
 
-        :keyword bool migration: specifies that the application has been run to
-                                 do a migration. some application hooks will not
-                                 get fired when the app runs in migration mode.
-                                 defaults to False, if not provided.
+        :keyword bool scripting_mode: specifies that the application has been started in
+                                      scripting mode. some application hooks will not
+                                      get fired when the app runs in scripting mode.
+                                      defaults to False, if not provided.
         """
 
         super().__init__(self.get_application_name(), **options)

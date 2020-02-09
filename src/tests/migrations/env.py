@@ -16,14 +16,14 @@ from alembic import context
 
 import pyrin.utils.unique_id as uuid_utils
 import pyrin.database.migration.services as migration_services
-import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.utils.custom_print import print_colorful
+from pyrin.utils.datetime import get_current_timestamp
 
 from tests import PyrinTestApplication
 
 
-app_instance = PyrinTestApplication(migration=True)
+app_instance = PyrinTestApplication(scripting_mode=True)
 
 USE_TWOPHASE = False
 
@@ -72,22 +72,6 @@ def print_message(message):
     """
 
     print_colorful(message, colorama.Fore.CYAN, True)
-
-
-def get_current_timestamp():
-    """
-    gets current time stamp.
-
-    :rtype: str
-    """
-
-    current = datetime_services.now()
-    return '{year}{month}{day}{hour}{minute}{second}'.format(year=current.year,
-                                                             month=current.month,
-                                                             day=current.day,
-                                                             hour=current.hour,
-                                                             minute=current.minute,
-                                                             second=current.second)
 
 
 def run_migrations_offline():
