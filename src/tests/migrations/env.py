@@ -7,6 +7,7 @@ import re
 import logging
 
 from logging.config import fileConfig
+from os import path
 
 import colorama
 
@@ -14,11 +15,12 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 
-import pyrin.utils.unique_id as uuid_utils
 import pyrin.database.migration.services as migration_services
+import pyrin.application.services as application_services
 
 from pyrin.utils.custom_print import print_colorful
 from pyrin.utils.datetime import get_current_timestamp
+from pyrin.application.base import Application
 
 from tests import PyrinTestApplication
 
@@ -103,16 +105,20 @@ def run_migrations_offline():
         )
 
     timestamp = get_current_timestamp()
-    revision = uuid_utils.generate_uuid4().hex[0:6]
     for name, rec in engines.items():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()
         print_colorful('Migrating database [{name}]'.format(name=name), True)
-        file_ = 'sql/{revision}_{name}_{timestamp}.sql'.format(revision=revision,
-                                                               name=name,
-                                                               timestamp=timestamp)
-        print_message('Writing output to [{file_name}]'.format(file_name=file_))
-        with open(file_, 'w') as buffer:
+
+        migrations_path = application_services.get_context(Application.MIGRATIONS_CONTEXT_KEY)
+        file_ = 'sql/{timestamp}_{name}.sql'.format(timestamp=timestamp,
+                                                    name=name)
+        full_migrations_file_path = path.join(migrations_path, file_)
+
+        print_message('Writing output to [{file_name}]'
+                      .format(file_name=full_migrations_file_path))
+
+        with open(full_migrations_file_path, 'w') as buffer:
             context.configure(
                 url=rec['url'],
                 connection=rec['connection'],
