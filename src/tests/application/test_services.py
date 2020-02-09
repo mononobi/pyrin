@@ -8,7 +8,6 @@ import os
 import pytest
 
 import pyrin.application.services as application_services
-import pyrin.utils.path as path_utils
 
 from pyrin.application.base import Application
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
@@ -395,7 +394,7 @@ def test_get_settings_path():
     gets the application settings path.
     """
 
-    root_path = path_utils.resolve_application_root_path()
+    root_path = application_services.get_application_root_path()
     settings_path = os.path.join(root_path, 'tests/settings')
     assert application_services.get_settings_path() == settings_path
 
@@ -475,4 +474,4 @@ def test_application_overwriting_is_forbidden():
     """
 
     with pytest.raises(ApplicationInstanceAlreadySetError):
-        app = Application('name')
+        app = Application()
