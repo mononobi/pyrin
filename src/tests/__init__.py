@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-pyrin tests main package.
+tests package.
 """
 
 from pyrin.application.base import Application
