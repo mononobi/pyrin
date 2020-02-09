@@ -8,9 +8,9 @@ import os
 import pytest
 
 import pyrin.database.migration.services as migration_services
+import pyrin.application.services as application_services
 
 from pyrin.utils.custom_print import print_warning, print_info
-from pyrin.utils.path import resolve_application_root_path
 
 from tests import PyrinTestApplication
 
@@ -22,7 +22,7 @@ def remove(name):
     :param str name: name of the file or directory to be removed.
     """
 
-    root_path = resolve_application_root_path()
+    root_path = application_services.get_application_root_path()
     file_path = os.path.join(root_path, name)
     file_path = os.path.abspath(file_path)
 
