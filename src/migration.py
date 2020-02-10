@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-pyrin migration module.
+migration module.
 """
 
 import os
