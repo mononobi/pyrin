@@ -15,7 +15,8 @@ from pyrin.core.context import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
     DuplicateRouteURLError, InvalidRouteFactoryTypeError, InvalidComponentTypeError, \
-    InvalidComponentNameError, ComponentAttributeError, ApplicationInstanceAlreadySetError
+    InvalidComponentNameError, ComponentAttributeError, ApplicationInstanceAlreadySetError, \
+    ApplicationIsNotSubclassedError
 
 from tests import PyrinTestApplication
 from tests.common.mock_functions import mock_view_function, mock_route_factory
@@ -468,10 +469,10 @@ def test_application_is_singleton():
     assert app == application_services.get_current_app()
 
 
-def test_application_overwriting_is_forbidden():
+def test_application_is_not_subclassed():
     """
-    tests that application overwriting is forbidden.
+    tests that direct instance of `Application` is not allowed.
     """
 
-    with pytest.raises(ApplicationInstanceAlreadySetError):
+    with pytest.raises(ApplicationIsNotSubclassedError):
         app = Application()
