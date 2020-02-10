@@ -20,7 +20,6 @@ import pyrin.application.services as application_services
 
 from pyrin.utils.custom_print import print_colorful
 from pyrin.utils.datetime import get_current_timestamp
-from pyrin.application.base import Application
 
 from tests import PyrinTestApplication
 
@@ -110,7 +109,7 @@ def run_migrations_offline():
         rec['connection'] = conn = engine.connect()
         print_colorful('Migrating database [{name}]'.format(name=name), True)
 
-        migrations_path = application_services.get_context(Application.MIGRATIONS_CONTEXT_KEY)
+        migrations_path = application_services.get_migrations_path()
         file_ = 'sql/{timestamp}_{name}.sql'.format(timestamp=timestamp,
                                                     name=name)
         full_migrations_file_path = path.join(migrations_path, file_)
