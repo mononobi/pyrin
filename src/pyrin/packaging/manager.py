@@ -69,6 +69,7 @@ class PackagingManager(Manager, HookMixin):
         loads packaging configs from application's settings directory.
         """
 
+        self._configs.clear()
         configs = config_utils.load(self._get_config_file_path())
         self._configs = configs.get('general')
 
@@ -102,10 +103,8 @@ class PackagingManager(Manager, HookMixin):
         initializes required data.
         """
 
-        self._pyrin_package_name = path_utils.get_main_package_name(PackagingManager.__module__)
-        self._load_configs()
-        self._initialize_loaded_packages()
-
+        self._loaded_packages.clear()
+        self._loaded_modules.clear()
         self._pyrin_components.clear()
         self._application_components.clear()
         self._custom_components.clear()
@@ -114,6 +113,10 @@ class PackagingManager(Manager, HookMixin):
         self._other_application_components.clear()
         self._extended_test_components.clear()
         self._other_test_components.clear()
+
+        self._pyrin_package_name = path_utils.get_pyrin_main_package_name()
+        self._load_configs()
+        self._initialize_loaded_packages()
 
     def load_components(self, **options):
         """
@@ -249,14 +252,14 @@ class PackagingManager(Manager, HookMixin):
         be loaded from pyrin package.
         """
 
-        application_root_path = application_services.get_application_root_path()
+        pyrin_root_path = application_services.get_pyrin_root_path()
         pyrin_path = application_services.get_pyrin_main_package_path()
-        self._find_loadable_components(application_root_path, include=pyrin_path)
+        self._find_loadable_components(pyrin_root_path, include=pyrin_path)
 
     def _find_other_loadable_components(self):
         """
         finds all package and module names that should
-        be loaded from other packages like application and test.
+        be loaded from other packages like application and tests.
         """
 
         application_root_path = application_services.get_application_root_path()

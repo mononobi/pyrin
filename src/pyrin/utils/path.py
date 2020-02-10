@@ -59,3 +59,24 @@ def get_main_package_path(module_name):
     main_package_path = main_package_path.replace(excess_part, '').rstrip('/')
 
     return main_package_path
+
+
+def get_pyrin_main_package_name():
+    """
+    gets the name of pyrin main package name.
+    it would always be `pyrin` in normal cases.
+
+    :rtype: str
+    """
+
+    return get_main_package_name(__name__)
+
+
+def get_pyrin_main_package_path():
+    """
+    gets the absolute path of pyrin main package.
+
+    :rtype: str
+    """
+
+    return get_main_package_path(__name__)

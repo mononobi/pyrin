@@ -236,6 +236,16 @@ def get_application_main_package_path():
     return get_current_app().get_application_main_package_path()
 
 
+def get_pyrin_root_path():
+    """
+    gets pyrin root path in which pyrin package is located.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_pyrin_root_path()
+
+
 def get_application_root_path():
     """
     gets the application root path in which application package is located.

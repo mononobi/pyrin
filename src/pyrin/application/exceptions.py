@@ -95,3 +95,10 @@ class ApplicationInstanceAlreadySetError(ApplicationException):
     application instance already set error.
     """
     pass
+
+
+class ApplicationIsNotSubclassedError(ApplicationException):
+    """
+    application is not subclassed error.
+    """
+    pass

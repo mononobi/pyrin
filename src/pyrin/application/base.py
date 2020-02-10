@@ -44,7 +44,8 @@ from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError
+    InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError, \
+    ApplicationIsNotSubclassedError
 
 
 class Application(Flask, HookMixin, SignalMixin,
@@ -75,6 +76,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     # application main package path will be registered in application context with this key.
     APPLICATION_PATH_CONTEXT_KEY = 'application_path'
+
+    # pyrin root path will be registered in application context with this key.
+    # pyrin root path is where pyrin main package is located.
+    ROOT_PYRIN_PATH_CONTEXT_KEY = 'root_pyrin_path'
 
     # application root path will be registered in application context with this key.
     # root path is where application main package and other files are located.
@@ -140,6 +145,8 @@ class Application(Flask, HookMixin, SignalMixin,
                                        if not provided, defaults to `locale`.
         """
 
+        self._assert_is_subclassed()
+
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.pop('scripting_mode', False)
 
@@ -148,10 +155,9 @@ class Application(Flask, HookMixin, SignalMixin,
         # through a correct mechanism later.
         super().__init__(self.get_application_name(), static_folder=None, **options)
 
-        # Flask does not call 'super' in its '__init__' method.
-        # so we have to initialize other parents manually.
+        # Flask does not call 'super()' in its '__init__()' method.
+        # so we have to start initialization of other parents manually.
         HookMixin.__init__(self, **options)
-        SignalMixin.__init__(self, **options)
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
@@ -169,6 +175,22 @@ class Application(Flask, HookMixin, SignalMixin,
         # application.run(), we could not continue execution of other codes.
         self._load(**options)
         self._set_status(ApplicationStatusEnum.RUNNING)
+
+    def _assert_is_subclassed(self):
+        """
+        asserts that current application instance is subclassed from
+        `Application` class and is not a direct instance of `Application` itself.
+
+        :raises ApplicationIsNotSubclassedError: application is not subclassed error.
+        """
+
+        if type(self) == Application:
+            raise ApplicationIsNotSubclassedError('Current application instance is a direct '
+                                                  'instance of "Application". you must subclass '
+                                                  'from "Application" in your project and create '
+                                                  'an instance of that class to run your '
+                                                  'application. this is needed for pyrin to be '
+                                                  'able to resolve different paths correctly.')
 
     def is_scripting_mode(self):
         """
@@ -411,12 +433,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         self._set_status(ApplicationStatusEnum.LOADING)
-        self._resolve_pyrin_main_package_path(**options)
-        self._resolve_application_main_package_path(**options)
-        self._resolve_application_root_path(**options)
-        self._resolve_settings_path(**options)
-        self._resolve_migrations_path(**options)
-        self._resolve_locale_path(**options)
+        self._resolve_all_paths(**options)
         self._load_environment_variables()
 
         packaging_services.load_components(**options)
@@ -432,6 +449,19 @@ class Application(Flask, HookMixin, SignalMixin,
         # this hook should not be called when the app is in scripting mode.
         if self.is_scripting_mode() is False:
             self._before_application_start()
+
+    def _resolve_all_paths(self, **options):
+        """
+        resolves all required paths for application.
+        """
+
+        self._resolve_pyrin_main_package_path(**options)
+        self._resolve_application_main_package_path(**options)
+        self._resolve_pyrin_root_path(**options)
+        self._resolve_application_root_path(**options)
+        self._resolve_settings_path(**options)
+        self._resolve_migrations_path(**options)
+        self._resolve_locale_path(**options)
 
     def _load_configs(self, **options):
         """
@@ -736,6 +766,15 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return self.get_context(self.APPLICATION_PATH_CONTEXT_KEY)
 
+    def get_pyrin_root_path(self):
+        """
+        gets pyrin root path in which pyrin package is located.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.ROOT_PYRIN_PATH_CONTEXT_KEY)
+
     def get_application_root_path(self):
         """
         gets the application root path in which application package is located.
@@ -842,8 +881,19 @@ class Application(Flask, HookMixin, SignalMixin,
         in application context with `PYRIN_PATH_CONTEXT_KEY` key.
         """
 
-        pyrin_main_package = path_utils.get_main_package_path(Application.__module__)
+        pyrin_main_package = path_utils.get_pyrin_main_package_path()
         self.add_context(self.PYRIN_PATH_CONTEXT_KEY, pyrin_main_package)
+
+    def _resolve_pyrin_root_path(self, **options):
+        """
+        resolves pyrin root path and registers it in application
+        context with `ROOT_PYRIN_PATH_CONTEXT_KEY` key.
+        """
+
+        main_package_path = self.get_pyrin_main_package_path()
+        root_path = os.path.join(main_package_path, '..')
+        root_path = os.path.abspath(root_path)
+        self.add_context(self.ROOT_PYRIN_PATH_CONTEXT_KEY, root_path)
 
     def _resolve_application_root_path(self, **options):
         """
