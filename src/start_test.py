@@ -9,6 +9,7 @@ import pytest
 
 import pyrin.database.migration.services as migration_services
 import pyrin.application.services as application_services
+import pyrin.configuration.services as config_services
 
 from pyrin.utils.custom_print import print_warning, print_info
 
@@ -79,7 +80,8 @@ def start_tests(coverage=False):
 
     args = []
     if coverage is True:
-        args = ['--cov-config=tests/settings/pytest.coverage.config', '--cov=pyrin']
+        config_file = config_services.get_file_path('pytest.coverage')
+        args = ['--cov-config={config_file}'.format(config_file=config_file), '--cov=pyrin']
 
     pytest.main(args)
     cleanup()
