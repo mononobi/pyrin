@@ -81,7 +81,9 @@ def start_tests(coverage=False):
     args = []
     if coverage is True:
         config_file = config_services.get_file_path('pytest.coverage')
-        args = ['--cov-config={config_file}'.format(config_file=config_file), '--cov=pyrin']
+        args = ['--cache-clear',
+                '--cov-config={config_file}'.format(config_file=config_file),
+                '--cov=pyrin']
 
     pytest.main(args)
     cleanup()
