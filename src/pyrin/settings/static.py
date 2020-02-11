@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-static settings.
+settings static module.
 these settings are intended for values used inside some classes,
 to be available before server startup.
 """
