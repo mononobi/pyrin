@@ -1,4 +1,4 @@
-# pyrin
+# Pyrin
 
 core application to build apps using flask on top of it.
 
@@ -20,39 +20,36 @@ of multiple developers be able to work on the same repository without facing con
 and there. and also reducing the chances of annoying bugs due to forgetting to register
 something in somewhere.
 
-# prerequisites
+# Installing
+
+install using pip:
+
+pip install pyrin
+
+# Running Tests
 
 to be able to run tests, it is required to:
 
-1. create a .env file inside src directory containing all the configuration 
-   keys that have null value in their corresponding settings file. a sample .env 
-   file is available in samples/dotenv.
+1. tests are developed using pytest, you should first 
+   install pyrin tests dependencies using pip:
+   
+   pip install pyrin[tests]
+ 
+2. create a '.env' file inside 'src' directory containing all the configuration 
+   keys that have null value in their corresponding settings file. a sample '.env'
+   file is available in 'samples/dotenv' that could be used for testing.
 
-2. an entry with 'pyrin.server' value should also be created in /etc/hosts file.
+3. an entry with 'pyrin.server' value should also be created in '/etc/hosts' file.
 
-# code editing in pycharm
+4. execute 'src/start_test.py' script to start all tests.
 
-first you should execute the scripts/setup/install-dependencies.sh script.
-then open the project in pycharm and it will create required pipenv environment.
-then you could start developing the application.
+# Contribute In Pyrin Development
 
-# running tests in pycharm
+first you must execute 'scripts/setup/install-dependencies.sh' script.
+then open the project in your IDE and create required pipenv environment.
+then you could start developing pyrin.
 
-add a new script in pycharm's edit configurations dialog and choose the src/start_test.py
-script. then run or debug it.
+# Demo Application
 
-# installation
-
-to install the application, you must put a valid .env file inside src directory.
-then execute the scripts/setup/install.sh script to install pyrin system-wide, then you'll be
-able to run tests using /var/app_root/pyrin_framework/app/run-test.sh script.
-
-# uninstallation
-
-to uninstall the application from system, you should execute the scripts/setup/uninstall.sh
-script. be aware that uninstallation process will not make any backup of installed version.
-
-# demo application
-
-a demo application developed using pyrin framework is available at:
+a demo application developed using pyrin is available at:
 https://github.com/mononobi/pyrin-sample
