@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-main entry point for pyrin test server.
+start tests module.
 """
 
 import os
