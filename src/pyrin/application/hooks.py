@@ -33,3 +33,18 @@ class ApplicationHookBase(Hook):
         starts in scripting mode.
         """
         pass
+
+    def application_status_changed(self, old_status, new_status):
+        """
+        this method will be called whenever application status changes.
+
+        :param str old_status: old application status.
+        :param str new_status: new application status.
+
+        :note status:
+            INITIALIZING = 'Initializing'
+            LOADING = 'Loading'
+            RUNNING = 'Running'
+            TERMINATED = 'Terminated'
+        """
+        pass

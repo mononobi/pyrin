@@ -226,6 +226,12 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :param str status: application status.
 
+        :note status:
+            INITIALIZING = 'Initializing'
+            LOADING = 'Loading'
+            RUNNING = 'Running'
+            TERMINATED = 'Terminated'
+
         raises InvalidApplicationStatusError: invalid application status error.
         """
 
@@ -233,7 +239,10 @@ class Application(Flask, HookMixin, SignalMixin,
             raise InvalidApplicationStatusError('Application status [{state}] is not valid.'
                                                 .format(state=status))
 
+        old_status = self.__status
         self.__status = status
+
+        self._application_status_changed(old_status, status)
 
     def get_status(self):
         """
@@ -1028,3 +1037,20 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         self._set_status(ApplicationStatusEnum.TERMINATED)
+
+    def _application_status_changed(self, old_status, new_status):
+        """
+        this method will call `application_status_changed` method of all registered hooks.
+
+        :param str old_status: old application status.
+        :param str new_status: new application status.
+
+        :note status:
+            INITIALIZING = 'Initializing'
+            LOADING = 'Loading'
+            RUNNING = 'Running'
+            TERMINATED = 'Terminated'
+        """
+
+        for hook in self._get_hooks():
+            hook.application_status_changed(old_status, new_status)
