@@ -28,6 +28,8 @@ from pyrin.application.hooks import ApplicationHookBase
 from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
+from pyrin.converters.serializer.entity import CoreEntitySerializer
+from pyrin.converters.serializer.keyed_tuple import CoreKeyedTupleSerializer
 from pyrin.core.context import DTO, Manager
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
@@ -39,8 +41,6 @@ from pyrin.application.context import Component
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
-from pyrin.utils.sqlalchemy import keyed_tuple_to_dict_list, keyed_tuple_to_dict, \
-    entity_to_dict_list, entity_to_dict
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
@@ -98,6 +98,8 @@ class Application(Flask, HookMixin, SignalMixin,
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
+    entity_serializer = CoreEntitySerializer
+    keyed_tuple_serializer = CoreKeyedTupleSerializer
     _hook_type = ApplicationHookBase
 
     def __init__(self, **options):
@@ -604,15 +606,15 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if isinstance(rv, list) and len(rv) > 0:
             if model_services.is_abstract_keyed_tuple(rv[0]):
-                rv = keyed_tuple_to_dict_list(rv)
+                rv = self.keyed_tuple_serializer.serialize_list(rv)
             elif model_services.is_core_entity(rv[0]):
-                rv = entity_to_dict_list(rv)
+                rv = self.entity_serializer.serialize_list(rv)
 
         elif model_services.is_abstract_keyed_tuple(rv):
-            rv = keyed_tuple_to_dict(rv)
+            rv = self.keyed_tuple_serializer.serialize(rv)
 
         elif model_services.is_core_entity(rv):
-            rv = entity_to_dict(rv)
+            rv = self.entity_serializer.serialize(rv)
 
         return rv
 
