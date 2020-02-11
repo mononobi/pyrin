@@ -28,7 +28,7 @@ pip install pyrin
 
 # Running Tests
 
-to be able to run tests, it is required to:
+to be able to run tests, you must note that:
 
 1. tests are developed using pytest, you should first 
    install pyrin tests dependencies using pip:
@@ -41,7 +41,7 @@ to be able to run tests, it is required to:
 
 3. an entry with 'pyrin.server' value should also be created in '/etc/hosts' file.
 
-4. execute 'src/start_test.py' script to start all tests.
+4. execute 'src/start_tests.py' script to start all tests.
 
 # Contribute In Pyrin Development
 
