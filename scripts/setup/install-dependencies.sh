@@ -107,7 +107,15 @@ pipenv_length=${#pipenv_path}
 if [ "$pipenv_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
 then
     echo "Installing pipenv."
+    python3.7 -m pip install pipenv
     pip install pipenv
+    pip3 install pipenv
 else
     echo "pipenv is already installed."
 fi
+
+# installing google fire.
+echo "Installing google fire."
+python3.7 -m pip install fire
+pip install fire
+pip3 install fire
