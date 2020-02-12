@@ -116,8 +116,6 @@ class DateTimeManager(Manager):
     def to_date_string(self, value):
         """
         gets the date string representation of input value.
-        if the value has no timezone info, it adds the application
-        current timezone info into it.
         example: `2015-12-24`
 
         :param Union[datetime, date] value: input object to be converted.

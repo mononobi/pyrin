@@ -36,4 +36,4 @@ class CoreJSONEncoder(JSONEncoder):
         if isinstance(o, bytes):
             return encoding.bytes_to_base64_string(o)
 
-        return JSONEncoder.default(self, o)
+        return super().default(o)
