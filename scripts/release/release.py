@@ -74,7 +74,7 @@ class ReleaseManager:
 
         :param bool is_beta: the new version should be a beta one.
 
-        :returns: tuple(int major, int minor, int patch, str beta).
+        :returns: tuple(int major, int minor, int patch, str beta)
         :rtype: tuple
         """
 
@@ -103,6 +103,36 @@ class ReleaseManager:
         beta = None
         if is_beta is True:
             beta = 'beta'
+
+        return self._normalize_version(major, minor, patch, beta)
+
+    def _normalize_version(self, major, minor, patch, beta):
+        """
+        normalizes given version to be under correct range.
+        maximum minor and patch number is 30, if they go upper
+        than that, the previous version part will be increased by 1,
+        and the value itself will be set to zero.
+        for example if the current version number is `1.30.29` and we
+        generate a new 'minor' version, the new version will be `1.31.0`.
+        then the normalize function will change it into `2.0.0`.
+
+        :param int major: major version number.
+        :param int minor: minor version number.
+        :param int patch: patch version number.
+        :param str beta: beta version flag.
+
+        :returns: tuple(int major, int minor, int patch, str beta)
+        :rtype: tuple
+        """
+
+        if patch > 30:
+            minor = minor + 1
+            patch = 0
+
+        if minor > 30:
+            major = major + 1
+            minor = 0
+            patch = 0
 
         return major, minor, patch, beta
 
