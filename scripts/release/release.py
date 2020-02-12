@@ -19,8 +19,7 @@ class ReleaseManager:
     DEFAULT_CHANGE = 'patch'
     DEFAULT_IS_BETA = True
 
-    @classmethod
-    def _get_current_version(cls):
+    def _get_current_version(self):
         """
         gets current pyrin version from pyrin package.
 
@@ -28,7 +27,7 @@ class ReleaseManager:
         :rtype: tuple
         """
 
-        with io.open(cls.PYRIN_VERSION_FILE, 'rt', encoding='utf8') as version_file:
+        with io.open(self.PYRIN_VERSION_FILE, 'rt', encoding='utf8') as version_file:
             version = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
 
         parts = version.split('.')
@@ -42,8 +41,7 @@ class ReleaseManager:
 
         return major, minor, patch, beta
 
-    @classmethod
-    def _format_version(cls, version):
+    def _format_version(self, version):
         """
         formats the given version.
 
@@ -61,8 +59,7 @@ class ReleaseManager:
 
         return '.'.join(parts)
 
-    @classmethod
-    def _get_new_version(cls, current_version, change, is_beta):
+    def _get_new_version(self, current_version, change, is_beta):
         """
         gets a new version based on given current version.
 
@@ -109,8 +106,7 @@ class ReleaseManager:
 
         return major, minor, patch, beta
 
-    @classmethod
-    def _upgrade_version(cls, change, is_beta):
+    def _upgrade_version(self, change, is_beta):
         """
         upgrades pyrin version.
 
@@ -124,22 +120,21 @@ class ReleaseManager:
         :param bool is_beta: the new version should be a beta one.
         """
 
-        current_version = cls._get_current_version()
-        formatted_current_version = cls._format_version(current_version)
+        current_version = self._get_current_version()
+        formatted_current_version = self._format_version(current_version)
 
-        new_version = cls._get_new_version(current_version, change, is_beta)
-        formatted_new_version = cls._format_version(new_version)
+        new_version = self._get_new_version(current_version, change, is_beta)
+        formatted_new_version = self._format_version(new_version)
 
         print('Current pyrin version is [{current}]'
               .format(current=formatted_current_version))
 
-        cls._set_version(current_version, new_version)
+        self._set_version(current_version, new_version)
 
         print('Pyrin version upgraded to [{new}]'
               .format(new=formatted_new_version))
 
-    @classmethod
-    def _set_version(cls, old_version, new_version):
+    def _set_version(self, old_version, new_version):
         """
         sets the new version in pyrin package.
 
@@ -150,84 +145,79 @@ class ReleaseManager:
         :type new_version: tuple(int major, int minor, int patch, str beta)
         """
 
-        formatted_old = cls._format_version(old_version)
-        formatted_new = cls._format_version(new_version)
+        formatted_old = self._format_version(old_version)
+        formatted_new = self._format_version(new_version)
 
-        with open(cls.PYRIN_VERSION_FILE, 'r') as file:
+        with open(self.PYRIN_VERSION_FILE, 'r') as file:
             file_data = file.read()
 
         file_data = file_data.replace(formatted_old, formatted_new)
 
-        with open(cls.PYRIN_VERSION_FILE, 'w') as file:
+        with open(self.PYRIN_VERSION_FILE, 'w') as file:
             file.write(file_data)
 
-    @classmethod
-    def release(cls, change=None, is_beta=None):
+    def release(self, change=None, is_beta=None):
         """
         makes a new release and uploads it.
 
         :param str change: change for generating the new release version.
-                           defaults to `cls.DEFAULT_CHANGE` value if not provided.
+                           defaults to `DEFAULT_CHANGE` value if not provided.
         :note change:
             MAJOR = 'major'
             MINOR = 'minor'
             PATCH = 'patch'
 
         :param bool is_beta: the new release version should be a beta one.
-                             defaults to `cls.DEFAULT_IS_BETA` value if not provided.
+                             defaults to `DEFAULT_IS_BETA` value if not provided.
         """
 
         if change is None:
-            change = cls.DEFAULT_CHANGE
+            change = self.DEFAULT_CHANGE
 
         if is_beta is None:
-            is_beta = cls.DEFAULT_IS_BETA
+            is_beta = self.DEFAULT_IS_BETA
 
         new_version = None
         current_version = None
         try:
-            current_version = cls._get_current_version()
-            new_version = cls._get_new_version(current_version, change, is_beta)
+            current_version = self._get_current_version()
+            new_version = self._get_new_version(current_version, change, is_beta)
 
-            cls._upgrade_version(change, is_beta)
-            cls._make()
-            cls._upload()
+            self._upgrade_version(change, is_beta)
+            self._make()
+            self._upload()
         except Exception:
             print('New release failed.')
             if new_version is not None and current_version is not None:
-                cls._set_version(new_version, current_version)
+                self._set_version(new_version, current_version)
         finally:
             try:
-                cls._clear()
+                self._clear()
             except Exception:
                 print('Could not clear release files.')
 
-    @classmethod
-    def _make(cls):
+    def _make(self):
         """
         makes release files.
         """
 
-        cls._execute_command('cd ../.. ; python3.7 setup.py sdist bdist_wheel')
+        self._execute_command('cd ../.. ; python3.7 setup.py sdist bdist_wheel')
 
-    @classmethod
-    def _upload(cls):
+    def _upload(self):
         """
         uploads the release files to pypi.
         """
 
-        cls._execute_command('cd ../.. ; python3.7 -m twine upload dist/*')
+        self._execute_command('cd ../.. ; python3.7 -m twine upload dist/*')
 
-    @classmethod
-    def _clear(cls):
+    def _clear(self):
         """
         clears released files.
         """
 
-        cls._execute_command('cd ../.. ; rm -r build/ dist/ ; cd src ; rm -r pyrin.egg-info/')
+        self._execute_command('cd ../.. ; rm -r build/ dist/ ; cd src ; rm -r pyrin.egg-info/')
 
-    @classmethod
-    def _execute_command(cls, command):
+    def _execute_command(self, command):
         """
         executes command on shell.
 
