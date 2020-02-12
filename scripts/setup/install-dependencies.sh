@@ -119,3 +119,21 @@ echo "Installing google fire."
 python3.7 -m pip install fire
 pip install fire
 pip3 install fire
+
+# installing setuptools.
+echo "Installing setuptools."
+python3.7 -m pip install setuptools
+pip install setuptools
+pip3 install setuptools
+
+# installing wheel.
+echo "Installing wheel."
+python3.7 -m pip install wheel
+pip install wheel
+pip3 install wheel
+
+# installing twine.
+echo "Installing twine."
+python3.7 -m pip install twine
+pip install twine
+pip3 install twine
