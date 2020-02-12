@@ -107,33 +107,33 @@ pipenv_length=${#pipenv_path}
 if [ "$pipenv_length" = "0" ] || [ $force_update = "Y" ] || [ $force_update = "y" ]
 then
     echo "Installing pipenv."
-    python3.7 -m pip install pipenv
-    pip install pipenv
-    pip3 install pipenv
+    python3.7 -m pip install --upgrade pipenv
+    pip install --upgrade pipenv
+    pip3 install --upgrade pipenv
 else
     echo "pipenv is already installed."
 fi
 
 # installing google fire.
 echo "Installing google fire."
-python3.7 -m pip install fire
-pip install fire
-pip3 install fire
+python3.7 -m pip install --upgrade fire
+pip install --upgrade fire
+pip3 install --upgrade fire
 
 # installing setuptools.
 echo "Installing setuptools."
-python3.7 -m pip install setuptools
-pip install setuptools
-pip3 install setuptools
+python3.7 -m pip install --upgrade setuptools
+pip install --upgrade setuptools
+pip3 install --upgrade setuptools
 
 # installing wheel.
 echo "Installing wheel."
-python3.7 -m pip install wheel
-pip install wheel
-pip3 install wheel
+python3.7 -m pip install --upgrade wheel
+pip install --upgrade wheel
+pip3 install --upgrade wheel
 
 # installing twine.
 echo "Installing twine."
-python3.7 -m pip install twine
-pip install twine
-pip3 install twine
+python3.7 -m pip install --upgrade twine
+pip install --upgrade twine
+pip3 install --upgrade twine
