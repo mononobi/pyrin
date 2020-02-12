@@ -81,7 +81,9 @@ def start_tests(coverage=False):
     args = []
     if coverage is True:
         config_file = config_services.get_file_path('pytest.coverage')
+        root_path = application_services.get_application_root_path()
         args = ['--cache-clear',
+                '--rootdir={root}'.format(root=root_path),
                 '--cov-config={config_file}'.format(config_file=config_file),
                 '--cov=pyrin']
 
