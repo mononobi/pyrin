@@ -18,7 +18,7 @@ with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
 setup(
     name='pyrin',
     version=version,
-    # url='',
+    url='https://github.com/mononobi/pyrin',
     project_urls={
         # 'Documentation': '',
         'Code': 'https://github.com/mononobi/pyrin',
