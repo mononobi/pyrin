@@ -13,6 +13,7 @@ import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 import pyrin.utils.path as path_utils
 
+from pyrin.utils.path import PATH_SEPARATOR
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
@@ -696,7 +697,7 @@ class PackagingManager(Manager, HookMixin):
         :rtype: str
         """
 
-        return path.replace(root_path, '').replace('/', '.').lstrip('.')
+        return path.replace(root_path, '').replace(PATH_SEPARATOR, '.').lstrip('.')
 
     def _merge_module_name(self, package_name, component_name):
         """
