@@ -152,6 +152,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.pop('scripting_mode', False)
+        self._default_mode = False
 
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
@@ -532,6 +533,11 @@ class Application(Flask, HookMixin, SignalMixin,
             raise ApplicationInScriptingModeError('Application has been initialized in '
                                                   'scripting mode, so it could not be run.')
 
+        # in default mode, pyrin uses an in memory sqlite
+        # which does not support multi-threading.
+        if self._default_mode is True:
+            options.update(threaded=False)
+
         super().run(host, port, debug, load_dotenv, **options)
 
     def dispatch_request(self):
@@ -844,6 +850,7 @@ class Application(Flask, HookMixin, SignalMixin,
             settings_directory = 'settings/default'
             settings_path = os.path.join(pyrin_main_package, settings_directory)
             settings_path = os.path.abspath(settings_path)
+            self._default_mode = True
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 
