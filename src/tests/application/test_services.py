@@ -396,7 +396,7 @@ def test_get_settings_path():
     """
 
     root_path = application_services.get_application_root_path()
-    settings_path = os.path.join(root_path, 'tests/settings')
+    settings_path = os.path.abspath(os.path.join(root_path, 'tests', 'settings'))
     assert application_services.get_settings_path() == settings_path
 
 
