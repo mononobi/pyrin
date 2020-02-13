@@ -7,7 +7,8 @@ import os.path
 
 from time import time
 
-from dotenv import load_dotenv as load_dotenv_
+import dotenv
+
 from flask import Flask, request
 from flask.app import setupmethod
 from flask.ctx import has_request_context
@@ -43,8 +44,8 @@ from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
-    InvalidRouteFactoryTypeError, ApplicationSettingsPathNotExistedError, \
-    InvalidApplicationStatusError, ApplicationInScriptingModeError, ComponentAttributeError, \
+    InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
+    ApplicationInScriptingModeError, ComponentAttributeError, \
     ApplicationIsNotSubclassedError
 
 
@@ -834,8 +835,15 @@ class Application(Flask, HookMixin, SignalMixin,
         settings_path = os.path.abspath(settings_path)
 
         if not os.path.isdir(settings_path):
-            raise ApplicationSettingsPathNotExistedError('Settings path [{path}] does not exist.'
-                                                         .format(path=settings_path))
+            print_warning('Application settings path [{path}] does not exist. '
+                          'pyrin default settings will be used. '
+                          'do not use pyrin default settings in production.'
+                          .format(path=settings_path))
+
+            pyrin_main_package = self.get_pyrin_main_package_path()
+            settings_directory = 'settings/default'
+            settings_path = os.path.join(pyrin_main_package, settings_directory)
+            settings_path = os.path.abspath(settings_path)
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 
@@ -931,7 +939,7 @@ class Application(Flask, HookMixin, SignalMixin,
                           .format(root_path=root_path))
             return
 
-        load_dotenv_(env_file)
+        dotenv.load_dotenv(env_file)
 
     def process_response(self, response):
         """

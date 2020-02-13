@@ -26,6 +26,8 @@ def print_colorful(text, color, force=False):
 
     if force is True or application_services.is_scripting_mode() is False:
         try:
+            if not isinstance(text, str):
+                text = str(text)
             colorama.init(autoreset=True)
             print(str(color) + text)
         finally:

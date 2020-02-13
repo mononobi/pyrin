@@ -69,13 +69,6 @@ class InvalidRouteFactoryTypeError(ApplicationException):
     pass
 
 
-class ApplicationSettingsPathNotExistedError(ApplicationException):
-    """
-    application settings path not existed error.
-    """
-    pass
-
-
 class InvalidApplicationStatusError(ApplicationException):
     """
     invalid application status error.

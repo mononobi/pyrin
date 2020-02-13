@@ -484,6 +484,36 @@ class PackagingManager(Manager, HookMixin):
         return self._is_included(include, visiting_path) is True and \
             self._is_excluded(exclude, visiting_path) is False
 
+    def _is_equal(self, condition, full_module_or_package):
+        """
+        gets a value indicating that given name is equal with given condition.
+
+        :param str condition: condition to compare with name.
+                              for example: `*.database`, then all values
+                              that have database in their second part
+                              and their parts count are equal to or greater
+                              than condition parts count will be recognized as equal.
+
+        :param str full_module_or_package: module or package name to be compared.
+                                           for example: `pyrin.database`.
+
+        :rtype: bool
+        """
+
+        condition_parts = condition.split('.')
+        full_module_or_package_parts = full_module_or_package.split('.')
+
+        if len(condition_parts) > len(full_module_or_package_parts):
+            return False
+
+        index = 0
+        for item in condition_parts:
+            if item != '*' and item != full_module_or_package_parts[index]:
+                return False
+            index = index + 1
+
+        return True
+
     def _is_ignored_package(self, package_name):
         """
         gets a value indicating that given package should be ignored.
@@ -495,7 +525,7 @@ class PackagingManager(Manager, HookMixin):
         """
 
         for ignored in self._configs.ignored_packages:
-            if package_name.startswith(ignored):
+            if package_name.startswith(ignored) or self._is_equal(ignored, package_name):
                 return True
 
         return False
@@ -511,7 +541,7 @@ class PackagingManager(Manager, HookMixin):
         """
 
         for ignored in self._configs.ignored_modules:
-            if module_name.endswith(ignored):
+            if module_name.endswith(ignored) or self._is_equal(ignored, module_name):
                 return True
 
         return False

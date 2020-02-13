@@ -7,6 +7,7 @@ from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeErro
 from pyrin.converters.deserializer.interface import AbstractDeserializerBase
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
+from pyrin.utils.string import remove_line_break_escapes
 
 
 class DeserializerBase(AbstractDeserializerBase):
@@ -37,6 +38,9 @@ class DeserializerBase(AbstractDeserializerBase):
         if deserialized_value is NULL:
             if self._next_handler is not None:
                 return self._next_handler.deserialize(value, **options)
+
+        if isinstance(deserialized_value, str):
+            deserialized_value = remove_line_break_escapes(deserialized_value)
 
         return deserialized_value
 

@@ -26,3 +26,16 @@ def lower(value):
     """
 
     return value.lower()
+
+
+def remove_line_break_escapes(value):
+    """
+    removes line break escapes from given value.
+    it replaces `\\n` with `\n` to enable line breaks.
+
+    :param str value: value to remove line break escapes from it.
+
+    :rtype: str
+    """
+
+    return value.replace('\\n', '\n')

@@ -7,6 +7,7 @@ from configparser import ConfigParser
 
 from pyrin.core.context import DTO
 from pyrin.utils.exceptions import InputNotCallableError, ConfigurationFileNotFoundError
+from pyrin.utils.string import remove_line_break_escapes
 
 
 def load(file_path, converter=eval):
@@ -40,7 +41,10 @@ def load(file_path, converter=eval):
         values = parser.items(section)
         dic_values = DTO()
         for single_value in values:
-            dic_values[single_value[0]] = converter(single_value[1])
+            value = converter(single_value[1])
+            if isinstance(value, str):
+                value = remove_line_break_escapes(value)
+            dic_values[single_value[0]] = value
 
         sections[section] = dic_values
 
