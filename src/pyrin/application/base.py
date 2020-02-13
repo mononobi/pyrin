@@ -833,22 +833,18 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         main_package_path = self.get_application_main_package_path()
-
-        settings_path = '{main_package_path}/{settings_directory}' \
-                        .format(main_package_path=main_package_path,
-                                settings_directory=options.get('settings_directory',
-                                                               'settings'))
+        settings_path = os.path.join(main_package_path, options.get('settings_directory',
+                                                                    'settings'))
         settings_path = os.path.abspath(settings_path)
 
         if not os.path.isdir(settings_path):
             print_warning('Application settings path [{path}] does not exist. '
                           'pyrin default settings will be used. '
-                          'do not use pyrin default settings in production.'
+                          'do not use pyrin default settings in production!'
                           .format(path=settings_path))
 
             pyrin_main_package = self.get_pyrin_main_package_path()
-            settings_directory = 'settings/default'
-            settings_path = os.path.join(pyrin_main_package, settings_directory)
+            settings_path = os.path.join(pyrin_main_package, 'settings', 'default')
             settings_path = os.path.abspath(settings_path)
             self._default_mode = True
 
@@ -864,11 +860,8 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         main_package_path = self.get_application_main_package_path()
-
-        migrations_path = '{main_package_path}/{migrations_directory}' \
-                          .format(main_package_path=main_package_path,
-                                  migrations_directory=options.get('migrations_directory',
-                                                                   'migrations'))
+        migrations_path = os.path.join(main_package_path, options.get('migrations_directory',
+                                                                      'migrations'))
         migrations_path = os.path.abspath(migrations_path)
 
         self.add_context(self.MIGRATIONS_CONTEXT_KEY, migrations_path)
@@ -883,11 +876,8 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         main_package_path = self.get_application_main_package_path()
-
-        locale_path = '{main_package_path}/{locale_directory}' \
-                      .format(main_package_path=main_package_path,
-                              locale_directory=options.get('locale_directory',
-                                                           'locale'))
+        locale_path = os.path.join(main_package_path, options.get('locale_directory',
+                                                                  'locale'))
         locale_path = os.path.abspath(locale_path)
 
         self.add_context(self.LOCALE_CONTEXT_KEY, locale_path)
