@@ -5,7 +5,7 @@ caching handlers base module.
 
 import time
 
-from multiprocessing import Lock
+from threading import Lock
 from copy import deepcopy
 
 import pyrin.configuration.services as config_services
