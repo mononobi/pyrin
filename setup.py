@@ -6,7 +6,7 @@ pyrin setup module.
 import io
 import re
 
-from setuptools import find_packages
+from setuptools import find_namespace_packages
 from setuptools import setup
 
 with io.open('README.md', 'rt', encoding='utf8') as readme_file:
@@ -51,8 +51,9 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
 
     ],
-    packages=find_packages('src', exclude=('tests', 'tests.*')),
+    packages=find_namespace_packages('src', exclude=('tests', 'tests.*')),
     package_dir={'': 'src'},
+    package_data={'': ['*.config']},
     include_package_data=True,
     python_requires='>=3.6',
     install_requires=[
