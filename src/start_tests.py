@@ -78,14 +78,13 @@ def start_tests(coverage=False):
                           start tests without coverage.
     """
 
-    args = []
+    root_path = application_services.get_application_root_path()
+    args = ['--cache-clear',
+            '--rootdir={root}'.format(root=root_path)]
     if coverage is True:
         config_file = config_services.get_file_path('pytest.coverage')
-        root_path = application_services.get_application_root_path()
-        args = ['--cache-clear',
-                '--rootdir={root}'.format(root=root_path),
-                '--cov-config={config_file}'.format(config_file=config_file),
-                '--cov=pyrin']
+        args.extend(['--cov-config={config_file}'.format(config_file=config_file),
+                     '--cov=pyrin'])
 
     pytest.main(args)
     cleanup()
@@ -95,4 +94,4 @@ def start_tests(coverage=False):
 # on windows works as expected.
 if __name__ == '__main__':
     app = PyrinTestApplication()
-    start_tests(coverage=True)
+    start_tests(coverage=False)
