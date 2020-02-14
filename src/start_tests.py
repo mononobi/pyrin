@@ -34,14 +34,18 @@ def remove(name):
         print_info('Path [{file}] does not exist.'.format(file=file_path))
 
 
-def cleanup():
+def cleanup(coverage):
     """
     cleanups the environment after running all tests.
+
+    :param bool coverage: indicates that coverage file should be cleared.
     """
 
     drop_schema()
-    remove_coverage()
     remove_pytest_cache()
+
+    if coverage is True:
+        remove_coverage()
 
 
 def remove_pytest_cache():
@@ -87,7 +91,7 @@ def start_tests(coverage=False):
                      '--cov=pyrin'])
 
     pytest.main(args)
-    cleanup()
+    cleanup(coverage)
 
 
 # the if condition is to ensure that multiprocessing
