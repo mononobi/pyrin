@@ -63,6 +63,9 @@ class Application(Flask, HookMixin, SignalMixin,
                      'communication',
                      'environment']
 
+    # pyrin default settings path will be registered in application context with this key.
+    PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY = 'default_settings_path'
+
     # settings path will be registered in application context with this key.
     SETTINGS_CONTEXT_KEY = 'settings_path'
 
@@ -151,13 +154,14 @@ class Application(Flask, HookMixin, SignalMixin,
         self._assert_is_subclassed()
 
         self.__status = ApplicationStatusEnum.INITIALIZING
-        self._scripting_mode = options.pop('scripting_mode', False)
+        self._scripting_mode = options.get('scripting_mode', False)
         self._default_mode = False
 
+        flask_kw = self._remove_flask_unrecognized_keywords(**options)
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
-        # through a correct mechanism later.
-        super().__init__(self.get_application_name(), static_folder=None, **options)
+        # through a different mechanism later.
+        super().__init__(self.get_application_name(), static_folder=None, **flask_kw)
 
         # Flask does not call 'super()' in its '__init__()' method.
         # so we have to start initialization of other parents manually.
@@ -179,6 +183,23 @@ class Application(Flask, HookMixin, SignalMixin,
         # application.run(), we could not continue execution of other codes.
         self._load(**options)
         self._set_status(ApplicationStatusEnum.RUNNING)
+
+    def _remove_flask_unrecognized_keywords(self, **options):
+        """
+        removes any keyword argument which is not recognized
+        by `Flask.__init__()` method. it returns a new dict
+        with all recognized keyword arguments.
+
+        :rtype: dict
+        """
+
+        result = dict(**options)
+        result.pop('scripting_mode', None)
+        result.pop('settings_directory', None)
+        result.pop('migrations_directory', None)
+        result.pop('locale_directory', None)
+
+        return result
 
     def _assert_is_subclassed(self):
         """
@@ -472,6 +493,7 @@ class Application(Flask, HookMixin, SignalMixin,
         self._resolve_application_main_package_path(**options)
         self._resolve_pyrin_root_path(**options)
         self._resolve_application_root_path(**options)
+        self._resolve_default_settings_path()
         self._resolve_settings_path(**options)
         self._resolve_migrations_path(**options)
         self._resolve_locale_path(**options)
@@ -512,7 +534,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         runs the Application instance.
 
-        :param str host: the hostname to listen on. Set this to `0.0.0.0` to
+        :param str host: the hostname to listen on. set this to `0.0.0.0` to
                          have the server available externally as well. defaults to
                          `127.0.0.1` or the host in the `SERVER_NAME`
                          config variable if present.
@@ -523,8 +545,21 @@ class Application(Flask, HookMixin, SignalMixin,
         :param bool debug: if given, enable or disable debug mode.
 
         :param bool load_dotenv: load the nearest `.env` and `.flaskenv`
-                                 files to set environment variables. will also change the working
-                                 directory to the directory containing the first file found.
+                                 files to set environment variables. will also
+                                 change the working directory to the directory
+                                 containing the first file found.
+
+        :keyword bool use_reloader: specifies that the server should automatically
+                                    restart the python process if modules were changed.
+
+        :keyword bool use_debugger: specifies that the werkzeug debugging
+                                    system should be used.
+
+        :keyword bool threaded: specifies that the process should handle
+                                each request in a separate thread.
+                                note that if your database backend is an
+                                in-memory `sqlite` you must set this to False,
+                                otherwise it leads to error.
 
         :raises ApplicationInScriptingModeError: application in scripting mode error.
         """
@@ -533,7 +568,7 @@ class Application(Flask, HookMixin, SignalMixin,
             raise ApplicationInScriptingModeError('Application has been initialized in '
                                                   'scripting mode, so it could not be run.')
 
-        # in default mode, pyrin uses an in memory sqlite
+        # in default mode, pyrin uses an in-memory sqlite
         # which does not support multi-threading.
         if self._default_mode is True:
             options.update(threaded=False)
@@ -551,7 +586,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         # we have to override whole `dispatch_request` method to be able to customize it,
-        # because of flask design that everything is embedded inside
+        # because of the flask design that everything is embedded inside
         # the `dispatch_request` method.
 
         client_request = session_services.get_current_request()
@@ -748,6 +783,15 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return self.url_rule_class
 
+    def get_default_settings_path(self):
+        """
+        gets the pyrin default settings path.
+
+        :rtype: str
+        """
+
+        return self.get_context(self.PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY)
+
     def get_settings_path(self):
         """
         gets the application settings path.
@@ -827,9 +871,6 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :keyword str settings_directory: settings directory name.
                                          if not provided, defaults to `settings`.
-
-        :raises ApplicationSettingsPathNotExistedError: application settings path
-                                                        not existed error.
         """
 
         main_package_path = self.get_application_main_package_path()
@@ -839,16 +880,29 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if not os.path.isdir(settings_path):
             print_warning('Application settings path [{path}] does not exist. '
-                          'pyrin default settings will be used. '
-                          'do not use pyrin default settings in production!'
-                          .format(path=settings_path))
+                          'pyrin default settings from [{default}] will be used. '
+                          'you could copy any of default setting files into '
+                          '[{path}] and change values on your preference. '
+                          'DO NOT use pyrin default settings in production!'
+                          .format(path=settings_path,
+                                  default=self.get_default_settings_path()))
 
-            pyrin_main_package = self.get_pyrin_main_package_path()
-            settings_path = os.path.join(pyrin_main_package, 'settings', 'default')
-            settings_path = os.path.abspath(settings_path)
+            settings_path = self.get_default_settings_path()
             self._default_mode = True
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
+
+    def _resolve_default_settings_path(self):
+        """
+        resolves the pyrin default settings path. the resolved path will
+        be accessible by `PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY` inside
+        application context.
+        """
+
+        pyrin_main_package_path = self.get_pyrin_main_package_path()
+        settings_path = os.path.join(pyrin_main_package_path, 'settings', 'default')
+        settings_path = os.path.abspath(settings_path)
+        self.add_context(self.PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY, settings_path)
 
     def _resolve_migrations_path(self, **options):
         """

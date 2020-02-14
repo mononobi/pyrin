@@ -23,9 +23,6 @@ def load_configuration(name, **options):
                                      has been already loaded.
                                      defaults to False if not provided.
 
-    :raises ConfigurationSettingsPathNotExistedError: configuration settings
-                                                      path not existed error.
-
     :raises ConfigurationFileNotFoundError: configuration file not found error.
     :raises ConfigurationStoreExistedError: configuration store existed error.
     """
@@ -49,9 +46,6 @@ def load_configurations(*names, **options):
                                      error if a config store with given name
                                      has been already loaded.
                                      defaults to False if not provided.
-
-    :raises ConfigurationSettingsPathNotExistedError: configuration settings
-                                                      path not existed error.
 
     :raises ConfigurationFileNotFoundError: configuration file not found error.
     :raises ConfigurationStoreExistedError: configuration store existed error.

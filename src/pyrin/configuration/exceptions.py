@@ -41,13 +41,6 @@ class ConfigurationStoreExistedError(ConfigurationManagerException):
     pass
 
 
-class ConfigurationSettingsPathNotExistedError(ConfigurationManagerException):
-    """
-    configuration settings path not existed error.
-    """
-    pass
-
-
 class ConfigurationFileNotFoundError(ConfigurationManagerException):
     """
     configuration file not found error.

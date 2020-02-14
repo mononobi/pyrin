@@ -196,6 +196,16 @@ def get_current_route_factory():
     return get_current_app().get_current_route_factory()
 
 
+def get_default_settings_path():
+    """
+    gets the pyrin default settings path.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_default_settings_path()
+
+
 def get_settings_path():
     """
     gets the application settings path.

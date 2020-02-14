@@ -77,15 +77,21 @@ class PackagingManager(Manager, HookMixin):
     def _get_config_file_path(self):
         """
         gets packaging config file path.
+        it looks for file in top level application settings, but
+        if not found it, it uses the file from default settings.
 
         :rtype: str
         """
 
         settings_directory = application_services.get_settings_path()
         config_file_name = '{store}.config'.format(store=PackagingPackage.CONFIG_STORE_NAMES[0])
-        config_path = os.path.join(settings_directory, config_file_name)
+        config_path = os.path.abspath(os.path.join(settings_directory, config_file_name))
 
-        return os.path.abspath(config_path)
+        if not os.path.isfile(config_path):
+            settings_directory = application_services.get_default_settings_path()
+            config_path = os.path.abspath(os.path.join(settings_directory, config_file_name))
+
+        return config_path
 
     def _initialize_loaded_packages(self):
         """
