@@ -6,7 +6,7 @@ utils dictionary module.
 import pyrin.utils.string as string_utils
 
 from pyrin.core.context import DTO
-from pyrin.utils.exceptions import InputNotCallableError
+from pyrin.utils.exceptions import InputNotCallableError, DictKeyPrefixIsNotProvidedError
 
 
 def change_key_case(value, converter, **options):
@@ -68,3 +68,35 @@ def make_key_lower(value):
     """
 
     return change_key_case(value, string_utils.lower)
+
+
+def remove_keys(value, prefix):
+    """
+    removes all keys from given dict which starting with given prefix and
+    also those keys that their names are exactly like prefixed ones, but without prefix.
+    for example: dict(name='some_name', value='value', __value='another_value')
+    if prefix is double underscores `__` then this function will return a new dict
+    result = dict(name='some_name') with just the name key.
+    note that this function just loops through top level keys.
+
+    :param dict value: dict to remove keys from it.
+    :param str prefix: keys prefix that should be removed from dict.
+
+    :raises DictKeyPrefixIsNotProvidedError: dict key prefix is not provided error.
+
+    :rtype: dict
+    """
+
+    if prefix in (None, '') or prefix.isspace():
+        raise DictKeyPrefixIsNotProvidedError('Dictionary key prefix must be provided '
+                                              'to remove keys with such prefix.')
+
+    prefix_length = len(prefix)
+    prefixed_to_remove = [key for key in value.keys() if key.startswith(prefix)]
+    original_to_remove = [key[prefix_length:] for key in prefixed_to_remove]
+    prefixed_to_remove.extend(original_to_remove)
+    result = DTO(**value)
+    for key in prefixed_to_remove:
+        result.pop(key, None)
+
+    return result

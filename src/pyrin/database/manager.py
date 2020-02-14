@@ -9,7 +9,9 @@ import pyrin.configuration.services as config_services
 import pyrin.database.services as database_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
+import pyrin.utils.dictionary as dict_utils
 
+from pyrin.core.globals import LIST_TYPES
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import CoreEntity
@@ -29,6 +31,7 @@ class DatabaseManager(Manager, HookMixin):
     """
 
     LOGGER = logging_services.get_logger('database')
+    BIND_REMOVE_KEY_PREFIX = '__'
     _hook_type = DatabaseHookBase
 
     def __init__(self):
@@ -153,7 +156,7 @@ class DatabaseManager(Manager, HookMixin):
         :rtype: Engine
         """
 
-        configs_prefix = config_services.get('database', 'general', 'configs_prefix')
+        configs_prefix = config_services.get_active('database', 'configs_prefix')
         return engine_from_config(database_configs, prefix=configs_prefix, **kwargs)
 
     def _create_bounded_engines(self):
@@ -166,16 +169,72 @@ class DatabaseManager(Manager, HookMixin):
 
         engines = DTO()
         base_database_configs = config_services.get_active_section('database')
-        binds = config_services.get_active_section('database.binds')
+        binds_names = base_database_configs['bind_names']
 
-        if len(binds) <= 0:
+        if binds_names is None:
+            return engines
+        if not isinstance(binds_names, LIST_TYPES):
+            binds_names = [binds_names]
+        if len(binds_names) <= 0:
             return engines
 
-        for key in binds.keys():
-            engine = self._create_engine(base_database_configs, url=binds[key])
-            engines[key] = engine
+        for name in binds_names:
+            bind_configs = self._get_bind_configs(name)
+            full_configs = self._merge_configs(base_database_configs, bind_configs)
+            engine = self._create_engine(full_configs)
+            engines[name] = engine
 
         return engines
+
+    def _merge_configs(self, base_configs, bind_configs):
+        """
+        merges given base and bind configs and returns a new dict.
+        merging will cause all keys in bind configs override any available key in
+        base configs. also all keys that are present in bind configs and starting
+        with double underscore `__` will be removed from result dict and also all
+        keys that their names are exactly like prefixed ones but without `__` will
+        be removed from result dict.
+
+        :param dict base_configs: base configs from `database.config` file.
+        :param dict bind_configs: bind configs from `database.binds.config`
+
+        :rtype: dict
+        """
+
+        result = DTO(**base_configs)
+        result.update(**bind_configs)
+        result = dict_utils.remove_keys(result, self.BIND_REMOVE_KEY_PREFIX)
+
+        return result
+
+    def _get_bind_configs(self, bind_name):
+        """
+        gets all bind configs of given bind name for currently
+        active environment in 'database.config' from 'database.binds.config' file.
+
+        :param str bind_name: bind name to get its configs.
+
+        :rtype: dict
+        """
+
+        bind_configs_section = self.get_bind_config_section_name(bind_name)
+        return config_services.get_section('database.binds', bind_configs_section)
+
+    def get_bind_config_section_name(self, bind_name):
+        """
+        gets the bind config section name for given bind name and currently
+        active environment in 'database.config' from 'database.binds.config' file.
+
+        :param str bind_name: bind name to get its section name.
+
+        :rtype: str
+        """
+
+        active_environment = config_services.get_active_section_name('database')
+        bind_config_key = '{environment}_{bind_name}'.format(environment=active_environment,
+                                                             bind_name=bind_name)
+
+        return bind_config_key
 
     def finalize_transaction(self, response):
         """
@@ -302,13 +361,17 @@ class DatabaseManager(Manager, HookMixin):
         :raises InvalidDatabaseBindError: invalid database bind error.
         """
 
-        binds = config_services.get_active_section('database.binds')
+        binds = config_services.get_active('database', 'bind_names')
+        if binds is None:
+            binds = []
+        if not isinstance(binds, LIST_TYPES):
+            binds = [binds]
 
         for entity, bind_name in self._binds.items():
             if bind_name not in binds:
                 raise InvalidDatabaseBindError('Database bind name [{bind_name}] for entity '
                                                '[{entity_name}] is not available in '
-                                               'database.binds.config file.'
+                                               'database.config file.'
                                                .format(bind_name=bind_name,
                                                        entity_name=str(entity)))
 

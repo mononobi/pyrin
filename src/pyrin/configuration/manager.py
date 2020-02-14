@@ -358,6 +358,26 @@ class ConfigurationManager(Manager):
 
         return self._get_config_store(store_name).get_active_section(**options)
 
+    def get_active_section_name(self, store_name):
+        """
+        gets the active section name of given config store if available.
+        if the store does not have an active section, it raises an error.
+
+        :param str store_name: config store name.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+        :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                        section not found error.
+
+        :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                    key not found error.
+
+        :rtype: str
+        """
+
+        return self._get_config_store(store_name).get_active_section_name()
+
     def _get_config_store(self, name):
         """
         gets the specified config store.

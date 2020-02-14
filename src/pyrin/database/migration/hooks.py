@@ -55,7 +55,7 @@ class ApplicationHook(ApplicationHookBase):
         """
 
         if application_services.is_scripting_mode() is False:
-            if config_services.get('database', 'migration', 'drop_on_startup') is True:
+            if config_services.get_active('database', 'drop_on_startup') is True:
                 environment = config_services.get_active('environment', 'env')
                 debug = config_services.get_active('environment', 'debug')
                 unit_testing = config_services.get_active('environment', 'unit_testing')
@@ -65,6 +65,6 @@ class ApplicationHook(ApplicationHookBase):
                     print_warning('Dropping all models...')
                     migration_services.drop_all()
 
-            if config_services.get('database', 'migration', 'create_on_startup') is True:
+            if config_services.get_active('database', 'create_on_startup') is True:
                 print_info('Creating all models...')
                 migration_services.create_all()

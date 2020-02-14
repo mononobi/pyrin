@@ -60,3 +60,10 @@ class FieldsAndValuesCountMismatchError(UtilsException):
     fields and values count mismatch error.
     """
     pass
+
+
+class DictKeyPrefixIsNotProvidedError(UtilsException):
+    """
+    dict key prefix is not provided error.
+    """
+    pass

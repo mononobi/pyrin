@@ -177,3 +177,16 @@ def get_engine(entity_class):
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_engine(entity_class)
+
+
+def get_bind_config_section_name(bind_name):
+    """
+    gets the bind config section name for given bind name and currently
+    active environment in 'database.config' from 'database.binds.config' file.
+
+    :param str bind_name: bind name to get its section name.
+
+    :rtype: str
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_bind_config_section_name(bind_name)

@@ -253,3 +253,24 @@ def get_active_section(store_name, **options):
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).get_active_section(store_name,
                                                                                  **options)
+
+
+def get_active_section_name(store_name):
+    """
+    gets the active section name of given config store if available.
+    if the store does not have an active section, it raises an error.
+
+    :param str store_name: config store name.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :raises ConfigurationStoreSectionNotFoundError: configuration store
+                                                    section not found error.
+
+    :raises ConfigurationStoreKeyNotFoundError: configuration store
+                                                key not found error.
+
+    :rtype: str
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_active_section_name(store_name)

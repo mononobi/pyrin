@@ -117,7 +117,7 @@ class ConfigStore(CoreObject):
                                                     key not found error.
         """
 
-        active_section = self._get_active_section_name()
+        active_section = self.get_active_section_name()
         return self.get(active_section, key, **options)
 
     def get_section_names(self, **options):
@@ -284,7 +284,7 @@ class ConfigStore(CoreObject):
         :rtype: dict
         """
 
-        active_section = self._get_active_section_name()
+        active_section = self.get_active_section_name()
         return self.get_section(active_section, **options)
 
     def _get_sections(self, **options):
@@ -361,13 +361,13 @@ class ConfigStore(CoreObject):
                     converted_value = deserializer_services.deserialize(env_value)
                     self._configs[section_name][key] = converted_value
 
-    def _get_active_section_name(self):
+    def get_active_section_name(self):
         """
         gets the active section name of this config store if available.
         if the store does not have an active section, it raises an error.
 
         :raises ConfigurationStoreSectionNotFoundError: configuration store
-                                                section not found error.
+                                                        section not found error.
 
         :raises ConfigurationStoreKeyNotFoundError: configuration store
                                                     key not found error.
