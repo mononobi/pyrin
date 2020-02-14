@@ -7,7 +7,7 @@ import os
 
 import pytest
 
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import Pool, StaticPool
 
 import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
@@ -224,7 +224,7 @@ def test_get_file_path_database():
 
     path = config_services.get_file_path('database')
     settings_path = application_services.get_settings_path()
-    database_path = os.path.join(settings_path, 'database.config')
+    database_path = os.path.abspath(os.path.join(settings_path, 'database.config'))
     assert path == database_path
 
 
@@ -235,7 +235,7 @@ def test_get_file_path_logging():
 
     path = config_services.get_file_path('logging')
     settings_path = application_services.get_settings_path()
-    logging_path = os.path.join(settings_path, 'logging.config')
+    logging_path = os.path.abspath(os.path.join(settings_path, 'logging.config'))
     assert path == logging_path
 
 
@@ -322,7 +322,7 @@ def test_get_for_different_stores():
     assert auto_commit is False
 
     pool = config_services.get('database', 'test', 'sqlalchemy_poolclass')
-    assert issubclass(pool, QueuePool)
+    assert issubclass(pool, Pool)
 
     env = config_services.get('environment', 'test', 'env')
     assert env == 'testing'
@@ -472,7 +472,6 @@ def test_get_section_keys():
     assert all(name in section_keys for name in ['sqlalchemy_case_sensitive',
                                                  'sqlalchemy_encoding',
                                                  'sqlalchemy_isolation_level',
-                                                 'sqlalchemy_pool_size',
                                                  'sqlalchemy_pool_reset_on_return',
                                                  'sqlalchemy_url'])
 
@@ -578,7 +577,7 @@ def test_get_active_section():
                                                    'sqlalchemy_isolation_level',
                                                    'sqlalchemy_pool_pre_ping'])
 
-    assert section.get('sqlalchemy_poolclass') == QueuePool
+    assert section.get('sqlalchemy_poolclass') == StaticPool
 
 
 def test_get_active_section_no_active():

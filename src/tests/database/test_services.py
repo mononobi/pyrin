@@ -152,7 +152,10 @@ def test_get_entity_to_engine_map():
     """
 
     entity_to_engine_map = database_services.get_entity_to_engine_map()
-    active_section = config_services.get_active_section('database.binds')
+    local_bind_section_name = database_services.get_bind_config_section_name('local')
+    test_bind_section_name = database_services.get_bind_config_section_name('test')
+    local_configs = config_services.get_section('database.binds', local_bind_section_name)
+    test_configs = config_services.get_section('database.binds', test_bind_section_name)
 
     assert entity_to_engine_map is not None
     assert len(entity_to_engine_map) >= 2
@@ -164,8 +167,8 @@ def test_get_entity_to_engine_map():
 
     assert local_engine is not None
     assert test_engine is not None
-    assert str(local_engine.url) == active_section['local']
-    assert str(test_engine.url) == active_section['test']
+    assert str(local_engine.url) == local_configs['sqlalchemy_url']
+    assert str(test_engine.url) == test_configs['sqlalchemy_url']
 
 
 def test_session_factory_is_singleton():
