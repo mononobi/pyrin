@@ -10,8 +10,6 @@ from datetime import datetime, timedelta
 import pytz
 import aniso8601
 
-import pyrin.globalization.datetime.services as datetime_services
-
 
 # default iso datetime regular expression pattern with utc offset.
 # example: '2015-12-24T23:40:15+03:30'
@@ -232,19 +230,3 @@ def add_days(value, days):
     """
 
     return value + timedelta(days)
-
-
-def get_current_timestamp():
-    """
-    gets current time stamp.
-
-    :rtype: str
-    """
-
-    current = datetime_services.now()
-    return '{year}{month}{day}{hour}{minute}{second}'.format(year=str(current.year).zfill(4),
-                                                             month=str(current.month).zfill(2),
-                                                             day=str(current.day).zfill(2),
-                                                             hour=str(current.hour).zfill(2),
-                                                             minute=str(current.minute).zfill(2),
-                                                             second=str(current.second).zfill(2))

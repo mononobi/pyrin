@@ -155,7 +155,6 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.get('scripting_mode', False)
-        self._default_mode = False
 
         flask_kw = self._remove_flask_unrecognized_keywords(**options)
         # we should pass `static_folder=None` to prevent flask from
@@ -557,9 +556,6 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :keyword bool threaded: specifies that the process should handle
                                 each request in a separate thread.
-                                note that if your database backend is an
-                                in-memory `sqlite` you must set this to False,
-                                otherwise it leads to error.
 
         :raises ApplicationInScriptingModeError: application in scripting mode error.
         """
@@ -567,11 +563,6 @@ class Application(Flask, HookMixin, SignalMixin,
         if self.is_scripting_mode() is True:
             raise ApplicationInScriptingModeError('Application has been initialized in '
                                                   'scripting mode, so it could not be run.')
-
-        # in default mode, pyrin uses an in-memory sqlite
-        # which does not support multi-threading.
-        if self._default_mode is True:
-            options.update(threaded=False)
 
         super().run(host, port, debug, load_dotenv, **options)
 
@@ -888,7 +879,6 @@ class Application(Flask, HookMixin, SignalMixin,
                                   default=self.get_default_settings_path()))
 
             settings_path = self.get_default_settings_path()
-            self._default_mode = True
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 

@@ -3,15 +3,12 @@
 utils sqlalchemy module.
 """
 
-from sqlalchemy.orm import lazyload
-from sqlalchemy import func
 from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.context import DTO
 from pyrin.core.globals import LIST_TYPES
-from pyrin.database.services import get_current_store
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError
 
@@ -157,37 +154,6 @@ def like_end(value):
         value = ''
 
     return '{value}%'.format(value=value)
-
-
-def count(query, column=None):
-    """
-    executes a count query using given query object and returns the result.
-
-    this method generates a sql query like below:
-    select count(column)
-    from table
-    where ...
-
-    you should always use this method instead of sqlalchemy session.query.count()
-    because session.query.count() is inefficient.
-
-    :param Query query: sqlalchemy query object.
-
-    :param Column column: column to perform count on it.
-                          defaults to `*` if not provided.
-
-    :rtype: int
-    """
-
-    func_count = func.count()
-    if column is not None:
-        func_count = func.count(column)
-
-    statement = query.options(lazyload('*')).statement.with_only_columns(
-        [func_count]).order_by(None)
-
-    store = get_current_store()
-    return store.execute(statement).scalar()
 
 
 def add_range_clause(clauses, column, value_lower, value_upper,
