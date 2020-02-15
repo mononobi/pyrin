@@ -172,8 +172,9 @@ class CoreDeclarative(CoreObject):
             all_columns = tuple(prop.key for prop in class_mapper(type(self)).iterate_properties
                                 if isinstance(prop, ColumnProperty))
             self._set_all_columns(all_columns)
+            columns = self._get_all_columns()
 
-        return self._get_all_columns()
+        return columns
 
     def exposed_columns(self):
         """
@@ -191,8 +192,9 @@ class CoreDeclarative(CoreObject):
                                     iterate_properties if isinstance(prop, ColumnProperty)
                                     and prop.columns[0].exposed is True)
             self._set_exposed_columns(exposed_columns)
+            columns = self._get_exposed_columns()
 
-        return self._get_exposed_columns()
+        return columns
 
     def _get_all_columns(self):
         """
