@@ -6,7 +6,6 @@ database manager module.
 from sqlalchemy import engine_from_config
 
 import pyrin.configuration.services as config_services
-import pyrin.database.services as database_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.dictionary as dict_utils
@@ -249,8 +248,8 @@ class DatabaseManager(Manager, HookMixin):
         """
 
         try:
-            store = database_services.get_current_store()
-            session_factory = database_services.get_session_factory()
+            store = self.get_current_store()
+            session_factory = self.get_session_factory()
             try:
                 if response.status_code >= ClientErrorResponseCodeEnum.BAD_REQUEST:
                     store.rollback()
@@ -282,7 +281,7 @@ class DatabaseManager(Manager, HookMixin):
         if exception is not None:
             try:
                 self.LOGGER.exception(str(exception))
-                session_factory = database_services.get_session_factory()
+                session_factory = self.get_session_factory()
                 session_factory.remove()
 
             except Exception as error:

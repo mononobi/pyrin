@@ -3,7 +3,11 @@
 database decorators module.
 """
 
+from functools import update_wrapper
+
 import pyrin.database.services as database_services
+
+from pyrin.database.services import get_current_store
 
 
 def session_factory(*args, **kwargs):
@@ -105,3 +109,41 @@ def database_hook():
         return cls
 
     return decorator
+
+
+def atomic(func):
+    """
+    decorator to make a function execution atomic.
+    meaning that before starting the execution of the function, a sub-transaction
+    will be started, and after the completion of that function, if it was successful,
+    the sub-transaction will be committed or if it was not successful the sub-transaction
+    will be rolled-back without the consideration or affecting the parent transaction
+    which by default is scoped to request.
+
+    :param callable func: function.
+
+    :returns: function result.
+    """
+
+    def decorator(*args, **kwargs):
+        """
+        decorates the given function and makes its execution atomic.
+
+        :param object args: function arguments.
+        :param object kwargs: function keyword arguments.
+
+        :returns: function result.
+        """
+
+        store = get_current_store()
+        transaction = store.begin_nested()
+        try:
+            result = func(*args, **kwargs)
+            transaction.commit()
+            return result
+        except Exception as ex:
+            if transaction is not None:
+                transaction.rollback()
+            raise ex
+
+    return update_wrapper(decorator, func)
