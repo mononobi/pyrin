@@ -5,13 +5,14 @@ database orm query base module.
 
 import inspect
 
-from sqlalchemy import inspection, log
-from sqlalchemy.orm import Query
+from sqlalchemy import inspection, log, func
+from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from pyrin.core.globals import LIST_TYPES, _
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError
+from pyrin.database.services import get_current_store
 
 
 @inspection._self_inspects
@@ -115,3 +116,33 @@ class CoreQuery(Query):
             return
 
         self._validate_scope(entities, scope)
+
+    def count(self):
+        """
+        returns the count of rows the sql formed by this `Query` would return.
+        this method is overridden to prevent inefficient count() of sqlalchemy `Query`
+        which produces a subquery.
+
+        this method generates a single sql query like below:
+        select count(column, ...)
+        from table
+        where ...
+
+        :rtype: int
+        """
+
+        columns = []
+        for single_column in self.selectable.columns:
+            fullname = single_column.get_table_fullname()
+            if fullname not in (None, ''):
+                columns.append(fullname)
+
+        func_count = func.count()
+        if len(columns) > 0:
+            func_count = func.count(', '.join(columns))
+
+        statement = self.options(lazyload('*')).statement.with_only_columns(
+            [func_count]).order_by(None)
+
+        store = get_current_store()
+        return store.execute(statement).scalar()

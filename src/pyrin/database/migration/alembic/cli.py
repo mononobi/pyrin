@@ -3,9 +3,10 @@
 database migration alembic cli module.
 """
 
+import pyrin.globalization.datetime.services as datetime_service
+
 from pyrin.cli.decorators import cli
 from pyrin.core.context import CLI
-from pyrin.utils.datetime import get_current_timestamp
 
 
 class AlembicCLI(CLI):
@@ -99,7 +100,9 @@ class AlembicCLI(CLI):
         """
 
         if message is None:
-            message = get_current_timestamp()
+            message = datetime_service.get_current_timestamp(date_sep=None,
+                                                             main_sep=None,
+                                                             time_sep=None)
 
         return dict(message=message)
 
@@ -136,7 +139,9 @@ class AlembicCLI(CLI):
         """
 
         if message is None:
-            message = get_current_timestamp()
+            message = datetime_service.get_current_timestamp(date_sep=None,
+                                                             main_sep=None,
+                                                             time_sep=None)
 
         return dict(message=message)
 
