@@ -17,9 +17,9 @@ from alembic import context
 
 import pyrin.database.migration.services as migration_services
 import pyrin.application.services as application_services
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.utils.custom_print import print_colorful
-from pyrin.utils.datetime import get_current_timestamp
 
 from tests import PyrinTestApplication
 
@@ -29,7 +29,7 @@ app_instance = PyrinTestApplication(scripting_mode=True)
 USE_TWOPHASE = False
 
 # this is the alembic config object, which provides
-# access to the values within the .ini file in use.
+# access to the values within the alembic.config file in use.
 config = context.config
 
 # interpret the config file for python logging.
@@ -42,6 +42,9 @@ logger = logging.getLogger('alembic.env')
 # in the alembic.config file. default database must
 # always be referenced by 'default' key.
 db_names = config.get_main_option('databases')
+
+# getting timezone from alembic config to set in file names.
+timezone = config.get_main_option('timezone')
 
 # keeps a collection of connection bind names and urls.
 # default engine bind name is always default.
@@ -104,7 +107,10 @@ def run_migrations_offline():
             poolclass=pool.NullPool,
         )
 
-    timestamp = get_current_timestamp()
+    timestamp = datetime_services.get_current_timestamp(date_sep=None,
+                                                        main_sep=None,
+                                                        time_sep=None,
+                                                        timezone=timezone)
     for name, rec in engines.items():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()

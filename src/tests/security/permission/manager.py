@@ -3,8 +3,6 @@
 permission manager module.
 """
 
-import pyrin.utils.sqlalchemy as sqlalchemy_utils
-
 from pyrin.database.services import get_current_store
 from pyrin.security.permission.manager import PermissionManager as BasePermissionManager
 from pyrin.utils.sqlalchemy import entity_to_dict_list
@@ -50,8 +48,8 @@ class PermissionManager(BasePermissionManager):
         """
 
         store = get_current_store()
-        query = store.query(PermissionEntity.id).filter(PermissionEntity.id == permission_id)
-        permission_count = sqlalchemy_utils.count(query)
+        permission_count = store.query(PermissionEntity.id).filter(PermissionEntity.id ==
+                                                                   permission_id).count()
 
         return permission_count > 0
 
