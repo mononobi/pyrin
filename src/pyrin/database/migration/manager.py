@@ -77,7 +77,7 @@ class DatabaseMigrationManager(Manager):
 
     def get_connection_urls(self):
         """
-        gets all databases connection urls from config store.
+        gets all database connection urls for each engine.
         it gets the values from active section of each store.
         in case of sqlite usage, all urls will be made absolute.
 
@@ -86,13 +86,14 @@ class DatabaseMigrationManager(Manager):
         """
 
         connections = DTO()
-        connections[self.DEFAULT_ENGINE_NAME] = config_services.get_active('database',
-                                                                           'sqlalchemy_url')
-        binds = config_services.get_active_section('database.binds')
-        connections.update(**binds)
+        connections[self.DEFAULT_ENGINE_NAME] = self._get_absolute_connection_url(
+            config_services.get_active('database', 'sqlalchemy_url'))
 
-        for name, url in connections.items():
-            connections[name] = self._get_absolute_connection_url(url)
+        for bind_name in self.get_bind_name_to_metadata_map():
+            if bind_name != self.DEFAULT_ENGINE_NAME:
+                section_name = database_services.get_bind_config_section_name(bind_name)
+                connections[bind_name] = self._get_absolute_connection_url(
+                    config_services.get('database.binds', section_name, 'sqlalchemy_url'))
 
         return connections
 
