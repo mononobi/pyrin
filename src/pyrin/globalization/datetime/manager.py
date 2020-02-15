@@ -30,14 +30,23 @@ class DateTimeManager(Manager):
                                                     'babel_default_timezone')
         self.__current_timezone = pytz.timezone(default_timezone_name)
 
-    def now(self):
+    def now(self, timezone=None):
         """
-        gets current datetime based on application current timezone.
+        gets the current datetime based on given timezone name.
+
+        :param str timezone: timezone name to get current datetime based on it.
+                             if not provided, defaults to application
+                             current timezone.
 
         :rtype: datetime
         """
 
-        return datetime.now(self.get_current_timezone())
+        if timezone is None:
+            timezone = self.get_current_timezone()
+        else:
+            timezone = pytz.timezone(timezone)
+
+        return datetime.now(timezone)
 
     def get_current_timezone(self):
         """
@@ -186,3 +195,39 @@ class DateTimeManager(Manager):
         """
 
         return timezone_name in pytz.all_timezones_set
+
+    def get_current_timestamp(self, date_sep='-', main_sep=' ',
+                              time_sep=':', timezone=None):
+        """
+        gets the current timestamp with specified separators based on given timezone.
+
+        :param Union[str, None] date_sep: a separator to put between date elements.
+        :param Union[str, None] main_sep: a separator to put between date and time part.
+        :param Union[str, None] time_sep: a separator to put between time elements.
+
+        :param Union[str, None] timezone: timezone name to get current timestamp
+                                          based on it. if not provided, defaults
+                                          to application current timezone.
+
+        :rtype: str
+        """
+
+        if date_sep is None:
+            date_sep = ''
+        if main_sep is None:
+            main_sep = ''
+        if time_sep is None:
+            time_sep = ''
+
+        current = self.now(timezone)
+        return '{year}{date_sep}{month}{date_sep}{day}{main_sep}' \
+               '{hour}{time_sep}{minute}{time_sep}{second}'.format(
+                year=str(current.year).zfill(4),
+                month=str(current.month).zfill(2),
+                day=str(current.day).zfill(2),
+                hour=str(current.hour).zfill(2),
+                minute=str(current.minute).zfill(2),
+                second=str(current.second).zfill(2),
+                date_sep=date_sep,
+                main_sep=main_sep,
+                time_sep=time_sep)

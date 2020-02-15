@@ -7,14 +7,18 @@ from pyrin.application.services import get_component
 from pyrin.globalization.datetime import DateTimePackage
 
 
-def now():
+def now(timezone=None):
     """
-    gets current datetime based on application current timezone.
+    gets the current datetime based on given timezone name.
+
+    :param str timezone: timezone name to get current datetime based on it.
+                         if not provided, defaults to application
+                         current timezone.
 
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).now()
+    return get_component(DateTimePackage.COMPONENT_NAME).now(timezone)
 
 
 def get_current_timezone():
@@ -152,3 +156,25 @@ def timezone_exists(timezone_name):
     """
 
     return get_component(DateTimePackage.COMPONENT_NAME).timezone_exists(timezone_name)
+
+
+def get_current_timestamp(date_sep='-', main_sep=' ',
+                          time_sep=':', timezone=None):
+    """
+    gets the current timestamp with specified separators based on given timezone.
+
+    :param Union[str, None] date_sep: a separator to put between date elements.
+    :param Union[str, None] main_sep: a separator to put between date and time part.
+    :param Union[str, None] time_sep: a separator to put between time elements.
+
+    :param Union[str, None] timezone: timezone name to get current timestamp
+                                      based on it. if not provided, defaults
+                                      to application current timezone.
+
+    :rtype: str
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).get_current_timestamp(date_sep,
+                                                                               main_sep,
+                                                                               time_sep,
+                                                                               timezone)
