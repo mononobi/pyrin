@@ -9,7 +9,7 @@
 
 * in each package, the business must be implemented inside the manager, not anywhere else, so
   modules like decorators, error_handlers, services, api should not have any business
-  implementation but some light weight code that uses the package functionality through
+  implementation but some brief code that uses the package functionality through
   services module.
 
 * each package should subclass it's own custom exceptions from core exceptions and put them
@@ -17,7 +17,7 @@
   without subclassing is CoreNotImplementedError.
 
 * signature of sibling methods in different layers (manager, services, api, ...) must be the
-  same (in 99% of occasions).
+  same (in 90% of occasions).
 
 * in each package, only the implementation (manager) module should call other packages services,
   so every other module, should only call it's own package services module.
@@ -40,7 +40,8 @@
   must be set in root package's `CONFIG_STORE_NAMES` attribute.
 
 * methods exposed in api modules, and their underlying services and manager methods,
-  should always have `**options` in their signature.
+  should always have `**options` in their signature. if any of api methods don't have
+  '**options' in their signature, it would cause an error on client call.
 
 * each manager and other classes implementing business, should have their own exception
   class, which underlying business errors will subclass from it.
@@ -53,3 +54,10 @@
   that package must be subclassed from original package's manager class.
   also the package class (inside __init__.py) of that package, must be subclassed
   from original package's package class.
+
+* utils modules should not rely on other packages services. any util that requires this,
+  must be moved and implemented inside its own relevant package manager module.
+
+* every manager class that needs to access another package's service inside its own
+  '__init__()' method, must add that required package's name into its own package
+  'DEPENDS' list. otherwise, it could lead to errors on server startup.
