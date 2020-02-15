@@ -25,3 +25,10 @@ class ColumnsOutOfScopeError(DatabaseORMQueryBusinessException):
     columns out of scope error.
     """
     pass
+
+
+class UnsupportedQueryStyleError(DatabaseORMQueryException):
+    """
+    unsupported query style error.
+    """
+    pass

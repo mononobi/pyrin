@@ -11,8 +11,10 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from pyrin.core.globals import LIST_TYPES, _
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError
+from pyrin.database.model.schema import CoreColumn
 from pyrin.database.services import get_current_store
+from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
+    UnsupportedQueryStyleError
 
 
 @inspection._self_inspects
@@ -117,7 +119,7 @@ class CoreQuery(Query):
 
         self._validate_scope(entities, scope)
 
-    def count(self):
+    def count(self, **options):
         """
         returns the count of rows the sql formed by this `Query` would return.
         this method is overridden to prevent inefficient count() of sqlalchemy `Query`
@@ -128,18 +130,61 @@ class CoreQuery(Query):
         from table
         where ...
 
+        :keyword bool distinct: specifies that count should
+                                be executed on distinct select.
+                                defaults to False if not provided.
+
+        :keyword bool fallback: specifies that count should
+                                be executed using original sqlalchemy
+                                function which produces a subquery.
+                                defaults to False if not provided.
+
         :rtype: int
         """
 
+        fallback = options.get('fallback', False)
+        needs_fallback = False
         columns = []
         for single_column in self.selectable.columns:
+            if not isinstance(single_column, CoreColumn):
+                if fallback is False:
+                    raise UnsupportedQueryStyleError('Current query does not have pure columns '
+                                                     'in its expression. if you need to apply a '
+                                                     'keyword like "DISTINCT", you should apply '
+                                                     'it by passing "distinct=True" keyword to '
+                                                     'query method and do not apply it in query '
+                                                     'structure itself. for example instead of '
+                                                     'writing '
+                                                     '"store.query(distinct(Entity.id)).count()" '
+                                                     'you should write this in the following form '
+                                                     '"store.query(Entity.id).count()" and then '
+                                                     'pass "distinct=True" in options of query '
+                                                     'method. if you want the sqlalchemy original '
+                                                     'style of count() which produces a subquery, '
+                                                     'it is also possible to fallback to that '
+                                                     'default sqlalchemy count() but keep in '
+                                                     'mind that, that method is not efficient. '
+                                                     'you could pass "fallback=True" in options '
+                                                     'to fallback to default mode if CoreSession '
+                                                     'failed to execute count().')
+                else:
+                    needs_fallback = True
+                    break
+
             fullname = single_column.get_table_fullname()
             if fullname not in (None, ''):
                 columns.append(fullname)
 
+        if needs_fallback is True:
+            return super().count()
+
         func_count = func.count()
         if len(columns) > 0:
-            func_count = func.count(', '.join(columns))
+            distinct = options.get('distinct', False)
+            column_clause = ', '.join(columns)
+            if distinct is True:
+                column_clause = 'distinct {clause}'.format(clause=column_clause)
+            func_count = func.count(column_clause)
 
         statement = self.options(lazyload('*')).statement.with_only_columns(
             [func_count]).order_by(None)
