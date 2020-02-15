@@ -38,8 +38,9 @@ fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
 # gather section names referring to different
-# databases. these are named 'engine1', 'engine2'
-# in the sample .ini file.
+# databases. these are named according to bind names
+# in the alembic.config file. default database must
+# always be referenced by 'default' key.
 db_names = config.get_main_option('databases')
 
 # keeps a collection of connection bind names and urls.
