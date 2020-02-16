@@ -377,5 +377,5 @@ class ConfigStore(CoreObject):
 
         return self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
 
-    def __repr__(self):
+    def __str__(self):
         return self._name

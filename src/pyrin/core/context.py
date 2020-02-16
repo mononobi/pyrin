@@ -111,6 +111,13 @@ class CoreObject(object):
     def __setattr__(self, name, value):
         return self.setattr(name, value)
 
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return '{module}.{name}'.format(module=self.__module__,
+                                        name=self.__class__.__name__)
+
 
 class Context(DTO):
     """
