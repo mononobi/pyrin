@@ -11,7 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from pyrin.core.globals import LIST_TYPES, _
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.model.schema import CoreColumn
+from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
     UnsupportedQueryStyleError
