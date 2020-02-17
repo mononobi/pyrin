@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql services module.
+database orm sql extractor services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.database.orm.sql import DatabaseORMSQLPackage
+from pyrin.database.orm.sql.extractor import DatabaseORMSQLExtractorPackage
 
 
 def find_table_names(expression, **options):
@@ -34,5 +34,5 @@ def find_table_names(expression, **options):
     :rtype: list
     """
 
-    return get_component(DatabaseORMSQLPackage.COMPONENT_NAME).find_table_names(expression,
-                                                                                **options)
+    return get_component(DatabaseORMSQLExtractorPackage.COMPONENT_NAME).find_table_names(
+        expression, **options)

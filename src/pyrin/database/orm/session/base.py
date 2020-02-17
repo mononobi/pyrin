@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import TextClause
 
 import pyrin.database.services as database_services
-import pyrin.database.orm.sql.services as sql_services
+import pyrin.database.orm.sql.extractor.services as extractor_services
 
 from pyrin.database.exceptions import InvalidDatabaseBindError
 
@@ -137,7 +137,7 @@ class CoreSession(Session):
         """
 
         if mapper is None and isinstance(clause, (TextClause, str)):
-            tables = sql_services.find_table_names(clause)
+            tables = extractor_services.find_table_names(clause)
             if len(tables) > 0:
                 return database_services.get_engine(tables[0])
 

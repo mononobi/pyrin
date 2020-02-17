@@ -12,4 +12,3 @@ class DatabaseORMSQLPackage(Package):
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'database.orm.sql.component'
