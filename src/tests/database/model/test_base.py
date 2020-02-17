@@ -407,4 +407,4 @@ def test_entity_without_schema_table_fullname():
     entity = BaseEntity(id=10)
 
     assert entity.table_fullname() == entity.table_name()
-    assert entity.table_schema() == ''
+    assert entity.table_schema() is None
