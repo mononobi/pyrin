@@ -7,7 +7,7 @@ from sqlalchemy import Unicode, SmallInteger
 
 from pyrin.core.context import DTO
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.model.schema import CoreColumn
+from pyrin.database.orm.sql.schema.base import CoreColumn
 
 
 class PermissionBaseEntity(CoreEntity):

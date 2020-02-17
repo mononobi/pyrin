@@ -10,7 +10,7 @@ from sqlalchemy import Integer, Unicode
 from pyrin.core.context import DTO
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.exceptions import ColumnNotExistedError
-from pyrin.database.model.schema import CoreColumn
+from pyrin.database.orm.sql.schema.base import CoreColumn
 
 from tests.common.models import SampleEntity, SampleWithHiddenFieldEntity, RightChildEntity, \
     LeftChildEntity, BaseEntity, SubBaseEntity, SampleTestEntity
