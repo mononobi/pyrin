@@ -71,8 +71,9 @@ class DeserializerManager(Manager):
 
         if not isinstance(instance, AbstractDeserializerBase):
             raise InvalidDeserializerTypeError('Input parameter [{instance}] is '
-                                               'not an instance of AbstractDeserializerBase.'
-                                               .format(instance=str(instance)))
+                                               'not an instance of [{base}].'
+                                               .format(instance=instance,
+                                                       base=AbstractDeserializerBase))
 
         previous_instances = self._deserializers.get(instance.get_accepted_type(), [])
         if instance.get_accepted_type() in self._deserializers:
@@ -91,12 +92,12 @@ class DeserializerManager(Manager):
                                                           .format(name=instance.get_name(),
                                                                   accepted_type=instance.
                                                                   get_accepted_type(),
-                                                                  instance=str(instance)))
+                                                                  instance=instance))
 
                     print_warning('Deserializer [{old_instance}] is going '
                                   'to be replaced by [{new_instance}].'
-                                  .format(old_instance=str(old_instance),
-                                          new_instance=str(instance)))
+                                  .format(old_instance=old_instance,
+                                          new_instance=instance))
 
                     previous_instances.remove(old_instance)
 

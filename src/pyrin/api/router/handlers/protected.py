@@ -91,7 +91,8 @@ class ProtectedRoute(RouteBase):
 
         if not all(isinstance(item, PermissionBase) for item in self._permissions):
             raise PermissionTypeError('All route permissions must be an '
-                                      'instance of PermissionBase.')
+                                      'instance of [{instance}].'
+                                      .format(instance=PermissionBase))
 
     def _handle(self, inputs, **options):
         """

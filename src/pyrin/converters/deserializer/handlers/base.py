@@ -71,8 +71,9 @@ class DeserializerBase(AbstractDeserializerBase):
 
         if deserializer is not None and not isinstance(deserializer, DeserializerBase):
             raise InvalidDeserializerTypeError('Input parameter [{instance}] is not '
-                                               'an instance of DeserializerBase.'
-                                               .format(instance=deserializer))
+                                               'an instance of [{base}].'
+                                               .format(instance=deserializer,
+                                                       base=DeserializerBase))
 
         self._next_handler = deserializer
         return deserializer

@@ -133,8 +133,9 @@ class LoggingManager(Manager):
 
         if not isinstance(adapter, BaseLoggerAdapter):
             raise InvalidLoggerAdapterTypeError('Input parameter [{adapter}] is not an '
-                                                'instance of BaseLoggerAdapter.'
-                                                .format(adapter=str(adapter)))
+                                                'instance of [{base}].'
+                                                .format(adapter=adapter,
+                                                        base=BaseLoggerAdapter))
 
         loggers = self._get_all_loggers()
         if name not in loggers.keys():

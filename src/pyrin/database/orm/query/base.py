@@ -148,25 +148,25 @@ class CoreQuery(Query):
         for single_column in self.selectable.columns:
             if not isinstance(single_column, CoreColumn):
                 if fallback is False:
-                    raise UnsupportedQueryStyleError('Current query does not have pure columns '
-                                                     'in its expression. if you need to apply a '
-                                                     'keyword like "DISTINCT", you should apply '
-                                                     'it by passing "distinct=True" keyword to '
-                                                     'query method and do not apply it in query '
-                                                     'structure itself. for example instead of '
-                                                     'writing '
+                    raise UnsupportedQueryStyleError('Current query does not have columns '
+                                                     'of type [{column_type}] in its expression. '
+                                                     'if you need to apply a "DISTINCT" keyword, '
+                                                     'you should apply it by passing '
+                                                     '"distinct=True" keyword to count() method '
+                                                     'and do not apply it in query structure '
+                                                     'itself. for example instead of writing '
                                                      '"store.query(distinct(Entity.id)).count()" '
                                                      'you should write this in the following form '
-                                                     '"store.query(Entity.id).count()" and then '
-                                                     'pass "distinct=True" in options of query '
-                                                     'method. if you want the sqlalchemy original '
+                                                     '"store.query(Entity.id).count(distinct=True)'
+                                                     '". but if you want the sqlalchemy original '
                                                      'style of count() which produces a subquery, '
                                                      'it is also possible to fallback to that '
                                                      'default sqlalchemy count() but keep in '
                                                      'mind that, that method is not efficient. '
                                                      'you could pass "fallback=True" in options '
-                                                     'to fallback to default mode if CoreSession '
-                                                     'failed to execute count().')
+                                                     'to fallback to default mode if overridden '
+                                                     'count() method failed to provide count.'
+                                                     .format(column_type=CoreColumn))
                 else:
                     needs_fallback = True
                     break

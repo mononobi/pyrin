@@ -68,6 +68,16 @@ class CoreObject(object):
         super().__init__()
         self.__name = None
 
+    def __setattr__(self, name, value):
+        return self.setattr(name, value)
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return '{module}.{name}'.format(module=self.__module__,
+                                        name=self.__class__.__name__)
+
     def get_name(self):
         """
         gets the name of the object.
@@ -107,16 +117,6 @@ class CoreObject(object):
         """
 
         return super().__setattr__(name, value)
-
-    def __setattr__(self, name, value):
-        return self.setattr(name, value)
-
-    def __repr__(self):
-        return str(self)
-
-    def __str__(self):
-        return '{module}.{name}'.format(module=self.__module__,
-                                        name=self.__class__.__name__)
 
 
 class Context(DTO):

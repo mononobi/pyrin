@@ -309,8 +309,9 @@ class DatabaseManager(Manager, HookMixin):
 
         if not isinstance(instance, AbstractSessionFactoryBase):
             raise InvalidSessionFactoryTypeError('Input parameter [{instance}] is '
-                                                 'not an instance of AbstractSessionFactoryBase.'
-                                                 .format(instance=str(instance)))
+                                                 'not an instance of [{base}].'
+                                                 .format(instance=str(instance),
+                                                         base=AbstractSessionFactoryBase))
 
         # checking whether is there any registered
         # instance with the same 'is_request_bounded()' value.

@@ -328,24 +328,26 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises DuplicateComponentIDError: duplicate component id error.
         """
 
-        if not isinstance(component, Manager):
-            raise InvalidComponentTypeError('Input parameter [{component}] is not '
-                                            'an instance of Manager. each component '
-                                            'class must be subclassed from its respective '
-                                            'manager class of the same package and that '
-                                            'manager class must be subclassed from Manager.'
-                                            .format(component=str(component)))
-
         if not isinstance(component, Component):
             raise InvalidComponentTypeError('Input parameter [{component}] is not '
-                                            'an instance of Component.'
-                                            .format(component=str(component)))
+                                            'an instance of [{instance}].'
+                                            .format(component=component,
+                                                    instance=Component))
+
+        if not isinstance(component, Manager):
+            raise InvalidComponentTypeError('Input parameter [{component}] is not '
+                                            'an instance of [{instance}]. each component '
+                                            'class must be subclassed from its respective '
+                                            'manager class of the same package and that '
+                                            'manager class must be subclassed from [{instance}].'
+                                            .format(component=component,
+                                                    instance=Manager))
 
         if not isinstance(component.get_id(), tuple) or \
                 len(component.get_id()[0].strip()) == 0:
-            raise InvalidComponentIDError('Component [{component}] has '
-                                          'not a valid component id.'
-                                          .format(component=str(component)))
+            raise InvalidComponentIDError('Component [{component}] does '
+                                          'not have a valid component id.'
+                                          .format(component=component))
 
         # checking whether is there any registered component with the same id.
         if component.get_id() in self._components.keys():
@@ -356,7 +358,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                                 'id [{id}] but "replace" option is not set, so '
                                                 'component [{instance}] could not be registered.'
                                                 .format(id=component.get_id(),
-                                                        instance=str(component)))
+                                                        instance=component))
 
             old_instance = self._components[component.get_id()]
 
@@ -369,7 +371,7 @@ class Application(Flask, HookMixin, SignalMixin,
             component = self._set_component_attributes(old_instance, component)
 
             print_warning('Component [{old_instance}] is going to be replaced by [{new_instance}].'
-                          .format(old_instance=str(old_instance), new_instance=str(component)))
+                          .format(old_instance=old_instance, new_instance=component))
 
         self._components[component.get_id()] = component
 

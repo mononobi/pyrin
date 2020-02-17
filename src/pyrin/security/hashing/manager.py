@@ -50,13 +50,14 @@ class HashingManager(Manager):
 
         if not isinstance(instance, AbstractHashingBase):
             raise InvalidHashingHandlerTypeError('Input parameter [{instance}] is '
-                                                 'not an instance of AbstractHashingBase.'
-                                                 .format(instance=str(instance)))
+                                                 'not an instance of [{base}].'
+                                                 .format(instance=instance,
+                                                         base=AbstractHashingBase))
 
         if instance.get_name() is None or len(instance.get_name().strip()) == 0:
             raise InvalidHashingHandlerNameError('Hashing handler [{instance}] '
-                                                 'has invalid name.'
-                                                 .format(instance=str(instance)))
+                                                 'does not have a valid name.'
+                                                 .format(instance=instance))
 
         # checking whether is there any registered instance with the same name.
         if instance.get_name() in self._hashing_handlers.keys():
@@ -68,12 +69,12 @@ class HashingManager(Manager):
                                                     'option is not set, so handler '
                                                     '[{instance}] could not be registered.'
                                                     .format(name=instance.get_name(),
-                                                            instance=str(instance)))
+                                                            instance=instance))
 
             old_instance = self._hashing_handlers[instance.get_name()]
             print_warning('Hashing handler [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
-                          .format(old_instance=str(old_instance), new_instance=str(instance)))
+                          .format(old_instance=old_instance, new_instance=instance))
 
         # registering new hashing handler.
         self._hashing_handlers[instance.get_name()] = instance

@@ -39,13 +39,14 @@ class PermissionManager(Manager):
 
         if not isinstance(instance, PermissionBase):
             raise InvalidPermissionTypeError('Input parameter [{instance}] is '
-                                             'not an instance of PermissionBase.'
-                                             .format(instance=str(instance)))
+                                             'not an instance of [{base}].'
+                                             .format(instance=instance,
+                                                     base=PermissionBase))
 
-        if instance.get_id() in self.__permissions.keys():
+        if instance.get_id() in self.__permissions:
             raise DuplicatedPermissionError('Permission [{permission}] has been '
                                             'already registered.'
-                                            .format(permission=str(instance)))
+                                            .format(permission=instance))
 
         self.__permissions[instance.get_id()] = instance
 

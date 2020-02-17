@@ -57,12 +57,14 @@ class TokenManager(Manager):
 
         if not isinstance(instance, AbstractTokenBase):
             raise InvalidTokenHandlerTypeError('Input parameter [{instance}] is '
-                                               'not an instance of AbstractTokenBase.'
-                                               .format(instance=str(instance)))
+                                               'not an instance of [{base}].'
+                                               .format(instance=instance,
+                                                       base=AbstractTokenBase))
 
         if instance.get_name() is None or len(instance.get_name().strip()) == 0:
-            raise InvalidTokenHandlerNameError('Token handler [{instance}] has invalid name.'
-                                               .format(instance=str(instance)))
+            raise InvalidTokenHandlerNameError('Token handler [{instance}] does '
+                                               'not have a valid name.'
+                                               .format(instance=instance))
 
         # checking whether is there any registered instance with the same name.
         if instance.get_name() in self._token_handlers.keys():
@@ -74,12 +76,12 @@ class TokenManager(Manager):
                                                   'not set, so handler [{instance}] '
                                                   'could not be registered.'
                                                   .format(name=instance.get_name(),
-                                                          instance=str(instance)))
+                                                          instance=instance))
 
             old_instance = self._token_handlers[instance.get_name()]
             print_warning('Token handler [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
-                          .format(old_instance=str(old_instance), new_instance=str(instance)))
+                          .format(old_instance=old_instance, new_instance=instance))
 
         # checking whether is there any registered instance with the same kid header.
         if instance.get_kid() in self._kid_to_handler_map.keys():
