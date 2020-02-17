@@ -102,28 +102,27 @@ class CoreColumn(Column):
         self.exposed = kwargs.pop('exposed', True)
         super().__init__(*args, **kwargs)
 
-    def get_table_fullname(self):
+    def fullname(self):
         """
-        gets the current column's table fullname, if the
-        column has no table, it returns None.
+        gets the column's fullname. fullname is made up
+        of `table_fullname.column_name`. if the column
+        has no table, it only returns the `column_name`.
 
         :rtype: str
         """
 
         if self.table is None:
-            return None
+            return self._real_name()
 
         for single_column in self.table.columns:
             if single_column.name == self.name:
                 for base_column in single_column.base_columns:
                     return '{table}.{column}'.format(table=base_column.table.fullname,
-                                                     column=self._get_real_name())
+                                                     column=self._real_name())
 
-        return None
-
-    def _get_real_name(self):
+    def _real_name(self):
         """
-        gets column's real name.
+        gets the column's real name.
 
         :rtype: str
         """

@@ -5,7 +5,7 @@ model base module.
 
 import inspect
 
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
 import pyrin.database.services as database_services
@@ -14,10 +14,11 @@ from pyrin.core.context import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, EntityNotHashableError
 
 
-class CoreDeclarative(CoreObject):
+@as_declarative(constructor=None)
+class CoreEntity(CoreObject):
     """
-    core declarative class.
-    it will be used to create a declarative base for all models.
+    core entity class.
+    it will be used as a base class for all models.
     """
 
     # holds the table name in database.
@@ -64,7 +65,7 @@ class CoreDeclarative(CoreObject):
         if self.primary_key() is None:
             raise EntityNotHashableError('Entity [{entity}] does not have '
                                          'a primary key so it is not hashable.'
-                                         .format(entity=self.get_name()))
+                                         .format(entity=self))
 
         return hash('{root_base}.{pk}'.format(root_base=self._get_root_base_class(),
                                               pk=self.primary_key()))
@@ -72,10 +73,7 @@ class CoreDeclarative(CoreObject):
     def __repr__(self):
         return '<{module}.{name} [{pk}]>'.format(module=self.__module__,
                                                  name=self.get_name(),
-                                                 pk=str(self.primary_key()))
-
-    def __str__(self):
-        return str(self.primary_key())
+                                                 pk=self.primary_key())
 
     def _get_root_base_class(self):
         """
@@ -271,7 +269,7 @@ class CoreDeclarative(CoreObject):
                 if silent_on_invalid_column is False:
                     raise ColumnNotExistedError('Entity [{entity}] does not have '
                                                 'a column named [{column}].'
-                                                .format(entity=self.get_name(),
+                                                .format(entity=self,
                                                         column=key))
 
     @classmethod
@@ -288,16 +286,16 @@ class CoreDeclarative(CoreObject):
     def table_schema(cls):
         """
         gets the table schema that this entity represents in database.
-        it might be an empty string if schema has not been set for this entity.
+        it might be `None` if schema has not been set for this entity.
 
         :rtype: str
         """
 
-        schema = ''
+        schema = None
         if cls.__table_args__ is not None:
-            schema = cls.__table_args__.get('schema', '')
+            schema = cls.__table_args__.get('schema', None)
 
-        return schema.strip()
+        return schema
 
     @classmethod
     def table_fullname(cls):
@@ -312,11 +310,7 @@ class CoreDeclarative(CoreObject):
         schema = cls.table_schema()
         name = cls.table_name()
 
-        if schema not in (None, '') and not schema.isspace():
+        if schema is not None:
             return '{schema}.{name}'.format(schema=schema, name=name)
         else:
             return name
-
-
-# this entity should be used as the base entity for all application entities.
-CoreEntity = declarative_base(cls=CoreDeclarative, name='CoreEntity', constructor=None)

@@ -171,7 +171,7 @@ class CoreQuery(Query):
                     needs_fallback = True
                     break
 
-            fullname = single_column.get_table_fullname()
+            fullname = single_column.fullname()
             if fullname not in (None, ''):
                 columns.append(fullname)
 
