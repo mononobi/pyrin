@@ -163,7 +163,7 @@ def add_range_clause(clauses, column, value_lower, value_upper,
     adds range comparison into given clauses using specified inputs.
 
     :param list clauses: clause list to add range clause to it.
-    :param Column column: entity column to add range clause for it.
+    :param CoreColumn column: entity column to add range clause for it.
     :param object value_lower: lower bound of range clause.
     :param object value_upper: upper bound of range clause.
 
@@ -198,54 +198,93 @@ def add_range_clause(clauses, column, value_lower, value_upper,
                 clauses.append(column < value_upper)
 
 
-def add_date_range_clause(clauses, column, date_lower, date_upper,
-                          include_equal_to_lower=True,
-                          include_equal_to_upper=True,
-                          **options):
+def add_datetime_range_clause(clauses, column,
+                              value_lower, value_upper,
+                              include_equal_to_lower=True,
+                              include_equal_to_upper=True,
+                              **options):
     """
-    adds date range comparison into given clauses using specified inputs.
+    adds datetime range comparison into given clauses using specified inputs.
 
-    :param list clauses: clause list to add range clause to it.
-    :param Column column: entity column to add range clause for it.
-    :param datetime date_lower: lower bound of range clause.
-    :param datetime date_upper: upper bound of range clause.
+    :param list clauses: clause list to add datetime range clause to it.
+    :param CoreColumn column: entity column to add datetime range clause for it.
+    :param datetime value_lower: lower bound of datetime range clause.
+    :param datetime value_upper: upper bound of datetime range clause.
 
-    :param include_equal_to_lower: specifies that lower date
+    :param include_equal_to_lower: specifies that lower datetime
                                    should be considered in range.
                                    defaults to True if not provided.
 
-    :param include_equal_to_upper: specifies that upper date
+    :param include_equal_to_upper: specifies that upper datetime
                                    should be considered in range.
                                    defaults to True if not provided.
 
     :keyword bool consider_begin_of_day: specifies that consider begin
-                                         of day for lower date.
+                                         of day for lower datetime.
                                          defaults to True if not provided.
 
     :keyword bool consider_end_of_day: specifies that consider end
-                                       of day for upper date.
+                                       of day for upper datetime.
                                        defaults to True if not provided.
     """
 
     consider_begin_of_day = options.get('consider_begin_of_day', True)
     consider_end_of_day = options.get('consider_end_of_day', True)
 
-    if date_lower is not None and consider_begin_of_day is True:
-        date_lower = datetime_utils.begin_of_day(date_lower)
+    if value_lower is not None and consider_begin_of_day is True:
+        value_lower = datetime_utils.begin_of_day(value_lower)
 
-    if date_upper is not None and consider_end_of_day is True:
-        date_upper = datetime_utils.end_of_day(date_upper)
+    if value_upper is not None and consider_end_of_day is True:
+        value_upper = datetime_utils.end_of_day(value_upper)
 
-    add_range_clause(clauses, column, date_lower, date_upper,
-                     include_equal_to_lower, include_equal_to_upper)
+    add_range_clause(clauses, column,
+                     value_lower, value_upper,
+                     include_equal_to_lower,
+                     include_equal_to_upper)
 
 
-def add_list_clause(clauses, column, value):
+def add_between_datetime_clause(clauses, column, value_lower,
+                                value_upper, **options):
+    """
+    adds between datetime comparison into clauses using specified inputs.
+
+    :param list clauses: clause list to add between datetime clause to it.
+    :param CoreColumn column: entity column to add between datetime clause for it.
+    :param datetime value_lower: lower bound of between datetime clause.
+    :param datetime value_upper: upper bound of between datetime clause.
+
+    :keyword bool consider_begin_of_day: specifies that consider begin
+                                         of day for lower datetime.
+                                         defaults to True if not provided.
+
+    :keyword bool consider_end_of_day: specifies that consider end
+                                       of day for upper datetime.
+                                       defaults to True if not provided.
+    """
+
+    if value_lower is None or value_upper is None:
+        add_datetime_range_clause(clauses, column, value_lower, value_upper, **options)
+
+    consider_begin_of_day = options.get('consider_begin_of_day', True)
+    consider_end_of_day = options.get('consider_end_of_day', True)
+
+    if consider_begin_of_day is True:
+        value_lower = datetime_utils.begin_of_day(value_lower)
+
+    if consider_end_of_day is True:
+        value_upper = datetime_utils.end_of_day(value_upper)
+
+    clauses.append(column.between(value_lower, value_upper))
+
+
+def add_comparison_clause(clauses, column, value):
     """
     adds list or single comparison into clauses based on given value.
+    if the value type is any of list, tuple or set, it generates an
+    `in()` comparison, otherwise it generates a simple `==` comparison.
 
     :param list clauses: clause list to add comparison clause to it.
-    :param Column column: entity column to add comparison clause for it.
+    :param CoreColumn column: entity column to add comparison clause for it.
     :param Union[object, list[object]] value: value to add comparison for it.
     """
 
@@ -261,8 +300,9 @@ def add_like_clause(clauses, column, value, string_wrapper=like_both):
     adds like clause into clauses based on given inputs.
 
     :param list clauses: clause list to add like clause to it.
-    :param Column column: entity column to add like clause for it.
+    :param CoreColumn column: entity column to add like clause for it.
     :param object value: value to add like clause for it.
+
     :param callable string_wrapper: a callable to provide a string
                                     to be used as value in like clause.
                                     defaults to `like_both` if not provided.
@@ -272,11 +312,28 @@ def add_like_clause(clauses, column, value, string_wrapper=like_both):
         clauses.append(column.like(string_wrapper(value)))
 
 
+def ilike_clause(clauses, column, value, string_wrapper=like_both):
+    """
+    adds ilike clause into clauses based on given inputs.
+
+    :param list clauses: clause list to add ilike clause to it.
+    :param CoreColumn column: entity column to add ilike clause for it.
+    :param object value: value to add ilike clause for it.
+
+    :param callable string_wrapper: a callable to provide a string
+                                    to be used as value in ilike clause.
+                                    defaults to `like_both` if not provided.
+    """
+
+    if value is not None:
+        clauses.append(column.ilike(string_wrapper(value)))
+
+
 def create_row_result(fields, values):
     """
     creates a row result object with given fields and values.
     this object type is returned by sqlalchemy `Query` when there
-    is columns or multiple entities in query.
+    is column names or multiple entities in query.
 
     :param list[str] fields: field names of the result object.
 
