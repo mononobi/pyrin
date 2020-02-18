@@ -161,4 +161,5 @@ if __name__ == '__main__':
 `python3 start.py`
 
 *Application will be available at `127.0.0.1:9081` by default*
+
 *Pyrin on default configurations, will use an `in-memory sqlite` database.*
