@@ -92,7 +92,7 @@ from sqlalchemy import Unicode, SmallInteger
 
 from pyrin.database.orm.types.custom import GUID
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.model.schema import CoreColumn
+from pyrin.database.orm.sql.schema.base import CoreColumn
 
 
 class GuestEntity(CoreEntity):
