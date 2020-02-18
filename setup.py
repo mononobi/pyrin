@@ -9,7 +9,7 @@ import re
 from setuptools import find_namespace_packages
 from setuptools import setup
 
-with io.open('README.md', 'rt', encoding='utf8') as readme_file:
+with io.open('description.md', 'rt', encoding='utf8') as readme_file:
     readme = readme_file.read()
 
 with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
