@@ -25,7 +25,7 @@ something in somewhere.
 
 **Install using pip**:
 
-`pip install pyrin`
+**`pip install pyrin`**
 
 # Running Tests
 
@@ -34,7 +34,7 @@ To be able to run tests, you must notice that:
 1. Pyrin tests are developed using pytest, you should first 
    install pyrin tests dependencies using pip:
    
-   `pip install pyrin[tests]`
+   **`pip install pyrin[tests]`**
  
 2. You should create a `.env` file inside `src` directory containing all the configuration 
    keys that have null value in their corresponding settings file. A sample `.env`
@@ -42,13 +42,13 @@ To be able to run tests, you must notice that:
 
 3. An entry with `pyrin.server` value should also be created in `/etc/hosts` file.
 
-4. Now you could execute `src/start_tests.py` script to start all tests.
+4. Now you could execute `src/start_tests.py` to start all tests.
 
 # Contribute In Pyrin Development
 
-You must execute `scripts/setup/install-dependencies.sh` script first.
+You must execute `scripts/setup/install-dependencies.sh` first.
 Then open the project in your IDE and create required pipenv environment.
-Then you could start developing pyrin.
+Then you could start developing Pyrin.
 
 # Demo Application
 
@@ -75,7 +75,7 @@ package, inside `__init__.py`
     - `models.py`
   - `start.py`
 
-`__init__.py:`
+**`__init__.py:`**
 
 ```python
 from pyrin.application.base import Application
@@ -85,7 +85,7 @@ class DemoApplication(Application):
     pass
 ```
 
-`models.py:`
+**`models.py:`**
 
 ```python
 from sqlalchemy import Unicode, SmallInteger
@@ -107,7 +107,7 @@ class GuestEntity(CoreEntity):
         return self.id
 ```
 
-`api.py:`
+**`api.py:`**
 
 ```python
 import pyrin.globalization.datetime.services as datetime_services
@@ -144,7 +144,7 @@ def hello(**options):
     return result
 ```
 
-`start.py:`
+**`start.py:`**
 
 ```python
 from demo import DemoApplication
@@ -155,10 +155,10 @@ if __name__ == '__main__':
     app.run(use_reloader=False)
 ```
 
-*Now you could start application by executing this command in your terminal:*
+Now you could start application by executing this command in your terminal:
 
-`python3 start.py`
+**`python3 start.py`**
 
-*Application will be available at `127.0.0.1:9081` by default*
+Application will be available at **`127.0.0.1:9081`** by default.
 
-*Pyrin on default configurations, will use an `in-memory sqlite` database.*
+Pyrin on default configurations, will use an **`in-memory sqlite`** database.
