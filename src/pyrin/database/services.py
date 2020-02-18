@@ -170,16 +170,17 @@ def register_hook(instance):
     return get_component(DatabasePackage.COMPONENT_NAME).register_hook(instance)
 
 
-def get_engine(entity_class):
+def get_engine(entity_or_table):
     """
-    gets the database engine which this entity is bounded to.
+    gets the database engine which this entity or table is bounded to.
 
-    :param CoreEntity entity_class: entity class to get its bounded engine.
+    :param Union[CoreEntity, str] entity_or_table: entity class or table
+                                                   name to get its bounded engine.
 
     :rtype: Engine
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_engine(entity_class)
+    return get_component(DatabasePackage.COMPONENT_NAME).get_engine(entity_or_table)
 
 
 def get_bind_config_section_name(bind_name):
