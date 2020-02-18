@@ -99,8 +99,7 @@ class GuestEntity(CoreEntity):
 
     __tablename__ = 'guest'
 
-    id = CoreColumn(name='id', type_=GUID, autoincrement=True, 
-                    primary_key=True, exposed=False)
+    id = CoreColumn(name='id', type_=GUID, primary_key=True, exposed=False)
     name = CoreColumn(name='name', type_=Unicode(100))
     age = CoreColumn(name='age', type_=SmallInteger)
 
