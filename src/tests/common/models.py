@@ -3,7 +3,7 @@
 common models module.
 """
 
-from sqlalchemy import Unicode, Integer
+from sqlalchemy import Unicode, Integer, ForeignKey
 
 from pyrin.core.context import DTO
 from pyrin.database.decorators import bind
@@ -109,6 +109,8 @@ class SampleTestEntity(CoreEntity):
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
+    sample_entity_id = CoreColumn(ForeignKey('sample_table.id'),
+                                  name='sample_table_id', type_=GUID, index=True)
 
     def primary_key(self):
         """
