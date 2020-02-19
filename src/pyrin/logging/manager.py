@@ -21,6 +21,9 @@ class LoggingManager(Manager):
     logging manager class.
     """
 
+    # the logger adapter could be overridden in subclasses.
+    LOGGER_ADAPTER = RequestInfoLoggerAdapter
+
     def __init__(self):
         """
         initializes an instance of LoggingManager.
@@ -69,7 +72,7 @@ class LoggingManager(Manager):
         """
 
         if isinstance(logger, Logger):
-            return RequestInfoLoggerAdapter(logger)
+            return self.LOGGER_ADAPTER(logger)
 
         return logger
 
