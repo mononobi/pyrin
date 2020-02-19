@@ -91,17 +91,18 @@ def register_session_factory(instance, **options):
                                                                                   **options)
 
 
-def register_bind(cls, bind_name, **options):
+def register_bind(entity, bind_name, **options):
     """
     binds the given model class with specified bind database.
 
-    :param CoreEntity cls: CoreEntity subclass to be bounded.
+    :param CoreEntity entity: CoreEntity subclass to be bounded.
     :param str bind_name: bind name to be associated with the model class.
 
     :raises InvalidEntityTypeError: invalid entity type error.
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).register_bind(cls, bind_name, **options)
+    return get_component(DatabasePackage.COMPONENT_NAME).register_bind(entity, bind_name,
+                                                                       **options)
 
 
 def configure_session_factories():
@@ -170,17 +171,42 @@ def register_hook(instance):
     return get_component(DatabasePackage.COMPONENT_NAME).register_hook(instance)
 
 
-def get_engine(entity_or_table):
+def get_table_engine(table_name):
     """
-    gets the database engine which this entity or table is bounded to.
+    gets the database engine which the provided table name is bounded to.
 
-    :param Union[CoreEntity, str] entity_or_table: entity class or table
-                                                   name to get its bounded engine.
+    :param str table_name: table name to get its bounded engine.
 
     :rtype: Engine
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_engine(entity_or_table)
+    return get_component(DatabasePackage.COMPONENT_NAME).get_table_engine(table_name)
+
+
+def get_bind_name_engine(bind_name):
+    """
+    gets the database engine which the provided bind name is bounded to.
+
+    :param str bind_name: bind name to get its bounded engine.
+
+    :raises InvalidDatabaseBindError: invalid database bind error.
+
+    :rtype: Engine
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_bind_name_engine(bind_name)
+
+
+def get_entity_engine(entity):
+    """
+    gets the database engine which the provided entity class is bounded to.
+
+    :param CoreEntity entity: entity class to get its bounded engine.
+
+    :rtype: Engine
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_entity_engine(entity)
 
 
 def get_bind_config_section_name(bind_name):
@@ -194,3 +220,13 @@ def get_bind_config_section_name(bind_name):
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_bind_config_section_name(bind_name)
+
+
+def get_default_database_name():
+    """
+    gets default database name.
+
+    :rtype: str
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_default_database_name()

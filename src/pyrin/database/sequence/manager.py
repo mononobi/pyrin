@@ -43,7 +43,7 @@ class SequenceManager(Manager):
         :rtype: int
         """
 
-        engine = database_services.get_engine(entity_class)
+        engine = database_services.get_entity_engine(entity_class)
 
         method = self._dialect_to_method_map.get(engine.name, )
 

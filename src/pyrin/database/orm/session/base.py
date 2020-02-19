@@ -139,6 +139,6 @@ class CoreSession(Session):
         if mapper is None and isinstance(clause, (TextClause, str)):
             tables = extractor_services.find_table_names(clause)
             if len(tables) > 0:
-                return database_services.get_engine(tables[0])
+                return database_services.get_table_engine(tables[0])
 
         return super().get_bind(mapper, clause=clause)

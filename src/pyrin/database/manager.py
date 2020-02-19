@@ -31,6 +31,7 @@ class DatabaseManager(Manager, HookMixin):
 
     LOGGER = logging_services.get_logger('database')
     BIND_REMOVE_KEY_PREFIX = '__'
+    DEFAULT_DATABASE_NAME = 'default'
     _hook_type = DatabaseHookBase
 
     def __init__(self):
@@ -335,23 +336,24 @@ class DatabaseManager(Manager, HookMixin):
         self._session_factories[instance.is_request_bounded()] = \
             instance.create_session_factory(self.get_default_engine())
 
-    def register_bind(self, cls, bind_name, **options):
+    def register_bind(self, entity, bind_name, **options):
         """
         binds the given model class with specified bind database.
 
-        :param CoreEntity cls: CoreEntity subclass to be bounded.
+        :param CoreEntity entity: CoreEntity subclass to be bounded.
         :param str bind_name: bind name to be associated with the model class.
 
         :raises InvalidEntityTypeError: invalid entity type error.
         """
 
-        if not issubclass(cls, CoreEntity):
-            raise InvalidEntityTypeError('Input parameter [{cls}] is '
-                                         'not a subclass of CoreEntity.'
-                                         .format(cls=str(cls)))
+        if not issubclass(entity, CoreEntity):
+            raise InvalidEntityTypeError('Input parameter [{entity}] is '
+                                         'not a subclass of [{base}].'
+                                         .format(entity=entity,
+                                                 base=CoreEntity))
 
         # registering model into database binds.
-        self._binds[cls] = bind_name
+        self._binds[entity] = bind_name
 
     def _map_entity_to_engine(self):
         """
@@ -371,9 +373,9 @@ class DatabaseManager(Manager, HookMixin):
             if bind_name not in binds:
                 raise InvalidDatabaseBindError('Database bind name [{bind_name}] for entity '
                                                '[{entity_name}] is not available in '
-                                               'database.config file.'
+                                               'database config store.'
                                                .format(bind_name=bind_name,
-                                                       entity_name=str(entity)))
+                                                       entity_name=entity))
 
             self._entity_to_engine_map[entity] = self.get_bounded_engines()[bind_name]
             self._table_name_to_engine_map[entity.table_name().lower()] = \
@@ -443,22 +445,61 @@ class DatabaseManager(Manager, HookMixin):
         for hook in self._get_hooks():
             hook.after_session_factories_configured()
 
-    def get_engine(self, entity_or_table):
+    def get_entity_engine(self, entity):
         """
-        gets the database engine which this entity or table is bounded to.
+        gets the database engine which the provided entity class is bounded to.
 
-        :param Union[CoreEntity, str] entity_or_table: entity class or table
-                                                       name to get its bounded engine.
+        :param CoreEntity entity: entity class to get its bounded engine.
 
         :rtype: Engine
         """
 
-        if isinstance(entity_or_table, str):
-            entity_or_table = entity_or_table.lower()
-            if entity_or_table in self.get_table_name_to_engine_map():
-                return self.get_table_name_to_engine_map()[entity_or_table]
-
-        elif entity_or_table in self.get_entity_to_engine_map():
-            return self.get_entity_to_engine_map()[entity_or_table]
+        if entity in self.get_entity_to_engine_map():
+            return self.get_entity_to_engine_map()[entity]
 
         return self.get_default_engine()
+
+    def get_table_engine(self, table_name):
+        """
+        gets the database engine which the provided table name is bounded to.
+
+        :param str table_name: table name to get its bounded engine.
+
+        :rtype: Engine
+        """
+
+        table_name = table_name.lower()
+        if table_name in self.get_table_name_to_engine_map():
+            return self.get_table_name_to_engine_map()[table_name]
+
+        return self.get_default_engine()
+
+    def get_bind_name_engine(self, bind_name):
+        """
+        gets the database engine which the provided bind name is bounded to.
+
+        :param str bind_name: bind name to get its bounded engine.
+
+        :raises InvalidDatabaseBindError: invalid database bind error.
+
+        :rtype: Engine
+        """
+
+        if bind_name == self.DEFAULT_DATABASE_NAME:
+            return self.get_default_engine()
+
+        elif bind_name in self.get_bounded_engines():
+            return self.get_bounded_engines()[bind_name]
+
+        raise InvalidDatabaseBindError('Database bind name [{bind_name}] does '
+                                       'not exist in database config store.'
+                                       .format(bind_name=bind_name))
+
+    def get_default_database_name(self):
+        """
+        gets default database name.
+
+        :rtype: str
+        """
+
+        return self.DEFAULT_DATABASE_NAME

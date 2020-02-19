@@ -21,8 +21,6 @@ class DatabaseMigrationManager(Manager):
     database migration manager class.
     """
 
-    DEFAULT_ENGINE_NAME = 'default'
-
     def __init__(self):
         """
         initializes an instance of DatabaseMigrationManager.
@@ -86,11 +84,12 @@ class DatabaseMigrationManager(Manager):
         """
 
         connections = DTO()
-        connections[self.DEFAULT_ENGINE_NAME] = self._get_absolute_connection_url(
-            config_services.get_active('database', 'sqlalchemy_url'))
+        connections[database_services.get_default_database_name()] = \
+            self._get_absolute_connection_url(config_services.get_active('database',
+                                                                         'sqlalchemy_url'))
 
         for bind_name in self.get_bind_name_to_metadata_map():
-            if bind_name != self.DEFAULT_ENGINE_NAME:
+            if bind_name != database_services.get_default_database_name():
                 section_name = database_services.get_bind_config_section_name(bind_name)
                 connections[bind_name] = self._get_absolute_connection_url(
                     config_services.get('database.binds', section_name, 'sqlalchemy_url'))
@@ -113,7 +112,7 @@ class DatabaseMigrationManager(Manager):
 
             default_engine = database_services.get_default_engine()
             if bind_name_map is None and engine == default_engine:
-                bind_name_map = self.DEFAULT_ENGINE_NAME
+                bind_name_map = database_services.get_default_database_name()
             elif bind_name_map is None and engine != default_engine:
                 raise EngineBindNameNotFoundError('Could not find any bind name '
                                                   'for database engine [{name}].'
@@ -166,7 +165,8 @@ class DatabaseMigrationManager(Manager):
 
         if connection_url is None or 'sqlite' not in connection_url.lower() or \
                 connection_url.lower().startswith('sqlite:////') or \
-                'sqlite:///:memory:' in connection_url.lower():
+                'sqlite:///:memory:' in connection_url.lower() or \
+                connection_url == 'sqlite:///':
             return connection_url
 
         root_path = application_services.get_application_root_path()
