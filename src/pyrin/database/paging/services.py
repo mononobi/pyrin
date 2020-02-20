@@ -63,7 +63,7 @@ def inject_custom_offset(offset, options):
     injects given offset parameter into given dict.
 
     :param int offset: offset value to be set in given dict.
-    :param dict options: options dict to inject limit into it.
+    :param dict options: options dict to inject offset into it.
     """
 
     get_component(DatabasePagingPackage.COMPONENT_NAME).inject_custom_offset(offset, options)
@@ -73,7 +73,7 @@ def inject_paging(options):
     """
     injects default limit and offset parameters into given dict.
 
-    :param dict options: options dict to inject limit into it.
+    :param dict options: options dict to inject limit and offset into it.
     """
 
     get_component(DatabasePagingPackage.COMPONENT_NAME).inject_paging(options)
@@ -85,7 +85,7 @@ def inject_custom_paging(limit, offset, options):
 
     :param int limit: limit value to be set in given dict.
     :param int offset: offset value to be set in given dict.
-    :param dict options: options dict to inject limit into it.
+    :param dict options: options dict to inject limit and offset into it.
     """
 
     get_component(DatabasePagingPackage.COMPONENT_NAME).inject_custom_paging(limit,
@@ -115,7 +115,7 @@ def extract_offset(options):
     dict, it gets the value from database config store
     from `paging` section.
 
-    :param dict options: options dict to get limit from it.
+    :param dict options: options dict to get offset from it.
 
     :rtype: int
     """
@@ -130,10 +130,24 @@ def extract_paging(options):
     dict, it gets the value from database config store
     from `paging` section.
 
-    :param dict options: options dict to get limit from it.
+    :param dict options: options dict to get limit and offset from it.
 
     :returns: tuple(int limit, int offset)
     :rtype: tuple
     """
 
     return get_component(DatabasePagingPackage.COMPONENT_NAME).extract_paging(options)
+
+
+def is_paging_required(options):
+    """
+    gets a value indicating that paging should be done.
+    it checks a key with name `__paging__` is available in dict
+    and its value is set to True, otherwise returns False.
+
+    :param dict options: options dict to detect paging should be done from it.
+
+    :rtype: bool
+    """
+
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).is_paging_required(options)

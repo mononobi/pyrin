@@ -74,7 +74,7 @@ class DatabasePagingManager(Manager):
         injects given offset parameter into given dict.
 
         :param int offset: offset value to be set in given dict.
-        :param dict options: options dict to inject limit into it.
+        :param dict options: options dict to inject offset into it.
         """
 
         options.update(__offset__=offset)
@@ -83,7 +83,7 @@ class DatabasePagingManager(Manager):
         """
         injects default limit and offset parameters into given dict.
 
-        :param dict options: options dict to inject limit into it.
+        :param dict options: options dict to inject limit and offset into it.
         """
 
         self.inject_limit(options)
@@ -95,7 +95,7 @@ class DatabasePagingManager(Manager):
 
         :param int limit: limit value to be set in given dict.
         :param int offset: offset value to be set in given dict.
-        :param dict options: options dict to inject limit into it.
+        :param dict options: options dict to inject limit and offset into it.
         """
 
         self.inject_custom_limit(limit, options)
@@ -122,7 +122,7 @@ class DatabasePagingManager(Manager):
         dict, it gets the value from database config store
         from `paging` section.
 
-        :param dict options: options dict to get limit from it.
+        :param dict options: options dict to get offset from it.
 
         :rtype: int
         """
@@ -136,7 +136,7 @@ class DatabasePagingManager(Manager):
         dict, it gets the value from database config store
         from `paging` section.
 
-        :param dict options: options dict to get limit from it.
+        :param dict options: options dict to get limit and offset from it.
 
         :returns: tuple(int limit, int offset)
         :rtype: tuple
@@ -146,3 +146,17 @@ class DatabasePagingManager(Manager):
         offset = self.extract_offset(options)
 
         return limit, offset
+
+    def is_paging_required(self, options):
+        """
+        gets a value indicating that paging should be done.
+        it checks a key with name `__paging__` is available in dict
+        and its value is set to True, otherwise returns False.
+
+        :param dict options: options dict to detect paging should be done from it.
+
+        :rtype: bool
+        """
+
+        paging = options.get('__paging__', False)
+        return paging is True
