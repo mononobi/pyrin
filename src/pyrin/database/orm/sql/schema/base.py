@@ -5,8 +5,10 @@ database orm sql schema module.
 
 from sqlalchemy import Column
 
+from pyrin.database.orm.sql.operators.base import CoreColumnOperators
 
-class CoreColumn(Column):
+
+class CoreColumn(Column, CoreColumnOperators):
     """
     core column class.
     all application models columns must be an instance of this class.

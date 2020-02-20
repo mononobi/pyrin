@@ -13,6 +13,9 @@ from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError
 
 
+LIKE_CHAR_COUNT_LIMIT = 20
+
+
 def entity_to_dict(entity, exposed_only=True):
     """
     converts the given entity into a dict and returns it.
@@ -108,52 +111,173 @@ def keyed_tuple_to_dict_list(values):
     return results
 
 
-def like_both(value):
+def like_both(value, start='%', end='%'):
     """
-    gets a copy of string with `%` attached to both
-    ends of it to use in like operator.
+    gets a copy of string with `%` or couple of `_` values
+    attached to both ends of it to use in like operator.
+    this method is intended to be used as callable for
+    sqlalchemy operator methods.
 
     :param str value: value to be processed.
+
+    :param str start: start place holder to be prefixed.
+                      it could be `%` or couple of `_` values
+                      for exact matching.
+                      defaults to `%` if not provided.
+
+    :param str end: end place holder to be appended.
+                    it could be `%` or couple of `_` values
+                    for exact matching.
+                    defaults to `%` if not provided.
 
     :rtype: str
     """
 
     if value is None:
-        value = ''
+        return None
 
-    return '%{value}%'.format(value=value)
+    value = like_prefix(value, start)
+    value = like_suffix(value, end)
+
+    return value
 
 
-def like_begin(value):
+def like_prefix(value, start='%'):
     """
-    gets a copy of string with `%` attached to beginning
-    of it to use in like operator.
+    gets a copy of string with `%` or couple of `_` values
+    attached to beginning of it to use in like operator.
+    this method is intended to be used as callable for
+    sqlalchemy operator methods.
 
     :param str value: value to be processed.
+
+    :param str start: start place holder to be prefixed.
+                      it could be `%` or couple of `_` values
+                      for exact matching.
+                      defaults to `%` if not provided.
 
     :rtype: str
     """
 
     if value is None:
-        value = ''
+        return None
 
-    return '%{value}'.format(value=value)
+    return '{start}{value}'.format(start=start, value=value)
 
 
-def like_end(value):
+def like_suffix(value, end='%'):
     """
-    gets a copy of string with `%` attached to end
-    of it to use in like operator.
+    gets a copy of string with `%` or couple of `_` values
+    attached to end of it to use in like operator.
+    this method is intended to be used as callable for
+    sqlalchemy operator methods.
 
     :param str value: value to be processed.
+
+    :param str end: end place holder to be appended.
+                    it could be `%` or couple of `_` values
+                    for exact matching.
+                    defaults to `%` if not provided.
 
     :rtype: str
     """
 
     if value is None:
-        value = ''
+        return None
 
-    return '{value}%'.format(value=value)
+    return '{value}{end}'.format(value=value, end=end)
+
+
+def _process_place_holder(value, count):
+    """
+    processes the value and generates a place holder with count
+    of `_` chars. this value could be used in like operator.
+
+    :param str value: value to be processed.
+    :param int count: count of `_` chars to be attached.
+
+    :note count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`, if
+                 the provided value goes upper than this limit, a
+                 `%` will be attached instead of it. this limit is
+                 for security reason.
+
+    :rtype: str
+    """
+
+    if value is None:
+        return ''
+
+    if count is None or count <= 0:
+        return ''
+
+    place_holder = None
+    if count > LIKE_CHAR_COUNT_LIMIT:
+        place_holder = '%'
+
+    if place_holder is None:
+        place_holder = '_' * count
+
+    return place_holder
+
+
+def like_exact_both(value, count):
+    """
+    gets a copy of string with `_` attached to both ends of
+    it by count of underscores to use in like operator.
+
+    :param str value: value to be processed.
+    :param int count: count of `_` chars to be attached.
+
+    :note count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`, if
+                 the provided value goes upper than this limit, a
+                 `%` will be attached instead of it. this limit is
+                 for security reason.
+
+    :rtype: str
+    """
+
+    place_holder = _process_place_holder(value, count)
+    return like_both(value, place_holder, place_holder)
+
+
+def like_exact_prefix(value, count):
+    """
+    gets a copy of string with `_` attached to beginning of
+    it by count of underscores to use in like operator.
+
+    :param str value: value to be processed.
+    :param int count: count of `_` chars to be attached.
+
+    :note count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`, if
+                 the provided value goes upper than this limit, a
+                 `%` will be attached instead of it. this limit is
+                 for security reason.
+
+    :rtype: str
+    """
+
+    place_holder = _process_place_holder(value, count)
+    return like_prefix(value, place_holder)
+
+
+def like_exact_suffix(value, count):
+    """
+    gets a copy of string with `_` attached to end of
+    it by count of underscores to use in like operator.
+
+    :param str value: value to be processed.
+    :param int count: count of `_` chars to be attached.
+
+    :note count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`, if
+                 the provided value goes upper than this limit, a
+                 `%` will be attached instead of it. this limit is
+                 for security reason.
+
+    :rtype: str
+    """
+
+    place_holder = _process_place_holder(value, count)
+    return like_suffix(value, place_holder)
 
 
 def add_range_clause(clauses, column, value_lower, value_upper,
@@ -228,53 +352,14 @@ def add_datetime_range_clause(clauses, column,
                                        defaults to True if not provided.
     """
 
-    consider_begin_of_day = options.get('consider_begin_of_day', True)
-    consider_end_of_day = options.get('consider_end_of_day', True)
-
-    if value_lower is not None and consider_begin_of_day is True:
-        value_lower = datetime_utils.begin_of_day(value_lower)
-
-    if value_upper is not None and consider_end_of_day is True:
-        value_upper = datetime_utils.end_of_day(value_upper)
+    value_lower, value_upper = datetime_utils.normalize_datetime_range(value_lower,
+                                                                       value_upper,
+                                                                       **options)
 
     add_range_clause(clauses, column,
                      value_lower, value_upper,
                      include_equal_to_lower,
                      include_equal_to_upper)
-
-
-def add_between_datetime_clause(clauses, column, value_lower,
-                                value_upper, **options):
-    """
-    adds between datetime comparison into clauses using specified inputs.
-
-    :param list clauses: clause list to add between datetime clause to it.
-    :param CoreColumn column: entity column to add between datetime clause for it.
-    :param datetime value_lower: lower bound of between datetime clause.
-    :param datetime value_upper: upper bound of between datetime clause.
-
-    :keyword bool consider_begin_of_day: specifies that consider begin
-                                         of day for lower datetime.
-                                         defaults to True if not provided.
-
-    :keyword bool consider_end_of_day: specifies that consider end
-                                       of day for upper datetime.
-                                       defaults to True if not provided.
-    """
-
-    if value_lower is None or value_upper is None:
-        add_datetime_range_clause(clauses, column, value_lower, value_upper, **options)
-
-    consider_begin_of_day = options.get('consider_begin_of_day', True)
-    consider_end_of_day = options.get('consider_end_of_day', True)
-
-    if consider_begin_of_day is True:
-        value_lower = datetime_utils.begin_of_day(value_lower)
-
-    if consider_end_of_day is True:
-        value_upper = datetime_utils.end_of_day(value_upper)
-
-    clauses.append(column.between(value_lower, value_upper))
 
 
 def add_comparison_clause(clauses, column, value):
@@ -293,40 +378,6 @@ def add_comparison_clause(clauses, column, value):
             clauses.append(column.in_(value))
         else:
             clauses.append(column == value)
-
-
-def add_like_clause(clauses, column, value, string_wrapper=like_both):
-    """
-    adds like clause into clauses based on given inputs.
-
-    :param list clauses: clause list to add like clause to it.
-    :param CoreColumn column: entity column to add like clause for it.
-    :param object value: value to add like clause for it.
-
-    :param callable string_wrapper: a callable to provide a string
-                                    to be used as value in like clause.
-                                    defaults to `like_both` if not provided.
-    """
-
-    if value is not None:
-        clauses.append(column.like(string_wrapper(value)))
-
-
-def ilike_clause(clauses, column, value, string_wrapper=like_both):
-    """
-    adds ilike clause into clauses based on given inputs.
-
-    :param list clauses: clause list to add ilike clause to it.
-    :param CoreColumn column: entity column to add ilike clause for it.
-    :param object value: value to add ilike clause for it.
-
-    :param callable string_wrapper: a callable to provide a string
-                                    to be used as value in ilike clause.
-                                    defaults to `like_both` if not provided.
-    """
-
-    if value is not None:
-        clauses.append(column.ilike(string_wrapper(value)))
 
 
 def create_row_result(fields, values):

@@ -230,3 +230,39 @@ def add_days(value, days):
     """
 
     return value + timedelta(days)
+
+
+def normalize_datetime_range(value_lower, value_upper, **options):
+    """
+    normalizes the given datetime values range. it returns a tuple
+    of two datetime values normalized according to given options.
+
+    :param datetime value_lower: lower bound of datetime range.
+    :param datetime value_upper: upper bound of datetime range.
+
+    :keyword bool consider_begin_of_day: specifies that consider begin
+                                         of day for lower datetime.
+                                         defaults to True if not provided.
+
+    :keyword bool consider_end_of_day: specifies that consider end
+                                       of day for upper datetime.
+                                       defaults to True if not provided.
+
+    :returns: tuple(datetime value_lower, datetime value_upper)
+    :rtype: tuple
+    """
+
+    consider_begin_of_day = options.get('consider_begin_of_day', True)
+    consider_end_of_day = options.get('consider_end_of_day', True)
+
+    # swapping values in case of user mistake.
+    if value_upper is not None and value_lower is not None and value_lower > value_upper:
+        value_lower, value_upper = value_upper, value_lower
+
+    if value_lower is not None and consider_begin_of_day is True:
+        value_lower = begin_of_day(value_lower)
+
+    if value_upper is not None and consider_end_of_day is True:
+        value_upper = end_of_day(value_upper)
+
+    return value_lower, value_upper
