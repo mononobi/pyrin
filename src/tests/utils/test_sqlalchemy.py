@@ -354,53 +354,53 @@ def test_like_both_with_none_value():
 
     result = sqlalchemy_utils.like_both(None)
 
-    assert result == '%%'
+    assert result is None
 
 
-def test_like_begin():
+def test_like_prefix():
     """
     gets a copy of string with `%` attached to beginning
     of it to use in like operator.
     """
 
     value = 'sample_string'
-    result = sqlalchemy_utils.like_begin(value)
+    result = sqlalchemy_utils.like_prefix(value)
 
     assert result == '%sample_string'
 
 
-def test_like_begin_with_none_value():
+def test_like_prefix_with_none_value():
     """
     gets a copy of string which is None with `%` attached
     to beginning of it to use in like operator.
     """
 
-    result = sqlalchemy_utils.like_begin(None)
+    result = sqlalchemy_utils.like_prefix(None)
 
-    assert result == '%'
+    assert result is None
 
 
-def test_like_end():
+def test_like_suffix():
     """
     gets a copy of string with `%` attached to end
     of it to use in like operator.
     """
 
     value = 'sample_string'
-    result = sqlalchemy_utils.like_end(value)
+    result = sqlalchemy_utils.like_suffix(value)
 
     assert result == 'sample_string%'
 
 
-def test_like_end_with_none_value():
+def test_like_suffix_with_none_value():
     """
     gets a copy of string which is None with `%` attached
     to end of it to use in like operator.
     """
 
-    result = sqlalchemy_utils.like_end(None)
+    result = sqlalchemy_utils.like_suffix(None)
 
-    assert result == '%'
+    assert result is None
 
 
 def test_create_row_result():
