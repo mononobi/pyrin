@@ -98,6 +98,7 @@ class CoreColumnOperators(ColumnOperators):
     def _process_like_prefix(self, value, **options):
         """
         processes the value that should be prefixed to
+
         value for `like` expression based on given options.
 
         :param str value: expression to be compared.
@@ -106,10 +107,10 @@ class CoreColumnOperators(ColumnOperators):
                                    without any modifications at start of it.
                                    defaults to True if not provided.
 
-        :keyword int begin_count: count of `_` chars to be attached to beginning.
+        :keyword int start_count: count of `_` chars to be attached to beginning.
                                   if not provided, `%` will be used.
 
-        :note begin_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
+        :note start_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
                            if the provided value goes upper than this limit,
                            a `%` will be attached instead of it. this limit
                            is for security reason.
@@ -117,11 +118,11 @@ class CoreColumnOperators(ColumnOperators):
         :rtype: str
         """
 
-        exact_start = options.get('exact_start', False)
+        exact_start = options.get('exact_start', True)
         if exact_start is False:
             begin_wrapper = like_prefix
             inputs = (value, )
-            begin_count = options.get('begin_count', None)
+            begin_count = options.get('start_count', None)
             if begin_count is not None:
                 begin_wrapper = like_exact_prefix
                 inputs = (value, begin_count)
@@ -152,7 +153,7 @@ class CoreColumnOperators(ColumnOperators):
         :rtype: str
         """
 
-        exact_end = options.get('exact_end', False)
+        exact_end = options.get('exact_end', True)
         if exact_end is False:
             end_wrapper = like_suffix
             inputs = (value,)
@@ -165,93 +166,7 @@ class CoreColumnOperators(ColumnOperators):
 
         return value
 
-    def like(self, other, escape=None, **options):
-        """
-        implements the `like` operator.
-        this method is overridden to apply `%` or couple of `_`
-        place holders on both sides of input string if required.
-        if you want to apply place holder to just one side, use
-        `startswith()` or `endswith()` methods.
-
-        :param str other: expression to be compared.
-
-        :param str escape: optional escape character,
-                           renders the `escape` keyword.
-
-        :keyword bool autoescape: establishes an escape character within the like
-                                  expression, then applies it to all occurrences of
-                                  `%`, `_` and the escape character itself within the
-                                  comparison value.
-
-        :keyword bool exact_start: specifies that value should be emitted
-                                   without any modifications at start of it.
-                                   defaults to True if not provided.
-
-        :keyword bool exact_end: specifies that value should be emitted
-                                 without any modifications at end of it.
-                                 defaults to True if not provided.
-
-        :keyword int begin_count: count of `_` chars to be attached to beginning.
-                                  if not provided, `%` will be used.
-
-        :keyword int end_count: count of `_` chars to be attached to end.
-                                if not provided, `%` will be used.
-
-        :note begin_count, end_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
-                                      if the provided value goes upper than this limit,
-                                      a `%` will be attached instead of it. this limit
-                                      is for security reason.
-        """
-
-        other = self._process_like_autoescape(other, escape, options.get('autoescape', False))
-        other = self._process_like_prefix(other, **options)
-        other = self._process_like_suffix(other, **options)
-        return super().like(other, escape)
-
-    def ilike(self, other, escape=None, **options):
-        """
-        implements the `ilike` operator.
-        this method is overridden to apply `%` or couple of `_`
-        place holders on both sides of input string if required.
-        if you want to apply place holder to just one side, use
-        `istartswith()` or `iendswith()` methods.
-
-        :param str other: expression to be compared.
-
-        :param str escape: optional escape character,
-                           renders the `escape` keyword.
-
-        :keyword bool autoescape: establishes an escape character within the like
-                                  expression, then applies it to all occurrences of
-                                  `%`, `_` and the escape character itself within the
-                                  comparison value.
-
-        :keyword bool exact_start: specifies that value should be emitted
-                                   without any modifications at start of it.
-                                   defaults to True if not provided.
-
-        :keyword bool exact_end: specifies that value should be emitted
-                                 without any modifications at end of it.
-                                 defaults to True if not provided.
-
-        :keyword int begin_count: count of `_` chars to be attached to beginning.
-                                  if not provided, `%` will be used.
-
-        :keyword int end_count: count of `_` chars to be attached to end.
-                                if not provided, `%` will be used.
-
-        :note begin_count, end_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
-                                      if the provided value goes upper than this limit,
-                                      a `%` will be attached instead of it. this limit
-                                      is for security reason.
-        """
-
-        other = self._process_like_autoescape(other, escape, options.get('autoescape', False))
-        other = self._process_like_prefix(other, **options)
-        other = self._process_like_suffix(other, **options)
-        return super().ilike(other, escape)
-
-    def istartswith(self, other, **kwargs):
+    def istartswith(self, other, **options):
         """
         implements the `startswith` operator.
         produces an `ilike` expression that tests against a match for the
@@ -278,11 +193,13 @@ class CoreColumnOperators(ColumnOperators):
                          is for security reason.
         """
 
-        escape = kwargs.pop('escape', None)
-        kwargs.update(exact_start=True, exact_end=False)
-        return self.ilike(other, escape, **kwargs)
+        escape = options.pop('escape', None)
+        options.update(exact_end=False)
+        other = self._process_like_autoescape(other, escape, options.get('autoescape', False))
+        other = self._process_like_suffix(other, **options)
+        return self.ilike(other, escape)
 
-    def iendswith(self, other, **kwargs):
+    def iendswith(self, other, **options):
         """
         implements the `endswith` operator.
         produces an `ilike` expression that tests against a match for the
@@ -309,11 +226,13 @@ class CoreColumnOperators(ColumnOperators):
                            is for security reason.
         """
 
-        escape = kwargs.pop('escape', None)
-        kwargs.update(exact_start=False, exact_end=True)
-        return self.ilike(other, escape, **kwargs)
+        escape = options.pop('escape', None)
+        options.update(exact_start=False)
+        other = self._process_like_autoescape(other, escape, options.get('autoescape', False))
+        other = self._process_like_prefix(other, **options)
+        return self.ilike(other, escape)
 
-    def icontains(self, other, **kwargs):
+    def icontains(self, other, **options):
         """
         implements the 'contains' operator.
         produces an `ilike` expression that tests against a match for the
@@ -331,18 +250,21 @@ class CoreColumnOperators(ColumnOperators):
                                   `%`, `_` and the escape character itself within the
                                   comparison value.
 
-        :keyword int begin_count: count of `_` chars to be attached to beginning.
+        :keyword int start_count: count of `_` chars to be attached to beginning.
                                   if not provided, `%` will be used.
 
         :keyword int end_count: count of `_` chars to be attached to end.
                                 if not provided, `%` will be used.
 
-        :note begin_count, end_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
+        :note start_count, end_count: this value has a limit of `LIKE_CHAR_COUNT_LIMIT`,
                                       if the provided value goes upper than this limit,
                                       a `%` will be attached instead of it. this limit
                                       is for security reason.
         """
 
-        escape = kwargs.pop('escape', None)
-        kwargs.update(exact_start=False, exact_end=False)
-        return self.ilike(other, escape, **kwargs)
+        escape = options.pop('escape', None)
+        options.update(exact_start=False, exact_end=False)
+        other = self._process_like_autoescape(other, escape, options.get('autoescape', False))
+        other = self._process_like_prefix(other, **options)
+        other = self._process_like_suffix(other, **options)
+        return self.ilike(other, escape)
