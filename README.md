@@ -56,7 +56,11 @@ A demo application developed using pyrin is available at:
 [pyrin-sample](https://github.com/mononobi/pyrin-sample)
 
 
-# Absolute Simple Usage Example
+# Extremely Simple Usage Example
+
+The sample code below, is just a rapid showcase on how to develop using Pyrin. 
+for a real world application, it is best fit to use the concept of dependency injection 
+and IoC which Pyrin is built upon.
 
 To be able to create an application based on pyrin, the only thing that is required to do
 is to subclass from pyrin `Application` class in your application package. this is 
