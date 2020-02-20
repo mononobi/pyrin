@@ -6,11 +6,6 @@ utils path module.
 import os
 import sys
 
-from pyrin.utils.environment import is_windows
-
-
-PATH_SEPARATOR = '/' if not is_windows() else '\\'
-
 
 def get_module_file_path(module_name):
     """
@@ -47,7 +42,7 @@ def get_main_package_path(module_name):
     :rtype: str
     """
 
-    relative_module_path = module_name.replace('.', PATH_SEPARATOR)
+    relative_module_path = module_name.replace('.', os.path.sep)
     root_package = get_main_package_name(module_name)
     absolute_module_path = get_module_file_path(module_name)
     temp_absolute_module_path = absolute_module_path.replace(relative_module_path, '*')
@@ -61,7 +56,7 @@ def get_main_package_path(module_name):
 
     main_package_path = ''.join(list_path)
     main_package_path = main_package_path.replace('*', relative_module_path)
-    main_package_path = main_package_path.replace(excess_part, '').rstrip(PATH_SEPARATOR)
+    main_package_path = main_package_path.replace(excess_part, '').rstrip(os.path.sep)
 
     return main_package_path
 
