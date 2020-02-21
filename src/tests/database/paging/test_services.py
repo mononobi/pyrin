@@ -9,25 +9,25 @@ import pyrin.database.paging.services as paging_services
 from pyrin.core.context import DTO
 
 
-def test_inject_limit():
+def test_enable_limit():
     """
-    injects default limit parameter into given dict.
+    enables default limit parameter into given dict.
     """
 
     options = DTO()
-    paging_services.inject_limit(options)
+    paging_services.enable_limit(options)
 
     assert '__limit__' in options
     assert options.get('__limit__') == config_services.get('database', 'paging', 'limit')
 
 
-def test_inject_custom_limit():
+def test_enable_custom_limit():
     """
-    injects given limit parameter into given dict.
+    enables given limit parameter into given dict.
     """
 
     options = DTO()
-    paging_services.inject_custom_limit(2500, options)
+    paging_services.enable_limit(options, 2500)
 
     assert options.get('__limit__', None) == 2500
 
@@ -44,13 +44,13 @@ def test_extract_limit():
     assert limit == 3000
 
 
-def test_extract_limit_default():
+def test_extract_limit_none():
     """
-    extracts and gets limit parameter from given dict.
-    it should return the default value from `database.config`.
+    extracts and gets limit parameter from given
+    dict. it should return the None value.
     """
 
     options = DTO()
     limit = paging_services.extract_limit(options)
 
-    assert limit == config_services.get('database', 'paging', 'limit')
+    assert limit is None
