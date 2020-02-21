@@ -19,15 +19,6 @@ class PermissionBaseEntity(CoreEntity):
 
     id = CoreColumn(name='id', type_=SmallInteger, primary_key=True, nullable=False, index=True)
 
-    def primary_key(self):
-        """
-        gets the primary key of this instance.
-
-        :rtype: int
-        """
-
-        return self.id
-
 
 class PermissionEntity(PermissionBaseEntity):
     """
