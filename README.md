@@ -114,8 +114,6 @@ class GuestEntity(CoreEntity):
 **`api.py:`**
 
 ```python
-import pyrin.globalization.datetime.services as datetime_services
-
 from pyrin.api.router.decorators import api
 from pyrin.core.context import DTO
 from pyrin.database.services import get_current_store
