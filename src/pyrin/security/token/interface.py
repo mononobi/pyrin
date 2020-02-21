@@ -112,8 +112,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.
 

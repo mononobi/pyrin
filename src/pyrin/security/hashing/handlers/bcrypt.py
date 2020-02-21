@@ -12,7 +12,6 @@ import pyrin.configuration.services as config_services
 from pyrin.security.hashing.decorators import hashing
 from pyrin.security.hashing.handlers.base import HashingBase
 from pyrin.security.hashing.handlers.exceptions import BcryptMaxSizeLimitError
-from pyrin.settings.static import APPLICATION_ENCODING
 
 
 @hashing()
@@ -100,7 +99,7 @@ class BcryptHashing(HashingBase):
         :rtype: bool
         """
 
-        return bcrypt.checkpw(text.encode(APPLICATION_ENCODING), hashed_value)
+        return bcrypt.checkpw(text.encode(self._encoding), hashed_value)
 
     def _get_algorithm(self, **options):
         """
@@ -133,7 +132,7 @@ class BcryptHashing(HashingBase):
         :rtype bytes
         """
 
-        text_bytes = text.encode(APPLICATION_ENCODING)
+        text_bytes = text.encode(self._encoding)
         size = len(text_bytes)
         if size > self.MAX_SIZE:
             raise BcryptMaxSizeLimitError('Size of input string is [{input_size}] bytes '
@@ -167,4 +166,4 @@ class BcryptHashing(HashingBase):
         """
 
         return self._get_separator() + self._get_algorithm().encode(
-            APPLICATION_ENCODING) + bcrypt_hash
+            self._encoding) + bcrypt_hash

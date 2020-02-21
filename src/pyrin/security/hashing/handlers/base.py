@@ -34,6 +34,7 @@ class HashingBase(AbstractHashingBase):
 
         # we set the algorithm of hashing handler as the name of it.
         self._set_name(self._get_algorithm(**options))
+        self._encoding = APPLICATION_ENCODING
 
     def generate_hash(self, text, **options):
         """
@@ -205,7 +206,7 @@ class HashingBase(AbstractHashingBase):
         :rtype: str
         """
 
-        return full_hashed_value.decode(APPLICATION_ENCODING)
+        return full_hashed_value.decode(self._encoding)
 
     def _prepare_input(self, full_hashed_value, **options):
         """
@@ -216,7 +217,7 @@ class HashingBase(AbstractHashingBase):
         :rtype: bytes
         """
 
-        return full_hashed_value.encode(APPLICATION_ENCODING)
+        return full_hashed_value.encode(self._encoding)
 
     def _decode_hash_part(self, value):
         """

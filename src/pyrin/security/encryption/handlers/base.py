@@ -5,14 +5,15 @@ encryption handlers base module.
 
 import re
 
+import pyrin.security.utils.services as security_utils_services
+import pyrin.utils.encoding as encoding_utils
+
+from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.encryption.exceptions import DecryptionError
+from pyrin.security.encryption.interface import AbstractEncrypterBase
 from pyrin.security.encryption.handlers.exceptions import InvalidEncryptedValueError, \
     EncryptionHandlerMismatchError
-from pyrin.security.encryption.interface import AbstractEncrypterBase
-from pyrin.security.utils import key_helper
-from pyrin.settings.static import APPLICATION_ENCODING
-from pyrin.utils import encoding
 
 
 class EncrypterBase(AbstractEncrypterBase):
@@ -35,6 +36,7 @@ class EncrypterBase(AbstractEncrypterBase):
         super().__init__()
 
         self._set_name(name)
+        self._encoding = APPLICATION_ENCODING
 
     def _get_separator(self):
         """
@@ -193,7 +195,7 @@ class EncrypterBase(AbstractEncrypterBase):
         empty, handler, encrypted_part = full_encrypted_value.split(
             self._get_separator(), self._get_separator_count())
 
-        return handler.decode(APPLICATION_ENCODING), self._decode_encrypted_part(encrypted_part)
+        return handler.decode(self._encoding), self._decode_encrypted_part(encrypted_part)
 
     def _validate_handler(self, handler_name, **options):
         """
@@ -221,7 +223,7 @@ class EncrypterBase(AbstractEncrypterBase):
         """
 
         return self._get_separator() + self._get_separator().join(
-            (self._get_algorithm().encode(APPLICATION_ENCODING),
+            (self._get_algorithm().encode(self._encoding),
              self._encode_encrypted_part(encrypted_value)))
 
     def _prepare_output(self, full_encrypted_value, **options):
@@ -233,7 +235,7 @@ class EncrypterBase(AbstractEncrypterBase):
         :rtype: str
         """
 
-        return full_encrypted_value.decode(APPLICATION_ENCODING)
+        return full_encrypted_value.decode(self._encoding)
 
     def _prepare_input(self, full_encrypted_value, **options):
         """
@@ -244,7 +246,7 @@ class EncrypterBase(AbstractEncrypterBase):
         :rtype: bytes
         """
 
-        return full_encrypted_value.encode(APPLICATION_ENCODING)
+        return full_encrypted_value.encode(self._encoding)
 
     def _decode_encrypted_part(self, value):
         """
@@ -257,7 +259,7 @@ class EncrypterBase(AbstractEncrypterBase):
         :rtype: bytes
         """
 
-        return encoding.base64_to_bytes(value)
+        return encoding_utils.base64_to_bytes(value)
 
     def _encode_encrypted_part(self, value):
         """
@@ -270,7 +272,7 @@ class EncrypterBase(AbstractEncrypterBase):
         :rtype: bytes
         """
 
-        return encoding.bytes_to_base64(value)
+        return encoding_utils.bytes_to_base64(value)
 
 
 class SymmetricEncrypterBase(EncrypterBase):
@@ -350,8 +352,7 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
 
         return self._private_key
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -364,7 +365,7 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
         :rtype: tuple(str, str)
         """
 
-        return key_helper.generate_rsa_key(**options)
+        return security_utils_services.generate_rsa_key(**options)
 
     def _load_keys(self, **options):
         """

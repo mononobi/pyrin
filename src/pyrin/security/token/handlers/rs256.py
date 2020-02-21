@@ -59,8 +59,7 @@ class RS256Token(RSTokenBase):
 
         return '8441c8a0-8ec6-4987-ab80-be71c3bef90c'
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -69,7 +68,7 @@ class RS256Token(RSTokenBase):
         :rtype: tuple(str, str)
         """
 
-        return RSTokenBase.generate_key(length=2048)
+        return super().generate_key(length=2048)
 
     def _load_keys(self, **options):
         """

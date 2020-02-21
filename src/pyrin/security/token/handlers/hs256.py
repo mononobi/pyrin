@@ -4,10 +4,10 @@ hs256 token handler module.
 """
 
 import pyrin.configuration.services as config_services
+import pyrin.security.utils.services as security_utils_services
 
 from pyrin.security.token.decorators import token
 from pyrin.security.token.handlers.base import SymmetricTokenBase
-from pyrin.security.utils import secure_random
 
 
 @token()
@@ -41,8 +41,7 @@ class HS256Token(SymmetricTokenBase):
 
         return 'HS256'
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.
 
@@ -57,7 +56,7 @@ class HS256Token(SymmetricTokenBase):
         if key_length is None:
             key_length = config_services.get('security', 'token', 'hs256_key_length')
 
-        return secure_random.get_url_safe(length=key_length)
+        return security_utils_services.get_url_safe(length=key_length)
 
     def get_kid(self):
         """

@@ -7,13 +7,12 @@ import hashlib
 import re
 
 import pyrin.configuration.services as config_services
+import pyrin.security.utils.services as security_utils_services
 
 from pyrin.security.hashing.decorators import hashing
 from pyrin.security.hashing.handlers.base import HashingBase
 from pyrin.security.hashing.handlers.exceptions import InvalidHashingRoundsCountError, \
     InvalidPBKDF2InternalAlgorithmError, InvalidHashingSaltLengthError
-from pyrin.settings.static import APPLICATION_ENCODING
-from pyrin.security.utils import secure_random
 
 
 @hashing()
@@ -70,7 +69,7 @@ class PBKDF2Hashing(HashingBase):
             salt = self._generate_salt(length=salt_length)
 
         text_hash = hashlib.pbkdf2_hmac(internal_algorithm,
-                                        text.encode(APPLICATION_ENCODING),
+                                        text.encode(self._encoding),
                                         salt,
                                         rounds)
 
@@ -90,7 +89,7 @@ class PBKDF2Hashing(HashingBase):
         salt_length = options.get('length', config_services.get('security', 'hashing',
                                                                 'pbkdf2_salt_length'))
 
-        return secure_random.get_bytes(length=salt_length)
+        return security_utils_services.get_bytes(length=salt_length)
 
     def _is_match(self, text, hashed_value, **options):
         """
@@ -206,10 +205,10 @@ class PBKDF2Hashing(HashingBase):
         """
 
         return self._get_separator() + self._get_separator().join(
-            (self._get_algorithm().encode(APPLICATION_ENCODING),
-             internal_algorithm.encode(APPLICATION_ENCODING),
-             str(rounds).encode(APPLICATION_ENCODING),
-             str(len(salt)).encode(APPLICATION_ENCODING),
+            (self._get_algorithm().encode(self._encoding),
+             internal_algorithm.encode(self._encoding),
+             str(rounds).encode(self._encoding),
+             str(len(salt)).encode(self._encoding),
              self._encode_hash_part(salt + text_hash)))
 
     def _extract_parts_from_final_hash(self, full_hashed_value, **options):
@@ -231,7 +230,7 @@ class PBKDF2Hashing(HashingBase):
         salt = raw_salt_plus_text_hash[:salt_length]
         text_hash = raw_salt_plus_text_hash[salt_length:]
 
-        return internal_algorithm.decode(APPLICATION_ENCODING), int(rounds), salt, text_hash
+        return internal_algorithm.decode(self._encoding), int(rounds), salt, text_hash
 
     def _get_hashed_part(self, full_hashed_value, **options):
         """

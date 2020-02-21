@@ -8,13 +8,13 @@ import time
 import jwt
 
 import pyrin.configuration.services as config_services
+import pyrin.security.utils.services as security_utils_services
 
 from pyrin.core.context import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodingError
 from pyrin.security.token.interface import AbstractTokenBase
-from pyrin.security.utils import key_helper
 from pyrin.settings.static import APPLICATION_ENCODING
 from pyrin.utils import unique_id
 
@@ -34,6 +34,7 @@ class TokenBase(AbstractTokenBase):
         super().__init__()
 
         self._set_name(name)
+        self._encoding = APPLICATION_ENCODING
 
     def generate_access_token(self, payload, **options):
         """
@@ -117,7 +118,7 @@ class TokenBase(AbstractTokenBase):
         return jwt.encode(updated_payload,
                           self._get_encoding_key(),
                           self._get_algorithm(),
-                          custom_headers).decode(APPLICATION_ENCODING)
+                          custom_headers).decode(self._encoding)
 
     def get_payload(self, token, **options):
         """
@@ -389,8 +390,7 @@ class RSTokenBase(AsymmetricTokenBase):
 
         self._load_keys(**options)
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -403,7 +403,7 @@ class RSTokenBase(AsymmetricTokenBase):
         :rtype: tuple
         """
 
-        return key_helper.generate_rsa_key(**options)
+        return security_utils_services.generate_rsa_key(**options)
 
     def _load_keys(self, **options):
         """

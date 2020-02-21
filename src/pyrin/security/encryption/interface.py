@@ -53,14 +53,14 @@ class AbstractEncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
 
         raise CoreNotImplementedError()
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.
 
         :keyword int length: the length of generated key in bytes.
-                             note that some encryption handlers may not accept custom
-                             key length so this value would be ignored on those handlers.
+                             note that some encryption handlers may
+                             not accept custom key length so this
+                             value would be ignored on those handlers.
 
         :raises CoreNotImplementedError: core not implemented error.
 

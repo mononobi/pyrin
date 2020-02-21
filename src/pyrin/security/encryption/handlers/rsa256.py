@@ -7,11 +7,10 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
 import pyrin.configuration.services as config_services
+import pyrin.security.utils.services as security_utils_services
 
 from pyrin.security.encryption.decorators import encrypter
 from pyrin.security.encryption.handlers.base import RSAEncrypterBase
-from pyrin.security.utils import key_helper
-from pyrin.settings.static import APPLICATION_ENCODING
 
 
 @encrypter()
@@ -45,7 +44,7 @@ class RSA256Encrypter(RSAEncrypterBase):
         :rtype: bytes
         """
 
-        return self._public_key.encrypt(text.encode(APPLICATION_ENCODING),
+        return self._public_key.encrypt(text.encode(self._encoding),
                                         padding.OAEP(
                                             mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                             algorithm=hashes.SHA256(),
@@ -63,10 +62,9 @@ class RSA256Encrypter(RSAEncrypterBase):
         return self._private_key.decrypt(value, padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),
-            label=None)).decode(APPLICATION_ENCODING)
+            label=None)).decode(self._encoding)
 
-    @classmethod
-    def generate_key(cls, **options):
+    def generate_key(self, **options):
         """
         generates a valid public/private key for this handler and returns it.
 
@@ -75,7 +73,7 @@ class RSA256Encrypter(RSAEncrypterBase):
         :rtype: tuple(str, str)
         """
 
-        return RSAEncrypterBase.generate_key(length=2048)
+        return super().generate_key(length=2048)
 
     def _load_keys(self, **options):
         """
@@ -85,6 +83,6 @@ class RSA256Encrypter(RSAEncrypterBase):
         public_pem = config_services.get('security', 'encryption', 'rsa256_public_key')
         private_pem = config_services.get('security', 'encryption', 'rsa256_private_key')
 
-        self._public_key, self._private_key = key_helper.load_rsa_key(public_pem,
-                                                                      private_pem,
-                                                                      **options)
+        self._public_key, self._private_key = security_utils_services.load_rsa_key(public_pem,
+                                                                                   private_pem,
+                                                                                   **options)
