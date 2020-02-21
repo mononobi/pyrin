@@ -13,6 +13,10 @@ class DatabasePagingManager(Manager):
     database paging manager class.
     """
 
+    PAGING_KEY = '__paging__'
+    LIMIT_KEY = '__limit__'
+    OFFSET_KEY = '__offset__'
+
     def __init__(self):
         """
         initializes an instance of DatabasePagingManager.
@@ -21,120 +25,129 @@ class DatabasePagingManager(Manager):
         super().__init__()
 
         self._limit = config_services.get('database', 'paging', 'limit')
-        self._offset = config_services.get('database', 'paging', 'offset')
+        self._auto = config_services.get('database', 'paging', 'auto')
 
     def get_default_limit(self):
         """
-        gets default limit in database config store.
+        gets default limit from database config store.
 
         :rtype: int
         """
 
         return self._limit
 
-    def get_default_offset(self):
+    def is_auto_paging(self):
         """
-        gets default offset in database config store.
+        gets a value indicating that auto paging is enabled.
 
-        :rtype: int
-        """
-
-        return self._offset
-
-    def inject_limit(self, options):
-        """
-        injects default limit parameter into given dict.
-
-        :param dict options: options dict to inject limit into it.
+        :rtype: bool
         """
 
-        self.inject_custom_limit(self.get_default_limit(), options)
+        return self._auto
 
-    def inject_offset(self, options):
+    def enable_limit(self, options, limit=None):
         """
-        injects default offset parameter into given dict.
+        enables limit with default or given limit parameter in given dict.
 
-        :param dict options: options dict to inject offset into it.
-        """
+        :param int limit: custom limit value to be injected into given dict.
+                          if not provided, defaults to limit value in
+                          database config store.
 
-        self.inject_custom_offset(self.get_default_offset(), options)
-
-    def inject_custom_limit(self, limit, options):
-        """
-        injects given limit parameter into given dict.
-
-        :param int limit: limit value to be set in given dict.
-        :param dict options: options dict to inject limit into it.
+        :param dict options: options dict to inject limit in it.
         """
 
-        options.update(__limit__=limit)
+        if limit is None:
+            limit = self.get_default_limit()
 
-    def inject_custom_offset(self, offset, options):
+        options[self.LIMIT_KEY] = limit
+
+    def _enable_offset(self, options, offset):
         """
-        injects given offset parameter into given dict.
+        enables offset with given value in input dict.
 
-        :param int offset: offset value to be set in given dict.
-        :param dict options: options dict to inject offset into it.
-        """
+        :param int offset: offset value that should be injected into given dict.
 
-        options.update(__offset__=offset)
-
-    def inject_paging(self, options):
-        """
-        injects default limit and offset parameters into given dict.
-
-        :param dict options: options dict to inject limit and offset into it.
+        :param dict options: options dict to enable offset in it.
         """
 
-        self.inject_limit(options)
-        self.inject_offset(options)
+        options[self.OFFSET_KEY] = offset
 
-    def inject_custom_paging(self, limit, offset, options):
+    def disable_limit(self, options):
         """
-        injects custom limit and offset parameters into given dict.
+        disables limit in given dict. it removes limit key from it.
 
-        :param int limit: limit value to be set in given dict.
-        :param int offset: offset value to be set in given dict.
-        :param dict options: options dict to inject limit and offset into it.
+        :param dict options: options dict to disable limit in it.
         """
 
-        self.inject_custom_limit(limit, options)
-        self.inject_custom_offset(offset, options)
+        options.pop(self.LIMIT_KEY, None)
+
+    def _disable_offset(self, options):
+        """
+        disables offset in given dict. it removes offset key from it.
+
+        :param dict options: options dict to disable offset in it.
+        """
+
+        options.pop(self.OFFSET_KEY, None)
 
     def extract_limit(self, options):
         """
         extracts and gets limit parameter from given dict.
-        if `__limit__` key is not available in provided
-        dict, it gets the value from database config store
-        from `paging` section.
+        it returns None if no limit is set in given dict.
 
         :param dict options: options dict to get limit from it.
 
         :rtype: int
         """
 
-        return options.get('__limit__', self.get_default_limit())
+        return options.get(self.LIMIT_KEY, None)
 
     def extract_offset(self, options):
         """
         extracts and gets offset parameter from given dict.
-        if `__offset__` key is not available in provided
-        dict, it gets the value from database config store
-        from `paging` section.
+        it returns None if no offset is set in given dict.
 
         :param dict options: options dict to get offset from it.
 
         :rtype: int
         """
 
-        return options.get('__offset__', self.get_default_offset())
+        return options.get(self.OFFSET_KEY, None)
+
+    def enable_paging(self, options, offset, limit=None):
+        """
+        enables paging in given dict.
+        it adds a paging key in given dict and sets its value to
+        True. it also injects default limit and offset into it
+
+        :param dict options: options dict to enable paging in it.
+        :param int offset: offset value to be set in given dict.
+        :param int limit: limit value to be set in given dict.
+        """
+
+        options[self.PAGING_KEY] = True
+        self.enable_limit(options, limit)
+        self._enable_offset(options, offset)
+
+    def disable_paging(self, options):
+        """
+        disables paging in given dict.
+        it removes paging key in given dict and also
+        removes keys for limit and offset.
+
+        :param dict options: options dict to disable paging in it.
+        """
+
+        options.pop(self.PAGING_KEY, None)
+        self.disable_limit(options)
+        self._disable_offset(options)
 
     def extract_paging(self, options):
         """
         extracts and gets limit and offset parameters from given dict.
-        if `__limit__` or `__offset__` key is not available in provided
+        if limit or offset key is not available in provided
         dict, it gets the value from database config store
-        from `paging` section.
+        from `paging` section for the absent key.
 
         :param dict options: options dict to get limit and offset from it.
 
@@ -150,7 +163,7 @@ class DatabasePagingManager(Manager):
     def is_paging_required(self, options):
         """
         gets a value indicating that paging should be done.
-        it checks a key with name `__paging__` is available in dict
+        it checks that paging key name is available in dict
         and its value is set to True, otherwise returns False.
 
         :param dict options: options dict to detect paging should be done from it.
@@ -158,5 +171,5 @@ class DatabasePagingManager(Manager):
         :rtype: bool
         """
 
-        paging = options.get('__paging__', False)
+        paging = options.get(self.PAGING_KEY, False)
         return paging is True
