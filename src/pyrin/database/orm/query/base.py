@@ -29,6 +29,12 @@ class CoreQuery(Query):
     def __init__(self, entities, session=None, **options):
         """
         initializes an instance of CoreQuery.
+        this method has been overridden to provide the concept of scope to queries.
+        it is useful if you want to let users (end users not developers) to select
+        which columns they want to be returned in a service. in this situation, if
+        there is no scope defined, they could add any columns of other entities, but
+        using scope, prevents this. but on normal use cases there is no need to define
+        scope, and its also more efficient.
 
         :param tuple entities: entities or columns that are needed for query.
         :param Session session: optional session object to bind this query to it.
@@ -47,7 +53,7 @@ class CoreQuery(Query):
                                                  this way validation succeeds, but if
                                                  you set `scope=SomeEntity`
                                                  then the query will not be executed
-                                                 and an error would be raised.
+                                                 and an error will be raised.
 
         :raises ColumnsOutOfScopeError: columns out of scope error.
         """
@@ -145,35 +151,45 @@ class CoreQuery(Query):
         fallback = options.get('fallback', False)
         needs_fallback = False
         columns = []
-        for single_column in self.selectable.columns:
-            if not isinstance(single_column, CoreColumn):
-                if fallback is False:
-                    raise UnsupportedQueryStyleError('Current query does not have columns '
-                                                     'of type [{column_type}] in its expression. '
-                                                     'if you need to apply a "DISTINCT" keyword, '
-                                                     'you should apply it by passing '
-                                                     '"distinct=True" keyword to count() method '
-                                                     'and do not apply it in query structure '
-                                                     'itself. for example instead of writing '
-                                                     '"store.query(distinct(Entity.id)).count()" '
-                                                     'you should write this in the following form '
-                                                     '"store.query(Entity.id).count(distinct=True)'
-                                                     '". but if you want the sqlalchemy original '
-                                                     'style of count() which produces a subquery, '
-                                                     'it is also possible to fallback to that '
-                                                     'default sqlalchemy count() but keep in '
-                                                     'mind that, that method is not efficient. '
-                                                     'you could pass "fallback=True" in options '
-                                                     'to fallback to default mode if overridden '
-                                                     'count() method failed to provide count.'
-                                                     .format(column_type=CoreColumn))
-                else:
-                    needs_fallback = True
-                    break
+        # if there is group by clause, a subquery
+        # is inevitable to be able to get count.
+        if self.selectable._group_by_clause is not None and \
+                self.selectable._group_by_clause.clauses is not None and \
+                len(self.selectable._group_by_clause.clauses) > 0:
+            needs_fallback = True
+        else:
+            for single_column in self.selectable.columns:
+                if not isinstance(single_column, CoreColumn):
+                    if fallback is False:
+                        raise UnsupportedQueryStyleError('Current query does not have columns '
+                                                         'of type [{column_type}] in its '
+                                                         'expression. if you need to apply a '
+                                                         '"DISTINCT" keyword, you should apply '
+                                                         'it by passing "distinct=True" keyword '
+                                                         'to count() method and do not apply it '
+                                                         'in query structure itself. for example '
+                                                         'instead of writing "store.query('
+                                                         'distinct(Entity.id)).count()" you '
+                                                         'should write this in the following '
+                                                         'form "store.query(Entity.id).count('
+                                                         'distinct=True)". but if you want the '
+                                                         'sqlalchemy original style of count() '
+                                                         'which produces a subquery, it is also '
+                                                         'possible to fallback to that default '
+                                                         'sqlalchemy count() but keep in mind '
+                                                         'that, that method is not efficient. '
+                                                         'you could pass "fallback=True" in '
+                                                         'options to fallback to default mode '
+                                                         'if overridden count() method failed '
+                                                         'to provide count.'
+                                                         .format(column_type=CoreColumn))
+                    else:
+                        needs_fallback = True
+                        break
 
-            fullname = single_column.fullname()
-            if fullname not in (None, ''):
-                columns.append(fullname)
+                fullname = single_column.fullname()
+                if fullname not in (None, ''):
+                    columns.append(fullname)
 
         if needs_fallback is True:
             return super().count()
