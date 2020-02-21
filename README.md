@@ -106,9 +106,6 @@ class GuestEntity(CoreEntity):
     id = CoreColumn(name='id', type_=GUID, primary_key=True, exposed=False)
     name = CoreColumn(name='name', type_=Unicode(100))
     age = CoreColumn(name='age', type_=SmallInteger)
-
-    def primary_key(self):
-        return self.id
 ```
 
 **`api.py:`**
