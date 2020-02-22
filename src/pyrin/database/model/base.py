@@ -7,7 +7,6 @@ import inspect
 
 from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import class_mapper, ColumnProperty
 
 import pyrin.database.services as database_services
 
@@ -63,7 +62,7 @@ class CoreEntity(CoreObject):
         return not self == other
 
     def __hash__(self):
-        if self.primary_key() is None:
+        if self._is_primary_key_comparable(self.primary_key()) is False:
             raise EntityNotHashableError('Entity [{entity}] does not have '
                                          'a primary key so it is not hashable.'
                                          .format(entity=self))
@@ -83,6 +82,8 @@ class CoreEntity(CoreObject):
         primary keys and if all the values in primary key tuple are
         not None for composite primary keys.
 
+        :param Union[object, tuple[object]] primary_key: primary key value.
+
         :rtype: bool
         """
 
@@ -93,9 +94,7 @@ class CoreEntity(CoreObject):
             if len(primary_key) <= 0:
                 return False
             else:
-                for pk in primary_key:
-                    if pk is None:
-                        return False
+                return all(pk is not None for pk in primary_key)
 
         return True
 
@@ -116,10 +115,7 @@ class CoreEntity(CoreObject):
         if len(columns) == 1:
             return getattr(self, columns[0])
         else:
-            pk = []
-            for col in columns:
-                pk.append(getattr(self, col))
-            return tuple(pk)
+            return tuple(getattr(self, col) for col in columns)
 
     def _get_root_base_class(self):
         """
@@ -213,20 +209,6 @@ class CoreEntity(CoreObject):
 
         return None
 
-    def _get_primary_key_name(self, primary_key_column, attributes):
-        """
-        gets the equivalent attribute name of given primary key column.
-
-        :param CoreColumn primary_key_column: primary key column.
-        :param list attributes: attributes to find primary key in them.
-
-        :rtype: str
-        """
-
-        for single_attr in attributes:
-            if single_attr.columns[0] == primary_key_column:
-                return single_attr.key
-
     def primary_key_columns(self):
         """
         gets the primary key column name(s) of this entity.
@@ -238,11 +220,8 @@ class CoreEntity(CoreObject):
 
         pk = self._get_primary_keys()
         if pk is None:
-            pk = []
             info = sqla_inspect(type(self))
-            for single_column in info.primary_key:
-                pk.append(self._get_primary_key_name(single_column, info.column_attrs))
-            pk = tuple(pk)
+            pk = tuple(info.get_property_by_column(col).key for col in info.primary_key)
             self._set_primary_key_columns(pk)
 
         return pk
@@ -258,8 +237,8 @@ class CoreEntity(CoreObject):
 
         columns = self._get_all_columns()
         if columns is None:
-            columns = tuple(prop.key for prop in class_mapper(type(self)).iterate_properties
-                            if isinstance(prop, ColumnProperty))
+            info = sqla_inspect(type(self))
+            columns = tuple(attr.key for attr in info.column_attrs)
             self._set_all_columns(columns)
 
         return columns
@@ -276,9 +255,9 @@ class CoreEntity(CoreObject):
 
         columns = self._get_exposed_columns()
         if columns is None:
-            columns = tuple(prop.key for prop in class_mapper(type(self)).
-                            iterate_properties if isinstance(prop, ColumnProperty)
-                            and prop.columns[0].exposed is True)
+            info = sqla_inspect(type(self))
+            columns = tuple(attr.key for attr in info.column_attrs
+                            if attr.columns[0].exposed is True)
             self._set_exposed_columns(columns)
 
         return columns
@@ -357,7 +336,7 @@ class CoreEntity(CoreObject):
             else:
                 if silent_on_invalid_column is False:
                     raise ColumnNotExistedError('Entity [{entity}] does not have '
-                                                'a column named [{column}].'
+                                                'a column attribute named [{column}].'
                                                 .format(entity=self,
                                                         column=key))
 
