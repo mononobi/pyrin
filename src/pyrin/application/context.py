@@ -80,7 +80,8 @@ class Component(CoreObject):
         """
         gets the component id of this instance.
 
-        :rtype: tuple(str, object)
+        :returns: tuple(str, object)
+        :rtype: tuple
         """
 
         return self._component_id
@@ -96,7 +97,8 @@ class Component(CoreObject):
 
         :raises InvalidComponentNameError: invalid component name.
 
-        :rtype: tuple(str, object)
+        :returns: tuple(str, object)
+        :rtype: tuple
         """
 
         if component_name is None or len(component_name.strip()) <= 0:

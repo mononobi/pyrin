@@ -419,6 +419,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                               `DEFAULT_COMPONENT_KEY` will be used.
 
         :raises InvalidComponentNameError: invalid component name error.
+        :raises ComponentAttributeError: component attribute error.
 
         :rtype: Component
         """

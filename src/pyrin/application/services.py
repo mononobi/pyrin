@@ -80,6 +80,9 @@ def get_component(component_name, **options):
                                           request object, if not found,
                                           `DEFAULT_COMPONENT_KEY` will be used.
 
+    :raises InvalidComponentNameError: invalid component name error.
+    :raises ComponentAttributeError: component attribute error.
+
     :rtype: Component
     """
 
