@@ -51,11 +51,7 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
         :rtype: list
         """
 
-        result = []
         if values is None or len(values) == 0:
-            return result
+            return []
 
-        for value in values:
-            result.append(cls.serialize(value, **options))
-
-        return result
+        return [cls.serialize(value, **options) for value in values]
