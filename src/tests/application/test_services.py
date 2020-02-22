@@ -25,7 +25,7 @@ from tests.application.context import ComponentMock, DatabaseComponentMock, \
     DuplicateExtraDatabaseComponentMock, ComponentWithInvalidNameMock, \
     DuplicateComponentMock, DuplicateComponentForReplaceMock, \
     ExtraDuplicateComponentForReplaceMock, ComponentWithCustomAttributesMock, \
-    DuplicateComponentWithCustomAttributesMock, OnlyComponentMock, \
+    DuplicateComponentWithCustomAttributesMock, OnlyComponentMock, ApplicationMock, \
     ComponentWithInvalidCustomKeyMock, DuplicateComponentWithInvalidCustomKeyMock
 
 
@@ -259,6 +259,30 @@ def test_register_component_duplicate_with_replace_with_custom_attributes():
     application_services.remove_component(component_duplicate.get_id())
 
 
+def test_remove_component():
+    """
+    removes given application component.
+    """
+
+    component = application_services.get_component('database.component')
+    application_services.remove_component(component.get_id())
+
+    with pytest.raises(ComponentAttributeError):
+        application_services.get_component('database.component')
+
+    application_services.register_component(component)
+
+
+def test_remove_component_invalid():
+    """
+    removes given application component which is invalid.
+    it should raise an error.
+    """
+
+    with pytest.raises(ComponentAttributeError):
+        application_services.get_component('missing_component_to_remove')
+
+
 def test_get_component_with_invalid_name():
     """
     gets the application component with given name which is unavailable.
@@ -390,14 +414,82 @@ def test_register_route_factory_not_callable():
         application_services.register_route_factory(1)
 
 
+def test_get_application_root_path():
+    """
+    gets the application root path.
+    """
+
+    root_path = os.path.abspath('.')
+    assert application_services.get_application_root_path() == root_path
+
+
+def test_get_pyrin_root_path():
+    """
+    gets the pyrin root path.
+    """
+
+    root_path = os.path.abspath('.')
+    assert application_services.get_pyrin_root_path() == root_path
+
+
+def test_get_application_main_package_path():
+    """
+    gets the application main package path.
+    """
+
+    application_root_path = application_services.get_application_root_path()
+    main_package_path = os.path.abspath(os.path.join(application_root_path, 'tests'))
+    assert application_services.get_application_main_package_path() == main_package_path
+
+
+def test_get_pyrin_main_package_path():
+    """
+    gets the pyrin main package path.
+    """
+
+    pyrin_root_path = application_services.get_pyrin_root_path()
+    pyrin_main_package_path = os.path.abspath(os.path.join(pyrin_root_path, 'pyrin'))
+    assert application_services.get_pyrin_main_package_path() == pyrin_main_package_path
+
+
 def test_get_settings_path():
     """
     gets the application settings path.
     """
 
-    root_path = application_services.get_application_root_path()
-    settings_path = os.path.abspath(os.path.join(root_path, 'tests', 'settings'))
+    root_path = application_services.get_application_main_package_path()
+    settings_path = os.path.abspath(os.path.join(root_path, 'settings'))
     assert application_services.get_settings_path() == settings_path
+
+
+def test_get_default_settings_path():
+    """
+    gets the application default settings path.
+    """
+
+    root_path = application_services.get_pyrin_main_package_path()
+    default_settings_path = os.path.abspath(os.path.join(root_path, 'settings', 'default'))
+    assert application_services.get_default_settings_path() == default_settings_path
+
+
+def test_get_migrations_path():
+    """
+    gets the application migrations path.
+    """
+
+    root_path = application_services.get_application_main_package_path()
+    migrations_path = os.path.abspath(os.path.join(root_path, 'migrations'))
+    assert application_services.get_migrations_path() == migrations_path
+
+
+def test_get_locale_path():
+    """
+    gets the application locale path.
+    """
+
+    root_path = application_services.get_application_main_package_path()
+    locale_path = os.path.abspath(os.path.join(root_path, 'locale'))
+    assert application_services.get_locale_path() == locale_path
 
 
 def test_configure():
@@ -472,7 +564,34 @@ def test_application_is_singleton():
 def test_application_is_not_subclassed():
     """
     tests that direct instance of `Application` is not allowed.
+    it should raise an error.
     """
 
     with pytest.raises(ApplicationIsNotSubclassedError):
         app = Application()
+
+
+def test_application_instance_already_set():
+    """
+    tests that replacing instance of current `Application` is not allowed.
+    it should raise an error.
+    """
+
+    with pytest.raises(ApplicationInstanceAlreadySetError):
+        app = ApplicationMock()
+
+
+def test_is_scripting_mode():
+    """
+    gets the application's scripting mode status.
+    """
+
+    assert application_services.is_scripting_mode() is False
+
+
+def test_get_application_name():
+    """
+    gets the application name.
+    """
+
+    assert application_services.get_application_name() == 'tests'

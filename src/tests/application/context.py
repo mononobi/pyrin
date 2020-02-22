@@ -6,9 +6,17 @@ application context module.
 import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
 
+from pyrin.application.base import Application
 from pyrin.application.context import Component
 from pyrin.core.context import CoreObject, Context, Manager
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
+
+
+class ApplicationMock(Application):
+    """
+    application mock class.
+    """
+    pass
 
 
 class CoreRequestMock(CoreObject):
