@@ -617,3 +617,33 @@ def test_get_active_section_uppercase_keys():
                                                    'SERVER_PROTOCOL'])
 
     assert section.get('SERVER_NAME') == 'pyrin.server:9083'
+
+
+def test_get_active_section_name():
+    """
+    gets the name of active section in given config store.
+    """
+
+    name = config_services.get_active_section_name('database')
+    assert name == 'test'
+
+
+def test_get_active_section_name_invalid_store():
+    """
+    gets the name of active section in given config store
+    which is not available. it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreNotFoundError):
+        config_services.get_active_section_name('missing_store')
+
+
+def test_get_active_section_name_no_active():
+    """
+    gets the name of active section in given config
+    store which has no active section.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationStoreSectionNotFoundError):
+        config_services.get_active_section('globalization')
