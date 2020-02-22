@@ -3,7 +3,7 @@
 core test_context module.
 """
 
-from pyrin.core.context import DTO, Manager, Hook
+from pyrin.core.context import DTO, Manager, Hook, CLI
 
 
 def test_dto_equal():
@@ -138,3 +138,14 @@ def test_hook_is_singleton():
     hook2 = Hook()
 
     assert hook1 == hook2
+
+
+def test_cli_is_singleton():
+    """
+    tests that different types of cli classes are singleton.
+    """
+
+    cli1 = CLI()
+    cli2 = CLI()
+
+    assert cli1 == cli2
