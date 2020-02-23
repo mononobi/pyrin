@@ -558,7 +558,6 @@ def test_get_all_uppercase_keys():
                                      converter=string_utils.upper)
 
     assert all(name in values.keys() for name in ['TITLE',
-                                                  'BASE_CURRENCY',
                                                   'ENCODING',
                                                   'FLASK_LOG_LEVEL'])
 
