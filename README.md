@@ -52,7 +52,7 @@ Then you could start developing Pyrin.
 
 # Demo Application
 
-A demo application developed using pyrin is available at:
+A demo application developed using pyrin is available at: 
 [Pyrin-Sample](https://github.com/mononobi/pyrin-sample)
 
 
