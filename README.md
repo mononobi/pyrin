@@ -38,9 +38,9 @@ To be able to run tests:
 
 2. An entry with **`pyrin.server`** value should also be created in your os's hosts file.
 
-   -**Linux:**    **`/etc/hosts`**
-   -**Windows:**  **`C:\Windows\System32\Drivers\etc\hosts`**
-   -**Mac:**      **`/etc/hosts`**
+   - **Linux:**    **`/etc/hosts`**
+   - **Windows:**  **`C:\Windows\System32\Drivers\etc\hosts`**
+   - **Mac:**      **`/etc/hosts`**
 
 3. Now you could execute `python3 start_tests.py` to start all tests.
 
