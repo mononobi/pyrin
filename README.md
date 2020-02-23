@@ -1,6 +1,6 @@
 # Pyrin
 
-A rich application framework to build apps using Flask on top of it.
+A rich platform-independent application framework to build apps using Flask on top of it.
 
 Pyrin is an application framework built on top of Flask micro-framework to make 
 life easier for developers who want to develop an enterprise application 
@@ -29,31 +29,30 @@ something in somewhere.
 
 # Running Tests
 
-To be able to run tests, you must notice that:
+To be able to run tests:
 
 1. Pyrin tests are developed using pytest, you should first 
    install pyrin tests dependencies using pip:
    
    **`pip install pyrin[tests]`**
- 
-2. You should create a `.env` file inside `src` directory containing all the configuration 
-   keys that have null value in their corresponding settings file. A sample `.env`
-   file is available in `samples` that could be used for testing.
 
-3. An entry with `pyrin.server` value should also be created in `/etc/hosts` file.
+2. An entry with **`pyrin.server`** value should also be created in your os's hosts file.
+   **Linux:**    **`/etc/hosts`**
+   **Windows:**  **`C:\Windows\System32\Drivers\etc\hosts`**
+   **Mac:**      **`/etc/hosts`**
 
-4. Now you could execute `src/start_tests.py` to start all tests.
+3. Now you could execute `python3 start_tests.py` to start all tests.
 
 # Contribute In Pyrin Development
 
-You must execute `scripts/setup/install-dependencies.sh` first.
-Then open the project in your IDE and create required pipenv environment.
+You must execute **`scripts/setup/install-dependencies.sh`** first.
+Then open the project in your IDE and create your pipenv environment.
 Then you could start developing Pyrin.
 
 # Demo Application
 
 A demo application developed using pyrin is available at:
-[pyrin-sample](https://github.com/mononobi/pyrin-sample)
+[Pyrin-Sample](https://github.com/mononobi/pyrin-sample)
 
 
 # Extremely Simple Usage Example
@@ -62,12 +61,12 @@ The sample code below, is just a rapid showcase on how to develop using Pyrin.
 for a real world application, it is best fit to use the concept of dependency injection 
 and IoC which Pyrin is built upon.
 
-To be able to create an application based on pyrin, the only thing that is required to do
-is to subclass from pyrin `Application` class in your application package. this is 
+To be able to create an application based on Pyrin, the only thing that is required to do
+is to subclass from pyrin **`Application`** class in your application package. this is 
 needed for Pyrin to be able to find out your application path for generating different 
 paths and also loading your application packages. there is no difference where to put 
-your subclassed `Application`, in this example we put it inside the project's main 
-package, inside `__init__.py`
+your subclassed **`Application`**, in this example we put it inside the project's main 
+package, inside **`__init__.py`**.
 
 
 **Sample Project Structure:**
