@@ -50,12 +50,6 @@ You must execute **`scripts/setup/install-dependencies.sh`** first.
 Then open the project in your IDE and create your pipenv environment.
 Then you could start developing Pyrin.
 
-# Demo Application
-
-A demo application developed using pyrin is available at: 
-[Pyrin-Sample](https://github.com/mononobi/pyrin-sample)
-
-
 # Extremely Simple Usage Example
 
 The sample code below, is just a rapid showcase on how to develop using Pyrin. 
