@@ -98,12 +98,16 @@ class CoreEntity(CoreObject):
 
         return True
 
-    def primary_key(self):
+    def primary_key(self, as_tuple=False):
         """
         gets the primary key value for this entity.
         it could be a single value or a tuple of values
         for composite primary keys.
         it could return None if no primary key is set for this entity.
+
+        :param bool as_tuple: specifies that primary key value must be returned
+                              as a tuple even if it's a single value.
+                              defaults to False if not provided.
 
         :rtype: Union[object, tuple[object]]
         """
@@ -112,7 +116,7 @@ class CoreEntity(CoreObject):
         if len(columns) <= 0:
             return None
 
-        if len(columns) == 1:
+        if as_tuple is False and len(columns) == 1:
             return getattr(self, columns[0])
         else:
             return tuple(getattr(self, col) for col in columns)
