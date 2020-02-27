@@ -9,8 +9,8 @@ from pyrin.database.migration.alembic.handlers.params import SQLParamMixin, TagP
     RevisionParamMixin
 
 
-class AlembicUpgradeDowngradeCLIHandlerBase(AlembicCLIHandlerBase, SQLParamMixin,
-                                            TagParamMixin, RevisionParamMixin):
+class AlembicUpgradeDowngradeCLIHandlerBase(SQLParamMixin, TagParamMixin,
+                                            RevisionParamMixin):
     """
     alembic upgrade downgrade cli handler base class.
     all alembic upgrade or downgrade cli handlers must be subclassed from this.

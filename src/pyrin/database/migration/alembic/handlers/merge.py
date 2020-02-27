@@ -4,15 +4,13 @@ database migration alembic handlers merge module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
-from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.handlers.params import MessageParamMixin, \
     BranchLabelParamMixin, RevisionIDParamMixin, RevisionsParamMixin
 
 
 @alembic_cli_handler()
-class MergeCLIHandler(AlembicCLIHandlerBase, MessageParamMixin,
-                      BranchLabelParamMixin, RevisionIDParamMixin,
-                      RevisionsParamMixin):
+class MergeCLIHandler(MessageParamMixin, BranchLabelParamMixin,
+                      RevisionIDParamMixin, RevisionsParamMixin):
     """
     merge cli handler class.
     """

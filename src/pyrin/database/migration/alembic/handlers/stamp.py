@@ -3,14 +3,13 @@
 database migration alembic handlers stamp module.
 """
 
-from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.params import SQLParamMixin, TagParamMixin, \
     PurgeParamMixin, RevisionsParamMixin
 
 
 @alembic_cli_handler()
-class StampCLIHandler(AlembicCLIHandlerBase, SQLParamMixin, TagParamMixin,
+class StampCLIHandler(SQLParamMixin, TagParamMixin,
                       PurgeParamMixin, RevisionsParamMixin):
     """
     stamp cli handler class.

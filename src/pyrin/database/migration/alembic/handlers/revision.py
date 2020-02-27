@@ -3,7 +3,6 @@
 database migration alembic handlers revision module.
 """
 
-from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.params import MessageParamMixin, \
     AutoGenerateParamMixin, SQLParamMixin, HeadParamMixin, SpliceParamMixin, \
@@ -11,9 +10,9 @@ from pyrin.database.migration.alembic.handlers.params import MessageParamMixin, 
 
 
 @alembic_cli_handler()
-class RevisionCLIHandler(AlembicCLIHandlerBase, MessageParamMixin,
-                         AutoGenerateParamMixin, SQLParamMixin, HeadParamMixin,
-                         SpliceParamMixin, BranchLabelParamMixin, VersionPathParamMixin,
+class RevisionCLIHandler(MessageParamMixin, AutoGenerateParamMixin,
+                         SQLParamMixin, HeadParamMixin, SpliceParamMixin,
+                         BranchLabelParamMixin, VersionPathParamMixin,
                          RevisionIDParamMixin, DependsOnParamMixin):
     """
     revision cli handler class.

@@ -4,10 +4,18 @@ database migration alembic handlers params module.
 """
 
 from pyrin.cli.base import CLIHandlerOptionsMetadata
-from pyrin.cli.params import CLIParamMixin
+from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 
 
-class SQLParamMixin(CLIParamMixin):
+class AlembicCLIParamMixin(AlembicCLIHandlerBase):
+    """
+    alembic cli param mixin class.
+    all alembic param mixin classes must be subclassed from this.
+    """
+    pass
+
+
+class SQLParamMixin(AlembicCLIParamMixin):
     """
     sql param mixin class.
     """
@@ -22,7 +30,7 @@ class SQLParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class TagParamMixin(CLIParamMixin):
+class TagParamMixin(AlembicCLIParamMixin):
     """
     tag param mixin class.
     """
@@ -37,7 +45,7 @@ class TagParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class RevisionParamMixin(CLIParamMixin):
+class RevisionParamMixin(AlembicCLIParamMixin):
     """
     revision param mixin class.
     """
@@ -52,7 +60,7 @@ class RevisionParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class ResolveDependenciesParamMixin(CLIParamMixin):
+class ResolveDependenciesParamMixin(AlembicCLIParamMixin):
     """
     resolve dependencies param mixin class.
     """
@@ -69,7 +77,7 @@ class ResolveDependenciesParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class IndicateCurrentParamMixin(CLIParamMixin):
+class IndicateCurrentParamMixin(AlembicCLIParamMixin):
     """
     indicate current param mixin class.
     """
@@ -86,7 +94,7 @@ class IndicateCurrentParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class RevisionRangeParamMixin(CLIParamMixin):
+class RevisionRangeParamMixin(AlembicCLIParamMixin):
     """
     revision range param mixin class.
     """
@@ -101,7 +109,7 @@ class RevisionRangeParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class MessageParamMixin(CLIParamMixin):
+class MessageParamMixin(AlembicCLIParamMixin):
     """
     message param mixin class.
     """
@@ -116,7 +124,7 @@ class MessageParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class BranchLabelParamMixin(CLIParamMixin):
+class BranchLabelParamMixin(AlembicCLIParamMixin):
     """
     branch label param mixin class.
     """
@@ -131,7 +139,7 @@ class BranchLabelParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class RevisionIDParamMixin(CLIParamMixin):
+class RevisionIDParamMixin(AlembicCLIParamMixin):
     """
     revision id param mixin class.
     """
@@ -146,7 +154,7 @@ class RevisionIDParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class RevisionsParamMixin(CLIParamMixin):
+class RevisionsParamMixin(AlembicCLIParamMixin):
     """
     revisions param mixin class.
     """
@@ -161,7 +169,7 @@ class RevisionsParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class AutoGenerateParamMixin(CLIParamMixin):
+class AutoGenerateParamMixin(AlembicCLIParamMixin):
     """
     autogenerate param mixin class.
     """
@@ -177,7 +185,7 @@ class AutoGenerateParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class HeadParamMixin(CLIParamMixin):
+class HeadParamMixin(AlembicCLIParamMixin):
     """
     head param mixin class.
     """
@@ -192,7 +200,7 @@ class HeadParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class SpliceParamMixin(CLIParamMixin):
+class SpliceParamMixin(AlembicCLIParamMixin):
     """
     splice param mixin class.
     """
@@ -207,7 +215,7 @@ class SpliceParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class VersionPathParamMixin(CLIParamMixin):
+class VersionPathParamMixin(AlembicCLIParamMixin):
     """
     version path param mixin class.
     """
@@ -222,7 +230,7 @@ class VersionPathParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class DependsOnParamMixin(CLIParamMixin):
+class DependsOnParamMixin(AlembicCLIParamMixin):
     """
     depends on param mixin class.
     """
@@ -237,7 +245,7 @@ class DependsOnParamMixin(CLIParamMixin):
         super()._process_options()
 
 
-class PurgeParamMixin(CLIParamMixin):
+class PurgeParamMixin(AlembicCLIParamMixin):
     """
     purge param mixin class.
     """
