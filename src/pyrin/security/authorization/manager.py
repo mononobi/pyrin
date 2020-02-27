@@ -54,11 +54,11 @@ class AuthorizationManager(Manager):
         if len(required_permissions) > 0:
             if security_services.has_permission(user, required_permissions,
                                                 **options) is not True:
-                message = _('User [{user}] does not have '
+                message = _('User [{user}] does not have the '
                             'required permission(s) {permissions}.')
                 raise AuthorizationFailedError(
-                    message.format(user=str(user),
-                                   permissions=str(required_permissions)))
+                    message.format(user=user,
+                                   permissions=list(required_permissions)))
 
     def is_authorized(self, permissions, user=None, **options):
         """
