@@ -41,6 +41,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -56,7 +57,7 @@ setup(
     package_dir={'': 'src'},
     package_data={'': ['*.config']},
     include_package_data=True,
-    python_requires='>=3.6',
+    python_requires='>=3.5',
     install_requires=[
         'aniso8601>=8.0.0',
         'bcrypt>=3.1.7',
