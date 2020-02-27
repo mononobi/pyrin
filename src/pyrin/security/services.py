@@ -14,6 +14,7 @@ def get_password_hash(password, **options):
     :param str password: password to get it's hash.
 
     :keyword bool is_encrypted: specifies that given password is encrypted.
+                                defaults to False if not provided.
 
     :raises InvalidPasswordLengthError: invalid password length error.
 
