@@ -382,16 +382,6 @@ def test_entity_with_schema_table_fullname():
         id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
         sub_id = CoreColumn(name='sub_id', type_=Unicode, primary_key=True)
 
-        def primary_key(self):
-            """
-            gets the primary key value of this table.
-
-            :returns tuple(int, str)
-            :rtype: tuple
-            """
-
-            return self.id, self.sub_id
-
     entity = SampleWithSchemaEntity(id=10, sub_id='sub_10')
 
     assert entity.table_fullname() == 'my_schema.sample_with_schema_table'
