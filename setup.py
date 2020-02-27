@@ -51,7 +51,6 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
-
     ],
     packages=find_namespace_packages('src', exclude=('tests', 'tests.*')),
     package_dir={'': 'src'},
