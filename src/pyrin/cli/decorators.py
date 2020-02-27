@@ -15,6 +15,7 @@ from pyrin.utils.custom_print import print_error
 def cli(func):
     """
     decorator to specify a method that handles a cli command.
+
     the method name will be used as the handler name for that cli handler.
     decorated method could modify inputs and return a dict of modified
     inputs if required.
