@@ -29,7 +29,7 @@ class AuthorizationFailedError(AuthorizationManagerBusinessException):
     """
 
     def __init__(self, *args, **kwargs):
-        super(AuthorizationFailedError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.FORBIDDEN
 
 
@@ -38,6 +38,7 @@ class UserNotAuthenticatedError(AuthenticationFailedError,
     """
     user not authenticated error.
     """
+    pass
 
 
 class UserIsNotActiveError(AuthorizationFailedError):

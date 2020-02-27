@@ -51,7 +51,7 @@ class LargeContentError(RouterHandlerBusinessException):
     """
 
     def __init__(self, *args, **kwargs):
-        super(LargeContentError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.PAYLOAD_TOO_LARGE
 
 

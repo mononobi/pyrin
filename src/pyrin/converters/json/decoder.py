@@ -38,6 +38,6 @@ class CoreJSONDecoder(JSONDecoder):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CoreJSONDecoder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parse_string = scanstring_extended
         self.scan_once = py_make_scanner(self)

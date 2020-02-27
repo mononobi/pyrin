@@ -28,7 +28,7 @@ class AuthenticationFailedError(AuthenticationManagerBusinessException):
     """
 
     def __init__(self, *args, **kwargs):
-        super(AuthenticationFailedError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.code = ClientErrorResponseCodeEnum.UNAUTHORIZED
 
 
