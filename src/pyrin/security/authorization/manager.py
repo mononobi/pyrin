@@ -39,20 +39,26 @@ class AuthorizationManager(Manager):
         if user is None:
             raise UserNotAuthenticatedError(_('User has not been authenticated.'))
 
-        if not user_services.is_active(user, **options):
+        if user_services.is_active(user, **options) is not True:
             message = _('User [{user}] is not active.')
             raise UserIsNotActiveError(message.format(user=str(user)))
 
         # we must check whether input permissions object is iterable.
         # if not, we make it manually.
         required_permissions = permissions
-        if not isinstance(permissions, LIST_TYPES):
-            required_permissions = [permissions]
+        if required_permissions is None:
+            required_permissions = ()
+        elif not isinstance(required_permissions, LIST_TYPES):
+            required_permissions = (required_permissions, )
 
-        if security_services.has_permission(user, required_permissions, **options) is not True:
-            message = _('User [{user}] does not have required permission(s) {permissions}.')
-            raise AuthorizationFailedError(message.format(user=str(user),
-                                                          permissions=str(required_permissions)))
+        if len(required_permissions) > 0:
+            if security_services.has_permission(user, required_permissions,
+                                                **options) is not True:
+                message = _('User [{user}] does not have '
+                            'required permission(s) {permissions}.')
+                raise AuthorizationFailedError(
+                    message.format(user=str(user),
+                                   permissions=str(required_permissions)))
 
     def is_authorized(self, permissions, user=None, **options):
         """
