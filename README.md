@@ -44,6 +44,11 @@ To be able to run tests:
 
 3. Now you could execute **`python3 start_tests.py`** to start all tests.
 
+# Demo Application
+
+A demo application developed using Pyrin framework is available at: 
+[Pyrin-Demo](https://github.com/mononobi/pyrin_demo)
+
 # Contribute In Pyrin Development
 
 You must execute **`scripts/setup/install-dependencies.sh`** first.
