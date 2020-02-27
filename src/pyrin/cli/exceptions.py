@@ -60,3 +60,10 @@ class CLIHandlerNotFoundError(CLIManagerBusinessException):
     cli handler not found error.
     """
     pass
+
+
+class InvalidOptionsMetaDataTypeError(CLIManagerException):
+    """
+    invalid options metadata type error.
+    """
+    pass

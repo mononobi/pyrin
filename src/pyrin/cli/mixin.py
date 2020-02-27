@@ -3,7 +3,7 @@
 cli mixin module.
 """
 
-from pyrin.cli.interface import CLIHandlerBase
+from pyrin.cli.base import CLIHandlerBase
 from pyrin.core.context import CoreObject, DTO
 from pyrin.utils.custom_print import print_warning
 from pyrin.cli.exceptions import InvalidCLIHandlerTypeError, DuplicatedCLIHandlerError, \
@@ -50,7 +50,7 @@ class CLIMixin(CoreObject):
         if not isinstance(instance, self._cli_handler_type):
             raise InvalidCLIHandlerTypeError('Input parameter [{instance}] is '
                                              'not an instance of [{handler}].'
-                                             .format(instance=str(instance),
+                                             .format(instance=instance,
                                                      handler=self._cli_handler_type))
 
         if instance.get_name() in self._cli_handlers:
@@ -63,12 +63,12 @@ class CLIMixin(CoreObject):
                                                 'cli handler [{instance}] could not '
                                                 'be registered.'
                                                 .format(name=instance.get_name(),
-                                                        instance=str(instance)))
+                                                        instance=instance))
 
             print_warning('CLI handler [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
-                          .format(old_instance=str(old_instance),
-                                  new_instance=str(instance)))
+                          .format(old_instance=old_instance,
+                                  new_instance=instance))
 
         self._cli_handlers[instance.get_name()] = instance
 

@@ -5,11 +5,11 @@ database migration alembic interface module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.cli.interface import CLIHandlerBase, CLIHandlerOptionsMetadata
+from pyrin.cli.params import HelpParamMixin
 from pyrin.database.migration.alembic import DatabaseMigrationAlembicPackage
 
 
-class AlembicCLIHandlerBase(CLIHandlerBase):
+class AlembicCLIHandlerBase(HelpParamMixin):
     """
     alembic cli handler base class.
     all alembic cli handlers must be subclassed from this.
@@ -39,16 +39,3 @@ class AlembicCLIHandlerBase(CLIHandlerBase):
         bounded_options = ['alembic', '-c', self._config_file_path]
         for i in range(len(bounded_options)):
             commands.insert(i, bounded_options[i])
-
-    def _generate_common_cli_handler_options_metadata(self):
-        """
-        generates common cli handler options metadata.
-
-        :rtype: list[CLIHandlerOptionsMetadata]
-        """
-
-        help_option = CLIHandlerOptionsMetadata('help', None, {True: '--help', False: None})
-
-        options = [help_option]
-
-        return options

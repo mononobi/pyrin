@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-cli interface module.
+cli base module.
 """
 
 import subprocess
@@ -13,7 +13,8 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.singleton import MultiSingletonMeta
 from pyrin.cli.exceptions import MetaDataOptionsParamNameIsRequiredError, \
-    ParamValueIsNotMappedToCLIError, InvalidCLIHandlerNameError
+    ParamValueIsNotMappedToCLIError, InvalidCLIHandlerNameError, \
+    InvalidOptionsMetaDataTypeError
 
 
 class CLIHandlerSingletonMeta(MultiSingletonMeta):
@@ -54,6 +55,15 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
         """
 
         raise CoreNotImplementedError()
+
+    def _process_options(self):
+        """
+        processes the options that are related to this handler.
+        this method is intended to be overridden by each concrete handler.
+        every class that overrides this, must call `super()._process_options()`
+        after its work has been done.
+        """
+        pass
 
 
 class CLIHandlerOptionsMetadata(CoreObject):
@@ -145,7 +155,8 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
             raise InvalidCLIHandlerNameError('CLI handler name must be provided.')
 
         self._name = name
-        self._options_meta_data = self._generate_cli_handler_options_metadata()
+        self._options_meta_data = []
+        self.process_options()
 
     def get_name(self):
         """
@@ -158,45 +169,32 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
 
         return self._name
 
-    def _generate_cli_handler_options_metadata(self):
+    def process_options(self):
         """
-        generates cli handler options metadata.
-
-        :rtype: list[CLIHandlerOptionsMetadata]
-        """
-
-        result = []
-        common = self._generate_common_cli_handler_options_metadata()
-        custom = self._generate_custom_cli_handler_options_metadata()
-        result.extend(common)
-        result.extend(custom)
-
-        return result
-
-    def _generate_common_cli_handler_options_metadata(self):
-        """
-        generates common cli handler options metadata.
-        this method is intended to be overridden by
-        base handler for each category. if the handlers does not have
-        any common options, you could leave this method unimplemented.
-
-        :rtype: list[CLIHandlerOptionsMetadata]
+        processes the options that are related to this handler.
+        this method is intended to be overridden by base handlers of each category.
+        every class that overrides this, must call `super().process_options()`
+        after its work has been done.
         """
 
-        return []
+        self._process_options()
 
-    def _generate_custom_cli_handler_options_metadata(self):
+    def _add_options_metadata(self, item):
         """
-        generates custom cli handler options metadata.
-        this method is intended to be overridden
-        by each concrete handler.
-        if the handler does not accept any options, you
-        could leave this method unimplemented.
+        adds the given item into this handlers options metadata.
 
-        :rtype: list[CLIHandlerOptionsMetadata]
+        :param CLIHandlerOptionsMetadata item: options metadata to be added.
+
+        :raises InvalidOptionsMetaDataTypeError: invalid options metadata type error.
         """
 
-        return []
+        if not isinstance(item, CLIHandlerOptionsMetadata):
+            raise InvalidOptionsMetaDataTypeError('Input parameter [{param}] is not an '
+                                                  'instance of [{instance}].'
+                                                  .format(param=str(item),
+                                                          instance=CLIHandlerOptionsMetadata))
+
+        self._options_meta_data.append(item)
 
     def execute(self, **options):
         """
@@ -249,10 +247,10 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         binds cli options of current handler with values available in options.
         options are a mapping of real python method inputs.
 
-        :returns: list of all command in the form of
-                  [str name1, str value1, ...] or [str name2, ...]
-
         :raises ParamValueIsNotMappedToCLIError: param value is not mapped to cli error.
+
+        :returns: list of all commands in the form of
+                  [str name1, str value1, ...] or [str name2, ...]
 
         :rtype: list
         """
