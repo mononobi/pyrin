@@ -17,7 +17,7 @@ class ReleaseManager:
 
     PYRIN_VERSION_FILE = '../../src/pyrin/__init__.py'
     DEFAULT_CHANGE = 'patch'
-    DEFAULT_IS_BETA = True
+    DEFAULT_IS_BETA = False
 
     def _get_current_version(self):
         """
