@@ -69,7 +69,7 @@ class CoreObject(object):
         self.__name = None
 
     def __setattr__(self, name, value):
-        return self.setattr(name, value)
+        return self._setattr(name, value)
 
     def __repr__(self):
         return str(self)
@@ -108,7 +108,7 @@ class CoreObject(object):
 
         return self.__doc__
 
-    def setattr(self, name, value):
+    def _setattr(self, name, value):
         """
         sets the given value to specified attribute.
 
