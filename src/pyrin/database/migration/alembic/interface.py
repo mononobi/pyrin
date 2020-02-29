@@ -26,7 +26,7 @@ class AlembicCLIHandlerBase(HelpParamMixin):
 
         super().__init__(name)
         self._config_file_path = config_services.get_file_path(
-            DatabaseMigrationAlembicPackage.ALEMBIC_CONFIG_STORE)
+            DatabaseMigrationAlembicPackage.CONFIG_STORE_NAMES[0])
 
     def _get_common_cli_options(self):
         """

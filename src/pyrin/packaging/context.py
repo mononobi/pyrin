@@ -63,6 +63,7 @@ class Package(CoreObject):
 
         if len(self.CONFIG_STORE_NAMES) > 0:
             config_services.load_configurations(*self.CONFIG_STORE_NAMES,
+                                                defaults=self.config_store_defaults,
                                                 ignore_on_existed=True)
 
         self._load_configs(config_services)
@@ -83,3 +84,16 @@ class Package(CoreObject):
                                        importing it inside this method.
         """
         pass
+
+    @property
+    def config_store_defaults(self):
+        """
+        gets config store default values that should
+        be sent to config parser for interpolation.
+        this method is intended to be overridden by subclasses.
+
+        :returns: Union[dict, None]
+        :rtype: dict
+        """
+
+        return None

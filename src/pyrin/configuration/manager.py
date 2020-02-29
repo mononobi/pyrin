@@ -30,12 +30,16 @@ class ConfigurationManager(Manager):
         self._settings_path = application_services.get_settings_path()
         self._default_settings_path = application_services.get_default_settings_path()
 
-    def _add_config_store(self, name, file_path, **options):
+    def _add_config_store(self, name, file_path, defaults=None, **options):
         """
         adds a new config store for given file with the specified name.
 
         :param str name: config store name.
         :param str file_path: config file full path.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :keyword bool ignore_on_existed: specifies that it should not raise an
                                          error if a config store with given name
@@ -57,7 +61,7 @@ class ConfigurationManager(Manager):
                               .format(name=name))
                 return
 
-        self._config_stores[name] = ConfigStore(name, file_path, **options)
+        self._config_stores[name] = ConfigStore(name, file_path, defaults=defaults, **options)
 
     def _is_config_file(self, file_name):
         """
@@ -70,12 +74,16 @@ class ConfigurationManager(Manager):
 
         return file_name.endswith('.config')
 
-    def load_configuration(self, name, **options):
+    def load_configuration(self, name, defaults=None, **options):
         """
         loads the given configuration if relevant file is
         available in settings path.
 
         :param str name: configuration name.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :keyword bool silent: specifies that if a related configuration file
                               for the given name not found, ignore it.
@@ -92,14 +100,18 @@ class ConfigurationManager(Manager):
 
         file_path = self._get_relevant_file_path(name, **options)
         if file_path is not None:
-            self._add_config_store(name, file_path, **options)
+            self._add_config_store(name, file_path, defaults=defaults, **options)
 
-    def load_configurations(self, *names, **options):
+    def load_configurations(self, *names, defaults=None, **options):
         """
         loads the given configurations if relevant files is
         available in settings path.
 
         :param str names: configuration names as arguments.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :keyword bool silent: specifies that if a related configuration file
                               for any of the given names not found, ignore it.
@@ -115,7 +127,7 @@ class ConfigurationManager(Manager):
         """
 
         for single_name in names:
-            self.load_configuration(single_name, **options)
+            self.load_configuration(single_name, defaults=defaults, **options)
 
     def _get_relevant_file_path(self, name, **options):
         """
@@ -167,16 +179,20 @@ class ConfigurationManager(Manager):
 
         return None
 
-    def reload(self, store_name, **options):
+    def reload(self, store_name, defaults=None, **options):
         """
         reloads the configuration store from it's relevant file.
 
         :param str store_name: config store name to be reloaded.
 
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
+
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
         """
 
-        self._get_config_store(store_name).reload(**options)
+        self._get_config_store(store_name).reload(defaults=defaults, **options)
 
     def get_file_path(self, store_name, **options):
         """
@@ -394,3 +410,16 @@ class ConfigurationManager(Manager):
                                                   .format(name=name))
 
         return self._config_stores[name]
+
+    def get_all_sections(self, store_name, **options):
+        """
+        gets all sections and their keys of given config store.
+
+        :param str store_name: config store name.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+        :rtype: dict
+        """
+
+        return self._get_config_store(store_name).get_all_sections(**options)

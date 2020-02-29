@@ -28,12 +28,16 @@ class ConfigStore(CoreObject):
     ACTIVE_SECTION_NAME = 'active'
     SELECTED_SECTION_NAME = 'selected'
 
-    def __init__(self, name, config_file_path, **options):
+    def __init__(self, name, config_file_path, defaults=None, **options):
         """
         initializes an instance of ConfigStore.
 
         :param str name: config store name.
         :param str config_file_path: full path of config file.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
@@ -41,9 +45,10 @@ class ConfigStore(CoreObject):
         super().__init__()
 
         self._configs = DTO()
+        self._defaults = defaults
         self._name = name
         self._config_file_path = config_file_path
-        self._load(**options)
+        self._load(defaults=defaults, **options)
 
     def __str__(self):
         """
@@ -54,30 +59,39 @@ class ConfigStore(CoreObject):
 
         return '{base} [{store}]'.format(base=super().__str__(), store=self._name)
 
-    def _load(self, **options):
+    def _load(self, defaults=None, **options):
         """
         loads configurations from config file path.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         try:
-            self._configs = config_utils.load(self._config_file_path,
-                                              deserializer_services.deserialize)
+            self._configs = config_utils.load(self._config_file_path, defaults=defaults,
+                                              converter=deserializer_services.deserialize)
+
         except UtilsFileNotFoundError as error:
             raise ConfigurationFileNotFoundError(error) from error
 
         self._sync_with_env(**options)
 
-    def reload(self, **options):
+    def reload(self, defaults=None, **options):
         """
         reloads configuration from it's physical file path.
+
+        :param Union[dict, None] defaults: a dict containing values
+                                           needed for interpolation.
+                                           defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         self._configs.clear()
-        self._load(**options)
+        self._load(defaults=defaults or self._defaults, **options)
 
     def get(self, section, key, **options):
         """
@@ -385,3 +399,14 @@ class ConfigStore(CoreObject):
         """
 
         return self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
+
+    def get_all_sections(self, **options):
+        """
+        gets all sections and their keys of current config store.
+
+        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+        :rtype: dict
+        """
+
+        return DTO(**self._configs)

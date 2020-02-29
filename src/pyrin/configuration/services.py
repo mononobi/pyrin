@@ -7,12 +7,16 @@ from pyrin.application.services import get_component
 from pyrin.configuration import ConfigurationPackage
 
 
-def load_configuration(name, **options):
+def load_configuration(name, defaults=None, **options):
     """
     loads the given configuration if relevant file is
     available in settings path.
 
     :param str name: configuration name.
+
+    :param Union[dict, None] defaults: a dict containing values
+                                       needed for interpolation.
+                                       defaults to None if not provided.
 
     :keyword bool silent: specifies that if a related configuration file
                           for the given name not found, ignore it.
@@ -27,16 +31,20 @@ def load_configuration(name, **options):
     :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(name,
-                                                                                 **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(
+        name, defaults=defaults, **options)
 
 
-def load_configurations(*names, **options):
+def load_configurations(*names, defaults=None, **options):
     """
     loads the given configurations if relevant files is
     available in settings path.
 
     :param str names: configuration names as arguments.
+
+    :param Union[dict, None] defaults: a dict containing values
+                                       needed for interpolation.
+                                       defaults to None if not provided.
 
     :keyword bool silent: specifies that if a related configuration file
                           for any of the given names not found, ignore it.
@@ -51,20 +59,26 @@ def load_configurations(*names, **options):
     :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(*names,
-                                                                                  **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(
+        *names, defaults=defaults, **options)
 
 
-def reload(store_name, **options):
+def reload(store_name, defaults=None, **options):
     """
     reloads the configuration store from it's relevant file.
 
     :param str store_name: config store name to be reloaded.
 
+    :param Union[dict, None] defaults: a dict containing values
+                                       needed for interpolation.
+                                       defaults to None if not provided.
+
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).reload(store_name, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).reload(store_name,
+                                                                     defaults=defaults,
+                                                                     **options)
 
 
 def get_file_path(store_name, **options):
@@ -274,3 +288,18 @@ def get_active_section_name(store_name):
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).get_active_section_name(store_name)
+
+
+def get_all_sections(store_name, **options):
+    """
+    gets all sections and their keys of given config store.
+
+    :param str store_name: config store name.
+
+    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+
+    :rtype: dict
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_all_sections(store_name,
+                                                                               **options)
