@@ -8,13 +8,13 @@ import subprocess
 from subprocess import CalledProcessError
 from threading import Lock
 
+from pyrin.cli.metadata import ArgumentMetadataBase, PositionalArgumentMetadata
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.singleton import MultiSingletonMeta
-from pyrin.cli.exceptions import MetaDataOptionsParamNameIsRequiredError, \
-    ParamValueIsNotMappedToCLIError, InvalidCLIHandlerNameError, \
-    InvalidOptionsMetaDataTypeError
+from pyrin.cli.exceptions import InvalidCLIHandlerNameError, InvalidArgumentMetaDataTypeError, \
+    PositionalArgumentsIndicesError
 
 
 class CLIHandlerSingletonMeta(MultiSingletonMeta):
@@ -34,7 +34,8 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
 
     def get_name(self):
         """
-        gets this handlers name, the handler will be registered with this name.
+        gets current handler name, the handler will be registered with this name.
+
         the name must be the exact command name that this handler handles.
         for example `revision`.
 
@@ -56,82 +57,15 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
 
         raise CoreNotImplementedError()
 
-    def _process_options(self):
+    def _process_arguments(self):
         """
-        processes the options that are related to this handler.
+        processes the arguments that are related to this handler.
+
         this method is intended to be overridden by each concrete handler.
-        every class that overrides this, must call `super()._process_options()`
+        every class that overrides this, must call `super()._process_arguments()`
         after its work has been done.
         """
         pass
-
-
-class CLIHandlerOptionsMetadata(CoreObject):
-    """
-    cli handler options metadata class.
-    """
-
-    def __init__(self, param_name,
-                 cli_option_name=None,
-                 param_value_to_cli_map=None,
-                 default=None):
-        """
-        initializes an instance of CLIHandlerOptionsMetadata.
-
-        :param str param_name: param name presented in method signature.
-
-        :param Union[str, None] cli_option_name: relevant cli option name to `param_name`.
-                                                 it could be None if command does
-                                                 not have a name for this argument.
-                                                 for example the `--autogenerate` flag
-                                                 of alembic, could be present to imply to
-                                                 `True` and absent to imply to `False`.
-                                                 but `--message` flag of alembic must be
-                                                 present with the message value itself.
-
-        :param Union[dict, None] param_value_to_cli_map: a dictionary containing a mapping
-                                                         between different method param values
-                                                         and their representation on cli. for
-                                                         example the `--autogenerate` flag of
-                                                         alembic, could be present to imply to
-                                                         `True` and absent to imply to `False`.
-                                                         so this dict should contain two keys,
-                                                         one is `True` and its value must be
-                                                         '--autogenerate' and another is `False`
-                                                         with the `None` value to prevent
-                                                         emitting to cli.
-                                                         but `--message` flag of alembic does
-                                                         not have a mapping, so its dict must
-                                                         be empty and instead the
-                                                         `cli_option_name` must be set to
-                                                         `--message` and then the exact value
-                                                         of method parameter will be emitted
-                                                         as the value of this flag.
-
-        :param Union[str, None] default: default value to be emitted to cli if this
-                                         param is not available. if set to None, this
-                                         param will not be emitted at all.
-
-        :raises MetaDataOptionsParamNameIsRequiredError: cli handler metadata
-                                                         options param name
-                                                         is required error.
-        """
-
-        super().__init__()
-
-        if param_name in (None, '') or param_name.isspace():
-            raise MetaDataOptionsParamNameIsRequiredError('CLI handler options '
-                                                          'metadata "param_name" '
-                                                          'must be provided.')
-
-        self.param_name = param_name
-        self.cli_option_name = cli_option_name
-        self.default = default
-
-        if param_value_to_cli_map is not None and len(param_value_to_cli_map) > 0:
-            self.param_value_to_cli_map = param_value_to_cli_map
-        else:
-            self.param_value_to_cli_map = None
 
 
 class CLIHandlerBase(AbstractCLIHandlerBase):
@@ -147,6 +81,9 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         :param str name: the handler name that should be registered
                          with. this name must be the exact name that
                          this handler must emmit to cli.
+
+        :raises InvalidCLIHandlerNameError: invalid cli handler name error.
+        :raises PositionalArgumentsIndicesError: positional arguments indices error.
         """
 
         super().__init__()
@@ -155,12 +92,13 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
             raise InvalidCLIHandlerNameError('CLI handler name must be provided.')
 
         self._name = name
-        self._options_meta_data = []
-        self.process_options()
+        self._arguments_metadata = []
+        self.process_arguments()
 
     def get_name(self):
         """
-        gets this handlers name, the handler will be registered with this name.
+        gets current handler name, the handler will be registered with this name.
+
         the name must be the exact command name that this handler handles.
         for example `revision`.
 
@@ -169,32 +107,62 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
 
         return self._name
 
-    def process_options(self):
+    def process_arguments(self):
         """
-        processes the options that are related to this handler.
-        this method is intended to be overridden by base handlers of each category.
-        every class that overrides this, must call `super().process_options()`
-        after its work has been done.
-        """
+        processes the arguments that are related to this handler.
 
-        self._process_options()
-
-    def _add_options_metadata(self, item):
-        """
-        adds the given item into this handlers options metadata.
-
-        :param CLIHandlerOptionsMetadata item: options metadata to be added.
-
-        :raises InvalidOptionsMetaDataTypeError: invalid options metadata type error.
+        :raises PositionalArgumentsIndicesError: positional arguments indices error.
         """
 
-        if not isinstance(item, CLIHandlerOptionsMetadata):
-            raise InvalidOptionsMetaDataTypeError('Input parameter [{param}] is not an '
-                                                  'instance of [{instance}].'
-                                                  .format(param=str(item),
-                                                          instance=CLIHandlerOptionsMetadata))
+        self._process_arguments()
+        self._validate_positional_arguments()
 
-        self._options_meta_data.append(item)
+    def _validate_positional_arguments(self):
+        """
+        validates the positional arguments of this handler.
+
+        it will make sure that their indices are correct.
+
+        :raises PositionalArgumentsIndicesError: positional arguments indices error.
+        """
+
+        positionals = [item for item in self._arguments_metadata
+                       if isinstance(item, PositionalArgumentMetadata)]
+
+        length = len(positionals)
+        if length > 0:
+            indices = sorted([item.get_index() for item in positionals])
+            required_indices = sorted([item for item in range(length)])
+
+            if indices != required_indices:
+                raise PositionalArgumentsIndicesError('CLI handler [{handler}] has '
+                                                      '{length} positional arguments, but '
+                                                      'indices of positional arguments are '
+                                                      'incorrect. indices must be in the '
+                                                      'range of {indices} for each argument '
+                                                      'and it must be unique per argument. '
+                                                      'the current indices are {current}.'
+                                                      .format(handler=self,
+                                                              length=length,
+                                                              indices=required_indices,
+                                                              current=indices))
+
+    def _add_argument_metadata(self, item):
+        """
+        adds the given item into this handlers argument metadata.
+
+        :param ArgumentMetadataBase item: argument metadata to be added.
+
+        :raises InvalidArgumentMetaDataTypeError: invalid argument metadata type error.
+        """
+
+        if not isinstance(item, ArgumentMetadataBase):
+            raise InvalidArgumentMetaDataTypeError('Input parameter [{param}] is not '
+                                                   'an instance of [{instance}].'
+                                                   .format(param=item,
+                                                           instance=ArgumentMetadataBase))
+
+        self._arguments_metadata.append(item)
 
     def execute(self, **options):
         """
@@ -212,9 +180,10 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         :returns: execution result.
         """
 
-        bounded_options = self._bind_cli_options(**options)
-        self._inject_common_cli_options(bounded_options)
-        return self._execute_on_cli(bounded_options)
+        bounded_options = self._bind_cli_arguments(**options)
+        common_options = self._get_common_cli_options()
+        common_options.extend(bounded_options)
+        return self._execute_on_cli(common_options)
 
     def _execute_on_cli(self, commands):
         """
@@ -231,82 +200,44 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         except CalledProcessError:
             pass
 
-    def _inject_common_cli_options(self, commands):
+    def _get_common_cli_options(self):
         """
-        this method is intended to be used by subclasses
-        to inject some common cli options into the given list.
-        subclasses must add some items into the given list if required.
+        gets the list of common cli options.
 
-        :param list commands: a list of all commands and their
-                              values to be sent to cli.
-        """
-        pass
+        this method is intended to be overridden by subclasses
+        to inject some common cli options into the commands list.
+        subclasses must return a list containing all common options.
+        the common options will be inserted into beginning of the commands list.
 
-    def _bind_cli_options(self, **options):
+        :rtype: list
         """
-        binds cli options of current handler with values available in options.
+
+        return []
+
+    def _bind_cli_arguments(self, **options):
+        """
+        binds cli arguments of current handler with values available in options.
+
         options are a mapping of real python method inputs.
 
-        :raises ParamValueIsNotMappedToCLIError: param value is not mapped to cli error.
-
-        :returns: list of all commands in the form of
-                  [str name1, str value1, ...] or [str name2, ...]
+        :returns: list of all commands in the form of:
+                  [str name1, str value1, ...] or
+                  [str name1, str value1, str value2, ...]
 
         :rtype: list
         """
 
         commands = [self.get_name()]
-        for metadata in self._options_meta_data:
+        for metadata in self._arguments_metadata:
             real_value = options.get(metadata.param_name, None)
+            representation = metadata.get_representation(real_value)
 
-            if metadata.cli_option_name not in (None, '') and not \
-                    metadata.cli_option_name.isspace() and \
-                    self._should_send_to_cli(real_value, metadata.default) is True:
-                commands.append(metadata.cli_option_name)
+            if representation is None:
+                continue
 
-            if metadata.param_value_to_cli_map is not None:
-                if real_value is not None and \
-                        real_value not in metadata.param_value_to_cli_map:
-                    raise ParamValueIsNotMappedToCLIError('Parameter value [{value}] '
-                                                          'for parameter with name [{name}] '
-                                                          'is not present in cli map, if '
-                                                          'you want to always pass this '
-                                                          'parameters real value to cli, you '
-                                                          'must not provide any key arguments '
-                                                          'into "param_value_to_cli_map" '
-                                                          'input of "CLIHandlerOptionsMetadata" '
-                                                          'class constructor. and also if you '
-                                                          'want to not pass this argument to '
-                                                          'cli on specific values, you must '
-                                                          'provide those values as keys of '
-                                                          '"param_value_to_cli_map" input of '
-                                                          '"CLIHandlerOptionsMetadata" class '
-                                                          'constructor with `None` value '
-                                                          'attached to those keys.'
-                                                          .format(value=real_value,
-                                                                  name=metadata.param_name))
-
-                cli_value = metadata.param_value_to_cli_map.get(real_value, metadata.default)
-                if cli_value is not None:
-                    commands.append(cli_value)
-            elif self._should_send_to_cli(real_value, metadata.default):
-                if real_value is None:
-                    real_value = metadata.default
-
-                if isinstance(real_value, LIST_TYPES):
-                    real_value = ' '.join([str(item) for item in real_value])
-                commands.append(real_value)
-
-        return commands
-
-    def _should_send_to_cli(self, real_value, default_value):
-        """
-        gets a value indicating that this param should be sent to cli.
-
-        :param object real_value: real value of method param.
-        :param str default_value: default value of options metadata.
-
-        :rtype: bool
-        """
-
-        return real_value is not None or default_value is not None
+            if isinstance(metadata, PositionalArgumentMetadata):
+                commands.insert(metadata.get_index() + 1, representation)
+            elif isinstance(representation, LIST_TYPES):
+                commands.extend(representation)
+            else:
+                commands.append(representation)

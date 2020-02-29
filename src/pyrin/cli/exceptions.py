@@ -20,16 +20,44 @@ class CLIManagerBusinessException(CoreBusinessException, CLIManagerException):
     pass
 
 
-class MetaDataOptionsParamNameIsRequiredError(CLIManagerException):
+class ArgumentMetadataParamNameIsRequiredError(CLIManagerException):
     """
-    metadata options param name is required error.
+    argument metadata param name is required error.
     """
     pass
 
 
-class ParamValueIsNotMappedToCLIError(CLIManagerBusinessException):
+class PositionalArgumentMetadataIndexError(CLIManagerException):
     """
-    param value is not mapped to cli error.
+    positional argument metadata index error.
+    """
+    pass
+
+
+class BooleanArgumentMetadataValueError(CLIManagerException):
+    """
+    boolean argument metadata value error.
+    """
+    pass
+
+
+class KeywordArgumentMetadataCLIOptionNameError(CLIManagerException):
+    """
+    keyword argument metadata cli option name error.
+    """
+    pass
+
+
+class MappingArgumentMetadataParamValueToCLIMapRequiredError(CLIManagerException):
+    """
+    mapping argument metadata param value to cli map required error.
+    """
+    pass
+
+
+class KeywordArgumentMetadataCLIOptionNameRequiredError(CLIManagerException):
+    """
+    keyword argument metadata cli option name required error.
     """
     pass
 
@@ -62,8 +90,15 @@ class CLIHandlerNotFoundError(CLIManagerBusinessException):
     pass
 
 
-class InvalidOptionsMetaDataTypeError(CLIManagerException):
+class InvalidArgumentMetaDataTypeError(CLIManagerException):
     """
-    invalid options metadata type error.
+    invalid argument metadata type error.
+    """
+    pass
+
+
+class PositionalArgumentsIndicesError(CLIManagerException):
+    """
+    positional arguments indices error.
     """
     pass

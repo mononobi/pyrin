@@ -28,14 +28,11 @@ class AlembicCLIHandlerBase(HelpParamMixin):
         self._config_file_path = config_services.get_file_path(
             DatabaseMigrationAlembicPackage.ALEMBIC_CONFIG_STORE)
 
-    def _inject_common_cli_options(self, commands):
+    def _get_common_cli_options(self):
         """
-        injecting some common cli options into the given list.
+        gets the list of common cli options.
 
-        :param list commands: a list of all commands and their
-                              values to be sent to cli command.
+        :rtype: list
         """
 
-        bounded_options = ['alembic', '-c', self._config_file_path]
-        for i in range(len(bounded_options)):
-            commands.insert(i, bounded_options[i])
+        return ['alembic', '-c', self._config_file_path]

@@ -3,7 +3,8 @@
 cli params module.
 """
 
-from pyrin.cli.base import CLIHandlerOptionsMetadata, CLIHandlerBase
+from pyrin.cli.base import CLIHandlerBase
+from pyrin.cli.metadata import BooleanArgumentMetadata
 
 
 class CLIParamMixin(CLIHandlerBase):
@@ -19,14 +20,14 @@ class HelpParamMixin(CLIParamMixin):
     help param mixin class.
     """
 
-    def _process_options(self):
+    def _process_arguments(self):
         """
-        processes the options that are related to this handler.
+        processes the arguments that are related to this handler.
         """
 
-        help_option = CLIHandlerOptionsMetadata('help', None, {True: '--help', False: None})
-        self._add_options_metadata(help_option)
-        super()._process_options()
+        help_option = BooleanArgumentMetadata('help', '--help')
+        self._add_argument_metadata(help_option)
+        super()._process_arguments()
 
 
 class VerboseParamMixin(CLIParamMixin):
@@ -34,11 +35,11 @@ class VerboseParamMixin(CLIParamMixin):
     verbose param mixin class.
     """
 
-    def _process_options(self):
+    def _process_arguments(self):
         """
-        processes the options that are related to this handler.
+        processes the arguments that are related to this handler.
         """
 
-        verbose = CLIHandlerOptionsMetadata('verbose', None, {True: '--verbose', False: None})
-        self._add_options_metadata(verbose)
-        super()._process_options()
+        verbose = BooleanArgumentMetadata('verbose', '--verbose')
+        self._add_argument_metadata(verbose)
+        super()._process_arguments()

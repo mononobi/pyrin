@@ -103,8 +103,7 @@ class AlembicCLI(CLI):
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-
-        return dict(message=message)
+            return dict(message=message)
 
     @cli
     def revision(self, message=None, autogenerate=True, sql=False,
@@ -142,8 +141,7 @@ class AlembicCLI(CLI):
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-
-        return dict(message=message)
+            return dict(message=message)
 
     @cli
     def show(self, revision=None, help=False):
