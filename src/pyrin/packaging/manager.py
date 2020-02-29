@@ -18,7 +18,7 @@ from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.context import DTO, Manager
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \

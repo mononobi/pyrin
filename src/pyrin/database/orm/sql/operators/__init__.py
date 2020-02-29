@@ -3,7 +3,7 @@
 database orm sql operators package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class DatabaseORMSQLOperatorsPackage(Package):

@@ -3,7 +3,7 @@
 encryption package.
 """
 
-from pyrin.packaging import Package
+from pyrin.packaging.base import Package
 
 
 class EncryptionPackage(Package):

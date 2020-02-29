@@ -3,7 +3,7 @@
 permission package.
 """
 
-from pyrin.packaging import Package
+from pyrin.packaging.base import Package
 
 
 class PermissionPackage(Package):

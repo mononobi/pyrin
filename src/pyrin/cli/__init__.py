@@ -4,7 +4,7 @@ cli package.
 this package provides facilities to execute commands in shell.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class CLIPackage(Package):

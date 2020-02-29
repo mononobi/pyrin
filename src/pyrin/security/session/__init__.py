@@ -3,7 +3,7 @@
 session package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class SessionPackage(Package):

@@ -3,7 +3,7 @@
 database migration package.
 """
 
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class DatabaseMigrationPackage(Package):

@@ -6,7 +6,7 @@ database migration alembic package.
 import pyrin.application.services as application_services
 
 from pyrin.core.context import DTO
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class DatabaseMigrationAlembicPackage(Package):

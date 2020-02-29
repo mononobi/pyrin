@@ -9,7 +9,7 @@ from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 class Package(CoreObject):
     """
-    base package class.
+    package base class.
     all application python packages should be subclassed from this.
     except some base packages like `application`, `core` and `utils` that
     should not implement Package class.
