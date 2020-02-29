@@ -39,8 +39,6 @@ def audit(func):
         try:
             return func(*args, **kwargs)
 
-        except Exception as ex:
-            raise ex
         finally:
             end_time = time.time()
             logging_services.debug('Duration of function call [{module}.{name}]: [{time} ms].'
