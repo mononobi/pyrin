@@ -82,7 +82,7 @@ def test_debug_root(caplog):
     logging_services.debug(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -97,7 +97,7 @@ def test_info_root(caplog):
     logging_services.info(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -112,7 +112,7 @@ def test_warning_root(caplog):
     logging_services.warning(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -127,7 +127,7 @@ def test_error_root(caplog):
     logging_services.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -145,7 +145,7 @@ def test_exception_root(caplog):
         logging_services.exception(str(error))
         assert caplog.records is not None and len(caplog.records) > 0
         assert message in caplog.records[0].message
-        assert 'None' in caplog.records[0].message
+        assert 'No Request' in caplog.records[0].message
         assert caplog.records[0].exc_info is not None
         assert caplog.records[0].exc_text is not None
         assert 'ValueError' in caplog.records[0].exc_text
@@ -164,7 +164,7 @@ def test_critical_root(caplog):
     logging_services.critical(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -194,7 +194,7 @@ def test_error_root_log_with_info_level(caplog):
     logging_services.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -210,7 +210,7 @@ def test_debug_new_logger(caplog):
     logger.debug(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -226,7 +226,7 @@ def test_info_new_logger(caplog):
     logger.info(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -242,7 +242,7 @@ def test_warning_new_logger(caplog):
     logger.warning(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -258,7 +258,7 @@ def test_error_new_logger(caplog):
     logger.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -277,7 +277,7 @@ def test_exception_new_logger(caplog):
         logger.exception(str(error))
         assert caplog.records is not None and len(caplog.records) > 0
         assert message in caplog.records[0].message
-        assert 'None' in caplog.records[0].message
+        assert 'No Request' in caplog.records[0].message
         assert caplog.records[0].exc_info is not None
         assert caplog.records[0].exc_text is not None
         assert 'ValueError' in caplog.records[0].exc_text
@@ -297,7 +297,7 @@ def test_critical_new_logger(caplog):
     logger.critical(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -329,7 +329,7 @@ def test_error_new_logger_log_with_info_level(caplog):
     logger.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
 
 
@@ -344,5 +344,5 @@ def test_error_database(caplog):
     logger.error(message)
     assert caplog.records is not None and len(caplog.records) > 0
     assert message in caplog.records[0].message
-    assert 'None' in caplog.records[0].message
+    assert 'No Request' in caplog.records[0].message
     caplog.clear()
