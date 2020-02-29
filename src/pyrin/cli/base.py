@@ -131,7 +131,7 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
 
         length = len(positionals)
         if length > 0:
-            indices = sorted([item.get_index() for item in positionals])
+            indices = sorted([item.index for item in positionals])
             required_indices = sorted([item for item in range(length)])
 
             if indices != required_indices:
@@ -236,7 +236,7 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
                 continue
 
             if isinstance(metadata, PositionalArgumentMetadata):
-                commands.insert(metadata.get_index() + 1, representation)
+                commands.insert(metadata.index + 1, representation)
             elif isinstance(representation, LIST_TYPES):
                 commands.extend(representation)
             else:

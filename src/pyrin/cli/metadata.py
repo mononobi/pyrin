@@ -72,7 +72,8 @@ class ArgumentMetadataBase(CoreObject):
 
         return result
 
-    def get_default(self):
+    @property
+    def default(self):
         """
         gets the default value of this argument metadata.
 
@@ -80,6 +81,16 @@ class ArgumentMetadataBase(CoreObject):
         """
 
         return self._default
+
+    @property
+    def param_name(self):
+        """
+        gets the param name of this argument metadata.
+
+        :rtype: str
+        """
+
+        return self._param_name
 
     def _get_representation(self, value, is_default=False):
         """
@@ -259,7 +270,8 @@ class PositionalArgumentMetadata(ArgumentMetadataBase):
 
         return value
 
-    def get_index(self):
+    @property
+    def index(self):
         """
         gets the index in which this param must be emitted to cli command.
 
