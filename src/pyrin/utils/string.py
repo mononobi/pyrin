@@ -39,3 +39,21 @@ def remove_line_break_escapes(value):
     """
 
     return value.replace('\\n', '\n')
+
+
+def remove_duplicate_space(value):
+    """
+    removes all duplicate spaces and keeps just a single space in given value.
+
+    :param str value: value to remove duplicate spaces from it.
+
+    :rtype: str
+    """
+
+    if value is None:
+        return None
+
+    while '  ' in value:
+        value = value.replace('  ', ' ')
+
+    return value
