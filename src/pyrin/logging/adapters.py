@@ -93,7 +93,7 @@ class RequestInfoLoggerAdapter(BaseLoggerAdapter):
         :rtype: tuple
         """
 
-        client_request = session_services.get_safe_current_request()
+        client_request = session_services.get_safe_current_request() or 'No Request'
         custom_message = '[{client_request}]: {message}'.format(client_request=client_request,
                                                                 message=msg)
         return custom_message, kwargs
