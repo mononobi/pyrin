@@ -5,7 +5,7 @@ globalization package.
 
 import pyrin.application.services as application_services
 
-from pyrin.packaging.context import Package
+from pyrin.packaging.base import Package
 
 
 class GlobalizationPackage(Package):
