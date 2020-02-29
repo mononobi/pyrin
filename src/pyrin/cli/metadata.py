@@ -40,11 +40,16 @@ class ArgumentMetadataBase(CoreObject):
                                                            '"param_name" '
                                                            'must be provided.')
         self._param_name = param_name
-
-        if isinstance(default, LIST_TYPES):
-            default = self._prepare_list_type(default)
-
         self._default = default
+
+    def __str__(self):
+        """
+        gets the string representation of current argument metadata.
+
+        :rtype: str
+        """
+
+        return '{base} [{param}]'.format(base=super().__str__(), param=self.param_name)
 
     def get_representation(self, value, is_default=False):
         """
@@ -63,10 +68,8 @@ class ArgumentMetadataBase(CoreObject):
         :rtype: Union[list[object], object, None]
         """
 
-        if isinstance(value, LIST_TYPES):
-            value = self._prepare_list_type(value)
-
         result = self._get_representation(value, is_default)
+
         if result is None and is_default is False:
             return self.get_representation(self._default, True)
 
@@ -113,28 +116,6 @@ class ArgumentMetadataBase(CoreObject):
         """
 
         raise CoreNotImplementedError()
-
-    def _prepare_list_type(self, value):
-        """
-        prepares list type value for cli representation.
-
-        actually, it converts any object of list, set or
-        tuple type into a space separated string.
-        this is needed because command line only could
-        handle arrays this way.
-
-        if there is any requirement for subclasses to return an
-        actual list, they can override this method and return
-        the actual list.
-
-        :param Union[list, set, tuple] value: array value to be converted.
-
-        :returns: space separated string of all items.
-        :rtype: str
-        """
-
-        result = ' '.join([str(item) for item in value])
-        return result
 
 
 class KeywordArgumentMetadataBase(ArgumentMetadataBase):
@@ -199,6 +180,12 @@ class KeywordArgumentMetadataBase(ArgumentMetadataBase):
         """
         merges the cli option name and given value to be emitted to cli.
 
+        note that the values of list type, must be emitted separately
+        using the `cli_option_name`. for example if value = [1, 2, 3]
+        and `cli_option_name` is `--num`, then it should be emitted to
+        cli like this: ['--num', 1, '--num', 2, '--num', 3]
+
+
         :param Union[list[object], object, None] value: value to be emitted to cli.
 
         :rtype: Union[list[object], object, None]
@@ -208,11 +195,12 @@ class KeywordArgumentMetadataBase(ArgumentMetadataBase):
             return None
 
         if self._cli_option_name is not None:
-            result = [self._cli_option_name]
+            result = []
             if isinstance(value, LIST_TYPES):
-                result.extend(value)
+                for item in value:
+                    result.extend([self._cli_option_name, item])
             else:
-                result.append(value)
+                result.extend([self._cli_option_name, value])
             return result
 
         return value
@@ -265,7 +253,7 @@ class PositionalArgumentMetadata(ArgumentMetadataBase):
                                 default value and other values.
                                 defaults to False if not provided.
 
-        :rtype: Union[object, None]
+        :rtype: Union[list[object], object, None]
         """
 
         return value
@@ -342,34 +330,7 @@ class MappingArgumentMetadata(KeywordArgumentMetadataBase):
                 'is required. it should contain at least one key/value.'
             )
 
-        self._param_value_to_cli_map = self._normalize_list_types(param_value_to_cli_map)
-
-    def _normalize_list_types(self, value):
-        """
-        normalizes all list type objects in given dict values and returns a new dict.
-
-        actually, it converts any object of list, set or
-        tuple type into a space separated string.
-        this is needed because command line only could
-        handle arrays this way.
-
-        if there is any requirement for subclasses to use an
-        actual list, they can override this method and return
-        the exact same input value.
-
-        :param dict value: dictionary to normalize all list type values of it.
-
-        :rtype: dict
-        """
-
-        result = DTO()
-        for key, item in value.items():
-            if isinstance(item, LIST_TYPES):
-                result[key] = self._prepare_list_type(item)
-            else:
-                result[key] = item
-
-        return result
+        self._param_value_to_cli_map = param_value_to_cli_map
 
     def _get_representation(self, value, is_default=False):
         """

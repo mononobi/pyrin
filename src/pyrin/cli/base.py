@@ -95,6 +95,15 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         self._arguments_metadata = []
         self.process_arguments()
 
+    def __str__(self):
+        """
+        gets the string representation of current cli handler.
+
+        :rtype: str
+        """
+
+        return '{base} [{handler}]'.format(base=super().__str__(), handler=self._name)
+
     def get_name(self):
         """
         gets current handler name, the handler will be registered with this name.
@@ -136,14 +145,15 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
 
             if indices != required_indices:
                 raise PositionalArgumentsIndicesError('CLI handler [{handler}] has '
-                                                      '{length} positional arguments, but '
-                                                      'indices of positional arguments are '
+                                                      '{length} positional arguments {args}, '
+                                                      'but indices of positional arguments are '
                                                       'incorrect. indices must be in the '
                                                       'range of {indices} for each argument '
                                                       'and it must be unique per argument. '
                                                       'the current indices are {current}.'
                                                       .format(handler=self,
                                                               length=length,
+                                                              args=positionals,
                                                               indices=required_indices,
                                                               current=indices))
 
@@ -236,10 +246,29 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
                 continue
 
             if isinstance(metadata, PositionalArgumentMetadata):
-                commands.insert(metadata.index + 1, representation)
+                if isinstance(representation, LIST_TYPES):
+                    self._inject_positional_arguments(commands, representation,
+                                                      metadata.index + 1)
+                else:
+                    commands.insert(metadata.index + 1, representation)
             elif isinstance(representation, LIST_TYPES):
                 commands.extend(representation)
             else:
                 commands.append(representation)
 
         return commands
+
+    def _inject_positional_arguments(self, commands, arguments, index):
+        """
+        injects(in-place) given arguments into specified index of given commands list.
+
+        :param list[object] commands: list of cli commands.
+
+        :param list[object] arguments: arguments that must be
+                                       injected into commands list.
+
+        :param index: zero-based index in which arguments must be injected.
+        """
+
+        for i in range(len(arguments)):
+            commands.insert(index + i, arguments[i])
