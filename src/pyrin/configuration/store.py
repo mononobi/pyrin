@@ -30,7 +30,7 @@ class ConfigStore(CoreObject):
 
     def __init__(self, name, config_file_path, **options):
         """
-        initializes a new ConfigStore.
+        initializes an instance of ConfigStore.
 
         :param str name: config store name.
         :param str config_file_path: full path of config file.
@@ -44,6 +44,15 @@ class ConfigStore(CoreObject):
         self._name = name
         self._config_file_path = config_file_path
         self._load(**options)
+
+    def __str__(self):
+        """
+        gets the string representation of current store.
+
+        :rtype: str
+        """
+
+        return '{base} [{store}]'.format(base=super().__str__(), store=self._name)
 
     def _load(self, **options):
         """
@@ -376,6 +385,3 @@ class ConfigStore(CoreObject):
         """
 
         return self.get(self.ACTIVE_SECTION_NAME, self.SELECTED_SECTION_NAME)
-
-    def __str__(self):
-        return self._name

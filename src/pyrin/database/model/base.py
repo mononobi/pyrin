@@ -71,9 +71,14 @@ class CoreEntity(CoreObject):
                                               pk=self.primary_key()))
 
     def __repr__(self):
-        return '<{module}.{name} [{pk}]>'.format(module=self.__module__,
-                                                 name=self.get_name(),
-                                                 pk=self.primary_key())
+        """
+        gets the string representation of current entity.
+
+        :rtype: str
+        """
+        return '{module}.{name} [{pk}]'.format(module=self.__module__,
+                                               name=self.get_name(),
+                                               pk=self.primary_key())
 
     def _is_primary_key_comparable(self, primary_key):
         """
