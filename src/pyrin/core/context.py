@@ -61,10 +61,15 @@ class DTO(dict):
 
 class CoreObject(object):
     """
-    base object for all application objects.
+    core object class.
+    this should be used as the base object for all application objects.
     """
 
     def __init__(self):
+        """
+        initializes an instance of CoreObject.
+        """
+
         super().__init__()
         self.__name = None
 
@@ -72,9 +77,21 @@ class CoreObject(object):
         return self._setattr(name, value)
 
     def __repr__(self):
+        """
+        gets the string representation of current object.
+
+        :rtype: str
+        """
+
         return str(self)
 
     def __str__(self):
+        """
+        gets the string representation of current object.
+
+        :rtype: str
+        """
+
         return '{module}.{name}'.format(module=self.__module__,
                                         name=self.__class__.__name__)
 
