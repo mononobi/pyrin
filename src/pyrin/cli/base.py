@@ -241,3 +241,5 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
                 commands.extend(representation)
             else:
                 commands.append(representation)
+
+        return commands

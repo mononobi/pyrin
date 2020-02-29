@@ -3,11 +3,9 @@
 cli decorators module.
 """
 
-import inspect
-
 from functools import update_wrapper
 
-import pyrin.database.migration.alembic.services as alembic_services
+import pyrin.cli.services as cli_services
 
 from pyrin.utils.custom_print import print_error
 
@@ -17,13 +15,16 @@ def cli(func):
     decorator to specify a method that handles a cli command.
 
     the method name will be used as the handler name for that cli handler.
-    decorated method could modify inputs and return a dict of modified
-    inputs if required.
+    decorated method must return a tuple containing two items.
+    first item must be the relevant service module in which
+    `execute(handler_name, **inputs)` method is defined for that
+    cli handler. second item could be either a dict of modified
+    inputs if required or None value.
 
-    :param callable func: function.
+    :param function func: function.
 
     :returns: decorated function.
-    :rtype: callable
+    :rtype: function
     """
 
     def decorator(*args, **kwargs):
@@ -35,12 +36,7 @@ def cli(func):
         """
 
         try:
-            original_inputs = inspect.getcallargs(func, *args, **kwargs)
-            original_inputs.pop('self', None)
-            original_inputs.pop('cls', None)
-            modified_inputs = func(*args, **kwargs)
-            original_inputs.update(**(modified_inputs or {}))
-            alembic_services.execute(func.__name__, **original_inputs)
+            cli_services.process_function(func, args, kwargs)
 
         except Exception as error:
             print_error(str(error), force=True)

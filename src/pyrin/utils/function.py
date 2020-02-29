@@ -8,7 +8,7 @@ def get_doc(func, include_returns=True):
     """
     gets docstring of given function.
 
-    :param str func: function to get its docstring.
+    :param function func: function to get its docstring.
 
     :param bool include_returns: specifies that `returns` and `rtype` parts
                                  of docstring must also be included in the result.

@@ -14,3 +14,4 @@ class CLIPackage(Package):
 
     NAME = __name__
     DEPENDS = []
+    COMPONENT_NAME = 'cli.component'

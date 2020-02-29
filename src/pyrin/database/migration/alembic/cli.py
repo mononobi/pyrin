@@ -3,6 +3,7 @@
 database migration alembic cli module.
 """
 
+import pyrin.database.migration.alembic.services as alembic_services
 import pyrin.globalization.datetime.services as datetime_service
 
 from pyrin.cli.decorators import cli
@@ -22,8 +23,12 @@ class AlembicCLI(CLI):
 
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def current(self, verbose=False, help=False):
@@ -32,8 +37,12 @@ class AlembicCLI(CLI):
 
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def downgrade(self, revision=None, sql=False, tag=None, help=False):
@@ -50,8 +59,12 @@ class AlembicCLI(CLI):
                         by custom `env.py` scripts.
 
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def heads(self, resolve_dependencies=False, verbose=False, help=False):
@@ -61,8 +74,12 @@ class AlembicCLI(CLI):
         :param bool resolve_dependencies: treat dependency versions as down revisions.
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def history(self, revision_range=None, indicate_current=False,
@@ -76,8 +93,12 @@ class AlembicCLI(CLI):
         :param bool indicate_current: indicate the current revision.
         :param bool verbose: use more verbose output.
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def merge(self, revisions=None, message=None,
@@ -97,13 +118,18 @@ class AlembicCLI(CLI):
                                 id instead of generating one.
 
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
 
         if message is None:
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-            return dict(message=message)
+            return alembic_services, dict(message=message)
+
+        return alembic_services, None
 
     @cli
     def revision(self, message=None, autogenerate=True, sql=False,
@@ -135,13 +161,18 @@ class AlembicCLI(CLI):
                                                  which this revision should depend on.
 
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
 
         if message is None:
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-            return dict(message=message)
+            return alembic_services, dict(message=message)
+
+        return alembic_services, None
 
     @cli
     def show(self, revision=None, help=False):
@@ -153,8 +184,12 @@ class AlembicCLI(CLI):
                              to filter all matching revisions.
 
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def stamp(self, revisions=None, sql=False, tag=None, purge=False, help=False):
@@ -173,8 +208,12 @@ class AlembicCLI(CLI):
 
         :param bool purge: unconditionally erase the version table before stamping.
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
 
     @cli
     def upgrade(self, revision=None, sql=False, tag=None, help=False):
@@ -191,5 +230,9 @@ class AlembicCLI(CLI):
                         by custom `env.py` scripts.
 
         :param bool help: show the help message for this command.
+
+        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :rtype: tuple
         """
-        pass
+
+        return alembic_services, None
