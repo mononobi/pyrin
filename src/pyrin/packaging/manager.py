@@ -77,8 +77,7 @@ class PackagingManager(Manager, HookMixin):
         """
 
         self._configs.clear()
-        configs = config_utils.load(self._get_config_file_path(),
-                                    defaults=PackagingPackage().config_store_defaults)
+        configs = config_utils.load(self._get_config_file_path())
         self._configs = configs.get('general')
 
     def _get_config_file_path(self):
