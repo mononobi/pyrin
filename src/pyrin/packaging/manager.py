@@ -6,6 +6,7 @@ packaging manager module.
 import os
 import inspect
 
+from threading import Lock
 from importlib import import_module
 
 import pyrin.application.services as application_services
@@ -30,6 +31,7 @@ class PackagingManager(Manager, HookMixin):
     """
 
     _hook_type = PackagingHookBase
+    _lock = Lock()
 
     def __init__(self):
         """
@@ -37,6 +39,11 @@ class PackagingManager(Manager, HookMixin):
         """
 
         super().__init__()
+
+        # this flag indicates that application has been loaded.
+        # it is required for environments in which server starts
+        # multiple threads before application gets loaded.
+        self._is_loaded = False
 
         self._pyrin_package_name = None
 
@@ -129,26 +136,40 @@ class PackagingManager(Manager, HookMixin):
         loads required packages and modules for application startup.
         """
 
-        self._initialize()
+        try:
+            if self._is_loaded is True:
+                return
 
-        print_info('Loading application components...')
+            self._lock.acquire()
 
-        self._find_pyrin_loadable_components()
-        self._find_other_loadable_components()
+            if self._is_loaded is True:
+                return
 
-        self._load_components(self._pyrin_components, **options)
-        self._load_components(self._extended_application_components, **options)
-        self._load_components(self._other_application_components, **options)
-        self._load_components(self._custom_components, **options)
+            self._initialize()
 
-        if self._configs.load_test_packages is True:
-            self._load_components(self._extended_test_components, **options)
-            self._load_components(self._other_test_components, **options)
+            print_info('Loading application components...')
 
-        self._after_packages_loaded()
+            self._find_pyrin_loadable_components()
+            self._find_other_loadable_components()
 
-        print_info('Total of [{count}] packages loaded.'
-                   .format(count=len(self._loaded_packages)))
+            self._load_components(self._pyrin_components, **options)
+            self._load_components(self._extended_application_components, **options)
+            self._load_components(self._other_application_components, **options)
+            self._load_components(self._custom_components, **options)
+
+            if self._configs.load_test_packages is True:
+                self._load_components(self._extended_test_components, **options)
+                self._load_components(self._other_test_components, **options)
+
+            self._after_packages_loaded()
+
+            print_info('Total of [{count}] packages loaded.'
+                       .format(count=len(self._loaded_packages)))
+
+            self._is_loaded = True
+        finally:
+            if self._lock.locked():
+                self._lock.release()
 
     def _after_packages_loaded(self):
         """
