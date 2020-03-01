@@ -49,7 +49,7 @@ connection_urls = migration_services.get_connection_urls()
 # a metadata is needed.
 # from myapp import mymodel
 # target_metadata = {
-#       'engine1':mymodel.metadata1,
+#       'default':mymodel.metadata1,
 #       'engine2':mymodel.metadata2
 # }
 target_metadata = migration_services.get_bind_name_to_metadata_map()
