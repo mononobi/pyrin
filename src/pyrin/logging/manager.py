@@ -71,7 +71,7 @@ class LoggingManager(Manager):
         :rtype: Union[BaseLoggerAdapter, Logger]
         """
 
-        if isinstance(logger, Logger):
+        if self.should_be_wrapped(logger) is True:
             return self.LOGGER_ADAPTER(logger)
 
         return logger
@@ -141,7 +141,7 @@ class LoggingManager(Manager):
                                                         base=BaseLoggerAdapter))
 
         loggers = self._get_all_loggers()
-        if name not in loggers.keys():
+        if name not in loggers:
             raise LoggerNotExistedError('Logger [{name}] does not exist.'
                                         .format(name=name))
 
@@ -178,12 +178,11 @@ class LoggingManager(Manager):
         """
 
         logger = logging.getLogger(name)
-        adapter = logger
-        if isinstance(adapter, Logger):
-            adapter = self._wrap_logger(logger)
-            self._set_logger_adapter(name, adapter)
+        if self.should_be_wrapped(logger) is True:
+            logger = self._wrap_logger(logger)
+            self._set_logger_adapter(name, logger)
 
-        return adapter
+        return logger
 
     def debug(self, msg, *args, **kwargs):
         """
