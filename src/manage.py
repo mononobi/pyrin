@@ -3,13 +3,7 @@
 manage module.
 """
 
-import os
-
 import fire
-
-from pyrin.utils.environment import set_python_path
-
-set_python_path(os.path.abspath('.'))
 
 from pyrin.database.migration.alembic.cli import AlembicCLI
 
