@@ -3,6 +3,8 @@
 utils function module.
 """
 
+import inspect
+
 
 def get_doc(func, include_returns=True):
     """
@@ -17,8 +19,7 @@ def get_doc(func, include_returns=True):
     :rtype: str
     """
 
-    value = func.__doc__
-
+    value = inspect.getdoc(func)
     if value is None:
         return None
 
