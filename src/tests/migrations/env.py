@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-alembic env module.
+migrations env module.
 """
 
-import re
-import logging
-
-from logging.config import fileConfig
 from os import path
 
 import colorama
@@ -18,6 +14,8 @@ from alembic import context
 import pyrin.database.migration.services as migration_services
 import pyrin.application.services as application_services
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.configuration.services as config_services
+import pyrin.logging.services as logging_services
 
 from pyrin.utils.custom_print import print_colorful
 
@@ -26,25 +24,18 @@ from tests import PyrinTestApplication
 
 app_instance = PyrinTestApplication(scripting_mode=True)
 
-USE_TWOPHASE = False
+USE_TWOPHASE = config_services.get('alembic', 'alembic', 'use_twophase')
 
-# this is the alembic config object, which provides
-# access to the values within the alembic.config file in use.
-config = context.config
-
-# interpret the config file for python logging.
-# this line sets up loggers basically.
-fileConfig(config.config_file_name)
-logger = logging.getLogger('alembic.env')
+LOGGER = logging_services.get_logger('alembic')
 
 # gather section names referring to different
 # databases. these are named according to bind names
 # in the alembic.config file. default database must
 # always be referenced by 'default' key.
-db_names = config.get_main_option('databases')
+db_names = config_services.get('alembic', 'alembic', 'databases')
 
-# getting timezone from alembic config to set in file names.
-timezone = config.get_main_option('timezone')
+# getting timezone from alembic.config to set in file names.
+timezone = config_services.get('alembic', 'alembic', 'timezone')
 
 # keeps a collection of connection bind names and urls.
 # default engine bind name is always default.
@@ -62,11 +53,6 @@ connection_urls = migration_services.get_connection_urls()
 #       'engine2':mymodel.metadata2
 # }
 target_metadata = migration_services.get_bind_name_to_metadata_map()
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option('my_important_option')
-# ... etc.
 
 
 def print_message(message):
@@ -96,9 +82,7 @@ def run_migrations_offline():
     # individual files.
 
     engines = {}
-    for name in re.split(r',\s*', db_names):
-        # engines[name] = rec = {}
-        # rec['url'] = connection_urls.get(name)
+    for name in db_names:
         engines[name] = rec = {}
         rec['url'] = connection_urls.get(name)
         rec['engine'] = engine_from_config(
@@ -121,8 +105,9 @@ def run_migrations_offline():
                                                     name=name)
         full_migrations_file_path = path.join(migrations_path, file_)
 
-        print_message('Writing output to [{file_name}]'
-                      .format(file_name=full_migrations_file_path))
+        message = 'Writing output to [{file_name}]'.format(file_name=full_migrations_file_path)
+        LOGGER.debug(message)
+        print_message(message)
 
         with open(full_migrations_file_path, 'w') as buffer:
             context.configure(
@@ -133,7 +118,11 @@ def run_migrations_offline():
                 literal_binds=True,
                 as_sql=True,
                 dialect_opts={'paramstyle': 'named'},
-                compare_type=True,
+                compare_type=config_services.get('alembic', 'alembic', 'compare_type'),
+                compare_server_default=config_services.get('alembic', 'alembic',
+                                                           'compare_server_default'),
+                render_as_batch=config_services.get('alembic', 'alembic', 'render_as_batch'),
+                include_schemas=config_services.get('alembic', 'alembic', 'include_schemas'),
             )
             with context.begin_transaction():
                 context.run_migrations(engine_name=name)
@@ -151,7 +140,7 @@ def run_migrations_online():
     # engines, then run all migrations, then commit all transactions.
 
     engines = {}
-    for name in re.split(r',\s*', db_names):
+    for name in db_names:
         engines[name] = rec = {}
         rec['engine'] = engine_from_config(
             dict(url=connection_urls.get(name)),
@@ -170,14 +159,20 @@ def run_migrations_online():
 
     try:
         for name, rec in engines.items():
-            print_message('Migrating database [{name}]'.format(name=name))
+            message = 'Migrating database [{name}]'.format(name=name)
+            LOGGER.debug(message)
+            print_message(message)
             context.configure(
                 connection=rec['connection'],
                 upgrade_token='%s_upgrades' % name,
                 downgrade_token='%s_downgrades' % name,
                 target_metadata=target_metadata.get(name),
                 user_module_prefix='pyrin.database.migration.types.',
-                compare_type=True,
+                compare_type=config_services.get('alembic', 'alembic', 'compare_type'),
+                compare_server_default=config_services.get('alembic', 'alembic',
+                                                           'compare_server_default'),
+                render_as_batch=config_services.get('alembic', 'alembic', 'render_as_batch'),
+                include_schemas=config_services.get('alembic', 'alembic', 'include_schemas'),
             )
             context.run_migrations(engine_name=name)
 
