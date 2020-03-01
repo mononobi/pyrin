@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-migration module.
+manage module.
 """
 
 import os
-import sys
 
 import fire
 
-os.environ['PYTHONPATH'] = os.path.abspath('.')
-sys.path.append(os.path.abspath('.'))
+from pyrin.utils.environment import set_python_path
+
+set_python_path(os.path.abspath('.'))
 
 from pyrin.database.migration.alembic.cli import AlembicCLI
 
