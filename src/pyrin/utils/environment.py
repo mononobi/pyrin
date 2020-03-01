@@ -7,8 +7,6 @@ import os
 import sys
 import platform
 
-from pyrin.utils.exceptions import PythonPathIsNotAbsoluteError
-
 
 def get_os_name():
     """
@@ -35,13 +33,7 @@ def set_python_path(python_path):
     adds the given path into `PYTHONPATH` variable.
 
     :param str python_path: python path to set.
-                            it must be an absolute path.
-
-    :raises PythonPathIsNotAbsoluteError: python path is not absolute error.
     """
-
-    if os.path.isabs(python_path) is False:
-        raise PythonPathIsNotAbsoluteError('Provided python path must be an absolute path.')
 
     python_path = os.path.abspath(python_path)
     os.environ['PYTHONPATH'] = python_path
