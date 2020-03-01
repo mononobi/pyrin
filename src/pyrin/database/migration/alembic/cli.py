@@ -22,7 +22,10 @@ class AlembicCLI(CLI):
         show current branch points.
 
         :param bool verbose: use more verbose output.
+                             defaults to False if not provided.
+
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -36,7 +39,10 @@ class AlembicCLI(CLI):
         display the current revision for a database.
 
         :param bool verbose: use more verbose output.
+                             defaults to False if not provided.
+
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -54,11 +60,13 @@ class AlembicCLI(CLI):
 
         :param bool sql: don't emit sql to database, dump to standard
                          output/file instead. see docs on offline mode.
+                         defaults to False if not provided.
 
         :param str tag: arbitrary `tag` name. can be used
                         by custom `env.py` scripts.
 
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -72,8 +80,13 @@ class AlembicCLI(CLI):
         show current available heads in the script directory.
 
         :param bool resolve_dependencies: treat dependency versions as down revisions.
+                                          defaults to False if not provided.
+
         :param bool verbose: use more verbose output.
+                             defaults to False if not provided.
+
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -91,8 +104,13 @@ class AlembicCLI(CLI):
                                    format is [start]:[end]
 
         :param bool indicate_current: indicate the current revision.
+                                      defaults to False if not provided.
+
         :param bool verbose: use more verbose output.
+                             defaults to False if not provided.
+
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -110,6 +128,7 @@ class AlembicCLI(CLI):
                                                 or `heads` for all heads.
 
         :param str message: message string to use with `revision`.
+                            defaults to current timestamp if not provided.
 
         :param str branch_label: specify a branch label to
                                  apply to the new revision.
@@ -118,6 +137,7 @@ class AlembicCLI(CLI):
                                 id instead of generating one.
 
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -139,17 +159,21 @@ class AlembicCLI(CLI):
         create a new revision file.
 
         :param str message: message string to use with `revision`.
+                            defaults to current timestamp if not provided.
 
         :param bool autogenerate: populate revision script with candidate migration
                                   operations, based on comparison of database to model.
+                                  defaults to True if not provided.
 
         :param bool sql: don't emit sql to database, dump to standard
                          output/file instead. see docs on offline mode.
+                         defaults to False if not provided.
 
         :param str head: specify head revision or <branchname>@head
                          to base new revision on.
 
         :param bool splice: allow a non-head revision as the `head` to splice onto.
+                            defaults to False if not provided.
 
         :param str branch_label: specify a branch label to
                                  apply to the new revision.
@@ -161,6 +185,7 @@ class AlembicCLI(CLI):
                                                  which this revision should depend on.
 
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -184,6 +209,7 @@ class AlembicCLI(CLI):
                              to filter all matching revisions.
 
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -202,12 +228,16 @@ class AlembicCLI(CLI):
 
         :param bool sql: don't emit sql to database, dump to standard
                          output/file instead. see docs on offline mode.
+                         defaults to False if not provided.
 
         :param str tag: arbitrary `tag` name. can be used
                         by custom `env.py` scripts.
 
         :param bool purge: unconditionally erase the version table before stamping.
+                           defaults to False if not provided.
+
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
@@ -225,11 +255,13 @@ class AlembicCLI(CLI):
 
         :param bool sql: don't emit sql to database, dump to standard
                          output/file instead. see docs on offline mode.
+                         defaults to False if not provided.
 
         :param str tag: arbitrary `tag` name. can be used
                         by custom `env.py` scripts.
 
         :param bool help: show the help message for this command.
+                          defaults to False if not provided.
 
         :returns: tuple(Module alembic_services, dict updated_inputs)
         :rtype: tuple
