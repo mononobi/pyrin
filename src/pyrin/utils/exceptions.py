@@ -67,3 +67,10 @@ class DictKeyPrefixIsNotProvidedError(UtilsException):
     dict key prefix is not provided error.
     """
     pass
+
+
+class PythonPathIsNotAbsoluteError(UtilsException):
+    """
+    python path is not absolute error.
+    """
+    pass
