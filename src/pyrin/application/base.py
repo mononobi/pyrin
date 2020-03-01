@@ -36,12 +36,13 @@ from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
-from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
-    ApplicationComponent, ApplicationSingletonMeta
 from pyrin.application.context import Component
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
+from pyrin.utils.environment import set_python_path
+from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
+    ApplicationComponent, ApplicationSingletonMeta
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
@@ -499,6 +500,7 @@ class Application(Flask, HookMixin, SignalMixin,
         self._resolve_settings_path(**options)
         self._resolve_migrations_path(**options)
         self._resolve_locale_path(**options)
+        self._resolve_python_path()
 
     def _load_configs(self, **options):
         """
@@ -971,6 +973,16 @@ class Application(Flask, HookMixin, SignalMixin,
         root_path = os.path.join(main_package_path, '..')
         root_path = os.path.abspath(root_path)
         self.add_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY, root_path)
+
+    def _resolve_python_path(self):
+        """
+        resolves python path to put in `PYTHONPATH` variable.
+
+        this is only needed when application starts in scripting mode.
+        """
+
+        if self._scripting_mode is True:
+            set_python_path(self.get_application_root_path())
 
     def _load_environment_variables(self):
         """
