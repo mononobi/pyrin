@@ -21,78 +21,78 @@ class AlembicCLI(CLI):
         """
         show current branch points.
 
-        :param bool verbose: use more verbose output.
-                             defaults to False if not provided.
+        :keyword bool verbose: use more verbose output.
+                               defaults to False if not provided.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
     def current(self, verbose=False, help=False):
         """
         display the current revision for a database.
 
-        :param bool verbose: use more verbose output.
-                             defaults to False if not provided.
+        :keyword bool verbose: use more verbose output.
+                               defaults to False if not provided.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
-    def downgrade(self, revision=None, sql=False, tag=None, help=False):
+    def downgrade(self, revision, sql=False, tag=None, help=False):
         """
         revert to a previous version.
         use `base` to revert all revisions.
 
         :param str revision: revision identifier.
 
-        :param bool sql: don't emit sql to database, dump to standard
-                         output/file instead. see docs on offline mode.
-                         defaults to False if not provided.
+        :keyword bool sql: don't emit sql to database, dump to standard
+                           output/file instead. see docs on offline mode.
+                           defaults to False if not provided.
 
-        :param str tag: arbitrary `tag` name. can be used
-                        by custom `env.py` scripts.
+        :keyword str tag: arbitrary `tag` name. can be used
+                          by custom `env.py` scripts.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
     def heads(self, resolve_dependencies=False, verbose=False, help=False):
         """
         show current available heads in the script directory.
 
-        :param bool resolve_dependencies: treat dependency versions as down revisions.
-                                          defaults to False if not provided.
+        :keyword bool resolve_dependencies: treat dependency versions as down revisions.
+                                            defaults to False if not provided.
 
-        :param bool verbose: use more verbose output.
-                             defaults to False if not provided.
+        :keyword bool verbose: use more verbose output.
+                               defaults to False if not provided.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
     def history(self, revision_range=None, indicate_current=False,
@@ -100,26 +100,26 @@ class AlembicCLI(CLI):
         """
         list changeset scripts in chronological order.
 
-        :param str revision_range: specify a revision range.
-                                   format is [start]:[end]
+        :keyword str revision_range: specify a revision range.
+                                     format is [start]:[end]
 
-        :param bool indicate_current: indicate the current revision.
-                                      defaults to False if not provided.
+        :keyword bool indicate_current: indicate the current revision.
+                                        defaults to False if not provided.
 
-        :param bool verbose: use more verbose output.
-                             defaults to False if not provided.
+        :keyword bool verbose: use more verbose output.
+                               defaults to False if not provided.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
-    def merge(self, revisions=None, message=None,
+    def merge(self, revisions, message=None,
               branch_label=None, revision_id=None, help=False):
         """
         merge two revisions together. creates a new migration file.
@@ -127,29 +127,30 @@ class AlembicCLI(CLI):
         :param Union[str, list[str]] revisions: one or more revisions,
                                                 or `heads` for all heads.
 
-        :param str message: message string to use with `revision`.
-                            defaults to current timestamp if not provided.
+        :keyword str message: message string to use with `revision`.
+                              defaults to current timestamp if not provided.
 
-        :param str branch_label: specify a branch label to
-                                 apply to the new revision.
+        :keyword str branch_label: specify a branch label to
+                                   apply to the new revision.
 
-        :param str revision_id: specify a hardcoded revision
-                                id instead of generating one.
+        :keyword str revision_id: specify a hardcoded revision
+                                  id instead of generating one.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
+        updated = None
         if message is None:
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-            return alembic_services, dict(message=message)
+            updated = dict(message=message)
 
-        return alembic_services, None
+        return alembic_services.execute, updated
 
     @cli
     def revision(self, message=None, autogenerate=True, sql=False,
@@ -158,49 +159,50 @@ class AlembicCLI(CLI):
         """
         create a new revision file.
 
-        :param str message: message string to use with `revision`.
-                            defaults to current timestamp if not provided.
+        :keyword str message: message string to use with `revision`.
+                              defaults to current timestamp if not provided.
 
-        :param bool autogenerate: populate revision script with candidate migration
-                                  operations, based on comparison of database to model.
-                                  defaults to True if not provided.
+        :keyword bool autogenerate: populate revision script with candidate migration
+                                    operations, based on comparison of database to model.
+                                    defaults to True if not provided.
 
-        :param bool sql: don't emit sql to database, dump to standard
-                         output/file instead. see docs on offline mode.
-                         defaults to False if not provided.
+        :keyword bool sql: don't emit sql to database, dump to standard
+                           output/file instead. see docs on offline mode.
+                           defaults to False if not provided.
 
-        :param str head: specify head revision or <branchname>@head
-                         to base new revision on.
+        :keyword str head: specify head revision or <branchname>@head
+                           to base new revision on.
 
-        :param bool splice: allow a non-head revision as the `head` to splice onto.
+        :keyword bool splice: allow a non-head revision as the `head` to splice onto.
+                              defaults to False if not provided.
+
+        :keyword str branch_label: specify a branch label to
+                                   apply to the new revision.
+
+        :keyword str version_path: specify specific path from config for version file.
+        :keyword str revision_id: specify a hardcoded revision id instead of generating one.
+
+        :keyword Union[str, list[str]] depends_on: specify one or more revision identifiers
+                                                   which this revision should depend on.
+
+        :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
 
-        :param str branch_label: specify a branch label to
-                                 apply to the new revision.
-
-        :param str version_path: specify specific path from config for version file.
-        :param str revision_id: specify a hardcoded revision id instead of generating one.
-
-        :param Union[str, list[str]] depends_on: specify one or more revision identifiers
-                                                 which this revision should depend on.
-
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
-
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
+        updated = None
         if message is None:
             message = datetime_service.get_current_timestamp(date_sep=None,
                                                              main_sep=None,
                                                              time_sep=None)
-            return alembic_services, dict(message=message)
+            updated = dict(message=message)
 
-        return alembic_services, None
+        return alembic_services.execute, updated
 
     @cli
-    def show(self, revision=None, help=False):
+    def show(self, revision, help=False):
         """
         show the revision(s) denoted by the given symbol.
 
@@ -208,17 +210,17 @@ class AlembicCLI(CLI):
                              it could be a part of revision identifier
                              to filter all matching revisions.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
-    def stamp(self, revisions=None, sql=False, tag=None, purge=False, help=False):
+    def stamp(self, revisions, sql=False, tag=None, purge=False, help=False):
         """
         stamp the revision table with the given revision(s).
         don't run any migrations.
@@ -226,45 +228,45 @@ class AlembicCLI(CLI):
         :param Union[str, list[str]] revisions: one or more revisions,
                                                 or `heads` for all heads.
 
-        :param bool sql: don't emit sql to database, dump to standard
-                         output/file instead. see docs on offline mode.
-                         defaults to False if not provided.
-
-        :param str tag: arbitrary `tag` name. can be used
-                        by custom `env.py` scripts.
-
-        :param bool purge: unconditionally erase the version table before stamping.
+        :keyword bool sql: don't emit sql to database, dump to standard
+                           output/file instead. see docs on offline mode.
                            defaults to False if not provided.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword str tag: arbitrary `tag` name. can be used
+                          by custom `env.py` scripts.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :keyword bool purge: unconditionally erase the version table before stamping.
+                             defaults to False if not provided.
+
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
+
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None
 
     @cli
-    def upgrade(self, revision=None, sql=False, tag=None, help=False):
+    def upgrade(self, revision, sql=False, tag=None, help=False):
         """
         upgrade to a later version.
         use `head` to upgrade to latest revision.
 
         :param str revision: revision identifier.
 
-        :param bool sql: don't emit sql to database, dump to standard
-                         output/file instead. see docs on offline mode.
-                         defaults to False if not provided.
+        :keyword bool sql: don't emit sql to database, dump to standard
+                           output/file instead. see docs on offline mode.
+                           defaults to False if not provided.
 
-        :param str tag: arbitrary `tag` name. can be used
-                        by custom `env.py` scripts.
+        :keyword str tag: arbitrary `tag` name. can be used
+                          by custom `env.py` scripts.
 
-        :param bool help: show the help message for this command.
-                          defaults to False if not provided.
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
 
-        :returns: tuple(Module alembic_services, dict updated_inputs)
+        :returns: tuple(function execute, dict updated_inputs)
         :rtype: tuple
         """
 
-        return alembic_services, None
+        return alembic_services.execute, None

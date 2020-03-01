@@ -10,7 +10,7 @@ import colorama
 import pyrin.utils.function as func_utils
 
 from pyrin.core.context import Manager
-from pyrin.utils.custom_print import print_colorful
+from pyrin.utils.custom_print import print_colorful, print_error
 
 
 class CLIManager(Manager):
@@ -27,13 +27,21 @@ class CLIManager(Manager):
         :param dict func_kwargs: a dictionary of function keyword arguments.
         """
 
-        original_inputs = inspect.getcallargs(func, *func_args, **func_kwargs)
-        original_inputs.pop('self', None)
-        original_inputs.pop('cls', None)
-        service, modified_inputs = func(*func_args, **func_kwargs)
-        original_inputs.update(**(modified_inputs or {}))
-        if self._process_help(func, original_inputs) is False:
-            service.execute(func.__name__, **original_inputs)
+        try:
+            signature = inspect.signature(func)
+            bounded_args = signature.bind_partial(*func_args, **func_kwargs)
+            original_inputs = dict(**bounded_args.kwargs)
+            original_inputs.update(**bounded_args.arguments)
+            original_inputs.pop('self', None)
+            original_inputs.pop('cls', None)
+            if self._process_help(func, original_inputs) is False:
+                execute, modified_inputs = func(*func_args, **func_kwargs)
+                original_inputs.update(**(modified_inputs or {}))
+                execute(func.__name__, **original_inputs)
+
+        except TypeError as error:
+            print_error('\n' + str(error), force=True)
+            self._print_function_doc(func)
 
     def _print_function_doc(self, func):
         """
@@ -43,10 +51,13 @@ class CLIManager(Manager):
         """
 
         doc = func_utils.get_doc(func, False)
-        result = '\n"{func}" command usage:\n\nyou could provide each ' \
-                 'one of available\narguments with --argument format.\n\n' \
-                 'command doc:\n{doc}' \
-                 .format(func=func.__name__, doc=doc)
+        if doc is not None and len(doc) > 0:
+            result = '\n`{func}` command usage:\n\neach argument could be passed ' \
+                     'with `--arg value` format\nor all arguments could be passed in ' \
+                     'positional order.\n\n`{func}` command doc:\n\n{doc}' \
+                     .format(func=func.__name__, doc=doc)
+        else:
+            result = '\n`{func}` command help is not available.'.format(func=func.__name__)
 
         print_colorful(result, colorama.Fore.CYAN, True)
 
