@@ -190,7 +190,8 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         :rtype: int
         """
 
-        bounded_options = self._bind_cli_arguments(**options)
+        processed_inputs = self._process_inputs(**options)
+        bounded_options = self._bind_cli_arguments(**processed_inputs)
         common_options = self._get_common_cli_options()
         common_options.extend(bounded_options)
         return self._execute_on_cli(common_options)
@@ -225,6 +226,23 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         """
 
         return None
+
+    def _process_inputs(self, **options):
+        """
+        processes the inputs given to this handler and returns them.
+
+        subclasses could override this method and modify inputs as needed.
+        if the modification is a static one, you could provide default in
+        the `ArgumentMetadata` of the relevant `CLIParamMixin`, but if the
+        modification is not static, for example, a callable must be used
+        to generate value based on current situation, you must use this method
+        to modify inputs and inject the correct value. subclasses must call
+        `super()._process_inputs(**options)` after they're done.
+
+        :rtype: dict
+        """
+
+        return options
 
     def _get_common_cli_options(self):
         """

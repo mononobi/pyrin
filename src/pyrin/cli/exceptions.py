@@ -102,3 +102,10 @@ class PositionalArgumentsIndicesError(CLIManagerException):
     positional arguments indices error.
     """
     pass
+
+
+class InvalidCLIDecoratedMethodError(CLIManagerException):
+    """
+    invalid cli decorated method error.
+    """
+    pass

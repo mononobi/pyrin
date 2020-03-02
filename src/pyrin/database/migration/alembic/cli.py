@@ -4,7 +4,6 @@ alembic cli module.
 """
 
 import pyrin.database.migration.alembic.services as alembic_services
-import pyrin.globalization.datetime.services as datetime_service
 
 from pyrin.cli.decorators import cli
 from pyrin.core.context import CLI
@@ -16,6 +15,8 @@ class AlembicCLI(CLI):
     this class exposes all alembic cli commands.
     """
 
+    _execute_service = alembic_services.execute
+
     @cli
     def branches(self, verbose=False, help=False):
         """
@@ -26,12 +27,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def current(self, verbose=False, help=False):
@@ -43,12 +40,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def downgrade(self, revision, sql=False, tag=None, help=False):
@@ -67,12 +60,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def heads(self, resolve_dependencies=False, verbose=False, help=False):
@@ -87,12 +76,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def history(self, revision_range=None, indicate_current=False,
@@ -111,12 +96,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def merge(self, revisions, message=None,
@@ -138,19 +119,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        updated = None
-        if message is None:
-            message = datetime_service.get_current_timestamp(date_sep=None,
-                                                             main_sep=None,
-                                                             time_sep=None)
-            updated = dict(message=message)
-
-        return alembic_services.execute, updated
+        pass
 
     @cli
     def revision(self, message=None, autogenerate=True, sql=False,
@@ -187,19 +157,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        updated = None
-        if message is None:
-            message = datetime_service.get_current_timestamp(date_sep=None,
-                                                             main_sep=None,
-                                                             time_sep=None)
-            updated = dict(message=message)
-
-        return alembic_services.execute, updated
+        pass
 
     @cli
     def show(self, revision, help=False):
@@ -212,12 +171,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def stamp(self, revisions, sql=False, tag=None, purge=False, help=False):
@@ -240,12 +195,8 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass
 
     @cli
     def upgrade(self, revision, sql=False, tag=None, help=False):
@@ -264,9 +215,5 @@ class AlembicCLI(CLI):
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
-
-        :returns: tuple(function execute, dict updated_inputs)
-        :rtype: tuple
         """
-
-        return alembic_services.execute, None
+        pass

@@ -16,6 +16,7 @@ def process_function(func, func_args, func_kwargs):
     :param dict func_kwargs: a dictionary of function keyword arguments.
 
     :raises CLIHandlerNotFoundError: cli handler not found error.
+    :raises InvalidCLIDecoratedMethodError: invalid cli decorated method error.
 
     :rtype: int
     """

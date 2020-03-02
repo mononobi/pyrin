@@ -3,6 +3,8 @@
 alembic handlers params module.
 """
 
+import pyrin.globalization.datetime.services as datetime_services
+
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.cli.metadata import BooleanArgumentMetadata, KeywordArgumentMetadata, \
     PositionalArgumentMetadata
@@ -120,6 +122,21 @@ class MessageParamMixin(AlembicCLIParamMixin):
         message = KeywordArgumentMetadata('message', '--message')
         self._add_argument_metadata(message)
         super()._process_arguments()
+
+    def _process_inputs(self, **options):
+        """
+        processes the inputs given to this handler and returns them.
+
+        :rtype: dict
+        """
+
+        if options.get('message', None) is None:
+            message = datetime_services.get_current_timestamp(date_sep=None,
+                                                              main_sep=None,
+                                                              time_sep=None)
+            options.update(message=message)
+
+        return super()._process_inputs(**options)
 
 
 class BranchLabelParamMixin(AlembicCLIParamMixin):

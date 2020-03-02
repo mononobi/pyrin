@@ -11,6 +11,7 @@ import pyrin.utils.function as func_utils
 
 from pyrin.core.context import Manager
 from pyrin.utils.custom_print import print_colorful, print_error
+from pyrin.cli.exceptions import InvalidCLIDecoratedMethodError
 
 
 class CLIManager(Manager):
@@ -27,6 +28,7 @@ class CLIManager(Manager):
         :param dict func_kwargs: a dictionary of function keyword arguments.
 
         :raises CLIHandlerNotFoundError: cli handler not found error.
+        :raises InvalidCLIDecoratedMethodError: invalid cli decorated method error.
 
         :rtype: int
         """
@@ -34,14 +36,20 @@ class CLIManager(Manager):
         try:
             signature = inspect.signature(func)
             bounded_args = signature.bind_partial(*func_args, **func_kwargs)
-            original_inputs = dict(**bounded_args.kwargs)
-            original_inputs.update(**bounded_args.arguments)
-            original_inputs.pop('self', None)
-            original_inputs.pop('cls', None)
-            if self._process_help(func, original_inputs) is False:
-                execute, modified_inputs = func(*func_args, **func_kwargs)
-                original_inputs.update(**(modified_inputs or {}))
-                return execute(func.__name__, **original_inputs)
+            inputs = dict(**bounded_args.kwargs)
+            inputs.update(**bounded_args.arguments)
+
+            inputs.pop('cls', None)
+            cli_instance = inputs.pop('self', None)
+            if cli_instance is None:
+                raise InvalidCLIDecoratedMethodError('The "@cli" decorator must '
+                                                     'be set on instance methods. '
+                                                     'static methods are not valid.')
+
+            if self._process_help(func, inputs) is False:
+                # we need to call the method to make sure all required params are provided.
+                func(*func_args, **func_kwargs)
+                return cli_instance.execute(func.__name__, **inputs)
 
         except TypeError as error:
             print_error('\n' + str(error), force=True)

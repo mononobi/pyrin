@@ -15,13 +15,11 @@ def cli(func):
     decorator to specify a method that handles a cli command.
 
     the method name will be used as the handler name for that cli handler.
-    decorated method must return a tuple containing two items.
-    first item must be the relevant execute service with the following
-    signature `execute(str handler_name, **inputs)` to be able to execute
-    the cli handler. second item could be either a dict of modified
-    inputs if required or None value.
 
     :param function func: function.
+
+    :raises CLIHandlerNotFoundError: cli handler not found error.
+    :raises InvalidCLIDecoratedMethodError: invalid cli decorated method error.
 
     :returns: decorated function.
     :rtype: function
@@ -35,6 +33,7 @@ def cli(func):
         :param object kwargs: function keyword arguments.
 
         :raises CLIHandlerNotFoundError: cli handler not found error.
+        :raises InvalidCLIDecoratedMethodError: invalid cli decorated method error.
 
         :rtype: int
         """

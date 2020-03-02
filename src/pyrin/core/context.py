@@ -217,4 +217,21 @@ class CLI(CoreObject, metaclass=CLISingletonMeta):
     base cli class.
     all application cli classes must be subclassed from this one.
     """
-    pass
+
+    # this value must be set in each subclass with the relevant callable
+    # execute service with the param signature of: `(str handler_name, **inputs)`
+    _execute_service = None
+
+    @classmethod
+    def execute(cls, handler_name, **options):
+        """
+        executes the handler with the given name with given inputs.
+
+        :param str handler_name: handler name to be executed.
+
+        :raises CLIHandlerNotFoundError: cli handler not found error.
+
+        :rtype: int
+        """
+
+        return cls._execute_service(handler_name, **options)
