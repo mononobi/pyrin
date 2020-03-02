@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic interface module.
+alembic interface module.
 """
 
 import pyrin.configuration.services as config_services
 
 from pyrin.cli.params import HelpParamMixin
-from pyrin.database.migration.alembic import DatabaseMigrationAlembicPackage
+from pyrin.database.migration.alembic import AlembicPackage
 
 
 class AlembicCLIHandlerBase(HelpParamMixin):
@@ -26,7 +26,7 @@ class AlembicCLIHandlerBase(HelpParamMixin):
 
         super().__init__(name)
         self._config_file_path = config_services.get_file_path(
-            DatabaseMigrationAlembicPackage.CONFIG_STORE_NAMES[0])
+            AlembicPackage.CONFIG_STORE_NAMES[0])
 
     def _get_common_cli_options(self):
         """

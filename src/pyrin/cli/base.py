@@ -178,7 +178,7 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         """
         executes the current cli command with given inputs.
 
-        :returns: execution result.
+        :rtype: int
         """
 
         return self._execute(**options)
@@ -187,7 +187,7 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         """
         executes the current cli command with given inputs.
 
-        :returns: execution result.
+        :rtype: int
         """
 
         bounded_options = self._bind_cli_arguments(**options)
@@ -202,13 +202,29 @@ class CLIHandlerBase(AbstractCLIHandlerBase):
         :param list commands: a list of all commands and their
                               values to be sent to cli command.
 
-        :returns: execution result.
+        :rtype: int
         """
 
         try:
-            return subprocess.check_call(commands)
-        except CalledProcessError:
-            pass
+            result = subprocess.check_call(commands)
+            return self._process_return_value(result)
+        except CalledProcessError as error:
+            return self._process_return_value(error.returncode)
+
+    def _process_return_value(self, result):
+        """
+        processes the return value from cli command execution.
+
+        this method returns the None value and is intended to be overridden
+        by subclasses if required. if a cli handlers group does need to return
+        a value, it could override this method and return the desired value.
+
+        :param int result: result value returned from cli command.
+
+        :rtype: None
+        """
+
+        return None
 
     def _get_common_cli_options(self):
         """

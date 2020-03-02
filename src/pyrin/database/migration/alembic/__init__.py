@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic package.
+alembic package.
 """
 
 import pyrin.application.services as application_services
@@ -9,9 +9,9 @@ from pyrin.core.context import DTO
 from pyrin.packaging.base import Package
 
 
-class DatabaseMigrationAlembicPackage(Package):
+class AlembicPackage(Package):
     """
-    database migration alembic package class.
+    alembic package class.
     """
 
     NAME = __name__
@@ -25,7 +25,6 @@ class DatabaseMigrationAlembicPackage(Package):
         be sent to config parser for interpolation.
         this method is intended to be overridden by subclasses.
 
-        :returns: Union[dict, None]
         :rtype: dict
         """
 

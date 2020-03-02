@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic exceptions module.
+alembic exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
-class DatabaseMigrationAlembicManagerException(CoreException):
+class AlembicManagerException(CoreException):
     """
-    database migration alembic manager exception.
+    alembic manager exception.
     """
     pass
 
 
-class DatabaseMigrationAlembicManagerBusinessException(CoreBusinessException,
-                                                       DatabaseMigrationAlembicManagerException):
+class AlembicManagerBusinessException(CoreBusinessException,
+                                      AlembicManagerException):
     """
-    database migration alembic manager business exception.
+    alembic manager business exception.
     """
     pass

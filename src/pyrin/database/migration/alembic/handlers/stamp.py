@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic handlers stamp module.
+alembic handlers stamp module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler

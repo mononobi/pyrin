@@ -97,7 +97,9 @@ class CLIMixin(CoreObject):
         :param str handler_name: handler name to be executed.
 
         :raises CLIHandlerNotFoundError: cli handler not found error.
+
+        :rtype: int
         """
 
         handler = self._get_cli_handler(handler_name)
-        handler.execute(**options)
+        return handler.execute(**options)

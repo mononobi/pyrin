@@ -33,10 +33,14 @@ def cli(func):
 
         :param object args: function arguments.
         :param object kwargs: function keyword arguments.
+
+        :raises CLIHandlerNotFoundError: cli handler not found error.
+
+        :rtype: int
         """
 
         try:
-            cli_services.process_function(func, args, kwargs)
+            return cli_services.process_function(func, args, kwargs)
 
         except Exception as error:
             print_error('\n' + str(error), force=True)

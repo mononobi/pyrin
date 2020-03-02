@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic services module.
+alembic services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.database.migration.alembic import DatabaseMigrationAlembicPackage
+from pyrin.database.migration.alembic import AlembicPackage
 
 
 def register_cli_handler(instance, **options):
@@ -26,8 +26,7 @@ def register_cli_handler(instance, **options):
     :raises DuplicatedCLIHandlerError: duplicated cli handler error.
     """
 
-    get_component(DatabaseMigrationAlembicPackage.COMPONENT_NAME).register_cli_handler(instance,
-                                                                                       **options)
+    get_component(AlembicPackage.COMPONENT_NAME).register_cli_handler(instance, **options)
 
 
 def execute(handler_name, **options):
@@ -39,5 +38,4 @@ def execute(handler_name, **options):
     :raises CLIHandlerNotFoundError: cli handler not found error.
     """
 
-    get_component(DatabaseMigrationAlembicPackage.COMPONENT_NAME).execute(handler_name,
-                                                                          **options)
+    return get_component(AlembicPackage.COMPONENT_NAME).execute(handler_name, **options)

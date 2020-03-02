@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic component module.
+alembic component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.database.migration.alembic import DatabaseMigrationAlembicPackage
-from pyrin.database.migration.alembic.manager import DatabaseMigrationAlembicManager
+from pyrin.database.migration.alembic import AlembicPackage
+from pyrin.database.migration.alembic.manager import AlembicManager
 from pyrin.application.context import Component
 
 
-@component(DatabaseMigrationAlembicPackage.COMPONENT_NAME)
-class DatabaseMigrationAlembicComponent(Component, DatabaseMigrationAlembicManager):
+@component(AlembicPackage.COMPONENT_NAME)
+class AlembicComponent(Component, AlembicManager):
     """
-    database migration alembic component class.
+    alembic component class.
     """
     pass

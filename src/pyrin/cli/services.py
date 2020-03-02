@@ -14,6 +14,10 @@ def process_function(func, func_args, func_kwargs):
     :param function func: function to update its original inputs.
     :param tuple func_args: a tuple of function positional inputs.
     :param dict func_kwargs: a dictionary of function keyword arguments.
+
+    :raises CLIHandlerNotFoundError: cli handler not found error.
+
+    :rtype: int
     """
 
     return get_component(CLIPackage.COMPONENT_NAME).process_function(func, func_args,

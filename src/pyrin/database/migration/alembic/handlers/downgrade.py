@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic handlers downgrade module.
+alembic handlers downgrade module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler

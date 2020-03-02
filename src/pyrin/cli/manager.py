@@ -25,6 +25,10 @@ class CLIManager(Manager):
         :param function func: function to update its original inputs.
         :param tuple func_args: a tuple of function positional inputs.
         :param dict func_kwargs: a dictionary of function keyword arguments.
+
+        :raises CLIHandlerNotFoundError: cli handler not found error.
+
+        :rtype: int
         """
 
         try:
@@ -37,7 +41,7 @@ class CLIManager(Manager):
             if self._process_help(func, original_inputs) is False:
                 execute, modified_inputs = func(*func_args, **func_kwargs)
                 original_inputs.update(**(modified_inputs or {}))
-                execute(func.__name__, **original_inputs)
+                return execute(func.__name__, **original_inputs)
 
         except TypeError as error:
             print_error('\n' + str(error), force=True)

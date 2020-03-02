@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic decorators module.
+alembic decorators module.
 """
 
 import pyrin.database.migration.alembic.services as alembic_services

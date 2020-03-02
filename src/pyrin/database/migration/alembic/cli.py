@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic cli module.
+alembic cli module.
 """
 
 import pyrin.database.migration.alembic.services as alembic_services

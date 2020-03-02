@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic handlers base module.
+alembic handlers base module.
 """
 
 from pyrin.cli.params import VerboseParamMixin

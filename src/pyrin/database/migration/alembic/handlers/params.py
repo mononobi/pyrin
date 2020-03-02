@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database migration alembic handlers params module.
+alembic handlers params module.
 """
 
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
