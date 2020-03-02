@@ -42,6 +42,6 @@ def cli(func):
             return cli_services.process_function(func, args, kwargs)
 
         except Exception as error:
-            print_error('\n' + str(error), force=True)
+            print_error(str(error), force=True)
 
     return update_wrapper(decorator, func)

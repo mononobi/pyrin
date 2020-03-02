@@ -44,7 +44,8 @@ class CLIManager(Manager):
             if cli_instance is None:
                 raise InvalidCLIDecoratedMethodError('The "@cli" decorator must '
                                                      'be set on instance methods. '
-                                                     'static methods are not valid.')
+                                                     'static methods or stand-alone '
+                                                     'functions are not valid.')
 
             if self._process_help(func, inputs) is False:
                 # we need to call the method to make sure all required params are provided.
@@ -52,7 +53,7 @@ class CLIManager(Manager):
                 return cli_instance.execute(func.__name__, **inputs)
 
         except TypeError as error:
-            print_error('\n' + str(error), force=True)
+            print_error(str(error) + '\n', force=True)
             self._print_function_doc(func)
 
     def _print_function_doc(self, func):
@@ -64,12 +65,14 @@ class CLIManager(Manager):
 
         doc = func_utils.get_doc(func, False)
         if doc is not None and len(doc) > 0:
-            result = '\n`{func}` command usage:\n\neach argument could be passed ' \
+            result = '`{func}` command usage:\n\neach argument could be passed ' \
                      'with `--arg value` format\nor all arguments could be passed in ' \
-                     'positional order.\n\n`{func}` command doc:\n\n{doc}\n' \
+                     'positional order.\nfor boolean arguments, you just need to pass ' \
+                     '`--arg` without any \nvalue for True and do not pass it to use ' \
+                     'default value (often False).\n\n`{func}` command doc:\n\n{doc}' \
                      .format(func=func.__name__, doc=doc)
         else:
-            result = '\n`{func}` command help is not available.\n'.format(func=func.__name__)
+            result = '`{func}` command help is not available.'.format(func=func.__name__)
 
         print_colorful(result, colorama.Fore.CYAN, True)
 
