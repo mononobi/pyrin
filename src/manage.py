@@ -19,8 +19,8 @@ class Groups(object):
     groups class.
     each cli handler group is resided inside its relevant group name.
     usage example:
-    `python manage.py alembic upgrade --input value`
-    `python manage.py babel extract --input value`
+    `python manage.py alembic upgrade --arg value`
+    `python manage.py babel extract --arg value`
     """
 
     def __init__(self):
