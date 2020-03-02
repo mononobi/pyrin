@@ -66,10 +66,10 @@ class CLIManager(Manager):
         if doc is not None and len(doc) > 0:
             result = '\n`{func}` command usage:\n\neach argument could be passed ' \
                      'with `--arg value` format\nor all arguments could be passed in ' \
-                     'positional order.\n\n`{func}` command doc:\n\n{doc}' \
+                     'positional order.\n\n`{func}` command doc:\n\n{doc}\n' \
                      .format(func=func.__name__, doc=doc)
         else:
-            result = '\n`{func}` command help is not available.'.format(func=func.__name__)
+            result = '\n`{func}` command help is not available.\n'.format(func=func.__name__)
 
         print_colorful(result, colorama.Fore.CYAN, True)
 
