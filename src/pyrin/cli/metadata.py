@@ -16,6 +16,8 @@ from pyrin.cli.exceptions import ArgumentMetadataParamNameIsRequiredError, \
 class ArgumentMetadataBase(CoreObject):
     """
     argument metadata base class.
+
+    usually you don't need to use an instance of this class directly.
     """
 
     def __init__(self, param_name, default=None):
@@ -24,10 +26,11 @@ class ArgumentMetadataBase(CoreObject):
 
         :param str param_name: param name presented in method signature.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
-                                            defaults to None if not provided.
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
                                                           name is required error.
@@ -57,7 +60,9 @@ class ArgumentMetadataBase(CoreObject):
 
         it could be None if the value should not be emitted to cli.
 
-        :param object value: value of method input that should be represented in cli.
+        :param Union[list[object], object, None] value: value of method input
+                                                        that should be represented
+                                                        in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this metadata. it might be needed
@@ -67,6 +72,9 @@ class ArgumentMetadataBase(CoreObject):
 
         :rtype: Union[list[object], object, None]
         """
+
+        if isinstance(value, (set, tuple)):
+            value = list(value)
 
         result = self._get_representation(value, is_default)
 
@@ -80,7 +88,7 @@ class ArgumentMetadataBase(CoreObject):
         """
         gets the default value of this argument metadata.
 
-        :rtype: Union[object, None]
+        :rtype: Union[list[object], object, None]
         """
 
         return self._default
@@ -102,7 +110,8 @@ class ArgumentMetadataBase(CoreObject):
         it could be None if the value should not be emitted to cli.
         this method is intended to be overridden in subclasses.
 
-        :param object value: value of method input that should be represented in cli.
+        :param Union[list[object], object, None] value: value of method input that
+                                                        should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this metadata. it might be needed
@@ -121,6 +130,8 @@ class ArgumentMetadataBase(CoreObject):
 class KeywordArgumentMetadataBase(ArgumentMetadataBase):
     """
     keyword argument metadata base class.
+
+    usually you don't need to use an instance of this class directly.
     """
 
     def __init__(self, param_name, cli_option_name=None, default=None):
@@ -134,10 +145,11 @@ class KeywordArgumentMetadataBase(ArgumentMetadataBase):
                                                  must be present with the message value
                                                  itself. defaults to None if not provided.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
-                                            defaults to None if not provided.
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
                                                           name is required error.
@@ -163,7 +175,8 @@ class KeywordArgumentMetadataBase(ArgumentMetadataBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param object value: value of method input that should be represented in cli.
+        :param Union[list[object], object, None] value: value of method input that
+                                                        should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this metadata. it might be needed
@@ -184,6 +197,9 @@ class KeywordArgumentMetadataBase(ArgumentMetadataBase):
         using the `cli_option_name`. for example if value = [1, 2, 3]
         and `cli_option_name` is `--num`, then it should be emitted to
         cli like this: ['--num', 1, '--num', 2, '--num', 3]
+        if the cli handler supports multiple values with single name
+        (for example pybabel commands), you should use
+        `CompositeKeywordArgumentMetadata` class instead.
 
 
         :param Union[list[object], object, None] value: value to be emitted to cli.
@@ -211,6 +227,9 @@ class PositionalArgumentMetadata(ArgumentMetadataBase):
     positional argument metadata class.
 
     this class must be used for positional cli arguments.
+    positional arguments are those that will be emitted after
+    command name at specified index and without any argument
+    name, for example: `command arg1`
     """
 
     def __init__(self, param_name, index, default=None):
@@ -220,10 +239,11 @@ class PositionalArgumentMetadata(ArgumentMetadataBase):
         :param str param_name: param name presented in method signature.
         :param int index: zero based index of this param in cli command inputs.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
-                                            defaults to None if not provided.
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
                                                           name is required error.
@@ -245,7 +265,8 @@ class PositionalArgumentMetadata(ArgumentMetadataBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param object value: value of method input that should be represented in cli.
+        :param Union[list[object], object, None] value: value of method input that
+                                                        should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this metadata. it might be needed
@@ -274,6 +295,11 @@ class MappingArgumentMetadata(KeywordArgumentMetadataBase):
     mapping argument metadata class.
 
     this class must be used for cli options that have mappings.
+    these are arguments that their real value that should be emitted
+    to cli, will be extracted from a dict based on the input of the
+    python-side method. they could have argument name or could be emitted
+    without any argument name.
+    usually you don't need to use an instance of this class directly.
     """
 
     def __init__(self, param_name, param_value_to_cli_map,
@@ -305,10 +331,11 @@ class MappingArgumentMetadata(KeywordArgumentMetadataBase):
                                                  always be provided with given message.
                                                  defaults to None if not provided.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
-                                            defaults to None if not provided.
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
                                                           name is required error.
@@ -338,7 +365,8 @@ class MappingArgumentMetadata(KeywordArgumentMetadataBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param object value: value of method input that should be represented in cli.
+        :param Union[list[object], object, None] value: value of method input that
+                                                        should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this metadata. it might be needed
@@ -360,6 +388,10 @@ class BooleanArgumentMetadata(MappingArgumentMetadata):
     boolean argument metadata class.
 
     this class must be used for boolean cli arguments.
+    boolean arguments are those that will emit a keyword to imply to True
+    and will not emit anything to imply to False. for example:
+    `command --arg1` -> the value of `arg1` will be True in this form.
+    `command` -> in this form the value of `arg1` will be False.
     """
 
     def __init__(self, param_name, true_value,
@@ -375,9 +407,10 @@ class BooleanArgumentMetadata(MappingArgumentMetadata):
                                                 for False. if not provided, defaults to
                                                 None and will not be emitted.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
                                             defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
@@ -404,6 +437,15 @@ class KeywordArgumentMetadata(KeywordArgumentMetadataBase):
     keyword argument metadata class.
 
     it should be used for keyword argument cli options.
+    keyword arguments are those that have to emit an argument name
+    with an argument value, note that this type of arguments could not
+    emit a list for a single argument. instead, if the value for a single
+    argument is a list, each item in the list will be emitted separately
+    with `--arg` name. for example:
+    `command --arg1 value1` -> for single value.
+    `command --arg1 item1 --arg1 item2 --arg1 item3` -> for a list value.
+    if the cli handler supports keyword arguments with list values, you should
+    use `CompositeKeywordArgumentMetadata` class.
     """
 
     def __init__(self, param_name, cli_option_name, default=None):
@@ -416,10 +458,11 @@ class KeywordArgumentMetadata(KeywordArgumentMetadataBase):
                                     for example `--message` flag of alembic
                                     must be present with the message value itself.
 
-        :param Union[object, None] default: default value to be emitted to cli if this
-                                            param is not available. if set to None, this
-                                            param will not be emitted at all.
-                                            defaults to None if not provided.
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
 
         :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
                                                           name is required error.
@@ -434,3 +477,81 @@ class KeywordArgumentMetadata(KeywordArgumentMetadataBase):
                                                                     '"cli_option_name" '
                                                                     'must be provided.')
         super().__init__(param_name, cli_option_name, default)
+
+
+class CompositeKeywordArgumentMetadata(KeywordArgumentMetadata):
+    """
+    composite keyword argument metadata class.
+
+    it should be used for composite keyword argument cli options.
+    composite keyword arguments are those that have to emit an argument
+    name with an argument value, note that this type of arguments could
+    emit a list for a single argument with `--arg` name. for example:
+    `command --arg1 value1` -> for single value.
+    `command --arg1 item1 item2 item3` -> for a list value.
+    if the cli handler does not support keyword arguments with list
+    values, you should use `KeywordArgumentMetadata` class.
+    """
+
+    def __init__(self, param_name, cli_option_name, separator=None, default=None):
+        """
+        initializes an instance of CompositeKeywordArgumentMetadata.
+
+        :param str param_name: param name presented in method signature.
+
+        :param str cli_option_name: relevant cli option name to `param_name`.
+                                    for example `--message` flag of alembic
+                                    must be present with the message value itself.
+
+        :param str separator: separator to be used between values of list type.
+                              defaults to single space if not provided.
+
+        :param Union[list[object], object, None] default: default value to be emitted to
+                                                          cli if this param is not available.
+                                                          if set to None, this param will not
+                                                          be emitted at all.
+                                                          defaults to None if not provided.
+
+        :raises ArgumentMetadataParamNameIsRequiredError: argument metadata param
+                                                          name is required error.
+
+        :raises KeywordArgumentMetadataCLIOptionNameRequiredError: keyword argument metadata
+                                                                   cli option name required
+                                                                   error.
+        """
+
+        super().__init__(param_name, cli_option_name, default)
+
+        if separator is None:
+            separator = ' '
+
+        self._separator = separator
+
+    def _merge_inputs(self, value):
+        """
+        merges the cli option name and given value to be emitted to cli.
+
+        note that the values of list type, must be emitted using single
+        `cli_option_name` separated with optional separator or space.
+        for example if value = [1, 2, 3] and `cli_option_name` is `--num`
+        and separator is `-` then it should be emitted to cli like this:
+        ['--num', '1-2-3'] and if separator is None, then it should be
+        emitted like this: ['--num', '1 2 3']
+        if the cli handler does not support multiple values with single
+        name (for example alembic commands), you should use
+        `KeywordArgumentMetadata` class instead.
+
+        :param Union[list[object], object, None] value: value to be emitted to cli.
+
+        :rtype: Union[list[object], None]
+        """
+
+        if value is None:
+            return None
+
+        result = [self._cli_option_name]
+        if isinstance(value, LIST_TYPES):
+            value = self._separator.join([str(item) for item in value])
+
+        result.append(value)
+        return result
