@@ -3,13 +3,23 @@
 babel interface module.
 """
 
-from pyrin.cli.metadata import KeywordArgumentMetadata
-from pyrin.cli.params import HelpParamMixin
+from pyrin.cli.base import CLIHandlerBase
+from pyrin.cli.params import CLIParamBase
 
 
-class BabelCLIHandlerBase(HelpParamMixin):
+class BabelCLIParamBase(CLIParamBase):
+    """
+    babel cli param base class.
+
+    all babel cli param classes must be subclassed from this.
+    """
+    pass
+
+
+class BabelCLIHandlerBase(CLIHandlerBase):
     """
     babel cli handler base class.
+
     all babel cli handlers must be subclassed from this.
     """
 
@@ -32,12 +42,3 @@ class BabelCLIHandlerBase(HelpParamMixin):
         """
 
         return ['pybabel']
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        output_file = KeywordArgumentMetadata('output_file', '--output-file')
-        self._add_argument_metadata(output_file)
-        super()._process_arguments()

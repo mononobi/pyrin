@@ -3,452 +3,774 @@
 babel handlers params module.
 """
 
-from pyrin.cli.metadata import KeywordArgumentMetadata, BooleanArgumentMetadata
-from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
+import os
+
+import pyrin.configuration.services as config_services
+import pyrin.application.services as application_services
+
+from pyrin.globalization.locale.babel.interface import BabelCLIParamBase
+from pyrin.globalization.locale.babel import BabelPackage
+from pyrin.cli.arguments import KeywordArgument, BooleanArgument, \
+    PositionalArgument, CompositeKeywordArgument
 
 
-class BabelCLIParamMixin(BabelCLIHandlerBase):
+class DomainParam(KeywordArgument, BabelCLIParamBase):
     """
-    babel cli param mixin class.
-    all babel param mixin classes must be subclassed from this.
-    """
-    pass
-
-
-class DomainParamMixin(BabelCLIParamMixin):
-    """
-    domain param mixin class.
+    domain param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
-        """
+        initializes an instance of DomainParam.
 
-        domain = KeywordArgumentMetadata('domain', '--domain')
-        self._add_argument_metadata(domain)
-        super()._process_arguments()
-
-
-class InputFileParamMixin(BabelCLIParamMixin):
-    """
-    input file param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to `domain` value form babel
+                                            config store if not provided.
         """
 
-        input_file = KeywordArgumentMetadata('input_file', '--input-file')
-        self._add_argument_metadata(input_file)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'domain')
+
+        super().__init__('domain', '--domain', default=default)
 
 
-class OutputDirectoryParamMixin(BabelCLIParamMixin):
+class CompileDomainsParam(CompositeKeywordArgument, BabelCLIParamBase):
     """
-    output directory param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        output_dir = KeywordArgumentMetadata('output_dir', '--output-dir')
-        self._add_argument_metadata(output_dir)
-        super()._process_arguments()
-
-
-class OmitHeaderParamMixin(BabelCLIParamMixin):
-    """
-    omit header param mixin class.
+    compile domains param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of CompileDomainsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to `compile_domains` value form
+                                            babel config store if not provided.
         """
 
-        omit_header = BooleanArgumentMetadata('omit_header', '--omit-header')
-        self._add_argument_metadata(omit_header)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'compile_domains')
+
+        super().__init__('domain', '--domain', default=default)
 
 
-class LocaleParamMixin(BabelCLIParamMixin):
+class InputTemplateFileParam(KeywordArgument, BabelCLIParamBase):
     """
-    locale param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        locale = KeywordArgumentMetadata('locale', '--locale')
-        self._add_argument_metadata(locale)
-        super()._process_arguments()
-
-
-class WidthParamMixin(BabelCLIParamMixin):
-    """
-    width param mixin class.
+    input template file param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of InputTemplateFileParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `locale_path/template_file`
+                                            where `template_file` comes from
+                                            babel config store.
         """
 
-        width = KeywordArgumentMetadata('width', '--width')
-        self._add_argument_metadata(width)
-        super()._process_arguments()
+        if default is None:
+            default = os.path.join(application_services.get_locale_path(),
+                                   config_services.get('babel', 'arguments', 'template_file'))
+
+        super().__init__('input_file', '--input-file', default=default)
 
 
-class NoWrapParamMixin(BabelCLIParamMixin):
+class OutputDirectoryParam(KeywordArgument, BabelCLIParamBase):
     """
-    no wrap param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        no_wrap = BooleanArgumentMetadata('no_wrap', '--no-wrap')
-        self._add_argument_metadata(no_wrap)
-        super()._process_arguments()
-
-
-class IgnoreObsoleteParamMixin(BabelCLIParamMixin):
-    """
-    ignore obsolete param mixin class.
+    output directory param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of OutputDirectoryParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `locale_path` of application.
         """
 
-        ignore_obsolete = BooleanArgumentMetadata('ignore_obsolete', '--ignore-obsolete')
-        self._add_argument_metadata(ignore_obsolete)
-        super()._process_arguments()
+        if default is None:
+            default = application_services.get_locale_path()
+
+        super().__init__('output_dir', '--output-dir', default=default)
 
 
-class NoFuzzyMatchingParamMixin(BabelCLIParamMixin):
+class OutputTemplateFileParam(KeywordArgument, BabelCLIParamBase):
     """
-    no fuzzy matching param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        no_fuzzy_matching = BooleanArgumentMetadata('no_fuzzy_matching', '--no-fuzzy-matching')
-        self._add_argument_metadata(no_fuzzy_matching)
-        super()._process_arguments()
-
-
-class UpdateHeaderCommentParamMixin(BabelCLIParamMixin):
-    """
-    update header comment param mixin class.
+    output template file param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of OutputTemplateFileParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `locale_path/template_file`
+                                            where `template_file` comes from
+                                            babel config store.
         """
 
-        update_header_comment = BooleanArgumentMetadata('update_header_comment',
-                                                        '--update-header-comment')
-        self._add_argument_metadata(update_header_comment)
-        super()._process_arguments()
+        if default is None:
+            default = os.path.join(application_services.get_locale_path(),
+                                   config_services.get('babel', 'arguments', 'template_file'))
+
+        super().__init__('output_file', '--output-file', default=default)
 
 
-class PreviousParamMixin(BabelCLIParamMixin):
+class OmitHeaderParam(BooleanArgument, BabelCLIParamBase):
     """
-    previous param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        previous = BooleanArgumentMetadata('previous', '--previous')
-        self._add_argument_metadata(previous)
-        super()._process_arguments()
-
-
-class CharsetParamMixin(BabelCLIParamMixin):
-    """
-    charset param mixin class.
+    omit header param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of OmitHeaderParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `omit_header`
+                                            value from babel config store.
         """
 
-        charset = KeywordArgumentMetadata('charset', '--charset')
-        self._add_argument_metadata(charset)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'omit_header')
+
+        super().__init__('omit_header', '--omit-header', default=default)
 
 
-class KeywordsParamMixin(BabelCLIParamMixin):
+class LocaleParam(KeywordArgument, BabelCLIParamBase):
     """
-    keywords param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        keywords = KeywordArgumentMetadata('keywords', '--keywords')
-        self._add_argument_metadata(keywords)
-        super()._process_arguments()
-
-
-class NoDefaultKeywordsParamMixin(BabelCLIParamMixin):
-    """
-    no default keywords param mixin class.
+    locale param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of LocaleParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to None.
         """
 
-        no_default_keywords = BooleanArgumentMetadata('no_default_keywords',
-                                                      '--no-default-keywords')
-        self._add_argument_metadata(no_default_keywords)
-        super()._process_arguments()
+        super().__init__('locale', '--locale', default=default)
 
 
-class MappingParamMixin(BabelCLIParamMixin):
+class WidthParam(KeywordArgument, BabelCLIParamBase):
     """
-    mapping param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        mapping = KeywordArgumentMetadata('mapping', '--mapping')
-        self._add_argument_metadata(mapping)
-        super()._process_arguments()
-
-
-class NoLocationParamMixin(BabelCLIParamMixin):
-    """
-    no location param mixin class.
+    width param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of WidthParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `width`
+                                            value from babel config store.
         """
 
-        no_location = BooleanArgumentMetadata('no_location', '--no-location')
-        self._add_argument_metadata(no_location)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'width')
+
+        super().__init__('width', '--width', default=default)
 
 
-class AddLocationParamMixin(BabelCLIParamMixin):
+class NoWrapParam(BooleanArgument, BabelCLIParamBase):
     """
-    add location param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        add_location = KeywordArgumentMetadata('add_location', '--add-location')
-        self._add_argument_metadata(add_location)
-        super()._process_arguments()
-
-
-class SortOutputParamMixin(BabelCLIParamMixin):
-    """
-    sort output param mixin class.
+    no wrap param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of NoWrapParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `no_wrap`
+                                            value from babel config store.
         """
 
-        sort_output = BooleanArgumentMetadata('sort_output', '--sort-output')
-        self._add_argument_metadata(sort_output)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'no_wrap')
+
+        super().__init__('no_wrap', '--no-wrap', default=default)
 
 
-class SortByFileParamMixin(BabelCLIParamMixin):
+class IgnoreObsoleteParam(BooleanArgument, BabelCLIParamBase):
     """
-    sort by file param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        sort_by_file = BooleanArgumentMetadata('sort_by_file', '--sort-by-file')
-        self._add_argument_metadata(sort_by_file)
-        super()._process_arguments()
-
-
-class MSGIDBugsAddressParamMixin(BabelCLIParamMixin):
-    """
-    msgid bugs address param mixin class.
+    ignore obsolete param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of IgnoreObsoleteParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `ignore_obsolete`
+                                            value from babel config store.
         """
 
-        msgid_bugs_address = KeywordArgumentMetadata('msgid_bugs_address',
-                                                     '--msgid-bugs-address')
-        self._add_argument_metadata(msgid_bugs_address)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'ignore_obsolete')
+
+        super().__init__('ignore_obsolete', '--ignore-obsolete', default=default)
 
 
-class CopyrightHolderParamMixin(BabelCLIParamMixin):
+class NoFuzzyMatchingParam(BooleanArgument, BabelCLIParamBase):
     """
-    copyright holder param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        copyright_holder = KeywordArgumentMetadata('copyright_holder',
-                                                   '--copyright-holder')
-        self._add_argument_metadata(copyright_holder)
-        super()._process_arguments()
-
-
-class ProjectParamMixin(BabelCLIParamMixin):
-    """
-    project param mixin class.
+    no fuzzy matching param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of NoFuzzyMatchingParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `no_fuzzy_matching`
+                                            value from babel config store.
         """
 
-        project = KeywordArgumentMetadata('project', '--project')
-        self._add_argument_metadata(project)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'no_fuzzy_matching')
+
+        super().__init__('no_fuzzy_matching', '--no-fuzzy-matching', default=default)
 
 
-class VersionParamMixin(BabelCLIParamMixin):
+class UpdateHeaderCommentParam(BooleanArgument, BabelCLIParamBase):
     """
-    version param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        version = KeywordArgumentMetadata('version', '--version')
-        self._add_argument_metadata(version)
-        super()._process_arguments()
-
-
-class AddCommentsParamMixin(BabelCLIParamMixin):
-    """
-    add comments param mixin class.
+    update header comment param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of UpdateHeaderCommentParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `update_header_comment`
+                                            value from babel config store.
         """
 
-        add_comments = KeywordArgumentMetadata('add_comments', '--add-comments')
-        self._add_argument_metadata(add_comments)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'update_header_comment')
+
+        super().__init__('update_header_comment', '--update-header-comment', default=default)
 
 
-class StripCommentsParamMixin(BabelCLIParamMixin):
+class PreviousParam(BooleanArgument, BabelCLIParamBase):
     """
-    strip comments param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        strip_comments = BooleanArgumentMetadata('strip_comments', '--strip-comments')
-        self._add_argument_metadata(strip_comments)
-        super()._process_arguments()
-
-
-class InputDirsParamMixin(BabelCLIParamMixin):
-    """
-    input dirs param mixin class.
+    previous param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of PreviousParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `previous`
+                                            value from babel config store.
         """
 
-        input_dirs = KeywordArgumentMetadata('input_dirs', '--input-dirs')
-        self._add_argument_metadata(input_dirs)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'previous')
+
+        super().__init__('previous', '--previous', default=default)
 
 
-class DirectoryParamMixin(BabelCLIParamMixin):
+class CharsetParam(KeywordArgument, BabelCLIParamBase):
     """
-    directory param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the options that are related to this handler.
-        """
-
-        directory = KeywordArgumentMetadata('directory', '--directory')
-        self._add_argument_metadata(directory)
-        super()._process_arguments()
-
-
-class UseFuzzyParamMixin(BabelCLIParamMixin):
-    """
-    use fuzzy param mixin class.
+    charset param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of CharsetParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `charset`
+                                            value from babel config store.
         """
 
-        use_fuzzy = BooleanArgumentMetadata('use_fuzzy', '--use-fuzzy')
-        self._add_argument_metadata(use_fuzzy)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'charset')
+
+        super().__init__('charset', '--charset', default=default)
 
 
-class StatisticsParamMixin(BabelCLIParamMixin):
+class KeywordsParam(CompositeKeywordArgument, BabelCLIParamBase):
     """
-    statistics param mixin class.
+    keywords param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the options that are related to this handler.
+        initializes an instance of KeywordsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `keywords`
+                                            value from babel config store.
         """
 
-        statistics = BooleanArgumentMetadata('statistics', '--statistics')
-        self._add_argument_metadata(statistics)
-        super()._process_arguments()
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'keywords')
+
+        super().__init__('keywords', '--keywords', default=default)
+
+
+class NoDefaultKeywordsParam(BooleanArgument, BabelCLIParamBase):
+    """
+    no default keywords param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of NoDefaultKeywordsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `no_default_keywords`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'no_default_keywords')
+
+        super().__init__('no_default_keywords', '--no-default-keywords', default=default)
+
+
+class MappingParam(KeywordArgument, BabelCLIParamBase):
+    """
+    mapping param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of MappingParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            path to `babel.mappings.config`.
+        """
+
+        if default is None:
+            default = config_services.get_file_path(BabelPackage.MAPPING_STORE_NAME)
+
+        super().__init__('mapping', '--mapping', default=default)
+
+
+class NoLocationParam(BooleanArgument, BabelCLIParamBase):
+    """
+    no location param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of NoLocationParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `no_location`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'no_location')
+
+        super().__init__('no_location', '--no-location', default=default)
+
+
+class AddLocationParam(KeywordArgument, BabelCLIParamBase):
+    """
+    add location param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of AddLocationParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `add_location`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'add_location')
+
+        super().__init__('add_location', '--add-location', default=default)
+
+
+class SortOutputParam(BooleanArgument, BabelCLIParamBase):
+    """
+    sort output param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of SortOutputParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `sort_output`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'sort_output')
+
+        super().__init__('sort_output', '--sort-output', default=default)
+
+
+class SortByFileParam(BooleanArgument, BabelCLIParamBase):
+    """
+    sort by file param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of SortByFileParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `sort_by_file`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'sort_by_file')
+
+        super().__init__('sort_by_file', '--sort-by-file', default=default)
+
+
+class MSGIDBugsAddressParam(KeywordArgument, BabelCLIParamBase):
+    """
+    msgid bugs address param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of MSGIDBugsAddressParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `msgid_bugs_address`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'msgid_bugs_address')
+
+        super().__init__('msgid_bugs_address', '--msgid-bugs-address', default=default)
+
+
+class CopyrightHolderParam(KeywordArgument, BabelCLIParamBase):
+    """
+    copyright holder param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of CopyrightHolderParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `copyright_holder`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'copyright_holder')
+
+        super().__init__('copyright_holder', '--copyright-holder', default=default)
+
+
+class ProjectParam(KeywordArgument, BabelCLIParamBase):
+    """
+    project param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ProjectParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `project`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'project')
+
+        super().__init__('project', '--project', default=default)
+
+
+class VersionParam(KeywordArgument, BabelCLIParamBase):
+    """
+    version param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of VersionParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `version`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'version')
+
+        super().__init__('version', '--version', default=default)
+
+
+class AddCommentsParam(CompositeKeywordArgument, BabelCLIParamBase):
+    """
+    add comments param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of AddCommentsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `add_comments`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'add_comments')
+
+        super().__init__('add_comments', '--add-comments', default=default)
+
+
+class StripCommentsParam(BooleanArgument, BabelCLIParamBase):
+    """
+    strip comments param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of StripCommentsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `strip_comments`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'strip_comments')
+
+        super().__init__('strip_comments', '--strip-comments', default=default)
+
+
+class InputPathsParam(PositionalArgument, BabelCLIParamBase):
+    """
+    input paths param class.
+    """
+
+    def __init__(self, index=None, default=None):
+        """
+        initializes an instance of InputPathsParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to both application and pyrin
+                                            main package paths if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        if default is None:
+            default = self._get_paths(include_application=True, include_pyrin=True)
+
+        super().__init__('input_paths', index, default=default)
+
+    def _process_inputs(self, **options):
+        """
+        processes the inputs given to this handler and returns them.
+
+        :rtype: dict
+        """
+
+        include_application = options.get('include_app', False)
+        include_pyrin = options.get('include_pyrin', False)
+        paths = self._get_paths(include_application, include_pyrin)
+
+        if len(paths) <= 0:
+            paths = None
+
+        options.update(input_paths=paths)
+        return super()._process_inputs(**options)
+
+    def _get_paths(self, include_application=True, include_pyrin=True):
+        """
+        gets application and pyrin main package paths based on given inputs.
+
+        :param bool include_application: include application main package path.
+                                         defaults to True if not provided.
+
+        :param bool include_pyrin: include pyrin main package path.
+                                   defaults to True if not provided.
+
+        :returns: list[str]
+        :rtype: list
+        """
+
+        paths = []
+        if include_application is True:
+            paths.append(application_services.get_application_main_package_path())
+
+        if include_pyrin is True:
+            paths.append(application_services.get_pyrin_main_package_path())
+
+        return paths
+
+
+class DirectoryParam(KeywordArgument, BabelCLIParamBase):
+    """
+    directory param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of DirectoryParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to
+                                            `locale_path` of application.
+        """
+
+        if default is None:
+            default = application_services.get_locale_path()
+
+        super().__init__('directory', '--directory', default=default)
+
+
+class UseFuzzyParam(BooleanArgument, BabelCLIParamBase):
+    """
+    use fuzzy param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of UseFuzzyParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to `use_fuzzy`
+                                            value from babel config store.
+        """
+
+        if default is None:
+            default = config_services.get('babel', 'arguments', 'use_fuzzy')
+
+        super().__init__('use_fuzzy', '--use-fuzzy', default=default)
+
+
+class StatisticsParam(BooleanArgument, BabelCLIParamBase):
+    """
+    statistics param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of StatisticsParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            if not provided, defaults to None.
+        """
+
+        super().__init__('statistics', '--statistics', default=default)

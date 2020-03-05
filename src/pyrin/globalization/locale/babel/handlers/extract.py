@@ -3,25 +3,17 @@
 babel handlers extract module.
 """
 
+from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
-from pyrin.globalization.locale.babel.handlers.params import OmitHeaderParamMixin, \
-    WidthParamMixin, NoWrapParamMixin, CharsetParamMixin, KeywordsParamMixin, \
-    NoDefaultKeywordsParamMixin, MappingParamMixin, NoLocationParamMixin, \
-    AddLocationParamMixin, SortOutputParamMixin, SortByFileParamMixin, \
-    MSGIDBugsAddressParamMixin, CopyrightHolderParamMixin, ProjectParamMixin, \
-    VersionParamMixin, AddCommentsParamMixin, StripCommentsParamMixin, InputDirsParamMixin
+from pyrin.globalization.locale.babel.handlers.params import OmitHeaderParam, \
+    WidthParam, NoWrapParam, CharsetParam, KeywordsParam, NoDefaultKeywordsParam, \
+    MappingParam, NoLocationParam, AddLocationParam, SortOutputParam, SortByFileParam, \
+    MSGIDBugsAddressParam, CopyrightHolderParam, ProjectParam, VersionParam, \
+    AddCommentsParam, StripCommentsParam, InputPathsParam, OutputTemplateFileParam
 
 
 @babel_cli_handler()
-class ExtractCLIHandler(OmitHeaderParamMixin, WidthParamMixin,
-                        NoWrapParamMixin, CharsetParamMixin,
-                        KeywordsParamMixin, NoDefaultKeywordsParamMixin,
-                        MappingParamMixin, NoLocationParamMixin,
-                        AddLocationParamMixin, SortOutputParamMixin,
-                        SortByFileParamMixin, MSGIDBugsAddressParamMixin,
-                        CopyrightHolderParamMixin, ProjectParamMixin,
-                        VersionParamMixin, AddCommentsParamMixin,
-                        StripCommentsParamMixin, InputDirsParamMixin):
+class ExtractCLIHandler(BabelCLIHandlerBase):
     """
     extract cli handler class.
     """
@@ -32,3 +24,20 @@ class ExtractCLIHandler(OmitHeaderParamMixin, WidthParamMixin,
         """
 
         super().__init__('extract')
+
+    def _inject_params(self, params):
+        """
+        injects all the params of current handler into given list.
+
+        :param list[CLIParamBase] params: list of all params.
+        """
+
+        params.extend([OmitHeaderParam(), WidthParam(), NoWrapParam(),
+                       CharsetParam(), KeywordsParam(), NoDefaultKeywordsParam(),
+                       MappingParam(), NoLocationParam(), AddLocationParam(),
+                       SortOutputParam(), SortByFileParam(), MSGIDBugsAddressParam(),
+                       CopyrightHolderParam(), ProjectParam(), VersionParam(),
+                       AddCommentsParam(), StripCommentsParam(), InputPathsParam(),
+                       OutputTemplateFileParam()])
+
+        return super()._inject_params(params)

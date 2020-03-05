@@ -12,3 +12,4 @@ class BabelHandlersPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.configuration']

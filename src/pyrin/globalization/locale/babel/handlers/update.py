@@ -3,19 +3,16 @@
 babel handlers update module.
 """
 
+from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
-from pyrin.globalization.locale.babel.handlers.params import DomainParamMixin, \
-    InputFileParamMixin, OutputDirectoryParamMixin, OmitHeaderParamMixin, LocaleParamMixin, \
-    WidthParamMixin, NoWrapParamMixin, IgnoreObsoleteParamMixin, NoFuzzyMatchingParamMixin, \
-    UpdateHeaderCommentParamMixin, PreviousParamMixin
+from pyrin.globalization.locale.babel.handlers.params import DomainParam, \
+    InputTemplateFileParam, OutputDirectoryParam, OmitHeaderParam, LocaleParam, \
+    WidthParam, NoWrapParam, IgnoreObsoleteParam, NoFuzzyMatchingParam, \
+    UpdateHeaderCommentParam, PreviousParam
 
 
 @babel_cli_handler()
-class UpdateCLIHandler(DomainParamMixin, InputFileParamMixin,
-                       OutputDirectoryParamMixin, OmitHeaderParamMixin,
-                       LocaleParamMixin, WidthParamMixin, NoWrapParamMixin,
-                       IgnoreObsoleteParamMixin, NoFuzzyMatchingParamMixin,
-                       UpdateHeaderCommentParamMixin, PreviousParamMixin):
+class UpdateCLIHandler(BabelCLIHandlerBase):
     """
     update cli handler class.
     """
@@ -26,3 +23,19 @@ class UpdateCLIHandler(DomainParamMixin, InputFileParamMixin,
         """
 
         super().__init__('update')
+
+    def _inject_params(self, params):
+        """
+        injects all the params of current handler into given list.
+
+        :param list[CLIParamBase] params: list of all params.
+        """
+
+        params.extend([DomainParam(), InputTemplateFileParam(),
+                       OmitHeaderParam(), LocaleParam(),
+                       WidthParam(), OutputDirectoryParam(),
+                       NoWrapParam(), NoFuzzyMatchingParam(),
+                       IgnoreObsoleteParam(), PreviousParam(),
+                       UpdateHeaderCommentParam()])
+
+        return super()._inject_params(params)

@@ -13,3 +13,5 @@ class BabelPackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'globalization.locale.babel.component'
+    CONFIG_STORE_NAMES = ['babel']
+    MAPPING_STORE_NAME = 'babel.mappings'
