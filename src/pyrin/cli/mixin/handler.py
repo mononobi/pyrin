@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-cli mixin module.
+cli mixin handler module.
 """
 
 from pyrin.cli.base import CLIHandlerBase
@@ -13,6 +13,7 @@ from pyrin.cli.exceptions import InvalidCLIHandlerTypeError, DuplicatedCLIHandle
 class CLIMixin(CoreObject):
     """
     cli mixin class.
+
     every class that needs to manage cli handlers must inherit from this.
     """
 

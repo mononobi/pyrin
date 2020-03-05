@@ -3,43 +3,76 @@
 cli params module.
 """
 
-from pyrin.cli.base import CLIHandlerBase
-from pyrin.cli.metadata import BooleanArgumentMetadata
+from pyrin.cli.arguments import ArgumentBase, BooleanArgument
 
 
-class CLIParamMixin(CLIHandlerBase):
+class CLIParamBase(ArgumentBase):
     """
-    cli param mixin class.
-    all param mixin classes must be subclassed from this.
-    """
-    pass
+    cli param base class.
 
-
-class HelpParamMixin(CLIParamMixin):
-    """
-    help param mixin class.
+    all cli param classes must be subclassed from this.
     """
 
-    def _process_arguments(self):
+    def process_inputs(self, **options):
         """
-        processes the arguments that are related to this handler.
+        processes the inputs in given dict.
+
+        :rtype: dict
         """
 
-        help_option = BooleanArgumentMetadata('help', '--help')
-        self._add_argument_metadata(help_option)
-        super()._process_arguments()
+        return self._process_inputs(**options)
 
-
-class VerboseParamMixin(CLIParamMixin):
-    """
-    verbose param mixin class.
-    """
-
-    def _process_arguments(self):
+    def _process_inputs(self, **options):
         """
-        processes the arguments that are related to this handler.
+        processes the inputs in given dict.
+
+        subclasses could override this method and modify inputs as needed.
+        if the modification is a static one, you could provide default in
+        the param initialization, but if the modification is not static,
+        for example, a callable must be used to generate value based on
+        current situation, you must override this method to modify inputs and
+        inject the correct value. subclasses must call `super()._process_inputs(**options)`
+        after their work has be done.
+
+        :rtype: dict
         """
 
-        verbose = BooleanArgumentMetadata('verbose', '--verbose')
-        self._add_argument_metadata(verbose)
-        super()._process_arguments()
+        return options
+
+
+class HelpParam(BooleanArgument, CLIParamBase):
+    """
+    help param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of HelpParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('help', '--help', default=default)
+
+
+class VerboseParam(BooleanArgument, CLIParamBase):
+    """
+    verbose param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of VerboseParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('verbose', '--verbose', default=default)

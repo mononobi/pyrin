@@ -20,44 +20,44 @@ class CLIManagerBusinessException(CoreBusinessException, CLIManagerException):
     pass
 
 
-class ArgumentMetadataParamNameIsRequiredError(CLIManagerException):
+class ArgumentParamNameIsRequiredError(CLIManagerException):
     """
-    argument metadata param name is required error.
-    """
-    pass
-
-
-class PositionalArgumentMetadataIndexError(CLIManagerException):
-    """
-    positional argument metadata index error.
+    argument param name is required error.
     """
     pass
 
 
-class BooleanArgumentMetadataValueError(CLIManagerException):
+class PositionalArgumentIndexError(CLIManagerException):
     """
-    boolean argument metadata value error.
-    """
-    pass
-
-
-class KeywordArgumentMetadataCLIOptionNameError(CLIManagerException):
-    """
-    keyword argument metadata cli option name error.
+    positional argument index error.
     """
     pass
 
 
-class MappingArgumentMetadataParamValueToCLIMapRequiredError(CLIManagerException):
+class BooleanArgumentValueError(CLIManagerException):
     """
-    mapping argument metadata param value to cli map required error.
+    boolean argument value error.
     """
     pass
 
 
-class KeywordArgumentMetadataCLIOptionNameRequiredError(CLIManagerException):
+class KeywordArgumentCLIOptionNameError(CLIManagerException):
     """
-    keyword argument metadata cli option name required error.
+    keyword argument cli option name error.
+    """
+    pass
+
+
+class MappingArgumentParamValueToCLIMapRequiredError(CLIManagerException):
+    """
+    mapping argument param value to cli map required error.
+    """
+    pass
+
+
+class KeywordArgumentCLIOptionNameRequiredError(CLIManagerException):
+    """
+    keyword argument cli option name required error.
     """
     pass
 
@@ -90,13 +90,6 @@ class CLIHandlerNotFoundError(CLIManagerBusinessException):
     pass
 
 
-class InvalidArgumentMetaDataTypeError(CLIManagerException):
-    """
-    invalid argument metadata type error.
-    """
-    pass
-
-
 class PositionalArgumentsIndicesError(CLIManagerException):
     """
     positional arguments indices error.
@@ -107,5 +100,12 @@ class PositionalArgumentsIndicesError(CLIManagerException):
 class InvalidCLIDecoratedMethodError(CLIManagerException):
     """
     invalid cli decorated method error.
+    """
+    pass
+
+
+class InvalidCLIParamTypeError(CLIManagerException):
+    """
+    invalid cli param type error.
     """
     pass
