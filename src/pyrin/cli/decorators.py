@@ -15,6 +15,11 @@ def cli(func):
     decorator to specify a method that handles a cli command.
 
     the method name will be used as the handler name for that cli handler.
+    the decorated method, will be get called if `help=True` is not in options,
+    so you could do something in the decorated method body if required.
+    but it's highly recommended that do not do any complex operation inside
+    cli handler methods, instead implement the required operations in the manager
+    of relevant package and just call the relevant service inside the cli method.
 
     :param function func: function.
 

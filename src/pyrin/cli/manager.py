@@ -48,7 +48,6 @@ class CLIManager(Manager):
                                                      'functions are not valid.')
 
             if self._process_help(func, inputs) is False:
-                # we need to call the method to make sure all required params are provided.
                 func(*func_args, **func_kwargs)
                 return cli_instance.execute(func.__name__, **inputs)
 
