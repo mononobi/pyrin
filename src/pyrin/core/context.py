@@ -13,7 +13,7 @@ class DTO(dict):
     """
     context class for storing objects in every layer.
     it's actually a dictionary with the capability to treat keys as instance attributes.
-    this class's objects are immutable and could be used as a dict key if needed.
+    this class's objects are hashable and could be used as a dict key if needed.
     """
 
     def __getattr__(self, name):
