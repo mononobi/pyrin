@@ -3,7 +3,7 @@
 alembic manager module.
 """
 
-from pyrin.cli.mixin import CLIMixin
+from pyrin.cli.mixin.handler import CLIMixin
 from pyrin.core.context import Manager
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 

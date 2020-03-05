@@ -3,17 +3,15 @@
 alembic handlers revision module.
 """
 
+from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
-from pyrin.database.migration.alembic.handlers.params import MessageParamMixin, \
-    AutoGenerateParamMixin, SQLParamMixin, HeadParamMixin, SpliceParamMixin, \
-    BranchLabelParamMixin, VersionPathParamMixin, RevisionIDParamMixin, DependsOnParamMixin
+from pyrin.database.migration.alembic.handlers.params import MessageParam, \
+    AutoGenerateParam, SQLParam, HeadParam, SpliceParam, BranchLabelParam, \
+    VersionPathParam, RevisionIDParam, DependsOnParam
 
 
 @alembic_cli_handler()
-class RevisionCLIHandler(MessageParamMixin, AutoGenerateParamMixin,
-                         SQLParamMixin, HeadParamMixin, SpliceParamMixin,
-                         BranchLabelParamMixin, VersionPathParamMixin,
-                         RevisionIDParamMixin, DependsOnParamMixin):
+class RevisionCLIHandler(AlembicCLIHandlerBase):
     """
     revision cli handler class.
     """
@@ -24,3 +22,17 @@ class RevisionCLIHandler(MessageParamMixin, AutoGenerateParamMixin,
         """
 
         super().__init__('revision')
+
+    def _inject_params(self, params):
+        """
+        injects all the params of current handler into given list.
+
+        :param list[CLIParamBase] params: list of all params.
+        """
+
+        params.extend([MessageParam(), BranchLabelParam(),
+                       RevisionIDParam(), AutoGenerateParam(),
+                       SQLParam(), HeadParam(), SpliceParam(),
+                       VersionPathParam(), DependsOnParam()])
+
+        return super()._inject_params(params)

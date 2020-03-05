@@ -5,127 +5,151 @@ alembic handlers params module.
 
 import pyrin.globalization.datetime.services as datetime_services
 
-from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
-from pyrin.cli.metadata import BooleanArgumentMetadata, KeywordArgumentMetadata, \
-    PositionalArgumentMetadata
+from pyrin.cli.arguments import BooleanArgument, KeywordArgument, PositionalArgument
+from pyrin.database.migration.alembic.interface import AlembicCLIParamBase
 
 
-class AlembicCLIParamMixin(AlembicCLIHandlerBase):
+class SQLParam(BooleanArgument, AlembicCLIParamBase):
     """
-    alembic cli param mixin class.
-    all alembic param mixin classes must be subclassed from this.
-    """
-    pass
-
-
-class SQLParamMixin(AlembicCLIParamMixin):
-    """
-    sql param mixin class.
+    sql param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of SQLParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        sql = BooleanArgumentMetadata('sql', '--sql')
-        self._add_argument_metadata(sql)
-        super()._process_arguments()
+        super().__init__('sql', '--sql', default=default)
 
 
-class TagParamMixin(AlembicCLIParamMixin):
+class TagParam(KeywordArgument, AlembicCLIParamBase):
     """
-    tag param mixin class.
+    tag param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of TagParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        tag = KeywordArgumentMetadata('tag', '--tag')
-        self._add_argument_metadata(tag)
-        super()._process_arguments()
+        super().__init__('tag', '--tag', default=default)
 
 
-class RevisionParamMixin(AlembicCLIParamMixin):
+class RevisionParam(PositionalArgument, AlembicCLIParamBase):
     """
-    revision param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        revision = PositionalArgumentMetadata('revision', 0)
-        self._add_argument_metadata(revision)
-        super()._process_arguments()
-
-
-class ResolveDependenciesParamMixin(AlembicCLIParamMixin):
-    """
-    resolve dependencies param mixin class.
+    revision param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, index=None, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of RevisionParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        resolve_dependencies = BooleanArgumentMetadata('resolve_dependencies',
-                                                       '--resolve-dependencies')
-        self._add_argument_metadata(resolve_dependencies)
-        super()._process_arguments()
+        if index is None:
+            index = 0
+
+        super().__init__('revision', index, default=default)
 
 
-class IndicateCurrentParamMixin(AlembicCLIParamMixin):
+class ResolveDependenciesParam(BooleanArgument, AlembicCLIParamBase):
     """
-    indicate current param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        indicate_current = BooleanArgumentMetadata('indicate_current', '--indicate-current')
-        self._add_argument_metadata(indicate_current)
-        super()._process_arguments()
-
-
-class RevisionRangeParamMixin(AlembicCLIParamMixin):
-    """
-    revision range param mixin class.
+    resolve dependencies param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of ResolveDependenciesParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        revision_range = KeywordArgumentMetadata('revision_range', '--rev-range')
-        self._add_argument_metadata(revision_range)
-        super()._process_arguments()
+        super().__init__('resolve_dependencies', '--resolve-dependencies', default=default)
 
 
-class MessageParamMixin(AlembicCLIParamMixin):
+class IndicateCurrentParam(BooleanArgument, AlembicCLIParamBase):
     """
-    message param mixin class.
+    indicate current param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of IndicateCurrentParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        message = KeywordArgumentMetadata('message', '--message')
-        self._add_argument_metadata(message)
-        super()._process_arguments()
+        super().__init__('indicate_current', '--indicate-current', default=default)
+
+
+class RevisionRangeParam(KeywordArgument, AlembicCLIParamBase):
+    """
+    revision range param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of RevisionRangeParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('revision_range', '--rev-range', default=default)
+
+
+class MessageParam(KeywordArgument, AlembicCLIParamBase):
+    """
+    message param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of MessageParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('message', '--message', default=default)
 
     def _process_inputs(self, **options):
         """
-        processes the inputs given to this handler and returns them.
+        processes the inputs in given dict.
 
         :rtype: dict
         """
@@ -139,136 +163,178 @@ class MessageParamMixin(AlembicCLIParamMixin):
         return super()._process_inputs(**options)
 
 
-class BranchLabelParamMixin(AlembicCLIParamMixin):
+class BranchLabelParam(KeywordArgument, AlembicCLIParamBase):
     """
-    branch label param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        branch_label = KeywordArgumentMetadata('branch_label', '--branch-label')
-        self._add_argument_metadata(branch_label)
-        super()._process_arguments()
-
-
-class RevisionIDParamMixin(AlembicCLIParamMixin):
-    """
-    revision id param mixin class.
+    branch label param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of BranchLabelParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        revision_id = KeywordArgumentMetadata('revision_id', '--rev-id')
-        self._add_argument_metadata(revision_id)
-        super()._process_arguments()
+        super().__init__('branch_label', '--branch-label', default=default)
 
 
-class RevisionsParamMixin(AlembicCLIParamMixin):
+class RevisionIDParam(KeywordArgument, AlembicCLIParamBase):
     """
-    revisions param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        revisions = PositionalArgumentMetadata('revisions', 0)
-        self._add_argument_metadata(revisions)
-        super()._process_arguments()
-
-
-class AutoGenerateParamMixin(AlembicCLIParamMixin):
-    """
-    autogenerate param mixin class.
+    revision id param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of RevisionIDParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        autogenerate = BooleanArgumentMetadata('autogenerate', '--autogenerate')
-        self._add_argument_metadata(autogenerate)
-        super()._process_arguments()
+        super().__init__('revision_id', '--rev-id', default=default)
 
 
-class HeadParamMixin(AlembicCLIParamMixin):
+class RevisionsParam(PositionalArgument, AlembicCLIParamBase):
     """
-    head param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        head = KeywordArgumentMetadata('head', '--head')
-        self._add_argument_metadata(head)
-        super()._process_arguments()
-
-
-class SpliceParamMixin(AlembicCLIParamMixin):
-    """
-    splice param mixin class.
+    revisions param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, index=None, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of RevisionsParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        splice = BooleanArgumentMetadata('splice', '--splice')
-        self._add_argument_metadata(splice)
-        super()._process_arguments()
+        if index is None:
+            index = 0
+
+        super().__init__('revisions', index, default=default)
 
 
-class VersionPathParamMixin(AlembicCLIParamMixin):
+class AutoGenerateParam(BooleanArgument, AlembicCLIParamBase):
     """
-    version path param mixin class.
-    """
-
-    def _process_arguments(self):
-        """
-        processes the arguments that are related to this handler.
-        """
-
-        version_path = KeywordArgumentMetadata('version_path', '--version-path')
-        self._add_argument_metadata(version_path)
-        super()._process_arguments()
-
-
-class DependsOnParamMixin(AlembicCLIParamMixin):
-    """
-    depends on param mixin class.
+    autogenerate param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of AutoGenerateParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        depends_on = KeywordArgumentMetadata('depends_on', '--depends-on')
-        self._add_argument_metadata(depends_on)
-        super()._process_arguments()
+        super().__init__('autogenerate', '--autogenerate', default=default)
 
 
-class PurgeParamMixin(AlembicCLIParamMixin):
+class HeadParam(KeywordArgument, AlembicCLIParamBase):
     """
-    purge param mixin class.
+    head param class.
     """
 
-    def _process_arguments(self):
+    def __init__(self, default=None):
         """
-        processes the arguments that are related to this handler.
+        initializes an instance of HeadParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
         """
 
-        purge = BooleanArgumentMetadata('purge', '--purge')
-        self._add_argument_metadata(purge)
-        super()._process_arguments()
+        super().__init__('head', '--head', default=default)
+
+
+class SpliceParam(BooleanArgument, AlembicCLIParamBase):
+    """
+    splice param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of SpliceParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('splice', '--splice', default=default)
+
+
+class VersionPathParam(KeywordArgument, AlembicCLIParamBase):
+    """
+    version path param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of VersionPathParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('version_path', '--version-path', default=default)
+
+
+class DependsOnParam(KeywordArgument, AlembicCLIParamBase):
+    """
+    depends on param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of DependsOnParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('depends_on', '--depends-on', default=default)
+
+
+class PurgeParam(BooleanArgument, AlembicCLIParamBase):
+    """
+    purge param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of PurgeParam.
+
+        :param Union[object, None] default: default value to be emitted to
+                                            cli if this param is not available.
+                                            if set to None, this param will not
+                                            be emitted at all.
+                                            defaults to None if not provided.
+        """
+
+        super().__init__('purge', '--purge', default=default)

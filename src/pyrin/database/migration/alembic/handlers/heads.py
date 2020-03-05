@@ -5,11 +5,11 @@ alembic handlers heads module.
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.base import AlembicReportingCLIHandlerBase
-from pyrin.database.migration.alembic.handlers.params import ResolveDependenciesParamMixin
+from pyrin.database.migration.alembic.handlers.params import ResolveDependenciesParam
 
 
 @alembic_cli_handler()
-class HeadsCLIHandler(AlembicReportingCLIHandlerBase, ResolveDependenciesParamMixin):
+class HeadsCLIHandler(AlembicReportingCLIHandlerBase):
     """
     heads cli handler class.
     """
@@ -20,3 +20,13 @@ class HeadsCLIHandler(AlembicReportingCLIHandlerBase, ResolveDependenciesParamMi
         """
 
         super().__init__('heads')
+
+    def _inject_params(self, params):
+        """
+        injects all the params of current handler into given list.
+
+        :param list[CLIParamBase] params: list of all params.
+        """
+
+        params.append(ResolveDependenciesParam())
+        return super()._inject_params(params)

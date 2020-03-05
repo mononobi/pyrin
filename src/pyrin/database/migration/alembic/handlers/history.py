@@ -5,13 +5,12 @@ alembic handlers history module.
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.base import AlembicReportingCLIHandlerBase
-from pyrin.database.migration.alembic.handlers.params import IndicateCurrentParamMixin, \
-    RevisionRangeParamMixin
+from pyrin.database.migration.alembic.handlers.params import IndicateCurrentParam, \
+    RevisionRangeParam
 
 
 @alembic_cli_handler()
-class HistoryCLIHandler(AlembicReportingCLIHandlerBase,
-                        IndicateCurrentParamMixin, RevisionRangeParamMixin):
+class HistoryCLIHandler(AlembicReportingCLIHandlerBase):
     """
     history cli handler class.
     """
@@ -22,3 +21,13 @@ class HistoryCLIHandler(AlembicReportingCLIHandlerBase,
         """
 
         super().__init__('history')
+
+    def _inject_params(self, params):
+        """
+        injects all the params of current handler into given list.
+
+        :param list[CLIParamBase] params: list of all params.
+        """
+
+        params.extend([IndicateCurrentParam(), RevisionRangeParam()])
+        return super()._inject_params(params)

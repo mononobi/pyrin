@@ -5,13 +5,24 @@ alembic interface module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.cli.params import HelpParamMixin
+from pyrin.cli.base import CLIHandlerBase
+from pyrin.cli.params import CLIParamBase
 from pyrin.database.migration.alembic import AlembicPackage
 
 
-class AlembicCLIHandlerBase(HelpParamMixin):
+class AlembicCLIParamBase(CLIParamBase):
+    """
+    alembic cli param base class.
+
+    all alembic cli param classes must be subclassed from this.
+    """
+    pass
+
+
+class AlembicCLIHandlerBase(CLIHandlerBase):
     """
     alembic cli handler base class.
+
     all alembic cli handlers must be subclassed from this.
     """
 
