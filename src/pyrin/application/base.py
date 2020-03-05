@@ -3,7 +3,7 @@
 application base module.
 """
 
-import os.path
+import os
 
 from time import time
 
