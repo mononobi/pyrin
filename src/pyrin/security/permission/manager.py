@@ -3,6 +3,8 @@
 permission manager module.
 """
 
+from abc import abstractmethod
+
 from pyrin.core.context import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
@@ -76,6 +78,7 @@ class PermissionManager(Manager):
         if needs_update:
             self._bulk_update(needs_update)
 
+    @abstractmethod
     def _exists(self, *primary_key):
         """
         gets a value indicating that given permission exists in database.

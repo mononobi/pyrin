@@ -3,6 +3,8 @@
 database orm types base module.
 """
 
+from abc import abstractmethod
+
 from sqlalchemy import TypeDecorator
 
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -14,6 +16,7 @@ class CoreCustomType(TypeDecorator):
     all application custom types must be subclassed from this type.
     """
 
+    @abstractmethod
     def load_dialect_impl(self, dialect):
         """
         returns a `TypeEngine` object corresponding to a dialect.
@@ -27,6 +30,7 @@ class CoreCustomType(TypeDecorator):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def process_bind_param(self, value, dialect):
         """
         receive a bound parameter value to be converted.
@@ -41,6 +45,7 @@ class CoreCustomType(TypeDecorator):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def process_result_value(self, value, dialect):
         """
         receive a result-row column value to be converted.
@@ -55,6 +60,7 @@ class CoreCustomType(TypeDecorator):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def compare_against_backend(self, dialect, conn_type):
         """
         returns True if this type is the same as the given database type,

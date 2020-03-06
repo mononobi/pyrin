@@ -5,6 +5,8 @@ encryption handlers base module.
 
 import re
 
+from abc import abstractmethod
+
 import pyrin.security.utils.services as security_utils_services
 import pyrin.utils.encoding as encoding_utils
 
@@ -56,6 +58,7 @@ class EncrypterBase(AbstractEncrypterBase):
 
         return 2
 
+    @abstractmethod
     def _get_encryption_key(self, **options):
         """
         gets the signing key for encryption.
@@ -67,6 +70,7 @@ class EncrypterBase(AbstractEncrypterBase):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _get_decryption_key(self, **options):
         """
         gets the signing key for decryption.
@@ -78,6 +82,7 @@ class EncrypterBase(AbstractEncrypterBase):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _get_algorithm(self, **options):
         """
         gets the algorithm used for encryption.
@@ -103,6 +108,7 @@ class EncrypterBase(AbstractEncrypterBase):
         final_result = self._make_final_result(encrypted, **options)
         return self._prepare_output(final_result)
 
+    @abstractmethod
     def _encrypt(self, text, **options):
         """
         encrypts the given value and returns the encrypted result.
@@ -136,6 +142,7 @@ class EncrypterBase(AbstractEncrypterBase):
         except Exception as error:
             raise DecryptionError(error) from error
 
+    @abstractmethod
     def _decrypt(self, value, **options):
         """
         decrypts the given value and returns the decrypted result.
@@ -367,6 +374,7 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
 
         return security_utils_services.generate_rsa_key(**options)
 
+    @abstractmethod
     def _load_keys(self, **options):
         """
         loads public/private keys into this class's relevant attributes.

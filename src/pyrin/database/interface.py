@@ -3,6 +3,7 @@
 database interface module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -25,6 +26,7 @@ class AbstractSessionFactoryBase(CoreObject, metaclass=SessionFactorySingletonMe
     abstract session factory base class.
     """
 
+    @abstractmethod
     def create_session_factory(self, engine):
         """
         creates a database session factory and binds it to
@@ -40,6 +42,7 @@ class AbstractSessionFactoryBase(CoreObject, metaclass=SessionFactorySingletonMe
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def is_request_bounded(self):
         """
         gets a value indicating that this session factory

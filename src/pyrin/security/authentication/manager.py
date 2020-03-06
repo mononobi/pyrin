@@ -3,6 +3,8 @@
 authentication manager module.
 """
 
+from abc import abstractmethod
+
 import pyrin.security.token.services as token_services
 import pyrin.security.session.services as session_services
 
@@ -90,6 +92,7 @@ class AuthenticationManager(Manager):
 
         self._push_custom_data(header, payload, **options)
 
+    @abstractmethod
     def _push_custom_data(self, header, payload, **options):
         """
         pushes the custom data into current request from input values.
@@ -140,6 +143,7 @@ class AuthenticationManager(Manager):
 
         self._validate_custom(header, payload, **options)
 
+    @abstractmethod
     def _validate_custom(self, header, payload, **options):
         """
         validates the given inputs for custom attributes.

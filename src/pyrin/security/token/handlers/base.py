@@ -5,6 +5,8 @@ token handlers base module.
 
 import time
 
+from abc import abstractmethod
+
 import jwt
 
 import pyrin.configuration.services as config_services
@@ -281,6 +283,7 @@ class TokenBase(AbstractTokenBase):
                    require_iat=True,
                    require_nbf=False)
 
+    @abstractmethod
     def _get_encoding_key(self, **options):
         """
         gets the signing key for encoding.
@@ -292,6 +295,7 @@ class TokenBase(AbstractTokenBase):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _get_decoding_key(self, **options):
         """
         gets the signing key for decoding.
@@ -321,6 +325,7 @@ class TokenBase(AbstractTokenBase):
 
         return config_services.get('security', 'token', 'refresh_token_lifetime', **options)
 
+    @abstractmethod
     def _get_algorithm(self, **options):
         """
         gets the algorithm for signing the token.
@@ -405,6 +410,7 @@ class RSTokenBase(AsymmetricTokenBase):
 
         return security_utils_services.generate_rsa_key(**options)
 
+    @abstractmethod
     def _load_keys(self, **options):
         """
         loads public/private keys into this class's relevant attributes.

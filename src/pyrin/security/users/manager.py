@@ -3,6 +3,8 @@
 users manager module.
 """
 
+from abc import abstractmethod
+
 from pyrin.core.context import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 
@@ -14,6 +16,7 @@ class UsersManager(Manager):
     the top level application must extend this class considering business requirements.
     """
 
+    @abstractmethod
     def is_active(self, user, **options):
         """
         gets a value indicating that given user is active.

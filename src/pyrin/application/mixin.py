@@ -6,6 +6,8 @@ application mixin module.
 import sys
 import signal
 
+from abc import abstractmethod
+
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utils.custom_print import print_error
@@ -86,6 +88,7 @@ class SignalMixin(CoreObject):
         self._prepare_termination(signal_number)
         sys.exit(options.get('status', 0))
 
+    @abstractmethod
     def get_application_name(self):
         """
         gets the application name.

@@ -3,6 +3,7 @@
 serializer base module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -26,8 +27,8 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
     all application serializers must inherit from this.
     """
 
-    @classmethod
-    def serialize(cls, value, **options):
+    @abstractmethod
+    def serialize(self, value, **options):
         """
         serializes the given value.
 
@@ -40,8 +41,7 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
 
         raise CoreNotImplementedError()
 
-    @classmethod
-    def serialize_list(cls, values, **options):
+    def serialize_list(self, values, **options):
         """
         serializes the given list of values.
 
@@ -54,4 +54,4 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
         if values is None or len(values) == 0:
             return []
 
-        return [cls.serialize(value, **options) for value in values]
+        return [self.serialize(value, **options) for value in values]

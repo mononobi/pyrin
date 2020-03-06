@@ -3,6 +3,7 @@
 encryption interface module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -26,6 +27,7 @@ class AbstractEncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
     all application encrypters must subclass this.
     """
 
+    @abstractmethod
     def encrypt(self, text, **options):
         """
         encrypts the given value and returns the full encrypted
@@ -40,6 +42,7 @@ class AbstractEncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def decrypt(self, full_encrypted_value, **options):
         """
         decrypts the given full encrypted value and returns the decrypted result.
@@ -53,6 +56,7 @@ class AbstractEncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.

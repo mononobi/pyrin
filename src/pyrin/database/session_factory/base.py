@@ -3,6 +3,8 @@
 database session factory base module.
 """
 
+from abc import abstractmethod
+
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.interface import AbstractSessionFactoryBase
 
@@ -35,6 +37,7 @@ class SessionFactoryBase(AbstractSessionFactoryBase):
         setattr(session, 'is_request_bounded', self.is_request_bounded())
         return session
 
+    @abstractmethod
     def _create_session_factory(self, engine):
         """
         creates a database session factory and binds it to

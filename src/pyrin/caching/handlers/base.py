@@ -5,6 +5,7 @@ caching handlers base module.
 
 import time
 
+from abc import abstractmethod
 from threading import Lock
 from copy import deepcopy
 
@@ -105,6 +106,7 @@ class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
     def __contains__(self, key):
         return self.contains(key)
 
+    @abstractmethod
     def set(self, key, value, timeout=None):
         """
         sets a new value into cached items.
@@ -121,6 +123,7 @@ class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get(self, key):
         """
         gets the value from cache.
@@ -134,6 +137,7 @@ class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def contains(self, key):
         """
         gets a value indicating that given key is existed in the cached items.
@@ -156,6 +160,7 @@ class CachingHandlerBase(CoreObject, metaclass=CachingHandlerSingletonMeta):
 
         return self._timeout
 
+    @abstractmethod
     def remove(self, key):
         """
         removes the key from cached items.

@@ -3,6 +3,7 @@
 logging adapters module.
 """
 
+from abc import abstractmethod
 from logging import LoggerAdapter
 
 import pyrin.security.session.services as session_services
@@ -55,6 +56,7 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         self.logger.removeHandler(hdlr)
 
+    @abstractmethod
     def process(self, msg, kwargs):
         """
         processes the logging message and keyword arguments passed in to

@@ -3,6 +3,8 @@
 security manager module.
 """
 
+from abc import abstractmethod
+
 import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
@@ -61,6 +63,7 @@ class SecurityManager(Manager):
 
         return encryption_services.encrypt(text)
 
+    @abstractmethod
     def has_permission(self, user, permissions, **options):
         """
         gets a value indicating that given user has the specified permissions.

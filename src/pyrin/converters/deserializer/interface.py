@@ -3,6 +3,7 @@
 deserializer interface module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -25,6 +26,7 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
     abstract deserializer base class.
     """
 
+    @abstractmethod
     def deserialize(self, value, **options):
         """
         deserializes the given value.
@@ -39,6 +41,7 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def set_next(self, deserializer):
         """
         sets the next deserializer handler and returns it.
@@ -53,6 +56,7 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_accepted_type(self):
         """
         gets the accepted type for this deserializer

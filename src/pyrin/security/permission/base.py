@@ -3,6 +3,8 @@
 permission base module.
 """
 
+from abc import abstractmethod
+
 import pyrin.security.permission.services as permission_services
 
 from pyrin.core.context import CoreObject
@@ -23,6 +25,7 @@ class PermissionBase(CoreObject):
         super().__init__()
         permission_services.register_permission(self, **options)
 
+    @abstractmethod
     def __hash__(self):
         """
         this method must be implemented in all subclasses
@@ -35,6 +38,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def __eq__(self, other):
         """
         this method must be implemented in all subclasses to get the correct
@@ -50,6 +54,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def __ne__(self, other):
         """
         this method must be implemented in all subclasses to get the correct
@@ -65,6 +70,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def __str__(self):
         """
         this method must be implemented in all subclasses to
@@ -77,6 +83,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def __repr__(self):
         """
         this method must be implemented in all subclasses to
@@ -89,6 +96,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def to_entity(self):
         """
         gets the equivalent entity of current permission.
@@ -100,6 +108,7 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_id(self):
         """
         gets permission id.

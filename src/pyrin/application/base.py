@@ -103,8 +103,8 @@ class Application(Flask, HookMixin, SignalMixin,
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
-    entity_serializer = CoreEntitySerializer
-    keyed_tuple_serializer = CoreKeyedTupleSerializer
+    entity_serializer_class = CoreEntitySerializer
+    keyed_tuple_serializer_class = CoreKeyedTupleSerializer
     _hook_type = ApplicationHookBase
 
     def __init__(self, **options):
@@ -169,6 +169,8 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
+        self._entity_serializer = self.entity_serializer_class()
+        self._keyed_tuple_serializer = self.keyed_tuple_serializer_class()
 
         # we should register some packages manually because they are referenced
         # in `application.base` module and could not be loaded automatically
@@ -653,15 +655,15 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if isinstance(rv, list) and len(rv) > 0:
             if model_services.is_abstract_keyed_tuple(rv[0]):
-                rv = self.keyed_tuple_serializer.serialize_list(rv)
+                rv = self._keyed_tuple_serializer.serialize_list(rv)
             elif model_services.is_core_entity(rv[0]):
-                rv = self.entity_serializer.serialize_list(rv)
+                rv = self._entity_serializer.serialize_list(rv)
 
         elif model_services.is_abstract_keyed_tuple(rv):
-            rv = self.keyed_tuple_serializer.serialize(rv)
+            rv = self._keyed_tuple_serializer.serialize(rv)
 
         elif model_services.is_core_entity(rv):
-            rv = self.entity_serializer.serialize(rv)
+            rv = self._entity_serializer.serialize(rv)
 
         return rv
 

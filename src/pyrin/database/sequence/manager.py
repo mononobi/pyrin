@@ -3,6 +3,8 @@
 sequence manager module.
 """
 
+from abc import abstractmethod
+
 from sqlalchemy import Sequence
 
 import pyrin.database.services as database_services
@@ -76,6 +78,7 @@ class SequenceManager(Manager):
         return store.execute('select next value for {sequence}'.
                              format(sequence=name)).scalar()
 
+    @abstractmethod
     def _sqlite_next_value(self, sequence):
         """
         sqlite does not support sequences.

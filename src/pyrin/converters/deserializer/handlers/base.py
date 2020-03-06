@@ -3,6 +3,8 @@
 deserializer base module.
 """
 
+from abc import abstractmethod
+
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError
 from pyrin.converters.deserializer.interface import AbstractDeserializerBase
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -44,6 +46,7 @@ class DeserializerBase(AbstractDeserializerBase):
 
         return deserialized_value
 
+    @abstractmethod
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
@@ -208,6 +211,7 @@ class StringDeserializerBase(DeserializerBase):
         return min([item[1] for item in self.get_accepted_formats()]), \
             max([item[1] for item in self.get_accepted_formats()])
 
+    @abstractmethod
     def get_default_formats(self):
         """
         gets default accepted formats that this

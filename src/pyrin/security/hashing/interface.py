@@ -3,6 +3,7 @@
 hashing interface module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -26,6 +27,7 @@ class AbstractHashingBase(CoreObject, metaclass=HashingSingletonMeta):
     all application hashing handlers must be subclassed from this.
     """
 
+    @abstractmethod
     def generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
@@ -47,6 +49,7 @@ class AbstractHashingBase(CoreObject, metaclass=HashingSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def is_match(self, text, full_hashed_value, **options):
         """
         gets a value indicating that given text's

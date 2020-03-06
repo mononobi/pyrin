@@ -12,8 +12,7 @@ class CoreKeyedTupleSerializer(SerializerBase):
     core keyed tuple serializer class.
     """
 
-    @classmethod
-    def serialize(cls, value, **options):
+    def serialize(self, value, **options):
         """
         serializes the given value.
 

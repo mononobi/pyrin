@@ -3,6 +3,7 @@
 utils singleton module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -28,6 +29,7 @@ class SingletonMetaBase(type):
 
         return cls._get_instance()
 
+    @abstractmethod
     def _has_instance(cls):
         """
         gets a value indicating there is a registered instance.
@@ -39,6 +41,7 @@ class SingletonMetaBase(type):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _register_instance(cls, instance):
         """
         registers the given instance.
@@ -50,6 +53,7 @@ class SingletonMetaBase(type):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _get_instance(cls):
         """
         gets the registered instance.

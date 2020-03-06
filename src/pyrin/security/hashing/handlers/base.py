@@ -5,6 +5,8 @@ hashing handlers base module.
 
 import re
 
+from abc import abstractmethod
+
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.hashing.interface import AbstractHashingBase
 from pyrin.settings.static import APPLICATION_ENCODING
@@ -56,6 +58,7 @@ class HashingBase(AbstractHashingBase):
         full_hashed_value = self._generate_hash(text, **options)
         return self._prepare_output(full_hashed_value, **options)
 
+    @abstractmethod
     def _generate_hash(self, text, **options):
         """
         gets the hash of input text using a random or specified salt.
@@ -98,6 +101,7 @@ class HashingBase(AbstractHashingBase):
         except HashingHandlerException:
             return False
 
+    @abstractmethod
     def _is_match(self, text, hashed_value, **options):
         """
         gets a value indicating that given text's
@@ -111,6 +115,7 @@ class HashingBase(AbstractHashingBase):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def _get_algorithm(self, **options):
         """
         gets the hashing algorithm.
@@ -140,6 +145,7 @@ class HashingBase(AbstractHashingBase):
 
         return 3
 
+    @abstractmethod
     def _extract_parts_from_final_hash(self, full_hashed_value, **options):
         """
         extracts different parts of given full hashed value.
@@ -168,6 +174,7 @@ class HashingBase(AbstractHashingBase):
                                           '[{current}] hashing value.'
                                           .format(current=self._get_algorithm()))
 
+    @abstractmethod
     def _get_hashed_part(self, full_hashed_value, **options):
         """
         gets the hashed part from full hashed value which current handler understands it.

@@ -3,6 +3,7 @@
 token interface module.
 """
 
+from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.context import CoreObject
@@ -25,6 +26,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     abstract token base class.
     """
 
+    @abstractmethod
     def generate_access_token(self, payload, **options):
         """
         generates an access token from the given inputs and returns it.
@@ -50,6 +52,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def generate_refresh_token(self, payload, **options):
         """
         generates a refresh token from the given inputs and returns it.
@@ -70,6 +73,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_payload(self, token, **options):
         """
         decodes token and gets the payload data. if token signature could
@@ -84,6 +88,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_unverified_payload(self, token, **options):
         """
         decodes token and gets the payload data without verifying the signature.
@@ -98,6 +103,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_unverified_header(self, token, **options):
         """
         gets the header dict of token without verifying the signature.
@@ -112,6 +118,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def generate_key(self, **options):
         """
         generates a valid key for this handler and returns it.
@@ -127,6 +134,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def get_kid(self):
         """
         gets kid value to be used in token header for this handler.

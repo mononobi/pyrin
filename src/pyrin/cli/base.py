@@ -7,6 +7,7 @@ import subprocess
 
 from subprocess import CalledProcessError
 from threading import Lock
+from abc import abstractmethod
 
 from pyrin.cli.mixin.param import CLIParamMixin
 from pyrin.core.context import CoreObject
@@ -30,6 +31,7 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
     abstract cli handler base class.
     """
 
+    @abstractmethod
     def get_name(self):
         """
         gets current handler name, the handler will be registered with this name.
@@ -44,6 +46,7 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
     def execute(self, **options):
         """
         executes the current cli command with given inputs.

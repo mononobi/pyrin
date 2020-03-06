@@ -12,8 +12,7 @@ class CoreEntitySerializer(SerializerBase):
     core entity serializer class.
     """
 
-    @classmethod
-    def serialize(cls, value, **options):
+    def serialize(self, value, **options):
         """
         serializes the given value.
 
