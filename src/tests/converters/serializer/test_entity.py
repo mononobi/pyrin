@@ -14,7 +14,7 @@ def test_serialize():
     """
 
     entity = RightChildEntity(grade=20, id=1, age=10)
-    result = CoreEntitySerializer.serialize(entity)
+    result = CoreEntitySerializer().serialize(entity)
 
     assert isinstance(result, dict)
     assert len(result) == 3
@@ -31,7 +31,7 @@ def test_serialize_exposed_only():
 
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
                                          age=10, hidden_field='some_secret')
-    result = CoreEntitySerializer.serialize(entity)
+    result = CoreEntitySerializer().serialize(entity)
 
     assert isinstance(result, dict)
     assert len(result) == 4
@@ -50,7 +50,7 @@ def test_serialize_all():
 
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
                                          age=10, hidden_field='some_secret')
-    result = CoreEntitySerializer.serialize(entity, exposed_only=False)
+    result = CoreEntitySerializer().serialize(entity, exposed_only=False)
 
     assert isinstance(result, dict)
     assert len(result) == 5
@@ -67,7 +67,7 @@ def test_serialize_none():
     the entity is None so it should return an empty dict.
     """
 
-    result = CoreEntitySerializer.serialize(None)
+    result = CoreEntitySerializer().serialize(None)
 
     assert isinstance(result, dict)
     assert len(result) == 0
@@ -82,7 +82,7 @@ def test_serialize_list():
     entity2 = RightChildEntity(grade=22, id=2, age=25)
     entity3 = RightChildEntity(grade=32, id=3, age=30)
     values = [entity1, entity2, entity3]
-    results = CoreEntitySerializer.serialize_list(values)
+    results = CoreEntitySerializer().serialize_list(values)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -123,7 +123,7 @@ def test_serialize_list_exposed_only():
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
                                           age=30, hidden_field='some_secret3')
     values = [entity1, entity2, entity3]
-    results = CoreEntitySerializer.serialize_list(values)
+    results = CoreEntitySerializer().serialize_list(values)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -171,7 +171,7 @@ def test_serialize_list_all():
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
                                           age=30, hidden_field='some_secret3')
     values = [entity1, entity2, entity3]
-    results = CoreEntitySerializer.serialize_list(values, exposed_only=False)
+    results = CoreEntitySerializer().serialize_list(values, exposed_only=False)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -211,7 +211,7 @@ def test_serialize_list_none():
     the given list is None, so it should return an empty list.
     """
 
-    results = CoreEntitySerializer.serialize_list(None)
+    results = CoreEntitySerializer().serialize_list(None)
 
     assert isinstance(results, list)
     assert len(results) == 0
@@ -223,7 +223,7 @@ def test_serialize_list_empty():
     the given list is empty, so it should return an empty list.
     """
 
-    results = CoreEntitySerializer.serialize_list([])
+    results = CoreEntitySerializer().serialize_list([])
 
     assert isinstance(results, list)
     assert len(results) == 0
@@ -236,7 +236,7 @@ def test_serialize_list_with_none_values():
     return a list of empty dicts.
     """
 
-    results = CoreEntitySerializer.serialize_list([None, None])
+    results = CoreEntitySerializer().serialize_list([None, None])
 
     assert isinstance(results, list)
     assert len(results) == 2
@@ -262,7 +262,7 @@ def test_serialize_list_mixed_none():
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
                                           age=30, hidden_field='some_secret3')
     values = [entity1, entity2, entity3]
-    results = CoreEntitySerializer.serialize_list(values, exposed_only=True)
+    results = CoreEntitySerializer().serialize_list(values, exposed_only=True)
 
     assert isinstance(results, list)
     assert len(results) == 3

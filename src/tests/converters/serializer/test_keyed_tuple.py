@@ -14,7 +14,7 @@ def test_serialize():
     """
 
     row = sqlalchemy_utils.create_row_result(['id', 'name', 'age'], [1, 'jack', 20])
-    result = CoreKeyedTupleSerializer.serialize(row)
+    result = CoreKeyedTupleSerializer().serialize(row)
 
     assert isinstance(result, dict)
     assert len(result) == 3
@@ -29,7 +29,7 @@ def test_serialize_none():
     the row result is None so it should return an empty dict.
     """
 
-    result = CoreKeyedTupleSerializer.serialize(None)
+    result = CoreKeyedTupleSerializer().serialize(None)
 
     assert isinstance(result, dict)
     assert len(result) == 0
@@ -44,7 +44,7 @@ def test_serialize_list():
     row2 = sqlalchemy_utils.create_row_result(['id', 'grade', 'age'], [2, 35, 25])
     row3 = sqlalchemy_utils.create_row_result(['id', 'grade', 'age'], [3, 45, 30])
     values = [row1, row2, row3]
-    results = CoreKeyedTupleSerializer.serialize_list(values)
+    results = CoreKeyedTupleSerializer().serialize_list(values)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -78,7 +78,7 @@ def test_serialize_list_none():
     the given list is None, so it should return an empty list.
     """
 
-    results = CoreKeyedTupleSerializer.serialize_list(None)
+    results = CoreKeyedTupleSerializer().serialize_list(None)
 
     assert isinstance(results, list)
     assert len(results) == 0
@@ -90,7 +90,7 @@ def test_serialize_list_empty():
     the given list is empty, so it should return an empty list.
     """
 
-    results = CoreKeyedTupleSerializer.serialize_list([])
+    results = CoreKeyedTupleSerializer().serialize_list([])
 
     assert isinstance(results, list)
     assert len(results) == 0
@@ -103,7 +103,7 @@ def test_serialize_list_with_none_values():
     return a list of empty dicts.
     """
 
-    results = CoreKeyedTupleSerializer.serialize_list([None, None])
+    results = CoreKeyedTupleSerializer().serialize_list([None, None])
 
     assert isinstance(results, list)
     assert len(results) == 2
@@ -127,7 +127,7 @@ def test_serialize_list_mixed_none():
     row2 = None
     row3 = sqlalchemy_utils.create_row_result(['id', 'grade', 'age'], [3, 45, 30])
     values = [row1, row2, row3]
-    results = CoreKeyedTupleSerializer.serialize_list(values)
+    results = CoreKeyedTupleSerializer().serialize_list(values)
 
     assert isinstance(results, list)
     assert len(results) == 3
