@@ -3,6 +3,7 @@
 babel handlers init module.
 """
 
+from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import DomainParam, \
@@ -21,7 +22,7 @@ class InitCLIHandler(BabelCLIHandlerBase):
         initializes an instance of InitCLIHandler.
         """
 
-        super().__init__('init')
+        super().__init__(BabelCLIHandlersEnum.INIT)
 
     def _inject_params(self, params):
         """

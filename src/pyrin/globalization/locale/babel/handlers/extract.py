@@ -3,6 +3,7 @@
 babel handlers extract module.
 """
 
+from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import OmitHeaderParam, \
@@ -23,7 +24,7 @@ class ExtractCLIHandler(BabelCLIHandlerBase):
         initializes an instance of ExtractCLIHandler.
         """
 
-        super().__init__('extract')
+        super().__init__(BabelCLIHandlersEnum.EXTRACT)
 
     def _inject_params(self, params):
         """

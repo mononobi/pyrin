@@ -8,6 +8,7 @@ import pyrin.application.services as application_services
 
 from pyrin.cli.mixin.handler import CLIMixin
 from pyrin.core.context import Manager
+from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.exceptions import DirectoryAlreadyExistedError
@@ -66,8 +67,8 @@ class BabelManager(Manager, CLIMixin):
         """
 
         self._extract(include_pyrin, include_app)
-        self.execute('update', locale=locale)
-        self.execute('compile', locale=locale)
+        self.execute(BabelCLIHandlersEnum.UPDATE, locale=locale)
+        self.execute(BabelCLIHandlersEnum.COMPILE, locale=locale)
 
     def _extract(self, include_pyrin=True, include_app=True):
         """
@@ -80,4 +81,6 @@ class BabelManager(Manager, CLIMixin):
                                    messages as well. defaults to True if not provided.
         """
 
-        self.execute('extract', include_pyrin=include_pyrin, include_app=include_app)
+        self.execute(BabelCLIHandlersEnum.EXTRACT,
+                     include_pyrin=include_pyrin,
+                     include_app=include_app)

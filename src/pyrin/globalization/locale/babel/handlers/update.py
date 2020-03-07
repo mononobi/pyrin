@@ -3,6 +3,7 @@
 babel handlers update module.
 """
 
+from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import DomainParam, \
@@ -22,7 +23,7 @@ class UpdateCLIHandler(BabelCLIHandlerBase):
         initializes an instance of UpdateCLIHandler.
         """
 
-        super().__init__('update')
+        super().__init__(BabelCLIHandlersEnum.UPDATE)
 
     def _inject_params(self, params):
         """

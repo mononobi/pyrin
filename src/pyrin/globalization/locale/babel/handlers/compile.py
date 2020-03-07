@@ -3,6 +3,7 @@
 babel handlers compile module.
 """
 
+from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import LocaleParam, \
@@ -20,7 +21,7 @@ class CompileCLIHandler(BabelCLIHandlerBase):
         initializes an instance of CompileCLIHandler.
         """
 
-        super().__init__('compile')
+        super().__init__(BabelCLIHandlersEnum.COMPILE)
 
     def _inject_params(self, params):
         """
