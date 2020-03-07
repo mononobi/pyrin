@@ -6,6 +6,8 @@ utils path module.
 import os
 import sys
 
+from pyrin.utils.exceptions import PathIsNotAbsoluteError, DirectoryAlreadyExistedError
+
 
 def get_module_file_path(module_name):
     """
@@ -80,3 +82,24 @@ def get_pyrin_main_package_path():
     """
 
     return get_main_package_path(__name__)
+
+
+def create_directory(full_path):
+    """
+    creates a directory with given full path.
+
+    :param str full_path: full path of directory to be created.
+
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises DirectoryAlreadyExistedError: directory already existed error.
+    """
+
+    if os.path.isabs(full_path) is False:
+        raise PathIsNotAbsoluteError('The provided path for the '
+                                     'directory must be absolute.')
+
+    if os.path.exists(full_path):
+        raise DirectoryAlreadyExistedError('Directory [{directory}] already existed.'
+                                           .format(directory=full_path))
+
+    os.mkdir(full_path)

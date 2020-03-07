@@ -39,3 +39,45 @@ def execute(handler_name, **options):
     """
 
     return get_component(BabelPackage.COMPONENT_NAME).execute(handler_name, **options)
+
+
+def enable(include_pyrin=True, include_app=True):
+    """
+    enables locale management for the application.
+
+    :param bool include_pyrin: specifies that it should extract pyrin localizable
+                               messages. defaults to True if not provided.
+
+    :param bool include_app: specifies that it should extract application
+                             localizable messages. defaults to True if not provided.
+    """
+
+    return get_component(BabelPackage.COMPONENT_NAME).enable(include_pyrin, include_app)
+
+
+def rebuild(include_pyrin=True, include_app=True, locale=None):
+    """
+    it will do the three complete steps needed to
+    update and compile locales with new messages.
+
+    it will do:
+        1. extract
+        2. update
+        3. compile
+
+    this command is defined for convenient of usage, but if you need
+    to do these steps separately, you could ignore this command and
+    use the relevant command for each step.
+
+    :keyword bool include_pyrin: specifies that it must extract pyrin localizable
+                                 messages as well. defaults to True if not provided.
+
+    :keyword bool include_app: specifies that it must extract application localizable
+                               messages as well. defaults to True if not provided.
+
+    :keyword str locale: locale name of the catalog to compile.
+                         it will compile all catalogs if not provided.
+    """
+
+    return get_component(BabelPackage.COMPONENT_NAME).rebuild(include_pyrin,
+                                                              include_app, locale)

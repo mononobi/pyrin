@@ -67,3 +67,17 @@ class DictKeyPrefixIsNotProvidedError(UtilsException):
     dict key prefix is not provided error.
     """
     pass
+
+
+class PathIsNotAbsoluteError(UtilsException):
+    """
+    path is not absolute error.
+    """
+    pass
+
+
+class DirectoryAlreadyExistedError(UtilsException):
+    """
+    directory already existed error.
+    """
+    pass

@@ -5,8 +5,8 @@ babel handlers compile module.
 
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
-from pyrin.globalization.locale.babel.handlers.params import InputTemplateFileParam, \
-    LocaleParam, UseFuzzyParam, StatisticsParam, DirectoryParam, CompileDomainsParam
+from pyrin.globalization.locale.babel.handlers.params import LocaleParam, \
+    UseFuzzyParam, StatisticsParam, DirectoryParam, CompileDomainsParam, OutputFileParam
 
 
 @babel_cli_handler()
@@ -29,8 +29,8 @@ class CompileCLIHandler(BabelCLIHandlerBase):
         :param list[CLIParamBase] params: list of all params.
         """
 
-        params.extend([InputTemplateFileParam(), LocaleParam(),
+        params.extend([LocaleParam(), CompileDomainsParam(),
                        UseFuzzyParam(), StatisticsParam(),
-                       DirectoryParam(), CompileDomainsParam()])
+                       DirectoryParam(), OutputFileParam()])
 
         return super()._inject_params(params)

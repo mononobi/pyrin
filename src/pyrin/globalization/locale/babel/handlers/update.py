@@ -8,7 +8,7 @@ from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import DomainParam, \
     InputTemplateFileParam, OutputDirectoryParam, OmitHeaderParam, LocaleParam, \
     WidthParam, NoWrapParam, IgnoreObsoleteParam, NoFuzzyMatchingParam, \
-    UpdateHeaderCommentParam, PreviousParam
+    UpdateHeaderCommentParam, PreviousParam, OutputFileParam
 
 
 @babel_cli_handler()
@@ -36,6 +36,6 @@ class UpdateCLIHandler(BabelCLIHandlerBase):
                        WidthParam(), OutputDirectoryParam(),
                        NoWrapParam(), NoFuzzyMatchingParam(),
                        IgnoreObsoleteParam(), PreviousParam(),
-                       UpdateHeaderCommentParam()])
+                       UpdateHeaderCommentParam(), OutputFileParam()])
 
         return super()._inject_params(params)

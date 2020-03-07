@@ -6,7 +6,8 @@ babel handlers init module.
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.globalization.locale.babel.decorators import babel_cli_handler
 from pyrin.globalization.locale.babel.handlers.params import DomainParam, \
-    InputTemplateFileParam, OutputDirectoryParam, LocaleParam, WidthParam, NoWrapParam
+    InputTemplateFileParam, OutputDirectoryParam, LocaleParam, WidthParam, NoWrapParam, \
+    OutputFileParam
 
 
 @babel_cli_handler()
@@ -31,6 +32,6 @@ class InitCLIHandler(BabelCLIHandlerBase):
 
         params.extend([DomainParam(), InputTemplateFileParam(),
                        OutputDirectoryParam(), LocaleParam(),
-                       WidthParam(), NoWrapParam()])
+                       WidthParam(), NoWrapParam(), OutputFileParam()])
 
         return super()._inject_params(params)
