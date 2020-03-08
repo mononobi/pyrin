@@ -6,18 +6,21 @@ configuration manager module.
 import os
 
 import pyrin.application.services as application_services
+import pyrin.utils.path as path_utils
 
 from pyrin.configuration.store import ConfigStore
 from pyrin.core.context import Context, Manager
-from pyrin.utils.custom_print import print_warning
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
-    ConfigurationStoreNotFoundError, ConfigurationFileNotFoundError
+    ConfigurationStoreNotFoundError, ConfigurationFileNotFoundError, ConfigurationFileExistedError
 
 
 class ConfigurationManager(Manager):
     """
     configuration manager class.
     """
+
+    # config extension to be used for config file names.
+    CONFIG_EXTENSION = '.config'
 
     def __init__(self, **options):
         """
@@ -53,15 +56,10 @@ class ConfigurationManager(Manager):
         if name in self._config_stores:
             if ignore is not True:
                 raise ConfigurationStoreExistedError('Config store with name [{name}] already '
-                                                     'existed, config file names must be unique.'
+                                                     'existed, config store names must be unique.'
                                                      .format(name=name))
-            else:
-                print_warning('Config store with name [{name}] already '
-                              'existed, it will be ignored.'
-                              .format(name=name))
-                return
-
-        self._config_stores[name] = ConfigStore(name, file_path, defaults=defaults, **options)
+        else:
+            self._config_stores[name] = ConfigStore(name, file_path, defaults=defaults, **options)
 
     def _is_config_file(self, file_name):
         """
@@ -72,12 +70,14 @@ class ConfigurationManager(Manager):
         :rtype: bool
         """
 
-        return file_name.endswith('.config')
+        return file_name.endswith(self.CONFIG_EXTENSION)
 
     def load_configuration(self, name, defaults=None, **options):
         """
-        loads the given configuration if relevant file is
-        available in settings path.
+        loads the given configuration if relevant file is available in settings path.
+
+        it creates the config file in application settings path if
+        config file is only available in pyrin default settings.
 
         :param str name: configuration name.
 
@@ -101,11 +101,14 @@ class ConfigurationManager(Manager):
         file_path = self._get_relevant_file_path(name, **options)
         if file_path is not None:
             self._add_config_store(name, file_path, defaults=defaults, **options)
+            self.create_config_file(name, ignore_on_existed=True)
 
     def load_configurations(self, *names, defaults=None, **options):
         """
-        loads the given configurations if relevant files is
-        available in settings path.
+        loads the given configurations if relevant files is available in settings path.
+
+        it creates the config files in application settings path if
+        config files are only available in pyrin default settings.
 
         :param str names: configuration names as arguments.
 
@@ -131,7 +134,8 @@ class ConfigurationManager(Manager):
 
     def _get_relevant_file_path(self, name, **options):
         """
-        gets the relevant file path to specified config name in settings folder.
+        gets the relevant file path to specified store name in settings folder.
+        it returns None if the file is not available and `silent=True` is given.
 
         :param str name: config store name.
 
@@ -142,42 +146,34 @@ class ConfigurationManager(Manager):
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
-        file_path = self._try_get_relevant_file_path(self._settings_path, name)
-        if file_path is None:
-            file_path = self._try_get_relevant_file_path(self._default_settings_path, name)
+        config_name = self._get_file_name(name)
+        config_path = path_utils.get_first_available_file(self._settings_path,
+                                                          self._default_settings_path,
+                                                          file_name=config_name)
 
-        if file_path is None:
-            silent = options.get('silent', False)
-            if silent is not True:
-                raise ConfigurationFileNotFoundError('Config name [{name}] does not '
-                                                     'have any related configuration '
-                                                     'file in application settings.'
-                                                     .format(name=name))
-        return file_path
+        silent = options.get('silent', False)
+        if config_path is None and silent is not True:
+            raise ConfigurationFileNotFoundError('Config store name [{name}] does not '
+                                                 'have any related configuration '
+                                                 'file in application settings.'
+                                                 .format(name=name))
+        return config_path
 
-    def _try_get_relevant_file_path(self, settings_path, name):
+    def _get_file_name(self, store):
         """
-        tries to get the relevant file path to specified
-        config name in given settings path.
-        it may return a path if finds the file or return None if not found.
+        gets the generic file name for given store name.
 
-        :param str settings_path: settings path to search in for file name.
-        :param str name: config store name.
+        note that the purpose of this method is different from `get_file_name()`
+        method, this method makes a generic file name without any assertion
+        for the file to be really existed. if you want to assert the existence
+        of the file, you should use `get_file_name()` method.
+
+        :param str store: store name to make file name for it.
 
         :rtype: str
         """
 
-        if not os.path.isdir(settings_path):
-            return None
-
-        files = os.listdir(settings_path)
-        for single_file in files:
-            single_file_name = os.path.splitext(single_file)[0]
-            if single_file_name == name and \
-               self._is_config_file(single_file):
-                return os.path.abspath(os.path.join(settings_path, single_file))
-
-        return None
+        return '{store}{extension}'.format(store=store, extension=self.CONFIG_EXTENSION)
 
     def reload(self, store_name, defaults=None, **options):
         """
@@ -198,15 +194,93 @@ class ConfigurationManager(Manager):
         """
         gets the configuration file path for given config store.
 
-        :param str store_name: config store name to get it's file path.
+        :param str store_name: config store name to get its file path.
 
-        :raises ConfigurationStoreNotFoundError: configuration store not found error.
+        :keyword bool silent: specifies that if a related configuration file
+                              for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         if store_name in self._config_stores.keys():
             return self._get_config_store(store_name).get_file_path(**options)
 
         return self._get_relevant_file_path(store_name, **options)
+
+    def get_file_name(self, store_name, **options):
+        """
+        gets the configuration file name for given config store.
+
+        for example: `database.config`
+
+        :param str store_name: config store name to get its file name.
+
+        :keyword bool silent: specifies that if a related configuration file
+                              for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
+        """
+
+        file_path = self.get_file_path(store_name, **options)
+        if file_path is not None:
+            return os.path.basename(file_path)
+
+        return None
+
+    def create_config_files(self, *stores, **options):
+        """
+        creates the config files for given store names in application settings path.
+
+        it creates files based on files available in pyrin default settings.
+
+        :param str stores: store names to create config files for them.
+
+        :keyword bool ignore_on_existed: specifies that if a config file for a
+                                         store name is already existed, ignore
+                                         it, otherwise raise an error.
+                                         defaults to False if not provided.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
+        :raises ConfigurationFileExistedError: configuration file existed error.
+        """
+
+        for store_name in stores:
+            self.create_config_file(store_name, **options)
+
+    def create_config_file(self, store, **options):
+        """
+        creates the config file for given store name in application settings path.
+
+        it creates the file based on file available in pyrin default settings.
+
+        :param str store: store name to create config file for it.
+
+        :keyword bool ignore_on_existed: specifies that if a config file for the
+                                         store name is already existed, ignore
+                                         it, otherwise raise an error.
+                                         defaults to False if not provided.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
+        :raises ConfigurationFileExistedError: configuration file existed error.
+        """
+
+        source_path = self.get_file_path(store)
+        config_name = self._get_file_name(store)
+        config_path = os.path.abspath(os.path.join(self._settings_path, config_name))
+        ignore_on_existed = options.get('ignore_on_existed', False)
+
+        if os.path.exists(config_path):
+            if ignore_on_existed is False:
+                raise ConfigurationFileExistedError('Configuration file for store [{store}] '
+                                                    'is already existed at [{file_path}].'
+                                                    .format(store=store, file_path=config_path))
+        else:
+            if os.path.exists(self._settings_path) is False:
+                path_utils.create_directory(self._settings_path)
+
+            path_utils.copy_file(source_path, config_path)
 
     def get(self, store_name, section, key, **options):
         """

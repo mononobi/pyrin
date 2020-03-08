@@ -11,7 +11,7 @@ from pyrin.core.context import Manager
 from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.utils.custom_print import print_warning
-from pyrin.utils.exceptions import DirectoryAlreadyExistedError
+from pyrin.utils.exceptions import PathAlreadyExistedError
 
 
 class BabelManager(Manager, CLIMixin):
@@ -36,7 +36,7 @@ class BabelManager(Manager, CLIMixin):
 
         try:
             path_utils.create_directory(locale_path)
-        except DirectoryAlreadyExistedError:
+        except PathAlreadyExistedError:
             print_warning('Locale has been already enabled.', force=True)
 
         if include_pyrin or include_app:

@@ -5,8 +5,10 @@ utils path module.
 
 import os
 import sys
+import shutil
 
-from pyrin.utils.exceptions import PathIsNotAbsoluteError, DirectoryAlreadyExistedError
+from pyrin.utils.exceptions import PathIsNotAbsoluteError, InvalidPathError, \
+    PathNotExistedError, PathAlreadyExistedError
 
 
 def get_module_file_path(module_name):
@@ -84,22 +86,150 @@ def get_pyrin_main_package_path():
     return get_main_package_path(__name__)
 
 
-def create_directory(full_path):
+def create_directory(target):
     """
-    creates a directory with given full path.
+    creates a directory with given absolute target path.
 
-    :param str full_path: full path of directory to be created.
+    :param str target: absolute path of directory to be created.
 
+    :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
-    :raises DirectoryAlreadyExistedError: directory already existed error.
+    :raises PathAlreadyExistedError: path already existed error.
     """
 
-    if os.path.isabs(full_path) is False:
-        raise PathIsNotAbsoluteError('The provided path for the '
-                                     'directory must be absolute.')
+    assert_not_exists(target)
+    os.mkdir(target)
 
-    if os.path.exists(full_path):
-        raise DirectoryAlreadyExistedError('Directory [{directory}] already existed.'
-                                           .format(directory=full_path))
 
-    os.mkdir(full_path)
+def copy_file(source, target):
+    """
+    copies the given source file into given target file or directory.
+
+    note that target could also be a directory, if so,
+    then the file with the source name will be generated.
+    both source and target paths must be absolute.
+
+    :param str source: source file absolute path.
+    :param str target: target file or directory absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    """
+
+    assert_exists(source)
+    assert_absolute(target)
+    shutil.copy2(source, target)
+
+
+def copy_directory(source, target):
+    """
+    copies the given source directory contents into given target directory.
+
+    both source and target paths must be absolute.
+
+    :param str source: source directory absolute path.
+    :param str target: target directory absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    """
+
+    assert_exists(source)
+    assert_absolute(target)
+    shutil.copytree(source, target)
+
+
+def assert_absolute(source):
+    """
+    asserts that given source path is absolute.
+
+    :param str source: source path to be checked.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    """
+
+    if source is None:
+        raise InvalidPathError('Provided path could not be None.')
+
+    if not os.path.isabs(source):
+        raise PathIsNotAbsoluteError('Provided path [{source}] must be absolute.'
+                                     .format(source=source))
+
+
+def exists(source):
+    """
+    gets a value indicating that given source path exists on file system.
+
+    :param str source: source path to be checked for existence.
+                       it must be an absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    """
+
+    assert_absolute(source)
+    return os.path.exists(source)
+
+
+def assert_exists(source):
+    """
+    asserts that given source path exists on file system.
+
+    :param str source: source path to be checked for existence.
+                       it must be an absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    """
+
+    if not exists(source):
+        raise PathNotExistedError('Provided path [{source}] does not exist.'
+                                  .format(source=source))
+
+
+def assert_not_exists(source):
+    """
+    asserts that given source path not exists on file system.
+
+    :param str source: source path to be checked for not existence.
+                       it must be an absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathAlreadyExistedError: path already existed error.
+    """
+
+    if exists(source):
+        raise PathAlreadyExistedError('Provided path [{source}] already existed.'
+                                      .format(source=source))
+
+
+def get_first_available_file(*paths, file_name):
+    """
+    gets the first path which a file with given name is resided in it.
+
+    it returns None if the file is not available in any of given paths.
+
+    :param str paths: paths to look for file in them.
+                      all paths must be absolute.
+
+    :param str file_name: file name with extension to look for.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+
+    :returns: Union[str, None]
+    :rtype: str
+    """
+
+    for single_path in paths:
+        assert_absolute(single_path)
+        file_path = os.path.abspath(os.path.join(single_path, file_name))
+        if os.path.isfile(file_path):
+            return file_path
+
+    return None

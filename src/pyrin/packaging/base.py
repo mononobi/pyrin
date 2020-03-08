@@ -22,9 +22,9 @@ class Package(CoreObject):
 
     # list of all packages that this package is dependent
     # on them and should be loaded after all of them.
-    # example: ['pyrin.logging', 'pyrin.config']
+    # example: ['pyrin.logging', 'pyrin.configuration']
     # notice that all dependencies on `pyrin.application`
-    # and `pyrin.packaging` should not be added to this list
+    # and `pyrin.packaging` should not be added into this list
     # because those two packages will be loaded at the beginning
     # and are always available before any other package gets loaded.
     DEPENDS = []
@@ -44,8 +44,18 @@ class Package(CoreObject):
     # based on request context.
     COMPONENT_CUSTOM_KEY = DEFAULT_COMPONENT_KEY
 
-    # all configuration stores that should be loaded by this package.
+    # all configuration stores that should be loaded automatically by this package.
+    # note that the relevant config file for them will also be created in application
+    # settings path based on pyrin default setting files if not available.
     CONFIG_STORE_NAMES = []
+
+    # all configuration stores that should not be loaded automatically by this package.
+    # note that the relevant config file for them will be created in application
+    # settings path based on pyrin default setting files if not available.
+    EXTRA_CONFIG_STORE_NAMES = []
+
+    # notice that any package that adds values in either of `CONFIG_STORE_NAMES` or
+    # `EXTRA_CONFIG_STORE_NAMES` must also add `pyrin.configuration` into its `DEPENDS` list.
 
     def load_configs(self, config_services):
         """
@@ -64,6 +74,10 @@ class Package(CoreObject):
         if len(self.CONFIG_STORE_NAMES) > 0:
             config_services.load_configurations(*self.CONFIG_STORE_NAMES,
                                                 defaults=self.config_store_defaults,
+                                                ignore_on_existed=True)
+
+        if len(self.EXTRA_CONFIG_STORE_NAMES) > 0:
+            config_services.create_config_files(*self.EXTRA_CONFIG_STORE_NAMES,
                                                 ignore_on_existed=True)
 
         self._load_configs(config_services)

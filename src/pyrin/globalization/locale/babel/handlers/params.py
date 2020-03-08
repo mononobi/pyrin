@@ -424,7 +424,7 @@ class MappingParam(KeywordArgument, BabelCLIParamBase):
         """
 
         if default is None:
-            default = config_services.get_file_path(BabelPackage.MAPPING_STORE_NAME)
+            default = config_services.get_file_path(BabelPackage.EXTRA_CONFIG_STORE_NAMES[0])
 
         super().__init__('mapping', '--mapping', default=default)
 

@@ -12,6 +12,7 @@ class BabelPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.configuration']
     COMPONENT_NAME = 'globalization.locale.babel.component'
     CONFIG_STORE_NAMES = ['babel']
-    MAPPING_STORE_NAME = 'babel.mappings'
+    EXTRA_CONFIG_STORE_NAMES = ['babel.mappings']

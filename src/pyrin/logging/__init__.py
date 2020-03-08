@@ -15,4 +15,4 @@ class LoggingPackage(Package):
     DEPENDS = ['pyrin.configuration']
     COMPONENT_NAME = 'logging.component'
     CONFIG_STORE_NAMES = ['logging']
-    LOGGER_HANDLERS_STORE_NAME = 'logging.handlers'
+    EXTRA_CONFIG_STORE_NAMES = ['logging.handlers']

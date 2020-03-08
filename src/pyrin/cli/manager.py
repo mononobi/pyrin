@@ -73,7 +73,7 @@ class CLIManager(Manager):
         else:
             result = '`{func}` command help is not available.'.format(func=func.__name__)
 
-        print_colorful(result, colorama.Fore.CYAN, True)
+        print_colorful(result, colorama.Fore.CYAN, force=True)
 
     def _process_help(self, func, inputs):
         """

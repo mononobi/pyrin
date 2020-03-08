@@ -81,3 +81,10 @@ class InvalidConfigurationEnvironmentVariableValueError(ConfigurationStoreExcept
     configuration environment variable value error.
     """
     pass
+
+
+class ConfigurationFileExistedError(ConfigurationManagerException):
+    """
+    configuration file existed error.
+    """
+    pass

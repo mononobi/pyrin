@@ -71,6 +71,14 @@ class PackagingManager(Manager, HookMixin):
         self._extended_test_components = DTO()
         self._other_test_components = DTO()
 
+    def _create_config_file(self):
+        """
+        creates packaging config file in application settings path if not available.
+        """
+
+        config_services.create_config_file(PackagingPackage.CONFIG_STORE_NAMES[0],
+                                           ignore_on_existed=True)
+
     def _load_configs(self):
         """
         loads packaging configs from application's settings directory.
@@ -83,19 +91,21 @@ class PackagingManager(Manager, HookMixin):
     def _get_config_file_path(self):
         """
         gets packaging config file path.
+
         it looks for file in top level application settings, but
         if not found it, it uses the file from default settings.
+        we have to re-implement this here, because configuration
+        services is not present yet to be used.
 
         :rtype: str
         """
 
-        settings_directory = application_services.get_settings_path()
+        app_settings_directory = application_services.get_settings_path()
+        pyrin_settings_directory = application_services.get_default_settings_path()
         config_file_name = '{store}.config'.format(store=PackagingPackage.CONFIG_STORE_NAMES[0])
-        config_path = os.path.abspath(os.path.join(settings_directory, config_file_name))
-
-        if not os.path.isfile(config_path):
-            settings_directory = application_services.get_default_settings_path()
-            config_path = os.path.abspath(os.path.join(settings_directory, config_file_name))
+        config_path = path_utils.get_first_available_file(app_settings_directory,
+                                                          pyrin_settings_directory,
+                                                          file_name=config_file_name)
 
         return config_path
 
@@ -166,6 +176,7 @@ class PackagingManager(Manager, HookMixin):
             print_info('Total of [{count}] packages loaded.'
                        .format(count=len(self._loaded_packages)))
 
+            self._create_config_file()
             self._is_loaded = True
         finally:
             if self._lock.locked():

@@ -9,8 +9,10 @@ from pyrin.configuration import ConfigurationPackage
 
 def load_configuration(name, defaults=None, **options):
     """
-    loads the given configuration if relevant file is
-    available in settings path.
+    loads the given configuration if relevant file is available in settings path.
+
+    it creates the config file in application settings path if
+    config file is only available in pyrin default settings.
 
     :param str name: configuration name.
 
@@ -37,8 +39,10 @@ def load_configuration(name, defaults=None, **options):
 
 def load_configurations(*names, defaults=None, **options):
     """
-    loads the given configurations if relevant files is
-    available in settings path.
+    loads the given configurations if relevant files is available in settings path.
+
+    it creates the config files in application settings path if
+    config files are only available in pyrin default settings.
 
     :param str names: configuration names as arguments.
 
@@ -85,13 +89,78 @@ def get_file_path(store_name, **options):
     """
     gets the configuration file path for given config store.
 
-    :param str store_name: config store name to get it's file path.
+    :param str store_name: config store name to get its file path.
 
-    :raises ConfigurationStoreNotFoundError: configuration store not found error.
+    :keyword bool silent: specifies that if a related configuration file
+                          for the given store name not found, ignore it.
+                          otherwise raise an error. defaults to False.
+
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
     """
 
     return get_component(ConfigurationPackage.COMPONENT_NAME).get_file_path(store_name,
                                                                             **options)
+
+
+def get_file_name(store_name, **options):
+    """
+    gets the configuration file name for given config store.
+
+    for example: `database.config`
+
+    :param str store_name: config store name to get its file name.
+
+    :keyword bool silent: specifies that if a related configuration file
+                          for the given store name not found, ignore it.
+                          otherwise raise an error. defaults to False.
+
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_file_name(store_name,
+                                                                            **options)
+
+
+def create_config_files(*stores, **options):
+    """
+    creates the config files for given store names in application settings path.
+
+    it creates files based on files available in pyrin default settings.
+
+    :param str stores: store names to create config files for them.
+
+    :keyword bool ignore_on_existed: specifies that if a config file for a
+                                     store name is already existed, ignore
+                                     it, otherwise raise an error.
+                                     defaults to False if not provided.
+
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
+    :raises ConfigurationFileExistedError: configuration file existed error.
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).create_config_files(*stores,
+                                                                                  **options)
+
+
+def create_config_file(store, **options):
+    """
+    creates the config file for given store name in application settings path.
+
+    it creates the file based on file available in pyrin default settings.
+
+    :param str store: store name to create config file for it.
+
+    :keyword bool ignore_on_existed: specifies that if a config file for the
+                                     store name is already existed, ignore
+                                     it, otherwise raise an error.
+                                     defaults to False if not provided.
+
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
+    :raises ConfigurationFileExistedError: configuration file existed error.
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).create_config_file(store,
+                                                                                 **options)
 
 
 def get(store_name, section, key, **options):

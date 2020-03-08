@@ -335,7 +335,7 @@ class ConfigStore(CoreObject):
 
         :keyword bool silent: indicates that if an environment variable for the
                               given key not found, ignore it and return None, otherwise
-                              raise an error. defaults to True.
+                              raise an error. defaults to True if not provided.
 
         :raises ConfigurationEnvironmentVariableNotFoundError: configuration environment
                                                                variable not found error.
@@ -349,20 +349,16 @@ class ConfigStore(CoreObject):
 
         value = os.environ.get(key)
         silent = options.get('silent', True)
-        if value is None:
-            message = 'Configuration environment variable [{key}] not found.'.format(key=key)
-            if silent is not True:
-                raise ConfigurationEnvironmentVariableNotFoundError(message)
-            else:
-                print_warning(message)
+        if value is None and silent is not True:
+            raise ConfigurationEnvironmentVariableNotFoundError('Configuration environment '
+                                                                'variable [{key}] not found.'
+                                                                .format(key=key))
 
-        if value is not None and len(value.strip()) == 0:
-            message = 'Configuration environment variable ' \
-                      '[{key}] has an invalid value.'.format(key=key)
-            if silent is not True:
-                raise InvalidConfigurationEnvironmentVariableValueError(message)
-            else:
-                print_warning(message)
+        if value is not None and len(value.strip()) == 0 and silent is not True:
+            raise InvalidConfigurationEnvironmentVariableValueError('Configuration environment '
+                                                                    'variable [{key}] has '
+                                                                    'an invalid value.'
+                                                                    .format(key=key))
 
         return value
 

@@ -879,14 +879,11 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if not os.path.isdir(settings_path):
             print_warning('Application settings path [{path}] does not exist. '
-                          'pyrin default settings from [{default}] will be used. '
-                          'you could copy any of default setting files into '
-                          '[{path}] and change values on your preference. '
+                          'pyrin default settings will be used. you could change '
+                          'any of default setting files inside [{path}] on your preference. '
                           'DO NOT use pyrin default settings in production!'
                           .format(path=settings_path,
                                   default=self.get_default_settings_path()))
-
-            settings_path = self.get_default_settings_path()
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 

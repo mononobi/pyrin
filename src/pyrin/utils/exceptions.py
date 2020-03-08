@@ -76,8 +76,22 @@ class PathIsNotAbsoluteError(UtilsException):
     pass
 
 
-class DirectoryAlreadyExistedError(UtilsException):
+class PathAlreadyExistedError(UtilsException):
     """
-    directory already existed error.
+    path already existed error.
+    """
+    pass
+
+
+class InvalidPathError(UtilsException):
+    """
+    invalid path error.
+    """
+    pass
+
+
+class PathNotExistedError(UtilsException):
+    """
+    path not existed error.
     """
     pass

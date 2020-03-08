@@ -32,7 +32,7 @@ class LoggingManager(Manager):
         super().__init__()
 
         self._config_file_path = config_services.get_file_path(
-            LoggingPackage.LOGGER_HANDLERS_STORE_NAME)
+            LoggingPackage.EXTRA_CONFIG_STORE_NAMES[0])
         self._load_configs(self._config_file_path)
 
     def _load_configs(self, config_file_path):
