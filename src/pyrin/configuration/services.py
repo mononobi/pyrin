@@ -7,7 +7,7 @@ from pyrin.application.services import get_component
 from pyrin.configuration import ConfigurationPackage
 
 
-def load_configuration(name, defaults=None, **options):
+def load_configuration(name, **options):
     """
     loads the given configuration if relevant file is available in settings path.
 
@@ -16,9 +16,9 @@ def load_configuration(name, defaults=None, **options):
 
     :param str name: configuration name.
 
-    :param Union[dict, None] defaults: a dict containing values
-                                       needed for interpolation.
-                                       defaults to None if not provided.
+    :keyword dict defaults: a dict containing values
+                            needed for interpolation.
+                            defaults to None if not provided.
 
     :keyword bool silent: specifies that if a related configuration file
                           for the given name not found, ignore it.
@@ -33,11 +33,11 @@ def load_configuration(name, defaults=None, **options):
     :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(
-        name, defaults=defaults, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configuration(name,
+                                                                                 **options)
 
 
-def load_configurations(*names, defaults=None, **options):
+def load_configurations(*names, **options):
     """
     loads the given configurations if relevant files is available in settings path.
 
@@ -46,9 +46,9 @@ def load_configurations(*names, defaults=None, **options):
 
     :param str names: configuration names as arguments.
 
-    :param Union[dict, None] defaults: a dict containing values
-                                       needed for interpolation.
-                                       defaults to None if not provided.
+    :keyword dict defaults: a dict containing values
+                            needed for interpolation.
+                            defaults to None if not provided.
 
     :keyword bool silent: specifies that if a related configuration file
                           for any of the given names not found, ignore it.
@@ -63,26 +63,24 @@ def load_configurations(*names, defaults=None, **options):
     :raises ConfigurationStoreExistedError: configuration store existed error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(
-        *names, defaults=defaults, **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).load_configurations(*names,
+                                                                                  **options)
 
 
-def reload(store_name, defaults=None, **options):
+def reload(store_name, **options):
     """
     reloads the configuration store from it's relevant file.
 
     :param str store_name: config store name to be reloaded.
 
-    :param Union[dict, None] defaults: a dict containing values
-                                       needed for interpolation.
-                                       defaults to None if not provided.
+    :keyword dict defaults: a dict containing values
+                            needed for interpolation.
+                            defaults to None if not provided.
 
     :raises ConfigurationStoreNotFoundError: configuration store not found error.
     """
 
-    return get_component(ConfigurationPackage.COMPONENT_NAME).reload(store_name,
-                                                                     defaults=defaults,
-                                                                     **options)
+    return get_component(ConfigurationPackage.COMPONENT_NAME).reload(store_name, **options)
 
 
 def get_file_path(store_name, **options):
@@ -274,9 +272,9 @@ def get_all(store_name, **options):
     """
     gets all available key/values from different sections of
     given config store in a flat dict, eliminating the sections.
-    note that if there are same key names in different
-    sections, it raises an error to prevent overwriting values.
-    also note that if the config store contains `active` section,
+    note that if there are same key names with different values
+    in different sections, it raises an error to prevent overwriting
+    values. also note that if given config store contains `active` section,
     then the result of `get_active_section` method would be returned.
 
     :param str store_name: config store name.

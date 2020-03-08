@@ -10,7 +10,6 @@ import pyrin.utils.configuration as config_utils
 
 from pyrin.utils.exceptions import ConfigurationFileNotFoundError as UtilsFileNotFoundError
 from pyrin.core.context import CoreObject, DTO
-from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
@@ -28,16 +27,16 @@ class ConfigStore(CoreObject):
     ACTIVE_SECTION_NAME = 'active'
     SELECTED_SECTION_NAME = 'selected'
 
-    def __init__(self, name, config_file_path, defaults=None, **options):
+    def __init__(self, name, config_file_path, **options):
         """
         initializes an instance of ConfigStore.
 
         :param str name: config store name.
         :param str config_file_path: full path of config file.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
@@ -45,10 +44,10 @@ class ConfigStore(CoreObject):
         super().__init__()
 
         self._configs = DTO()
-        self._defaults = defaults
+        self._defaults = options.get('defaults', None)
         self._name = name
         self._config_file_path = config_file_path
-        self._load(defaults=defaults, **options)
+        self._load(**options)
 
     def __str__(self):
         """
@@ -59,39 +58,43 @@ class ConfigStore(CoreObject):
 
         return '{base} [{store}]'.format(base=super().__str__(), store=self._name)
 
-    def _load(self, defaults=None, **options):
+    def _load(self, **options):
         """
         loads configurations from config file path.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
         try:
-            self._configs = config_utils.load(self._config_file_path, defaults=defaults,
-                                              converter=deserializer_services.deserialize)
+            self._configs = config_utils.load(self._config_file_path,
+                                              deserializer_services.deserialize,
+                                              **options)
 
         except UtilsFileNotFoundError as error:
             raise ConfigurationFileNotFoundError(error) from error
 
         self._sync_with_env(**options)
 
-    def reload(self, defaults=None, **options):
+    def reload(self, **options):
         """
         reloads configuration from it's physical file path.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
+        if options.get('defaults', None) is None:
+            options.update(defaults=self._defaults)
+
         self._configs.clear()
-        self._load(defaults=defaults or self._defaults, **options)
+        self._load(**options)
 
     def get(self, section, key, **options):
         """
@@ -202,9 +205,9 @@ class ConfigStore(CoreObject):
         """
         gets all available key/values from different sections of
         this config store in a flat dict, eliminating the sections.
-        note that if there are same key names in different
-        sections, it raises an error to prevent overwriting values.
-        also note that if this config store contains `active` section,
+        note that if there are same key names with different values
+        in different sections, it raises an error to prevent overwriting
+        values. also note that if this config store contains `active` section,
         then the result of `get_active_section` method would be returned.
 
         :keyword callable converter: a callable to use as case converter for keys.
@@ -231,10 +234,11 @@ class ConfigStore(CoreObject):
         for section_data in self._get_sections(**options):
             if isinstance(section_data, dict):
                 for key, value in section_data.items():
-                    if key in flat_dict.keys():
+                    if key in flat_dict.keys() and value != flat_dict.get(key):
                         raise ConfigurationStoreDuplicateKeyError('Key [{key}] is available '
                                                                   'in multiple sections of '
-                                                                  'config store [{name}].'
+                                                                  'config store [{name}] '
+                                                                  'with different values.'
                                                                   .format(key=key,
                                                                           name=self._name))
                     flat_dict[key] = value

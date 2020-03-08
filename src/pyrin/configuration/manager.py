@@ -33,16 +33,16 @@ class ConfigurationManager(Manager):
         self._settings_path = application_services.get_settings_path()
         self._default_settings_path = application_services.get_default_settings_path()
 
-    def _add_config_store(self, name, file_path, defaults=None, **options):
+    def _add_config_store(self, name, file_path, **options):
         """
         adds a new config store for given file with the specified name.
 
         :param str name: config store name.
         :param str file_path: config file full path.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :keyword bool ignore_on_existed: specifies that it should not raise an
                                          error if a config store with given name
@@ -55,11 +55,11 @@ class ConfigurationManager(Manager):
         ignore = options.get('ignore_on_existed', False)
         if name in self._config_stores:
             if ignore is not True:
-                raise ConfigurationStoreExistedError('Config store with name [{name}] already '
+                raise ConfigurationStoreExistedError('Config store name [{name}] already '
                                                      'existed, config store names must be unique.'
                                                      .format(name=name))
         else:
-            self._config_stores[name] = ConfigStore(name, file_path, defaults=defaults, **options)
+            self._config_stores[name] = ConfigStore(name, file_path, **options)
 
     def _is_config_file(self, file_name):
         """
@@ -72,7 +72,7 @@ class ConfigurationManager(Manager):
 
         return file_name.endswith(self.CONFIG_EXTENSION)
 
-    def load_configuration(self, name, defaults=None, **options):
+    def load_configuration(self, name, **options):
         """
         loads the given configuration if relevant file is available in settings path.
 
@@ -81,9 +81,9 @@ class ConfigurationManager(Manager):
 
         :param str name: configuration name.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :keyword bool silent: specifies that if a related configuration file
                               for the given name not found, ignore it.
@@ -100,10 +100,10 @@ class ConfigurationManager(Manager):
 
         file_path = self._get_relevant_file_path(name, **options)
         if file_path is not None:
-            self._add_config_store(name, file_path, defaults=defaults, **options)
+            self._add_config_store(name, file_path, **options)
             self.create_config_file(name, ignore_on_existed=True)
 
-    def load_configurations(self, *names, defaults=None, **options):
+    def load_configurations(self, *names, **options):
         """
         loads the given configurations if relevant files is available in settings path.
 
@@ -112,9 +112,9 @@ class ConfigurationManager(Manager):
 
         :param str names: configuration names as arguments.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :keyword bool silent: specifies that if a related configuration file
                               for any of the given names not found, ignore it.
@@ -130,7 +130,7 @@ class ConfigurationManager(Manager):
         """
 
         for single_name in names:
-            self.load_configuration(single_name, defaults=defaults, **options)
+            self.load_configuration(single_name, **options)
 
     def _get_relevant_file_path(self, name, **options):
         """
@@ -175,20 +175,20 @@ class ConfigurationManager(Manager):
 
         return '{store}{extension}'.format(store=store, extension=self.CONFIG_EXTENSION)
 
-    def reload(self, store_name, defaults=None, **options):
+    def reload(self, store_name, **options):
         """
         reloads the configuration store from it's relevant file.
 
         :param str store_name: config store name to be reloaded.
 
-        :param Union[dict, None] defaults: a dict containing values
-                                           needed for interpolation.
-                                           defaults to None if not provided.
+        :keyword dict defaults: a dict containing values
+                                needed for interpolation.
+                                defaults to None if not provided.
 
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
         """
 
-        self._get_config_store(store_name).reload(defaults=defaults, **options)
+        self._get_config_store(store_name).reload(**options)
 
     def get_file_path(self, store_name, **options):
         """
@@ -387,9 +387,9 @@ class ConfigurationManager(Manager):
         """
         gets all available key/values from different sections of
         given config store in a flat dict, eliminating the sections.
-        note that if there are same key names in different
-        sections, it raises an error to prevent overwriting values.
-        also note that if the config store contains `active` section,
+        note that if there are same key names with different values
+        in different sections, it raises an error to prevent overwriting
+        values. also note that if given config store contains `active` section,
         then the result of `get_active_section` method would be returned.
 
         :param str store_name: config store name.

@@ -73,7 +73,7 @@ class Package(CoreObject):
 
         if len(self.CONFIG_STORE_NAMES) > 0:
             config_services.load_configurations(*self.CONFIG_STORE_NAMES,
-                                                defaults=self.config_store_defaults,
+                                                defaults=self.config_defaults,
                                                 ignore_on_existed=True)
 
         if len(self.EXTRA_CONFIG_STORE_NAMES) > 0:
@@ -100,7 +100,7 @@ class Package(CoreObject):
         pass
 
     @property
-    def config_store_defaults(self):
+    def config_defaults(self):
         """
         gets config store default values that should
         be sent to config parser for interpolation.
