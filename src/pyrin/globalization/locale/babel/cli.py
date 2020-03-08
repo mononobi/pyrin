@@ -75,7 +75,8 @@ class BabelCLI(CLI):
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
         """
-        pass
+
+        return babel_services.check_init(locale)
 
     @cli
     def update(self, locale=None, help=False):

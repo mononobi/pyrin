@@ -81,3 +81,16 @@ def rebuild(include_pyrin=True, include_app=True, locale=None):
 
     return get_component(BabelPackage.COMPONENT_NAME).rebuild(include_pyrin,
                                                               include_app, locale)
+
+
+def check_init(locale):
+    """
+    checks that locale with given name does not exist.
+
+    :param str locale: locale name for the new localized catalog.
+                       for example: `en` or `fr` or ...
+
+    :raises LocaleAlreadyExistedError: locale already existed error.
+    """
+
+    return get_component(BabelPackage.COMPONENT_NAME).check_init(locale)

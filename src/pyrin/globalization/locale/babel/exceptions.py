@@ -18,3 +18,10 @@ class BabelHandlersBusinessException(CoreBusinessException, BabelHandlersExcepti
     babel handlers business exception.
     """
     pass
+
+
+class LocaleAlreadyExistedError(BabelHandlersBusinessException):
+    """
+    locale already existed error.
+    """
+    pass

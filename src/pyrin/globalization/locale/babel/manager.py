@@ -3,12 +3,15 @@
 babel manager module.
 """
 
+import os
+
 import pyrin.utils.path as path_utils
 import pyrin.application.services as application_services
 
 from pyrin.cli.mixin.handler import CLIMixin
 from pyrin.core.context import Manager
 from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
+from pyrin.globalization.locale.babel.exceptions import LocaleAlreadyExistedError
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.exceptions import PathAlreadyExistedError
@@ -84,3 +87,25 @@ class BabelManager(Manager, CLIMixin):
         self.execute(BabelCLIHandlersEnum.EXTRACT,
                      include_pyrin=include_pyrin,
                      include_app=include_app)
+
+    def check_init(self, locale):
+        """
+        checks that locale with given name does not exist.
+
+        :param str locale: locale name for the new localized catalog.
+                           for example: `en` or `fr` or ...
+
+        :raises LocaleAlreadyExistedError: locale already existed error.
+        """
+
+        if locale not in (None, '') and not locale.isspace():
+            locale_path = application_services.get_locale_path()
+            full_path = os.path.abspath(os.path.join(locale_path, locale))
+
+            if os.path.exists(full_path):
+                raise LocaleAlreadyExistedError('The [{name}] locale is already existed '
+                                                'in [{root}]. if you want to regenerate '
+                                                'this locale, you should delete the '
+                                                '[{dir}] directory first.'
+                                                .format(name=locale, root=locale_path,
+                                                        dir=full_path))
