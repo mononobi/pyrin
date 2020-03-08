@@ -62,7 +62,7 @@ def print_message(message):
     :param str message: message to be printed.
     """
 
-    print_colorful(message, colorama.Fore.CYAN, True)
+    print_colorful(message, colorama.Fore.CYAN, force=True)
 
 
 def run_migrations_offline():
@@ -98,7 +98,7 @@ def run_migrations_offline():
     for name, rec in engines.items():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()
-        print_colorful('Migrating database [{name}]'.format(name=name), True)
+        print_message('Migrating database [{name}]'.format(name=name))
 
         migrations_path = application_services.get_migrations_path()
         file_ = 'sql/{timestamp}_{name}.sql'.format(timestamp=timestamp,
