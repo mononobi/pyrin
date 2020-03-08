@@ -1090,10 +1090,34 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         gets the application name.
 
+        it is actually the application main package name.
+
         :rtype: str
         """
 
         return path_utils.get_main_package_name(self.__module__)
+
+    def get_class_name(self):
+        """
+        gets the application class name.
+
+        it is required for template generation.
+
+        :rtype: str
+        """
+
+        return self.__class__.__name__
+
+    def get_module_name(self):
+        """
+        gets the application module name.
+
+        it is required for template generation.
+
+        :rtype: str
+        """
+
+        return self.__class__.__module__
 
     def _prepare_termination(self, signal_number):
         """

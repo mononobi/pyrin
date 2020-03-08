@@ -3,6 +3,7 @@
 alembic handlers stamp module.
 """
 
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.params import SQLParam, TagParam, \
@@ -20,7 +21,7 @@ class StampCLIHandler(AlembicCLIHandlerBase):
         initializes an instance of StampCLIHandler.
         """
 
-        super().__init__('stamp')
+        super().__init__(AlembicCLIHandlersEnum.STAMP)
 
     def _inject_params(self, params):
         """

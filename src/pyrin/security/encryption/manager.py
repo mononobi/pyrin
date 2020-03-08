@@ -61,7 +61,7 @@ class EncryptionManager(Manager):
                                                     .format(instance=instance))
 
         # checking whether is there any registered instance with the same name.
-        if instance.get_name() in self._encryption_handlers.keys():
+        if instance.get_name() in self._encryption_handlers:
             replace = options.get('replace', False)
 
             if replace is not True:

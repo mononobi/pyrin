@@ -256,8 +256,11 @@ class PackagingManager(Manager, HookMixin):
         # in the form of {package_name: [modules]}.
         dependent_components = DTO()
 
-        for package in components.keys():
+        for package in components:
             package_class = self._get_package_class(package)
+
+            if package_class is not None and package_class.ENABLED is False:
+                continue
 
             # checking whether this package has any dependencies.
             # if so, check those dependencies have been loaded or not.

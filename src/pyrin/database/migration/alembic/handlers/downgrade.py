@@ -4,6 +4,7 @@ alembic handlers downgrade module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.base import AlembicUpgradeDowngradeCLIHandlerBase
 
 
@@ -18,4 +19,4 @@ class DowngradeCLIHandler(AlembicUpgradeDowngradeCLIHandlerBase):
         initializes an instance of DowngradeCLIHandler.
         """
 
-        super().__init__('downgrade')
+        super().__init__(AlembicCLIHandlersEnum.DOWNGRADE)

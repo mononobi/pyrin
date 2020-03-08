@@ -4,6 +4,7 @@ alembic handlers current module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.base import AlembicReportingCLIHandlerBase
 
 
@@ -18,4 +19,4 @@ class CurrentCLIHandler(AlembicReportingCLIHandlerBase):
         initializes an instance of CurrentCLIHandler.
         """
 
-        super().__init__('current')
+        super().__init__(AlembicCLIHandlersEnum.CURRENT)

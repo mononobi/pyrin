@@ -4,6 +4,7 @@ alembic handlers history module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.base import AlembicReportingCLIHandlerBase
 from pyrin.database.migration.alembic.handlers.params import IndicateCurrentParam, \
     RevisionRangeParam
@@ -20,7 +21,7 @@ class HistoryCLIHandler(AlembicReportingCLIHandlerBase):
         initializes an instance of HistoryCLIHandler.
         """
 
-        super().__init__('history')
+        super().__init__(AlembicCLIHandlersEnum.HISTORY)
 
     def _inject_params(self, params):
         """

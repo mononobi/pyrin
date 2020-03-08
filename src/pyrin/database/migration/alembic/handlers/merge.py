@@ -3,6 +3,7 @@
 alembic handlers merge module.
 """
 
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
 from pyrin.database.migration.alembic.handlers.params import MessageParam, \
@@ -20,7 +21,7 @@ class MergeCLIHandler(AlembicCLIHandlerBase):
         initializes an instance of MergeCLIHandler.
         """
 
-        super().__init__('merge')
+        super().__init__(AlembicCLIHandlersEnum.MERGE)
 
     def _inject_params(self, params):
         """

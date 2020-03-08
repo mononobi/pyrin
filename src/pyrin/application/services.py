@@ -335,7 +335,33 @@ def get_application_name():
     """
     gets the application name.
 
+    it is actually the application main package name.
+
     :rtype: str
     """
 
     return get_current_app().get_application_name()
+
+
+def get_class_name():
+    """
+    gets the application class name.
+
+    it is required for template generation.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_class_name()
+
+
+def get_module_name():
+    """
+    gets the application module name.
+
+    it is required for template generation.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_module_name()

@@ -11,7 +11,7 @@ def process_function(func, func_args, func_kwargs):
     """
     processes the given cli handler function with given inputs.
 
-    :param function func: function to update its original inputs.
+    :param function func: function to be executed.
     :param tuple func_args: a tuple of function positional inputs.
     :param dict func_kwargs: a dictionary of function keyword arguments.
 
@@ -23,3 +23,18 @@ def process_function(func, func_args, func_kwargs):
 
     return get_component(CLIPackage.COMPONENT_NAME).process_function(func, func_args,
                                                                      func_kwargs)
+
+
+def invoke_function(func, func_args, func_kwargs):
+    """
+    invokes the given function with given inputs.
+
+    :param function func: function to be executed.
+    :param tuple func_args: a tuple of function positional inputs.
+    :param dict func_kwargs: a dictionary of function keyword arguments.
+
+    :returns: function execution result.
+    """
+
+    return get_component(CLIPackage.COMPONENT_NAME).invoke_function(func, func_args,
+                                                                    func_kwargs)

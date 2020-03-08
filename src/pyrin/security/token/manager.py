@@ -106,7 +106,7 @@ class TokenManager(Manager):
         """
 
         handler_name = options.get('handler_name', self._get_default_handler_name())
-        if handler_name not in self._token_handlers.keys():
+        if handler_name not in self._token_handlers:
             raise TokenHandlerNotFoundError('Token handler [{name}] not found.'
                                             .format(name=handler_name))
 

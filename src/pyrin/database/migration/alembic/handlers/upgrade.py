@@ -4,6 +4,7 @@ alembic handlers upgrade module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.base import \
     AlembicUpgradeDowngradeCLIHandlerBase
 
@@ -19,4 +20,4 @@ class UpgradeCLIHandler(AlembicUpgradeDowngradeCLIHandlerBase):
         initializes an instance of UpgradeCLIHandler.
         """
 
-        super().__init__('upgrade')
+        super().__init__(AlembicCLIHandlersEnum.UPGRADE)

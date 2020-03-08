@@ -5,7 +5,7 @@ babel cli module.
 
 import pyrin.globalization.locale.babel.services as babel_services
 
-from pyrin.cli.decorators import cli
+from pyrin.cli.decorators import cli, cli_invoke
 from pyrin.core.context import CLI
 
 
@@ -17,7 +17,8 @@ class BabelCLI(CLI):
 
     _execute_service = babel_services.execute
 
-    def enable(self, include_pyrin=True, include_app=True):
+    @cli_invoke
+    def enable(self, include_pyrin=True, include_app=True, help=False):
         """
         enables locale management for the application.
 
@@ -26,11 +27,15 @@ class BabelCLI(CLI):
 
         :param bool include_app: specifies that it should extract application
                                  localizable messages. defaults to True if not provided.
+
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
         """
 
         return babel_services.enable(include_pyrin, include_app)
 
-    def rebuild(self, include_pyrin=True, include_app=True, locale=None):
+    @cli_invoke
+    def rebuild(self, include_pyrin=True, include_app=True, locale=None, help=False):
         """
         it will do the three complete steps needed to
         update and compile locales with new messages.
@@ -52,6 +57,9 @@ class BabelCLI(CLI):
 
         :keyword str locale: locale name of the catalog to compile.
                              it will compile all catalogs if not provided.
+
+        :keyword bool help: show the help message for this command.
+                            defaults to False if not provided.
         """
 
         return babel_services.rebuild(include_pyrin, include_app, locale)

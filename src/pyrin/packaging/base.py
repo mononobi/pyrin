@@ -29,6 +29,9 @@ class Package(CoreObject):
     # and are always available before any other package gets loaded.
     DEPENDS = []
 
+    # specifies that this package is enabled and must be loaded.
+    ENABLED = True
+
     # component name should be unique for each package unless it's intended
     # to replace an already available one. it should be fully qualified name
     # omitting the root application package name (for example `pyrin`), pointing to

@@ -45,7 +45,35 @@ def cli(func):
 
         try:
             return cli_services.process_function(func, args, kwargs)
+        except Exception as error:
+            print_error(str(error), force=True)
 
+    return update_wrapper(decorator, func)
+
+
+def cli_invoke(func):
+    """
+    decorator to specify a method that will be invoked from cli.
+
+    the decorated method will be get called by decorator and all errors
+    will be printed to standard output instead of being raised.
+
+    :param function func: function.
+
+    :returns: decorated function.
+    :rtype: function
+    """
+
+    def decorator(*args, **kwargs):
+        """
+        decorates the given function and executes it.
+
+        :param object args: function arguments.
+        :param object kwargs: function keyword arguments.
+        """
+
+        try:
+            return cli_services.invoke_function(func, args, kwargs)
         except Exception as error:
             print_error(str(error), force=True)
 

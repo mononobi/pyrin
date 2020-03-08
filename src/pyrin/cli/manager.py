@@ -23,7 +23,7 @@ class CLIManager(Manager):
         """
         processes the given cli handler function with given inputs.
 
-        :param function func: function to update its original inputs.
+        :param function func: function to to be executed.
         :param tuple func_args: a tuple of function positional inputs.
         :param dict func_kwargs: a dictionary of function keyword arguments.
 
@@ -34,12 +34,7 @@ class CLIManager(Manager):
         """
 
         try:
-            signature = inspect.signature(func)
-            bounded_args = signature.bind_partial(*func_args, **func_kwargs)
-            inputs = dict(**bounded_args.kwargs)
-            inputs.update(**bounded_args.arguments)
-
-            inputs.pop('cls', None)
+            inputs = self._get_inputs(func, func_args, func_kwargs)
             cli_instance = inputs.pop('self', None)
             if cli_instance is None:
                 raise InvalidCLIDecoratedMethodError('The "@cli" decorator must '
@@ -54,6 +49,45 @@ class CLIManager(Manager):
         except TypeError as error:
             print_error(str(error) + '\n', force=True)
             self._print_function_doc(func)
+
+    def invoke_function(self, func, func_args, func_kwargs):
+        """
+        invokes the given function with given inputs.
+
+        :param function func: function to be executed.
+        :param tuple func_args: a tuple of function positional inputs.
+        :param dict func_kwargs: a dictionary of function keyword arguments.
+
+        :returns: function execution result.
+        """
+
+        try:
+            inputs = self._get_inputs(func, func_args, func_kwargs)
+            if self._process_help(func, inputs) is False:
+                return func(*func_args, **func_kwargs)
+
+        except TypeError as error:
+            print_error(str(error) + '\n', force=True)
+            self._print_function_doc(func)
+
+    def _get_inputs(self, func, func_args, func_kwargs):
+        """
+        gets all function inputs and values in a dict.
+
+        :param function func: function to get its inputs.
+        :param tuple func_args: a tuple of function positional inputs.
+        :param dict func_kwargs: a dictionary of function keyword arguments.
+
+        :rtype: dict
+        """
+
+        signature = inspect.signature(func)
+        bounded_args = signature.bind_partial(*func_args, **func_kwargs)
+        inputs = dict(**bounded_args.kwargs)
+        inputs.update(**bounded_args.arguments)
+        inputs.pop('cls', None)
+
+        return inputs
 
     def _print_function_doc(self, func):
         """

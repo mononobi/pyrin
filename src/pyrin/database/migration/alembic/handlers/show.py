@@ -4,6 +4,7 @@ alembic handlers show module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.params import RevisionParam
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 
@@ -19,7 +20,7 @@ class ShowCLIHandler(AlembicCLIHandlerBase):
         initializes an instance of ShowCLIHandler.
         """
 
-        super().__init__('show')
+        super().__init__(AlembicCLIHandlersEnum.SHOW)
 
     def _inject_params(self, params):
         """

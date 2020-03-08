@@ -95,3 +95,10 @@ class PathNotExistedError(UtilsException):
     path not existed error.
     """
     pass
+
+
+class IsNotDirectoryError(UtilsException):
+    """
+    is not directory error.
+    """
+    pass

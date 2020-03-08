@@ -1,0 +1,196 @@
+# -*- coding: utf-8 -*-
+"""
+migrations env module.
+"""
+
+from os import path
+
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+from alembic import context
+
+import pyrin.database.migration.services as migration_services
+import pyrin.application.services as application_services
+import pyrin.globalization.datetime.services as datetime_services
+import pyrin.configuration.services as config_services
+import pyrin.logging.services as logging_services
+
+from pyrin.utils.custom_print import print_default
+
+from APPLICATION_MODULE import APPLICATION_CLASS
+
+
+app_instance = APPLICATION_CLASS(scripting_mode=True)
+
+USE_TWOPHASE = config_services.get('alembic', 'alembic', 'use_twophase')
+
+LOGGER = logging_services.get_logger('alembic')
+
+# gather section names referring to different
+# databases. these are named according to bind names
+# in the alembic.config file. default database must
+# always be referenced by 'default' key.
+db_names = config_services.get('alembic', 'alembic', 'databases')
+
+# getting timezone from alembic.config to set in file names.
+timezone = config_services.get('alembic', 'alembic', 'timezone')
+
+# keeps a collection of connection bind names and urls.
+# default engine bind name is always default.
+connection_urls = migration_services.get_connection_urls()
+
+# add your model's 'MetaData' objects here
+# for 'autogenerate' support. these must be set
+# up to hold just those tables targeting a
+# particular database. table.tometadata() may be
+# helpful here in case a 'copy' of
+# a metadata is needed.
+# from myapp import mymodel
+# target_metadata = {
+#       'default':mymodel.metadata1,
+#       'engine2':mymodel.metadata2
+# }
+target_metadata = migration_services.get_bind_name_to_metadata_map()
+
+
+def print_message(message):
+    """
+    prints the given message into stdout.
+
+    :param str message: message to be printed.
+    """
+
+    print_default(message, force=True)
+
+
+def run_migrations_offline():
+    """
+    run migrations in 'offline' mode.
+
+    this configures the context with just a url
+    and not an engine, though an engine is acceptable
+    here as well. by skipping the engine creation
+    we don't even need a dbapi to be available.
+
+    calls to context.execute() here emit the given string to the
+    script output.
+    """
+
+    # for the --sql use case, run migrations for each URL into
+    # individual files.
+
+    engines = {}
+    for name in db_names:
+        engines[name] = rec = {}
+        rec['url'] = connection_urls.get(name)
+        rec['engine'] = engine_from_config(
+            dict(url=connection_urls.get(name)),
+            prefix="",
+            poolclass=pool.NullPool,
+        )
+
+    timestamp = datetime_services.get_current_timestamp(date_sep=None,
+                                                        main_sep=None,
+                                                        time_sep=None,
+                                                        timezone=timezone)
+    for name, rec in engines.items():
+        engine = rec['engine']
+        rec['connection'] = conn = engine.connect()
+        print_message('Migrating database [{name}]'.format(name=name))
+
+        migrations_path = application_services.get_migrations_path()
+        file_ = 'sql/{timestamp}_{name}.sql'.format(timestamp=timestamp,
+                                                    name=name)
+        full_migrations_file_path = path.join(migrations_path, file_)
+
+        message = 'Writing output to [{file_name}]'.format(file_name=full_migrations_file_path)
+        LOGGER.debug(message)
+        print_message(message)
+
+        with open(full_migrations_file_path, 'w') as buffer:
+            context.configure(
+                url=rec['url'],
+                connection=rec['connection'],
+                output_buffer=buffer,
+                target_metadata=target_metadata.get(name),
+                literal_binds=True,
+                as_sql=True,
+                dialect_opts={'paramstyle': 'named'},
+                compare_type=config_services.get('alembic', 'alembic', 'compare_type'),
+                compare_server_default=config_services.get('alembic', 'alembic',
+                                                           'compare_server_default'),
+                render_as_batch=config_services.get('alembic', 'alembic', 'render_as_batch'),
+                include_schemas=config_services.get('alembic', 'alembic', 'include_schemas'),
+            )
+            with context.begin_transaction():
+                context.run_migrations(engine_name=name)
+
+
+def run_migrations_online():
+    """
+    run migrations in 'online' mode.
+
+    in this scenario we need to create an engine
+    and associate a connection with the context.
+    """
+
+    # for the direct-to-db use case, start a transaction on all
+    # engines, then run all migrations, then commit all transactions.
+
+    engines = {}
+    for name in db_names:
+        engines[name] = rec = {}
+        rec['engine'] = engine_from_config(
+            dict(url=connection_urls.get(name)),
+            prefix="",
+            poolclass=pool.NullPool,
+        )
+
+    for name, rec in engines.items():
+        engine = rec['engine']
+        rec['connection'] = conn = engine.connect()
+
+        if USE_TWOPHASE:
+            rec['transaction'] = conn.begin_twophase()
+        else:
+            rec['transaction'] = conn.begin()
+
+    try:
+        for name, rec in engines.items():
+            message = 'Migrating database [{name}]'.format(name=name)
+            LOGGER.debug(message)
+            print_message(message)
+            context.configure(
+                connection=rec['connection'],
+                upgrade_token='%s_upgrades' % name,
+                downgrade_token='%s_downgrades' % name,
+                target_metadata=target_metadata.get(name),
+                user_module_prefix='pyrin.database.migration.types.',
+                compare_type=config_services.get('alembic', 'alembic', 'compare_type'),
+                compare_server_default=config_services.get('alembic', 'alembic',
+                                                           'compare_server_default'),
+                render_as_batch=config_services.get('alembic', 'alembic', 'render_as_batch'),
+                include_schemas=config_services.get('alembic', 'alembic', 'include_schemas'),
+            )
+            context.run_migrations(engine_name=name)
+
+        if USE_TWOPHASE:
+            for rec in engines.values():
+                rec['transaction'].prepare()
+
+        for rec in engines.values():
+            rec['transaction'].commit()
+
+    except Exception:
+        for rec in engines.values():
+            rec['transaction'].rollback()
+        raise
+    finally:
+        for rec in engines.values():
+            rec['connection'].close()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()

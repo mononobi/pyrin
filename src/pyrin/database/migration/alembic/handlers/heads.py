@@ -4,6 +4,7 @@ alembic handlers heads module.
 """
 
 from pyrin.database.migration.alembic.decorators import alembic_cli_handler
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.handlers.base import AlembicReportingCLIHandlerBase
 from pyrin.database.migration.alembic.handlers.params import ResolveDependenciesParam
 
@@ -19,7 +20,7 @@ class HeadsCLIHandler(AlembicReportingCLIHandlerBase):
         initializes an instance of HeadsCLIHandler.
         """
 
-        super().__init__('heads')
+        super().__init__(AlembicCLIHandlersEnum.HEADS)
 
     def _inject_params(self, params):
         """
