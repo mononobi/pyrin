@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+"""
+permission component module.
+"""
+
+from pyrin.application.decorators import component
+from pyrin.application.context import Component
+
+from APPLICATION_PACKAGE.security.permission import PermissionPackage
+from APPLICATION_PACKAGE.security.permission.manager import PermissionManager
+
+
+@component(PermissionPackage.COMPONENT_NAME, replace=True)
+class PermissionComponent(Component, PermissionManager):
+    """
+    permission component class.
+    """
+    pass
