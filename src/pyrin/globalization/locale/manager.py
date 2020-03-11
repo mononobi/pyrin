@@ -29,7 +29,7 @@ class LocaleManager(Manager):
 
         super().__init__()
 
-        self._babel = Babel(get_current_app(), configure_jinja=False)
+        self._babel = Babel(get_current_app())
 
     def set_locale_selector(self, func):
         """

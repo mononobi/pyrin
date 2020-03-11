@@ -23,10 +23,6 @@ class AlembicTemplateHandler(TemplateHandlerBase):
     def __init__(self):
         """
         initializes an instance of AlembicTemplateHandler.
-
-        :raises TemplateHandlerNameRequiredError: template handler name required error.
-        :raises InvalidSourceDirectoryError: invalid source directory error.
-        :raises InvalidTargetDirectoryError: invalid target directory error.
         """
 
         pyrin_path = application_services.get_pyrin_main_package_path()

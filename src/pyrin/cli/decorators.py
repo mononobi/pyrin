@@ -46,7 +46,7 @@ def cli(func):
         try:
             return cli_services.process_function(func, args, kwargs)
         except Exception as error:
-            print_error(str(error), force=True)
+            print_error(error, force=True)
 
     return update_wrapper(decorator, func)
 
@@ -75,6 +75,6 @@ def cli_invoke(func):
         try:
             return cli_services.invoke_function(func, args, kwargs)
         except Exception as error:
-            print_error(str(error), force=True)
+            print_error(error, force=True)
 
     return update_wrapper(decorator, func)

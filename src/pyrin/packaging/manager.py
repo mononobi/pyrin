@@ -50,6 +50,9 @@ class PackagingManager(Manager, HookMixin):
         # holds the loaded packages.
         self._loaded_packages = []
 
+        # holds the name of disabled packages.
+        self._disabled_packages = []
+
         # holds the instance of all loaded modules.
         # in the form of: {str module_name: Module module}
         self._loaded_modules = DTO()
@@ -259,9 +262,6 @@ class PackagingManager(Manager, HookMixin):
         for package in components:
             package_class = self._get_package_class(package)
 
-            if package_class is not None and package_class.ENABLED is False:
-                continue
-
             # checking whether this package has any dependencies.
             # if so, check those dependencies have been loaded or not.
             # if not, then put this package into dependent_packages and
@@ -346,6 +346,14 @@ class PackagingManager(Manager, HookMixin):
 
                 package_name = self._get_package_name(combined_path, root_path)
                 if self._is_ignored_package(package_name):
+                    continue
+
+                package_class = self._get_package_class(package_name)
+                if package_class is not None and package_class.ENABLED is False:
+                    self._disabled_packages.append(package_name)
+                    continue
+
+                if self._is_disabled_package(package_name):
                     continue
 
                 if self._is_pyrin_package(package_name):
@@ -554,6 +562,23 @@ class PackagingManager(Manager, HookMixin):
             index = index + 1
 
         return True
+
+    def _is_disabled_package(self, package_name):
+        """
+        gets a value indicating that given package should
+        be considered as disabled based on its parents status.
+
+        :param str package_name: full package name.
+                                 example package_name = `pyrin.database`.
+
+        :rtype: bool
+        """
+
+        for disabled in self._disabled_packages:
+            if package_name.startswith(disabled) or self._is_equal(disabled, package_name):
+                return True
+
+        return False
 
     def _is_ignored_package(self, package_name):
         """

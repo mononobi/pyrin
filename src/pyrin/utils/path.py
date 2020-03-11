@@ -122,7 +122,7 @@ def copy_file(source, target):
     shutil.copy2(source, target)
 
 
-def copy_directory(source, target):
+def copy_directory(source, target, ignore_existed=False):
     """
     copies the given source directory contents into given target directory.
 
@@ -131,6 +131,10 @@ def copy_directory(source, target):
     :param str source: source directory absolute path.
     :param str target: target directory absolute path.
 
+    :param bool ignore_existed: specifies that if the destination directory
+                                is already existed, it should not raise an error.
+                                defaults to False if not provided.
+
     :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
     :raises PathNotExistedError: path not existed error.
@@ -138,7 +142,7 @@ def copy_directory(source, target):
 
     assert_exists(source)
     assert_absolute(target)
-    shutil.copytree(source, target)
+    copytree_ex(source, target, ignore_existed=ignore_existed)
 
 
 def assert_absolute(source):
@@ -233,3 +237,99 @@ def get_first_available_file(*paths, file_name):
             return file_path
 
     return None
+
+
+def copytree_ex(source, destination, symlinks=False, ignore=None,
+                copy_function=shutil.copy2, ignore_dangling_symlinks=False,
+                ignore_existed=False):
+    """
+    recursively copy a directory tree.
+
+    this method patches the `shutil.copytree()` method to let the caller decide
+    to let or not to let to copy if destination directory is already existed.
+    if exception(s) occur, an error is raised with a list of reasons.
+
+    :param str source: source directory.
+    :param str destination: destination directory.
+
+    :param bool symlinks: if the optional symlinks flag is True, symbolic links in the
+                          source tree result in symbolic links in the destination tree.
+                          if it is false, the contents of the files pointed to by symbolic
+                          links are copied. if the file pointed by the symlink doesn't
+                          exist, an exception will be added in the list of errors raised in
+                          an error exception at the end of the copy process. defaults to
+                          False if not provided.
+
+    :param callable ignore: the optional ignore argument is a callable. if given, it
+                            is called with the `source` parameter, which is the directory
+                            being visited by copytree(), and `names` which is the list of
+                            `source` contents, as returned by os.listdir():
+                            callable(src, names) -> ignored_names
+
+    :param callable copy_function: is a callable that will be used to copy each file.
+                                   it will be called with the source path and the
+                                   destination path as arguments. by default, `copy2()`
+                                   is used, but any function that supports the same
+                                   signature can be used.
+
+    :param bool ignore_dangling_symlinks: if set to True, the exception for broken
+                                          symlinks will not be raised.
+                                          defaults to False if not provided.
+
+    :param bool ignore_existed: specifies that if the destination directory
+                                is already existed, it should not raise an error.
+                                defaults to False if not provided.
+    """
+
+    names = os.listdir(source)
+    if ignore is not None:
+        ignored_names = ignore(source, names)
+    else:
+        ignored_names = set()
+
+    os.makedirs(destination, exist_ok=ignore_existed)
+    errors = []
+    for name in names:
+        if name in ignored_names:
+            continue
+        source_name = os.path.join(source, name)
+        destination_name = os.path.join(destination, name)
+        try:
+            if os.path.islink(source_name):
+                link_to = os.readlink(source_name)
+                if symlinks:
+                    # We can't just leave it to `copy_function` because legacy
+                    # code with a custom `copy_function` may rely on copytree
+                    # doing the right thing.
+                    os.symlink(link_to, destination_name)
+                    shutil.copystat(source_name, destination_name,
+                                    follow_symlinks=not symlinks)
+                else:
+                    # ignore dangling symlink if the flag is on
+                    if not os.path.exists(link_to) and ignore_dangling_symlinks:
+                        continue
+                    # otherwise let the copy occurs. copy2 will raise an error
+                    if os.path.isdir(source_name):
+                        copytree_ex(source_name, destination_name, symlinks, ignore,
+                                    copy_function)
+                    else:
+                        copy_function(source_name, destination_name)
+            elif os.path.isdir(source_name):
+                copytree_ex(source_name, destination_name, symlinks, ignore, copy_function)
+            else:
+                # Will raise a SpecialFileError for unsupported file types
+                copy_function(source_name, destination_name)
+        # catch the Error from the recursive copytree so that we can
+        # continue with other files
+        except shutil.Error as err:
+            errors.extend(err.args[0])
+        except OSError as why:
+            errors.append((source_name, destination_name, str(why)))
+    try:
+        shutil.copystat(source, destination)
+    except OSError as why:
+        # Copying file access times may fail on Windows
+        if getattr(why, 'winerror', None) is None:
+            errors.append((source, destination, str(why)))
+    if errors:
+        raise shutil.Error(errors)

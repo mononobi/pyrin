@@ -83,7 +83,7 @@ class TemplateManager(Manager):
         """
 
         if name not in self._template_handlers:
-            raise TemplateHandlerNotFoundError('Template handler with name [{name}] not found.'
+            raise TemplateHandlerNotFoundError('Template handler [{name}] not found.'
                                                .format(name=name))
 
         return self._template_handlers[name]

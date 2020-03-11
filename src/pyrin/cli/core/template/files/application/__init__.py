@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+APPLICATION_PACKAGE package.
+"""
+
+from pyrin.application.base import Application
+
+
+class APPLICATION_CLASS(Application):
+    """
+    server should create an instance of this class on startup.
+    """
+    pass

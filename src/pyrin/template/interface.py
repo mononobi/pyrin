@@ -27,7 +27,7 @@ class AbstractTemplateHandler(CoreObject):
     """
 
     @abstractmethod
-    def create(self):
+    def create(self, *args, **kwargs):
         """
         creates the template files in target path of this handler.
 

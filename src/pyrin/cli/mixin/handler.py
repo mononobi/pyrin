@@ -86,7 +86,7 @@ class CLIMixin(CoreObject):
         """
 
         if name not in self._cli_handlers:
-            raise CLIHandlerNotFoundError('CLI handler with name [{name}] not found.'
+            raise CLIHandlerNotFoundError('CLI handler [{name}] not found.'
                                           .format(name=name))
 
         return self._cli_handlers[name]

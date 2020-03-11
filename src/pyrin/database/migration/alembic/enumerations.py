@@ -11,7 +11,7 @@ class AlembicCLIHandlersEnum(CoreEnum):
     alembic cli handlers enum.
     """
 
-    ENABLE = 'alembic-enable'
+    ENABLE = 'alembic.enable'
     BRANCHES = 'branches'
     CURRENT = 'current'
     DOWNGRADE = 'downgrade'
