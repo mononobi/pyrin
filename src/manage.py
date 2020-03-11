@@ -13,6 +13,9 @@ import fire
 
 from pyrin.database.migration.alembic.cli import AlembicCLI
 from pyrin.globalization.locale.babel.cli import BabelCLI
+from pyrin.utils.environment import set_python_path
+
+set_python_path('.')
 
 from tests import PyrinTestApplication
 
