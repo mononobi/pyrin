@@ -334,26 +334,3 @@ class TemplateHandlerWithInterfaceInputBase(TemplateHandlerWithInputBase):
         """
 
         raise CoreNotImplementedError()
-
-    def _validate_target(self):
-        """
-        validates target path for template creation.
-
-        it assures that target path does not exist, but if already
-        existed, it asks the user whether to overwrite it or not.
-
-        :raises InvalidTargetDirectoryError: invalid target directory error.
-
-        :raises TemplateTargetDirectoryAlreadyExistedError: template target directory
-                                                            already existed error.
-        """
-
-        try:
-            super()._validate_target()
-        except TemplateTargetDirectoryAlreadyExistedError as error:
-            overwrite = input('Target directory [{dir}] is already '
-                              'existed, do you want to overwrite its files? [y/N] '
-                              .format(dir=self._target))
-
-            if overwrite.lower() not in ('y', 'yes'):
-                raise error
