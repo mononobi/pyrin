@@ -5,6 +5,8 @@ template handlers base module.
 
 import os
 
+from abc import abstractmethod
+
 import pyrin.configuration.services as config_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.file as file_utils
@@ -256,6 +258,7 @@ class TemplateHandlerWithInputBase(TemplateHandlerBase):
 
         self._process_inputs(*args, **kwargs)
 
+    @abstractmethod
     def _process_inputs(self, *args, **kwargs):
         """
         processes the inputs to be used by this handler.
@@ -291,6 +294,7 @@ class TemplateHandlerWithInterfaceInputBase(TemplateHandlerWithInputBase):
 
         self._show_interface(*args, **kwargs)
 
+    @abstractmethod
     def _show_interface(self, *args, **kwargs):
         """
         shows cli prompt to get inputs from user.
