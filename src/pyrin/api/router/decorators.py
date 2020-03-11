@@ -6,21 +6,21 @@ router decorators module.
 import pyrin.api.router.services as router_services
 
 
-def api(url, **options):
+def api(url, methods=None, login_required=True, permissions=None, **options):
     """
     decorator to register an api handler for application.
 
     :param str url: url rule for this api.
 
-    :keyword tuple(str) methods: http methods that this rule should handle.
-                                 if not provided, defaults to `GET`.
+    :param tuple[str] methods: http methods that this rule should handle.
+                               if not provided, defaults to `GET`.
 
-    :keyword tuple(PermissionBase) permissions: tuple of all required permissions
-                                                to access this route's resource.
+    :param bool login_required: specifies that this route could not be accessed
+                                if the requester has not a valid token.
+                                defaults to True if not provided.
 
-    :keyword bool login_required: specifies that this route could not be accessed
-                                  if the requester has not a valid token.
-                                  defaults to True if not provided.
+    :param tuple[PermissionBase] permissions: tuple of all required permissions
+                                              to access this route's resource.
 
     :keyword bool fresh_token: specifies that this route could not be accessed
                                if the requester has not a valid fresh token.
@@ -53,7 +53,9 @@ def api(url, **options):
         :rtype: callable
         """
 
-        router_services.add_route(url, view_func=func, **options)
+        router_services.add_route(url, view_func=func, methods=methods,
+                                  login_required=login_required,
+                                  permissions=permissions, **options)
 
         return func
 

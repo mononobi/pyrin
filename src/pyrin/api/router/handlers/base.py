@@ -27,7 +27,7 @@ class RouteBase(Rule):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple(str) methods: http methods that this route could handle.
+        :keyword tuple[str] methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
                         
@@ -79,8 +79,8 @@ class RouteBase(Rule):
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         """
 
-        methods = options.get('methods', ())
-        if not isinstance(methods, LIST_TYPES):
+        methods = options.get('methods', None)
+        if methods is not None and not isinstance(methods, LIST_TYPES):
             methods = (methods,)
             options.update(methods=methods)
 

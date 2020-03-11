@@ -689,10 +689,10 @@ class Application(Flask, HookMixin, SignalMixin,
                                                `view_func.provide_automatic_options = False`
                                                before adding the rule.
 
-        :keyword tuple(str) methods: http methods that this rule should handle.
+        :keyword tuple[str] methods: http methods that this rule should handle.
                                      if not provided, defaults to `GET`.
 
-        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
+        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword bool login_required: specifies that this route could not be accessed
@@ -706,11 +706,9 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises DuplicateRouteURLError: duplicate route url error.
         """
 
-        methods = options.get('methods', ())
-        if not isinstance(methods, LIST_TYPES):
+        methods = options.get('methods', None)
+        if methods is not None and not isinstance(methods, LIST_TYPES):
             options.update(methods=(methods,))
-
-        replace = options.get('replace', False)
 
         # setting endpoint to url rule instead of view function name,
         # to be able to have the same function names on different url rules.
@@ -724,6 +722,7 @@ class Application(Flask, HookMixin, SignalMixin,
                 old_rule = rule_item
                 break
 
+        replace = options.get('replace', False)
         if old_rule is not None:
             if replace is True:
                 self.url_map._rules.remove(old_rule)

@@ -155,10 +155,10 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                                            `view_func.provide_automatic_options = False`
                                            before adding the rule.
 
-    :keyword tuple(str) methods: http methods that this rule should handle.
+    :keyword tuple[str] methods: http methods that this rule should handle.
                                  if not provided, defaults to `GET`.
 
-    :keyword tuple(PermissionBase) permissions: tuple of all required permissions
+    :keyword tuple[PermissionBase] permissions: tuple of all required permissions
                                                 to access this route's resource.
 
     :keyword bool login_required: specifies that this route could not be accessed
