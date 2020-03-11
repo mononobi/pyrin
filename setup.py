@@ -86,5 +86,5 @@ setup(
             'sphinx-issues',
         ],
     },
-    # entry_points={'console_scripts': ['pyrin = pyrin.cli.manager:main']},
+    entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
 )
