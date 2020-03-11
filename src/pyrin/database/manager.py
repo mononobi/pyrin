@@ -82,6 +82,7 @@ class DatabaseManager(Manager, HookMixin):
     def get_session_factory(self, request_bounded=None):
         """
         gets database session factory based on given input.
+
         this method should not be used directly for data manipulation.
         use `get_current_store` method instead.
 
@@ -102,6 +103,7 @@ class DatabaseManager(Manager, HookMixin):
     def _get_current_session_factory(self):
         """
         gets database session factory that should be used.
+
         it simply checks that request is available in current
         context or not, and gets the correct session factory.
 
@@ -147,6 +149,7 @@ class DatabaseManager(Manager, HookMixin):
     def _create_engine(self, database_configs, **kwargs):
         """
         creates a database engine using specified database configuration and returns it.
+
         each provided key from kwargs will override the corresponding
         key in database_configs dict. note that kwargs should not have any prefix.
 
@@ -189,6 +192,7 @@ class DatabaseManager(Manager, HookMixin):
     def _merge_configs(self, base_configs, bind_configs):
         """
         merges given base and bind configs and returns a new dict.
+
         merging will cause all keys in bind configs override any available key in
         base configs. also all keys that are present in bind configs and starting
         with double underscore `__` will be removed from result dict and also all
@@ -239,6 +243,7 @@ class DatabaseManager(Manager, HookMixin):
     def finalize_transaction(self, response):
         """
         this method will finalize database transaction of each request.
+
         we should not raise any exception in request handlers, so we return
         an error response in case of any exception.
         note that normally you should never call this method manually.
@@ -271,8 +276,9 @@ class DatabaseManager(Manager, HookMixin):
 
     def cleanup_session(self, exception):
         """
-        this method will cleanup database session of each request in
-        case of any unhandled exception. we should not raise any exception
+        this method will cleanup database session of each request.
+
+        in case of any unhandled exception. we should not raise any exception
         in teardown request handlers, so we just log the exception.
         note that normally you should never call this method manually.
 
@@ -290,7 +296,8 @@ class DatabaseManager(Manager, HookMixin):
 
     def register_session_factory(self, instance, **options):
         """
-        registers a new session factory or replaces the existing one
+        registers a new session factory or replaces the existing one.
+
         if `replace=True` is provided. otherwise, it raises an error
         on adding an instance which it's is_request_bounded() is already available
         in registered session factories.
@@ -386,6 +393,7 @@ class DatabaseManager(Manager, HookMixin):
     def configure_session_factories(self):
         """
         configures all application session factories.
+
         normally, you should not call this method manually.
 
         :raises InvalidDatabaseBindError: invalid database bind error.

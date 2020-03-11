@@ -114,6 +114,7 @@ def database_hook():
 def atomic(func):
     """
     decorator to make a function execution atomic.
+
     meaning that before starting the execution of the function, a sub-transaction
     will be started, and after the completion of that function, if it was successful,
     the sub-transaction will be committed or if it was not successful the sub-transaction

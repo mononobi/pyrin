@@ -22,6 +22,7 @@ def get_current_store():
 def get_session_factory(request_bounded=None):
     """
     gets database session factory based on given input.
+
     this method should not be used directly for data manipulation.
     use `get_current_store` method instead.
 
@@ -41,6 +42,7 @@ def get_session_factory(request_bounded=None):
 def finalize_transaction(response):
     """
     this method will finalize database transaction of each request.
+
     we should not raise any exception in request handlers, so we return
     an error response in case of any exception.
     note that normally you should never call this method manually.
@@ -56,8 +58,9 @@ def finalize_transaction(response):
 @teardown_request_handler()
 def cleanup_session(exception):
     """
-    this method will cleanup database session of each request in
-    case of any unhandled exception. we should not raise any exception
+    this method will cleanup database session of each request.
+
+    in case of any unhandled exception. we should not raise any exception
     in teardown request handlers, so we just log the exception.
     note that normally you should never call this method manually.
 
@@ -69,7 +72,8 @@ def cleanup_session(exception):
 
 def register_session_factory(instance, **options):
     """
-    registers a new session factory or replaces the existing one
+    registers a new session factory or replaces the existing one.
+
     if `replace=True` is provided. otherwise, it raises an error
     on adding an instance which it's is_request_bounded() is already available
     in registered session factories.
@@ -108,6 +112,7 @@ def register_bind(entity, bind_name, **options):
 def configure_session_factories():
     """
     configures all application session factories.
+
     normally, you should not call this method manually.
 
     :raises InvalidDatabaseBindError: invalid database bind error.
