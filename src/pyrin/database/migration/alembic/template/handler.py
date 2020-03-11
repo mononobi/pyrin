@@ -62,3 +62,13 @@ class AlembicTemplateHandler(TemplateHandlerBase):
         """
 
         return AlembicPackage.CONFIG_STORE_NAMES
+
+    def _get_required_directories(self):
+        """
+        gets the required directory names that must be created in target path.
+
+        :returns: list[str]
+        :rtype: list
+        """
+
+        return ['sql', 'versions']

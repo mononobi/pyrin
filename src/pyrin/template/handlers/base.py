@@ -81,6 +81,7 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         self._copy_template_files()
         self._replace_config_values()
         self._replace_template_values()
+        self._create_required_directories()
         self._finalize()
 
         self._print_info('Template has been created in [{target}].'
@@ -158,6 +159,17 @@ class TemplateHandlerBase(AbstractTemplateHandler):
             file_utils.replace_files_values(self._target, self._data,
                                             *self._get_file_patterns())
 
+    def _create_required_directories(self):
+        """
+        creates the required directories if they are not available in target path.
+        """
+
+        if len(self._get_required_directories()) > 0:
+            for directory in self._get_required_directories():
+                full_path = os.path.abspath(os.path.join(self._target, directory))
+                if not os.path.exists(full_path):
+                    path_utils.create_directory(full_path)
+
     def _get_file_patterns(self):
         """
         gets the file patterns that should be included in replacement operation.
@@ -186,6 +198,19 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         gets the config store names which belong to this template.
 
         this method is intended to be overridden by subclasses.
+
+        :returns: list[str]
+        :rtype: list
+        """
+
+        return []
+
+    def _get_required_directories(self):
+        """
+        gets the required directory names that must be created in target path.
+
+        this is useful for directories which are in template files but are empty
+        and could not be included in `setup.py` package data.
 
         :returns: list[str]
         :rtype: list
