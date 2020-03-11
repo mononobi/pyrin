@@ -39,3 +39,11 @@ def execute(handler_name, **options):
     """
 
     return get_component(AlembicPackage.COMPONENT_NAME).execute(handler_name, **options)
+
+
+def enable():
+    """
+    enables migrations for the application.
+    """
+
+    return get_component(AlembicPackage.COMPONENT_NAME).enable()

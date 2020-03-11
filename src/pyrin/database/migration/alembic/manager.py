@@ -3,8 +3,11 @@
 alembic manager module.
 """
 
+import pyrin.template.services as template_services
+
 from pyrin.cli.mixin.handler import CLIMixin
 from pyrin.core.context import Manager
+from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 
 
@@ -14,3 +17,10 @@ class AlembicManager(Manager, CLIMixin):
     """
 
     _cli_handler_type = AlembicCLIHandlerBase
+
+    def enable(self):
+        """
+        enables migrations for the application.
+        """
+
+        return template_services.create(AlembicCLIHandlersEnum.ENABLE)

@@ -4,11 +4,9 @@ alembic cli module.
 """
 
 import pyrin.database.migration.alembic.services as alembic_services
-import pyrin.template.services as template_services
 
 from pyrin.cli.decorators import cli, cli_invoke
 from pyrin.core.context import CLI
-from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 
 
 class AlembicCLI(CLI):
@@ -28,7 +26,7 @@ class AlembicCLI(CLI):
                             defaults to False if not provided.
         """
 
-        template_services.create(AlembicCLIHandlersEnum.ENABLE)
+        return alembic_services.enable()
 
     @cli
     def branches(self, verbose=False, help=False):
