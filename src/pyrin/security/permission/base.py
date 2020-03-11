@@ -14,67 +14,63 @@ from pyrin.core.exceptions import CoreNotImplementedError
 class PermissionBase(CoreObject):
     """
     permission base class.
+
     all application permissions must be subclassed from this.
     """
 
     def __init__(self, *args, **options):
         """
         initializes an instance of PermissionBase.
+
+        input parameters of this method in subclasses must be
+        customized based on application's design requirements.
         """
 
         super().__init__()
         permission_services.register_permission(self, **options)
 
-    @abstractmethod
     def __hash__(self):
         """
-        this method must be implemented in all subclasses
-        to get the correct hash of current permission.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        gets the hash value of current permission.
 
         :rtype: int
         """
 
-        raise CoreNotImplementedError()
+        return hash(self.get_id())
 
-    @abstractmethod
     def __eq__(self, other):
         """
-        this method must be implemented in all subclasses to get the correct
-        comparison between current and other permission for equality.
+        gets the comparison between current and other permission for equality.
 
         :param PermissionBase other: other permission instance to be
                                      compared to the current one.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bool
         """
 
-        raise CoreNotImplementedError()
+        if not isinstance(other, PermissionBase):
+            return False
 
-    @abstractmethod
+        return other.get_id() == self.get_id()
+
     def __ne__(self, other):
         """
-        this method must be implemented in all subclasses to get the correct
-        comparison between current and other permission for not equality.
+        gets the comparison between current and other permission for not equality.
 
         :param PermissionBase other: other permission instance to be
                                      compared to the current one.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: bool
         """
 
-        raise CoreNotImplementedError()
+        return not self == other
 
     @abstractmethod
     def __str__(self):
         """
-        this method must be implemented in all subclasses to
-        get the correct string representation of current permission.
+        gets the string representation of current permission.
+
+        this method must be implemented in subclasses.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -83,23 +79,21 @@ class PermissionBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    @abstractmethod
     def __repr__(self):
         """
-        this method must be implemented in all subclasses to
-        get the correct string representation of current permission.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        gets the string representation of current permission.
 
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        return str(self)
 
     @abstractmethod
     def to_entity(self):
         """
         gets the equivalent entity of current permission.
+
+        this method must be implemented in subclasses.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -112,7 +106,12 @@ class PermissionBase(CoreObject):
     def get_id(self):
         """
         gets permission id.
-        note that this object must be fully unique for each different permission.
+
+        this method must be implemented in subclasses.
+        it could return a single value or a combination of multiple values
+        (ex. a tuple). note that the returned value must be fully unique for
+        each different permission and also it must be a hashable value to
+        be used as dict key.
 
         :raises CoreNotImplementedError: core not implemented error.
 
