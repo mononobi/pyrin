@@ -54,7 +54,7 @@ setup(
     ],
     packages=find_namespace_packages('src', exclude=('tests', 'tests.*')),
     package_dir={'': 'src'},
-    package_data={'': ['*.config']},
+    package_data={'': ['*']},
     include_package_data=True,
     python_requires='>=3.5',
     install_requires=[
