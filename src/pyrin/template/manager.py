@@ -58,8 +58,8 @@ class TemplateManager(Manager):
                 raise DuplicatedTemplateHandlerError('There is another registered '
                                                      'template handler with name [{name}] '
                                                      'but "replace" option is not set, so '
-                                                     'template handler [{instance}] could not '
-                                                     'be registered.'
+                                                     'template handler [{instance}] could '
+                                                     'not be registered.'
                                                      .format(name=instance.name,
                                                              instance=instance))
 
