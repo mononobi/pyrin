@@ -75,13 +75,10 @@ class ProjectStructureTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase)
         """
 
         if project_root is None:
-            project_root = input('Please input the absolute path to create your project or '
-                                 'just provide a relative path or directory name to be created '
-                                 'in current path: ')
+            project_root = input('Please input the project path or directory name: ')
 
         if app_package_name is None:
-            app_package_name = input('Please input the name of the main '
-                                     'package of your application: ')
+            app_package_name = input('Please input the package name of your application: ')
 
         if app_class_name is None:
             app_class_name = input('Please input your application class name: ')
