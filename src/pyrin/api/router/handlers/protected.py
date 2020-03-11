@@ -27,7 +27,7 @@ class ProtectedRoute(RouteBase):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
+        :keyword tuple(str) methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
 
@@ -68,7 +68,7 @@ class ProtectedRoute(RouteBase):
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
                                
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword int max_content_length: max content length that this route could handle,
@@ -152,7 +152,7 @@ class FreshProtectedRoute(ProtectedRoute):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
+        :keyword tuple(str) methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
 
@@ -193,7 +193,7 @@ class FreshProtectedRoute(ProtectedRoute):
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword int max_content_length: max content length that this route could handle,

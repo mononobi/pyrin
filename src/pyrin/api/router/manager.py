@@ -25,7 +25,7 @@ class RouterManager(Manager):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
+        :keyword tuple(str) methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
 
@@ -44,7 +44,7 @@ class RouterManager(Manager):
                                    providing user credentials to server.
                                    defaults to False if not provided.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword int max_content_length: max content length that this route could handle,
@@ -92,7 +92,7 @@ class RouterManager(Manager):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
+        :keyword tuple(str) methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
 
@@ -111,7 +111,7 @@ class RouterManager(Manager):
                                    providing user credentials to server.
                                    defaults to False if not provided.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword int max_content_length: max content length that this route could handle,
@@ -147,10 +147,10 @@ class RouterManager(Manager):
                                                `view_func.provide_automatic_options = False`
                                                before adding the rule.
 
-        :keyword tuple[str] methods: http methods that this rule should handle.
+        :keyword tuple(str) methods: http methods that this rule should handle.
                                      if not provided, defaults to `GET`.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
+        :keyword tuple(PermissionBase) permissions: tuple of all required permissions
                                                     to access this route's resource.
 
         :keyword bool login_required: specifies that this route could not be accessed

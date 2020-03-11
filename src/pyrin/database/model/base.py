@@ -87,7 +87,7 @@ class CoreEntity(CoreObject):
         primary keys and if all the values in primary key tuple are
         not None for composite primary keys.
 
-        :param Union[object, tuple[object]] primary_key: primary key value.
+        :param Union[object, tuple(object)] primary_key: primary key value.
 
         :rtype: bool
         """
@@ -114,7 +114,7 @@ class CoreEntity(CoreObject):
                               as a tuple even if it's a single value.
                               defaults to False if not provided.
 
-        :rtype: Union[object, tuple[object]]
+        :rtype: Union[object, tuple(object)]
         """
 
         columns = self.primary_key_columns()
@@ -150,7 +150,7 @@ class CoreEntity(CoreObject):
         """
         sets all column names attribute for this class.
 
-        :param tuple[str] columns: column names.
+        :param tuple(str) columns: column names.
         """
 
         if getattr(self, '_all_columns', None) is None:
@@ -162,7 +162,7 @@ class CoreEntity(CoreObject):
         """
         sets exposed column names attribute for this class.
 
-        :param tuple[str] columns: column names.
+        :param tuple(str) columns: column names.
         """
 
         if getattr(self, '_exposed_columns', None) is None:
@@ -174,7 +174,7 @@ class CoreEntity(CoreObject):
         """
         sets primary key column names attribute for this class.
 
-        :param tuple[str] columns: column names.
+        :param tuple(str) columns: column names.
         """
 
         if getattr(self, '_primary_key_columns', None) is None:
@@ -209,7 +209,7 @@ class CoreEntity(CoreObject):
         """
         gets current entity's primary key columns if available.
 
-        :rtype: tuple[str]
+        :rtype: tuple(str)
         """
 
         columns = getattr(self, '_primary_key_columns', None)
@@ -223,7 +223,7 @@ class CoreEntity(CoreObject):
         gets the primary key column name(s) of this entity.
         column names will be calculated once and cached.
 
-        :returns: tuple[str]
+        :returns: tuple(str)
         :rtype: tuple
         """
 
@@ -240,7 +240,7 @@ class CoreEntity(CoreObject):
         gets all column names of entity.
         column names will be calculated once and cached.
 
-        :returns: tuple[str]
+        :returns: tuple(str)
         :rtype: tuple
         """
 
@@ -258,7 +258,7 @@ class CoreEntity(CoreObject):
         are those that have `exposed=True`.
         column names will be calculated once and cached.
 
-        :returns: tuple[str]
+        :returns: tuple(str)
         :rtype: tuple
         """
 
@@ -276,7 +276,7 @@ class CoreEntity(CoreObject):
         gets all column names of entity.
         returns None if not found.
 
-        :returns: tuple[str]
+        :returns: tuple(str)
         :rtype: tuple
         """
 
@@ -292,7 +292,7 @@ class CoreEntity(CoreObject):
         are those that have `exposed=True`.
         returns None if not found.
 
-        :returns: tuple[str]
+        :returns: tuple(str)
         :rtype: tuple
         """
 
