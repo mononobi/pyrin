@@ -134,7 +134,8 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         copies required template files from source path to target path of this handler.
         """
 
-        path_utils.copy_directory(self._source, self._target, ignore_existed=True)
+        path_utils.copy_directory(self._source, self._target,
+                                  ignore_existed=True, ignore=path_utils.get_pycache)
 
     def _replace_config_values(self):
         """

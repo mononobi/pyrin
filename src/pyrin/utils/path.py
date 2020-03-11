@@ -122,7 +122,7 @@ def copy_file(source, target):
     shutil.copy2(source, target)
 
 
-def copy_directory(source, target, ignore_existed=False):
+def copy_directory(source, target, ignore_existed=False, ignore=None):
     """
     copies the given source directory contents into given target directory.
 
@@ -135,6 +135,12 @@ def copy_directory(source, target, ignore_existed=False):
                                 is already existed, it should not raise an error.
                                 defaults to False if not provided.
 
+    :param callable ignore: the optional ignore argument is a callable. if given, it
+                            is called with the `source` parameter, which is the directory
+                            being visited by copytree(), and `names` which is the list of
+                            `source` contents, as returned by os.listdir():
+                            callable(src, names) -> ignored_names
+
     :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
     :raises PathNotExistedError: path not existed error.
@@ -142,7 +148,7 @@ def copy_directory(source, target, ignore_existed=False):
 
     assert_exists(source)
     assert_absolute(target)
-    copytree_ex(source, target, ignore_existed=ignore_existed)
+    copytree_ex(source, target, ignore=ignore, ignore_existed=ignore_existed)
 
 
 def assert_absolute(source):
@@ -333,3 +339,16 @@ def copytree_ex(source, destination, symlinks=False, ignore=None,
             errors.append((source, destination, str(why)))
     if errors:
         raise shutil.Error(errors)
+
+
+def get_pycache(source, names):
+    """
+    gets all `__pycache__` directories available in names.
+
+    :param str source: source directory of contents.
+    :param list[str] names: name of all contents in source.
+
+    :rtype: list[str]
+    """
+
+    return [name for name in names if '__pycache__' in name]
