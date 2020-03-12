@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-orm scoping thread_scoped module.
+orm scoping registry thread_scoped module.
 """
 
 from sqlalchemy.util import ThreadLocalRegistry

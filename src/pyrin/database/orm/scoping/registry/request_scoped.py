@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-orm scoping request_scoped module.
+orm scoping registry request_scoped module.
 """
 
 import pyrin.security.session.services as session_services
