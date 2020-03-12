@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql extractor package.
+orm sql extractor package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class DatabaseORMSQLExtractorPackage(Package):
+class ORMSQLExtractorPackage(Package):
     """
-    database orm sql extractor package class.
+    orm sql extractor package class.
     """
 
     NAME = __name__

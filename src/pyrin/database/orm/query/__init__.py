@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-database orm query package.
+orm query package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class DatabaseORMQueryPackage(Package):
+class ORMQueryPackage(Package):
     """
-    database orm query package class.
+    orm query package class.
     """
 
     NAME = __name__

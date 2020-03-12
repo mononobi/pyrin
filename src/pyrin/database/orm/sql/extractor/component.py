@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql extractor component module.
+orm sql extractor component module.
 """
 
 from pyrin.application.decorators import component
 from pyrin.application.context import Component
-from pyrin.database.orm.sql.extractor import DatabaseORMSQLExtractorPackage
-from pyrin.database.orm.sql.extractor.manager import DatabaseORMSQLExtractorManager
+from pyrin.database.orm.sql.extractor import ORMSQLExtractorPackage
+from pyrin.database.orm.sql.extractor.manager import ORMSQLExtractorManager
 
 
-@component(DatabaseORMSQLExtractorPackage.COMPONENT_NAME)
-class DatabaseORMSQLExtractorComponent(Component, DatabaseORMSQLExtractorManager):
+@component(ORMSQLExtractorPackage.COMPONENT_NAME)
+class ORMSQLExtractorComponent(Component, ORMSQLExtractorManager):
     """
-    database orm sql extractor component class.
+    orm sql extractor component class.
     """
     pass

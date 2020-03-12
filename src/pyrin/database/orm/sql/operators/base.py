@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql operators base module.
+orm sql operators base module.
 """
 
 from datetime import datetime

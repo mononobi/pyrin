@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm session base module.
+orm session base module.
 """
 
 from sqlalchemy.orm import Session

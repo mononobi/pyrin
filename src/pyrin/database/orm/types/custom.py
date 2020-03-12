@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm types custom module.
+orm types custom module.
 """
 
 import uuid

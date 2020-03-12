@@ -1,33 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-database orm query exceptions module.
+orm query exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException
 
 
-class DatabaseORMQueryException(CoreException):
+class ORMQueryException(CoreException):
     """
-    database orm query exception.
-    """
-    pass
-
-
-class DatabaseORMQueryBusinessException(DatabaseORMQueryException):
-    """
-    database orm query business exception.
+    orm query exception.
     """
     pass
 
 
-class ColumnsOutOfScopeError(DatabaseORMQueryBusinessException):
+class ORMQueryBusinessException(ORMQueryException):
+    """
+    orm query business exception.
+    """
+    pass
+
+
+class ColumnsOutOfScopeError(ORMQueryBusinessException):
     """
     columns out of scope error.
     """
     pass
 
 
-class UnsupportedQueryStyleError(DatabaseORMQueryException):
+class UnsupportedQueryStyleError(ORMQueryException):
     """
     unsupported query style error.
     """

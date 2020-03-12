@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm types base module.
+orm types base module.
 """
 
 from abc import abstractmethod

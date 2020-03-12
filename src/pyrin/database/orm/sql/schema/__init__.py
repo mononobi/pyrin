@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql schema package.
+orm sql schema package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class DatabaseORMSQLSchemaPackage(Package):
+class ORMSQLSchemaPackage(Package):
     """
-    database orm sql schema package class.
+    orm sql schema package class.
     """
 
     NAME = __name__

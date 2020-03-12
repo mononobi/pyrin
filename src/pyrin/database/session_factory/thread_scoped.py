@@ -3,12 +3,13 @@
 database thread_scoped session factory module.
 """
 
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 import pyrin.configuration.services as config_services
 
 from pyrin.database.decorators import session_factory
 from pyrin.database.orm.query.base import CoreQuery
+from pyrin.database.orm.scoping.base import CoreScopedSession
 from pyrin.database.orm.session.base import CoreSession
 from pyrin.database.session_factory.base import SessionFactoryBase
 
@@ -38,8 +39,8 @@ class ThreadScopedSessionFactory(SessionFactoryBase):
         """
 
         session_configs = config_services.get_section('database', 'thread_scoped_session')
-        return scoped_session(sessionmaker(bind=engine, class_=CoreSession,
-                                           query_cls=CoreQuery, **session_configs))
+        return CoreScopedSession(sessionmaker(bind=engine, class_=CoreSession,
+                                              query_cls=CoreQuery, **session_configs))
 
     def is_request_bounded(self):
         """

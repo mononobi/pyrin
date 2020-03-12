@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-orm sql package.
+orm scoping package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class ORMSQLPackage(Package):
+class ORMScopingPackage(Package):
     """
-    orm sql package class.
+    orm scoping package class.
     """
 
     NAME = __name__
+    DEPENDS = []

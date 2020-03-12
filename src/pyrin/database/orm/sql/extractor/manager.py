@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql extractor manager module.
+orm sql extractor manager module.
 """
 
 import sqlparse
@@ -13,9 +13,9 @@ from pyrin.core.context import Manager
 from pyrin.core.globals import LIST_TYPES
 
 
-class DatabaseORMSQLExtractorManager(Manager):
+class ORMSQLExtractorManager(Manager):
     """
-    database orm sql extractor manager class.
+    orm sql extractor manager class.
     """
 
     def find_table_names(self, expression, **options):

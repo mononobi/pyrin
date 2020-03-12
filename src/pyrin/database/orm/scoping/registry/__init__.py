@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-orm types package.
+orm scoping registry package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class ORMTypesPackage(Package):
+class ORMScopingRegistryPackage(Package):
     """
-    orm types package class.
+    orm scoping registry package class.
     """
 
     NAME = __name__

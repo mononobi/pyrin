@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-database orm package.
+orm package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class DatabaseORMPackage(Package):
+class ORMPackage(Package):
     """
-    database orm package class.
+    orm package class.
     """
 
     NAME = __name__

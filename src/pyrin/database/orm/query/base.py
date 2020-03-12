@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm query base module.
+orm query base module.
 """
 
 import inspect

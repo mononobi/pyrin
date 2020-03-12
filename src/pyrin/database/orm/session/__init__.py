@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-database orm session package.
+orm session package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class DatabaseORMSessionPackage(Package):
+class ORMSessionPackage(Package):
     """
-    database orm session package class.
+    orm session package class.
     """
 
     NAME = __name__

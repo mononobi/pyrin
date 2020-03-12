@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-database orm sql schema module.
+orm sql schema module.
 """
 
 from sqlalchemy import Column
