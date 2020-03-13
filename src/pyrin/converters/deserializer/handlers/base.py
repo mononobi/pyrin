@@ -28,6 +28,7 @@ class DeserializerBase(AbstractDeserializerBase):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param object value: value to be deserialized.
@@ -50,6 +51,7 @@ class DeserializerBase(AbstractDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
         this method is intended to be overridden in subclasses.
 
@@ -135,7 +137,7 @@ class StringDeserializerBase(DeserializerBase):
         :rtype: bool
         """
 
-        if DeserializerBase.is_deserializable(self, value, **options) \
+        if super().is_deserializable(value, **options) \
                 and self.is_valid_length(value):
             return True
 
@@ -143,7 +145,8 @@ class StringDeserializerBase(DeserializerBase):
 
     def get_accepted_type(self):
         """
-        gets the accepted type for this deserializer
+        gets the accepted type for this deserializer.
+
         which could deserialize values from this type.
 
         :rtype: type
@@ -153,8 +156,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def get_accepted_length(self):
         """
-        gets the min and max accepted length of strings to be
-        deserialized by this deserializer.
+        gets the min and max accepted length of strings to be deserialized.
 
         :returns tuple(int min, int max)
 
@@ -165,8 +167,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def get_accepted_formats(self):
         """
-        gets the accepted string formats that this deserializer
-        can deserialize value from.
+        gets the accepted string formats that this deserializer can deserialize value from.
 
         :returns: list(tuple(str format, int length))
 
@@ -177,8 +178,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def is_valid_length(self, value):
         """
-        gets a value indicating that input value has valid
-        length to be deserialized by this deserializer.
+        gets a value indicating that input value has valid length to be deserialized.
 
         :param str value: value to be deserialized.
 
@@ -195,8 +195,7 @@ class StringDeserializerBase(DeserializerBase):
 
     def _calculate_accepted_length(self):
         """
-        calculates the min and max accepted length of values
-        to be deserialized by this deserializer.
+        calculates the min and max accepted length of values to be deserialized.
 
         :returns: tuple(int min, int max)
 
@@ -214,8 +213,7 @@ class StringDeserializerBase(DeserializerBase):
     @abstractmethod
     def get_default_formats(self):
         """
-        gets default accepted formats that this
-        deserializer could deserialize value from.
+        gets default accepted formats that this deserializer could deserialize value from.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -230,6 +228,7 @@ class StringDeserializerBase(DeserializerBase):
 class StringPatternDeserializerBase(StringDeserializerBase):
     """
     base string pattern deserializer class.
+
     this class uses regex to determine whether a value is deserializable or not.
     """
 
@@ -249,6 +248,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
     def is_deserializable(self, value, **options):
         """
         gets a value indicating that the given input is deserializable.
+
         if value is deserializable, the matching Pattern would be also returned.
         otherwise None would be returned instead of Pattern.
 
@@ -257,7 +257,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         :rtype: tuple(bool, Union[Pattern, None])
         """
 
-        if StringDeserializerBase.is_deserializable(self, value, **options):
+        if super().is_deserializable(value, **options):
             for pattern, length in self.get_accepted_formats():
                 if pattern.match(value.strip()):
                     return True, pattern
