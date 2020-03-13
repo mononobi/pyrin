@@ -19,13 +19,15 @@ from pyrin.security.authentication.exceptions import AuthenticationFailedError, 
 class AuthenticationManager(Manager):
     """
     authentication manager class.
-    this class is intended to be an interface for top level application's
-    authentication package.
+
+    this class is intended to be an interface for top level
+    application's authentication package.
     """
 
     def authenticate(self, client_request, **options):
         """
         authenticates given request and pushes the authenticated data into request context.
+
         if authentication fails, authenticated data will not be pushed into request context.
 
         :param CoreRequest client_request: request to be authenticated.
@@ -44,6 +46,7 @@ class AuthenticationManager(Manager):
     def _authenticate(self, token, **options):
         """
         authenticates given token and pushes the authenticated data into request context.
+
         if authentication fails, authenticated data will not be pushed into request context.
 
         :param str token: token to be authenticated.
@@ -56,8 +59,8 @@ class AuthenticationManager(Manager):
         try:
             payload = token_services.get_payload(token, **options)
             header = token_services.get_unverified_header(token, **options)
-            self._validate_required(header, payload, **options)
-            self._push_required_data(header, payload, **options)
+            self._validate(header, payload, **options)
+            self._push_data(header, payload, **options)
 
         except AuthenticationFailedError:
             raise
@@ -77,7 +80,7 @@ class AuthenticationManager(Manager):
 
         return client_request.context.get('authorization', None)
 
-    def _push_required_data(self, header, payload, **options):
+    def _push_data(self, header, payload, **options):
         """
         pushes the required data into current request from input values.
 
@@ -110,8 +113,9 @@ class AuthenticationManager(Manager):
     def _push_component_custom_key(self, value):
         """
         pushes the provided value as component custom key into request.
+
         this method could be called in subclasses of this class in
-        `_push_custom_data` method if needed.
+        `_push_custom_data()` method if needed.
 
         :param object value: value to be pushed as component custom key.
 
@@ -120,9 +124,10 @@ class AuthenticationManager(Manager):
 
         session_services.set_component_custom_key(value)
 
-    def _validate_required(self, header, payload, **options):
+    def _validate(self, header, payload, **options):
         """
-        validates the given inputs for required attributes.
+        validates the given inputs.
+
         an error will be raised if validation fails.
 
         :param dict header: token header data.
@@ -147,6 +152,7 @@ class AuthenticationManager(Manager):
     def _validate_custom(self, header, payload, **options):
         """
         validates the given inputs for custom attributes.
+
         an error will be raised if validation fails.
 
         :param dict header: token header data.
