@@ -14,6 +14,7 @@ from pyrin.utils.singleton import MultiSingletonMeta
 class DeserializerSingletonMeta(MultiSingletonMeta):
     """
     deserializer singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 
@@ -30,6 +31,7 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param object value: value to be deserialized.
@@ -59,7 +61,8 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
     @abstractmethod
     def get_accepted_type(self):
         """
-        gets the accepted type for this deserializer
+        gets the accepted type for this deserializer/
+
         which could deserialize values from this type.
 
         :raises CoreNotImplementedError: core not implemented error.
