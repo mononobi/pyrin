@@ -102,3 +102,10 @@ class IsNotDirectoryError(UtilsException):
     is not directory error.
     """
     pass
+
+
+class ColumnNotExistedError(UtilsException):
+    """
+    column not existed error.
+    """
+    pass

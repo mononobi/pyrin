@@ -398,6 +398,7 @@ class Application(Flask, HookMixin, SignalMixin,
     def _get_safe_current_request(self):
         """
         gets current request in a safe manner.
+
         meaning that if there is no request in current context,
         returns None instead of raising an error.
 
@@ -646,24 +647,39 @@ class Application(Flask, HookMixin, SignalMixin,
     def _convert_result(self, rv):
         """
         converts the return value if needed.
+
         this method could be overridden in subclasses.
+        it must return the same exact input if could not convert it.
 
         :param object rv: the return value from the view function.
 
         :rtype: object
         """
 
-        if isinstance(rv, list) and len(rv) > 0:
-            if model_services.is_abstract_keyed_tuple(rv[0]):
-                rv = self._keyed_tuple_serializer.serialize_list(rv)
-            elif model_services.is_core_entity(rv[0]):
-                rv = self._entity_serializer.serialize_list(rv)
+        result_schema = session_services.get_current_request_context().get('result_schema',
+                                                                           None)
+        if isinstance(rv, list):
+            if len(rv) > 0:
+                is_keyed_tuple = model_services.is_abstract_keyed_tuple(rv[0])
+                is_entity = model_services.is_core_entity(rv[0])
+                if is_keyed_tuple is True or is_entity is True:
+                    if result_schema is not None:
+                        return result_schema.filter(rv)
+                    elif is_keyed_tuple is True:
+                        return self._keyed_tuple_serializer.serialize_list(rv)
+                    elif is_entity is True:
+                        return self._entity_serializer.serialize_list(rv)
 
-        elif model_services.is_abstract_keyed_tuple(rv):
-            rv = self._keyed_tuple_serializer.serialize(rv)
-
-        elif model_services.is_core_entity(rv):
-            rv = self._entity_serializer.serialize(rv)
+        else:
+            is_keyed_tuple = model_services.is_abstract_keyed_tuple(rv)
+            is_entity = model_services.is_core_entity(rv)
+            if is_keyed_tuple is True or is_entity is True:
+                if result_schema is not None:
+                    return result_schema.filter(rv)
+                elif is_keyed_tuple is True:
+                    return self._keyed_tuple_serializer.serialize(rv)
+                elif is_entity is True:
+                    return self._entity_serializer.serialize(rv)
 
         return rv
 
@@ -699,9 +715,24 @@ class Application(Flask, HookMixin, SignalMixin,
                                       if the requester has not a valid token.
                                       defaults to True if not provided.
 
+        :keyword bool fresh_token: specifies that this route could not be accessed
+                                   if the requester has not a valid fresh token.
+                                   fresh token means a token that has been created by
+                                   providing user credentials to server.
+                                   defaults to False if not provided.
+
         :keyword bool replace: specifies that this route must replace
                                any existing route with the same url or raise
                                an error if not provided. defaults to False.
+
+        :keyword int max_content_length: max content length that this route could handle,
+                                         in bytes. if not provided, it will be set to
+                                         `restricted_max_content_length` api config key.
+                                         note that this value should be lesser than or equal
+                                         to `max_content_length` api config key, otherwise
+                                         it will cause an error.
+
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         """
@@ -1024,7 +1055,6 @@ class Application(Flask, HookMixin, SignalMixin,
         client_request = session_services.get_current_request()
         try:
             self._authenticate(client_request)
-
         except Exception as error:
             logging_services.exception(str(error))
 

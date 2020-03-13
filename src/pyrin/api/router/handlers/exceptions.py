@@ -60,3 +60,10 @@ class PermissionTypeError(RouterHandlerException):
     permission type error.
     """
     pass
+
+
+class InvalidResultSchemaTypeError(RouterHandlerException):
+    """
+    invalid result schema type error.
+    """
+    pass

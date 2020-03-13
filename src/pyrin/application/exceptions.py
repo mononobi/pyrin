@@ -95,3 +95,31 @@ class ApplicationIsNotSubclassedError(ApplicationException):
     application is not subclassed error.
     """
     pass
+
+
+class RequestIDAlreadySetError(ApplicationException):
+    """
+    request id already set error.
+    """
+    pass
+
+
+class RequestDateAlreadySetError(ApplicationException):
+    """
+    request date already set error.
+    """
+    pass
+
+
+class RequestUserAlreadySetError(ApplicationException):
+    """
+    request user already set error.
+    """
+    pass
+
+
+class RequestComponentCustomKeyAlreadySetError(ApplicationException):
+    """
+    request component custom key already set error.
+    """
+    pass

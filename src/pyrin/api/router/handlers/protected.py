@@ -78,8 +78,11 @@ class ProtectedRoute(RouteBase):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
         :raises PermissionTypeError: permission type error.
         """
 
@@ -99,6 +102,7 @@ class ProtectedRoute(RouteBase):
     def _handle(self, inputs, **options):
         """
         handles the current route.
+
         routes which need to perform extra operations before
         view function execution, must override this method.
 
@@ -121,9 +125,10 @@ class ProtectedRoute(RouteBase):
         """
 
         user = session_services.get_current_user()
-        authorization_services.authorize(user, self.get_permissions())
+        authorization_services.authorize(user, self.permissions)
 
-    def get_permissions(self):
+    @property
+    def permissions(self):
         """
         gets all required permissions to access this route.
 
@@ -203,8 +208,11 @@ class FreshProtectedRoute(ProtectedRoute):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
         :raises PermissionTypeError: permission type error.
         """
 

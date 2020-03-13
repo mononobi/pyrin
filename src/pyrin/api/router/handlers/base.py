@@ -8,9 +8,10 @@ from werkzeug.routing import Rule
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 
+from pyrin.api.schema.result import ResultSchema
 from pyrin.core.globals import _, LIST_TYPES
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
-    MaxContentLengthLimitMismatchError, LargeContentError
+    MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError
 
 
 class RouteBase(Rule):
@@ -75,8 +76,11 @@ class RouteBase(Rule):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
         """
 
         methods = options.get('methods', None)
@@ -121,8 +125,17 @@ class RouteBase(Rule):
         if not callable(self._view_function):
             raise InvalidViewFunctionTypeError('The provided view function [{function}] '
                                                'for route [{route}] is not callable.'
-                                               .format(function=str(self._view_function),
-                                                       route=str(self)))
+                                               .format(function=self._view_function,
+                                                       route=self))
+
+        result_schema = options.get('result_schema', None)
+        if result_schema is not None and not isinstance(result_schema, ResultSchema):
+            raise InvalidResultSchemaTypeError('Input parameter [{instance}] '
+                                               'is not an instance of [{base}].'
+                                               .format(instance=result_schema,
+                                                       base=ResultSchema))
+
+        self._result_schema = result_schema
 
     def handle(self, inputs, **options):
         """
@@ -138,6 +151,10 @@ class RouteBase(Rule):
         """
 
         self._validate_content_length()
+
+        if self._result_schema is not None:
+            self._inject_result_schema()
+
         self._handle(inputs, **options)
 
         return self._call_view_function(inputs, **options)
@@ -145,6 +162,7 @@ class RouteBase(Rule):
     def _handle(self, inputs, **options):
         """
         handles the current route.
+
         routes which need to perform extra operations before
         view function execution, must override this method.
 
@@ -160,8 +178,15 @@ class RouteBase(Rule):
         """
 
         client_request = session_services.get_current_request()
-        if client_request.safe_content_length > self.get_max_content_length():
+        if client_request.safe_content_length > self._max_content_length:
             raise LargeContentError(_('Request content is too large.'))
+
+    def _inject_result_schema(self):
+        """
+        injects this route's result schema into current request context.
+        """
+
+        session_services.add_request_context('result_schema', self._result_schema)
 
     def _call_view_function(self, inputs, **options):
         """
@@ -176,7 +201,8 @@ class RouteBase(Rule):
 
         return self._view_function(**inputs)
 
-    def get_view_function(self):
+    @property
+    def view_function(self):
         """
         gets this route's view function.
 
@@ -185,7 +211,8 @@ class RouteBase(Rule):
 
         return self._view_function
 
-    def get_max_content_length(self):
+    @property
+    def max_content_length(self):
         """
         gets this route's max content bytes length.
 
@@ -193,3 +220,14 @@ class RouteBase(Rule):
         """
 
         return self._max_content_length
+
+    @property
+    def result_schema(self):
+        """
+        gets this route's result schema if available.
+
+        :returns: Union[ResultSchema, None]
+        :rtype: ResultSchema
+        """
+
+        return self._result_schema

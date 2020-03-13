@@ -4,26 +4,15 @@ serializer base module.
 """
 
 from abc import abstractmethod
-from threading import Lock
 
 from pyrin.core.context import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.utils.singleton import MultiSingletonMeta
 
 
-class SerializerSingletonMeta(MultiSingletonMeta):
-    """
-    serializer singleton meta class.
-    this is a thread-safe implementation of singleton.
-    """
-
-    _instances = dict()
-    _lock = Lock()
-
-
-class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
+class SerializerBase(CoreObject):
     """
     serializer base class.
+
     all application serializers must inherit from this.
     """
 
@@ -36,7 +25,7 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns: serialized object.
+        :rtype: dict
         """
 
         raise CoreNotImplementedError()
@@ -47,7 +36,7 @@ class SerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
 
         :param list[object] values: values to be serialized.
 
-        :returns: list of serialized objects.
+        :returns: list[dict]
         :rtype: list
         """
 

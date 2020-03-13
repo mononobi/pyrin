@@ -70,8 +70,11 @@ class PublicRoute(RouteBase):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
         """
 
         super().__init__(rule, **options)

@@ -10,13 +10,13 @@ import pyrin.utils.datetime as datetime_utils
 from pyrin.core.context import DTO
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
-    FieldsAndValuesCountMismatchError
+    FieldsAndValuesCountMismatchError, ColumnNotExistedError
 
 
 LIKE_CHAR_COUNT_LIMIT = 20
 
 
-def entity_to_dict(entity, exposed_only=True):
+def entity_to_dict(entity, exposed_only=True, **options):
     """
     converts the given entity into a dict and returns it.
     the result dict only contains the columns of the entity
@@ -27,6 +27,16 @@ def entity_to_dict(entity, exposed_only=True):
     :param bool exposed_only: if set to False, it returns all
                               columns of the entity as dict.
                               if not provided, defaults to True.
+
+    :keyword list[str] columns: the column names to be included in result.
+                                if not provided, the columns in exposed
+                                columns or all columns will be returned.
+                                note that the columns must be a subset of
+                                all columns or exposed columns of this
+                                entity considering "exposed_only" parameter,
+                                otherwise it raises an error.
+
+    :raises ColumnNotExistedError: column not existed error.
     
     :rtype: dict
     """
@@ -34,7 +44,7 @@ def entity_to_dict(entity, exposed_only=True):
     if entity is None:
         return DTO()
 
-    return entity.to_dict(exposed_only)
+    return entity.to_dict(exposed_only, **options)
 
 
 def dict_to_entity(entity_class, **kwargs):
@@ -52,7 +62,7 @@ def dict_to_entity(entity_class, **kwargs):
     return result
 
 
-def entity_to_dict_list(entities, exposed_only=True):
+def entity_to_dict_list(entities, exposed_only=True, **options):
     """
     converts the given list of entities into a
     list of dicts and returns the result.
@@ -63,6 +73,16 @@ def entity_to_dict_list(entities, exposed_only=True):
                               columns of the entity as dict.
                               if not provided, defaults to True.
 
+    :keyword list[str] columns: the column names to be included in result.
+                                if not provided, the columns in exposed
+                                columns or all columns will be returned.
+                                note that the columns must be a subset of
+                                all columns or exposed columns of this
+                                entity considering "exposed_only" parameter,
+                                otherwise it raises an error.
+
+    :raises ColumnNotExistedError: column not existed error.
+
     :returns list[dict]
     :rtype list
     """
@@ -72,16 +92,24 @@ def entity_to_dict_list(entities, exposed_only=True):
         return results
 
     for single_entity in entities:
-        results.append(entity_to_dict(single_entity, exposed_only))
+        results.append(entity_to_dict(single_entity, exposed_only, **options))
 
     return results
 
 
-def keyed_tuple_to_dict(value):
+def keyed_tuple_to_dict(value, **options):
     """
     converts the given `AbstractKeyedTuple` object into a dict.
 
     :param AbstractKeyedTuple value: value to be converted.
+
+    :keyword list[str] columns: the column names to be included in result.
+                                if not provided, all columns will be returned.
+                                note that the columns must be a subset of all
+                                columns of this `AbstractKeyedTuple`, otherwise
+                                it raises an error.
+
+    :raises ColumnNotExistedError: column not existed error.
 
     :rtype: dict
     """
@@ -89,14 +117,37 @@ def keyed_tuple_to_dict(value):
     if value is None or len(value) <= 0:
         return DTO()
 
-    return DTO(zip(value.keys(), value))
+    columns = options.get('columns', None)
+    original_result = DTO(zip(value.keys(), value))
+    if columns is None or len(columns) <= 0:
+        return original_result
+
+    difference = set(columns).difference(set(value.keys()))
+    if len(difference) > 0:
+        raise ColumnNotExistedError('Requested columns {columns} are '
+                                    'not available in provided value.'
+                                    .format(columns=list(difference)))
+
+    result = DTO()
+    for col in columns:
+        result[col] = original_result[col]
+
+    return result
 
 
-def keyed_tuple_to_dict_list(values):
+def keyed_tuple_to_dict_list(values, **options):
     """
     converts the given list of `AbstractKeyedTuple` objects into a list of dicts.
 
     :param list[AbstractKeyedTuple] values: values to be converted.
+
+    :keyword list[str] columns: the column names to be included in result.
+                                if not provided, all columns will be returned.
+                                note that the columns must be a subset of all
+                                columns of this `AbstractKeyedTuple`, otherwise
+                                it raises an error.
+
+    :raises ColumnNotExistedError: column not existed error.
 
     :rtype: dict
     """
@@ -106,7 +157,7 @@ def keyed_tuple_to_dict_list(values):
         return results
 
     for single_value in values:
-        results.append(keyed_tuple_to_dict(single_value))
+        results.append(keyed_tuple_to_dict(single_value, **options))
 
     return results
 

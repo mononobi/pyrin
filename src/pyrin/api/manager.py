@@ -22,6 +22,7 @@ class APIManager(Manager):
     def handle_http_error(self, exception):
         """
         handles http exceptions.
+
         note that normally you should never call this method manually.
 
         :param HTTPException exception: exception instance.
@@ -35,6 +36,7 @@ class APIManager(Manager):
     def handle_server_business_error(self, exception):
         """
         handles server internal core business exceptions.
+
         note that normally you should never call this method manually.
 
         :param CoreBusinessException exception: core business exception instance.
@@ -48,6 +50,7 @@ class APIManager(Manager):
     def handle_server_error(self, exception):
         """
         handles server internal core exceptions.
+
         note that normally you should never call this method manually.
         in any environment which debug mode is False, the original error
         message will be replaced by a generic error message before being
@@ -68,6 +71,7 @@ class APIManager(Manager):
     def handle_server_unknown_error(self, exception):
         """
         handles unknown server internal exceptions.
+
         note that normally you should never call this method manually.
         in any environment which debug mode is False, the original error
         message will be replaced by a generic error message before being

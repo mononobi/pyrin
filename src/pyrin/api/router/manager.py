@@ -54,6 +54,8 @@ class RouterManager(Manager):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :raises RouteAuthenticationMismatchError: route authentication mismatch error.
 
         :rtype: RouteBase
@@ -121,6 +123,8 @@ class RouterManager(Manager):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
         :rtype: RouteBase
         """
 
@@ -173,6 +177,8 @@ class RouterManager(Manager):
                                          note that this value should be lesser than or equal
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
+
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         """

@@ -22,8 +22,17 @@ class CoreEntitySerializer(SerializerBase):
                                     columns of the entity as dict.
                                     if not provided, defaults to True.
 
+        :keyword list[str] columns: the column names to be included in result.
+                                    if not provided, the columns in exposed
+                                    columns or all columns will be returned.
+                                    note that the columns must be a subset of
+                                    all columns or exposed columns of this
+                                    entity considering "exposed_only" parameter,
+                                    otherwise it raises an error.
+
+        :raises ColumnNotExistedError: column not existed error.
+
         :type: dict
         """
 
-        exposed = options.get('exposed_only', True)
-        return entity_to_dict(value, exposed_only=exposed)
+        return entity_to_dict(value, **options)

@@ -165,9 +165,24 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                                   if the requester has not a valid token.
                                   defaults to True if not provided.
 
+    :keyword bool fresh_token: specifies that this route could not be accessed
+                               if the requester has not a valid fresh token.
+                               fresh token means a token that has been created by
+                               providing user credentials to server.
+                               defaults to False if not provided.
+
     :keyword bool replace: specifies that this route must replace
                            any existing route with the same url or raise
                            an error if not provided. defaults to False.
+
+    :keyword int max_content_length: max content length that this route could handle,
+                                     in bytes. if not provided, it will be set to
+                                     `restricted_max_content_length` api config key.
+                                     note that this value should be lesser than or equal
+                                     to `max_content_length` api config key, otherwise
+                                     it will cause an error.
+
+    :keyword ResultSchema result_schema: result schema to be used to filter results.
 
     :raises DuplicateRouteURLError: duplicate route url error.
     """

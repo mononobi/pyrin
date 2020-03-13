@@ -302,7 +302,7 @@ class CoreEntity(CoreObject):
 
         return None
 
-    def to_dict(self, exposed_only=True):
+    def to_dict(self, exposed_only=True, **options):
         """
         converts the entity into a dict and returns it.
         the result dict only contains the exposed columns of
@@ -313,15 +313,39 @@ class CoreEntity(CoreObject):
                                   columns of the entity as dict.
                                   if not provided, defaults to True.
 
+        :keyword list[str] columns: the column names to be included in result.
+                                    if not provided, the columns in exposed
+                                    columns or all columns will be returned.
+                                    note that the columns must be a subset of
+                                    all columns or exposed columns of this
+                                    entity considering "exposed_only" parameter,
+                                    otherwise it raises an error.
+
+        :raises ColumnNotExistedError: column not existed error.
+
         :rtype: dict
         """
 
-        columns_collection = self.exposed_columns
+        base_columns = None
+        requested_columns = options.get('columns', None)
+
         if exposed_only is False:
-            columns_collection = self.all_columns
+            base_columns = self.all_columns()
+        else:
+            base_columns = self.exposed_columns()
 
         result = DTO()
-        for col in columns_collection():
+        if requested_columns is None or len(requested_columns) <= 0:
+            requested_columns = base_columns
+
+        difference = set(requested_columns).difference(set(base_columns))
+        if len(difference) > 0:
+            raise ColumnNotExistedError('Requested columns {columns} are '
+                                        'not available in entity [{entity}].'
+                                        'it might be because of "exposed_only" '
+                                        'parameter value passed to this method.'
+                                        .format(columns=list(difference), entity=self))
+        for col in requested_columns:
             result[col] = getattr(self, col)
 
         return result

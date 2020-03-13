@@ -39,6 +39,8 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
                                      to `max_content_length` api config key, otherwise
                                      it will cause an error.
 
+    :keyword ResultSchema result_schema: result schema to be used to filter results.
+
     :raises DuplicateRouteURLError: duplicate route url error.
 
     :rtype: callable
