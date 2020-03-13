@@ -3,7 +3,6 @@
 database services module.
 """
 
-from pyrin.application.decorators import after_request_handler, teardown_request_handler
 from pyrin.application.services import get_component
 from pyrin.database import DatabasePackage
 
@@ -38,7 +37,6 @@ def get_session_factory(request_bounded=None):
     return get_component(DatabasePackage.COMPONENT_NAME).get_session_factory(request_bounded)
 
 
-@after_request_handler()
 def finalize_transaction(response):
     """
     this method will finalize database transaction of each request.
@@ -55,7 +53,6 @@ def finalize_transaction(response):
     return get_component(DatabasePackage.COMPONENT_NAME).finalize_transaction(response)
 
 
-@teardown_request_handler()
 def cleanup_session(exception):
     """
     this method will cleanup database session of each request.
