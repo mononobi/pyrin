@@ -30,6 +30,7 @@ class DeserializerManager(Manager):
     def deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns deserialized object on success or returns
         the same input value if deserialization fails.
 
@@ -52,7 +53,8 @@ class DeserializerManager(Manager):
 
     def register_deserializer(self, instance, **options):
         """
-        registers a new deserializer or replaces the existing one
+        registers a new deserializer or replaces the existing one.
+
         if `replace=True` is provided. otherwise, it raises an error
         on adding a deserializer which is already registered.
 
@@ -122,6 +124,7 @@ class DeserializerManager(Manager):
     def _get_deserializer_with_name(self, name, deserializers):
         """
         gets a deserializer with the given name from input deserializers list.
+
         if not available, it returns None.
 
         :param str name: deserializer name to get its instance.
@@ -148,6 +151,7 @@ class DeserializerManager(Manager):
     def get_deserializers(self, **options):
         """
         gets all registered deserializers.
+
         it could filter deserializers for a specific type if provided.
         it only returns the first deserializer for each type, because
         all deserializers for a given type, are chained together.

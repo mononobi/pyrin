@@ -10,6 +10,7 @@ from pyrin.application.services import get_component
 def deserialize(value, **options):
     """
     deserializes the given value.
+
     returns deserialized object on success or returns
     the same input value if deserialization fails.
 
@@ -23,7 +24,8 @@ def deserialize(value, **options):
 
 def register_deserializer(instance, **options):
     """
-    registers a new deserializer or replaces the existing one
+    registers a new deserializer or replaces the existing one.
+
     if `replace=True` is provided. otherwise, it raises an error
     on adding a deserializer which is already registered.
 
@@ -47,6 +49,7 @@ def register_deserializer(instance, **options):
 def get_deserializers(**options):
     """
     gets all registered deserializers.
+
     it could filter deserializers for a specific type if provided.
     it only returns the first deserializer for each type, because
     all deserializers for a given type, are chained together.
