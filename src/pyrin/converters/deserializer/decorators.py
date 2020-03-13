@@ -29,7 +29,7 @@ def deserializer(*args, **kwargs):
     def decorator(cls):
         """
         decorates the given class and registers an instance
-        of it into available deserializer.
+        of it into available deserializers.
 
         :param type cls: deserializer class.
 
