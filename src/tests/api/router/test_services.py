@@ -160,7 +160,7 @@ def test_create_route_validate_max_content_length():
                                          login_required=False,
                                          max_content_length=12345)
 
-    assert route.get_max_content_length() == 12345
+    assert route.max_content_length == 12345
 
 
 def test_add_route():
