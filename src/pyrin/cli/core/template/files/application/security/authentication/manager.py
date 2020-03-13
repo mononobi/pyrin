@@ -28,6 +28,7 @@ class AuthenticationManager(BaseAuthenticationManager):
     def _validate_custom(self, header, payload, **options):
         """
         validates the given inputs for custom attributes.
+
         an error will be raised if validation fails.
 
         :param dict header: token header data.
