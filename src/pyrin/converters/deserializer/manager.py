@@ -18,13 +18,13 @@ class DeserializerManager(Manager):
 
     def __init__(self):
         """
-        initializes and instance of DeserializerManager.
+        initializes an instance of DeserializerManager.
         """
 
         super().__init__()
 
         # a dictionary containing information of registered deserializers.
-        # example: dic(type accepted_type: list[DeserializerBase] instances)
+        # example: dic(type accepted_type: list[AbstractDeserializerBase] instances)
         self._deserializers = Context()
 
     def deserialize(self, value, **options):
