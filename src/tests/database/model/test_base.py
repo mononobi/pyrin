@@ -60,22 +60,22 @@ def test_all_columns():
     entity1 = SampleWithHiddenFieldEntity()
     fields1 = ['age', 'sub_id', 'id', 'name', 'hidden_field']
 
-    assert set(fields1) == set(entity1.all_columns())
+    assert set(fields1) == set(entity1.all_columns)
 
     entity2 = BaseEntity()
     fields2 = ['id']
 
-    assert set(fields2) == set(entity2.all_columns())
+    assert set(fields2) == set(entity2.all_columns)
 
     entity3 = SubBaseEntity()
     fields3 = ['id', 'age']
 
-    assert set(fields3) == set(entity3.all_columns())
+    assert set(fields3) == set(entity3.all_columns)
 
     entity4 = RightChildEntity()
     fields4 = ['id', 'age', 'grade']
 
-    assert set(fields4) == set(entity4.all_columns())
+    assert set(fields4) == set(entity4.all_columns)
 
 
 def test_exposed_columns():
@@ -87,22 +87,22 @@ def test_exposed_columns():
     entity1 = SampleWithHiddenFieldEntity()
     fields1 = ['age', 'id', 'sub_id', 'name']
 
-    assert set(fields1) == set(entity1.exposed_columns())
+    assert set(fields1) == set(entity1.exposed_columns)
 
     entity2 = BaseEntity()
     fields2 = ['id']
 
-    assert set(fields2) == set(entity2.exposed_columns())
+    assert set(fields2) == set(entity2.exposed_columns)
 
     entity3 = SubBaseEntity()
     fields3 = ['id', 'age']
 
-    assert set(fields3) == set(entity3.exposed_columns())
+    assert set(fields3) == set(entity3.exposed_columns)
 
     entity4 = RightChildEntity()
     fields4 = ['id', 'age', 'grade']
 
-    assert set(fields4) == set(entity4.exposed_columns())
+    assert set(fields4) == set(entity4.exposed_columns)
 
 
 def test_to_dict():
