@@ -22,7 +22,7 @@ class DatabaseManager(BaseDatabaseManager):
         """
         gets a shallow copy of binds dictionary.
 
-        :returns: dict(type entity: str bind_name)
+        :returns: dict[type entity: str bind_name]
         :rtype: dict
         """
 
