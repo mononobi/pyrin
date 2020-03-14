@@ -83,7 +83,7 @@ def entity_to_dict_list(entities, exposed_only=True, **options):
 
     :raises ColumnNotExistedError: column not existed error.
 
-    :returns list[dict]
+    :returns: list[dict]
     :rtype list
     """
 

@@ -216,7 +216,7 @@ class PBKDF2Hashing(HashingBase):
 
         :param bytes full_hashed_value: full hashed value to extract it's parts.
 
-        :returns tuple[str internal_algorithm, int rounds, bytes salt, bytes text_hash]
+        :returns: tuple[str internal_algorithm, int rounds, bytes salt, bytes text_hash]
         :rtype: tuple[str, int, bytes, bytes]
         """
 

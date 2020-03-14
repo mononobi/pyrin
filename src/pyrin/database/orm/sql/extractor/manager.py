@@ -340,7 +340,7 @@ class ORMSQLExtractorManager(Manager):
                                       must be investigated for table names.
                                       defaults to True if not provided.
 
-        :returns list[str]
+        :returns: list[str]
         :rtype: list
         """
 
