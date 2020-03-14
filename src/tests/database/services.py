@@ -23,8 +23,7 @@ def get_all_engines():
     """
     gets all database engines.
 
-    :returns: list[Engine]
-    :rtype: list
+    :rtype: list[Engine]
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_all_engines()

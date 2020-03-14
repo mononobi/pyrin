@@ -32,8 +32,7 @@ class DatabaseManager(BaseDatabaseManager):
         """
         gets all database engines.
 
-        :returns: list[Engine]
-        :rtype: list
+        :rtype: list[Engine]
         """
 
         engines = [self.get_default_engine()]
