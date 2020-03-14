@@ -129,7 +129,7 @@ class BcryptHashing(HashingBase):
 
         :raises BcryptMaxSizeLimitError: bcrypt max size limit error.
 
-        :rtype bytes
+        :rtype: bytes
         """
 
         text_bytes = text.encode(self._encoding)

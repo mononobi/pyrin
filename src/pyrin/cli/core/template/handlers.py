@@ -151,8 +151,7 @@ class ProjectStructureTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase)
         """
         gets the file patterns that should be included in replacement operation.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return ['.py']

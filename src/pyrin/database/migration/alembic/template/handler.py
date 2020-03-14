@@ -36,8 +36,7 @@ class AlembicTemplateHandler(TemplateHandlerBase):
         """
         gets the file patterns that should be included in replacement operation.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return ['.py']
@@ -67,8 +66,7 @@ class AlembicTemplateHandler(TemplateHandlerBase):
         """
         gets the required directory names that must be created in target path.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return ['sql', 'versions']

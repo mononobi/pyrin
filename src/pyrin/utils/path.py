@@ -31,7 +31,7 @@ def get_main_package_name(module_name):
 
     :param str module_name: module name to get its root package name.
 
-    :rtype str
+    :rtype: str
     """
 
     return module_name.split('.')[0]
