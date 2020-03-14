@@ -48,7 +48,7 @@ class PublicRoute(RouteBase):
                                   resources on a subdomain or folder that are not handled by
                                   the WSGI application (like static data)
 
-        :keyword str | Callable redirect_to: if given this must be either a string
+        :keyword str | callable redirect_to: if given this must be either a string
                                              or callable. in case of a callable it's
                                              called with the url adapter that triggered
                                              the match and the values of the url as

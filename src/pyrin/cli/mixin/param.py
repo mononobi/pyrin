@@ -182,8 +182,7 @@ class CLIParamMixin(CoreObject):
                                 must also be added to params list.
                                 defaults to True if not provided.
 
-        :returns: list[CLIParamBase]
-        :rtype: list
+        :rtype: list[CLIParamBase]
         """
 
         params = []

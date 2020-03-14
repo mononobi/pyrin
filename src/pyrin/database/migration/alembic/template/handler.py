@@ -56,8 +56,7 @@ class AlembicTemplateHandler(TemplateHandlerBase):
         """
         gets the config store names which belong to this template.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return AlembicPackage.CONFIG_STORE_NAMES
