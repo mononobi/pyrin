@@ -163,13 +163,13 @@ def get_current_timestamp(date_sep='-', main_sep=' ',
     """
     gets the current timestamp with specified separators based on given timezone.
 
-    :param Union[str, None] date_sep: a separator to put between date elements.
-    :param Union[str, None] main_sep: a separator to put between date and time part.
-    :param Union[str, None] time_sep: a separator to put between time elements.
+    :param str date_sep: a separator to put between date elements.
+    :param str main_sep: a separator to put between date and time part.
+    :param str time_sep: a separator to put between time elements.
 
-    :param Union[str, None] timezone: timezone name to get current timestamp
-                                      based on it. if not provided, defaults
-                                      to application current timezone.
+    :param str timezone: timezone name to get current timestamp
+                         based on it. if not provided, defaults
+                         to application current timezone.
 
     :rtype: str
     """

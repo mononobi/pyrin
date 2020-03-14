@@ -10,6 +10,7 @@ from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 class Package(CoreObject):
     """
     package base class.
+
     all application python packages should be subclassed from this.
     except some base packages like `application`, `core` and `utils` that
     should not implement Package class.
@@ -88,6 +89,7 @@ class Package(CoreObject):
     def _load_configs(self, config_services):
         """
         loads all required configs of this package.
+
         this method is intended for overriding by
         subclasses to do custom configurations.
 
@@ -105,11 +107,11 @@ class Package(CoreObject):
     @property
     def config_defaults(self):
         """
-        gets config store default values that should
-        be sent to config parser for interpolation.
+        gets config store default values that should be sent to config parser.
+
+        it is used for interpolation.
         this method is intended to be overridden by subclasses.
 
-        :returns: Union[dict, None]
         :rtype: dict
         """
 

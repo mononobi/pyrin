@@ -232,7 +232,6 @@ def get_first_available_file(*paths, file_name):
     :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
 
-    :returns: Union[str, None]
     :rtype: str
     """
 
