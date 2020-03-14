@@ -21,20 +21,6 @@ class SchemaColumnsOrReplaceIsRequiredError(SchemaException):
     pass
 
 
-class ObjectIsNotSerializableError(SchemaException):
-    """
-    object is not serializable error.
-    """
-    pass
-
-
-class InvalidSerializerTypeError(SchemaException):
-    """
-    invalid serializer type error.
-    """
-    pass
-
-
 class ColumnNotExistedError(BaseColumnNotExistedError, SchemaException):
     """
     column not existed error.

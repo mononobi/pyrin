@@ -13,12 +13,12 @@ from flask import Flask, request
 from flask.app import setupmethod
 from flask.ctx import has_request_context
 
+import pyrin.converters.serializer.services as serializer_services
 import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
-import pyrin.database.model.services as model_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 
@@ -29,8 +29,6 @@ from pyrin.application.hooks import ApplicationHookBase
 from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
-from pyrin.converters.serializer.entity import CoreEntitySerializer
-from pyrin.converters.serializer.keyed_tuple import CoreKeyedTupleSerializer
 from pyrin.core.context import DTO, Manager
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
@@ -103,8 +101,6 @@ class Application(Flask, HookMixin, SignalMixin,
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
-    entity_serializer_class = CoreEntitySerializer
-    keyed_tuple_serializer_class = CoreKeyedTupleSerializer
     _hook_type = ApplicationHookBase
 
     def __init__(self, **options):
@@ -169,8 +165,6 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
-        self._entity_serializer = self.entity_serializer_class()
-        self._keyed_tuple_serializer = self.keyed_tuple_serializer_class()
 
         # we should register some packages manually because they are referenced
         # in `application.base` module and could not be loaded automatically
@@ -205,23 +199,26 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _assert_is_subclassed(self):
         """
-        asserts that current application instance is subclassed from
-        `Application` class and is not a direct instance of `Application` itself.
+        asserts that current application instance is subclassed from `Application`.
+
+        and is not a direct instance of `Application` itself.
 
         :raises ApplicationIsNotSubclassedError: application is not subclassed error.
         """
 
         if type(self) == Application:
             raise ApplicationIsNotSubclassedError('Current application instance is a direct '
-                                                  'instance of "Application". you must subclass '
-                                                  'from "Application" in your project and create '
+                                                  'instance of [{base}]. you must subclass '
+                                                  'from [{base}] in your project and create '
                                                   'an instance of that class to run your '
                                                   'application. this is needed for pyrin to be '
-                                                  'able to resolve different paths correctly.')
+                                                  'able to resolve different paths correctly.'
+                                                  .format(base=self))
 
     def is_scripting_mode(self):
         """
         gets a value indicating that application has been started in scripting mode.
+
         some application hooks will not fire in this mode. like 'before_application_start'.
         """
 
@@ -247,6 +244,7 @@ class Application(Flask, HookMixin, SignalMixin,
     def _set_status(self, status):
         """
         sets the application status.
+
         status must be from ApplicationStatusEnum.
 
         :param str status: application status.
@@ -616,8 +614,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def make_response(self, rv):
         """
-        converts the return value from a view function
-        to an instance of `CoreResponse`.
+        converts the return value from a view function to an instance of `CoreResponse`.
 
         note that the `rv` value before passing to base method must
         be a `tuple`, `dict`, `str` or `CoreResponse`. otherwise
@@ -628,10 +625,10 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: CoreResponse
         """
 
-        rv = self._convert_result(rv)
-
         if rv is None:
             rv = DTO()
+        else:
+            rv = self._serialize_result(rv)
 
         # we could not return a list as response, so we wrap the
         # result in a dict when we want to return a list.
@@ -644,44 +641,24 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return super().make_response(rv)
 
-    def _convert_result(self, rv):
+    def _serialize_result(self, rv):
         """
-        converts the return value if needed.
+        serializes the return value if needed.
 
         this method could be overridden in subclasses.
         it must return the same exact input if could not convert it.
 
         :param object rv: the return value from the view function.
 
-        :rtype: object
+        :rtype: dict
         """
 
         result_schema = session_services.get_current_request_context().get('result_schema',
                                                                            None)
-        if isinstance(rv, list):
-            if len(rv) > 0:
-                is_keyed_tuple = model_services.is_abstract_keyed_tuple(rv[0])
-                is_entity = model_services.is_core_entity(rv[0])
-                if is_keyed_tuple is True or is_entity is True:
-                    if result_schema is not None:
-                        return result_schema.filter(rv)
-                    elif is_keyed_tuple is True:
-                        return self._keyed_tuple_serializer.serialize_list(rv)
-                    elif is_entity is True:
-                        return self._entity_serializer.serialize_list(rv)
+        if result_schema is not None:
+            return result_schema.filter(rv)
 
-        else:
-            is_keyed_tuple = model_services.is_abstract_keyed_tuple(rv)
-            is_entity = model_services.is_core_entity(rv)
-            if is_keyed_tuple is True or is_entity is True:
-                if result_schema is not None:
-                    return result_schema.filter(rv)
-                elif is_keyed_tuple is True:
-                    return self._keyed_tuple_serializer.serialize(rv)
-                elif is_entity is True:
-                    return self._entity_serializer.serialize(rv)
-
-        return rv
+        return serializer_services.serialize(rv)
 
     @setupmethod
     def add_url_rule(self, rule, endpoint=None, view_func=None,

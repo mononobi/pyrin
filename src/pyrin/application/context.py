@@ -112,7 +112,7 @@ class Component(CoreObject):
 
 class CoreResponse(Response):
     """
-    represents base response.
+    core response class.
 
     this class should be used as server response.
     """
@@ -262,7 +262,7 @@ class CoreResponse(Response):
 
 class CoreRequest(Request):
     """
-    represents base request.
+    core request class.
 
     this class should be used for server request.
     """

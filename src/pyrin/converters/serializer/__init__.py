@@ -13,3 +13,4 @@ class SerializerPackage(Package):
 
     NAME = __name__
     DEPENDS = []
+    COMPONENT_NAME = 'converters.serializer.component'

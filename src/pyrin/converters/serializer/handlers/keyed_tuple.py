@@ -3,20 +3,24 @@
 serializer keyed_tuple module.
 """
 
-from pyrin.converters.serializer.base import SerializerBase
+from sqlalchemy.util._collections import AbstractKeyedTuple
+
+from pyrin.converters.serializer.decorators import serializer
+from pyrin.converters.serializer.handlers.base import SerializerBase
 from pyrin.utils.sqlalchemy import keyed_tuple_to_dict
 
 
+@serializer()
 class CoreKeyedTupleSerializer(SerializerBase):
     """
     core keyed tuple serializer class.
     """
 
-    def serialize(self, value, **options):
+    def _serialize(self, value, **options):
         """
         serializes the given value.
 
-        :param AbstractKeyedTuple value: keyed tuple value to be serialized.
+        :param AbstractKeyedTuple value: abstract keyed tuple value to be serialized.
 
         :keyword list[str] columns: the column names to be included in result.
                                     if not provided, all columns will be returned.
@@ -26,7 +30,19 @@ class CoreKeyedTupleSerializer(SerializerBase):
 
         :raises ColumnNotExistedError: column not existed error.
 
-        :rtype: dict
+        :type: dict
         """
 
         return keyed_tuple_to_dict(value, **options)
+
+    @property
+    def accepted_type(self):
+        """
+        gets the accepted type for this serializer.
+
+        which could serialize values from this type.
+
+        :rtype: AbstractKeyedTuple
+        """
+
+        return AbstractKeyedTuple

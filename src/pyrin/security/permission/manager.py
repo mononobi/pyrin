@@ -5,11 +5,12 @@ permission manager module.
 
 from abc import abstractmethod
 
+import pyrin.converters.serializer.services as serializer_services
+
 from pyrin.core.context import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 from pyrin.security.permission.base import PermissionBase
-from pyrin.utils.sqlalchemy import entity_to_dict_list
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     DuplicatedPermissionError
 
@@ -65,6 +66,7 @@ class PermissionManager(Manager):
     def synchronize_all(self, **options):
         """
         synchronizes all permissions with database.
+
         it creates or updates the available permissions.
         """
 
@@ -107,7 +109,9 @@ class PermissionManager(Manager):
 
         if len(entities) > 0:
             store = get_current_store()
-            store.bulk_insert_mappings(type(entities[0]), entity_to_dict_list(entities, False))
+            store.bulk_insert_mappings(type(entities[0]),
+                                       serializer_services.serialize(entities,
+                                                                     exposed_only=False))
             store.commit()
 
     def _bulk_update(self, entities):
@@ -119,5 +123,7 @@ class PermissionManager(Manager):
 
         if len(entities) > 0:
             store = get_current_store()
-            store.bulk_update_mappings(type(entities[0]), entity_to_dict_list(entities, False))
+            store.bulk_update_mappings(type(entities[0]),
+                                       serializer_services.serialize(entities,
+                                                                     exposed_only=False))
             store.commit()

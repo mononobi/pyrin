@@ -3,16 +3,11 @@
 schema result module.
 """
 
-import pyrin.database.model.services as model_services
+import pyrin.converters.serializer.services as serializer_services
 
-from pyrin.converters.serializer.base import SerializerBase
-from pyrin.converters.serializer.entity import CoreEntitySerializer
-from pyrin.converters.serializer.keyed_tuple import CoreKeyedTupleSerializer
-from pyrin.core.context import CoreObject, DTO
-from pyrin.core.globals import LIST_TYPES
+from pyrin.core.context import CoreObject
 from pyrin.api.schema.exceptions import SchemaColumnsOrReplaceIsRequiredError, \
-    ObjectIsNotSerializableError, InvalidSerializerTypeError, ColumnNotExistedError, \
-    InvalidReplaceKeysError
+    ColumnNotExistedError, InvalidReplaceKeysError
 
 
 class ResultSchema(CoreObject):
@@ -37,21 +32,10 @@ class ResultSchema(CoreObject):
                              note that if you provide `columns` input too, then the
                              keys of replace dict must be a subset of `columns`.
 
-        :keyword SerializerBase entity_serializer: serializer instance to be used
-                                                   for entities. defaults to
-                                                   `CoreEntitySerializer` if
-                                                   not provided.
-
-        :keyword SerializerBase keyed_tuple_serializer: serializer instance to be used
-                                                        for keyed tuples. defaults to
-                                                        `CoreKeyedTupleSerializer` if
-                                                        not provided.
-
         :raises SchemaColumnsOrReplaceIsRequiredError: schema columns or replace
                                                        is required error.
 
         :raises InvalidReplaceKeysError: invalid replace keys error.
-        :raises InvalidSerializerTypeError: invalid serializer type error.
         """
 
         super().__init__()
@@ -79,27 +63,6 @@ class ResultSchema(CoreObject):
         self._columns = columns
         self._replace = replace
 
-        entity_serializer = options.get('entity_serializer', None)
-        keyed_tuple_serializer = options.get('keyed_tuple_serializer', None)
-
-        if entity_serializer is None:
-            entity_serializer = CoreEntitySerializer()
-
-        if keyed_tuple_serializer is None:
-            keyed_tuple_serializer = CoreKeyedTupleSerializer()
-
-        message = 'Input parameter [{instance}] is not an instance of [{base}].'
-        if not isinstance(entity_serializer, SerializerBase):
-            raise InvalidSerializerTypeError(message.format(instance=entity_serializer,
-                                                            base=SerializerBase))
-
-        if not isinstance(keyed_tuple_serializer, SerializerBase):
-            raise InvalidSerializerTypeError(message.format(instance=keyed_tuple_serializer,
-                                                            base=SerializerBase))
-
-        self._entity_serializer = entity_serializer
-        self._keyed_tuple_serializer = keyed_tuple_serializer
-
     @property
     def columns(self):
         """
@@ -125,55 +88,41 @@ class ResultSchema(CoreObject):
 
         return self._replace
 
-    def filter(self, value, **options):
+    def filter(self, item, **options):
         """
-        filters the value based on current schema.
+        filters the given item based on current schema.
 
-        :param Union[list[CoreEntity],
-                     list[AbstractKeyedTuple],
-                     CoreEntity,
-                     AbstractKeyedTuple] value: value or values to be filtered.
+        if the item is not filterable, it returns the exact input item.
+
+        :param Union[object, list[object]] item: item or items to be filtered.
 
         :raises ColumnNotExistedError: column not existed error.
-        :raises ObjectIsNotSerializableError: object is not serializable error.
 
         :rtype: Union[dict, list[dict]]
         """
 
-        if isinstance(value, LIST_TYPES):
-            return self._serialize_list(value)
+        return self._filter(item, **options)
 
-        return self._serialize(value)
-
-    def _serialize(self, item, **options):
+    def _filter(self, item, **options):
         """
-        serializes the given item based on current schema.
+        filters the given item based on current schema.
 
-        :param Union[CoreEntity, AbstractKeyedTuple] item: item to be serialized.
+        if the item is not filterable, it returns the exact input item.
+
+        :param Union[object, list[object]] item: item or items to be filtered.
 
         :raises ColumnNotExistedError: column not existed error.
-        :raises ObjectIsNotSerializableError: object is not serializable error.
 
-        :rtype: dict
+        :rtype: Union[dict, list[dict]]
         """
 
         if item is None:
-            return DTO()
+            return item
 
         options.pop('columns', None)
-        result = None
-        if model_services.is_core_entity(item):
-            result = self._entity_serializer.serialize(item, columns=self.columns,
-                                                       **options)
-        elif model_services.is_abstract_keyed_tuple(item):
-            result = self._keyed_tuple_serializer.serialize(item, columns=self.columns,
-                                                            **options)
-        else:
-            raise ObjectIsNotSerializableError('Object [{instance}] of type '
-                                               '[{type_}] is not serializable.'
-                                               .format(instance=item, type_=type(item)))
+        result = serializer_services.serialize(item, columns=self.columns, **options)
 
-        if self.replace is not None and len(self.replace) > 0 and len(result) > 0:
+        if self._should_filter(result):
             difference = set(self.replace.keys()).difference(set(result.keys()))
             if len(difference) > 0:
                 raise ColumnNotExistedError('Columns {columns} are not available in result.'
@@ -185,20 +134,42 @@ class ResultSchema(CoreObject):
 
         return result
 
-    def _serialize_list(self, items, **options):
+    def _is_filterable(self, item):
         """
-        serializes the given items based on current schema.
+        gets a value indicating that given item is filterable.
 
-        :param Union[list[CoreEntity], list[AbstractKeyedTuple]] items: items to
-                                                                        be serialized.
+        it actually checks that given item is a dict or a list of dicts
+        and dicts have any keys in them. if not, it's not filterable.
 
-        :raises ColumnNotExistedError: column not existed error.
-        :raises ObjectIsNotSerializableError: object is not serializable error.
+        :param Union[object, list[object]] item: item or items to be filtered.
 
-        :rtype: list[dict]
+        :rtype: bool
         """
 
-        if items is None or len(items) <= 0:
-            return []
+        if isinstance(item, dict) and len(item) > 0:
+            return True
 
-        return [self._serialize(value, **options) for value in items]
+        if isinstance(item, list) and len(item) > 0 and \
+                isinstance(item[0], dict) and len(item[0]) > 0:
+            return True
+
+        return False
+
+    def _should_filter(self, item):
+        """
+        gets a value indicating that given item should be filtered.
+
+        it actually checks that given item is a dict or a list of dicts
+        and dicts have any keys in them and also the `replace` attribute
+        of this schema is available. if not, it should not be filtered.
+
+        :param Union[object, list[object]] item: item or items to be checked.
+
+        :rtype: bool
+        """
+
+        if self._is_filterable(item) and self._replace is not None and \
+                len(self._replace) > 0:
+            return True
+
+        return False

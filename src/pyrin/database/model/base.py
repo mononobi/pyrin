@@ -18,7 +18,8 @@ from pyrin.database.model.exceptions import ColumnNotExistedError, EntityNotHash
 class CoreEntity(CoreObject):
     """
     core entity class.
-    it will be used as a base class for all models.
+
+    it will be used as the base class for all models.
     """
 
     # holds the table name in database.
@@ -32,7 +33,8 @@ class CoreEntity(CoreObject):
 
     def __init__(self, *args, **kwargs):
         """
-        initializes an instance of CoreDeclarative.
+        initializes an instance of CoreEntity.
+
         note that this method will only be called on user code, meaning
         that results returned by orm from database will not call `__init__`
         of each entity.
@@ -83,6 +85,7 @@ class CoreEntity(CoreObject):
     def _is_primary_key_comparable(self, primary_key):
         """
         gets a value indicating that given primary key is comparable.
+
         the primary key is comparable if it is not None for single
         primary keys and if all the values in primary key tuple are
         not None for composite primary keys.
@@ -106,6 +109,7 @@ class CoreEntity(CoreObject):
     def primary_key(self, as_tuple=False):
         """
         gets the primary key value for this entity.
+
         it could be a single value or a tuple of values
         for composite primary keys.
         it could return None if no primary key is set for this entity.
@@ -117,7 +121,7 @@ class CoreEntity(CoreObject):
         :rtype: Union[object, tuple(object)]
         """
 
-        columns = self.primary_key_columns()
+        columns = self.primary_key_columns
         if len(columns) <= 0:
             return None
 
@@ -129,12 +133,13 @@ class CoreEntity(CoreObject):
     def _get_root_base_class(self):
         """
         gets root base class of this entity and caches it.
+
         root base class is the class which is direct subclass
         of CoreEntity in inheritance hierarchy.
         for example: {Base -> CoreEntity, A -> Base, B -> A}
         root base class of A, B and Base is Base class.
 
-        :rtype: CoreEntity
+        :rtype: type
         """
 
         base = getattr(self, '_root_base_class', None)
@@ -207,7 +212,7 @@ class CoreEntity(CoreObject):
 
     def _get_primary_keys(self):
         """
-        gets current entity's primary key columns if available.
+        gets current entity's primary key column names if available.
 
         :rtype: tuple(str)
         """
@@ -218,9 +223,11 @@ class CoreEntity(CoreObject):
 
         return None
 
+    @property
     def primary_key_columns(self):
         """
-        gets the primary key column name(s) of this entity.
+        gets the primary key column names of this entity.
+
         column names will be calculated once and cached.
 
         :returns: tuple(str)
@@ -235,9 +242,11 @@ class CoreEntity(CoreObject):
 
         return pk
 
+    @property
     def all_columns(self):
         """
         gets all column names of entity.
+
         column names will be calculated once and cached.
 
         :returns: tuple(str)
@@ -252,10 +261,11 @@ class CoreEntity(CoreObject):
 
         return columns
 
+    @property
     def exposed_columns(self):
         """
-        gets exposed column names of entity, which
-        are those that have `exposed=True`.
+        gets exposed column names of entity, which are those that have `exposed=True`.
+
         column names will be calculated once and cached.
 
         :returns: tuple(str)
@@ -274,6 +284,7 @@ class CoreEntity(CoreObject):
     def _get_all_columns(self):
         """
         gets all column names of entity.
+
         returns None if not found.
 
         :returns: tuple(str)
@@ -288,8 +299,8 @@ class CoreEntity(CoreObject):
 
     def _get_exposed_columns(self):
         """
-        gets exposed column names of entity, which
-        are those that have `exposed=True`.
+        gets exposed column names of entity, which are those that have `exposed=True`.
+
         returns None if not found.
 
         :returns: tuple(str)
@@ -305,6 +316,7 @@ class CoreEntity(CoreObject):
     def to_dict(self, exposed_only=True, **options):
         """
         converts the entity into a dict and returns it.
+
         the result dict only contains the exposed columns of
         the entity which are those that their `exposed` attribute
         is set to True.
@@ -330,9 +342,9 @@ class CoreEntity(CoreObject):
         requested_columns = options.get('columns', None)
 
         if exposed_only is False:
-            base_columns = self.all_columns()
+            base_columns = self.all_columns
         else:
-            base_columns = self.exposed_columns()
+            base_columns = self.exposed_columns
 
         result = DTO()
         if requested_columns is None or len(requested_columns) <= 0:
@@ -352,8 +364,7 @@ class CoreEntity(CoreObject):
 
     def from_dict(self, silent_on_invalid_column=True, **kwargs):
         """
-        updates the column values of the entity from those
-        values that are available in input keyword arguments.
+        updates the column values of this entity with values in keyword arguments.
 
         :keyword bool silent_on_invalid_column: specifies that if a key is not available
                                                 in entity columns, do not raise an error.
@@ -362,7 +373,7 @@ class CoreEntity(CoreObject):
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        all_columns = self.all_columns()
+        all_columns = self.all_columns
         for key, value in kwargs.items():
             if key in all_columns:
                 setattr(self, key, value)
@@ -387,6 +398,7 @@ class CoreEntity(CoreObject):
     def table_schema(cls):
         """
         gets the table schema that this entity represents in database.
+
         it might be `None` if schema has not been set for this entity.
 
         :rtype: str
@@ -402,6 +414,7 @@ class CoreEntity(CoreObject):
     def table_fullname(cls):
         """
         gets the table fullname that this entity represents in database.
+
         fullname is `schema.table_name` if schema is available, otherwise it
         defaults to `table_name`.
 

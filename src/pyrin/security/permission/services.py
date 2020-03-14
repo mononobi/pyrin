@@ -34,6 +34,8 @@ def get_permissions(**options):
 def synchronize_all(**options):
     """
     synchronizes all permissions with database.
+
+    it creates or updates the available permissions.
     """
 
     return get_component(PermissionPackage.COMPONENT_NAME).synchronize_all(**options)

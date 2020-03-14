@@ -3,16 +3,19 @@
 serializer entity module.
 """
 
-from pyrin.converters.serializer.base import SerializerBase
+from pyrin.converters.serializer.decorators import serializer
+from pyrin.converters.serializer.handlers.base import SerializerBase
+from pyrin.database.model.base import CoreEntity
 from pyrin.utils.sqlalchemy import entity_to_dict
 
 
+@serializer()
 class CoreEntitySerializer(SerializerBase):
     """
     core entity serializer class.
     """
 
-    def serialize(self, value, **options):
+    def _serialize(self, value, **options):
         """
         serializes the given value.
 
@@ -36,3 +39,15 @@ class CoreEntitySerializer(SerializerBase):
         """
 
         return entity_to_dict(value, **options)
+
+    @property
+    def accepted_type(self):
+        """
+        gets the accepted type for this serializer.
+
+        which could serialize values from this type.
+
+        :rtype: CoreEntity
+        """
+
+        return CoreEntity
