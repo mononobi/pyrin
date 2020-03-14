@@ -41,8 +41,7 @@ class ORMSQLExtractorManager(Manager):
                                       must be investigated for table names.
                                       defaults to True if not provided.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         sql = expression
@@ -340,8 +339,7 @@ class ORMSQLExtractorManager(Manager):
                                       must be investigated for table names.
                                       defaults to True if not provided.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         include_select = options.get('include_select', True)

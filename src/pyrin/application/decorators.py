@@ -27,7 +27,6 @@ def component(component_name, *args, **kwargs):
     :raises DuplicateComponentIDError: duplicate component id error.
 
     :returns: component class.
-
     :rtype: type
     """
 
@@ -39,7 +38,6 @@ def component(component_name, *args, **kwargs):
         :param type cls: component class.
 
         :returns: component class.
-
         :rtype: type
         """
 
@@ -178,7 +176,6 @@ def application_hook():
     :raises InvalidApplicationHookTypeError: invalid application hook type error.
 
     :returns: application hook class.
-
     :rtype: type
     """
 
@@ -190,7 +187,6 @@ def application_hook():
         :param type cls: application hook class.
 
         :returns: application hook class.
-
         :rtype: type
         """
 

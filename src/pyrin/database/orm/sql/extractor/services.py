@@ -30,8 +30,7 @@ def find_table_names(expression, **options):
                                   must be investigated for table names.
                                   defaults to True if not provided.
 
-    :returns: list[str]
-    :rtype: list
+    :rtype: list[str]
     """
 
     return get_component(ORMSQLExtractorPackage.COMPONENT_NAME).find_table_names(expression,

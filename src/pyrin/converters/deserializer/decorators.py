@@ -22,7 +22,6 @@ def deserializer(*args, **kwargs):
     :raises DuplicatedDeserializerError: duplicated deserializer error.
 
     :returns: deserializer class.
-
     :rtype: type
     """
 
@@ -34,7 +33,6 @@ def deserializer(*args, **kwargs):
         :param type cls: deserializer class.
 
         :returns: deserializer class.
-
         :rtype: type
         """
 

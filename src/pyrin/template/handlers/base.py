@@ -198,8 +198,7 @@ class TemplateHandlerBase(AbstractTemplateHandler):
 
         this method is intended to be overridden by subclasses.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return []
