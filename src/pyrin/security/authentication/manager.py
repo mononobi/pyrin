@@ -74,7 +74,6 @@ class AuthenticationManager(Manager):
         :param CoreRequest client_request: request object.
 
         :returns: token
-
         :rtype: str
         """
 
@@ -85,9 +84,7 @@ class AuthenticationManager(Manager):
         pushes the required data into current request from input values.
 
         :param dict header: token header data.
-
         :param dict payload: payload data of authenticated token.
-        :type payload: dict(str type: token type)
         """
 
         session_services.add_request_context('token_header', header)
@@ -101,9 +98,7 @@ class AuthenticationManager(Manager):
         pushes the custom data into current request from input values.
 
         :param dict header: token header data.
-
         :param dict payload: payload data of authenticated token.
-        :type payload: dict(str type: token type)
 
         :raises CoreNotImplementedError: core not implemented error.
         """
@@ -131,9 +126,7 @@ class AuthenticationManager(Manager):
         an error will be raised if validation fails.
 
         :param dict header: token header data.
-
         :param dict payload: payload data to be validated.
-        :type payload: dict(str type: token type)
 
         :raises InvalidPayloadDataError: invalid payload data error.
         :raises AccessTokenRequiredError: access token required error.
@@ -156,9 +149,7 @@ class AuthenticationManager(Manager):
         an error will be raised if validation fails.
 
         :param dict header: token header data.
-
         :param dict payload: payload data to be validated.
-        :type payload: dict(str type: token type)
 
         :raises CoreNotImplementedError: core not implemented error.
         :raises AuthenticationFailedError: authentication failed error.

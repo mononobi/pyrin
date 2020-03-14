@@ -35,7 +35,7 @@ def extract_attributes(instance, *attributes):
 
     :raises CoreAttributeError: core attribute error.
 
-    :returns: dict(str name: object value)
+    :returns: dict[str name: object value]
     :rtype: dict
     """
 

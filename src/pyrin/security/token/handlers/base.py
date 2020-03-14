@@ -195,8 +195,7 @@ class TokenBase(AbstractTokenBase):
         """
         gets a dictionary containing common required headers.
 
-        :returns: dict(str kid: token kid)
-
+        :returns: dict[str kid: str kid]
         :rtype: dict
         """
 

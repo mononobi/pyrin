@@ -132,7 +132,7 @@ def get_bounded_engines():
     """
     gets database bounded engines.
 
-    :returns: dict(str bind_name: Engine engine)
+    :returns: dict[str bind_name: Engine engine]
     :rtype: dict
     """
 
@@ -143,7 +143,7 @@ def get_entity_to_engine_map():
     """
     gets entity to engine map.
 
-    :returns: dict(type entity, Engine engine)
+    :returns: dict[type entity, Engine engine]
     :rtype: dict
     """
 
@@ -154,7 +154,7 @@ def get_table_name_to_engine_map():
     """
     gets table name to engine map.
 
-    :returns: dict(str table_name, Engine engine)
+    :returns: dict[str table_name, Engine engine]
     :rtype: dict
     """
 

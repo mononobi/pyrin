@@ -64,7 +64,7 @@ class PackagingManager(Manager, HookMixin):
         # categories inside them. extended components in each
         # category are those that extending the exact component
         # of their parent.
-        # in the form of: dict(str package_name: list[str] modules)
+        # in the form of: dict[str package_name: list[str] modules]
         self._pyrin_components = DTO()
         self._application_components = DTO()
         self._custom_components = DTO()
@@ -252,7 +252,7 @@ class PackagingManager(Manager, HookMixin):
         :param dict components: full package names and their
                                 modules to be loaded.
 
-        :type components: dict(str package_name: list[str] modules)
+        :note components: dict[str package_name: list[str] modules]
         """
 
         # a dictionary containing all dependent package names and their respective modules.

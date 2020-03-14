@@ -95,7 +95,7 @@ class SequenceManager(Manager):
         """
         maps different dialects to relevant methods.
 
-        :returns: dict(str dialect_name: callable method)
+        :returns: dict[str dialect_name: callable method]
         :rtype: dict
         """
 

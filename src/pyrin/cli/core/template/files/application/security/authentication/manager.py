@@ -18,9 +18,7 @@ class AuthenticationManager(BaseAuthenticationManager):
         pushes the custom data into current request from input values.
 
         :param dict header: token header data.
-
         :param dict payload: payload data of authenticated token.
-        :type payload: dict(str type: token type)
         """
 
         raise CoreNotImplementedError()
@@ -32,9 +30,7 @@ class AuthenticationManager(BaseAuthenticationManager):
         an error will be raised if validation fails.
 
         :param dict header: token header data.
-
         :param dict payload: payload data to be validated.
-        :type payload: dict(str type: token type)
 
         :raises AuthenticationFailedError: authentication failed error.
         """

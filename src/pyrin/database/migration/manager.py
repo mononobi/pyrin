@@ -79,7 +79,7 @@ class DatabaseMigrationManager(Manager):
         it gets the values from active section of each store.
         in case of sqlite usage, all urls will be made absolute.
 
-        :returns: dict(str bind_name: str connection_url)
+        :returns: dict[str bind_name: str connection_url]
         :rtype: dict
         """
 
@@ -124,7 +124,7 @@ class DatabaseMigrationManager(Manager):
         """
         gets bind name to metadata map.
 
-        :returns: dict(str bind_name: MetaData metadata)
+        :returns: dict[str bind_name: MetaData metadata]
         :rtype: dict
         """
 

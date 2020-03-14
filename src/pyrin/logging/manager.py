@@ -55,8 +55,7 @@ class LoggingManager(Manager):
         """
         gets a dictionary containing all available loggers.
 
-        :returns: dict(str name: Logger instance)
-
+        :returns: dict[str name: Logger instance]
         :rtype: dict
         """
 
@@ -152,8 +151,7 @@ class LoggingManager(Manager):
         gets a dictionary containing all available loggers.
         it returns a shallow copy of loggers dict.
 
-        :returns: dict(str name: Logger instance)
-
+        :returns: dict[str name: Logger instance]
         :rtype: dict
         """
 

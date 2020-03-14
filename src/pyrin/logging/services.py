@@ -12,8 +12,7 @@ def get_all_loggers():
     gets a dictionary containing all available loggers.
     it returns a shallow copy of loggers dict.
 
-    :returns: dict(str name: Logger instance)
-
+    :returns: dict[str name: Logger instance]
     :rtype: dict
     """
 
