@@ -229,11 +229,11 @@ class PositionalArgument(ArgumentBase):
         :param str param_name: param name presented in method signature.
         :param int index: zero based index of this param in cli command inputs.
 
-        :param Union[list[object], object] default: default value to be emitted to
-                                                    cli if this param is not available.
-                                                    if set to None, this param will not
-                                                    be emitted at all.
-                                                    defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 
@@ -441,11 +441,11 @@ class KeywordArgument(KeywordArgumentBase):
                                     for example `--message` flag of alembic
                                     must be present with the message value itself.
 
-        :param Union[list[object], object] default: default value to be emitted to
-                                                    cli if this param is not available.
-                                                    if set to None, this param will not
-                                                    be emitted at all.
-                                                    defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 
@@ -488,11 +488,11 @@ class CompositeKeywordArgument(KeywordArgument):
         :param str separator: separator to be used between values of list type.
                               defaults to single space if not provided.
 
-        :param Union[list[object], object] default: default value to be emitted to
-                                                    cli if this param is not available.
-                                                    if set to None, this param will not
-                                                    be emitted at all.
-                                                    defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 
@@ -521,7 +521,7 @@ class CompositeKeywordArgument(KeywordArgument):
         name (for example alembic commands), you should use
         `KeywordArgument` class instead.
 
-        :param Union[list[object], object] value: value to be emitted to cli.
+        :param list[object] | object value: value to be emitted to cli.
 
         :rtype: list[object]
         """

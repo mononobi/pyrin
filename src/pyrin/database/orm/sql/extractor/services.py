@@ -11,8 +11,8 @@ def find_table_names(expression, **options):
     """
     finds table names from a string or `TextClause` sql expression.
 
-    :param Union[str, TextClause] expression: a string or `TextClause`
-                                              containing a sql expression.
+    :param str | TextClause expression: a string or `TextClause`
+                                        containing a sql expression.
 
     :keyword bool include_select: specifies that select statements
                                   must be investigated for table names.

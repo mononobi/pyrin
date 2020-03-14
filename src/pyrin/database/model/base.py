@@ -90,7 +90,7 @@ class CoreEntity(CoreObject):
         primary keys and if all the values in primary key tuple are
         not None for composite primary keys.
 
-        :param Union[object, tuple[object]] primary_key: primary key value.
+        :param object | tuple[object] primary_key: primary key value.
 
         :rtype: bool
         """
@@ -118,7 +118,7 @@ class CoreEntity(CoreObject):
                               as a tuple even if it's a single value.
                               defaults to False if not provided.
 
-        :rtype: Union[object, tuple[object]]
+        :rtype: object | tuple[object]
         """
 
         columns = self.primary_key_columns

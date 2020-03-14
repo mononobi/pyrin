@@ -33,11 +33,11 @@ class CoreColumn(Column, CoreColumnOperators):
         :param bool autoincrement: set up `auto increment` semantics for an
                                    integer primary key column.
 
-        :param Union[callable, object] default: a scalar, python callable or `ColumnElement`
-                                                expression representing the default value
-                                                for this column, which will be invoked upon
-                                                insert if this column is otherwise not
-                                                specified in the values clause of the insert.
+        :param callable | object default: a scalar, python callable or `ColumnElement`
+                                          expression representing the default value
+                                          for this column, which will be invoked upon
+                                          insert if this column is otherwise not
+                                          specified in the values clause of the insert.
 
         :param str doc: optional string that can be used by the ORM or similar
                         to document attributes on the python side.
@@ -53,12 +53,12 @@ class CoreColumn(Column, CoreColumnOperators):
         :param bool nullable: when set to `False`, will cause the `Not NULL`
                               phrase to be added when generating ddl for the column.
 
-        :param Union[callable, object] onupdate: a scalar, python callable, or
-                                                 `ClauseElement` representing a default
-                                                 value to be applied to the column within update
-                                                 statements, which will be invoked upon update
-                                                 if this column is not present in the set
-                                                 clause of the update.
+        :param callable | object onupdate: a scalar, python callable, or
+                                           `ClauseElement` representing a default
+                                           value to be applied to the column within update
+                                           statements, which will be invoked upon update
+                                           if this column is not present in the set
+                                           clause of the update.
 
         :param bool primary_key: if `True`, marks this column as a primary key
                                  column. multiple columns can have this flag set to

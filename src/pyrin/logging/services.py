@@ -10,6 +10,7 @@ from pyrin.logging import LoggingPackage
 def get_all_loggers():
     """
     gets a dictionary containing all available loggers.
+
     it returns a shallow copy of loggers dict.
 
     :returns: dict[str name: Logger instance]
@@ -48,6 +49,7 @@ def reload_configs(**options):
 def wrap_all_loggers():
     """
     wraps all available loggers into an adapter.
+
     normally, this method should not be called manually.
     """
 

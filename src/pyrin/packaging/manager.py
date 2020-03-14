@@ -115,6 +115,7 @@ class PackagingManager(Manager, HookMixin):
     def _initialize_loaded_packages(self):
         """
         adds `pyrin.application` and `pyrin.packaging` into loaded packages.
+
         those packages will load immediately and will not be added
         to loaded packages through normal operations.
         """
@@ -289,8 +290,7 @@ class PackagingManager(Manager, HookMixin):
 
     def _find_pyrin_loadable_components(self):
         """
-        finds all package and module names that should
-        be loaded from pyrin package.
+        finds all package and module names that should be loaded from pyrin package.
         """
 
         pyrin_root_path = application_services.get_pyrin_root_path()
@@ -299,8 +299,9 @@ class PackagingManager(Manager, HookMixin):
 
     def _find_other_loadable_components(self):
         """
-        finds all package and module names that should
-        be loaded from other packages like application and tests.
+        finds all package and module names that should be loaded from other packages.
+
+        for example application and tests.
         """
 
         application_root_path = application_services.get_application_root_path()
@@ -310,19 +311,18 @@ class PackagingManager(Manager, HookMixin):
     def _find_loadable_components(self, root_path, include=None,
                                   exclude=None, **options):
         """
-        finds all package and module names that should
-        be loaded included in given root path.
+        finds all package and module names that should be loaded included in given root path.
 
         :param str root_path: root path to look for components inside it.
 
-        :param Union[str, list[str]] include: specify full directory names inside the
-                                              root path to just loop inside those.
-                                              otherwise it loops in all available
-                                              directories.
+        :param str | list[str] include: specify full directory names inside the
+                                        root path to just loop inside those.
+                                        otherwise it loops in all available
+                                        directories.
 
-        :param Union[str, list[str]] exclude: specify full directory names inside the
-                                              root path to ignore them. otherwise
-                                              it loops in all available directories.
+        :param str | list[str] exclude: specify full directory names inside the
+                                        root path to ignore them. otherwise
+                                        it loops in all available directories.
         """
 
         if include is not None and not isinstance(include, LIST_TYPES):
@@ -404,8 +404,7 @@ class PackagingManager(Manager, HookMixin):
 
     def _detach_extended_packages(self, base_components, components):
         """
-        detaches components which extend existing base components
-        from those which are new components.
+        detaches components which extend existing base components from new components.
 
         :param list[str] base_components: base component names.
 
@@ -467,8 +466,7 @@ class PackagingManager(Manager, HookMixin):
 
     def _is_included(self, include, visiting_path):
         """
-        returns a value indicating that the given
-        visiting path is under include path.
+        returns a value indicating that the given visiting path is under include path.
 
         :param list[str] include: full directory names inside the
                                   root path to just loop inside those.
@@ -491,8 +489,7 @@ class PackagingManager(Manager, HookMixin):
 
     def _is_excluded(self, exclude, visiting_path):
         """
-        returns a value indicating that the given
-        visiting path is under exclude path.
+        returns a value indicating that the given visiting path is under exclude path.
 
         :param list[str] exclude: full directory names inside the
                                   root path to ignore them. otherwise
@@ -565,8 +562,9 @@ class PackagingManager(Manager, HookMixin):
 
     def _is_disabled_package(self, package_name):
         """
-        gets a value indicating that given package should
-        be considered as disabled based on its parents status.
+        gets a value indicating that given package should be considered as disabled.
+
+        it will be detected based on parent packages of this package.
 
         :param str package_name: full package name.
                                  example package_name = `pyrin.database`.
@@ -798,6 +796,7 @@ class PackagingManager(Manager, HookMixin):
     def _is_package(self, path):
         """
         gets a value indicating that given path belongs to a python package.
+
         it simply checks that `__init__` module exists or not.
 
         :param str path: full path of package.
@@ -810,8 +809,9 @@ class PackagingManager(Manager, HookMixin):
 
     def _is_module(self, file_name):
         """
-        gets a value indicating that given file is a standalone
-        python module (excluding `__init__` module which belongs to package).
+        gets a value indicating that given file is a standalone python module.
+
+        excluding `__init__` module which belongs to package.
         it simply checks that file name ends with '.py' and not being `__init__.py`.
 
         :param str file_name: file name.

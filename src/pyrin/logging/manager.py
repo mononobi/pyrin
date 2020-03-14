@@ -67,7 +67,7 @@ class LoggingManager(Manager):
 
         :param Logger logger: logger instance to be wrapped.
 
-        :rtype: Union[BaseLoggerAdapter, Logger]
+        :rtype: BaseLoggerAdapter | Logger
         """
 
         if self.should_be_wrapped(logger) is True:
@@ -77,8 +77,7 @@ class LoggingManager(Manager):
 
     def _wrap_all_loggers(self):
         """
-        wraps all available loggers into an adapter to
-        inject request info into every log.
+        wraps all available loggers into an adapter to inject request info into every log.
 
         note that we should not wrap sqlalchemy and alembic loggers,
         because it does not affect on sqlalchemy loggers and they
@@ -117,6 +116,7 @@ class LoggingManager(Manager):
     def wrap_all_loggers(self):
         """
         wraps all available loggers into an adapter.
+
         normally, this method should not be called manually.
         """
 
@@ -149,6 +149,7 @@ class LoggingManager(Manager):
     def get_all_loggers(self):
         """
         gets a dictionary containing all available loggers.
+
         it returns a shallow copy of loggers dict.
 
         :returns: dict[str name: Logger instance]
@@ -171,7 +172,6 @@ class LoggingManager(Manager):
         :param str name: logger name to get.
 
         :returns: specified logger.
-
         :rtype: BaseLoggerAdapter
         """
 

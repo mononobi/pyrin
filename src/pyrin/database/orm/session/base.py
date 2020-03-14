@@ -30,17 +30,17 @@ class CoreSession(Session):
         which wraps it to bind to correct engine on different situations.
         for full documentation see the `sqlalchemy.orm.session.execute()` docs.
 
-        :param Union[Executable, str] clause: an executable statement `Executable`
-                                              expression such as `expression.select`
-                                              or string sql statement to be executed.
+        :param Executable | str clause: an executable statement `Executable`
+                                        expression such as `expression.select`
+                                        or string sql statement to be executed.
 
-        :param Union[dict, list[dict]] params: optional dictionary, or list of
-                                               dictionaries, containing bound
-                                               parameter values. if a single dictionary,
-                                               single-row execution occurs. if a list of
-                                               dictionaries, an `executemany' will be invoked.
-                                               the keys in each dictionary must correspond
-                                               to parameter names present in the statement.
+        :param dict | list[dict] params: optional dictionary, or list of
+                                         dictionaries, containing bound
+                                         parameter values. if a single dictionary,
+                                         single-row execution occurs. if a list of
+                                         dictionaries, an `executemany' will be invoked.
+                                         the keys in each dictionary must correspond
+                                         to parameter names present in the statement.
 
         :param CoreEntity mapper: entity class or object which the given clause
                                   must be executed on its related engine.
@@ -125,13 +125,13 @@ class CoreSession(Session):
                                   `Metadata` associated with the `Table` to which the
                                   `Mapper` is mapped for a bind.
 
-        :param Union[ClauseElement, str] clause: a raw string query or a `ClauseElement`
-                                                 (i.e. `~.sql.expression.select`,
-                                                 `~.sql.expression.text`, etc.). if the
-                                                 `Mapper` argument is not present or could not
-                                                 produce a bind, the given expression construct
-                                                 will be searched for a bound element, typically
-                                                 a `Table` associated with `Metadata`.
+        :param ClauseElement | str clause: a raw string query or a `ClauseElement`
+                                           (i.e. `~.sql.expression.select`,
+                                           `~.sql.expression.text`, etc.). if the
+                                           `Mapper` argument is not present or could not
+                                           produce a bind, the given expression construct
+                                           will be searched for a bound element, typically
+                                           a `Table` associated with `Metadata`.
 
         :rtype: Engine
         """

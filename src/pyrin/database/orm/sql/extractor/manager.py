@@ -22,8 +22,8 @@ class ORMSQLExtractorManager(Manager):
         """
         finds table names from a string or `TextClause` sql expression.
 
-        :param Union[str, TextClause] expression: a string or `TextClause`
-                                                  containing a sql expression.
+        :param str | TextClause expression: a string or `TextClause`
+                                            containing a sql expression.
 
         :keyword bool include_select: specifies that select statements
                                       must be investigated for table names.
@@ -284,9 +284,9 @@ class ORMSQLExtractorManager(Manager):
         """
         extracts all potential table names from input single or collection `TokenList`.
 
-        :param Union[list[TokenList], TokenList] token_stream: a single `TokenList` or
-                                                               collection of `TokenList`
-                                                               objects to be checked.
+        :param list[TokenList] | TokenList token_stream: a single `TokenList` or
+                                                         collection of `TokenList`
+                                                         objects to be checked.
 
         :rtype: list[str]
         """
@@ -377,14 +377,14 @@ class ORMSQLExtractorManager(Manager):
         """
         gets the identifier token available in given tokens children.
 
-        :param Union[Token, TokenList] token: token to get its child identifier.
+        :param Token | TokenList token: token to get its child identifier.
 
         :param bool force: specifies that if its child is not an
                            `Identifier` but it is a keyword, return it.
                            it could be helpful for some situations which
                            table names are equal to some keywords.
 
-        :rtype: Union[Identifier, Keyword]
+        :rtype: Identifier | Keyword
         """
 
         if token is not None:

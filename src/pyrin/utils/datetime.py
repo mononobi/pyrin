@@ -32,7 +32,8 @@ DEFAULT_TIME_NO_TIMEZONE_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d$')
 def to_datetime_string(value):
     """
     gets the datetime string representation of input value with utc offset.
-    example: `2015-12-24T23:40:15+03:30`
+
+    for example: `2015-12-24T23:40:15+03:30`
 
     :param datetime value: input object to be converted.
 
@@ -45,7 +46,8 @@ def to_datetime_string(value):
 def to_datetime_string_utc(value):
     """
     gets the datetime string representation of input value in utc with zero offset.
-    example: `2015-12-24T22:40:15+00:00`
+
+    for example: `2015-12-24T22:40:15+00:00`
 
     :param datetime value: input object to be converted.
 
@@ -59,9 +61,10 @@ def to_datetime_string_utc(value):
 def to_date_string(value):
     """
     gets the date string representation of input with default format.
-    example: `2015-12-24`
 
-    :param Union[datetime, date] value: input object to be converted.
+    for example: `2015-12-24`
+
+    :param datetime | date value: input object to be converted.
 
     :rtype: str
     """
@@ -76,9 +79,10 @@ def to_date_string(value):
 def to_time_string(value):
     """
     gets the time string representation of input datetime with utc offset.
-    example: `23:40:15`
 
-    :param Union[datetime, time] value: input object to be converted.
+    for example: `23:40:15`
+
+    :param datetime | time value: input object to be converted.
 
     :rtype: str
     """
@@ -93,9 +97,10 @@ def to_time_string(value):
 def to_time_string_utc(value):
     """
     gets the time string representation of input datetime in utc with zero offset.
-    example: `22:40:15`
 
-    :param Union[datetime, time] value: input object to be converted.
+    for example: `22:40:15`
+
+    :param datetime | time value: input object to be converted.
 
     :rtype: str
     """
@@ -181,7 +186,8 @@ def normalized_utc(value):
 def trunc(value):
     """
     truncates the input datetime value to just date, with default time info.
-    it is really a datetime with time info set to 00:00:00.
+
+    it is actually a datetime with time info set to 00:00:00.
 
     :param datetime value: datetime to be truncated.
 
@@ -194,7 +200,8 @@ def trunc(value):
 def begin_of_day(value):
     """
     gets a datetime representing the begin of day for given datetime.
-    it is really a datetime with time info set to 00:00:00.
+
+    it is actually a datetime with time info set to 00:00:00.
 
     :param datetime value: value to get its begin of day.
 
@@ -207,7 +214,8 @@ def begin_of_day(value):
 def end_of_day(value):
     """
     gets a datetime representing the end of day for given datetime.
-    it is really a datetime with time info set to 23:59:59.999999
+
+    it is actually a datetime with time info set to 23:59:59.999999
 
     :param datetime value: value to get its end of day.
 
@@ -234,8 +242,10 @@ def add_days(value, days):
 
 def normalize_datetime_range(value_lower, value_upper, **options):
     """
-    normalizes the given datetime values range. it returns a tuple
-    of two datetime values normalized according to given options.
+    normalizes the given datetime values range.
+
+    it returns a tuple of two datetime values
+    normalized according to given options.
 
     :param datetime value_lower: lower bound of datetime range.
     :param datetime value_upper: upper bound of datetime range.

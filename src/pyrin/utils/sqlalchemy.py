@@ -19,6 +19,7 @@ LIKE_CHAR_COUNT_LIMIT = 20
 def entity_to_dict(entity, exposed_only=True, **options):
     """
     converts the given entity into a dict and returns it.
+
     the result dict only contains the columns of the entity
     which their `hidden` attribute is set to False.
 
@@ -49,8 +50,7 @@ def entity_to_dict(entity, exposed_only=True, **options):
 
 def dict_to_entity(entity_class, **kwargs):
     """
-    converts the given keyword arguments into
-    an specified entity and returns it.
+    converts the given keyword arguments into an specified entity and returns it.
 
     :param type entity_class: the result entity class type.
 
@@ -64,8 +64,7 @@ def dict_to_entity(entity_class, **kwargs):
 
 def entity_to_dict_list(entities, exposed_only=True, **options):
     """
-    converts the given list of entities into a
-    list of dicts and returns the result.
+    converts the given list of entities into a list of dicts and returns the result.
 
     :param list[CoreEntity] entities: list of entities.
 
@@ -156,10 +155,9 @@ def keyed_tuple_to_dict_list(values, **options):
 
 def like_both(value, start='%', end='%'):
     """
-    gets a copy of string with `%` or couple of `_` values
-    attached to both ends of it to use in like operator.
-    this method is intended to be used as callable for
-    sqlalchemy operator methods.
+    gets a copy of string with `%` or couple of `_` values attached to both ends.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
 
@@ -187,10 +185,9 @@ def like_both(value, start='%', end='%'):
 
 def like_prefix(value, start='%'):
     """
-    gets a copy of string with `%` or couple of `_` values
-    attached to beginning of it to use in like operator.
-    this method is intended to be used as callable for
-    sqlalchemy operator methods.
+    gets a copy of string with `%` or couple of `_` values attached to beginning.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
 
@@ -210,10 +207,9 @@ def like_prefix(value, start='%'):
 
 def like_suffix(value, end='%'):
     """
-    gets a copy of string with `%` or couple of `_` values
-    attached to end of it to use in like operator.
-    this method is intended to be used as callable for
-    sqlalchemy operator methods.
+    gets a copy of string with `%` or couple of `_` values attached to end.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
 
@@ -233,8 +229,9 @@ def like_suffix(value, end='%'):
 
 def _process_place_holder(value, count):
     """
-    processes the value and generates a place holder with count
-    of `_` chars. this value could be used in like operator.
+    processes the value and generates a place holder with count of `_` chars.
+
+    this value could be used in like operator.
 
     :param str value: value to be processed.
     :param int count: count of `_` chars to be attached.
@@ -265,8 +262,9 @@ def _process_place_holder(value, count):
 
 def like_exact_both(value, count):
     """
-    gets a copy of string with `_` attached to both ends of
-    it by count of underscores to use in like operator.
+    gets a copy of string with `count` number of `_` attached to both ends.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
     :param int count: count of `_` chars to be attached.
@@ -285,8 +283,9 @@ def like_exact_both(value, count):
 
 def like_exact_prefix(value, count):
     """
-    gets a copy of string with `_` attached to beginning of
-    it by count of underscores to use in like operator.
+    gets a copy of string with `count` number of `_` attached to beginning.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
     :param int count: count of `_` chars to be attached.
@@ -305,8 +304,9 @@ def like_exact_prefix(value, count):
 
 def like_exact_suffix(value, count):
     """
-    gets a copy of string with `_` attached to end of
-    it by count of underscores to use in like operator.
+    gets a copy of string with `count` number of `_` attached to end.
+
+    it is to be used in like operator.
 
     :param str value: value to be processed.
     :param int count: count of `_` chars to be attached.
@@ -408,12 +408,13 @@ def add_datetime_range_clause(clauses, column,
 def add_comparison_clause(clauses, column, value):
     """
     adds list or single comparison into clauses based on given value.
+
     if the value type is any of list, tuple or set, it generates an
     `in()` comparison, otherwise it generates a simple `==` comparison.
 
     :param list clauses: clause list to add comparison clause to it.
     :param CoreColumn column: entity column to add comparison clause for it.
-    :param Union[object, list[object]] value: value to add comparison for it.
+    :param object | list[object] value: value to add comparison for it.
     """
 
     if value is not None:
@@ -426,6 +427,7 @@ def add_comparison_clause(clauses, column, value):
 def create_row_result(fields, values):
     """
     creates a row result object with given fields and values.
+
     this object type is returned by sqlalchemy `Query` when there
     is column names or multiple entities in query.
 

@@ -16,6 +16,7 @@ from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
 class AuthorizationManager(Manager):
     """
     authorization manager class.
+
     this class is intended to provide some services needed in pyrin application.
     the top level application must extend this class considering business requirements.
     """
@@ -23,13 +24,14 @@ class AuthorizationManager(Manager):
     def authorize(self, user, permissions, **options):
         """
         authorizes the given user for specified permissions.
+
         if user does not have each one of specified permissions,
         an error will be raised.
 
         :param user: user identity to authorize permissions for.
 
-        :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
-                                                                        for user authorization.
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for user authorization.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
         :raises UserIsNotActiveError: user is not active error.
@@ -64,8 +66,8 @@ class AuthorizationManager(Manager):
         """
         gets a value indicating that specified user is authorized for given permissions.
 
-        :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
-                                                                        for authorization.
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for authorization.
 
         :param user: user identity to be checked for authorization.
                      if not provided, current user will be used.
