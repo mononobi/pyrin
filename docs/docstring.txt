@@ -1,21 +1,64 @@
-* we don't set docstring for built-in functions, unless really necessary.
+* we set docstring for all functions including built-in ones, unless really unnecessary.
 
 * all docstrings and comments must be lowercase, the only exception is for
   specifying object types. example 1.
 
 * all docstrings and comments must end with a dot. the only exceptions are
-  rtype and returns that should not have a trailing dot. example 1.
+  :rtype and :returns that should not have a trailing dot. example 1.
 
-* method docstring pattern for all custom functions (non-built-in)
-  are shown in examples 2, 3.
+* method docstring pattern for all custom functions are shown in examples 2, 3.
 
-* in docstrings, all params, keywords, raises, returns and rtype and the description
+* in docstrings, all :params, :keywords, :raises, :returns, :rtype and the description
   must be grouped by type with a single empty line between each group. and if any of the above
   elements are more than a single line, then there should be an empty line on top and under
   the multi-line element. example 4 shows this nicely.
 
 * in docstrings for packages and modules and classes we must mention the exact
   package or module or class keyword at the end. example 5.
+
+* if type of an argument needs more clarification, we could put :note param_name: description
+* below the param definition and show the detailed type. but it should be declared
+* using :note not using :type to not break pycharm type detection. example 6.
+
+* if type of a :rtype needs more clarification, we could put :returns: type
+* on top of :rtype and show detailed type info. example 6.
+
+* enumeration values of an argument must be declared using :note below
+* the argument definition. example 6.
+
+* if a :param or :keyword or :rtype has more than one type, they should
+* be declared using | separator. example 6.
+
+* we should never put None into argument or return type, instead we could
+* mention that a param or return value might be None in docstring description.
+* example 6.
+
+* all tuple types must be declared in this form: tuple[type1, type2, ...]
+* example 6.
+
+* all list types must be declared in this form: list[type1, type2, ...]
+* example 6.
+
+* all dict type must be declared in this form: dict
+* example 6.
+
+* if we want to show the key/value types of a dict we should do it this way:
+* dict[key_type key_name, value_type value_name, ...]
+* note that key_name and value_name are conceptual names, not a real name existing there.
+* example 6.
+
+* if we want to just show the value type of a dict that will be used as keyword arguments
+* holder, we should do it this way:
+* dict(value_type1 key_name1: description1, value_type2 key_name2: description2, ...)
+* example 6.
+
+* we should always put a single top line comment in docstrings and an empty
+* line below it, than put other details from 3th line. example 6.
+
+* if we have to provide :rtype and :returns at the same type, they should be
+* put without any empty line between them, unless one of them being multi-line.
+* example 6.
+
 
 example 1:
 # this variable is for storing http method name of type CoreObject.
@@ -29,8 +72,6 @@ def function(name, **options):
 
     :keyword str age: age parameter.
     :keyword list[Car] cars: cars list.
-    :type Car: dict(str name: car name,
-                    str model: car model).
 
     :keyword int customer_type: customer type.
     :note customer_type:
@@ -39,8 +80,8 @@ def function(name, **options):
 
     :raises RuntimeException: runtime exception.
 
-    :returns: tuple(dict(int code: error code,
-                         str message: error message), int code: error code)
+    :returns: tuple[dict(int code: error code,
+                         str message: error message), int error_code]
 
     :rtype: tuple(dict, int)
     """
@@ -54,19 +95,9 @@ def get_deserializers(**options):
                             are registered for the input type.
                             if not present, all deserializers will be returned.
 
-    :returns: list[DeserializerBase]
-
-    :rtype: list
+    :rtype: list[DeserializerBase]
     """
-
-    for_type = options.get('for_type', None)
-
-    if for_type is None:
-        return [value for value in __deserializers__.values()]
-
-    # getting all deserializers that are registered for the given type.
-    deserializer_keys = [key for key in __deserializers__.keys() if key[1] == for_type]
-    return [__deserializers__[key] for key in deserializer_keys]
+    pass
 
 example 4:
 def some_func(param1, param2, param3, param4 ,**options):
@@ -89,11 +120,73 @@ def some_func(param1, param2, param3, param4 ,**options):
                    str name: name of someone)
 
     :rtype: dict
-"""
+    """
+    pass
 
 example 5:
 
 class Something(CoreObject):
     """
     something class.
+    """
+    pass
+
+example 6:
+
+def api(url, methods, login_required, permissions, **options):
+    """
+    decorator to register an api handler for application.
+
+    if situation not met, it will ignore input and returns None.
+
+    :param str url: url rule for this api.
+
+    :param tuple[str] | str methods: http methods that this rule should handle.
+                                     if not provided, defaults to `GET`.
+
+    :param bool login_required: specifies that this route could not be accessed
+                                if the requester has not a valid token.
+                                defaults to True if not provided.
+
+    :param list[PermissionBase] permissions: list of all required permissions
+                                             to access this route's resource.
+
+    :param tuple[int, str] input: input value.
+    :note input: tuple[int id, str name]
+
+    :keyword bool | int fresh_token: specifies that this route could not be accessed
+                                     if the requester has not a valid fresh token.
+                                     fresh token means a token that has been created by
+                                     providing user credentials to server.
+                                     defaults to False if not provided.
+
+    :keyword bool replace: specifies that this route must replace
+                           any existing route with the same url or raise
+                           an error if not provided. defaults to False.
+
+    :keyword int customer_type: customer type which
+                                can use this service.
+    :note customer_type:
+        REAL = 1
+        LEGAL = 2
+
+    :keyword int max_content_length: max content length that this route could handle,
+                                     in bytes. if not provided, it will be set to
+                                     `restricted_max_content_length` api config key.
+                                     note that this value should be lesser than or equal
+                                     to `max_content_length` api config key, otherwise
+                                     it will cause an error.
+
+    :keyword dict optional_value: optional value.
+
+    :note optional_value: dict(int id: id of someone,
+                               str name: name of someone)
+
+    :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+    :raises DuplicateRouteURLError: duplicate route url error.
+
+    :returns: tuple[int id, str name] | str | dict[str age: int age,
+                                                   str name: str value]
+    :rtype: tuple[int, str] | str | dict
     """
