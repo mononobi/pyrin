@@ -87,14 +87,10 @@ def entity_to_dict_list(entities, exposed_only=True, **options):
     :rtype list
     """
 
-    results = []
     if entities is None or len(entities) <= 0:
-        return results
+        return []
 
-    for single_entity in entities:
-        results.append(entity_to_dict(single_entity, exposed_only, **options))
-
-    return results
+    return [entity_to_dict(item, exposed_only, **options) for item in entities]
 
 
 def keyed_tuple_to_dict(value, **options):
@@ -152,14 +148,10 @@ def keyed_tuple_to_dict_list(values, **options):
     :rtype: dict
     """
 
-    results = []
     if values is None or len(values) <= 0:
-        return results
+        return []
 
-    for single_value in values:
-        results.append(keyed_tuple_to_dict(single_value, **options))
-
-    return results
+    return [keyed_tuple_to_dict(item, **options) for item in values]
 
 
 def like_both(value, start='%', end='%'):
