@@ -68,7 +68,7 @@ class AbstractEncrypterBase(CoreObject, metaclass=EncrypterSingletonMeta):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[str, tuple[str, str]]
+        :rtype: str | tuple[str, str]
         """
 
         raise CoreNotImplementedError()

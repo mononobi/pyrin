@@ -35,10 +35,10 @@ class TemplateHandlerBase(AbstractTemplateHandler):
 
         :param str source: source directory of template files.
 
-        :param Union[str, None] target: target directory in which template
-                                        files must be created in.
-                                        it could be set to None to be calculated
-                                        in `_create()` method based on given inputs.
+        :param str target: target directory in which template
+                           files must be created in.
+                           it could be set to None to be calculated
+                           in `_create()` method based on given inputs.
 
         :raises TemplateHandlerNameRequiredError: template handler name required error.
         :raises InvalidSourceDirectoryError: invalid source directory error.

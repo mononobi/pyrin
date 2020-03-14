@@ -147,7 +147,7 @@ def generate_key(handler_name, **options):
                          note that some token handlers may not accept custom
                          key length so this value would be ignored on those handlers.
 
-    :rtype: Union[str, tuple[str, str]]
+    :rtype: str | tuple[str, str]
     """
 
     return get_component(TokenPackage.COMPONENT_NAME).generate_key(handler_name, **options)
