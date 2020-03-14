@@ -55,8 +55,8 @@ def error_handler(code_or_exception):
     """
     decorator to register an error handler for application.
 
-    :param Union[int, Exception] code_or_exception: code or exception type to
-                                                    register handler for.
+    :param int | Exception code_or_exception: code or exception type to
+                                              register handler for.
 
     :rtype: callable
     """

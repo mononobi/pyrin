@@ -49,11 +49,11 @@ class HelpParam(BooleanArgument, CLIParamBase):
         """
         initializes an instance of HelpParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('help', '--help', default=default)

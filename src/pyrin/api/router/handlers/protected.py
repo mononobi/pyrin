@@ -53,14 +53,14 @@ class ProtectedRoute(RouteBase):
                                   have resources on a subdomain or folder that are not
                                   handled by the WSGI application (like static data)
 
-        :keyword Union[string, Callable] redirect_to: if given this must be either a string or
-                                                      callable. in case of a callable it's
-                                                      called with the url adapter that triggered
-                                                      the match and the values of the url as
-                                                      keyword arguments and has to return the
-                                                      target for the redirect, otherwise it
-                                                      has to be a string with placeholders
-                                                      in rule syntax.
+        :keyword string | Callable redirect_to: if given this must be either a string or
+                                                callable. in case of a callable it's
+                                                called with the url adapter that triggered
+                                                the match and the values of the url as
+                                                keyword arguments and has to return the
+                                                target for the redirect, otherwise it
+                                                has to be a string with placeholders
+                                                in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
                              the same endpoint and arguments.
@@ -184,14 +184,14 @@ class FreshProtectedRoute(ProtectedRoute):
                                   have resources on a subdomain or folder that are not
                                   handled by the WSGI application (like static data)
 
-        :keyword Union[string, Callable] redirect_to: if given this must be either a string or
-                                                      callable. in case of a callable it's
-                                                      called with the url adapter that triggered
-                                                      the match and the values of the url as
-                                                      keyword arguments and has to return the
-                                                      target for the redirect, otherwise it
-                                                      has to be a string with placeholders
-                                                      in rule syntax.
+        :keyword string | Callable redirect_to: if given this must be either a string or
+                                                callable. in case of a callable it's
+                                                called with the url adapter that triggered
+                                                the match and the values of the url as
+                                                keyword arguments and has to return the
+                                                target for the redirect, otherwise it
+                                                has to be a string with placeholders
+                                                in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
                              the same endpoint and arguments.

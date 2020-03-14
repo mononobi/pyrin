@@ -25,11 +25,11 @@ class ArgumentBase(CoreObject, ABC):
 
         :param str param_name: param name presented in method signature.
 
-        :param Union[list[object], object, None] default: default value to be emitted to
-                                                          cli if this param is not available.
-                                                          if set to None, this param will not
-                                                          be emitted at all.
-                                                          defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
         """
@@ -57,9 +57,9 @@ class ArgumentBase(CoreObject, ABC):
 
         it could be None if the value should not be emitted to cli.
 
-        :param Union[list[object], object, None] value: value of method input
-                                                        that should be represented
-                                                        in cli.
+        :param list[object] | object value: value of method input
+                                            that should be represented
+                                            in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this argument. it might be needed
@@ -67,7 +67,7 @@ class ArgumentBase(CoreObject, ABC):
                                 default value and other values.
                                 defaults to False if not provided.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         if isinstance(value, (set, tuple)):
@@ -85,7 +85,7 @@ class ArgumentBase(CoreObject, ABC):
         """
         gets the default value of this argument.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         return self._default
@@ -107,8 +107,8 @@ class ArgumentBase(CoreObject, ABC):
 
         it could be None if the value should not be emitted to cli.
 
-        :param Union[list[object], object, None] value: value of method input that
-                                                        should be represented in cli.
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this argument. it might be needed
@@ -118,7 +118,7 @@ class ArgumentBase(CoreObject, ABC):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         raise CoreNotImplementedError()
@@ -135,19 +135,18 @@ class KeywordArgumentBase(ArgumentBase):
 
         :param str param_name: param name presented in method signature.
 
-        :param Union[str, None] cli_option_name: relevant cli option name to `param_name`.
-                                                 for example `--message` flag of alembic
-                                                 must be present with the message value
-                                                 itself. defaults to None if not provided.
+        :param str cli_option_name: relevant cli option name to `param_name`.
+                                    for example `--message` flag of alembic
+                                    must be present with the message value
+                                    itself. defaults to None if not provided.
 
-        :param Union[list[object], object, None] default: default value to be emitted to
-                                                          cli if this param is not available.
-                                                          if set to None, this param will not
-                                                          be emitted at all.
-                                                          defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
-
         :raises KeywordArgumentCLIOptionNameError: keyword argument cli option name error.
         """
 
@@ -167,8 +166,8 @@ class KeywordArgumentBase(ArgumentBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param Union[list[object], object, None] value: value of method input that
-                                                        should be represented in cli.
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this argument. it might be needed
@@ -176,7 +175,7 @@ class KeywordArgumentBase(ArgumentBase):
                                 default value and other values.
                                 defaults to False if not provided.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         return self._merge_inputs(value)
@@ -193,9 +192,9 @@ class KeywordArgumentBase(ArgumentBase):
         (for example pybabel commands), you should use
         `CompositeKeywordArgument` class instead.
 
-        :param Union[list[object], object, None] value: value to be emitted to cli.
+        :param list[object] | object value: value to be emitted to cli.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         if value is None:
@@ -254,8 +253,8 @@ class PositionalArgument(ArgumentBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param Union[list[object], object, None] value: value of method input that
-                                                        should be represented in cli.
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this argument. it might be needed
@@ -263,7 +262,7 @@ class PositionalArgument(ArgumentBase):
                                 default value and other values.
                                 defaults to False if not provided.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         return value
@@ -310,21 +309,21 @@ class MappingArgument(KeywordArgumentBase):
                                             with the `None` value to prevent
                                             emitting to cli.
 
-        :param Union[str, None] cli_option_name: relevant cli option name to `param_name`.
-                                                 it could be None if command does
-                                                 not have a name for this argument.
-                                                 for example the `--autogenerate` flag
-                                                 of alembic, could be present to imply to
-                                                 `True` and absent to imply to `False`.
-                                                 but `--message` flag of alembic must
-                                                 always be provided with given message.
-                                                 defaults to None if not provided.
+        :param str cli_option_name: relevant cli option name to `param_name`.
+                                    it could be None if command does
+                                    not have a name for this argument.
+                                    for example the `--autogenerate` flag
+                                    of alembic, could be present to imply to
+                                    `True` and absent to imply to `False`.
+                                    but `--message` flag of alembic must
+                                    always be provided with given message.
+                                    defaults to None if not provided.
 
-        :param Union[list[object], object, None] default: default value to be emitted to
-                                                          cli if this param is not available.
-                                                          if set to None, this param will not
-                                                          be emitted at all.
-                                                          defaults to None if not provided.
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 
@@ -350,8 +349,8 @@ class MappingArgument(KeywordArgumentBase):
 
         it could be None if the value should not be emitted to cli.
 
-        :param Union[list[object], object, None] value: value of method input that
-                                                        should be represented in cli.
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
 
         :param bool is_default: specifies that input value is the default
                                 value of this argument. it might be needed
@@ -359,7 +358,7 @@ class MappingArgument(KeywordArgumentBase):
                                 default value and other values.
                                 defaults to False if not provided.
 
-        :rtype: Union[list[object], object, None]
+        :rtype: list[object] | object
         """
 
         if is_default is False:
@@ -388,15 +387,15 @@ class BooleanArgument(MappingArgument):
 
         :param object true_value: the value that should be emitted to cli for True.
 
-        :param Union[object, None] false_value: the value that should be emitted to cli
-                                                for False. if not provided, defaults to
-                                                None and will not be emitted.
+        :param object false_value: the value that should be emitted to cli
+                                   for False. if not provided, defaults to
+                                   None and will not be emitted.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
 
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 

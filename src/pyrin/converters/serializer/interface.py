@@ -35,11 +35,11 @@ class AbstractSerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
         returns serialized dict or list of dicts on success
         or returns `NULL` object if serialization fails.
 
-        :param Union[object, list[object]] value: value or values to be serialized.
+        :param object | list[object] value: value or values to be serialized.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[dict, list[dict]]
+        :rtype: dict | list[dict]
         """
 
         raise CoreNotImplementedError()

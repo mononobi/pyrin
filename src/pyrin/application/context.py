@@ -131,7 +131,7 @@ class CoreResponse(Response):
         """
         initializes an instance of CoreResponse.
 
-        :param Union[str, iterable]: a string or response iterable.
+        :param str | iterable response: a string or response iterable.
         """
 
         super().__init__(response, **kwargs)

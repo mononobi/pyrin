@@ -55,7 +55,7 @@ class SignalMixin(CoreObject):
         logs the caught termination signal and terminates the application.
 
         :param int signal_number: signal number that caused termination.
-        :param Union[int, FrameType] frame: interrupted stack frame.
+        :param int | FrameType frame: interrupted stack frame.
         """
 
         print_error('A TERMINATION SIGNAL CAUGHT! signal [{signal_number}] '

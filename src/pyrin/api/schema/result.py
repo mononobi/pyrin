@@ -94,11 +94,11 @@ class ResultSchema(CoreObject):
 
         if the item is not filterable, it returns the exact input item.
 
-        :param Union[object, list[object]] item: item or items to be filtered.
+        :param object | list[object] item: item or items to be filtered.
 
         :raises ColumnNotExistedError: column not existed error.
 
-        :rtype: Union[dict, list[dict]]
+        :rtype: dict | list[dict]
         """
 
         return self._filter(item, **options)
@@ -109,11 +109,11 @@ class ResultSchema(CoreObject):
 
         if the item is not filterable, it returns the exact input item.
 
-        :param Union[object, list[object]] item: item or items to be filtered.
+        :param object | list[object] item: item or items to be filtered.
 
         :raises ColumnNotExistedError: column not existed error.
 
-        :rtype: Union[dict, list[dict]]
+        :rtype: dict | list[dict]
         """
 
         if item is None:
@@ -141,7 +141,7 @@ class ResultSchema(CoreObject):
         it actually checks that given item is a dict or a list of dicts
         and dicts have any keys in them. if not, it's not filterable.
 
-        :param Union[object, list[object]] item: item or items to be filtered.
+        :param object | list[object] item: item or items to be filtered.
 
         :rtype: bool
         """
@@ -163,7 +163,7 @@ class ResultSchema(CoreObject):
         and dicts have any keys in them and also the `replace` attribute
         of this schema is available. if not, it should not be filtered.
 
-        :param Union[object, list[object]] item: item or items to be checked.
+        :param object | list[object] item: item or items to be checked.
 
         :rtype: bool
         """

@@ -116,8 +116,8 @@ class AlembicCLI(CLI):
         """
         merge two revisions together. creates a new migration file.
 
-        :param Union[str, list[str]] revisions: one or more revisions,
-                                                or `heads` for all heads.
+        :param str | list[str] revisions: one or more revisions,
+                                          or `heads` for all heads.
 
         :keyword str message: message string to use with `revision`.
                               defaults to current timestamp if not provided.
@@ -163,8 +163,8 @@ class AlembicCLI(CLI):
         :keyword str version_path: specify specific path from config for version file.
         :keyword str revision_id: specify a hardcoded revision id instead of generating one.
 
-        :keyword Union[str, list[str]] depends_on: specify one or more revision identifiers
-                                                   which this revision should depend on.
+        :keyword str | list[str] depends_on: specify one or more revision identifiers
+                                             which this revision should depend on.
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
@@ -191,8 +191,8 @@ class AlembicCLI(CLI):
         stamp the revision table with the given revision(s).
         don't run any migrations.
 
-        :param Union[str, list[str]] revisions: one or more revisions,
-                                                or `heads` for all heads.
+        :param str | list[str] revisions: one or more revisions,
+                                          or `heads` for all heads.
 
         :keyword bool sql: don't emit sql to database, dump to standard
                            output/file instead. see docs on offline mode.

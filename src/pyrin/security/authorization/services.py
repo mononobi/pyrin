@@ -15,8 +15,8 @@ def authorize(user, permissions, **options):
 
     :param user: user identity to authorize permissions for.
 
-    :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
-                                                                    for user authorization.
+    :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                              for user authorization.
 
     :raises UserNotAuthenticatedError: user not authenticated error.
     :raises AuthorizationFailedError: authorization failed error.
@@ -31,8 +31,8 @@ def is_authorized(permissions, user=None, **options):
     """
     gets a value indicating that specified user is authorized for given permissions.
 
-    :param Union[PermissionBase, list[PermissionBase]] permissions: permissions to check
-                                                                    for authorization.
+    :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                              for authorization.
 
     :param user: user identity to be checked for authorization.
                  if not provided, current user will be used.

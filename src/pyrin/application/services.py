@@ -92,8 +92,8 @@ def register_error_handler(code_or_exception, func):
     """
     registers the given function as an error handler for given code or exception type.
 
-    :param Union[int, Exception] code_or_exception: code or exception to
-                                                    register error handler for.
+    :param int | Exception code_or_exception: code or exception to
+                                              register error handler for.
 
     :param callable func: function to register it as an error handler.
     """

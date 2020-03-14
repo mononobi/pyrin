@@ -33,11 +33,11 @@ class SerializerBase(AbstractSerializerBase):
         returns serialized dict or list of dicts on success
         or returns `NULL` object if serialization fails.
 
-        :param Union[object, list[object]] value: value or values to be serialized.
+        :param object | list[object] value: value or values to be serialized.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: Union[dict, list[dict]]
+        :rtype: dict | list[dict]
         """
 
         if isinstance(value, list):
@@ -53,7 +53,7 @@ class SerializerBase(AbstractSerializerBase):
         """
         gets a value indicating that the given input is serializable.
 
-        :param Union[object, list[object] value: value or values to be serialized.
+        :param object | list[object] value: value or values to be serialized.
 
         :rtype: bool
         """

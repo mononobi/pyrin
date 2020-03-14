@@ -48,8 +48,8 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
         """
         sets the next deserializer handler and returns it.
 
-        :param Union[AbstractDeserializerBase, None] deserializer: deserializer instance to
-                                                                   be set as next handler.
+        :param AbstractDeserializerBase deserializer: deserializer instance to
+                                                      be set as next handler.
 
         :raises CoreNotImplementedError: core not implemented error.
 

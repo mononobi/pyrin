@@ -40,21 +40,21 @@ class CoreQuery(Query):
         :param tuple entities: entities or columns that are needed for query.
         :param Session session: optional session object to bind this query to it.
 
-        :keyword Union[type, tuple[type]] scope: class type of the entities that this
-                                                 query instance will work on. if the
-                                                 query is working on multiple entities,
-                                                 this value must be a tuple of all class
-                                                 types of that entities.
+        :keyword type | tuple[type] scope: class type of the entities that this
+                                           query instance will work on. if the
+                                           query is working on multiple entities,
+                                           this value must be a tuple of all class
+                                           types of that entities.
 
-                                                 for example: if you set
-                                                 `entities=SomeEntity.id, AnotherEntity.name`
-                                                 you should leave `scope=None` to skip validation
-                                                 or you could set
-                                                 `scope=(SomeEntity, AnotherEntity)`
-                                                 this way validation succeeds, but if
-                                                 you set `scope=SomeEntity`
-                                                 then the query will not be executed
-                                                 and an error will be raised.
+                                           for example: if you set
+                                           `entities=SomeEntity.id, AnotherEntity.name`
+                                           you should leave `scope=None` to skip validation
+                                           or you could set
+                                           `scope=(SomeEntity, AnotherEntity)`
+                                           this way validation succeeds, but if
+                                           you set `scope=SomeEntity`
+                                           then the query will not be executed
+                                           and an error will be raised.
 
         :raises ColumnsOutOfScopeError: columns out of scope error.
         """
@@ -71,11 +71,11 @@ class CoreQuery(Query):
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param Union[type, tuple[type]] scope: class type of the entities that this
-                                               query instance will work on. if the
-                                               query is working on multiple entities,
-                                               this value must be a tuple of all class
-                                               types of that entities.
+        :param type | tuple[type] scope: class type of the entities that this
+                                         query instance will work on. if the
+                                         query is working on multiple entities,
+                                         this value must be a tuple of all class
+                                         types of that entities.
 
         :raises ColumnsOutOfScopeError: columns out of scope error.
         """

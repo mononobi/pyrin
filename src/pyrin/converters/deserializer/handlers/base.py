@@ -68,8 +68,8 @@ class DeserializerBase(AbstractDeserializerBase):
         """
         sets the next deserializer handler and returns it.
 
-        :param Union[DeserializerBase, None] deserializer: deserializer instance to
-                                                           be set as next handler.
+        :param DeserializerBase deserializer: deserializer instance to
+                                              be set as next handler.
 
         :rtype: DeserializerBase
         """

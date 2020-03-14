@@ -20,7 +20,7 @@ class CoreEnumMeta(EnumMeta):
         for existence with `in` keyword. for example:
         has_value = 'value' in SomeEnum
 
-        :param Union[int, str, CoreEnum] member: value to be checked for existence.
+        :param int | str | CoreEnum member: value to be checked for existence.
 
         :rtype: bool
         """
@@ -71,7 +71,7 @@ class CoreEnum(Enum, metaclass=CoreEnumMeta):
         gets a value indicating that given input existed in
         the enumeration values.
 
-        :param Union[int, str, CoreEnum] value: value to be checked for existence.
+        :param int | str | CoreEnum value: value to be checked for existence.
 
         :rtype: bool
         """
