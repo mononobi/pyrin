@@ -12,6 +12,7 @@ from pyrin.utils.singleton import MultiSingletonMeta
 class DTO(dict):
     """
     context class for storing objects in every layer.
+
     it's actually a dictionary with the capability to treat keys as instance attributes.
     this class's objects are hashable and could be used as a dict key if needed.
     """
@@ -62,6 +63,7 @@ class DTO(dict):
 class CoreObject(object):
     """
     core object class.
+
     this should be used as the base object for all application objects.
     """
 
@@ -98,6 +100,7 @@ class CoreObject(object):
     def get_name(self):
         """
         gets the name of the object.
+
         if name is not available, returns its class name.
 
         :rtype: str
@@ -139,6 +142,7 @@ class CoreObject(object):
 class Context(DTO):
     """
     context class for storing objects in every layer.
+
     it's actually a dictionary with the capability to add keys directly.
     """
 
@@ -169,6 +173,7 @@ class Context(DTO):
 class HookSingletonMeta(MultiSingletonMeta):
     """
     hook singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 
@@ -179,6 +184,7 @@ class HookSingletonMeta(MultiSingletonMeta):
 class Hook(CoreObject, metaclass=HookSingletonMeta):
     """
     base hook class.
+
     all application hook classes must be subclassed from this one.
     """
     pass
@@ -187,6 +193,7 @@ class Hook(CoreObject, metaclass=HookSingletonMeta):
 class ManagerSingletonMeta(MultiSingletonMeta):
     """
     manager singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 
@@ -197,6 +204,7 @@ class ManagerSingletonMeta(MultiSingletonMeta):
 class Manager(CoreObject, metaclass=ManagerSingletonMeta):
     """
     base manager class.
+
     all application manager classes must be subclassed from this one.
     """
     pass
@@ -205,6 +213,7 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
 class CLISingletonMeta(MultiSingletonMeta):
     """
     cli singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 
@@ -215,6 +224,7 @@ class CLISingletonMeta(MultiSingletonMeta):
 class CLI(CoreObject, metaclass=CLISingletonMeta):
     """
     base cli class.
+
     all application cli classes must be subclassed from this one.
     """
 
