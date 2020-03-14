@@ -15,6 +15,7 @@ from pyrin.security.permission.base import PermissionBase
 class ProtectedRoute(RouteBase):
     """
     protected route class.
+
     this class should be used to manage application protected api routes that need valid token.
     """
 
@@ -143,6 +144,7 @@ class ProtectedRoute(RouteBase):
 class FreshProtectedRoute(ProtectedRoute):
     """
     fresh protected route class.
+
     this class should be used to manage application protected api routes that
     need valid fresh token. fresh token means a token that has been created
     by providing user credentials to server.

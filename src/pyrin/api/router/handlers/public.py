@@ -9,6 +9,7 @@ from pyrin.api.router.handlers.base import RouteBase
 class PublicRoute(RouteBase):
     """
     public route class.
+
     this class should be used to manage application public api
     routes that does not need valid token.
     """
