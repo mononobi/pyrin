@@ -171,12 +171,12 @@ class ORMSQLExtractorManager(Manager):
     def _extract_select_from_part(self, statement):
         """
         extracts table names from a select statement.
+
         it also supports multiple joins and sub-selects.
 
         :param Statement statement: statement object.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[Identifier]
         """
 
         select_seen = False
@@ -219,7 +219,7 @@ class ORMSQLExtractorManager(Manager):
 
         :param Statement statement: statement object.
 
-        :rtype: str
+        :rtype: Identifier
         """
 
         insert_seen = False
@@ -242,7 +242,7 @@ class ORMSQLExtractorManager(Manager):
 
         :param Statement statement: statement object.
 
-        :rtype: str
+        :rtype: Identifier
         """
 
         update_seen = False
@@ -262,7 +262,7 @@ class ORMSQLExtractorManager(Manager):
 
         :param Statement statement: statement object.
 
-        :rtype: str
+        :rtype: Identifier
         """
 
         delete_seen = False
