@@ -12,4 +12,3 @@ class ModelPackage(Package):
     """
 
     NAME = __name__
-    COMPONENT_NAME = 'database.model.component'
