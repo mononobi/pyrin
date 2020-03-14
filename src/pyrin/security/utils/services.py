@@ -13,9 +13,9 @@ def generate_rsa_key(length=None, **options):
 
     :param int length: key length in bits.
 
-    :returns: tuple(str public_key, str private_key)
+    :returns: tuple[str public_key, str private_key]
 
-    :rtype: tuple(str, str)
+    :rtype: tuple[str, str]
     """
 
     return get_component(SecurityUtilsPackage.COMPONENT_NAME).generate_rsa_key(length,
@@ -29,9 +29,8 @@ def load_rsa_key(public_pem, private_pem, **options):
     :param str public_pem: public key content to load from.
     :param str private_pem: private key content to load from.
 
-    :returns: tuple(public_key, private_key)
-
-    :rtype: tuple(object, object)
+    :returns: tuple[object public_key, object private_key]
+    :rtype: tuple[object, object]
     """
 
     return get_component(SecurityUtilsPackage.COMPONENT_NAME).load_rsa_key(public_pem,

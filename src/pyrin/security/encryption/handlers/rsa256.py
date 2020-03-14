@@ -68,9 +68,8 @@ class RSA256Encrypter(RSAEncrypterBase):
         """
         generates a valid public/private key for this handler and returns it.
 
-        :returns tuple(str public_key, str private_key)
-
-        :rtype: tuple(str, str)
+        :returns: tuple[str public_key, str private_key]
+        :rtype: tuple[str, str]
         """
 
         return super().generate_key(length=2048)

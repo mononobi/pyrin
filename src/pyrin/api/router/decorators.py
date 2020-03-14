@@ -12,14 +12,14 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
 
     :param str url: url rule for this api.
 
-    :param tuple(str) methods: http methods that this rule should handle.
+    :param tuple[str] methods: http methods that this rule should handle.
                                if not provided, defaults to `GET`.
 
     :param bool login_required: specifies that this route could not be accessed
                                 if the requester has not a valid token.
                                 defaults to True if not provided.
 
-    :param tuple(PermissionBase) permissions: tuple of all required permissions
+    :param tuple[PermissionBase] permissions: tuple of all required permissions
                                               to access this route's resource.
 
     :keyword bool fresh_token: specifies that this route could not be accessed

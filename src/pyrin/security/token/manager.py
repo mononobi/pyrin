@@ -230,7 +230,7 @@ class TokenManager(Manager):
                              note that some token handlers may not accept custom
                              key length so this value would be ignored on those handlers.
 
-        :rtype: Union[str, tuple(str, str)]
+        :rtype: Union[str, tuple[str, str]]
         """
 
         return self._get_token_handler(handler_name=handler_name).generate_key(**options)

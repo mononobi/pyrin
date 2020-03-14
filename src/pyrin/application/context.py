@@ -74,7 +74,7 @@ class Component(CoreObject):
 
         super().__init__()
 
-        # component id is a tuple(str, object) and should be unique for each
+        # component id is a tuple[str, object] and should be unique for each
         # instance unless it's intended to replace an already existing one.
         self._component_id = self.make_component_id(component_name, **options)
 
@@ -82,8 +82,7 @@ class Component(CoreObject):
         """
         gets the component id of this instance.
 
-        :returns: tuple(str, object)
-        :rtype: tuple
+        :rtype: tuple[str, object]
         """
 
         return self._component_id
@@ -99,8 +98,7 @@ class Component(CoreObject):
 
         :raises InvalidComponentNameError: invalid component name.
 
-        :returns: tuple(str, object)
-        :rtype: tuple
+        :rtype: tuple[str, object]
         """
 
         if component_name is None or len(component_name.strip()) <= 0:

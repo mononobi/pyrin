@@ -59,19 +59,19 @@ class BaseLoggerAdapter(LoggerAdapter):
     @abstractmethod
     def process(self, msg, kwargs):
         """
-        processes the logging message and keyword arguments passed in to
-        a logging call to insert contextual information. you can either
-        manipulate the message itself, the keyword args or both. return
-        the message and kwargs modified (or not) to suit your needs.
+        processes the logging message and keyword arguments passed in to a logging call.
+
+        it's to insert contextual information. you can either manipulate
+        the message itself, the keyword args or both. return the message
+        and kwargs modified (or not) to suit your needs.
 
         normally, you'll only need to override this one method in a
         `LoggerAdapter` subclass for your specific needs.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns: tuple(str message, dict kwargs)
-
-        :rtype: tuple
+        :returns: tuple[str message, dict kwargs]
+        :rtype: tuple[str, dict]
         """
 
         raise CoreNotImplementedError()
@@ -85,14 +85,14 @@ class RequestInfoLoggerAdapter(BaseLoggerAdapter):
 
     def process(self, msg, kwargs):
         """
-        processes the logging message and keyword arguments passed in to
-        a logging call to insert contextual information. you can either
-        manipulate the message itself, the keyword args or both. return
-        the message and kwargs modified (or not) to suit your needs.
+        processes the logging message and keyword arguments passed in to a logging call.
 
-        :returns: tuple(str message, dict kwargs)
+        it's to insert contextual information. you can either manipulate
+        the message itself, the keyword args or both. return the message
+        and kwargs modified (or not) to suit your needs.
 
-        :rtype: tuple
+        :returns: tuple[str message, dict kwargs]
+        :rtype: tuple[str, dict]
         """
 
         client_request = session_services.get_safe_current_request()

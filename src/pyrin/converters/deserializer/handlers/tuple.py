@@ -73,6 +73,7 @@ class TupleDeserializer(DeserializerBase):
 class StringTupleDeserializer(StringPatternDeserializerBase):
     """
     string tuple deserializer class.
+
     note that this deserializer could only handle tuples with single depth.
     meaning that nested tuples are not supported. and also nested lists or
     dictionaries or sets or any other collections are not supported and
@@ -94,11 +95,11 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringTupleDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted patterns
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
                                                              and their length for tuple
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -106,6 +107,7 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -136,9 +138,8 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
         gets default accepted patterns that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.TUPLE_REGEX, self.UNDEF_LENGTH)]

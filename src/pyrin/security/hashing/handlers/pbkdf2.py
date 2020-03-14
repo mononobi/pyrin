@@ -148,9 +148,8 @@ class PBKDF2Hashing(HashingBase):
                                   if not provided, default value from
                                   relevant config will be used.
 
-        :returns: tuple(str internal_algorithm, int rounds, int salt_length)
-
-        :rtype: tuple(str, int, int)
+        :returns: tuple[str internal_algorithm, int rounds, int salt_length]
+        :rtype: tuple[str, int, int]
         """
 
         internal_algorithm = options.get('internal_algorithm',
@@ -217,9 +216,8 @@ class PBKDF2Hashing(HashingBase):
 
         :param bytes full_hashed_value: full hashed value to extract it's parts.
 
-        :returns tuple(str internal_algorithm, int rounds, bytes salt, bytes text_hash)
-
-        :rtype: tuple(str, int, bytes, bytes)
+        :returns tuple[str internal_algorithm, int rounds, bytes salt, bytes text_hash]
+        :rtype: tuple[str, int, bytes, bytes]
         """
 
         empty, handler, internal_algorithm, rounds, salt_length, salt_plus_text_hash = \

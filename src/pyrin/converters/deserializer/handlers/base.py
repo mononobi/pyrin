@@ -110,17 +110,16 @@ class StringDeserializerBase(DeserializerBase):
         """
         initializes an instance of StringDeserializerBase.
 
-        :keyword list[tuple(str, int)] accepted_formats: custom formats and their length
-                                                         that this deserializer can
-                                                         deserialize value from.
+        :argument list[tuple[str, int]] accepted_formats: custom formats and their length
+                                                          that this deserializer can
+                                                          deserialize value from.
 
-        :type accepted_formats: list[tuple(str format, int length)]
+        :note accepted_formats: list[tuple[str format, int length]]
         """
 
         super().__init__(**options)
 
         self._accepted_formats = self.get_default_formats()
-
         custom_accepted_formats = options.get('accepted_formats', [])
         self._accepted_formats.extend(custom_accepted_formats)
 
@@ -158,9 +157,8 @@ class StringDeserializerBase(DeserializerBase):
         """
         gets the min and max accepted length of strings to be deserialized.
 
-        :returns tuple(int min, int max)
-
-        :rtype: tuple(int, int)
+        :returns: tuple[int min, int max]
+        :rtype: tuple[int, int]
         """
 
         return self._min_length, self._max_length
@@ -169,9 +167,8 @@ class StringDeserializerBase(DeserializerBase):
         """
         gets the accepted string formats that this deserializer can deserialize value from.
 
-        :returns: list(tuple(str format, int length))
-
-        :rtype: list(tuple(str, int))
+        :returns: list[tuple[str format, int length]]
+        :rtype: list[tuple[str, int]]
         """
 
         return self._accepted_formats
@@ -197,9 +194,8 @@ class StringDeserializerBase(DeserializerBase):
         """
         calculates the min and max accepted length of values to be deserialized.
 
-        :returns: tuple(int min, int max)
-
-        :rtype: tuple(int, int)
+        :returns: tuple[int min, int max]
+        :rtype: tuple[int, int]
         """
 
         # if there is any format with length=UNDEF_LENGTH,
@@ -217,9 +213,8 @@ class StringDeserializerBase(DeserializerBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :return: list(tuple(str format, int length))
-
-        :rtype: list(tuple(str, int))
+        :return: list[tuple[str format, int length]]
+        :rtype: list[tuple[str, int]]
         """
 
         raise CoreNotImplementedError()
@@ -236,11 +231,11 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         """
         initializes an instance of StringPatternDeserializerBase.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: custom patterns and their length
-                                                             that this deserializer can
-                                                             deserialize value from.
+        :argument list[tuple[Pattern, int]] accepted_formats: custom patterns and their length
+                                                              that this deserializer can
+                                                              deserialize value from.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -254,7 +249,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
 
         :param object value: value to be deserialized.
 
-        :rtype: tuple(bool, Union[Pattern, None])
+        :rtype: tuple[bool, Pattern]
         """
 
         if super().is_deserializable(value, **options):

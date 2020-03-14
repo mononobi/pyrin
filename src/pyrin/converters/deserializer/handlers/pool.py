@@ -33,11 +33,11 @@ class PoolDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of PoolDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for pool
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -47,11 +47,12 @@ class PoolDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
 
-        :rtype: Pool
+        :rtype: type
         """
 
         deserializable, pattern = self.is_deserializable(value, **options)
@@ -65,9 +66,8 @@ class PoolDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.POOL_REGEX, 4),
@@ -81,8 +81,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
         """
         gets converter map dictionary.
 
-        :returns: dict(Pattern format: Pool pool)
-
+        :returns: dict[Pattern format: type pool]
         :rtype: dict
         """
 

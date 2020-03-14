@@ -194,9 +194,8 @@ class EncrypterBase(AbstractEncrypterBase):
 
         :param bytes full_encrypted_value: full encrypted value to get different parts from it.
 
-        :returns: tuple(str handler_name, bytes encrypted_part)
-
-        :rtype: tuple(str, bytes)
+        :returns: tuple[str handler_name, bytes encrypted_part]
+        :rtype: tuple[str, bytes]
         """
 
         empty, handler, encrypted_part = full_encrypted_value.split(
@@ -367,9 +366,8 @@ class RSAEncrypterBase(AsymmetricEncrypterBase):
                              if not provided, it uses default value
                              from relevant config.
 
-        :returns tuple(str public_key, str private_key)
-
-        :rtype: tuple(str, str)
+        :returns: tuple[str public_key, str private_key]
+        :rtype: tuple[str, str]
         """
 
         return security_utils_services.generate_rsa_key(**options)

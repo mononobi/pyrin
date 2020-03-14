@@ -26,9 +26,8 @@ class SecurityUtilsManager(Manager):
 
         :param int length: key length in bits.
 
-        :returns: tuple(str public_key, str private_key)
-
-        :rtype: tuple(str, str)
+        :returns: tuple[str public_key, str private_key]
+        :rtype: tuple[str, str]
         """
 
         if length is None:
@@ -55,9 +54,8 @@ class SecurityUtilsManager(Manager):
         :param str public_pem: public key content to load from.
         :param str private_pem: private key content to load from.
 
-        :returns: tuple(public_key, private_key)
-
-        :rtype: tuple(object, object)
+        :returns: tuple[object public_key, object private_key]
+        :rtype: tuple[object, object]
         """
 
         private_key = serialization.load_pem_private_key(private_pem.encode(APPLICATION_ENCODING),

@@ -23,7 +23,7 @@ class PublicRoute(RouteBase):
                          if `replace=True` option is provided, otherwise an error
                          will be raised.
 
-        :keyword tuple(str) methods: http methods that this route could handle.
+        :keyword tuple[str] methods: http methods that this route could handle.
                                      if not provided, defaults to `GET`, `HEAD`
                                      and `OPTIONS`.
 

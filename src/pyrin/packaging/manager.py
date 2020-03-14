@@ -412,14 +412,14 @@ class PackagingManager(Manager, HookMixin):
         :param dict components: components which some of
                                 them extend base components.
 
-        :type components: dict(str package_name: list[str] modules)
+        :note components: dict[str package_name: list[str] modules]
 
-        :returns: tuple(extended_components, other_components)
+        :returns: tuple[extended_components, other_components]
 
-        :type extended_components: dict(str package_name: list[str] modules)
-        :type other_components: dict(str package_name: list[str] modules)
+        :note extended_components: dict[str package_name: list[str] modules]
+        :note other_components: dict[str package_name: list[str] modules]
 
-        :rtype: tuple
+        :rtype: tuple[dict, dict]
         """
 
         extended_components = DTO()

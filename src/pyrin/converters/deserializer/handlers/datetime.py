@@ -22,11 +22,11 @@ class DateDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for date
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -62,9 +62,8 @@ class DateDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :return: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(DEFAULT_DATE_ISO_REGEX, 10)]
@@ -80,11 +79,11 @@ class TimeDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of TimeDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for time
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -120,9 +119,8 @@ class TimeDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(DEFAULT_TIME_ISO_REGEX, 14),
@@ -139,11 +137,11 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of DateTimeDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for datetime
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -151,6 +149,7 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -179,9 +178,8 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(DEFAULT_DATE_TIME_ISO_REGEX, 25)]

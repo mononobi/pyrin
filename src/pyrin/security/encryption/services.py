@@ -79,7 +79,7 @@ def generate_key(handler_name, **options):
 
     :raises EncryptionHandlerNotFoundError: encryption handler not found error.
 
-    :rtype: Union[str, tuple(str, str)]
+    :rtype: Union[str, tuple[str, str]]
     """
 
     return get_component(EncryptionPackage.COMPONENT_NAME).generate_key(handler_name, **options)

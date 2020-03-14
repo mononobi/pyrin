@@ -248,8 +248,8 @@ def normalize_datetime_range(value_lower, value_upper, **options):
                                        of day for upper datetime.
                                        defaults to True if not provided.
 
-    :returns: tuple(datetime value_lower, datetime value_upper)
-    :rtype: tuple
+    :returns: tuple[datetime value_lower: datetime value_upper]
+    :rtype: tuple[datetime, datetime]
     """
 
     consider_begin_of_day = options.get('consider_begin_of_day', True)

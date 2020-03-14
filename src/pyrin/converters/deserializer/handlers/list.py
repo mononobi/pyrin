@@ -94,11 +94,11 @@ class StringListDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringListDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted patterns
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
                                                              and their length for tuple
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -136,9 +136,8 @@ class StringListDeserializer(StringPatternDeserializerBase):
         gets default accepted patterns that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.LIST_REGEX, self.UNDEF_LENGTH)]

@@ -29,6 +29,7 @@ class CoreQuery(Query):
     def __init__(self, entities, session=None, **options):
         """
         initializes an instance of CoreQuery.
+
         this method has been overridden to provide the concept of scope to queries.
         it is useful if you want to let users (end users not developers) to select
         which columns they want to be returned in a service. in this situation, if
@@ -39,7 +40,7 @@ class CoreQuery(Query):
         :param tuple entities: entities or columns that are needed for query.
         :param Session session: optional session object to bind this query to it.
 
-        :keyword Union[type, tuple(type)] scope: class type of the entities that this
+        :keyword Union[type, tuple[type]] scope: class type of the entities that this
                                                  query instance will work on. if the
                                                  query is working on multiple entities,
                                                  this value must be a tuple of all class
@@ -70,7 +71,7 @@ class CoreQuery(Query):
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param Union[type, tuple(type)] scope: class type of the entities that this
+        :param Union[type, tuple[type]] scope: class type of the entities that this
                                                query instance will work on. if the
                                                query is working on multiple entities,
                                                this value must be a tuple of all class
@@ -102,7 +103,7 @@ class CoreQuery(Query):
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param Union[type, tuple(type)] scope: class type of the entities that this
+        :param Union[type, tuple[type]] scope: class type of the entities that this
                                                query instance will work on. if the
                                                query is working on multiple entities,
                                                this value must be a tuple of all class

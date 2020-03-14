@@ -25,11 +25,11 @@ class IntegerDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of IntegerDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for integer
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -55,9 +55,8 @@ class IntegerDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.INTEGER_REGEX, self.UNDEF_LENGTH)]
@@ -82,11 +81,11 @@ class FloatDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of FloatDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted formats
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
                                                              and their length for float
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -112,9 +111,8 @@ class FloatDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.FLOAT_REGEX, self.UNDEF_LENGTH)]

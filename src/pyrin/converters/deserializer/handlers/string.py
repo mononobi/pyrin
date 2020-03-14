@@ -32,11 +32,11 @@ class StringDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringDeserializer.
 
-        :keyword list[tuple(Pattern, int)] accepted_formats: a list of custom accepted patterns
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
                                                              and their length for string
                                                              deserialization.
 
-        :type accepted_formats: list[tuple(Pattern format, int length)]
+        :note accepted_formats: list[tuple[Pattern format, int length]]
         """
 
         super().__init__(**options)
@@ -44,6 +44,7 @@ class StringDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -65,9 +66,8 @@ class StringDeserializer(StringPatternDeserializerBase):
         gets default accepted patterns that this
         deserializer could deserialize value from.
 
-        :return: list(tuple(Pattern format, int length))
-
-        :rtype: list(tuple(Pattern, int))
+        :returns: list[tuple[Pattern format, int length]]
+        :rtype: list[tuple[Pattern, int]]
         """
 
         return [(self.DOUBLE_QUOTE_REGEX, self.UNDEF_LENGTH),

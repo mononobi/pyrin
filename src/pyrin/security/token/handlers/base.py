@@ -403,9 +403,8 @@ class RSTokenBase(AsymmetricTokenBase):
                              if not provided, it uses default value
                              from relevant config.
 
-        :returns tuple(str public_key, str private_key)
-
-        :rtype: tuple
+        :returns: tuple[str public_key, str private_key]
+        :rtype: tuple[str, str]
         """
 
         return security_utils_services.generate_rsa_key(**options)

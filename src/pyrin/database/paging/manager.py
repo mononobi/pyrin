@@ -151,8 +151,8 @@ class DatabasePagingManager(Manager):
 
         :param dict options: options dict to get limit and offset from it.
 
-        :returns: tuple(int limit, int offset)
-        :rtype: tuple
+        :returns: tuple[int limit, int offset]
+        :rtype: tuple[int, int]
         """
 
         limit = self.extract_limit(options)

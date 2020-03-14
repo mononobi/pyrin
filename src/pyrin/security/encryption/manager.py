@@ -127,7 +127,7 @@ class EncryptionManager(Manager):
 
         :raises EncryptionHandlerNotFoundError: encryption handler not found error.
 
-        :rtype: Union[str, tuple(str, str)]
+        :rtype: Union[str, tuple[str, str]]
         """
 
         return self._get_encryption_handler(handler_name=handler_name).generate_key(**options)
