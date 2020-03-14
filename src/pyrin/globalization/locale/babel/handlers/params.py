@@ -23,12 +23,12 @@ class DomainParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of DomainParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to `domain` value form babel
-                                            config store if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to `domain` value form babel
+                               config store if not provided.
         """
 
         if default is None:
@@ -46,12 +46,12 @@ class CompileDomainsParam(CompositeKeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of CompileDomainsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to `compile_domains` value form
-                                            babel config store if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to `compile_domains` value form
+                               babel config store if not provided.
         """
 
         if default is None:
@@ -69,14 +69,14 @@ class InputTemplateFileParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of InputTemplateFileParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `locale_path/template_file`
-                                            where `template_file` comes from
-                                            babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `locale_path/template_file`
+                               where `template_file` comes from
+                               babel config store.
         """
 
         if default is None:
@@ -95,12 +95,12 @@ class OutputDirectoryParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of OutputDirectoryParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `locale_path` of application.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `locale_path` of application.
         """
 
         if default is None:
@@ -118,14 +118,14 @@ class OutputTemplateFileParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of OutputTemplateFileParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `locale_path/template_file`
-                                            where `template_file` comes from
-                                            babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `locale_path/template_file`
+                               where `template_file` comes from
+                               babel config store.
         """
 
         if default is None:
@@ -144,11 +144,11 @@ class OutputFileParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of OutputFileParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to None.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to None.
         """
 
         super().__init__('output_file', '--output-file', default=default)
@@ -163,12 +163,12 @@ class OmitHeaderParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of OmitHeaderParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `omit_header`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `omit_header`
+                               value from babel config store.
         """
 
         if default is None:
@@ -186,11 +186,11 @@ class LocaleParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of LocaleParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to None.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to None.
         """
 
         super().__init__('locale', '--locale', default=default)
@@ -205,12 +205,12 @@ class WidthParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of WidthParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `width`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `width`
+                               value from babel config store.
         """
 
         if default is None:
@@ -228,12 +228,12 @@ class NoWrapParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of NoWrapParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `no_wrap`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `no_wrap`
+                               value from babel config store.
         """
 
         if default is None:
@@ -251,12 +251,12 @@ class IgnoreObsoleteParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of IgnoreObsoleteParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `ignore_obsolete`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `ignore_obsolete`
+                               value from babel config store.
         """
 
         if default is None:
@@ -274,13 +274,13 @@ class NoFuzzyMatchingParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of NoFuzzyMatchingParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `no_fuzzy_matching`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `no_fuzzy_matching`
+                               value from babel config store.
         """
 
         if default is None:
@@ -298,13 +298,13 @@ class UpdateHeaderCommentParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of UpdateHeaderCommentParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `update_header_comment`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `update_header_comment`
+                               value from babel config store.
         """
 
         if default is None:
@@ -322,12 +322,12 @@ class PreviousParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of PreviousParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `previous`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `previous`
+                               value from babel config store.
         """
 
         if default is None:
@@ -345,12 +345,12 @@ class CharsetParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of CharsetParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `charset`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `charset`
+                               value from babel config store.
         """
 
         if default is None:
@@ -368,12 +368,12 @@ class KeywordsParam(CompositeKeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of KeywordsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `keywords`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `keywords`
+                               value from babel config store.
         """
 
         if default is None:
@@ -391,13 +391,13 @@ class NoDefaultKeywordsParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of NoDefaultKeywordsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `no_default_keywords`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `no_default_keywords`
+                               value from babel config store.
         """
 
         if default is None:
@@ -415,12 +415,12 @@ class MappingParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of MappingParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            path to `babel.mappings.config`.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               path to `babel.mappings.config`.
         """
 
         if default is None:
@@ -438,12 +438,12 @@ class NoLocationParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of NoLocationParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `no_location`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `no_location`
+                               value from babel config store.
         """
 
         if default is None:
@@ -461,12 +461,12 @@ class AddLocationParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of AddLocationParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `add_location`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `add_location`
+                               value from babel config store.
         """
 
         if default is None:
@@ -484,12 +484,12 @@ class SortOutputParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of SortOutputParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `sort_output`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `sort_output`
+                               value from babel config store.
         """
 
         if default is None:
@@ -507,12 +507,12 @@ class SortByFileParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of SortByFileParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `sort_by_file`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `sort_by_file`
+                               value from babel config store.
         """
 
         if default is None:
@@ -530,13 +530,13 @@ class MSGIDBugsAddressParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of MSGIDBugsAddressParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `msgid_bugs_address`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `msgid_bugs_address`
+                               value from babel config store.
         """
 
         if default is None:
@@ -554,13 +554,13 @@ class CopyrightHolderParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of CopyrightHolderParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `copyright_holder`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `copyright_holder`
+                               value from babel config store.
         """
 
         if default is None:
@@ -578,12 +578,12 @@ class ProjectParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of ProjectParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `project`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `project`
+                               value from babel config store.
         """
 
         if default is None:
@@ -601,12 +601,12 @@ class VersionParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of VersionParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `version`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `version`
+                               value from babel config store.
         """
 
         if default is None:
@@ -624,12 +624,12 @@ class AddCommentsParam(CompositeKeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of AddCommentsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `add_comments`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `add_comments`
+                               value from babel config store.
         """
 
         if default is None:
@@ -647,12 +647,12 @@ class StripCommentsParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of StripCommentsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `strip_comments`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `strip_comments`
+                               value from babel config store.
         """
 
         if default is None:
@@ -673,12 +673,12 @@ class InputPathsParam(PositionalArgument, BabelCLIParamBase):
         :param int index: zero based index of this param in cli command inputs.
                           defaults to 0 if not provided.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to both application and pyrin
-                                            main package paths if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to both application and pyrin
+                               main package paths if not provided.
         """
 
         if index is None:
@@ -738,12 +738,12 @@ class DirectoryParam(KeywordArgument, BabelCLIParamBase):
         """
         initializes an instance of DirectoryParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to
-                                            `locale_path` of application.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to
+                               `locale_path` of application.
         """
 
         if default is None:
@@ -761,12 +761,12 @@ class UseFuzzyParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of UseFuzzyParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to `use_fuzzy`
-                                            value from babel config store.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to `use_fuzzy`
+                               value from babel config store.
         """
 
         if default is None:
@@ -784,11 +784,11 @@ class StatisticsParam(BooleanArgument, BabelCLIParamBase):
         """
         initializes an instance of StatisticsParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            if not provided, defaults to None.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               if not provided, defaults to None.
         """
 
         super().__init__('statistics', '--statistics', default=default)

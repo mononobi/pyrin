@@ -59,11 +59,11 @@ class RevisionParam(PositionalArgument, AlembicCLIParamBase):
         :param int index: zero based index of this param in cli command inputs.
                           defaults to 0 if not provided.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         if index is None:
@@ -81,11 +81,11 @@ class ResolveDependenciesParam(BooleanArgument, AlembicCLIParamBase):
         """
         initializes an instance of ResolveDependenciesParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('resolve_dependencies', '--resolve-dependencies', default=default)
@@ -100,11 +100,11 @@ class IndicateCurrentParam(BooleanArgument, AlembicCLIParamBase):
         """
         initializes an instance of IndicateCurrentParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('indicate_current', '--indicate-current', default=default)
@@ -119,11 +119,11 @@ class RevisionRangeParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of RevisionRangeParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('revision_range', '--rev-range', default=default)
@@ -138,11 +138,11 @@ class MessageParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of MessageParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('message', '--message', default=default)
@@ -172,11 +172,11 @@ class BranchLabelParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of BranchLabelParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('branch_label', '--branch-label', default=default)
@@ -191,11 +191,11 @@ class RevisionIDParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of RevisionIDParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('revision_id', '--rev-id', default=default)
@@ -213,11 +213,11 @@ class RevisionsParam(PositionalArgument, AlembicCLIParamBase):
         :param int index: zero based index of this param in cli command inputs.
                           defaults to 0 if not provided.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         if index is None:
@@ -235,11 +235,11 @@ class AutoGenerateParam(BooleanArgument, AlembicCLIParamBase):
         """
         initializes an instance of AutoGenerateParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('autogenerate', '--autogenerate', default=default)
@@ -254,11 +254,11 @@ class HeadParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of HeadParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('head', '--head', default=default)
@@ -273,11 +273,11 @@ class SpliceParam(BooleanArgument, AlembicCLIParamBase):
         """
         initializes an instance of SpliceParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('splice', '--splice', default=default)
@@ -292,11 +292,11 @@ class VersionPathParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of VersionPathParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('version_path', '--version-path', default=default)
@@ -311,11 +311,11 @@ class DependsOnParam(KeywordArgument, AlembicCLIParamBase):
         """
         initializes an instance of DependsOnParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('depends_on', '--depends-on', default=default)
@@ -330,11 +330,11 @@ class PurgeParam(BooleanArgument, AlembicCLIParamBase):
         """
         initializes an instance of PurgeParam.
 
-        :param Union[object, None] default: default value to be emitted to
-                                            cli if this param is not available.
-                                            if set to None, this param will not
-                                            be emitted at all.
-                                            defaults to None if not provided.
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
         """
 
         super().__init__('purge', '--purge', default=default)
