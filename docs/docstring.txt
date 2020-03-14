@@ -85,6 +85,7 @@ def function(name, **options):
 
     :rtype: tuple(dict, int)
     """
+    pass
 
 example 3:
 def get_deserializers(**options):
@@ -190,3 +191,4 @@ def api(url, methods, login_required, permissions, **options):
                                                    str name: str value]
     :rtype: tuple[int, str] | str | dict
     """
+    pass
