@@ -261,7 +261,6 @@ class EncrypterBase(AbstractEncrypterBase):
         :param bytes value: base64 encoded value.
 
         :returns: raw bytes.
-
         :rtype: bytes
         """
 
@@ -274,7 +273,6 @@ class EncrypterBase(AbstractEncrypterBase):
         :param bytes value: raw bytes value.
 
         :returns: base64 encoded bytes.
-
         :rtype: bytes
         """
 

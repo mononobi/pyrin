@@ -13,7 +13,6 @@ def packaging_hook():
     :raises InvalidPackagingHookTypeError: invalid packaging hook type error.
 
     :returns: packaging hook class.
-
     :rtype: type
     """
 
@@ -25,7 +24,6 @@ def packaging_hook():
         :param type cls: packaging hook class.
 
         :returns: packaging hook class.
-
         :rtype: type
         """
 

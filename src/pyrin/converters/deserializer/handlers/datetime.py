@@ -62,7 +62,7 @@ class DateDeserializer(StringPatternDeserializerBase):
         gets default accepted formats that this
         deserializer could deserialize value from.
 
-        :return: list[tuple[Pattern format, int length]]
+        :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]
         """
 

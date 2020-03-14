@@ -136,7 +136,6 @@ class TokenManager(Manager):
         :raises TokenHandlerNotFoundError: token handler not found error.
 
         :returns: token.
-
         :rtype: str
         """
 
@@ -161,7 +160,6 @@ class TokenManager(Manager):
         :raises TokenHandlerNotFoundError: token handler not found error.
 
         :returns: token.
-
         :rtype: str
         """
 

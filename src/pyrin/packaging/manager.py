@@ -414,7 +414,7 @@ class PackagingManager(Manager, HookMixin):
 
         :note components: dict[str package_name: list[str] modules]
 
-        :returns: tuple[extended_components, other_components]
+        :returns: tuple[dict extended_components, dict other_components]
 
         :note extended_components: dict[str package_name: list[str] modules]
         :note other_components: dict[str package_name: list[str] modules]

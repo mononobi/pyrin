@@ -24,7 +24,6 @@ def token(*args, **kwargs):
     :raises DuplicatedTokenKidHeaderError: duplicated token kid header error.
 
     :returns: token handler class.
-
     :rtype: type
     """
 
@@ -36,7 +35,6 @@ def token(*args, **kwargs):
         :param type cls: token handler class.
 
         :returns: token handler class.
-
         :rtype: type
         """
 

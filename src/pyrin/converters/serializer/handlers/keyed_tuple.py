@@ -30,7 +30,7 @@ class CoreKeyedTupleSerializer(SerializerBase):
 
         :raises ColumnNotExistedError: column not existed error.
 
-        :type: dict
+        :rtype: dict
         """
 
         return keyed_tuple_to_dict(value, **options)

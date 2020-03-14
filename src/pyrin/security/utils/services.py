@@ -14,7 +14,6 @@ def generate_rsa_key(length=None, **options):
     :param int length: key length in bits.
 
     :returns: tuple[str public_key, str private_key]
-
     :rtype: tuple[str, str]
     """
 

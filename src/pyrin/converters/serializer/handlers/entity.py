@@ -35,7 +35,7 @@ class CoreEntitySerializer(SerializerBase):
 
         :raises ColumnNotExistedError: column not existed error.
 
-        :type: dict
+        :rtype: dict
         """
 
         return entity_to_dict(value, **options)

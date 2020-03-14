@@ -176,8 +176,7 @@ class TemplateHandlerBase(AbstractTemplateHandler):
 
         this method is intended to be overridden by subclasses.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return []
@@ -212,8 +211,7 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         this is useful for directories which are in template files but are empty
         and could not be included in `setup.py` package data.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         return []

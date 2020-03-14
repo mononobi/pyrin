@@ -213,7 +213,7 @@ class StringDeserializerBase(DeserializerBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :return: list[tuple[str format, int length]]
+        :returns: list[tuple[str format, int length]]
         :rtype: list[tuple[str, int]]
         """
 

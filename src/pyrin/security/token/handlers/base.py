@@ -56,7 +56,6 @@ class TokenBase(AbstractTokenBase):
                                 if not provided, defaults to False.
 
         :returns: token.
-
         :rtype: str
         """
 
@@ -78,7 +77,6 @@ class TokenBase(AbstractTokenBase):
         :keyword dict custom_headers: a dictionary containing custom headers.
 
         :returns: token.
-
         :rtype: str
         """
 
@@ -106,7 +104,6 @@ class TokenBase(AbstractTokenBase):
                                 if not provided, defaults to False.
 
         :returns: token.
-
         :rtype: str
         """
 
@@ -207,7 +204,7 @@ class TokenBase(AbstractTokenBase):
         for access and refresh tokens.
 
         :returns: dict(str jti: jwt id,
-                       int iat: issued time)
+                       float iat: issued time)
 
         :rtype: dict
         """
@@ -222,8 +219,8 @@ class TokenBase(AbstractTokenBase):
         gets a dictionary containing required claims for access token.
 
         :returns: dict(str jti: jwt id,
-                       int iat: issued time,
-                       int exp: expire time)
+                       float iat: issued time,
+                       float exp: expire time)
 
         :rtype: dict
         """
@@ -241,8 +238,8 @@ class TokenBase(AbstractTokenBase):
         gets a dictionary containing required claims for refresh token.
 
         :returns: dict(str jti: jwt id,
-                       int iat: issued time,
-                       int exp: expire time)
+                       float iat: issued time,
+                       float exp: expire time)
 
         :rtype: dict
         """

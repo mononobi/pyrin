@@ -56,7 +56,6 @@ def generate_access_token(payload, **options):
     :raises TokenHandlerNotFoundError: token handler not found error.
 
     :returns: token.
-
     :rtype: str
     """
 
@@ -82,7 +81,6 @@ def generate_refresh_token(payload, **options):
     :raises TokenHandlerNotFoundError: token handler not found error.
 
     :returns: token.
-
     :rtype: str
     """
 

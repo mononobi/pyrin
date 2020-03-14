@@ -23,7 +23,6 @@ def encrypter(*args, **kwargs):
     :raises DuplicatedEncryptionHandlerError: duplicated encryption handler error.
 
     :returns: encryption handler class.
-
     :rtype: type
     """
 
@@ -35,7 +34,6 @@ def encrypter(*args, **kwargs):
         :param type cls: encryption handler class.
 
         :returns: encryption handler class.
-
         :rtype: type
         """
 

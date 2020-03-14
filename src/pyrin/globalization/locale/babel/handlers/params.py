@@ -716,8 +716,7 @@ class InputPathsParam(PositionalArgument, BabelCLIParamBase):
         :param bool include_pyrin: include pyrin main package path.
                                    defaults to True if not provided.
 
-        :returns: list[str]
-        :rtype: list
+        :rtype: list[str]
         """
 
         paths = []

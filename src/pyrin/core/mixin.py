@@ -28,8 +28,7 @@ class HookMixin(CoreObject):
         """
         gets all registered hooks.
 
-        :returns: list[Hook]
-        :rtype: list
+        :rtype: list[Hook]
         """
 
         return self._hooks

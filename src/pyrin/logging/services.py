@@ -61,7 +61,6 @@ def get_logger(name, **options):
     :param str name: logger name to get.
 
     :returns: specified logger.
-
     :rtype: Logger
     """
 

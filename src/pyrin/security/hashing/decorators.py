@@ -23,7 +23,6 @@ def hashing(*args, **kwargs):
     :raises DuplicatedHashingHandlerError: duplicated hashing handler error.
 
     :returns: hashing handler class.
-
     :rtype: type
     """
 
@@ -35,7 +34,6 @@ def hashing(*args, **kwargs):
         :param type cls: hashing handler class.
 
         :returns: hashing handler class.
-
         :rtype: type
         """
 
