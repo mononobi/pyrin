@@ -110,9 +110,9 @@ class StringDeserializerBase(DeserializerBase):
         """
         initializes an instance of StringDeserializerBase.
 
-        :argument list[tuple[str, int]] accepted_formats: custom formats and their length
-                                                          that this deserializer can
-                                                          deserialize value from.
+        :keyword list[tuple[str, int]] accepted_formats: custom formats and their length
+                                                         that this deserializer can
+                                                         deserialize value from.
 
         :note accepted_formats: list[tuple[str format, int length]]
         """
@@ -231,9 +231,9 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         """
         initializes an instance of StringPatternDeserializerBase.
 
-        :argument list[tuple[Pattern, int]] accepted_formats: custom patterns and their length
-                                                              that this deserializer can
-                                                              deserialize value from.
+        :keyword list[tuple[Pattern, int]] accepted_formats: custom patterns and their length
+                                                             that this deserializer can
+                                                             deserialize value from.
 
         :note accepted_formats: list[tuple[Pattern format, int length]]
         """
