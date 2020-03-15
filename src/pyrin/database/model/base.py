@@ -11,7 +11,7 @@ from sqlalchemy.ext.declarative import as_declarative
 import pyrin.database.services as database_services
 
 from pyrin.core.context import CoreObject, DTO
-from pyrin.database.model.exceptions import ColumnNotExistedError, EntityNotHashableError
+from pyrin.database.model.exceptions import ColumnNotExistedError
 
 
 @as_declarative(constructor=None)
@@ -19,7 +19,13 @@ class CoreEntity(CoreObject):
     """
     core entity class.
 
-    it will be used as the base class for all models.
+    it should be used as the base class for all application models.
+
+    it is also possible to implement a new customized base class for your application
+    models. to do this you could subclass from every needed mixin class of `model.mixins`
+    and also implement your customized or new features. keep in mind that you could not
+    subclass directly from `CoreEntity`, because it has `@as_declarative` decorator
+    and sqlalchemy raises an error if you subclass from this as your new base model.
     """
 
     # holds the table name in database.
@@ -39,9 +45,9 @@ class CoreEntity(CoreObject):
         that results returned by orm from database will not call `__init__`
         of each entity.
 
-        it also sets attributes on the constructed instance using the
-        names and values in `kwargs`. note that only keys that are present
-        as mapped columns of the instance's class are allowed.
+        it also could set attributes on the constructed instance using the
+        names and values in `kwargs`. all keys that are present as either mapped
+        columns or relationship properties of the instance's class are allowed.
 
         :raises ColumnNotExistedError: column not existed error.
         """
@@ -64,13 +70,10 @@ class CoreEntity(CoreObject):
         return not self == other
 
     def __hash__(self):
-        if self._is_primary_key_comparable(self.primary_key()) is False:
-            raise EntityNotHashableError('Entity [{entity}] does not have '
-                                         'a primary key so it is not hashable.'
-                                         .format(entity=self))
-
-        return hash('{root_base}.{pk}'.format(root_base=self._get_root_base_class(),
-                                              pk=self.primary_key()))
+        if self._is_primary_key_comparable(self.primary_key()) is True:
+            return hash('{root_base}.{pk}'.format(root_base=self._get_root_base_class(),
+                                                  pk=self.primary_key()))
+        return super().__hash__()
 
     def __repr__(self):
         """
@@ -175,6 +178,44 @@ class CoreEntity(CoreObject):
 
         self.__class__._exposed_columns[type(self)] = columns
 
+    def _set_relationships(self, relationships):
+        """
+        sets relationship property names attribute for this class.
+
+        :param tuple[str] relationships: relationship property names.
+        """
+
+        if getattr(self, '_relationships', None) is None:
+            self.__class__._relationships = DTO()
+
+        self.__class__._relationships[type(self)] = relationships
+
+    def _set_all_columns_and_relationships(self, all_properties):
+        """
+        sets all column and relationship property names attribute for this class.
+
+        :param tuple[str] all_properties: all property names.
+        """
+
+        if getattr(self, '_all_columns_and_relationships', None) is None:
+            self.__class__._all_columns_and_relationships = DTO()
+
+        self.__class__._all_columns_and_relationships[type(self)] = all_properties
+
+    def _set_exposed_columns_and_relationships(self, exposed_properties):
+        """
+        sets exposed column and relationship property names attribute for this class.
+
+        exposed columns are those that have `exposed=True` in their definition.
+
+        :param tuple[str] exposed_properties: exposed property names.
+        """
+
+        if getattr(self, '_exposed_columns_and_relationships', None) is None:
+            self.__class__._exposed_columns_and_relationships = DTO()
+
+        self.__class__._exposed_columns_and_relationships[type(self)] = exposed_properties
+
     def _set_primary_key_columns(self, columns):
         """
         sets primary key column names attribute for this class.
@@ -244,7 +285,7 @@ class CoreEntity(CoreObject):
     @property
     def all_columns(self):
         """
-        gets all column names of entity.
+        gets all column names of this entity.
 
         column names will be calculated once and cached.
 
@@ -262,7 +303,7 @@ class CoreEntity(CoreObject):
     @property
     def exposed_columns(self):
         """
-        gets exposed column names of entity, which are those that have `exposed=True`.
+        gets exposed column names of this entity, which are those that have `exposed=True`.
 
         column names will be calculated once and cached.
 
@@ -278,9 +319,62 @@ class CoreEntity(CoreObject):
 
         return columns
 
+    @property
+    def relationships(self):
+        """
+        gets all relationship property names of this entity.
+
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        relationships = self._get_relationships()
+        if relationships is None:
+            info = sqla_inspect(type(self))
+            relationships = tuple(attr.key for attr in info.relationships)
+            self._set_relationships(relationships)
+
+        return relationships
+
+    @property
+    def all_columns_and_relationships(self):
+        """
+        gets all column and relationship property names of this entity.
+
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        all_properties = self._get_all_columns_and_relationships()
+        if all_properties is None:
+            all_properties = self.all_columns + self.relationships
+            self._set_all_columns_and_relationships(all_properties)
+
+        return all_properties
+
+    @property
+    def exposed_columns_and_relationships(self):
+        """
+        gets exposed column and relationship property names of this entity.
+
+        exposed columns are those that have `exposed=True` is their definition.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        exposed_properties = self._get_exposed_columns_and_relationships()
+        if exposed_properties is None:
+            exposed_properties = self.exposed_columns + self.relationships
+            self._set_exposed_columns_and_relationships(exposed_properties)
+
+        return exposed_properties
+
     def _get_all_columns(self):
         """
-        gets all column names of entity.
+        gets all column names of this entity.
 
         returns None if not found.
 
@@ -295,7 +389,7 @@ class CoreEntity(CoreObject):
 
     def _get_exposed_columns(self):
         """
-        gets exposed column names of entity, which are those that have `exposed=True`.
+        gets exposed column names of this entity, which are those that have `exposed=True`.
 
         returns None if not found.
 
@@ -305,6 +399,51 @@ class CoreEntity(CoreObject):
         columns = getattr(self, '_exposed_columns', None)
         if columns is not None:
             return columns.get(type(self), None)
+
+        return None
+
+    def _get_relationships(self):
+        """
+        gets all relationship property names of this entity.
+
+        returns None if not found.
+
+        :rtype: tuple[str]
+        """
+
+        relationships = getattr(self, '_relationships', None)
+        if relationships is not None:
+            return relationships.get(type(self), None)
+
+        return None
+
+    def _get_all_columns_and_relationships(self):
+        """
+        gets all column and relationship property names of this entity.
+
+        returns None if not found.
+
+        :rtype: tuple[str]
+        """
+
+        all_properties = getattr(self, '_all_columns_and_relationships', None)
+        if all_properties is not None:
+            return all_properties.get(type(self), None)
+
+        return None
+
+    def _get_exposed_columns_and_relationships(self):
+        """
+        gets exposed column and relationship property names of this entity.
+
+        returns None if not found.
+
+        :rtype: tuple[str]
+        """
+
+        exposed_properties = getattr(self, '_exposed_columns_and_relationships', None)
+        if exposed_properties is not None:
+            return exposed_properties.get(type(self), None)
 
         return None
 
@@ -361,6 +500,8 @@ class CoreEntity(CoreObject):
         """
         updates the column values of this entity with values in keyword arguments.
 
+        it could fill columns and also relationship properties if provided.
+
         :keyword bool silent_on_invalid_column: specifies that if a key is not available
                                                 in entity columns, do not raise an error.
                                                 defaults to True if not provided.
@@ -368,14 +509,15 @@ class CoreEntity(CoreObject):
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        all_columns = self.all_columns
+        all_properties = self.all_columns_and_relationships
         for key, value in kwargs.items():
-            if key in all_columns:
+            if key in all_properties:
                 setattr(self, key, value)
             else:
                 if silent_on_invalid_column is False:
                     raise ColumnNotExistedError('Entity [{entity}] does not have '
-                                                'a column attribute named [{column}].'
+                                                'a column or relationship attribute '
+                                                'named [{column}].'
                                                 .format(entity=self,
                                                         column=key))
 

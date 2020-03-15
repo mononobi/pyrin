@@ -25,6 +25,7 @@ class ApplicationHook(ApplicationHookBase):
     def before_application_start(self):
         """
         this method will be called before application gets started.
+
         note that this method will not get called when application
         starts in scripting mode.
         """
