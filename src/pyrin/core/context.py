@@ -108,7 +108,7 @@ class CoreObject(object):
 
         if self.__name is not None:
             return self.__name
-        return self.__class__.__name__
+        return self.get_class_name()
 
     def _set_name(self, name):
         """
@@ -119,9 +119,27 @@ class CoreObject(object):
 
         self.__name = name
 
+    def get_class_name(self):
+        """
+        gets the object's class name.
+
+        :rtype: str
+        """
+
+        return self.__class__.__name__
+
+    def get_module_name(self):
+        """
+        gets the object's module name.
+
+        :rtype: str
+        """
+
+        return self.__class__.__module__
+
     def get_doc(self):
         """
-        gets docstring of the object.
+        gets the docstring of the object.
 
         :rtype: str
         """

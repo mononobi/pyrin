@@ -13,8 +13,7 @@ import pyrin.configuration.services as config_services
 
 def audit(func):
     """
-    decorator to log information before and after
-    a function execution in debug mode.
+    decorator to log execution time of a function.
 
     :param callable func: function.
 
@@ -23,8 +22,10 @@ def audit(func):
 
     def decorator(*args, **kwargs):
         """
-        decorates the given function and logs it's behavior in debug mode
-        and returns the function's result every time that function gets called.
+        decorates the given function and logs its execution time.
+
+        note that `audit_log=True` is required in logging config
+        store for each environment to enable this decorator.
 
         :param object args: function arguments.
         :param object kwargs: function keyword arguments.

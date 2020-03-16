@@ -15,14 +15,15 @@ from pyrin.database.exceptions import InvalidDatabaseBindError
 class CoreSession(Session):
     """
     core session class.
-    all application sessions must be an instance or a subclass of this.
+
+    all application sessions must be an instance this.
     """
 
     def execute(self, clause, params=None, mapper=None, bind=None, **kw):
         """
-        executes a sql expression construct or string statement within
-        the current transaction.
+        executes a sql expression construct or string statement.
 
+        it will be executed within the current transaction.
         the current transaction will be resolved using the given
         entity class or object or bind name.
 
@@ -80,7 +81,8 @@ class CoreSession(Session):
 
     def get_bind(self, mapper=None, clause=None, **kw):
         """
-        returns a `bind` to which this `CoreSession` is bound.
+        returns a `bind` to which this `CoreSession` is bounded.
+
         this method extends the `get_bind() method of `Session` by
         trying to find bounded engine to tables of a raw string query.
 

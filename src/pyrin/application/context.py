@@ -60,6 +60,7 @@ class ApplicationComponent(ApplicationContext):
 class Component(CoreObject):
     """
     base component class.
+
     all component classes must inherit from this class and their respective manager class.
     """
 

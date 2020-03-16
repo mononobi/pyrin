@@ -1053,7 +1053,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _set_component_attributes(self, old_instance, new_instance):
         """
-        replaces all list and dict attributes from old instance into new instance.
+        replaces required component attributes from old instance into new instance.
+
+        it will replace all list and dict attributes from old instance into new instance.
         all the attributes which their name starts with three underscores will also
         be replaced from old instance into new instance.
 
@@ -1101,28 +1103,6 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         return path_utils.get_main_package_name(self.__module__)
-
-    def get_class_name(self):
-        """
-        gets the application class name.
-
-        it is required for template generation.
-
-        :rtype: str
-        """
-
-        return self.__class__.__name__
-
-    def get_module_name(self):
-        """
-        gets the application module name.
-
-        it is required for template generation.
-
-        :rtype: str
-        """
-
-        return self.__class__.__module__
 
     def _prepare_termination(self, signal_number):
         """

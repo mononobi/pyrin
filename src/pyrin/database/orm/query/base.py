@@ -22,6 +22,7 @@ from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
 class CoreQuery(Query):
     """
     core query class.
+
     this is the application default query class.
     it extends sqlalchemy `Query` class.
     """
@@ -128,7 +129,8 @@ class CoreQuery(Query):
 
     def count(self, **options):
         """
-        returns the count of rows the sql formed by this `Query` would return.
+        returns the count of rows that the sql formed by this `Query` would return.
+
         this method is overridden to prevent inefficient count() of sqlalchemy `Query`
         which produces a subquery.
 
@@ -141,9 +143,10 @@ class CoreQuery(Query):
                                 be executed on distinct select.
                                 defaults to False if not provided.
 
-        :keyword bool fallback: specifies that count should
-                                be executed using original sqlalchemy
-                                function which produces a subquery.
+        :keyword bool fallback: specifies that if the overridden count
+                                failed to execute, it should be executed using
+                                the original sqlalchemy count which produces
+                                a subquery, instead of raising an error.
                                 defaults to False if not provided.
 
         :rtype: int
