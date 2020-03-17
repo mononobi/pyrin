@@ -70,8 +70,6 @@ class BaseEntity(MagicMethodMixin, CRUDMixin, QueryMixin):
         and this is more beautiful then importing `BaseEntity` inside a method
         of `MagicMethodMixin` class.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
         :rtype: type
         """
 
