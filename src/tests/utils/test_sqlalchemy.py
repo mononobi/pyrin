@@ -211,7 +211,7 @@ def test_entity_to_dict_list_with_none():
     assert len(result) == 0
 
 
-def test_keyed_tuple_to_dict():
+def test_row_result_to_dict():
     """
     converts values list into a dict using given columns list.
     """
@@ -220,7 +220,7 @@ def test_keyed_tuple_to_dict():
     fields = ['name', 'id', 'age']
 
     row_result = sqlalchemy_utils.create_row_result(fields, values)
-    result = sqlalchemy_utils.keyed_tuple_to_dict(row_result)
+    result = sqlalchemy_utils.row_result_to_dict(row_result)
 
     assert isinstance(result, dict)
     assert len(result) == 3
@@ -230,14 +230,14 @@ def test_keyed_tuple_to_dict():
     assert result.get('age', None) == 22
 
 
-def test_keyed_tuple_to_dict_with_none_items():
+def test_row_result_to_dict_with_none_items():
     """
     converts values list into a dict using given columns list.
     it should return an empty dict in different scenarios.
     """
 
-    result1 = sqlalchemy_utils.keyed_tuple_to_dict(None)
-    result2 = sqlalchemy_utils.keyed_tuple_to_dict([])
+    result1 = sqlalchemy_utils.row_result_to_dict(None)
+    result2 = sqlalchemy_utils.row_result_to_dict([])
 
     assert isinstance(result1, dict)
     assert isinstance(result2, dict)
@@ -246,7 +246,7 @@ def test_keyed_tuple_to_dict_with_none_items():
     assert len(result2) == 0
 
 
-def test_keyed_tuple_to_dict_list():
+def test_row_result_to_dict_list():
     """
     converts the given list of values list into a list
     of dicts using given columns list.
@@ -263,7 +263,7 @@ def test_keyed_tuple_to_dict_list():
         row = sqlalchemy_utils.create_row_result(columns, single_value)
         rows.append(row)
 
-    results = sqlalchemy_utils.keyed_tuple_to_dict_list(rows)
+    results = sqlalchemy_utils.row_result_to_dict_list(rows)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -289,7 +289,7 @@ def test_keyed_tuple_to_dict_list():
     assert dict3.get('age', None) == 30
 
 
-def test_keyed_tuple_to_dict_list_with_none_items():
+def test_row_result_to_dict_list_with_none_items():
     """
     converts the given list of values list into a list
     of dicts using given columns list.
@@ -305,7 +305,7 @@ def test_keyed_tuple_to_dict_list_with_none_items():
         row = sqlalchemy_utils.create_row_result(columns, single_value)
         rows.append(row)
 
-    results = sqlalchemy_utils.keyed_tuple_to_dict_list(rows)
+    results = sqlalchemy_utils.row_result_to_dict_list(rows)
 
     assert isinstance(results, list)
     assert len(results) == 2
@@ -314,7 +314,7 @@ def test_keyed_tuple_to_dict_list_with_none_items():
     assert len(results[0]) == 0
     assert len(results[1]) == 0
 
-    results2 = sqlalchemy_utils.keyed_tuple_to_dict_list([None, None])
+    results2 = sqlalchemy_utils.row_result_to_dict_list([None, None])
 
     assert isinstance(results2, list)
     assert len(results2) == 2
@@ -323,12 +323,12 @@ def test_keyed_tuple_to_dict_list_with_none_items():
     assert len(results2[0]) == 0
     assert len(results2[1]) == 0
 
-    results3 = sqlalchemy_utils.keyed_tuple_to_dict_list(None)
+    results3 = sqlalchemy_utils.row_result_to_dict_list(None)
 
     assert isinstance(results3, list)
     assert len(results3) == 0
 
-    results4 = sqlalchemy_utils.keyed_tuple_to_dict_list([])
+    results4 = sqlalchemy_utils.row_result_to_dict_list([])
 
     assert isinstance(results4, list)
     assert len(results4) == 0

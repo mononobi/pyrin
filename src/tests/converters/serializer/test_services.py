@@ -9,7 +9,7 @@ import pyrin.converters.serializer.services as serializer_services
 from tests.common.models import RightChildEntity, SampleWithHiddenFieldEntity
 
 
-def test_serialize_keyed_tuple():
+def test_serialize_row_result():
     """
     serializes the given row result into dict.
     """
@@ -24,7 +24,7 @@ def test_serialize_keyed_tuple():
     assert result.get('age', None) == 20
 
 
-def test_serialize_keyed_tuple_list():
+def test_serialize_row_result_list():
     """
     serializes the given row result list into dict list.
     """
@@ -61,7 +61,7 @@ def test_serialize_keyed_tuple_list():
     assert third.get('age', None) == 30
 
 
-def test_serialize_keyed_tuple_list_mixed_none():
+def test_serialize_row_result_list_mixed_none():
     """
     serializes the given row result list into dict list.
     the list contains some row results and some None items.
