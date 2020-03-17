@@ -42,10 +42,10 @@ class ColumnMixin(CoreObject):
         :param tuple[str] columns: column names.
         """
 
-        if getattr(self, '_all_columns', None) is None:
-            self.__class__._all_columns = DTO()
+        if getattr(ColumnMixin, '_all_columns', None) is None:
+            ColumnMixin._all_columns = DTO()
 
-        self.__class__._all_columns[type(self)] = columns
+        ColumnMixin._all_columns[type(self)] = columns
 
     def _set_exposed_columns(self, columns):
         """
@@ -54,10 +54,10 @@ class ColumnMixin(CoreObject):
         :param tuple[str] columns: column names.
         """
 
-        if getattr(self, '_exposed_columns', None) is None:
-            self.__class__._exposed_columns = DTO()
+        if getattr(ColumnMixin, '_exposed_columns', None) is None:
+            ColumnMixin._exposed_columns = DTO()
 
-        self.__class__._exposed_columns[type(self)] = columns
+        ColumnMixin._exposed_columns[type(self)] = columns
 
     @property
     def all_columns(self):
@@ -105,7 +105,7 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        columns = getattr(self, '_all_columns', None)
+        columns = getattr(ColumnMixin, '_all_columns', None)
         if columns is not None:
             return columns.get(type(self), None)
 
@@ -120,7 +120,7 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        columns = getattr(self, '_exposed_columns', None)
+        columns = getattr(ColumnMixin, '_exposed_columns', None)
         if columns is not None:
             return columns.get(type(self), None)
 
@@ -141,10 +141,10 @@ class RelationshipMixin(CoreObject):
         :param tuple[str] relationships: relationship property names.
         """
 
-        if getattr(self, '_relationships', None) is None:
-            self.__class__._relationships = DTO()
+        if getattr(RelationshipMixin, '_relationships', None) is None:
+            RelationshipMixin._relationships = DTO()
 
-        self.__class__._relationships[type(self)] = relationships
+        RelationshipMixin._relationships[type(self)] = relationships
 
     @property
     def relationships(self):
@@ -173,7 +173,7 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        relationships = getattr(self, '_relationships', None)
+        relationships = getattr(RelationshipMixin, '_relationships', None)
         if relationships is not None:
             return relationships.get(type(self), None)
 
@@ -195,10 +195,10 @@ class PropertyMixin(ColumnMixin, RelationshipMixin):
         :param tuple[str] all_properties: all property names.
         """
 
-        if getattr(self, '_all_columns_and_relationships', None) is None:
-            self.__class__._all_columns_and_relationships = DTO()
+        if getattr(PropertyMixin, '_all_columns_and_relationships', None) is None:
+            PropertyMixin._all_columns_and_relationships = DTO()
 
-        self.__class__._all_columns_and_relationships[type(self)] = all_properties
+        PropertyMixin._all_columns_and_relationships[type(self)] = all_properties
 
     def _set_exposed_columns_and_relationships(self, exposed_properties):
         """
@@ -209,10 +209,10 @@ class PropertyMixin(ColumnMixin, RelationshipMixin):
         :param tuple[str] exposed_properties: exposed property names.
         """
 
-        if getattr(self, '_exposed_columns_and_relationships', None) is None:
-            self.__class__._exposed_columns_and_relationships = DTO()
+        if getattr(PropertyMixin, '_exposed_columns_and_relationships', None) is None:
+            PropertyMixin._exposed_columns_and_relationships = DTO()
 
-        self.__class__._exposed_columns_and_relationships[type(self)] = exposed_properties
+        PropertyMixin._exposed_columns_and_relationships[type(self)] = exposed_properties
 
     @property
     def all_columns_and_relationships(self):
@@ -258,7 +258,7 @@ class PropertyMixin(ColumnMixin, RelationshipMixin):
         :rtype: tuple[str]
         """
 
-        all_properties = getattr(self, '_all_columns_and_relationships', None)
+        all_properties = getattr(PropertyMixin, '_all_columns_and_relationships', None)
         if all_properties is not None:
             return all_properties.get(type(self), None)
 
@@ -273,7 +273,7 @@ class PropertyMixin(ColumnMixin, RelationshipMixin):
         :rtype: tuple[str]
         """
 
-        exposed_properties = getattr(self, '_exposed_columns_and_relationships', None)
+        exposed_properties = getattr(PropertyMixin, '_exposed_columns_and_relationships', None)
         if exposed_properties is not None:
             return exposed_properties.get(type(self), None)
 
@@ -342,10 +342,10 @@ class PrimaryKeyMixin(CoreObject):
         :param tuple[str] columns: column names.
         """
 
-        if getattr(self, '_primary_key_columns', None) is None:
-            self.__class__._primary_key_columns = DTO()
+        if getattr(PrimaryKeyMixin, '_primary_key_columns', None) is None:
+            PrimaryKeyMixin._primary_key_columns = DTO()
 
-        self.__class__._primary_key_columns[type(self)] = columns
+        PrimaryKeyMixin._primary_key_columns[type(self)] = columns
 
     def _get_primary_keys(self):
         """
@@ -354,7 +354,7 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        columns = getattr(self, '_primary_key_columns', None)
+        columns = getattr(PrimaryKeyMixin, '_primary_key_columns', None)
         if columns is not None:
             return columns.get(type(self), None)
 
@@ -521,7 +521,7 @@ class MagicMethodMixin(PrimaryKeyMixin):
         :param type root_base_class: root base class type.
         """
 
-        self.__class__._root_base_class = root_base_class
+        setattr(root_base_class, '_root_base_class', root_base_class)
 
     def _get_root_base_class(self):
         """
@@ -629,7 +629,7 @@ class MagicMethodMixin(PrimaryKeyMixin):
         :rtype: type
         """
 
-        return getattr(self, '_declarative_base_class', None)
+        return getattr(MagicMethodMixin, '_declarative_base_class', None)
 
     @property
     @abstractmethod
