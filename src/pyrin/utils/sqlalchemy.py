@@ -98,17 +98,17 @@ def entity_to_dict_list(entities, exposed_only=True, **options):
     return results
 
 
-def keyed_tuple_to_dict(value, **options):
+def row_result_to_dict(value, **options):
     """
-    converts the given `AbstractKeyedTuple` object into a dict.
+    converts the given `ROW_RESULT` object into a dict.
 
-    :param AbstractKeyedTuple value: value to be converted.
+    :param ROW_RESULT value: value to be converted.
 
     :keyword list[str] columns: the column names to be included in result.
                                 if not provided, all columns will be returned.
                                 note that the columns must be a subset of all
-                                columns of this `AbstractKeyedTuple`, otherwise
-                                it raises an error.
+                                columns of this `ROW_RESULT`, otherwise it
+                                raises an error.
 
     :raises ColumnNotExistedError: column not existed error.
 
@@ -136,16 +136,16 @@ def keyed_tuple_to_dict(value, **options):
     return result
 
 
-def keyed_tuple_to_dict_list(values, **options):
+def row_result_to_dict_list(values, **options):
     """
-    converts the given list of `AbstractKeyedTuple` objects into a list of dicts.
+    converts the given list of `ROW_RESULT` objects into a list of dicts.
 
-    :param list[AbstractKeyedTuple] values: values to be converted.
+    :param list[ROW_RESULT] values: values to be converted.
 
     :keyword list[str] columns: the column names to be included in result.
                                 if not provided, all columns will be returned.
                                 note that the columns must be a subset of all
-                                columns of this `AbstractKeyedTuple`, otherwise
+                                columns of this `ROW_RESULT`, otherwise
                                 it raises an error.
 
     :raises ColumnNotExistedError: column not existed error.
@@ -161,7 +161,7 @@ def keyed_tuple_to_dict_list(values, **options):
     # to 10% (for above 30000 items in list) faster, so we chose 'for loop'.
     results = []
     for item in values:
-        results.append(keyed_tuple_to_dict(item, **options))
+        results.append(row_result_to_dict(item, **options))
 
     return results
 
@@ -454,7 +454,7 @@ def create_row_result(fields, values):
 
     :raises FieldsAndValuesCountMismatchError: fields and values count mismatch error.
 
-    :rtype: AbstractKeyedTuple
+    :rtype: ROW_RESULT
     """
 
     if fields is None or values is None:

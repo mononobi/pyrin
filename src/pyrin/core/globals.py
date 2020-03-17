@@ -4,6 +4,7 @@ core globals module.
 """
 
 from flask_babel import gettext
+from sqlalchemy.util._collections import AbstractKeyedTuple
 
 from pyrin.core.context import CoreObject
 
@@ -19,3 +20,6 @@ LIST_TYPES = (list, tuple, set)
 
 # this method should be used for localizable strings.
 _ = gettext
+
+# this value should be used when working on AbstractKeyedTuple objects.
+ROW_RESULT = AbstractKeyedTuple

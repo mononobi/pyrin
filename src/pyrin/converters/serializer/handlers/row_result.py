@@ -1,31 +1,30 @@
 # -*- coding: utf-8 -*-
 """
-serializer keyed_tuple module.
+serializer row_result module.
 """
-
-from sqlalchemy.util._collections import AbstractKeyedTuple
 
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
-from pyrin.utils.sqlalchemy import keyed_tuple_to_dict
+from pyrin.core.globals import ROW_RESULT
+from pyrin.utils.sqlalchemy import row_result_to_dict
 
 
 @serializer()
-class CoreKeyedTupleSerializer(SerializerBase):
+class RowResultSerializer(SerializerBase):
     """
-    core keyed tuple serializer class.
+    row result serializer class.
     """
 
     def _serialize(self, value, **options):
         """
         serializes the given value.
 
-        :param AbstractKeyedTuple value: abstract keyed tuple value to be serialized.
+        :param ROW_RESULT value: row result value to be serialized.
 
         :keyword list[str] columns: the column names to be included in result.
                                     if not provided, all columns will be returned.
                                     note that the columns must be a subset of all
-                                    columns of this `AbstractKeyedTuple`, otherwise
+                                    columns of this `ROW_RESULT`, otherwise
                                     it raises an error.
 
         :raises ColumnNotExistedError: column not existed error.
@@ -33,7 +32,7 @@ class CoreKeyedTupleSerializer(SerializerBase):
         :rtype: dict
         """
 
-        return keyed_tuple_to_dict(value, **options)
+        return row_result_to_dict(value, **options)
 
     @property
     def accepted_type(self):
@@ -42,7 +41,7 @@ class CoreKeyedTupleSerializer(SerializerBase):
 
         which could serialize values from this type.
 
-        :rtype: AbstractKeyedTuple
+        :rtype: ROW_RESULT
         """
 
-        return AbstractKeyedTuple
+        return ROW_RESULT
