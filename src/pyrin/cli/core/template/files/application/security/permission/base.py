@@ -39,7 +39,7 @@ class Permission(PermissionBase):
         """
         gets the equivalent entity of current permission.
 
-        :rtype: CoreEntity
+        :rtype: BaseEntity
         """
 
         raise CoreNotImplementedError()

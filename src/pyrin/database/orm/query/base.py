@@ -10,7 +10,7 @@ from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from pyrin.core.globals import LIST_TYPES, _
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
@@ -72,25 +72,26 @@ class CoreQuery(Query):
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param type | tuple[type] scope: class type of the entities that this
-                                         query instance will work on. if the
-                                         query is working on multiple entities,
-                                         this value must be a tuple of all class
-                                         types of that entities.
+        :param type[BaseEntity] | tuple[type[BaseEntity]] scope: class type of the entities
+                                                                 that this query instance will
+                                                                 work on. if the query is working
+                                                                 on multiple entities, this value
+                                                                 must be a tuple of all class
+                                                                 types of that entities.
 
         :raises ColumnsOutOfScopeError: columns out of scope error.
         """
 
         scope_classes = set(entity for entity in scope if inspect.isclass(entity)
-                            and issubclass(entity, CoreEntity))
+                            and issubclass(entity, BaseEntity))
 
         requested_classes = set(entity for entity in entities if inspect.isclass(entity)
-                                and issubclass(entity, CoreEntity))
+                                and issubclass(entity, BaseEntity))
 
         requested_classes_by_column = set(column.class_ for column in entities if
                                           isinstance(column, InstrumentedAttribute)
                                           and issubclass(getattr(column, 'class_', type),
-                                                         CoreEntity))
+                                                         BaseEntity))
 
         all_requested_classes = requested_classes.union(requested_classes_by_column)
 
@@ -104,11 +105,12 @@ class CoreQuery(Query):
 
         :param tuple entities: entities or columns that needed for query.
 
-        :param type | tuple[type] scope: class type of the entities that this
-                                         query instance will work on. if the
-                                         query is working on multiple entities,
-                                         this value must be a tuple of all class
-                                         types of that entities.
+        :param type[BaseEntity] | tuple[type[BaseEntity]] scope: class type of the entities that
+                                                                 this query instance will work on.
+                                                                 if the query is working on
+                                                                 multiple entities, this value
+                                                                 must be a tuple of all class
+                                                                 types of that entities.
 
         :raises ColumnsOutOfScopeError: columns out of scope error.
         """

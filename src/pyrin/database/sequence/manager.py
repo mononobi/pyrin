@@ -37,7 +37,7 @@ class SequenceManager(Manager):
         """
         gets the next value of given sequence.
 
-        :param CoreEntity entity_class: entity class which this
+        :param BaseEntity entity_class: entity class which this
                                         sequence is defined in.
 
         :param Sequence sequence: sequence object to get its next value.

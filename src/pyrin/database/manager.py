@@ -13,7 +13,7 @@ import pyrin.utils.dictionary as dict_utils
 from pyrin.core.globals import LIST_TYPES
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.base import BaseEntity
 from pyrin.core.context import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.interface import AbstractSessionFactoryBase
@@ -347,17 +347,17 @@ class DatabaseManager(Manager, HookMixin):
         """
         binds the given model class with specified bind database.
 
-        :param CoreEntity entity: CoreEntity subclass to be bounded.
+        :param type[BaseEntity] entity: base entity subclass to be bounded.
         :param str bind_name: bind name to be associated with the model class.
 
         :raises InvalidEntityTypeError: invalid entity type error.
         """
 
-        if not issubclass(entity, CoreEntity):
+        if not issubclass(entity, BaseEntity):
             raise InvalidEntityTypeError('Input parameter [{entity}] is '
                                          'not a subclass of [{base}].'
                                          .format(entity=entity,
-                                                 base=CoreEntity))
+                                                 base=BaseEntity))
 
         # registering model into database binds.
         self._binds[entity] = bind_name
@@ -459,7 +459,7 @@ class DatabaseManager(Manager, HookMixin):
         """
         gets the database engine which the provided entity class is bounded to.
 
-        :param CoreEntity entity: entity class to get its bounded engine.
+        :param BaseEntity entity: entity class to get its bounded engine.
 
         :rtype: Engine
         """

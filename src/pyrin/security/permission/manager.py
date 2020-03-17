@@ -104,7 +104,7 @@ class PermissionManager(Manager):
         """
         bulk inserts the given permission entities.
 
-        :param list[CoreEntity] entities: permission entities to be inserted.
+        :param list[BaseEntity] entities: permission entities to be inserted.
         """
 
         if len(entities) > 0:
@@ -118,7 +118,7 @@ class PermissionManager(Manager):
         """
         bulk updates the given permission entities.
 
-        :param list[CoreEntity] entities: permission entities to be updated.
+        :param list[BaseEntity] entities: permission entities to be updated.
         """
 
         if len(entities) > 0:

@@ -5,21 +5,21 @@ serializer entity module.
 
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.base import BaseEntity
 from pyrin.utils.sqlalchemy import entity_to_dict
 
 
 @serializer()
-class CoreEntitySerializer(SerializerBase):
+class BaseEntitySerializer(SerializerBase):
     """
-    core entity serializer class.
+    base entity serializer class.
     """
 
     def _serialize(self, value, **options):
         """
         serializes the given value.
 
-        :param CoreEntity value: entity value to be serialized.
+        :param BaseEntity value: entity value to be serialized.
 
         :keyword bool exposed_only: if set to False, it returns all
                                     columns of the entity as dict.
@@ -47,7 +47,7 @@ class CoreEntitySerializer(SerializerBase):
 
         which could serialize values from this type.
 
-        :rtype: CoreEntity
+        :rtype: BaseEntity
         """
 
-        return CoreEntity
+        return BaseEntity

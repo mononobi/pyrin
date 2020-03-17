@@ -96,7 +96,7 @@ def register_bind(entity, bind_name, **options):
     """
     binds the given model class with specified bind database.
 
-    :param CoreEntity entity: CoreEntity subclass to be bounded.
+    :param type[BaseEntity] entity: base entity subclass to be bounded.
     :param str bind_name: bind name to be associated with the model class.
 
     :raises InvalidEntityTypeError: invalid entity type error.
@@ -203,7 +203,7 @@ def get_entity_engine(entity):
     """
     gets the database engine which the provided entity class is bounded to.
 
-    :param CoreEntity entity: entity class to get its bounded engine.
+    :param BaseEntity entity: entity class to get its bounded engine.
 
     :rtype: Engine
     """

@@ -97,7 +97,7 @@ class PermissionBase(CoreObject):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: CoreEntity
+        :rtype: BaseEntity
         """
 
         raise CoreNotImplementedError()

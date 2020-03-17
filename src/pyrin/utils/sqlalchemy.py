@@ -23,7 +23,7 @@ def entity_to_dict(entity, exposed_only=True, **options):
     the result dict only contains the columns of the entity
     which their `hidden` attribute is set to False.
 
-    :param CoreEntity entity: entity to be converted.
+    :param BaseEntity entity: entity to be converted.
 
     :param bool exposed_only: if set to False, it returns all
                               columns of the entity as dict.
@@ -54,7 +54,7 @@ def dict_to_entity(entity_class, **kwargs):
 
     :param type entity_class: the result entity class type.
 
-    :rtype: CoreEntity
+    :rtype: BaseEntity
     """
 
     result = entity_class()
@@ -66,7 +66,7 @@ def entity_to_dict_list(entities, exposed_only=True, **options):
     """
     converts the given list of entities into a list of dicts and returns the result.
 
-    :param list[CoreEntity] entities: list of entities.
+    :param list[BaseEntity] entities: list of entities.
 
     :param bool exposed_only: if set to False, it returns all
                               columns of the entity as dict.

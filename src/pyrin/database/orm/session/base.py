@@ -43,7 +43,7 @@ class CoreSession(Session):
                                          the keys in each dictionary must correspond
                                          to parameter names present in the statement.
 
-        :param CoreEntity mapper: entity class or object which the given clause
+        :param BaseEntity mapper: entity class or object which the given clause
                                   must be executed on its related engine.
                                   this argument takes precedence over
                                   `clause` when locating a bind.
@@ -121,7 +121,7 @@ class CoreSession(Session):
         6. no bind can be found, `sqlalchemy.exc.UnboundExecutionError`
            is raised.
 
-        :param CoreEntity mapper: a CoreEntity instance or class. the bind can be derived from
+        :param BaseEntity mapper: a BaseEntity instance or class. the bind can be derived from
                                   a `Mapper` first by consulting the `binds` map associated
                                   with this `Session`, and secondly by consulting the
                                   `Metadata` associated with the `Table` to which the
