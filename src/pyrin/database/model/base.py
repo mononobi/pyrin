@@ -70,7 +70,7 @@ class BaseEntity(MagicMethodMixin, CRUDMixin, QueryMixin):
         and this is more beautiful then importing `BaseEntity` inside a method
         of `MagicMethodMixin` class.
 
-        :rtype: type
+        :rtype: type[BaseEntity]
         """
 
         return BaseEntity

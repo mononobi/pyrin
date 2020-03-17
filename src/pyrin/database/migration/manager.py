@@ -10,10 +10,10 @@ from sqlalchemy import MetaData
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 import pyrin.application.services as application_services
+import pyrin.database.model.services as model_services
 
 from pyrin.core.context import DTO, Manager
 from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
-from pyrin.database.model.base import CoreEntity
 
 
 class DatabaseMigrationManager(Manager):
@@ -45,7 +45,7 @@ class DatabaseMigrationManager(Manager):
 
         for engine, tables in self._engine_to_table_map.items():
             if tables is not None and len(tables) > 0:
-                CoreEntity.metadata.create_all(engine, tables)
+                model_services.get_declarative_base().metadata.create_all(engine, tables)
 
     def drop_all(self):
         """
@@ -54,14 +54,14 @@ class DatabaseMigrationManager(Manager):
 
         for engine, tables in self._engine_to_table_map.items():
             if tables is not None and len(tables) > 0:
-                CoreEntity.metadata.drop_all(engine, tables)
+                model_services.get_declarative_base().metadata.drop_all(engine, tables)
 
     def _map_engine_to_table(self):
         """
         maps all engines to relevant tables.
         """
 
-        all_tables = DTO(**CoreEntity.metadata.tables)
+        all_tables = DTO(**model_services.get_declarative_base().metadata.tables)
         for entity, engine in database_services.get_entity_to_engine_map().items():
             if engine not in self._engine_to_table_map:
                 self._engine_to_table_map[engine] = []

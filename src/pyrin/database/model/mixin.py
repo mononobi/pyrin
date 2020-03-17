@@ -21,6 +21,9 @@ from abc import abstractmethod
 from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.exc import NoInspectionAvailable
 
+import pyrin.database.model.services as model_services
+
+from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 from pyrin.core.context import CoreObject, DTO
@@ -676,6 +679,15 @@ class MagicMethodMixin(PrimaryKeyMixin):
                                                   'in not a subclass of [{base}].'
                                                   .format(declarative=declarative_base_class,
                                                           base=self._base_entity_class))
+
+        if declarative_base_class is not model_services.get_declarative_base():
+            print_warning('You have implemented a new declarative base type [{new}] '
+                          'in your application. to make everything works as expected '
+                          'you must override "pyrin.database.model.ModelManager.'
+                          'get_declarative_base()" method in your application inside '
+                          '"database.model" package. for more information on how to do '
+                          'that or how to ignore it, see the documentation of specified '
+                          'method.'.format(new=declarative_base_class))
 
 
 class QueryMixin(CoreObject):
