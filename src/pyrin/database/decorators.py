@@ -121,7 +121,7 @@ def atomic(func):
     will be rolled-back without the consideration or affecting the parent transaction
     which by default is scoped to request.
 
-    :param callable func: function.
+    :param function func: function.
 
     :returns: function result.
     """
