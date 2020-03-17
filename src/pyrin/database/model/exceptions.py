@@ -19,3 +19,10 @@ class ColumnNotExistedError(BaseColumnNotExistedError, DatabaseModelException):
     column not existed error.
     """
     pass
+
+
+class InvalidDeclarativeBaseTypeError(DatabaseModelException):
+    """
+    invalid declarative base type error.
+    """
+    pass
