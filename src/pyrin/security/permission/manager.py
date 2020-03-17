@@ -112,7 +112,6 @@ class PermissionManager(Manager):
             store.bulk_insert_mappings(type(entities[0]),
                                        serializer_services.serialize(entities,
                                                                      exposed_only=False))
-            store.commit()
 
     def _bulk_update(self, entities):
         """
@@ -126,4 +125,3 @@ class PermissionManager(Manager):
             store.bulk_update_mappings(type(entities[0]),
                                        serializer_services.serialize(entities,
                                                                      exposed_only=False))
-            store.commit()

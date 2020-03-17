@@ -4,6 +4,7 @@ permission services module.
 """
 
 from pyrin.application.services import get_component
+from pyrin.database.decorators import atomic
 from pyrin.security.permission import PermissionPackage
 
 
@@ -31,6 +32,7 @@ def get_permissions(**options):
     return get_component(PermissionPackage.COMPONENT_NAME).get_permissions(**options)
 
 
+@atomic
 def synchronize_all(**options):
     """
     synchronizes all permissions with database.
