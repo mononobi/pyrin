@@ -22,12 +22,12 @@ class ApplicationHook(ApplicationHookBase):
 
         super().__init__()
 
-    def before_application_start(self):
+    def before_application_run(self):
         """
-        this method will be called before application gets started.
+        this method will be get called just before application gets running.
 
-        note that this method will not get called when application
-        starts in scripting mode.
+        note that this method will not get called when
+        application starts in scripting mode.
         """
 
         # we should synchronize all application permissions with database.

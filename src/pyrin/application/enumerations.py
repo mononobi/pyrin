@@ -13,5 +13,6 @@ class ApplicationStatusEnum(CoreEnum):
 
     INITIALIZING = 'Initializing'
     LOADING = 'Loading'
+    READY = 'Ready'
     RUNNING = 'Running'
     TERMINATED = 'Terminated'

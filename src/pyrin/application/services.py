@@ -339,7 +339,8 @@ def register_hook(instance):
 def is_scripting_mode():
     """
     gets a value indicating that application has been started in scripting mode.
-    some application hooks will not fire in this mode. like 'before_application_start'.
+
+    some application hooks will not fire in this mode. like 'before_application_run'.
     """
 
     return get_current_app().is_scripting_mode()

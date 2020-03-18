@@ -27,12 +27,18 @@ class ApplicationHookBase(Hook):
         """
         pass
 
-    def before_application_start(self):
+    def application_initialized(self):
         """
-        this method will be called before application gets started.
+        this method will be get called after application has been fully initialized.
+        """
+        pass
 
-        note that this method will not get called when application
-        starts in scripting mode.
+    def before_application_run(self):
+        """
+        this method will be get called just before application gets running.
+
+        note that this method will not get called when
+        application starts in scripting mode.
         """
         pass
 
@@ -46,6 +52,7 @@ class ApplicationHookBase(Hook):
         :note status:
             INITIALIZING = 'Initializing'
             LOADING = 'Loading'
+            READY = 'Ready'
             RUNNING = 'Running'
             TERMINATED = 'Terminated'
         """

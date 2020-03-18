@@ -178,7 +178,6 @@ class Application(Flask, HookMixin, SignalMixin,
         # tests after application has been fully loaded. because if we call
         # application.run(), we could not continue execution of other codes.
         self._load(**options)
-        self._set_status(ApplicationStatusEnum.RUNNING)
 
     def _remove_flask_unrecognized_keywords(self, **options):
         """
@@ -219,7 +218,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         gets a value indicating that application has been started in scripting mode.
 
-        some application hooks will not fire in this mode. like 'before_application_start'.
+        some application hooks will not fire in this mode. like 'before_application_run'.
         """
 
         return self._scripting_mode
@@ -227,8 +226,9 @@ class Application(Flask, HookMixin, SignalMixin,
     @setupmethod
     def _register_required_components(self):
         """
-        registers required components that the Application needs to
-        reference to them immediately.
+        registers required components that the Application needs
+        to reference to them immediately.
+
         this type of components could not be registered using @component decorator,
         because they will be referenced before Application instance gets initialized.
 
@@ -252,6 +252,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :note status:
             INITIALIZING = 'Initializing'
             LOADING = 'Loading'
+            READY = 'Ready'
             RUNNING = 'Running'
             TERMINATED = 'Terminated'
 
@@ -445,15 +446,18 @@ class Application(Flask, HookMixin, SignalMixin,
     def _extract_component_custom_key(self):
         """
         gets `component_custom_key` from current request.
-        note that if application is in any state other than `RUNNING`,
+
+        note that if application is in any state lower than `READY`,
         it always returns the default component key.
 
         :rtype: object
         """
 
-        # before application reaches the `RUNNING` state,
+        # before application reaches the `READY` state,
         # we should always use the default component key.
-        if self.get_status() != ApplicationStatusEnum.RUNNING:
+        if self.get_status() in (ApplicationStatusEnum.INITIALIZING,
+                                 ApplicationStatusEnum.LOADING):
+
             return DEFAULT_COMPONENT_KEY
 
         # this method is the only place that we should access request
@@ -482,10 +486,9 @@ class Application(Flask, HookMixin, SignalMixin,
         # calling `after_application_loaded` method of all registered hooks.
         self._after_application_loaded()
 
-        # calling `before_application_start` method of all registered hooks.
-        # this hook should not be called when the app is in scripting mode.
-        if self.is_scripting_mode() is False:
-            self._before_application_start()
+        # calling `application_initialized` method of all registered hooks.
+        self._application_initialized()
+        self._set_status(ApplicationStatusEnum.READY)
 
     def _resolve_all_paths(self, **options):
         """
@@ -569,6 +572,8 @@ class Application(Flask, HookMixin, SignalMixin,
             raise ApplicationInScriptingModeError('Application has been initialized in '
                                                   'scripting mode, so it could not be run.')
 
+        self._before_application_run()
+        self._set_status(ApplicationStatusEnum.RUNNING)
         super().run(host, port, debug, load_dotenv, **options)
 
     def dispatch_request(self):
@@ -1085,13 +1090,13 @@ class Application(Flask, HookMixin, SignalMixin,
         for hook in self._get_hooks():
             hook.after_application_loaded()
 
-    def _before_application_start(self):
+    def _application_initialized(self):
         """
-        this method will call `before_application_start` method of all registered hooks.
+        this method will call `application_initialized` method of all registered hooks.
         """
 
         for hook in self._get_hooks():
-            hook.before_application_start()
+            hook.application_initialized()
 
     def get_application_name(self):
         """
@@ -1123,9 +1128,21 @@ class Application(Flask, HookMixin, SignalMixin,
         :note status:
             INITIALIZING = 'Initializing'
             LOADING = 'Loading'
+            READY = 'Ready'
             RUNNING = 'Running'
             TERMINATED = 'Terminated'
         """
 
         for hook in self._get_hooks():
             hook.application_status_changed(old_status, new_status)
+
+    def _before_application_run(self):
+        """
+        this method will call `before_application_run` method of all registered hooks.
+
+        note that this method will not get called when
+        application starts in scripting mode.
+        """
+
+        for hook in self._get_hooks():
+            hook.before_application_run()
