@@ -14,6 +14,7 @@ import pyrin.database.model.services as model_services
 
 from pyrin.core.context import DTO, Manager
 from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
+from pyrin.utils.custom_print import print_warning, print_info
 
 
 class DatabaseMigrationManager(Manager):
@@ -175,3 +176,25 @@ class DatabaseMigrationManager(Manager):
         absolute_path = path.abspath(full_path)
 
         return 'sqlite:///{absolute_path}'.format(absolute_path=absolute_path)
+
+    def rebuild_schema(self):
+        """
+        rebuilds database schema based on database and environment config store values.
+
+        this will occur only if application is not in scripting mode.
+        """
+
+        if application_services.is_scripting_mode() is False:
+            if config_services.get_active('database', 'drop_on_startup') is True:
+                environment = config_services.get_active('environment', 'env')
+                debug = config_services.get_active('environment', 'debug')
+                unit_testing = config_services.get_active('environment', 'unit_testing')
+
+                if (environment == 'development' and debug is True) or \
+                        (environment == 'testing' and unit_testing is True):
+                    print_warning('Dropping all models...')
+                    self.drop_all()
+
+            if config_services.get_active('database', 'create_on_startup') is True:
+                print_info('Creating all models...')
+                self.create_all()

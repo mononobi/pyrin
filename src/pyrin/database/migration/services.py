@@ -53,3 +53,13 @@ def configure_migration_data():
     """
 
     return get_component(DatabaseMigrationPackage.COMPONENT_NAME).configure_migration_data()
+
+
+def rebuild_schema():
+    """
+    rebuilds database schema based on database and environment config store values.
+
+    this will occur only if application is not in scripting mode.
+    """
+
+    return get_component(DatabaseMigrationPackage.COMPONENT_NAME).rebuild_schema()
