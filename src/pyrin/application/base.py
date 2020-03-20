@@ -490,6 +490,9 @@ class Application(Flask, HookMixin, SignalMixin,
         self._application_initialized()
         self._set_status(ApplicationStatusEnum.READY)
 
+        if self.is_scripting_mode() is False:
+            self._prepare_runtime_data()
+
     def _resolve_all_paths(self, **options):
         """
         resolves all required paths for application.
@@ -1146,3 +1149,14 @@ class Application(Flask, HookMixin, SignalMixin,
 
         for hook in self._get_hooks():
             hook.before_application_run()
+
+    def _prepare_runtime_data(self):
+        """
+        this method will call `prepare_runtime_data` method of all registered hooks.
+
+        note that this method will not get called when
+        application starts in scripting mode.
+        """
+
+        for hook in self._get_hooks():
+            hook.prepare_runtime_data()
