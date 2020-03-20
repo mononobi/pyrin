@@ -36,8 +36,8 @@ def test_get_session_factory_current():
     it should be of request unbounded type.
     """
 
-    session_factory = database_services.get_session_factory()
-    assert session_factory.is_request_bounded is False
+    session_factory = database_services.get_current_session_factory()
+    assert session_factory.request_bounded is False
     assert session_factory.session_factory_name == 'ThreadScopedSessionFactory'
 
 
@@ -46,8 +46,8 @@ def test_get_session_factory_unbounded():
     gets the request unbounded database session factory.
     """
 
-    session_factory = database_services.get_session_factory(request_bounded=False)
-    assert session_factory.is_request_bounded is False
+    session_factory = database_services.get_current_session_factory()
+    assert session_factory.request_bounded is False
     assert session_factory.session_factory_name == 'ThreadScopedSessionFactory'
 
 
@@ -56,8 +56,8 @@ def test_get_session_factory_bounded():
     gets the request bounded database session factory.
     """
 
-    session_factory = database_services.get_session_factory(request_bounded=True)
-    assert session_factory.is_request_bounded is True
+    session_factory = database_services.get_current_session_factory()
+    assert session_factory.request_bounded is True
     assert session_factory.session_factory_name == 'RequestScopedSessionFactory'
 
 
