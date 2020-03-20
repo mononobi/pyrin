@@ -30,8 +30,8 @@ class RequestScopedSessionFactory(SessionFactoryBase):
 
     def _create_session_factory(self, engine):
         """
-        creates a database request scoped session factory and binds it to
-        given engine and returns it.
+        creates a database request scoped session factory and binds it to given engine.
+
         the scope is current request, so each request will get
         it's own session from start to end.
 
@@ -46,10 +46,10 @@ class RequestScopedSessionFactory(SessionFactoryBase):
                                               query_cls=CoreQuery, **session_configs),
                                  scopefunc=session_services.get_current_request)
 
-    def is_request_bounded(self):
+    @property
+    def request_bounded(self):
         """
-        gets a value determining that this session factory
-        type should be bounded into request.
+        gets a value indicating that this session factory type should be bounded into request.
 
         :rtype: bool
         """

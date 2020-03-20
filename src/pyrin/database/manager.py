@@ -69,36 +69,49 @@ class DatabaseManager(Manager, HookMixin):
         # and False for request unbounded.
         self._session_factories = DTO()
 
-    def get_current_store(self):
+    def get_current_store(self, atomic=False):
         """
         gets current database store.
 
+        if `atomic=True` is provided, it gets an atomic session, meaning a new
+        session with a new transaction. note that it's normally not needed to get
+        an atomic session manually, instead you could use `@atomic` decorator to
+        provide you an atomic session. but if you really need to get an atomic
+        session manually, you have to manually remove that session from corresponding
+        session factory after you've done.
+
+        note that in each scope (request or thread based) there should be only a
+        unique atomic session, so if you get an atomic session, and don't remove it,
+        after that if you get another atomic session in the same scope, you will get
+        the same exact atomic session. but if you get an atomic session, and remove it
+        from corresponding session factory after you've done, after that if you get
+        another atomic session, it will get you a new atomic session. this is why it's
+        better not to get an atomic session manually, and instead use `@atomic` decorator
+        when you need atomic session.
+
+        :param bool atomic: specifies that it must get an atomic session.
+                            it returns it from registry if available,
+                            otherwise gets a new atomic session.
+                            defaults to False if not provided.
+
         :returns: database session
-        :rtype: Session
+        :rtype: CoreSession
         """
 
-        return self._get_current_session_factory()()
+        return self._get_current_session_factory()(atomic)
 
-    def get_session_factory(self, request_bounded=None):
+    def get_current_session_factory(self):
         """
-        gets database session factory based on given input.
+        gets current database session factory.
 
         this method should not be used directly for data manipulation.
         use `get_current_store` method instead.
 
-        :param bool request_bounded: a value indicating that the session
-                                     factory should be bounded into request.
-                                     if not provided, it gets the current
-                                     valid session factory.
-
         :returns: database session factory
-        :rtype: Session
+        :rtype: CoreScopedSession
         """
 
-        if request_bounded is None:
-            return self._get_current_session_factory()
-
-        return self._get_session_factory(request_bounded)
+        return self._get_current_session_factory()
 
     def _get_current_session_factory(self):
         """
@@ -108,7 +121,7 @@ class DatabaseManager(Manager, HookMixin):
         context or not, and gets the correct session factory.
 
         :returns: database session factory
-        :rtype: Session
+        :rtype: CoreScopedSession
         """
 
         return self._get_session_factory(session_services.is_request_context_available())
@@ -123,10 +136,10 @@ class DatabaseManager(Manager, HookMixin):
         :raises SessionFactoryNotExistedError: session factory not existed error.
 
         :returns: database session factory
-        :rtype: Session
+        :rtype: CoreScopedSession
         """
 
-        if request_bounded not in self._session_factories.keys():
+        if request_bounded not in self._session_factories:
             raise SessionFactoryNotExistedError('Session factory with '
                                                 'request_bounded={bounded} '
                                                 'is not available.'
@@ -136,8 +149,7 @@ class DatabaseManager(Manager, HookMixin):
 
     def _create_default_engine(self):
         """
-        creates the default database engine using database
-        configuration store and returns it.
+        creates and gets the default database engine using database configuration store.
 
         :returns: database engine
         :rtype: Engine
@@ -244,6 +256,8 @@ class DatabaseManager(Manager, HookMixin):
         """
         this method will finalize database transaction of each request.
 
+        this method will finalize both normal and atomic sessions of
+        current request if available.
         we should not raise any exception in request handlers, so we return
         an error response in case of any exception.
         note that normally you should never call this method manually.
@@ -254,17 +268,16 @@ class DatabaseManager(Manager, HookMixin):
         """
 
         try:
-            store = self.get_current_store()
-            session_factory = self.get_session_factory()
+            session_factory = self.get_current_session_factory()
             try:
                 if response.status_code >= ClientErrorResponseCodeEnum.BAD_REQUEST:
-                    store.rollback()
+                    session_factory.rollback_all()
                     return response
 
-                store.commit()
+                session_factory.commit_all()
                 return response
             except Exception:
-                store.rollback()
+                session_factory.rollback_all()
                 raise
             finally:
                 session_factory.remove()
@@ -278,6 +291,8 @@ class DatabaseManager(Manager, HookMixin):
         """
         this method will cleanup database session of each request.
 
+        this method will cleanup both normal and atomic sessions of
+        current request if available.
         in case of any unhandled exception. we should not raise any exception
         in teardown request handlers, so we just log the exception.
         note that normally you should never call this method manually.
@@ -288,7 +303,7 @@ class DatabaseManager(Manager, HookMixin):
         if exception is not None:
             try:
                 self.LOGGER.exception(str(exception))
-                session_factory = self.get_session_factory()
+                session_factory = self.get_current_session_factory()
                 session_factory.remove()
 
             except Exception as error:
@@ -299,7 +314,7 @@ class DatabaseManager(Manager, HookMixin):
         registers a new session factory or replaces the existing one.
 
         if `replace=True` is provided. otherwise, it raises an error
-        on adding an instance which it's is_request_bounded() is already available
+        on adding an instance which it's `request_bounded` is already available
         in registered session factories.
 
         :param AbstractSessionFactoryBase instance: session factory to be registered.
@@ -307,7 +322,7 @@ class DatabaseManager(Manager, HookMixin):
                                                     AbstractSessionFactoryBase.
 
         :keyword bool replace: specifies that if there is another registered
-                               session factory with the same is_request_bounded(),
+                               session factory with the same `request_bounded`,
                                replace it with the new one, otherwise raise an error.
                                defaults to False.
 
@@ -322,25 +337,25 @@ class DatabaseManager(Manager, HookMixin):
                                                          base=AbstractSessionFactoryBase))
 
         # checking whether is there any registered
-        # instance with the same 'is_request_bounded()' value.
-        if instance.is_request_bounded() in self._session_factories:
+        # instance with the same 'request_bounded' value.
+        if instance.request_bounded in self._session_factories:
             replace = options.get('replace', False)
 
             if replace is not True:
                 raise DuplicatedSessionFactoryError('There is another registered session factory '
-                                                    'with "is_request_bounded={bounded}" but '
+                                                    'with "request_bounded={bounded}" but '
                                                     '"replace" option is not set, so session '
                                                     'factory [{instance}] could not be registered.'
-                                                    .format(bounded=instance.is_request_bounded(),
+                                                    .format(bounded=instance.request_bounded,
                                                             instance=str(instance)))
 
-            old_instance = self._session_factories[instance.is_request_bounded()]
+            old_instance = self._session_factories[instance.request_bounded]
             print_warning('Session factory [{old_instance}] is going '
                           'to be replaced by [{new_instance}].'
                           .format(old_instance=str(old_instance), new_instance=str(instance)))
 
         # registering new session factory.
-        self._session_factories[instance.is_request_bounded()] = \
+        self._session_factories[instance.request_bounded] = \
             instance.create_session_factory(self.get_default_engine())
 
     def register_bind(self, entity, bind_name, **options):
@@ -400,7 +415,6 @@ class DatabaseManager(Manager, HookMixin):
         """
 
         self._map_entity_to_engine()
-
         if len(self.get_entity_to_engine_map()) > 0:
             for key in self._session_factories:
                 self._session_factories[key].configure(binds=self.get_entity_to_engine_map())
@@ -448,8 +462,7 @@ class DatabaseManager(Manager, HookMixin):
 
     def _after_session_factories_configured(self):
         """
-        this method will call `after_session_factories_configured`
-        method of all registered hooks.
+        this will call `after_session_factories_configured` method of registered hooks.
         """
 
         for hook in self._get_hooks():

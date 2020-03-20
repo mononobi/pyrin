@@ -23,8 +23,7 @@ class SessionFactoryBase(AbstractSessionFactoryBase):
 
     def create_session_factory(self, engine):
         """
-        creates a database session factory and binds it to
-        given engine and returns it.
+        creates a database session factory and binds it to given engine.
 
         :param Engine engine: database engine.
 
@@ -34,14 +33,13 @@ class SessionFactoryBase(AbstractSessionFactoryBase):
 
         session = self._create_session_factory(engine)
         setattr(session, 'session_factory_name', self.get_name())
-        setattr(session, 'is_request_bounded', self.is_request_bounded())
+        setattr(session, 'request_bounded', self.request_bounded)
         return session
 
     @abstractmethod
     def _create_session_factory(self, engine):
         """
-        creates a database session factory and binds it to
-        given engine and returns it.
+        creates a database session factory and binds it to given engine.
 
         :param Engine engine: database engine.
 

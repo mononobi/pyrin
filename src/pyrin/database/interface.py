@@ -29,8 +29,7 @@ class AbstractSessionFactoryBase(CoreObject, metaclass=SessionFactorySingletonMe
     @abstractmethod
     def create_session_factory(self, engine):
         """
-        creates a database session factory and binds it to
-        given engine and returns it.
+        creates a database session factory and binds it to given engine.
 
         :param Engine engine: database engine.
 
@@ -42,11 +41,11 @@ class AbstractSessionFactoryBase(CoreObject, metaclass=SessionFactorySingletonMe
 
         raise CoreNotImplementedError()
 
+    @property
     @abstractmethod
-    def is_request_bounded(self):
+    def request_bounded(self):
         """
-        gets a value indicating that this session factory
-        type should be bounded into request.
+        gets a value indicating that this session factory type should be bounded into request.
 
         :raises CoreNotImplementedError: core not implemented error.
 

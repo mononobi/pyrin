@@ -7,40 +7,58 @@ from pyrin.application.services import get_component
 from pyrin.database import DatabasePackage
 
 
-def get_current_store():
+def get_current_store(atomic=False):
     """
     gets current database store.
 
+    if `atomic=True` is provided, it gets an atomic session, meaning a new
+    session with a new transaction. note that it's normally not needed to get
+    an atomic session manually, instead you could use `@atomic` decorator to
+    provide you an atomic session. but if you really need to get an atomic
+    session manually, you have to manually remove that session from corresponding
+    session factory after you've done.
+
+    note that in each scope (request or thread based) there should be only a
+    unique atomic session, so if you get an atomic session, and don't remove it,
+    after that if you get another atomic session in the same scope, you will get
+    the same exact atomic session. but if you get an atomic session, and remove
+    it from corresponding session factory after you've done, after that if you get
+    another atomic session, it will get you a new atomic session. this is why it's
+    better not to get an atomic session manually, and instead use `@atomic` decorator
+    when you need atomic session.
+
+    :param bool atomic: specifies that it must get an atomic session.
+                        it returns it from registry if available,
+                        otherwise gets a new atomic session.
+                        defaults to False if not provided.
+
     :returns: database session
-    :rtype: Session
+    :rtype: CoreSession
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store(atomic)
 
 
-def get_session_factory(request_bounded=None):
+def get_current_session_factory():
     """
-    gets database session factory based on given input.
+    gets current database session factory.
 
     this method should not be used directly for data manipulation.
     use `get_current_store` method instead.
 
-    :param bool request_bounded: a value indicating that the session
-                                 factory should be bounded into request.
-                                 if not provided, it gets the current
-                                 valid session factory.
-
     :returns: database session factory
-    :rtype: Session
+    :rtype: CoreScopedSession
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_session_factory(request_bounded)
+    return get_component(DatabasePackage.COMPONENT_NAME).get_current_session_factory()
 
 
 def finalize_transaction(response):
     """
     this method will finalize database transaction of each request.
 
+    this method will finalize both normal and atomic sessions of
+    current request if available.
     we should not raise any exception in request handlers, so we return
     an error response in case of any exception.
     note that normally you should never call this method manually.
@@ -57,6 +75,8 @@ def cleanup_session(exception):
     """
     this method will cleanup database session of each request.
 
+    this method will cleanup both normal and atomic sessions of
+    current request if available.
     in case of any unhandled exception. we should not raise any exception
     in teardown request handlers, so we just log the exception.
     note that normally you should never call this method manually.
@@ -72,7 +92,7 @@ def register_session_factory(instance, **options):
     registers a new session factory or replaces the existing one.
 
     if `replace=True` is provided. otherwise, it raises an error
-    on adding an instance which it's is_request_bounded() is already available
+    on adding an instance which it's `request_bounded` is already available
     in registered session factories.
 
     :param AbstractSessionFactoryBase instance: session factory to be registered.
@@ -80,7 +100,7 @@ def register_session_factory(instance, **options):
                                                 AbstractSessionFactoryBase.
 
     :keyword bool replace: specifies that if there is another registered
-                           session factory with the same is_request_bounded(),
+                           session factory with the same `request_bounded`,
                            replace it with the new one, otherwise raise an error.
                            defaults to False.
 
