@@ -1,6 +1,6 @@
-* each manager class must inherit from `pyrin.core.context.Manager class`.
+* each manager class must inherit from `pyrin.core.structs.Manager class`.
 
-* each component class must inherit from `pyrin.application.context.Component` class and
+* each component class must inherit from `pyrin.application.structs.Component` class and
   also it's respective manager class.
 
 * every access to a package functionality must be done through package's services module,
@@ -26,7 +26,7 @@
   should subclass from Package in their `__init__` module and set the required attributes.
 
 * those type of classes that has a very simple functionality (2 or less methods) should
-  be put inside `context` module of each package.
+  be put inside `structs` module of each package.
 
 * in handlers packages the base handlers should be put inside `base` module of each package.
 

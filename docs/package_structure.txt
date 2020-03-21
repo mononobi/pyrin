@@ -9,15 +9,14 @@ services.py
 component.py
 manager.py
 exceptions.py
-context.py
+structs.py
 
 ===================================================================================================
 optional (depends on package type):
 
 enumerations.py
 models.py
-error_handlers.py
-request_handlers.py
+handlers.py
 base.py
 decorators.py
 
