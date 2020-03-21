@@ -5,8 +5,8 @@ common models module.
 
 from sqlalchemy import Unicode, Integer, ForeignKey
 
-from pyrin.core.context import DTO
-from pyrin.database.decorators import bind
+from pyrin.core.structs import DTO
+from pyrin.database.model.decorators import bind
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.types.custom import GUID

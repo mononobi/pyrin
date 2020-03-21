@@ -7,7 +7,7 @@ import pytest
 
 import pyrin.utils.misc as misc_utils
 
-from pyrin.core.context import DTO, CoreObject
+from pyrin.core.structs import DTO, CoreObject
 from pyrin.core.exceptions import CoreAttributeError
 
 

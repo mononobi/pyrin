@@ -5,10 +5,10 @@ core test_mixin module.
 
 import pytest
 
-from pyrin.core.context import Hook
+from pyrin.core.structs import Hook
 from pyrin.core.exceptions import InvalidHookTypeError
 
-from tests.core.context import HookEnabledMock
+from tests.core.structs import HookEnabledMock
 
 
 def test_get_hooks_attribute():

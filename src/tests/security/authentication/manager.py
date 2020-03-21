@@ -5,7 +5,7 @@ authentication manager module.
 
 import pyrin.security.session.services as session_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
 from pyrin.security.authentication.manager import AuthenticationManager as \
     BaseAuthenticationManager

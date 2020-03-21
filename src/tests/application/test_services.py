@@ -11,7 +11,7 @@ import pyrin.application.services as application_services
 
 from pyrin.application.base import Application
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComponentIDError, \
     DuplicateRouteURLError, InvalidRouteFactoryTypeError, InvalidComponentTypeError, \
@@ -20,7 +20,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, DuplicateComp
 
 from tests import PyrinTestApplication
 from tests.common.mock_functions import mock_view_function, mock_route_factory
-from tests.application.context import ComponentMock, DatabaseComponentMock, \
+from tests.application.structs import ComponentMock, DatabaseComponentMock, \
     DuplicateDatabaseComponentMock, ExtraDatabaseComponentMock, OnlyManagerMock, \
     DuplicateExtraDatabaseComponentMock, ComponentWithInvalidNameMock, \
     DuplicateComponentMock, DuplicateComponentForReplaceMock, \

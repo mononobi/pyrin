@@ -6,7 +6,7 @@ paging test_services module.
 import pyrin.configuration.services as config_services
 import pyrin.database.paging.services as paging_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 
 
 def test_enable_limit():

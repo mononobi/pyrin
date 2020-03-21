@@ -8,7 +8,7 @@ import pytest
 import pyrin.security.session.services as session_services
 import pyrin.security.token.services as token_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 
 import tests.security.session.services as test_session_services
 

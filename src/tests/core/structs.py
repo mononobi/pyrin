@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-core context module.
+core structs module.
 """
 
 from pyrin.core.mixin import HookMixin

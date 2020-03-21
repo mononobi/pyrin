@@ -4,7 +4,7 @@ permission component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 from tests.security.permission import PermissionPackage
 from tests.security.permission.manager import PermissionManager

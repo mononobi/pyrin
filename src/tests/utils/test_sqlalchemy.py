@@ -7,7 +7,7 @@ import pytest
 
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.utils.exceptions import FieldsAndValuesCountMismatchError, \
     InvalidRowResultFieldsAndValuesError
 

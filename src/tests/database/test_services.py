@@ -8,7 +8,7 @@ import pytest
 import pyrin.database.services as database_services
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.database.session_factory.request_scoped import RequestScopedSessionFactory
 from pyrin.database.session_factory.thread_scoped import ThreadScopedSessionFactory
 from pyrin.database.exceptions import DuplicatedSessionFactoryError, \

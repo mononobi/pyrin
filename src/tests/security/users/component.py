@@ -4,7 +4,7 @@ users component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 from tests.security.users import UsersPackage
 from tests.security.users.manager import UsersManager

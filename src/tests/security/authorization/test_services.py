@@ -7,7 +7,7 @@ import pytest
 
 import pyrin.security.authorization.services as authorization_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
     UserNotAuthenticatedError
 

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-core test_context module.
+core test_structs module.
 """
 
-from pyrin.core.context import DTO, Manager, Hook, CLI
+from pyrin.core.structs import DTO, Manager, Hook, CLI
 
 
 def test_dto_equal():

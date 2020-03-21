@@ -8,7 +8,7 @@ import pytest
 import pyrin.security.token.services as token_services
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.security.token.handlers.rs256 import RS256Token
 from pyrin.security.token.handlers.hs256 import HS256Token
 from pyrin.security.token.exceptions import DuplicatedTokenHandlerError, \

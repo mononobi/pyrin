@@ -10,7 +10,7 @@ from sqlalchemy.pool import QueuePool, AssertionPool
 import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.converters.deserializer.handlers.base import DeserializerBase
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.converters.deserializer.handlers.boolean import BooleanDeserializer
 from pyrin.converters.deserializer.handlers.dictionary import DictionaryDeserializer
 from pyrin.converters.deserializer.handlers.list import StringListDeserializer

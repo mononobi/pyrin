@@ -5,7 +5,7 @@ session manager module.
 
 from pyrin.security.session.manager import SessionManager as BaseSessionManager
 
-from tests.application.context import CoreRequestMock
+from tests.application.structs import CoreRequestMock
 
 
 class SessionManager(BaseSessionManager):
