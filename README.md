@@ -111,7 +111,7 @@ class GuestEntity(CoreEntity):
 
 ```python
 from pyrin.api.router.decorators import api
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.database.services import get_current_store
 from pyrin.utils.unique_id import generate_uuid4
 
