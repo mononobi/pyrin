@@ -58,7 +58,8 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
             return self.atomic_registry[key]
         except KeyError:
             if atomic is True:
-                return self.atomic_registry.setdefault(key, self.createfunc())
+                return self.atomic_registry.setdefault(key, self.inject_atomic(
+                    self.createfunc(), True))
 
         return super().__call__()
 

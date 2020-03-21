@@ -110,7 +110,7 @@ class CoreScopedSession(scoped_session):
                 raise ScopedSessionIsAlreadyPresentError('Scoped session is already present, '
                                                          'no new arguments may be specified.')
             else:
-                session = self.session_factory(**kw)
+                session = self.registry.inject_atomic(self.session_factory(**kw), atomic)
                 self.registry.set(session, atomic)
                 return session
         else:

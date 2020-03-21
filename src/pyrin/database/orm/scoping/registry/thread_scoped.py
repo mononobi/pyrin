@@ -34,7 +34,8 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
             return self.registry.atomic_value
         except AttributeError:
             if atomic is True:
-                atomic_value = self.registry.atomic_value = self.createfunc()
+                atomic_value = self.registry.atomic_value = self.inject_atomic(
+                    self.createfunc(), True)
                 return atomic_value
 
         return super().__call__()
