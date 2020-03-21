@@ -15,17 +15,17 @@ def bind(name, **options):
     :raises InvalidEntityTypeError: invalid entity type error.
 
     :returns: model class.
-    :rtype: type
+    :rtype: type[BaseEntity]
     """
 
     def decorator(cls):
         """
         decorates the given model class and binds it with the specified database.
 
-        :param type cls: model class.
+        :param type[BaseEntity] cls: model class.
 
         :returns: model class.
-        :rtype: type
+        :rtype: type[BaseEntity]
         """
 
         database_services.register_bind(cls, name, **options)
