@@ -6,7 +6,7 @@ deserializer component module.
 from pyrin.converters.deserializer import DeserializerPackage
 from pyrin.converters.deserializer.manager import DeserializerManager
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(DeserializerPackage.COMPONENT_NAME)

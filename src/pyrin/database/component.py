@@ -6,7 +6,7 @@ database component module.
 from pyrin.application.decorators import component
 from pyrin.database import DatabasePackage
 from pyrin.database.manager import DatabaseManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(DatabasePackage.COMPONENT_NAME)

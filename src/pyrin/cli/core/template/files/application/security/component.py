@@ -4,7 +4,7 @@ security component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 from APPLICATION_PACKAGE.security import SecurityPackage
 from APPLICATION_PACKAGE.security.manager import SecurityManager

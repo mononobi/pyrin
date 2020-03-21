@@ -7,7 +7,7 @@ import os
 
 import pyrin.utils.path as path_utils
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.template.handlers.base import TemplateHandlerWithInterfaceInputBase
 from pyrin.cli.core.template.exceptions import InvalidProjectRootPathError, \
     InvalidApplicationPackageNameError, InvalidApplicationClassNameError, \

@@ -4,7 +4,7 @@ serializer manager module.
 """
 
 from pyrin.converters.serializer.interface import AbstractSerializerBase
-from pyrin.core.context import Context, Manager
+from pyrin.core.structs import Context, Manager
 from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
 from pyrin.converters.serializer.exceptions import InvalidSerializerTypeError, \

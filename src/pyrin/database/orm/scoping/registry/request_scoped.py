@@ -35,7 +35,12 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
 
         # a dictionary containing all atomic sessions that are present.
         # each atomic session corresponds to a request scoped session.
-        # in the form of: {hash key: CoreSession session}
+        # each request could contain a LIFO queue of current atomic sessions.
+        # each time an atomic session is requested, it gets the last inserted
+        # atomic session, this way it provides the ability to use chained
+        # atomic sessions. for example multiple methods use '@atomic' decorator
+        # in a single call hierarchy.
+        # in the form of: {int key: Stack[CoreSession] sessions}
         self.atomic_registry = {}
 
     def __call__(self, atomic=False):

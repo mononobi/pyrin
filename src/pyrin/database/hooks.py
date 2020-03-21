@@ -5,7 +5,7 @@ database hooks module.
 
 import pyrin.database.services as database_services
 
-from pyrin.core.context import Hook
+from pyrin.core.structs import Hook
 from pyrin.packaging.decorators import packaging_hook
 from pyrin.packaging.hooks import PackagingHookBase
 

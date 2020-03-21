@@ -6,7 +6,7 @@ configuration component module.
 from pyrin.application.decorators import component
 from pyrin.configuration import ConfigurationPackage
 from pyrin.configuration.manager import ConfigurationManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(ConfigurationPackage.COMPONENT_NAME)

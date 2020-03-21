@@ -8,7 +8,7 @@ import pyrin.security.users.services as user_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _, LIST_TYPES
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
     UserNotAuthenticatedError, UserIsNotActiveError
 

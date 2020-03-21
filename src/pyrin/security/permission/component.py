@@ -6,7 +6,7 @@ permission component module.
 from pyrin.application.decorators import component
 from pyrin.security.permission import PermissionPackage
 from pyrin.security.permission.manager import PermissionManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(PermissionPackage.COMPONENT_NAME)

@@ -11,7 +11,7 @@ from logging import Logger
 import pyrin.configuration.services as config_services
 
 from pyrin.logging import LoggingPackage
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.logging.adapters import RequestInfoLoggerAdapter, BaseLoggerAdapter
 from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError
 

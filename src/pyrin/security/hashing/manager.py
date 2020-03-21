@@ -5,12 +5,12 @@ hashing manager module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import Context, Manager
-from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
-    InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, HashingHandlerNotFoundError, \
-    InvalidHashError
+from pyrin.core.structs import Context, Manager
 from pyrin.security.hashing.interface import AbstractHashingBase
 from pyrin.utils.custom_print import print_warning
+from pyrin.security.hashing.exceptions import InvalidHashingHandlerTypeError, \
+    InvalidHashingHandlerNameError, DuplicatedHashingHandlerError, InvalidHashError, \
+    HashingHandlerNotFoundError
 
 
 class HashingManager(Manager):

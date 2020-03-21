@@ -11,7 +11,7 @@ from cryptography.hazmat.primitives import serialization
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.settings.static import APPLICATION_ENCODING
 
 

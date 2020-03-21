@@ -7,7 +7,7 @@ from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError, ColumnNotExistedError

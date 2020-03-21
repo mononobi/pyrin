@@ -5,7 +5,7 @@ schema result module.
 
 import pyrin.converters.serializer.services as serializer_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.api.schema.exceptions import SchemaColumnsOrReplaceIsRequiredError, \
     ColumnNotExistedError, InvalidReplaceKeysError
 

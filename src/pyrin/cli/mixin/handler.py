@@ -4,7 +4,7 @@ cli mixin handler module.
 """
 
 from pyrin.cli.base import CLIHandlerBase
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO
 from pyrin.utils.custom_print import print_warning
 from pyrin.cli.exceptions import InvalidCLIHandlerTypeError, DuplicatedCLIHandlerError, \
     CLIHandlerNotFoundError

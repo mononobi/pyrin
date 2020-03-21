@@ -7,7 +7,7 @@ from abc import abstractmethod
 
 import pyrin.security.permission.services as permission_services
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 
 

@@ -7,7 +7,7 @@ import os
 
 import pyrin.application.services as application_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.template.decorators import template_handler
 from pyrin.template.handlers.base import TemplateHandlerBase

@@ -7,7 +7,7 @@ from abc import abstractmethod
 
 import pyrin.converters.serializer.services as serializer_services
 
-from pyrin.core.context import Context, Manager
+from pyrin.core.structs import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 from pyrin.security.permission.base import PermissionBase

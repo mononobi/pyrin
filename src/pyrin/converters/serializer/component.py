@@ -6,7 +6,7 @@ serializer component module.
 from pyrin.converters.serializer import SerializerPackage
 from pyrin.converters.serializer.manager import SerializerManager
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(SerializerPackage.COMPONENT_NAME)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-application context module.
+application structs module.
 """
 
 from threading import Lock
@@ -12,7 +12,7 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.utils.singleton import UniqueSingletonMeta
-from pyrin.core.context import Context, CoreObject, DTO
+from pyrin.core.structs import Context, CoreObject, DTO
 from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, JSONIFY_MIMETYPE, \
     APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY

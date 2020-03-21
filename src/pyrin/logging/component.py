@@ -6,7 +6,7 @@ logging component module.
 from pyrin.application.decorators import component
 from pyrin.logging import LoggingPackage
 from pyrin.logging.manager import LoggingManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(LoggingPackage.COMPONENT_NAME)

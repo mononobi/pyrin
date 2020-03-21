@@ -17,7 +17,7 @@ import pyrin.utils.path as path_utils
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
-from pyrin.core.context import DTO, Manager
+from pyrin.core.structs import DTO, Manager
 from pyrin.packaging.base import Package
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default

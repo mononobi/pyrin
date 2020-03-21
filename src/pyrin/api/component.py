@@ -6,7 +6,7 @@ api component module.
 from pyrin.application.decorators import component
 from pyrin.api import APIPackage
 from pyrin.api.manager import APIManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(APIPackage.COMPONENT_NAME)

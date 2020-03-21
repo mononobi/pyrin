@@ -6,7 +6,7 @@ alembic manager module.
 import pyrin.template.services as template_services
 
 from pyrin.cli.mixin.handler import CLIMixin
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
 from pyrin.database.migration.alembic.interface import AlembicCLIHandlerBase
 

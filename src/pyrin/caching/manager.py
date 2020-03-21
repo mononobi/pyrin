@@ -3,7 +3,7 @@
 caching manager module.
 """
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 
 
 class CachingManager(Manager):

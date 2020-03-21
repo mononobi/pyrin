@@ -3,7 +3,7 @@
 packaging component module.
 """
 
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 from pyrin.packaging.manager import PackagingManager
 
 

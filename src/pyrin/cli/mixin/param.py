@@ -8,7 +8,7 @@ from copy import deepcopy
 from pyrin.cli.params import CLIParamBase, HelpParam
 from pyrin.core.globals import LIST_TYPES
 from pyrin.cli.arguments import PositionalArgument
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.cli.exceptions import PositionalArgumentsIndicesError, InvalidCLIParamTypeError
 
 

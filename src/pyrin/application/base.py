@@ -29,18 +29,17 @@ from pyrin.application.hooks import ApplicationHookBase
 from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
-from pyrin.core.context import DTO, Manager
+from pyrin.core.structs import DTO, Manager
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
-from pyrin.application.context import Component
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
 from pyrin.utils.environment import set_python_path
-from pyrin.application.context import CoreResponse, CoreRequest, ApplicationContext, \
-    ApplicationComponent, ApplicationSingletonMeta
+from pyrin.application.structs import CoreResponse, CoreRequest, ApplicationContext, \
+    ApplicationComponent, ApplicationSingletonMeta, Component
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
@@ -878,8 +877,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_settings_path(self, **options):
         """
-        resolves the application settings path. the resolved path will
-        be accessible by `SETTINGS_CONTEXT_KEY` inside application context.
+        resolves the application settings path.
+
+        the resolved path will be accessible by `SETTINGS_CONTEXT_KEY`
+        inside application context.
 
         :keyword str settings_directory: settings directory name.
                                          if not provided, defaults to `settings`.
@@ -903,9 +904,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_default_settings_path(self):
         """
-        resolves the pyrin default settings path. the resolved path will
-        be accessible by `PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY` inside
-        application context.
+        resolves the pyrin default settings path.
+
+        the resolved path will be accessible by `PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY`
+        inside application context.
         """
 
         pyrin_main_package_path = self.get_pyrin_main_package_path()
@@ -915,8 +917,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_migrations_path(self, **options):
         """
-        resolves the application migrations path. the resolved path will
-        be accessible by `MIGRATIONS_CONTEXT_KEY` inside application context.
+        resolves the application migrations path.
+
+        the resolved path will be accessible by `MIGRATIONS_CONTEXT_KEY`
+        inside application context.
 
         :keyword str migrations_directory: migrations directory name.
                                            if not provided, defaults to `migrations`.
@@ -932,8 +936,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_locale_path(self, **options):
         """
-        resolves the application locale path. the resolved path will
-        be accessible by `LOCALE_CONTEXT_KEY` inside application context.
+        resolves the application locale path.
+
+        the resolved path will be accessible by `LOCALE_CONTEXT_KEY`
+        inside application context.
 
         :keyword str locale_directory: locale directory name.
                                        if not provided, defaults to `locale`.
@@ -949,8 +955,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_application_main_package_path(self, **options):
         """
-        resolves the application main package path and registers it
-        in application context with `APPLICATION_PATH_CONTEXT_KEY` key.
+        resolves the application main package path.
+
+        it registers it in application context with `APPLICATION_PATH_CONTEXT_KEY` key.
         """
 
         main_package_path = path_utils.get_main_package_path(self.__module__)
@@ -958,8 +965,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_pyrin_main_package_path(self, **options):
         """
-        resolves pyrin main package path and registers it
-        in application context with `PYRIN_PATH_CONTEXT_KEY` key.
+        resolves pyrin main package path.
+
+        it registers it in application context with `PYRIN_PATH_CONTEXT_KEY` key.
         """
 
         pyrin_main_package = path_utils.get_pyrin_main_package_path()
@@ -967,8 +975,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_pyrin_root_path(self, **options):
         """
-        resolves pyrin root path and registers it in application
-        context with `ROOT_PYRIN_PATH_CONTEXT_KEY` key.
+        resolves pyrin root path.
+
+        it registers it in application context with `ROOT_PYRIN_PATH_CONTEXT_KEY` key.
         """
 
         main_package_path = self.get_pyrin_main_package_path()
@@ -978,8 +987,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _resolve_application_root_path(self, **options):
         """
-        resolves application root path and registers it in application
-        context with `ROOT_APPLICATION_PATH_CONTEXT_KEY` key.
+        resolves application root path.
+
+        it registers it in application context with `ROOT_APPLICATION_PATH_CONTEXT_KEY` key.
         """
 
         main_package_path = self.get_application_main_package_path()

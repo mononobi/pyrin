@@ -10,7 +10,7 @@ import pytz
 import pyrin.configuration.services as config_services
 import pyrin.utils.datetime as datetime_utils
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 
 
 class DateTimeManager(Manager):

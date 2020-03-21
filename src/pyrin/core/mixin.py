@@ -3,7 +3,7 @@
 core mixin module.
 """
 
-from pyrin.core.context import CoreObject, Hook
+from pyrin.core.structs import CoreObject, Hook
 from pyrin.core.exceptions import InvalidHookTypeError
 
 

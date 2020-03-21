@@ -7,7 +7,7 @@ import pyrin.configuration.services as config_services
 
 from pyrin.security.encryption.interface import AbstractEncrypterBase
 from pyrin.utils.custom_print import print_warning
-from pyrin.core.context import Context, Manager
+from pyrin.core.structs import Context, Manager
 from pyrin.security.encryption.exceptions import InvalidEncryptionHandlerTypeError, \
     InvalidEncryptionHandlerNameError, DuplicatedEncryptionHandlerError, \
     EncryptionHandlerNotFoundError, InvalidEncryptedValueError

@@ -5,7 +5,7 @@ database paging manager module.
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 
 
 class DatabasePagingManager(Manager):

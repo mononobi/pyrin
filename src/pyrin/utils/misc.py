@@ -3,7 +3,7 @@
 utils misc module.
 """
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.exceptions import CoreAttributeError
 
 

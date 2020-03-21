@@ -6,7 +6,7 @@ users component module.
 from pyrin.application.decorators import component
 from pyrin.security.users import UsersPackage
 from pyrin.security.users.manager import UsersManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(UsersPackage.COMPONENT_NAME)

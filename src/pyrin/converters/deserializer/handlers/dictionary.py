@@ -10,7 +10,7 @@ import flask.json as flask_json
 import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.converters.deserializer.decorators import deserializer
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.globals import NULL
 from pyrin.converters.deserializer.handlers.base import DeserializerBase, \
     StringPatternDeserializerBase

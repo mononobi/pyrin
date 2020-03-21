@@ -4,7 +4,7 @@ orm sql extractor component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 from pyrin.database.orm.sql.extractor import ORMSQLExtractorPackage
 from pyrin.database.orm.sql.extractor.manager import ORMSQLExtractorManager
 

@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO
 from pyrin.cli.exceptions import ArgumentParamNameIsRequiredError, \
     PositionalArgumentIndexError, BooleanArgumentValueError, \
     KeywordArgumentCLIOptionNameError, MappingArgumentParamValueToCLIMapRequiredError, \

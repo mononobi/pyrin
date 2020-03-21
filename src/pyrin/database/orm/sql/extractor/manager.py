@@ -9,7 +9,7 @@ from sqlalchemy.sql.elements import TextClause
 from sqlparse.tokens import DML, Keyword
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison, TokenList
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.core.globals import LIST_TYPES
 
 

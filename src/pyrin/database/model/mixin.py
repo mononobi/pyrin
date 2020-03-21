@@ -26,7 +26,7 @@ import pyrin.database.model.services as model_services
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError
 

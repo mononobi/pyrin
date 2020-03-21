@@ -7,7 +7,7 @@ import jwt
 
 import pyrin.configuration.services as config_services
 
-from pyrin.core.context import Context, DTO, Manager
+from pyrin.core.structs import Context, DTO, Manager
 from pyrin.security.token.interface import AbstractTokenBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \

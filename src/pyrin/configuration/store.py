@@ -9,7 +9,7 @@ import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.utils.configuration as config_utils
 
 from pyrin.utils.exceptions import ConfigurationFileNotFoundError as UtilsFileNotFoundError
-from pyrin.core.context import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO
 from pyrin.utils.dictionary import change_key_case
 from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \

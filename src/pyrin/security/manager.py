@@ -9,7 +9,7 @@ import pyrin.security.encryption.services as encryption_services
 import pyrin.security.hashing.services as hashing_services
 
 from pyrin.core.globals import _
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.exceptions import InvalidPasswordLengthError, \
     InvalidEncryptionTextLengthError

@@ -3,7 +3,7 @@
 packaging base module.
 """
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 
 
@@ -69,7 +69,7 @@ class Package(CoreObject):
                                        to be able to overcome circular dependency problem,
                                        we should inject configuration services dependency
                                        into this method. because all other packages are
-                                       referenced `packaging.context` module in them, so we
+                                       referenced `packaging.base` module in them, so we
                                        can't import `pyrin.configuration.services` in this
                                        module. this is more beautiful in comparison to
                                        importing it inside this method.
@@ -97,7 +97,7 @@ class Package(CoreObject):
                                        to be able to overcome circular dependency problem,
                                        we should inject configuration services dependency
                                        into this method. because all other packages are
-                                       referenced `packaging.context` module in them, so we
+                                       referenced `packaging.base` module in them, so we
                                        can't import `pyrin.configuration.services` in this
                                        module. this is more beautiful in comparison to
                                        importing it inside this method.

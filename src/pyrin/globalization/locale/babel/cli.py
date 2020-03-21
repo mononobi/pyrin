@@ -6,7 +6,7 @@ babel cli module.
 import pyrin.globalization.locale.babel.services as babel_services
 
 from pyrin.cli.decorators import cli, cli_invoke
-from pyrin.core.context import CLI
+from pyrin.core.structs import CLI
 
 
 class BabelCLI(CLI):

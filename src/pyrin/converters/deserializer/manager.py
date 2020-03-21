@@ -4,7 +4,7 @@ deserializer manager module.
 """
 
 from pyrin.converters.deserializer.interface import AbstractDeserializerBase
-from pyrin.core.context import Context, Manager
+from pyrin.core.structs import Context, Manager
 from pyrin.core.globals import NULL
 from pyrin.utils.custom_print import print_warning
 from pyrin.converters.deserializer.exceptions import InvalidDeserializerTypeError, \

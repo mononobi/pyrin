@@ -5,7 +5,7 @@ utils dictionary module.
 
 import pyrin.utils.string as string_utils
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.utils.exceptions import InputNotCallableError, DictKeyPrefixIsNotProvidedError
 
 

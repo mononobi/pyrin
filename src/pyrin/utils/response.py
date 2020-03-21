@@ -5,7 +5,7 @@ utils response module.
 
 from flask import make_response as flask_response
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.settings.static import DEFAULT_STATUS_CODE
 

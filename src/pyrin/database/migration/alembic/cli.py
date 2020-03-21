@@ -6,7 +6,7 @@ alembic cli module.
 import pyrin.database.migration.alembic.services as alembic_services
 
 from pyrin.cli.decorators import cli, cli_invoke
-from pyrin.core.context import CLI
+from pyrin.core.structs import CLI
 
 
 class AlembicCLI(CLI):

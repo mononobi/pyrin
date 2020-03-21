@@ -10,7 +10,7 @@ import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.datetime.services as datetime_services
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.application.services import get_current_app
 from pyrin.globalization.locale.exceptions import InvalidLocaleSelectorTypeError, \
     InvalidTimezoneSelectorTypeError, LocaleSelectorHasBeenAlreadySetError, \

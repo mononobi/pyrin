@@ -9,7 +9,7 @@ import colorama
 
 import pyrin.utils.function as func_utils
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.utils.custom_print import print_colorful, print_error
 from pyrin.cli.exceptions import InvalidCLIDecoratedMethodError
 

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-core context module.
+core structs module.
 """
 
+from collections import deque
 from threading import Lock
 
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
@@ -263,3 +264,21 @@ class CLI(CoreObject, metaclass=CLISingletonMeta):
         """
 
         return cls._execute_service(handler_name, **options)
+
+
+class Stack(deque):
+    """
+    stack class.
+
+    this class extends `deque` and provides a `peek` method to
+    just get the last inserted item without removing it.
+    it also provides `push` and `pop` methods for convenient.
+    """
+
+    def peek(self):
+        """
+        gets the last inserted item in queue without removing it.
+
+        :rtype: object
+        """
+        pass

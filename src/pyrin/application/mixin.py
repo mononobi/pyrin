@@ -8,7 +8,7 @@ import signal
 
 from abc import abstractmethod
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utils.custom_print import print_error
 

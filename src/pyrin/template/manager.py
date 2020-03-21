@@ -5,7 +5,7 @@ template manager module.
 
 from pyrin.template.interface import AbstractTemplateHandler
 from pyrin.utils.custom_print import print_warning
-from pyrin.core.context import Manager, DTO
+from pyrin.core.structs import Manager, DTO
 from pyrin.template.exceptions import InvalidTemplateHandlerTypeError, \
     DuplicatedTemplateHandlerError, TemplateHandlerNotFoundError
 

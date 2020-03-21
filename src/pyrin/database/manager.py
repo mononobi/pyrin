@@ -14,7 +14,7 @@ from pyrin.core.globals import LIST_TYPES
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import BaseEntity
-from pyrin.core.context import DTO, Manager
+from pyrin.core.structs import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.interface import AbstractSessionFactoryBase
 from pyrin.utils import response as response_utils

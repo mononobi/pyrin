@@ -6,7 +6,7 @@ core globals module.
 from flask_babel import gettext
 from sqlalchemy.util._collections import AbstractKeyedTuple
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 
 
 # this value should be used as `None`, where the `None` itself has a meaning.

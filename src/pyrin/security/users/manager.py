@@ -5,7 +5,7 @@ users manager module.
 
 from abc import abstractmethod
 
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 
 

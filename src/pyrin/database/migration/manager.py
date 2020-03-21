@@ -12,7 +12,7 @@ import pyrin.configuration.services as config_services
 import pyrin.application.services as application_services
 import pyrin.database.model.services as model_services
 
-from pyrin.core.context import DTO, Manager
+from pyrin.core.structs import DTO, Manager
 from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
 from pyrin.utils.custom_print import print_warning, print_info
 

@@ -4,7 +4,7 @@ babel component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 from pyrin.globalization.locale.babel import BabelPackage
 from pyrin.globalization.locale.babel.manager import BabelManager
 

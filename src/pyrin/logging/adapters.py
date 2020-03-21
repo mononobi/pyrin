@@ -8,7 +8,7 @@ from logging import LoggerAdapter
 
 import pyrin.security.session.services as session_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 
 

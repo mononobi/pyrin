@@ -9,7 +9,7 @@ from sqlalchemy import Sequence
 
 import pyrin.database.services as database_services
 
-from pyrin.core.context import Manager, DTO
+from pyrin.core.structs import Manager, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 

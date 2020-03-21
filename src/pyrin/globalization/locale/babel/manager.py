@@ -9,7 +9,7 @@ import pyrin.utils.path as path_utils
 import pyrin.application.services as application_services
 
 from pyrin.cli.mixin.handler import CLIMixin
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.exceptions import LocaleAlreadyExistedError
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase

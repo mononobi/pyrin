@@ -8,7 +8,7 @@ import pyrin.application.services as application_services
 from pyrin.api.router.exceptions import RouteAuthenticationMismatchError
 from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 
 
 class RouterManager(Manager):

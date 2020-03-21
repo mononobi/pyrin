@@ -9,7 +9,7 @@ import pyrin.security.token.services as token_services
 import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _
-from pyrin.core.context import Manager
+from pyrin.core.structs import Manager
 from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError, \

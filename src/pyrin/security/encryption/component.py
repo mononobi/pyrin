@@ -6,7 +6,7 @@ encryption component module.
 from pyrin.application.decorators import component
 from pyrin.security.encryption import EncryptionPackage
 from pyrin.security.encryption.manager import EncryptionManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(EncryptionPackage.COMPONENT_NAME)

@@ -6,7 +6,7 @@ session manager module.
 from flask import request
 from flask.ctx import has_request_context
 
-from pyrin.core.context import DTO, Manager
+from pyrin.core.structs import DTO, Manager
 from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
     CouldNotOverwriteCurrentUserError, InvalidUserError, InvalidComponentCustomKeyError
 

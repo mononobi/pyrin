@@ -5,7 +5,7 @@ orm scoping interface module.
 
 from abc import abstractmethod
 
-from pyrin.core.context import CoreObject
+from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
 
 

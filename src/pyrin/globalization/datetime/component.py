@@ -4,7 +4,7 @@ datetime component module.
 """
 
 from pyrin.application.decorators import component
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 from pyrin.globalization.datetime import DateTimePackage
 from pyrin.globalization.datetime.manager import DateTimeManager
 

@@ -5,7 +5,7 @@ utils configuration module.
 
 from configparser import ConfigParser
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.utils.exceptions import InputNotCallableError, ConfigurationFileNotFoundError
 from pyrin.utils.string import remove_line_break_escapes
 

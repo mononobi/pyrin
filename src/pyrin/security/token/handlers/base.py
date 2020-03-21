@@ -12,7 +12,7 @@ import jwt
 import pyrin.configuration.services as config_services
 import pyrin.security.utils.services as security_utils_services
 
-from pyrin.core.context import DTO
+from pyrin.core.structs import DTO
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.security.token.exceptions import TokenVerificationError, TokenDecodingError

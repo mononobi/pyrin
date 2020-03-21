@@ -9,7 +9,7 @@ import pyrin.application.services as application_services
 import pyrin.utils.path as path_utils
 
 from pyrin.configuration.store import ConfigStore
-from pyrin.core.context import Context, Manager
+from pyrin.core.structs import Context, Manager
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationStoreNotFoundError, ConfigurationFileNotFoundError, ConfigurationFileExistedError
 

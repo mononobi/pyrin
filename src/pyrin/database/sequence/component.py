@@ -6,7 +6,7 @@ sequence component module.
 from pyrin.application.decorators import component
 from pyrin.database.sequence import SequencePackage
 from pyrin.database.sequence.manager import SequenceManager
-from pyrin.application.context import Component
+from pyrin.application.structs import Component
 
 
 @component(SequencePackage.COMPONENT_NAME)

@@ -3,7 +3,7 @@
 packaging hooks module.
 """
 
-from pyrin.core.context import Hook
+from pyrin.core.structs import Hook
 
 
 class PackagingHookBase(Hook):
