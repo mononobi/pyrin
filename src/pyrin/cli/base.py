@@ -10,9 +10,8 @@ from threading import Lock
 from abc import abstractmethod
 
 from pyrin.cli.mixin.param import CLIParamMixin
-from pyrin.core.structs import CoreObject
+from pyrin.core.structs import CoreObject, MultiSingletonMeta
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.utils.singleton import MultiSingletonMeta
 from pyrin.cli.exceptions import InvalidCLIHandlerNameError
 
 

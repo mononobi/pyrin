@@ -6,9 +6,8 @@ deserializer interface module.
 from abc import abstractmethod
 from threading import Lock
 
-from pyrin.core.structs import CoreObject
+from pyrin.core.structs import CoreObject, MultiSingletonMeta
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.utils.singleton import MultiSingletonMeta
 
 
 class DeserializerSingletonMeta(MultiSingletonMeta):

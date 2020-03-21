@@ -5,9 +5,152 @@ core structs module.
 
 from collections import deque
 from threading import Lock
+from abc import abstractmethod
 
-from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError
-from pyrin.utils.singleton import MultiSingletonMeta
+from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError, \
+    CoreNotImplementedError
+
+
+class SingletonMetaBase(type):
+    """
+    singleton meta base class.
+
+    this is a thread-safe implementation of singleton.
+    """
+
+    _lock = Lock()
+
+    def __call__(cls, *args, **kwargs):
+        try:
+            cls._lock.acquire()
+            if cls._has_instance() is False:
+                instance = super().__call__(*args, **kwargs)
+                cls._register_instance(instance)
+        finally:
+            if cls._lock.locked():
+                cls._lock.release()
+
+        return cls._get_instance()
+
+    @abstractmethod
+    def _has_instance(cls):
+        """
+        gets a value indicating there is a registered instance.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _register_instance(cls, instance):
+        """
+        registers the given instance.
+
+        :param object instance: instance to be registered.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _get_instance(cls):
+        """
+        gets the registered instance.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: object
+        """
+
+        raise CoreNotImplementedError()
+
+
+class UniqueSingletonMeta(SingletonMetaBase):
+    """
+    unique singleton meta class.
+
+    this is a thread-safe implementation of singleton.
+    this class only allows a single unique object for all descendant types.
+
+    for example: {Base -> UniqueSingletonMeta, A -> Base, B -> A}
+    if some_object = Base() then always Base() = A() = B() = some_object.
+    or if some_object = A() then always A() = B() = some_object != Base().
+    """
+
+    _instance = None
+    _lock = Lock()
+
+    def _has_instance(cls):
+        """
+        gets a value indicating that there is a registered instance.
+
+        :rtype: bool
+        """
+
+        return cls._instance is not None
+
+    def _register_instance(cls, instance):
+        """
+        registers the given instance.
+        """
+
+        cls._instance = instance
+
+    def _get_instance(cls):
+        """
+        gets the registered instance.
+
+        :rtype: object
+        """
+
+        return cls._instance
+
+
+class MultiSingletonMeta(SingletonMetaBase):
+    """
+    multi singleton meta class.
+
+    this is a thread-safe implementation of singleton.
+    this class allows a unique object per each type of descendants.
+
+    for example: {Base -> UniqueSingletonMeta, A -> Base, B -> A}
+    if some_object = Base() then always Base() != A() != B() but always Base() = some_object.
+    or if some_object = A() then always Base() != A() != B() but always A() = some_object.
+    """
+
+    # a dictionary containing an instance of each type.
+    # in the form of: {type: instance}
+    _instances = dict()
+    _lock = Lock()
+
+    def _has_instance(cls):
+        """
+        gets a value indicating that there is a registered instance.
+
+        :rtype: bool
+        """
+
+        return str(cls) in cls._instances
+
+    def _register_instance(cls, instance):
+        """
+        registers the given instance.
+        """
+
+        cls._instances[str(cls)] = instance
+
+    def _get_instance(cls):
+        """
+        gets the registered instance.
+
+        :rtype: object
+        """
+
+        return cls._instances.get(str(cls))
 
 
 class DTO(dict):
@@ -273,6 +416,9 @@ class Stack(deque):
     this class extends `deque` and provides a `peek` method to
     just get the last inserted item without removing it.
     it also provides `push` and `pop` methods for convenient.
+
+    note that `Stack` is not guaranteed to be thread-safe on all python
+    implementations, because it extends `deque`.
     """
 
     def peek(self):
@@ -280,5 +426,16 @@ class Stack(deque):
         gets the last inserted item in queue without removing it.
 
         :rtype: object
+        """
+        pass
+
+    def push(self, value):
+        """
+        adds the given value into stack.
+
+        :param object value: value to be added into stack.
+
+        this method is just implemented for convenient of usage,
+        it will call `append` under the hood.
         """
         pass

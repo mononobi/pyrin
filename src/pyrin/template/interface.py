@@ -6,8 +6,7 @@ template interface module.
 from abc import abstractmethod
 from threading import Lock
 
-from pyrin.utils.singleton import MultiSingletonMeta
-from pyrin.core.structs import CoreObject
+from pyrin.core.structs import CoreObject, MultiSingletonMeta
 from pyrin.core.exceptions import CoreNotImplementedError
 
 
