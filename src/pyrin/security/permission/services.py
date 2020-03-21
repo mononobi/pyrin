@@ -4,7 +4,7 @@ permission services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.database.decorators import atomic
+from pyrin.database.transaction.decorators import atomic
 from pyrin.security.permission import PermissionPackage
 
 
