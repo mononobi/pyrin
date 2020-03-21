@@ -8,7 +8,7 @@ import pytest
 from pyrin.core.structs import Hook
 from pyrin.core.exceptions import InvalidHookTypeError
 
-from tests.core.structs import HookEnabledMock
+from tests.core.mixin import HookEnabledMock
 
 
 def test_get_hooks_attribute():
