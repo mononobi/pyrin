@@ -13,6 +13,7 @@ from pyrin.core.exceptions import CoreNotImplementedError
 class TemplateHandlerSingletonMeta(MultiSingletonMeta):
     """
     template handler singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 

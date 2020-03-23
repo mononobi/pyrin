@@ -25,6 +25,8 @@ class ProjectStructureTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase)
 
         :param str name: name of the handler.
                          each handler must have a unique name.
+
+        :param str source: source directory of template files.
         """
 
         self._next_handler = None
@@ -72,6 +74,10 @@ class ProjectStructureTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase)
         :param str app_class_name: application class name.
                                    defaults to None if not provided and
                                    will be get it from command prompt.
+
+        :raises InvalidProjectRootPathError: invalid project root path error.
+        :raises InvalidApplicationPackageNameError: invalid application package name error.
+        :raises InvalidApplicationClassNameError: invalid application class name error.
         """
 
         if project_root is None:
@@ -121,6 +127,10 @@ class ProjectStructureTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase)
 
         :param str app_package_name: application package name.
         :param str app_class_name: application class name.
+
+        :raises InvalidProjectRootPathError: invalid project root path error.
+        :raises InvalidApplicationPackageNameError: invalid application package name error.
+        :raises InvalidApplicationClassNameError: invalid application class name error.
         """
 
         if project_root not in (None, '') and \

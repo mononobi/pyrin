@@ -26,6 +26,7 @@ def get_module_file_path(module_name):
 def get_main_package_name(module_name):
     """
     gets the main package name from given module name.
+
     for example for `pyrin.database.manager` module, it
     returns `pyrin` as the main package name.
 
@@ -68,6 +69,7 @@ def get_main_package_path(module_name):
 def get_pyrin_main_package_name():
     """
     gets the name of pyrin main package name.
+
     it would always be `pyrin` in normal cases.
 
     :rtype: str
@@ -84,6 +86,22 @@ def get_pyrin_main_package_path():
     """
 
     return get_main_package_path(__name__)
+
+
+def get_package_name(path, root_path):
+    """
+    gets the full package name for provided path.
+
+    :param str path: full path of package.
+                     example path = `/home/src/pyrin/database`.
+
+    :param str root_path: root path in which this path is located.
+                          example root_path = `/home/src`
+
+    :rtype: str
+    """
+
+    return path.replace(root_path, '').replace(os.path.sep, '.').lstrip('.')
 
 
 def create_directory(target):

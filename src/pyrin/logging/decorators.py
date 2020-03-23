@@ -24,7 +24,7 @@ def audit(func):
         """
         decorates the given function and logs its execution time.
 
-        note that `audit_log=True` is required in logging config
+        note that `audit_log: true` is required in logging config
         store for each environment to enable this decorator.
 
         :param object args: function arguments.

@@ -760,7 +760,7 @@ class PackagingManager(Manager, HookMixin):
         :rtype: str
         """
 
-        return path.replace(root_path, '').replace(os.path.sep, '.').lstrip('.')
+        return path_utils.get_package_name(path, root_path)
 
     def _merge_module_name(self, package_name, component_name):
         """

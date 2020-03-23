@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-cli core template package.
+PACKAGE_NAME package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class CLICoreTemplatePackage(Package):
+class PACKAGE_CLASS_NAMEPackage(Package):
     """
-    cli core template package class.
+    PACKAGE_NAME package class.
     """
 
     NAME = __name__
