@@ -19,6 +19,49 @@ def atomic(func):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after function execution.
 
+    note that it's not required to commit or rollback anything inside an atomic
+    function, the `@atomic` decorator will handle commit or rollback operations
+    when needed.
+
+    also note that you *should not* remove the corresponding session from session factory
+    when using `@atomic` decorator. the removal operation will be handled by decorator
+    itself and if you remove session manually, it will cause broken chain of sessions
+    and unexpected behaviour.
+
+    this decorator also supports multiple `@atomic` usage in a single call hierarchy.
+    for example:
+
+    def service_root():
+        store = get_current_store()
+        value = EntityRoot()
+        store.add(value)
+        service_a()
+
+    @atomic
+    def service_a():
+        store = get_current_store()
+        value = EntityA()
+        store.add(value)
+        service_b()
+        raise Exception()
+
+    @atomic
+    def service_b():
+        store = get_current_store()
+        value = EntityB()
+        store.add(value)
+        service_c()
+
+    @atomic
+    def service_c():
+        value = EntityC()
+        value.save()
+
+    in the above example, if the call hierarchy starts with `service_root()`, at
+    the end, the data of `service_c` and `service_b` will be persisted into database,
+    but the data of `service_a` and `service_root` will not be persisted because
+    `service_a` raises an error before finish.
+
     :param function func: function.
 
     :returns: function result.
