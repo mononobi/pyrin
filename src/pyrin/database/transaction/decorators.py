@@ -58,7 +58,7 @@ def atomic(func):
         value.save()
 
     in the above example, if the call hierarchy starts with `service_root()`, at
-    the end, the data of `service_c` and `service_b` will be persisted into database,
+    the end, the data of `service_c` and `service_b` will be persisted into database.
     but the data of `service_a` and `service_root` will not be persisted because
     `service_a` raises an error before finish.
 
