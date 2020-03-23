@@ -6,6 +6,7 @@ orm scoping registry thread_scoped module.
 from sqlalchemy.util import ThreadLocalRegistry
 
 from pyrin.database.orm.scoping.interface import AbstractScopedRegistryBase
+from pyrin.database.orm.scoping.registry.containers.atomic import ThreadScopedAtomicContainer
 
 
 class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
@@ -15,28 +16,40 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
     it also supports atomic objects.
     """
 
+    def __init__(self, createfunc):
+        """
+        initializes and instance of ThreadScopedRegistry.
+
+        :param callable createfunc: a creation function that will generate a new
+                                    value for the current scope, if none is present.
+        """
+
+        super().__init__(createfunc)
+
+        self.atomic_registry = ThreadScopedAtomicContainer()
+
     def __call__(self, atomic=False):
         """
         gets the corresponding object from registry if available, otherwise creates a new one.
 
-        note that if there is an atomic object available,
-        it always returns it, even if `atomic=False` is provided.
+        note that if there is an atomic object available, and `atomic=False` is
+        provided, it always returns the available atomic object, but if `atomic=True`
+        is provided it always creates a new atomic object.
 
-        :param bool atomic: specifies that it must get an atomic object.
-                            it returns it from registry if available,
-                            otherwise gets a new atomic object.
+        :param bool atomic: specifies that it must get a new atomic object.
                             defaults to False if not provided.
 
        :returns: object
         """
 
-        try:
-            return self.registry.atomic_value
-        except AttributeError:
-            if atomic is True:
-                atomic_value = self.registry.atomic_value = self.inject_atomic(
-                    self.createfunc(), True)
-                return atomic_value
+        if atomic is True:
+            value = self.inject_atomic(self.createfunc(), atomic)
+            self.set(value, atomic)
+            return value
+
+        value = self.atomic_registry.get()
+        if value is not None:
+            return value
 
         return super().__call__()
 
@@ -50,7 +63,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         :rtype: bool
         """
 
-        has_atomic = hasattr(self.registry, "atomic_value")
+        has_atomic = self.atomic_registry.has()
         if atomic is True:
             return has_atomic
         return has_atomic or super().has()
@@ -66,7 +79,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         """
 
         if atomic is True:
-            self.registry.atomic_value = obj
+            self.atomic_registry.set(obj)
         else:
             super().set(obj)
 
@@ -75,24 +88,28 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         clears the current scope's object, if any.
 
         it also clears if any atomic object is available.
-        if `atomic=True` is provided, it only clears the atomic object if available.
+        if `atomic=True` is provided, it only clears the
+        current atomic object if available.
 
-        :param bool atomic: specifies that it must only clear an atomic object
-                            of current scope. otherwise, it clears all objects of
-                            current scope. defaults to False if not provided.
+        :param bool atomic: specifies that it must only clear the current atomic
+                            object of current scope. otherwise, it clears all objects
+                            of current scope. defaults to False if not provided.
         """
 
-        try:
-            del self.registry.atomic_value
-        except AttributeError:
-            pass
-
+        self.atomic_registry.clear(atomic)
         if atomic is False:
             return super().clear()
 
+    def clear_all_atomic(self):
+        """
+        clears all atomic objects of current scope, if any.
+        """
+
+        self.atomic_registry.clear()
+
     def get(self, atomic=False):
         """
-        gets the current object of this scope if available, otherwise returns None.
+        gets the current object of current scope if available, otherwise returns None.
 
         :param bool atomic: specifies that it must get the atomic object of
                             current scope, otherwise it returns the normal object.
@@ -106,21 +123,27 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
 
         return self._get()
 
+    def get_all_atomic(self):
+        """
+        gets all atomic objects of current scope if available, otherwise returns an empty list.
+
+        :rtype: list[object]
+        """
+
+        return self.atomic_registry.get_all()
+
     def _get_atomic(self):
         """
-        gets the current atomic object of this scope if available, otherwise returns None.
+        gets the current atomic object of current scope if available, otherwise returns None.
 
         :rtype: object
         """
 
-        try:
-            return self.registry.atomic_value
-        except AttributeError:
-            return None
+        return self.atomic_registry.get()
 
     def _get(self):
         """
-        gets the current normal object of this scope if available, otherwise returns None.
+        gets the current normal object of current scope if available, otherwise returns None.
 
         :rtype: object
         """

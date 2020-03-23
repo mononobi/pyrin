@@ -7,36 +7,20 @@ from pyrin.application.services import get_component
 from pyrin.database import DatabasePackage
 
 
-def get_current_store(atomic=False):
+def get_current_store():
     """
     gets current database store.
 
-    if `atomic=True` is provided, it gets an atomic session, meaning a new
-    session with a new transaction. note that it's normally not needed to get
-    an atomic session manually, instead you could use `@atomic` decorator to
-    provide you an atomic session. but if you really need to get an atomic
-    session manually, you have to manually remove that session from corresponding
-    session factory after you've done.
-
-    note that in each scope (request or thread based) there should be only a
-    unique atomic session, so if you get an atomic session, and don't remove it,
-    after that if you get another atomic session in the same scope, you will get
-    the same exact atomic session. but if you get an atomic session, and remove
-    it from corresponding session factory after you've done, after that if you get
-    another atomic session, it will get you a new atomic session. this is why it's
-    better not to get an atomic session manually, and instead use `@atomic` decorator
-    when you need atomic session.
-
-    :param bool atomic: specifies that it must get an atomic session.
-                        it returns it from registry if available,
-                        otherwise gets a new atomic session.
-                        defaults to False if not provided.
+    note that this method will always get the correct session based on available
+    context. so if you are in an atomic context, it gets you the correct atomic
+    session, but if you are not in an atomic context, it will get you the related
+    session to current scope.
 
     :returns: database session
     :rtype: CoreSession
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store(atomic)
+    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store()
 
 
 def get_current_session_factory():
@@ -51,6 +35,29 @@ def get_current_session_factory():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_current_session_factory()
+
+
+def get_atomic_store():
+    """
+    gets an atomic database store.
+
+    atomic is meaning a new session with a new transaction. note that it's normally
+    not needed to get an atomic session manually, instead you could use `@atomic`
+    decorator to provide you an atomic session. but if you really need to get an atomic
+    session manually, you have to manually remove that session from corresponding
+    session factory after you've done. otherwise, unexpected behaviour may occur.
+    so if you get an atomic session, and don't remove it, after that if you get another
+    session in the same scope, you will get the same exact atomic session. but if you
+    get an atomic session, and remove it from corresponding session factory after you've
+    done, after that if you get a session, it will get you a session related to current
+    scope. this is why it's recommended not to get an atomic session manually, and
+    instead use `@atomic` decorator when you need an atomic session.
+
+    :returns: database session
+    :rtype: CoreSession
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_atomic_store()
 
 
 def finalize_transaction(response):

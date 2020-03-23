@@ -84,17 +84,18 @@ class CoreScopedSession(scoped_session):
         gets the current `Session` object.
 
         creating it using the `CoreScopedSession.session_factory` if not present.
+        note that if there is an atomic object available, and `atomic=False` is
+        provided, it always returns the available atomic object, but if `atomic=True`
+        is provided it always creates a new atomic object.
 
-        :param bool atomic: specifies that it must get an atomic session.
-                            it returns it from atomic registry if available,
-                            otherwise gets a new atomic session.
+        :param bool atomic: specifies that it must get a new atomic session.
                             defaults to False if not provided.
 
         :keyword object **kw: keyword arguments will be passed to the
                               `CoreScopedSession.session_factory` callable,
                               if an existing `Session` is not present. if
-                              the `.Session` is present and keyword arguments
-                              have been passed, `sqlalchemy.exc.InvalidRequestError`
+                              the `Session` is present and keyword arguments
+                              have been passed, `ScopedSessionIsAlreadyPresentError`
                               is raised.
 
         :raises ScopedSessionIsAlreadyPresentError: scoped session is already present error.
@@ -103,10 +104,7 @@ class CoreScopedSession(scoped_session):
         """
 
         if kw:
-            has_atomic = self.registry.has(True)
-            has = self.registry.has()
-
-            if has_atomic is True or (atomic is False and has is True):
+            if atomic is False and self.registry.has() is True:
                 raise ScopedSessionIsAlreadyPresentError('Scoped session is already present, '
                                                          'no new arguments may be specified.')
             else:
@@ -126,12 +124,13 @@ class CoreScopedSession(scoped_session):
         is then discarded. upon next usage within the same scope, the
         `CoreScopedSession` will produce a new `Session` object.
 
-        :param bool atomic: specifies that it must only dispose an atomic session
-                            of current scope. otherwise, it disposes all sessions
-                            of current scope. defaults to False if not provided.
+        :param bool atomic: specifies that it must only dispose the current atomic
+                            session of current scope. otherwise, it disposes all
+                            sessions of current scope.
+                            defaults to False if not provided.
         """
 
-        self._remove_atomic()
+        self._remove_atomic(atomic)
         if atomic is False:
             self._remove()
 
@@ -149,11 +148,35 @@ class CoreScopedSession(scoped_session):
         session = self.registry.get()
         if session is not None:
             session.close()
-        self.registry.clear()
+            self.registry.clear()
 
-    def _remove_atomic(self):
+    def _remove_atomic(self, atomic=False):
         """
-        disposes the current atomic `Session` object of current scope, if present.
+        disposes the current atomic `Session` objects of current scope, if present.
+
+        this will first call `Session.close` method on the current `Session`,
+        which releases any existing transactional/connection resources still
+        being held. transactions specifically are rolled back. the `Session`
+        is then discarded. upon next usage within the same scope, the
+        `CoreScopedSession` will produce a new atomic `Session` object.
+
+        :param bool atomic: specifies that it must only dispose the current atomic
+                            session of current scope. otherwise, it disposes all
+                            atomic sessions of current scope.
+                            defaults to False if not provided.
+        """
+
+        if atomic is False:
+            self._remove_all_atomic()
+        else:
+            atomic_session = self.registry.get(True)
+            if atomic_session is not None:
+                atomic_session.close()
+                self.registry.clear(True)
+
+    def _remove_all_atomic(self):
+        """
+        disposes all atomic `Session` objects of current scope, if present.
 
         this will first call `Session.close` method on the current `Session`,
         which releases any existing transactional/connection resources still
@@ -162,24 +185,22 @@ class CoreScopedSession(scoped_session):
         `CoreScopedSession` will produce a new atomic `Session` object.
         """
 
-        atomic_session = self.registry.get(True)
-        if atomic_session is not None:
-            atomic_session.close()
-        self.registry.clear(True)
+        atomic_sessions = self.registry.get_all_atomic()
+        for session in atomic_sessions:
+            session.close()
+
+        self.registry.clear_all_atomic()
 
     def commit_all(self, atomic=False):
         """
         commits all sessions related to current scope.
 
-        note that current scope could have at most two current
-        sessions, a normal session and an atomic session.
-
-        :param bool atomic: specifies that it must only commit the atomic session of current
-                            scope. otherwise, it commits all sessions of current scope.
-                            defaults to False if not provided.
+        :param bool atomic: specifies that it must only commit the current atomic session
+                            of current scope. otherwise, it commits all sessions of current
+                            scope. defaults to False if not provided.
         """
 
-        self._commit_atomic()
+        self._commit_atomic(atomic)
         if atomic is False:
             self._commit()
 
@@ -195,31 +216,41 @@ class CoreScopedSession(scoped_session):
         if session is not None:
             session.commit()
 
-    def _commit_atomic(self):
+    def _commit_atomic(self, atomic=False):
         """
-        commits the atomic session of current scope, if available.
+        commits current atomic session of current scope, if available.
 
-        note that current scope could have at most one atomic
-        session at the same time.
+        :param bool atomic: specifies that it must only commit the current atomic session
+                            of current scope. otherwise, it commits all atomic sessions
+                            of current scope. defaults to False if not provided.
         """
 
-        atomic_session = self.registry.get(True)
-        if atomic_session is not None:
-            atomic_session.commit()
+        if atomic is False:
+            self._commit_all_atomic()
+        else:
+            atomic_session = self.registry.get(True)
+            if atomic_session is not None:
+                atomic_session.commit()
+
+    def _commit_all_atomic(self):
+        """
+        commits all atomic sessions of current scope, if available.
+        """
+
+        atomic_sessions = self.registry.get_all_atomic()
+        for session in atomic_sessions:
+            session.commit()
 
     def rollback_all(self, atomic=False):
         """
         rollbacks all sessions related to current scope.
-
-        note that current scope could have at most two current
-        sessions, a normal session and an atomic session.
 
         :param bool atomic: specifies that it must only rollback the atomic session of current
                             scope. otherwise, it commits all sessions of current scope.
                             defaults to False if not provided.
         """
 
-        self._rollback_atomic()
+        self._rollback_atomic(atomic)
         if atomic is False:
             self._rollback()
 
@@ -235,14 +266,27 @@ class CoreScopedSession(scoped_session):
         if session is not None:
             session.rollback()
 
-    def _rollback_atomic(self):
+    def _rollback_atomic(self, atomic=False):
         """
         rollbacks the atomic session of current scope, if available.
 
-        note that current scope could have at most one atomic
-        session at the same time.
+        :param bool atomic: specifies that it must only rollback the current atomic
+                            session of current scope. otherwise, it rollbacks all atomic
+                            sessions of current scope. defaults to False if not provided.
         """
 
-        atomic_session = self.registry.get(True)
-        if atomic_session is not None:
-            atomic_session.rollback()
+        if atomic is False:
+            self._rollback_all_atomic()
+        else:
+            atomic_session = self.registry.get(True)
+            if atomic_session is not None:
+                atomic_session.rollback()
+
+    def _rollback_all_atomic(self):
+        """
+        rollbacks all atomic sessions of current scope, if available.
+        """
+
+        atomic_sessions = self.registry.get_all_atomic()
+        for session in atomic_sessions:
+            session.rollback()

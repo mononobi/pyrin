@@ -22,9 +22,11 @@ class AbstractScopedRegistryBase(CoreObject):
         """
         gets the corresponding object from registry if available, otherwise creates a new one.
 
-        :param bool atomic: specifies that it must get an atomic object.
-                            it returns it from registry if available,
-                            otherwise gets a new atomic object.
+        note that if there is an atomic object available, and `atomic=False` is
+        provided, it always returns the available atomic object, but if `atomic=True`
+        is provided it always creates a new atomic object.
+
+        :param bool atomic: specifies that it must get a new atomic object.
                             defaults to False if not provided.
 
         :raises CoreNotImplementedError: core not implemented error.
@@ -70,11 +72,22 @@ class AbstractScopedRegistryBase(CoreObject):
         clears the current scope's objects, if any.
 
         it also clears if any atomic object is available.
-        if `atomic=True` is provided, it only clears the atomic object if available.
+        if `atomic=True` is provided, it only clears the
+        current atomic object if available.
 
-        :param bool atomic: specifies that it must only clear an atomic object
-                            of current scope. otherwise, it clears all objects of
-                            current scope. defaults to False if not provided.
+        :param bool atomic: specifies that it must only clear the current atomic
+                            object of current scope. otherwise, it clears all objects
+                            of current scope. defaults to False if not provided.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def clear_all_atomic(self):
+        """
+        clears all atomic objects of current scope, if any.
 
         :raises CoreNotImplementedError: core not implemented error.
         """
@@ -84,15 +97,27 @@ class AbstractScopedRegistryBase(CoreObject):
     @abstractmethod
     def get(self, atomic=False):
         """
-        gets the current object of this scope if available, otherwise returns None.
+        gets the current object of current scope if available, otherwise returns None.
 
-        :param bool atomic: specifies that it must get the atomic object of
+        :param bool atomic: specifies that it must get the current atomic object of
                             current scope, otherwise it returns the normal object.
                             defaults to False if not provided.
 
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: object
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_all_atomic(self):
+        """
+        gets all atomic objects of current scope if available, otherwise returns an empty list.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: list[object]
         """
 
         raise CoreNotImplementedError()

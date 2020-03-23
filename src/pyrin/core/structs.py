@@ -413,29 +413,61 @@ class Stack(deque):
     """
     stack class.
 
-    this class extends `deque` and provides a `peek` method to
-    just get the last inserted item without removing it.
-    it also provides `push` and `pop` methods for convenient.
+    this class extends `deque` and provides a `peek()` method to
+    just get the top most item without removing it.
+    it also provides some other useful methods for convenient of usage.
 
     note that `Stack` is not guaranteed to be thread-safe on all python
-    implementations, because it extends `deque`.
+    implementations, because it extends `deque`. so do not use it when
+    there is a multi-thread access to the same stack.
     """
 
     def peek(self):
         """
-        gets the last inserted item in queue without removing it.
+        gets the top most item of stack, without removing it.
+
+        the return value of `peek()` is the same as `pop()`
+        but without removing it from the stack.
+        if the stack is empty, it raises an error.
+
+        :raises IndexError: index error.
 
         :rtype: object
         """
-        pass
+
+        return self[-1]
+
+    def peek_all(self):
+        """
+        gets all items of stack, without removing them.
+
+        the result is a list of all items of the stack in the order of
+        `peek()`. meaning that, last inserted items will be in lower indices.
+
+        :rtype: list[object]
+        """
+
+        return list(reversed(self))
 
     def push(self, value):
         """
-        adds the given value into stack.
+        adds the given value into top of stack.
 
         :param object value: value to be added into stack.
 
         this method is just implemented for convenient of usage,
-        it will call `append` under the hood.
+        it will call `append()` under the hood.
         """
-        pass
+
+        self.append(value)
+
+    def dispose(self):
+        """
+        deletes the top most item of stack, without returning it.
+
+        if the stack is empty, it raises an error.
+
+        :raises IndexError: index error.
+        """
+
+        del self[-1]

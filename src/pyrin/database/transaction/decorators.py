@@ -34,7 +34,7 @@ def atomic(func):
         :returns: function result.
         """
 
-        store = database_services.get_current_store(True)
+        store = database_services.get_atomic_store()
         try:
             result = func(*args, **kwargs)
             store.commit()

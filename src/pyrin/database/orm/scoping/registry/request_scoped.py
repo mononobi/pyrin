@@ -8,6 +8,7 @@ from sqlalchemy.util import ScopedRegistry
 import pyrin.security.session.services as session_services
 
 from pyrin.database.orm.scoping.interface import AbstractScopedRegistryBase
+from pyrin.database.orm.scoping.registry.containers.atomic import RequestScopedAtomicContainer
 
 
 class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
@@ -35,36 +36,36 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
 
         # a dictionary containing all atomic sessions that are present.
         # each atomic session corresponds to a request scoped session.
-        # each request could contain a LIFO queue of current atomic sessions.
+        # each request could contain a 'Stack' of current atomic sessions.
         # each time an atomic session is requested, it gets the last inserted
         # atomic session, this way it provides the ability to use chained
-        # atomic sessions. for example multiple methods use '@atomic' decorator
+        # atomic sessions. for example multiple methods using '@atomic' decorator
         # in a single call hierarchy.
-        # in the form of: {int key: Stack[CoreSession] sessions}
-        self.atomic_registry = {}
+        # in the form of: {int key_hash: Stack[object] objects}
+        self.atomic_registry = RequestScopedAtomicContainer(scopefunc)
 
     def __call__(self, atomic=False):
         """
         gets the corresponding object from registry if available, otherwise creates a new one.
 
-        note that if there is an atomic object available,
-        it always returns it, even if `atomic=False` is provided.
+        note that if there is an atomic object available, and `atomic=False` is
+        provided, it always returns the available atomic object, but if `atomic=True`
+        is provided it always creates a new atomic object.
 
-        :param bool atomic: specifies that it must get an atomic object.
-                            it returns it from atomic registry if available,
-                            otherwise gets a new atomic object.
+        :param bool atomic: specifies that it must get a new atomic object.
                             defaults to False if not provided.
 
         :returns: object
         """
 
-        key = self.scopefunc()
-        try:
-            return self.atomic_registry[key]
-        except KeyError:
-            if atomic is True:
-                return self.atomic_registry.setdefault(key, self.inject_atomic(
-                    self.createfunc(), True))
+        if atomic is True:
+            value = self.inject_atomic(self.createfunc(), atomic)
+            self.set(value, atomic)
+            return value
+
+        value = self.atomic_registry.get()
+        if value is not None:
+            return value
 
         return super().__call__()
 
@@ -79,7 +80,7 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
         """
 
         if session_services.is_request_context_available() is True:
-            has_atomic = self.scopefunc() in self.atomic_registry
+            has_atomic = self.atomic_registry.has()
             if atomic is True:
                 return has_atomic
             return has_atomic or super().has()
@@ -97,7 +98,7 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
         """
 
         if atomic is True:
-            self.atomic_registry[self.scopefunc()] = obj
+            self.atomic_registry.set(obj)
         else:
             super().set(obj)
 
@@ -106,26 +107,30 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
         clears the current scope's object, if any.
 
         it also clears if any atomic object is available.
-        if `atomic=True` is provided, it only clears the atomic object if available.
+        if `atomic=True` is provided, it only clears the
+        current atomic object if available.
 
-        :param bool atomic: specifies that it must only clear an atomic object
-                            of current scope. otherwise, it clears all objects of
-                            current scope. defaults to False if not provided.
+        :param bool atomic: specifies that it must only clear the current atomic
+                            object of current scope. otherwise, it clears all objects
+                            of current scope. defaults to False if not provided.
         """
 
-        try:
-            del self.atomic_registry[self.scopefunc()]
-        except KeyError:
-            pass
-
+        self.atomic_registry.clear(atomic)
         if atomic is False:
             super().clear()
 
+    def clear_all_atomic(self):
+        """
+        clears all atomic objects of current scope, if any.
+        """
+
+        self.atomic_registry.clear()
+
     def get(self, atomic=False):
         """
-        gets the current object of this scope if available, otherwise returns None.
+        gets the current object of current scope if available, otherwise returns None.
 
-        :param bool atomic: specifies that it must get the atomic object of
+        :param bool atomic: specifies that it must get the current atomic object of
                             current scope, otherwise it returns the normal object.
                             defaults to False if not provided.
 
@@ -137,21 +142,27 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
 
         return self._get()
 
+    def get_all_atomic(self):
+        """
+        gets all atomic objects of current scope if available, otherwise returns an empty list.
+
+        :rtype: list[object]
+        """
+
+        return self.atomic_registry.get_all()
+
     def _get_atomic(self):
         """
-        gets the current atomic object of this scope if available, otherwise returns None.
+        gets the current atomic object of current scope if available, otherwise returns None.
 
         :rtype: object
         """
 
-        try:
-            return self.atomic_registry[self.scopefunc()]
-        except KeyError:
-            return None
+        return self.atomic_registry.get()
 
     def _get(self):
         """
-        gets the current normal object of this scope if available, otherwise returns None.
+        gets the current normal object of current scope if available, otherwise returns None.
 
         :rtype: object
         """
