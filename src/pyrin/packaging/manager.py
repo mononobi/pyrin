@@ -53,6 +53,9 @@ class PackagingManager(Manager, HookMixin):
         # holds the name of disabled packages.
         self._disabled_packages = []
 
+        # holds the full path of directories that are not a package (not having __init__.py)
+        self._not_packages = []
+
         # holds the instance of all loaded modules.
         # in the form of: {str module_name: Module module}
         self._loaded_modules = DTO()
@@ -130,6 +133,8 @@ class PackagingManager(Manager, HookMixin):
         initializes required data.
         """
 
+        self._disabled_packages.clear()
+        self._not_packages.clear()
         self._loaded_packages.clear()
         self._loaded_modules.clear()
         self._pyrin_components.clear()
@@ -805,7 +810,27 @@ class PackagingManager(Manager, HookMixin):
         :rtype: bool
         """
 
-        return self._has_module(path, '__init__')
+        is_package = self._has_module(path, '__init__')
+        if is_package is False:
+            self._not_packages.append(path)
+
+        return is_package and self._parent_is_package(path)
+
+    def _parent_is_package(self, path):
+        """
+        gets a value indicating that the parent of given path is a python package.
+
+        :param str path: full path of package.
+                         example path = `/home/src/pyrin/database`.
+
+        :rtype: bool
+        """
+
+        for not_package in self._not_packages:
+            if path.startswith(not_package):
+                return False
+
+        return True
 
     def _is_module(self, file_name):
         """
