@@ -28,7 +28,8 @@ class TemplateManager(Manager):
 
     def register_template_handler(self, instance, **options):
         """
-        registers a new template handler or replaces the existing one
+        registers a new template handler or replaces the existing one.
+
         if `replace=True` is provided. otherwise, it raises an error
         on adding a template handler which is already registered.
 
@@ -73,6 +74,7 @@ class TemplateManager(Manager):
     def _get_template_handler(self, name):
         """
         gets a template handler with the given name.
+
         if not available, it raises an error.
 
         :param str name: template handler name to get its instance.
@@ -88,14 +90,17 @@ class TemplateManager(Manager):
 
         return self._template_handlers[name]
 
-    def create(self, handler_name):
+    def create(self, handler_name, *args, **kwargs):
         """
         creates the template using the given template handler name.
 
         :param str handler_name: handler name to be used.
+        :param object args: arguments that should be passed to template handler.
+
+        :keyword object kwargs: keyword arguments that should be passed to template handler.
 
         :raises TemplateHandlerNotFoundError: template handler not found error.
         """
 
         handler = self._get_template_handler(handler_name)
-        return handler.create()
+        return handler.create(*args, **kwargs)
