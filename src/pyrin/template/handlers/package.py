@@ -102,7 +102,7 @@ class PackageTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase):
             os.path.altsep).replace(' ', '').lower()
         self._package_full_path = os.path.abspath(os.path.join(
             self._application_path, self._package_path))
-        self._package_name = ' '.join(os.path.split(self._package_path)).lower().strip()
+        self._package_name = ' '.join(self._package_path.split(os.path.sep)).lower().strip()
         self._package_full_name = path_utils.get_package_name(self._package_full_path,
                                                               self._application_root_path)
         self._package_base = self._package_path.replace(os.path.sep, '.')
