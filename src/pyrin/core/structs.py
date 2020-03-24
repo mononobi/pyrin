@@ -442,7 +442,7 @@ class Stack(deque):
         gets all items of stack, without removing them.
 
         the result is a list of all items of the stack in the order of
-        `peek()`. meaning that, last inserted items will be in lower indices.
+        `pop()`. meaning that, last inserted items will be in lower indices.
 
         :rtype: list[object]
         """
@@ -453,10 +453,10 @@ class Stack(deque):
         """
         adds the given value into top of stack.
 
-        :param object value: value to be added into stack.
-
         this method is just implemented for convenient of usage,
         it will call `append()` under the hood.
+
+        :param object value: value to be added into stack.
         """
 
         self.append(value)
