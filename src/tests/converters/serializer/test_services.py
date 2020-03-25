@@ -81,11 +81,10 @@ def test_serialize_row_result_list_mixed_none():
     third = results[2]
 
     assert isinstance(first, dict)
-    assert isinstance(second, dict)
+    assert second is None
     assert isinstance(third, dict)
 
     assert len(first) == 3
-    assert len(second) == 0
     assert len(third) == 3
 
     assert first.get('grade', None) == 15
@@ -303,11 +302,10 @@ def test_serialize_entity_list_mixed_none():
     third = results[2]
 
     assert isinstance(first, dict)
-    assert isinstance(second, dict)
+    assert second is None
     assert isinstance(third, dict)
 
     assert len(first) == 4
-    assert len(second) == 0
     assert len(third) == 4
 
     assert first.get('sub_id', None) == '1'
