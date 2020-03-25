@@ -23,12 +23,13 @@ from sqlalchemy.exc import NoInspectionAvailable
 
 import pyrin.database.model.services as model_services
 
+from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
-    InvalidDeclarativeBaseTypeError
+    InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 
 
 class ColumnMixin(CoreObject):
@@ -390,41 +391,144 @@ class ConverterMixin(PropertyMixin):
     entity and vice versa to its subclasses.
     """
 
-    def to_dict(self, exposed_only=True, **options):
+    # maximum valid depth for conversion.
+    # note that higher depth values will cause performance issues or
+    # application failure in some scenarios. so if you do not know how
+    # much depth is required for conversion, start with default depth which is 0.
+    MAX_DEPTH = 5
+
+    def to_dict(self, **options):
         """
         converts the entity into a dict and returns it.
 
-        the result dict only contains the exposed columns of
-        the entity which are those that their `exposed` attribute
-        is set to True.
+        it could convert columns and also relationship properties
+        if `depth` is provided.
+        the result dict by default only contains the exposed columns of the
+        entity which are those that their `exposed` attribute is set to True.
 
-        :param bool exposed_only: if set to False, it returns all
-                                  columns of the entity as dict.
-                                  if not provided, defaults to True.
+        :keyword bool exposed_only: if set to False, it returns all
+                                    columns of the entity as dict.
+                                    if not provided, defaults to True.
 
-        :keyword list[str] columns: the column names to be included in result.
-                                    if not provided, the columns in exposed
-                                    columns or all columns will be returned.
-                                    note that the columns must be a subset of
-                                    all columns or exposed columns of this
-                                    entity considering "exposed_only" parameter,
-                                    otherwise it raises an error.
+        :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
+                                                           it could be a list of column names.
+                                                           for example:
+                                                           `columns=['id', 'name', 'age']`
+                                                           but if you want to include
+                                                           relationships, then columns for each
+                                                           entity must be provided in a key for
+                                                           that entity class name.
+                                                           for example if there is `CarEntity` and
+                                                           `PersonEntity`, it should be like this:
+                                                           `columns=dict(CarEntity=
+                                                                         ['id', 'name'],
+                                                                         PersonEntity=
+                                                                         ['id', 'age'])`
+                                                           if provided column names are not
+                                                           available in result, they will be
+                                                           ignored.
+
+        :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
+
+        :keyword dict[str, dict[str, str]] | dict[str, str] rename: column names that must be
+                                                                    renamed in the result.
+                                                                    it could be a dict with keys
+                                                                    as original column names and
+                                                                    values as new column names
+                                                                    that should be exposed instead
+                                                                    of original column names.
+                                                                    for example:
+                                                                    `rename=dict(age='new_age',
+                                                                                 name='new_name')`
+                                                                    but if you want to include
+                                                                    relationships, then you must
+                                                                    provide a dict containing
+                                                                    entity class name as key and
+                                                                    for value, another dict
+                                                                    containing original column
+                                                                    names as keys, and column
+                                                                    names that must be exposed
+                                                                    instead of original names,
+                                                                    as values. for example
+                                                                    if there is `CarEntity` and `
+                                                                    PersonEntity`, it should be
+                                                                    like this:
+                                                                    `rename=
+                                                                    dict(CarEntity=
+                                                                         dict(name='new_name'),
+                                                                         PersonEntity=
+                                                                         dict(age='new_age')`
+                                                                    then, the value of `name`
+                                                                    column in result will be
+                                                                    returned as `new_name` column.
+                                                                    and also value of `age` column
+                                                                    in result will be returned as
+                                                                    'new_age' column. if provided
+                                                                    rename columns are not
+                                                                    available in result, they
+                                                                    will be ignored.
+
+        :note rename: dict[str entity_class_name, dict[str original_column, str new_column]] |
+                      dict[str original_column, str new_column]
+
+        :keyword dict[str, list[str]] | list[str] exclude: column names to be excluded from
+                                                           result. it could be a list of column
+                                                           names. for example:
+                                                           `exclude=['id', 'name', 'age']`
+                                                           but if you want to include
+                                                           relationships, then columns for each
+                                                           entity must be provided in a key for
+                                                           that entity class name.
+                                                           for example if there is `CarEntity`
+                                                           and `PersonEntity`, it should be
+                                                           like this:
+                                                           `exclude=dict(CarEntity=
+                                                                         ['id', 'name'],
+                                                                         PersonEntity=
+                                                                         ['id', 'age'])`
+                                                            if provided excluded columns are not
+                                                            available in result, they will be
+                                                            ignored.
+
+        :note exclude: dict[str entity_class_name, list[str column_name]] | list[str column_name]
+
+        :keyword int depth: a value indicating the depth for conversion.
+                            for example if entity A has a relationship with
+                            entity B and there is a list of B in A, if `depth=0`
+                            is provided, then just columns of A will be available
+                            in result dict, but if `depth=1` is provided, then all
+                            B entities in A will also be included in the result dict.
+                            actually, `depth` specifies that relationships in an
+                            entity should be followed by how much depth.
+                            defaults to 0 if not provided.
+                            please be careful on increasing `depth`, it could fail
+                            application if set to higher values. choose it wisely.
+                            normally the maximum acceptable `depth` would be 2 or 3.
+                            there is a hard limit for max valid `depth` which is set
+                            in `ConverterMixin.DEPTH` class variable. providing higher
+                            `depth` value than this limit, will cause an error.
 
         :raises ColumnNotExistedError: column not existed error.
+        :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :rtype: dict
         """
 
         base_columns = None
-        requested_columns = options.get('columns', None)
+        requested_columns, rename, excluded_columns = self._extract_conditions(**options)
+        exposed_only = options.get('exposed_only', True)
+        depth = options.get('depth', 0)
+        if depth is None:
+            depth = 0
 
+        relations = self.relationships
         if exposed_only is False:
             base_columns = self.all_columns
         else:
             base_columns = self.exposed_columns
 
         result = DTO()
-        if requested_columns is None or len(requested_columns) <= 0:
+        if len(requested_columns) <= 0:
             requested_columns = base_columns
 
         difference = set(requested_columns).difference(set(base_columns))
@@ -435,7 +539,29 @@ class ConverterMixin(PropertyMixin):
                                         'parameter value passed to this method.'
                                         .format(columns=list(difference), entity=self))
         for col in requested_columns:
-            result[col] = getattr(self, col)
+            if col not in excluded_columns:
+                result[rename.get(col, col)] = getattr(self, col)
+
+        if depth > 0 and len(relations) > 0:
+            if depth > self.MAX_DEPTH:
+                raise InvalidDepthProvidedError('Maximum valid "depth" for '
+                                                'conversion is [{max_depth}]. provided '
+                                                'depth [{invalid_depth}] is invalid.'
+                                                .format(max_depth=self.MAX_DEPTH,
+                                                        invalid_depth=depth))
+
+            options.update(depth=depth - 1)
+            for relation in relations:
+                value = getattr(self, relation)
+                result[relation] = None
+                if value is not None:
+                    if isinstance(value, LIST_TYPES):
+                        result[relation] = []
+                        if len(value) > 0:
+                            for entity in value:
+                                result[relation].append(entity.to_dict(**options))
+                    else:
+                        result[relation] = value.to_dict(**options)
 
         return result
 
@@ -444,6 +570,8 @@ class ConverterMixin(PropertyMixin):
         updates the column values of this entity with values in keyword arguments.
 
         it could fill columns and also relationship properties if provided.
+        note that relationship values must be entities. this method could not convert
+        relationships which are dict, into entities.
 
         :param bool silent_on_invalid_column: specifies that if a key is not available
                                               in entity columns, do not raise an error.
@@ -463,6 +591,127 @@ class ConverterMixin(PropertyMixin):
                                                 'named [{column}].'
                                                 .format(entity=self,
                                                         column=key))
+
+    def _extract_conditions(self, **options):
+        """
+        extracts all conditions available in given options.
+
+        it extracts columns, rename and exclude values.
+
+        :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
+                                                           it could be a list of column names.
+                                                           for example:
+                                                           `columns=['id', 'name', 'age']`
+                                                           but if you want to include
+                                                           relationships, then columns for each
+                                                           entity must be provided in a key for
+                                                           that entity class name.
+                                                           for example if there is `CarEntity` and
+                                                           `PersonEntity`, it should be like this:
+                                                           `columns=dict(CarEntity=
+                                                                         ['id', 'name'],
+                                                                         PersonEntity=
+                                                                         ['id', 'age'])`
+                                                           if provided column names are not
+                                                           available in result, they will be
+                                                           ignored.
+
+        :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
+
+        :keyword dict[str, dict[str, str]] | dict[str, str] rename: column names that must be
+                                                                    renamed in the result.
+                                                                    it could be a dict with keys
+                                                                    as original column names and
+                                                                    values as new column names
+                                                                    that should be exposed instead
+                                                                    of original column names.
+                                                                    for example:
+                                                                    `rename=dict(age='new_age',
+                                                                                 name='new_name')`
+                                                                    but if you want to include
+                                                                    relationships, then you must
+                                                                    provide a dict containing
+                                                                    entity class name as key and
+                                                                    for value, another dict
+                                                                    containing original column
+                                                                    names as keys, and column
+                                                                    names that must be exposed
+                                                                    instead of original names,
+                                                                    as values. for example
+                                                                    if there is `CarEntity` and
+                                                                    `PersonEntity`, it should be
+                                                                    like this:
+                                                                    `rename=
+                                                                    dict(CarEntity=
+                                                                         dict(name='new_name'),
+                                                                         PersonEntity=
+                                                                         dict(age='new_age')`
+                                                                    then, the value of `name`
+                                                                    column in result will be
+                                                                    returned as `new_name` column.
+                                                                    and also value of `age` column
+                                                                    in result will be returned as
+                                                                    'new_age' column. if provided
+                                                                    rename columns are not
+                                                                    available in result, they
+                                                                    will be ignored.
+
+        :note rename: dict[str entity_class_name, dict[str original_column, str new_column]] |
+                      dict[str original_column, str new_column]
+
+        :keyword dict[str, list[str]] | list[str] exclude: column names to be excluded from
+                                                           result. it could be a list of column
+                                                           names. for example:
+                                                           `exclude=['id', 'name', 'age']`
+                                                           but if you want to include
+                                                           relationships, then columns for each
+                                                           entity must be provided in a key for
+                                                           that entity class name.
+                                                           for example if there is `CarEntity`
+                                                           and `PersonEntity`, it should be
+                                                           like this:
+                                                           `exclude=dict(CarEntity=
+                                                                         ['id', 'name'],
+                                                                         PersonEntity=
+                                                                         ['id', 'age'])`
+                                                            if provided excluded columns are not
+                                                            available in result, they will be
+                                                            ignored.
+
+        :note exclude: dict[str entity_class_name, list[str column_name]] | list[str column_name]
+
+        :returns: tuple[list[str column_name],
+                        dict[str original_column, str new_column],
+                        list[str excluded_column]]
+
+        :rtype: tuple[list[str], dict[str, str], list[str]]
+        """
+
+        columns = options.get('columns', None)
+        rename = options.get('rename', None)
+        exclude = options.get('exclude', None)
+
+        if isinstance(columns, dict):
+            columns = columns.get(self.get_class_name(), None)
+
+        if isinstance(rename, dict) and len(rename) > 0 and \
+                isinstance(list(rename.values())[0], dict):
+
+            rename = rename.get(self.get_class_name(), None)
+
+        if isinstance(exclude, dict):
+            exclude = exclude.get(self.get_class_name(), None)
+
+        if columns is None:
+            columns = []
+
+        if rename is None:
+            rename = {}
+
+        if exclude is None:
+            exclude = []
+
+        return columns, rename, exclude
 
 
 class MagicMethodMixin(PrimaryKeyMixin):

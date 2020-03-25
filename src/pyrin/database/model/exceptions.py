@@ -4,7 +4,6 @@ model exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException
-from pyrin.utils.exceptions import ColumnNotExistedError as BaseColumnNotExistedError
 
 
 class DatabaseModelException(CoreException):
@@ -14,7 +13,7 @@ class DatabaseModelException(CoreException):
     pass
 
 
-class ColumnNotExistedError(BaseColumnNotExistedError, DatabaseModelException):
+class ColumnNotExistedError(DatabaseModelException):
     """
     column not existed error.
     """
@@ -24,5 +23,12 @@ class ColumnNotExistedError(BaseColumnNotExistedError, DatabaseModelException):
 class InvalidDeclarativeBaseTypeError(DatabaseModelException):
     """
     invalid declarative base type error.
+    """
+    pass
+
+
+class InvalidDepthProvidedError(DatabaseModelException):
+    """
+    invalid depth provided error.
     """
     pass
