@@ -29,7 +29,8 @@ class ListDeserializer(DeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes every possible value available in input list.
-        and gets a new deserialized list, leaving the input unchanged.
+
+        gets a new deserialized list, leaving the input unchanged.
 
         :param list value: value that should be deserialized.
 
@@ -60,7 +61,8 @@ class ListDeserializer(DeserializerBase):
 
     def get_accepted_type(self):
         """
-        gets the accepted type for this deserializer
+        gets the accepted type for this deserializer.
+
         which could deserialize values from this type.
 
         :rtype: type
@@ -73,6 +75,7 @@ class ListDeserializer(DeserializerBase):
 class StringListDeserializer(StringPatternDeserializerBase):
     """
     string list deserializer class.
+
     note that this deserializer could only handle lists with single depth.
     meaning that nested lists are not supported. and also nested tuples or
     dictionaries or sets or any other collections are not supported and
@@ -94,9 +97,9 @@ class StringListDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringListDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
-                                                             and their length for tuple
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted
+                                                             patterns and their length
+                                                             for list deserialization.
 
         :note accepted_formats: list[tuple[Pattern format, int length]]
         """
@@ -106,6 +109,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -133,8 +137,7 @@ class StringListDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted patterns that this
-        deserializer could deserialize value from.
+        gets default accepted patterns that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]

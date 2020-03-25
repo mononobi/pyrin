@@ -37,6 +37,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -52,8 +53,7 @@ class IntegerDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted formats that this
-        deserializer could deserialize value from.
+        gets default accepted formats that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]
@@ -93,6 +93,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -108,8 +109,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted formats that this
-        deserializer could deserialize value from.
+        gets default accepted formats that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]

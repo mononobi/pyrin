@@ -63,8 +63,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted formats that this
-        deserializer could deserialize value from.
+        gets default accepted formats that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]

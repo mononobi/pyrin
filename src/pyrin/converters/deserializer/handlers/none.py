@@ -27,7 +27,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
         creates an instance of NoneDeserializer.
 
         :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for none
+                                                             and their length for None
                                                              deserialization.
 
         :note accepted_formats: list[tuple[Pattern format, int length]]
@@ -38,6 +38,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -53,8 +54,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted formats that this
-        deserializer could deserialize value from.
+        gets default accepted formats that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]

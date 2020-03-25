@@ -32,7 +32,8 @@ class DictionaryDeserializer(DeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes every possible value available in input dictionary.
-        and gets a new deserialized dictionary, leaving the input unchanged.
+
+        gets a new deserialized dictionary, leaving the input unchanged.
 
         :param dict value: value that should be deserialized.
 
@@ -61,7 +62,8 @@ class DictionaryDeserializer(DeserializerBase):
 
     def get_accepted_type(self):
         """
-        gets the accepted type for this deserializer
+        gets the accepted type for this deserializer.
+
         which could deserialize values from this type.
 
         :rtype: type
@@ -100,6 +102,7 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes the given value.
+
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
@@ -123,8 +126,7 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted patterns that this
-        deserializer could deserialize value from.
+        gets default accepted patterns that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]

@@ -29,7 +29,8 @@ class TupleDeserializer(DeserializerBase):
     def _deserialize(self, value, **options):
         """
         deserializes every possible value available in input tuple.
-        and gets a new deserialized tuple.
+
+        gets a new deserialized tuple.
 
         :param tuple value: value that should be deserialized.
 
@@ -60,7 +61,8 @@ class TupleDeserializer(DeserializerBase):
 
     def get_accepted_type(self):
         """
-        gets the accepted type for this deserializer
+        gets the accepted type for this deserializer.
+
         which could deserialize values from this type.
 
         :rtype: type
@@ -135,8 +137,7 @@ class StringTupleDeserializer(StringPatternDeserializerBase):
 
     def get_default_formats(self):
         """
-        gets default accepted patterns that this
-        deserializer could deserialize value from.
+        gets default accepted patterns that this deserializer could deserialize value from.
 
         :returns: list[tuple[Pattern format, int length]]
         :rtype: list[tuple[Pattern, int]]
