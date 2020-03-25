@@ -3,8 +3,6 @@
 serializer base module.
 """
 
-from abc import abstractmethod
-
 from pyrin.converters.serializer.interface import AbstractSerializerBase
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
@@ -30,60 +28,40 @@ class SerializerBase(AbstractSerializerBase):
         """
         serializes the given value.
 
-        returns serialized dict or list of dicts on success
-        or returns `NULL` object if serialization fails.
+        returns serialized value on success or `NULL` object if serialization fails.
 
-        :param object | list[object] value: value or values to be serialized.
+        :param object value: value to be serialized.
 
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: dict | list[dict]
+        :returns: serialized object
         """
 
-        if isinstance(value, list):
-            if len(value) > 0 and self.is_serializable(value[0]):
-                return self._serialize_list(value, **options)
+        if self.is_serializable(value, **options) is False:
+            return NULL
 
-        elif self.is_serializable(value):
-            return self._serialize(value, **options)
+        return self._serialize(value, **options)
 
-        return NULL
-
-    def is_serializable(self, value, **options):
-        """
-        gets a value indicating that the given input is serializable.
-
-        :param object | list[object] value: value or values to be serialized.
-
-        :rtype: bool
-        """
-
-        return isinstance(value, self.accepted_type)
-
-    @abstractmethod
     def _serialize(self, value, **options):
         """
         serializes the given value.
+
+        this method must be implemented by subclasses.
 
         :param object value: value to be serialized.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: dict
+        :returns: serialized object
         """
 
         raise CoreNotImplementedError()
 
-    def _serialize_list(self, values, **options):
+    def is_serializable(self, value, **options):
         """
-        serializes the given values.
+        gets a value indicating that the given input is serializable.
 
-        :param list[object] values: values to be serialized.
+        :param object value: value to be serialized.
 
-        :rtype: list[dict]
+        :rtype: bool
         """
 
-        if values is None or len(values) == 0:
-            return []
-
-        return [self._serialize(value, **options) for value in values]
+        return isinstance(value, self.accepted_type)

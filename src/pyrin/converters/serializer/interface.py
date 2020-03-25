@@ -31,14 +31,13 @@ class AbstractSerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
         """
         serializes the given value.
 
-        returns serialized dict or list of dicts on success
-        or returns `NULL` object if serialization fails.
+        returns serialized value on success or `NULL` object if serialization fails.
 
-        :param object | list[object] value: value or values to be serialized.
+        :param object value: value to be serialized.
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: dict | list[dict]
+        :returns: serialized object
         """
 
         raise CoreNotImplementedError()

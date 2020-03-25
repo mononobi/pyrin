@@ -11,14 +11,14 @@ def serialize(value, **options):
     """
     serializes the given value.
 
-    returns serialized dict or list of dicts on success
-    or returns the same input value if serialization fails.
+    returns serialized value on success or the
+    same input value if serialization fails.
 
     all extra keyword arguments will be passed to underlying serializer.
 
-    :param object | list[object] value: value or values to be serialized.
+    :param object value: value to be serialized.
 
-    :rtype: dict | list[dict]
+    :returns: serialized object
     """
 
     return get_component(SerializerPackage.COMPONENT_NAME).serialize(value, **options)

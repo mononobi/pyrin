@@ -31,31 +31,20 @@ class SerializerManager(Manager):
         """
         serializes the given value.
 
-        returns serialized dict or list of dicts on success
-        or returns the same input value if serialization fails.
+        returns serialized value on success or the
+        same input value if serialization fails.
 
         all extra keyword arguments will be passed to underlying serializer.
 
-        :param object | list[object] value: value or values to be serialized.
+        :param object value: value to be serialized.
 
-        :rtype: dict | list[dict]
+        :returns: serialized object
         """
 
         if value is None:
             return value
 
-        accepted_type = None
-        if isinstance(value, list):
-            if len(value) > 0:
-                accepted_type = type(value[0])
-        elif not isinstance(value, set):
-            accepted_type = type(value)
-
-        if accepted_type is None:
-            return value
-
-        serialized_value = NULL
-        serializer = self.get_serializer(accepted_type)
+        serializer = self.get_serializer(type(value))
         if serializer is not None:
             serialized_value = serializer.serialize(value, **options)
             if serialized_value is not NULL:
@@ -94,12 +83,11 @@ class SerializerManager(Manager):
             replace = options.get('replace', False)
             if replace is not True:
                 raise DuplicatedSerializerError('There is another registered '
-                                                'serializer with name [{name}] '
-                                                'for accepted type [{accepted_type}] '
-                                                'but "replace" option is not set, so '
-                                                'serializer [{instance}] could not '
-                                                'be registered.'
-                                                .format(name=instance.get_name(),
+                                                'serializer [{old}] for accepted type '
+                                                '[{accepted_type}] but "replace" option '
+                                                'is not set, so serializer [{instance}] '
+                                                'could not be registered.'
+                                                .format(old=old_instance,
                                                         accepted_type=instance.accepted_type,
                                                         instance=instance))
 
