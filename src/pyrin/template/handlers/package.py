@@ -145,8 +145,7 @@ class PackageTemplateHandler(PackageTemplateHandlerBase):
         """
 
         pyrin_path = application_services.get_pyrin_main_package_path()
-        source = os.path.abspath(os.path.join(pyrin_path, 'template',
-                                              'handlers', 'files', 'package'))
+        source = os.path.abspath(os.path.join(pyrin_path, 'template', 'files', 'package'))
 
         super().__init__(TemplateCLIHandlersEnum.PACKAGE, source)
 
@@ -165,7 +164,6 @@ class EmptyPackageTemplateHandler(PackageTemplateHandlerBase):
         """
 
         pyrin_path = application_services.get_pyrin_main_package_path()
-        source = os.path.abspath(os.path.join(pyrin_path, 'template',
-                                              'handlers', 'files', 'empty_package'))
+        source = os.path.abspath(os.path.join(pyrin_path, 'template', 'files', 'empty_package'))
 
         super().__init__(TemplateCLIHandlersEnum.EMPTY_PACKAGE, source)
