@@ -331,12 +331,6 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises DuplicateComponentIDError: duplicate component id error.
         """
 
-        if not isinstance(component, Component):
-            raise InvalidComponentTypeError('Input parameter [{component}] is not '
-                                            'an instance of [{instance}].'
-                                            .format(component=component,
-                                                    instance=Component))
-
         if not isinstance(component, Manager):
             raise InvalidComponentTypeError('Input parameter [{component}] is not '
                                             'an instance of [{instance}]. each component '
@@ -345,6 +339,12 @@ class Application(Flask, HookMixin, SignalMixin,
                                             'manager class must be subclassed from [{instance}].'
                                             .format(component=component,
                                                     instance=Manager))
+
+        if not isinstance(component, Component):
+            raise InvalidComponentTypeError('Input parameter [{component}] is not '
+                                            'an instance of [{instance}].'
+                                            .format(component=component,
+                                                    instance=Component))
 
         if not isinstance(component.get_id(), tuple) or \
                 len(component.get_id()[0].strip()) == 0:
