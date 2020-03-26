@@ -139,8 +139,9 @@ class ResultSchema(CoreObject):
                 (rename is None or len(rename) <= 0) and \
                 (exclude is None or len(exclude) <= 0) and \
                 depth is None and exposed_only is None:
-            raise SchemaAttributesRequiredError('At least one keyword argument of "ResultSchema"'
-                                                'must be provided and have value.')
+            raise SchemaAttributesRequiredError('At least one keyword argument of "{name}"'
+                                                'must be provided and have value.'
+                                                .format(name=self.get_class_name()))
 
         self._columns = columns
         self._rename = rename
