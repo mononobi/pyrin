@@ -51,6 +51,7 @@ class Application(Flask, HookMixin, SignalMixin,
                   metaclass=ApplicationSingletonMeta):
     """
     application class.
+
     server must initialize an instance of a subclass of this class at startup.
     """
 
@@ -180,9 +181,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _remove_flask_unrecognized_keywords(self, **options):
         """
-        removes any keyword argument which is not recognized
-        by `Flask.__init__()` method. it returns a new dict
-        with all recognized keyword arguments.
+        removes any keyword argument which is not recognized by `Flask.__init__()` method.
+
+        it returns a new dict with all recognized keyword arguments.
 
         :rtype: dict
         """
@@ -313,7 +314,8 @@ class Application(Flask, HookMixin, SignalMixin,
     @setupmethod
     def register_component(self, component, **options):
         """
-        registers given application component or replaces the existing one
+        registers given application component or replaces the existing one.
+
         if `replace=True` is provided. otherwise, it raises an error
         on adding an instance which it's id is already available
         in registered components.
@@ -520,6 +522,7 @@ class Application(Flask, HookMixin, SignalMixin,
     def _configure(self, config_store):
         """
         configures the application with given dict.
+
         all keys will be converted to uppercase for flask compatibility.
 
         :param dict config_store: a dictionary containing configuration key/values.
@@ -580,10 +583,12 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def dispatch_request(self):
         """
-        does the request dispatching. matches the URL and returns the
-        return value of the view or error handlers. this does not have to
-        be a response object. in order to convert the return value to a
-        proper response object, call `make_response` function.
+        does the request dispatching.
+
+        matches the URL and returns the return value of the view or
+        error handlers. this does not have to be a response object.
+        in order to convert the return value to a proper response object,
+        call `make_response` function.
 
         :raises AuthenticationFailedError: authentication failed error.
         """
@@ -671,6 +676,7 @@ class Application(Flask, HookMixin, SignalMixin,
                      provide_automatic_options=None, **options):
         """
         connects a url rule. if a view_func is provided it will be registered with the endpoint.
+
         if there is another rule with the same url and `replace=True` option is provided,
         it will be replaced, otherwise an error will be raised.
 
@@ -716,6 +722,32 @@ class Application(Flask, HookMixin, SignalMixin,
                                          it will cause an error.
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+        :keyword bool exposed_only: if set to False, it returns all
+                                    columns of the entity as dict.
+                                    it will be used only for entity conversion.
+                                    if not provided, defaults to True.
+                                    this value will override the corresponding
+                                    value of `result_schema` if provided.
+
+        :keyword int depth: a value indicating the depth for conversion.
+                            for example if entity A has a relationship with
+                            entity B and there is a list of B in A, if `depth=0`
+                            is provided, then just columns of A will be available
+                            in result dict, but if `depth=1` is provided, then all
+                            B entities in A will also be included in the result dict.
+                            actually, `depth` specifies that relationships in an
+                            entity should be followed by how much depth.
+                            defaults to `default_depth` value of database config store.
+                            please be careful on increasing `depth`, it could fail
+                            application if set to higher values. choose it wisely.
+                            normally the maximum acceptable `depth` would be 2 or 3.
+                            there is a hard limit for max valid `depth` which is set
+                            in `ConverterMixin.MAX_DEPTH` class variable. providing higher
+                            `depth` value than this limit, will cause an error.
+                            it will be used only for entity conversion.
+                            this value will override the corresponding value of
+                            `result_schema` if provided.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         """
@@ -1009,8 +1041,10 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _load_environment_variables(self):
         """
-        loads all environment variables defined in a `.env` file in application
-        root path. if the file does not exist, it will be ignored.
+        loads all environment variables defined in a `.env` file.
+
+        it must be in application root path. if the
+        file does not exist, it will be ignored.
         """
 
         root_path = self.get_application_root_path()
@@ -1041,8 +1075,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def full_dispatch_request(self):
         """
-        dispatches the request and on top of that performs request pre and
-        postprocessing as well as http exception catching and error handling.
+        dispatches the request and on top of that performs request pre and postprocessing.
+
+        as well as http exception catching and error handling.
         this method has been overridden to log before and after request dispatching.
         """
 

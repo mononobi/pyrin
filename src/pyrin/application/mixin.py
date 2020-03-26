@@ -16,6 +16,7 @@ from pyrin.utils.custom_print import print_error
 class SignalMixin(CoreObject):
     """
     signal mixin class.
+
     every class which needs to handle signals must inherit from this.
     note that not all operating systems support signals, so this will work on some of them.
     """
@@ -69,6 +70,7 @@ class SignalMixin(CoreObject):
     def terminate(self, signal_number, **options):
         """
         terminates the application.
+
         this method should not be called directly.
         it is defined for cases that application has to
         be terminated for some unexpected reasons.
@@ -92,6 +94,7 @@ class SignalMixin(CoreObject):
     def get_application_name(self):
         """
         gets the application name.
+
         this method must be implemented in subclasses.
 
         :raises CoreNotImplementedError: core not implemented error.
@@ -104,6 +107,7 @@ class SignalMixin(CoreObject):
     def _prepare_termination(self, signal_number):
         """
         prepares for termination.
+
         this method is intended to be overridden in subclasses.
 
         :param int signal_number: signal number that caused termination.

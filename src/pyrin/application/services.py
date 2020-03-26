@@ -37,7 +37,8 @@ def get_context(key):
 
 def register_component(component, **options):
     """
-    registers given application component or replaces the existing one
+    registers given application component or replaces the existing one.
+
     if `replace=True` is provided. otherwise, it raises an error
     on adding an instance which it's id is already available
     in registered components.
@@ -124,6 +125,7 @@ def register_after_request_handler(func):
 def register_teardown_request_handler(func):
     """
     registers the given function into application teardown request handlers.
+
     teardown request handlers should not return any value
     and also should not raise any exception.
 
@@ -137,6 +139,7 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                  provide_automatic_options=None, **options):
     """
     connects a url rule. if a view_func is provided it will be registered with the endpoint.
+
     if there is another rule with the same url and `replace=True` option is provided,
     it will be replaced, otherwise an error will be raised.
 
@@ -182,6 +185,32 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                                      it will cause an error.
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+    :keyword bool exposed_only: if set to False, it returns all
+                                columns of the entity as dict.
+                                it will be used only for entity conversion.
+                                if not provided, defaults to True.
+                                this value will override the corresponding
+                                value of `result_schema` if provided.
+
+    :keyword int depth: a value indicating the depth for conversion.
+                        for example if entity A has a relationship with
+                        entity B and there is a list of B in A, if `depth=0`
+                        is provided, then just columns of A will be available
+                        in result dict, but if `depth=1` is provided, then all
+                        B entities in A will also be included in the result dict.
+                        actually, `depth` specifies that relationships in an
+                        entity should be followed by how much depth.
+                        defaults to `default_depth` value of database config store.
+                        please be careful on increasing `depth`, it could fail
+                        application if set to higher values. choose it wisely.
+                        normally the maximum acceptable `depth` would be 2 or 3.
+                        there is a hard limit for max valid `depth` which is set
+                        in `ConverterMixin.MAX_DEPTH` class variable. providing higher
+                        `depth` value than this limit, will cause an error.
+                        it will be used only for entity conversion.
+                        this value will override the corresponding value of
+                        `result_schema` if provided.
 
     :raises DuplicateRouteURLError: duplicate route url error.
     """
@@ -306,6 +335,7 @@ def get_configs():
 def configure(config_store):
     """
     configures the application with given dict.
+
     all keys will be converted to uppercase for flask compatibility.
 
     :param dict config_store: a dictionary containing configuration key/values.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-serializer entity module.
+serializer handlers entity module.
 """
 
 from pyrin.converters.serializer.decorators import serializer
@@ -114,12 +114,12 @@ class BaseEntitySerializer(SerializerBase):
                             B entities in A will also be included in the result dict.
                             actually, `depth` specifies that relationships in an
                             entity should be followed by how much depth.
-                            defaults to 0 if not provided.
+                            defaults to `default_depth` value of database config store.
                             please be careful on increasing `depth`, it could fail
                             application if set to higher values. choose it wisely.
                             normally the maximum acceptable `depth` would be 2 or 3.
                             there is a hard limit for max valid `depth` which is set
-                            in `ConverterMixin.DEPTH` class variable. providing higher
+                            in `ConverterMixin.MAX_DEPTH` class variable. providing higher
                             `depth` value than this limit, will cause an error.
 
         :raises ColumnNotExistedError: column not existed error.
@@ -137,7 +137,7 @@ class BaseEntitySerializer(SerializerBase):
 
         which could serialize values from this type.
 
-        :rtype: BaseEntity
+        :rtype: type[BaseEntity]
         """
 
         return BaseEntity

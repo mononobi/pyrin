@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-serializer base module.
+serializer handlers base module.
 """
 
 from pyrin.converters.serializer.interface import AbstractSerializerBase

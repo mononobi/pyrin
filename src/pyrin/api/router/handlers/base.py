@@ -3,6 +3,8 @@
 route base handler module.
 """
 
+from copy import deepcopy
+
 from werkzeug.routing import Rule
 
 import pyrin.configuration.services as config_services
@@ -18,6 +20,8 @@ class RouteBase(Rule):
     """
     route base class.
     """
+
+    result_schema_class = ResultSchema
 
     def __init__(self, rule, **options):
         """
@@ -78,6 +82,32 @@ class RouteBase(Rule):
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
 
+        :keyword bool exposed_only: if set to False, it returns all
+                                    columns of the entity as dict.
+                                    it will be used only for entity conversion.
+                                    if not provided, defaults to True.
+                                    this value will override the corresponding
+                                    value of `result_schema` if provided.
+
+        :keyword int depth: a value indicating the depth for conversion.
+                            for example if entity A has a relationship with
+                            entity B and there is a list of B in A, if `depth=0`
+                            is provided, then just columns of A will be available
+                            in result dict, but if `depth=1` is provided, then all
+                            B entities in A will also be included in the result dict.
+                            actually, `depth` specifies that relationships in an
+                            entity should be followed by how much depth.
+                            defaults to `default_depth` value of database config store.
+                            please be careful on increasing `depth`, it could fail
+                            application if set to higher values. choose it wisely.
+                            normally the maximum acceptable `depth` would be 2 or 3.
+                            there is a hard limit for max valid `depth` which is set
+                            in `ConverterMixin.MAX_DEPTH` class variable. providing higher
+                            `depth` value than this limit, will cause an error.
+                            it will be used only for entity conversion.
+                            this value will override the corresponding value of
+                            `result_schema` if provided.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -128,14 +158,7 @@ class RouteBase(Rule):
                                                .format(function=self._view_function,
                                                        route=self))
 
-        result_schema = options.get('result_schema', None)
-        if result_schema is not None and not isinstance(result_schema, ResultSchema):
-            raise InvalidResultSchemaTypeError('Input parameter [{instance}] '
-                                               'is not an instance of [{base}].'
-                                               .format(instance=result_schema,
-                                                       base=ResultSchema))
-
-        self._result_schema = result_schema
+        self._result_schema = self._extract_schema(**options)
 
     def handle(self, inputs, **options):
         """
@@ -180,6 +203,67 @@ class RouteBase(Rule):
         client_request = session_services.get_current_request()
         if client_request.safe_content_length > self._max_content_length:
             raise LargeContentError(_('Request content is too large.'))
+
+    def _extract_schema(self, **options):
+        """
+        extracts schema related attributes from given values and returns an schema object.
+
+        if no schema related item is provided, it returns None.
+
+        :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+        :keyword bool exposed_only: if set to False, it returns all
+                                    columns of the entity as dict.
+                                    it will be used only for entity conversion.
+                                    if not provided, defaults to True.
+                                    this value will override the corresponding
+                                    value of `result_schema` if provided.
+
+        :keyword int depth: a value indicating the depth for conversion.
+                            for example if entity A has a relationship with
+                            entity B and there is a list of B in A, if `depth=0`
+                            is provided, then just columns of A will be available
+                            in result dict, but if `depth=1` is provided, then all
+                            B entities in A will also be included in the result dict.
+                            actually, `depth` specifies that relationships in an
+                            entity should be followed by how much depth.
+                            defaults to `default_depth` value of database config store.
+                            please be careful on increasing `depth`, it could fail
+                            application if set to higher values. choose it wisely.
+                            normally the maximum acceptable `depth` would be 2 or 3.
+                            there is a hard limit for max valid `depth` which is set
+                            in `ConverterMixin.MAX_DEPTH` class variable. providing higher
+                            `depth` value than this limit, will cause an error.
+                            it will be used only for entity conversion.
+                            this value will override the corresponding value of
+                            `result_schema` if provided.
+
+        :rtype: ResultSchema
+        """
+
+        result_schema = options.get('result_schema', None)
+        if result_schema is not None and not isinstance(result_schema, ResultSchema):
+            raise InvalidResultSchemaTypeError('Input parameter [{instance}] '
+                                               'is not an instance of [{base}].'
+                                               .format(instance=result_schema,
+                                                       base=ResultSchema))
+
+        exposed_only = options.get('exposed_only', None)
+        depth = options.get('depth', None)
+
+        if result_schema is None and (exposed_only is not None or depth is not None):
+            return self.result_schema_class(exposed_only=exposed_only, depth=depth)
+
+        elif result_schema is not None and (exposed_only is not None or depth is not None):
+            updated_schema = deepcopy(result_schema)
+            if exposed_only is not None:
+                updated_schema.exposed_only = exposed_only
+            if depth is not None:
+                updated_schema.depth = depth
+
+            return updated_schema
+
+        return result_schema
 
     def _inject_result_schema(self):
         """

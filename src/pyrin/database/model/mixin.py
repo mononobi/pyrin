@@ -22,6 +22,7 @@ from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.exc import NoInspectionAvailable
 
 import pyrin.database.model.services as model_services
+import pyrin.configuration.services as config_services
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.custom_print import print_warning
@@ -392,9 +393,9 @@ class ConverterMixin(PropertyMixin):
     """
 
     # maximum valid depth for conversion.
-    # note that higher depth values will cause performance issues or
-    # application failure in some scenarios. so if you do not know how
-    # much depth is required for conversion, start with default depth which is 0.
+    # note that higher depth values may cause performance issues or
+    # application failure in some cases. so if you do not know how
+    # much depth is required for conversion, start without providing depth.
     MAX_DEPTH = 5
 
     def to_dict(self, **options):
@@ -500,12 +501,12 @@ class ConverterMixin(PropertyMixin):
                             B entities in A will also be included in the result dict.
                             actually, `depth` specifies that relationships in an
                             entity should be followed by how much depth.
-                            defaults to 0 if not provided.
+                            defaults to `default_depth` value of database config store.
                             please be careful on increasing `depth`, it could fail
                             application if set to higher values. choose it wisely.
                             normally the maximum acceptable `depth` would be 2 or 3.
                             there is a hard limit for max valid `depth` which is set
-                            in `ConverterMixin.DEPTH` class variable. providing higher
+                            in `ConverterMixin.MAX_DEPTH` class variable. providing higher
                             `depth` value than this limit, will cause an error.
 
         :raises ColumnNotExistedError: column not existed error.
@@ -517,31 +518,32 @@ class ConverterMixin(PropertyMixin):
         base_columns = None
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
         exposed_only = options.get('exposed_only', True)
-        depth = options.get('depth', 0)
+        depth = options.get('depth', None)
         if depth is None:
-            depth = 0
+            depth = config_services.get('database', 'conversion', 'default_depth')
 
-        relations = self.relationships
         if exposed_only is False:
             base_columns = self.all_columns
         else:
             base_columns = self.exposed_columns
 
-        result = DTO()
-        if len(requested_columns) <= 0:
+        if len(requested_columns) > 0:
+            difference = set(requested_columns).difference(set(base_columns))
+            if len(difference) > 0:
+                raise ColumnNotExistedError('Requested columns {columns} are '
+                                            'not available in entity [{entity}].'
+                                            'it might be because of "exposed_only" '
+                                            'parameter value passed to this method.'
+                                            .format(columns=list(difference), entity=self))
+        else:
             requested_columns = base_columns
 
-        difference = set(requested_columns).difference(set(base_columns))
-        if len(difference) > 0:
-            raise ColumnNotExistedError('Requested columns {columns} are '
-                                        'not available in entity [{entity}].'
-                                        'it might be because of "exposed_only" '
-                                        'parameter value passed to this method.'
-                                        .format(columns=list(difference), entity=self))
+        result = DTO()
         for col in requested_columns:
             if col not in excluded_columns:
                 result[rename.get(col, col)] = getattr(self, col)
 
+        relations = self.relationships
         if depth > 0 and len(relations) > 0:
             if depth > self.MAX_DEPTH:
                 raise InvalidDepthProvidedError('Maximum valid "depth" for '
