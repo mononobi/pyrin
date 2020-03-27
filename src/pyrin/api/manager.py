@@ -94,7 +94,8 @@ class APIManager(Manager):
 
     def _get_generic_error_message(self):
         """
-        gets generic error message to be sent to client
+        gets the generic error message to be sent to client.
+
         for any environment which debug mode is False.
 
         :rtype: str
