@@ -10,6 +10,7 @@ import pyrin.api.router.services as router_services
 from pyrin.api.router.exceptions import RouteAuthenticationMismatchError
 from pyrin.api.router.handlers.protected import FreshProtectedRoute, ProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
+from pyrin.api.schema.result import ResultSchema
 from pyrin.application.exceptions import DuplicateRouteURLError
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.api.router.handlers.exceptions import MaxContentLengthLimitMismatchError, \
@@ -23,6 +24,7 @@ def test_create_route_fresh_protected():
     """
     creates the appropriate route based on the input parameters.
     it should create a fresh protected route.
+    it should not have a result schema.
     """
 
     route = router_services.create_route('/api/router/fresh_protected',
@@ -32,6 +34,7 @@ def test_create_route_fresh_protected():
                                          max_content_length=15000)
 
     assert isinstance(route, FreshProtectedRoute)
+    assert route.result_schema is None
 
 
 def test_create_route_public():
@@ -161,6 +164,112 @@ def test_create_route_validate_max_content_length():
                                          max_content_length=12345)
 
     assert route.max_content_length == 12345
+
+
+def test_create_route_with_schema_attributes():
+    """
+    creates the appropriate route with provided schema attributes.
+    """
+
+    route = router_services.create_route('/api/router/public_with_depth_and_exposed',
+                                         methods=HTTPMethodEnum.POST,
+                                         view_function=mock_view_function,
+                                         login_required=False,
+                                         depth=3,
+                                         exposed_only=False)
+
+    assert route is not None
+    assert route.result_schema is not None
+    assert route.result_schema.depth == 3
+    assert route.result_schema.exposed_only is False
+
+
+def test_create_route_with_schema():
+    """
+    creates the appropriate route with provided schema.
+    """
+
+    schema = ResultSchema(columns=['id', 'name', 'age'],
+                          rename=dict(id='new_id', name='new_name'),
+                          exclude=['extra'],
+                          exposed_only=False,
+                          depth=5)
+
+    route = router_services.create_route('/api/router/public_with_schema',
+                                         methods=HTTPMethodEnum.POST,
+                                         view_function=mock_view_function,
+                                         login_required=False,
+                                         result_schema=schema)
+
+    assert route is not None
+    assert route.result_schema is not None
+    assert route.result_schema is schema
+
+
+def test_create_route_with_schema_with_overridden_attributes():
+    """
+    creates the appropriate route with provided schema and overridden attributes.
+    """
+
+    schema = ResultSchema(columns=['id', 'name', 'age'],
+                          rename=dict(id='new_id', name='new_name'),
+                          exclude=['extra'],
+                          exposed_only=False,
+                          depth=0)
+
+    route = router_services.create_route('/api/router/public_with_schema_overridden',
+                                         methods=HTTPMethodEnum.POST,
+                                         view_function=mock_view_function,
+                                         login_required=False,
+                                         result_schema=schema,
+                                         depth=4,
+                                         exposed_only=True)
+
+    assert route is not None
+    assert route.result_schema is not None
+    assert route.result_schema is not schema
+    assert route.result_schema.depth == 4
+    assert route.result_schema.exposed_only is True
+    assert route.result_schema.columns == schema.columns
+    assert route.result_schema.exclude == schema.exclude
+    assert route.result_schema.rename == schema.rename
+
+    assert schema.exposed_only is False
+    assert schema.depth == 0
+
+
+def test_create_route_with_depth():
+    """
+    creates the appropriate route with provided depth.
+    """
+
+    route = router_services.create_route('/api/router/public_with_depth',
+                                         methods=HTTPMethodEnum.POST,
+                                         view_function=mock_view_function,
+                                         login_required=False,
+                                         depth=8)
+
+    assert route is not None
+    assert route.result_schema is not None
+    assert route.result_schema.depth == 8
+    assert route.result_schema.exposed_only is None
+
+
+def test_create_route_with_exposed_only():
+    """
+    creates the appropriate route with provided exposed_only.
+    """
+
+    route = router_services.create_route('/api/router/public_with_exposed_only',
+                                         methods=HTTPMethodEnum.POST,
+                                         view_function=mock_view_function,
+                                         login_required=False,
+                                         exposed_only=False)
+
+    assert route is not None
+    assert route.result_schema is not None
+    assert route.result_schema.depth is None
+    assert route.result_schema.exposed_only is False
 
 
 def test_add_route():
