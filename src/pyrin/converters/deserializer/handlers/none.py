@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-deserializer boolean module.
+deserializer handlers none module.
 """
 
 import re
 
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
-from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -18,7 +17,7 @@ class NoneDeserializer(StringPatternDeserializerBase):
 
     # matches the none inside string.
     # example: none, null
-    # matching are case-insensitive.
+    # matching is case-insensitive.
     NONE_REGEX = re.compile(r'^none$', re.IGNORECASE)
     NULL_REGEX = re.compile(r'^null$', re.IGNORECASE)
 
@@ -39,20 +38,15 @@ class NoneDeserializer(StringPatternDeserializerBase):
         """
         deserializes the given value.
 
-        returns `NULL` object if deserialization fails.
-
         :param str value: value to be deserialized.
 
         :rtype: None
         """
 
-        deserializable, pattern = self.is_deserializable(value, **options)
-        if not deserializable:
-            return NULL
-
         return None
 
-    def get_default_formats(self):
+    @property
+    def default_formats(self):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 

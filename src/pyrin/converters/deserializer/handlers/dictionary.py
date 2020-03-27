@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer dictionary module.
+deserializer handlers dictionary module.
 """
 
 import re
@@ -40,33 +40,20 @@ class DictionaryDeserializer(DeserializerBase):
         :rtype: dict
         """
 
-        if not self.is_deserializable(value, **options):
-            return NULL
-
         result = DTO(**value)
-
-        for key in result.keys():
-            item = result.get(key)
-            deserialized_value = NULL
-
-            if self.is_deserializable(item, **options):
-                deserialized_value = self.deserialize(item)
-            else:
-                deserialized_value = deserializer_services.deserialize(item, **options)
-
-            if deserialized_value is not NULL:
-                result[key] = deserialized_value
-            continue
+        for key, item in result.items():
+            result[key] = deserializer_services.deserialize(item, **options)
 
         return result
 
-    def get_accepted_type(self):
+    @property
+    def accepted_type(self):
         """
         gets the accepted type for this deserializer.
 
         which could deserialize values from this type.
 
-        :rtype: type
+        :rtype: type[dict]
         """
 
         return dict
@@ -79,7 +66,7 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
     """
 
     # default min for this deserializer is 2 because
-    # it should at least has { and } at both ends.
+    # it should at least have { and } at both ends.
     DEFAULT_MIN = 2
 
     # matches a dictionary inside string, all of these values will be matched.
@@ -110,21 +97,17 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
         :rtype: dict
         """
 
-        deserializable, pattern = self.is_deserializable(value, **options)
-        if not deserializable:
-            return NULL
-
         try:
             dict_value = flask_json.loads(value)
             if dict_value is not None:
-                deserialized_value = deserializer_services.deserialize(dict_value, **options)
-                return deserialized_value
+                return deserializer_services.deserialize(dict_value, **options)
 
             return NULL
         except Exception:
             return NULL
 
-    def get_default_formats(self):
+    @property
+    def default_formats(self):
         """
         gets default accepted patterns that this deserializer could deserialize value from.
 

@@ -57,10 +57,11 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @property
     @abstractmethod
-    def get_accepted_type(self):
+    def accepted_type(self):
         """
-        gets the accepted type for this deserializer/
+        gets the accepted type for this deserializer.
 
         which could deserialize values from this type.
 

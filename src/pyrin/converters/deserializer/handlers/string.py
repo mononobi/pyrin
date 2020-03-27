@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-deserializer string module.
+deserializer handlers string module.
 """
 
 import re
 
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
-from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -45,23 +44,17 @@ class StringDeserializer(StringPatternDeserializerBase):
         """
         deserializes the given value.
 
-        returns `NULL` object if deserialization fails.
-
         :param str value: value to be deserialized.
 
         :rtype: str
         """
 
-        deserializable, pattern = self.is_deserializable(value, **options)
-        if not deserializable:
-            return NULL
-
         # removing the first and last single or double quotes from value.
         value = value[1:-1]
-
         return value
 
-    def get_default_formats(self):
+    @property
+    def default_formats(self):
         """
         gets default accepted patterns that this deserializer could deserialize value from.
 

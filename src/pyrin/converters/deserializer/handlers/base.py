@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer base module.
+deserializer handlers base module.
 """
 
 from abc import abstractmethod
@@ -14,7 +14,7 @@ from pyrin.utils.string import remove_line_break_escapes
 
 class DeserializerBase(AbstractDeserializerBase):
     """
-    base deserializer class.
+    deserializer base class.
     """
 
     def __init__(self, **options):
@@ -36,14 +36,32 @@ class DeserializerBase(AbstractDeserializerBase):
         :returns: deserialized value.
         """
 
-        deserialized_value = self._deserialize(value, **options)
-
+        deserialized_value = self._deserialize_operation(value, **options)
         if deserialized_value is NULL:
             if self._next_handler is not None:
                 return self._next_handler.deserialize(value, **options)
 
         if isinstance(deserialized_value, str):
             deserialized_value = remove_line_break_escapes(deserialized_value)
+
+        return deserialized_value
+
+    def _deserialize_operation(self, value, **options):
+        """
+        deserializes the given value.
+
+        it checks if the value is deserializable, if so, deserializes it.
+        otherwise returns `NULL` object.
+        this method could be overridden in other base subclasses if required.
+
+        :param object value: value to be deserialized.
+
+        :returns: deserialized value.
+        """
+
+        deserialized_value = NULL
+        if self.is_deserializable(value, **options) is True:
+            deserialized_value = self._deserialize(value, **options)
 
         return deserialized_value
 
@@ -92,12 +110,12 @@ class DeserializerBase(AbstractDeserializerBase):
         :rtype: bool
         """
 
-        return isinstance(value, self.get_accepted_type())
+        return isinstance(value, self.accepted_type)
 
 
 class StringDeserializerBase(DeserializerBase):
     """
-    base string deserializer class.
+    string deserializer base class.
     """
 
     # these values will be used for accepted
@@ -119,7 +137,7 @@ class StringDeserializerBase(DeserializerBase):
 
         super().__init__(**options)
 
-        self._accepted_formats = self.get_default_formats()
+        self._accepted_formats = self.default_formats
         custom_accepted_formats = options.get('accepted_formats', [])
         self._accepted_formats.extend(custom_accepted_formats)
 
@@ -137,23 +155,25 @@ class StringDeserializerBase(DeserializerBase):
         """
 
         if super().is_deserializable(value, **options) \
-                and self.is_valid_length(value):
+                and self.is_valid_length(value.strip()):
             return True
 
         return False
 
-    def get_accepted_type(self):
+    @property
+    def accepted_type(self):
         """
         gets the accepted type for this deserializer.
 
         which could deserialize values from this type.
 
-        :rtype: type
+        :rtype: type[str]
         """
 
         return str
 
-    def get_accepted_length(self):
+    @property
+    def accepted_length(self):
         """
         gets the min and max accepted length of strings to be deserialized.
 
@@ -163,7 +183,8 @@ class StringDeserializerBase(DeserializerBase):
 
         return self._min_length, self._max_length
 
-    def get_accepted_formats(self):
+    @property
+    def accepted_formats(self):
         """
         gets the accepted string formats that this deserializer can deserialize value from.
 
@@ -183,7 +204,7 @@ class StringDeserializerBase(DeserializerBase):
         """
 
         length = len(value.strip())
-        min_length, max_length = self.get_accepted_length()
+        min_length, max_length = self.accepted_length
 
         if length < min_length or length > max_length:
             return False
@@ -200,14 +221,15 @@ class StringDeserializerBase(DeserializerBase):
 
         # if there is any format with length=UNDEF_LENGTH,
         # we should not enforce length restriction on values.
-        if self.UNDEF_LENGTH in [item[1] for item in self.get_accepted_formats()]:
+        if self.UNDEF_LENGTH in [item[1] for item in self.accepted_formats]:
             return self.DEFAULT_MIN, self.DEFAULT_MAX
 
-        return min([item[1] for item in self.get_accepted_formats()]), \
-            max([item[1] for item in self.get_accepted_formats()])
+        return min([item[1] for item in self.accepted_formats]), \
+            max([item[1] for item in self.accepted_formats])
 
+    @property
     @abstractmethod
-    def get_default_formats(self):
+    def default_formats(self):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
@@ -222,7 +244,7 @@ class StringDeserializerBase(DeserializerBase):
 
 class StringPatternDeserializerBase(StringDeserializerBase):
     """
-    base string pattern deserializer class.
+    string pattern deserializer base class.
 
     this class uses regex to determine whether a value is deserializable or not.
     """
@@ -244,8 +266,8 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         """
         gets a value indicating that the given input is deserializable.
 
-        if value is deserializable, the matching Pattern would be also returned.
-        otherwise None would be returned instead of Pattern.
+        if the value is deserializable, the matching `Pattern` would also be returned.
+        otherwise None would be returned instead of `Pattern`.
 
         :param object value: value to be deserialized.
 
@@ -253,8 +275,48 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         """
 
         if super().is_deserializable(value, **options):
-            for pattern, length in self.get_accepted_formats():
-                if pattern.match(value.strip()):
-                    return True, pattern
+            pattern = self.get_matching_pattern(value.strip())
+            if pattern is not None:
+                return True, pattern
 
         return False, None
+
+    def _deserialize_operation(self, value, **options):
+        """
+        deserializes the given value.
+
+        it checks if the value is deserializable, if so, deserializes it.
+        otherwise returns `NULL` object.
+        if the value is deserializable, the matching `Pattern` would also
+        be injected into options with `matching_pattern` key to be used in
+        `_deserialize()` method implementation.
+        it's better to pop `matching_pattern` in `_deserialize()` method
+        for usage instead of get.
+
+        :param object value: value to be deserialized.
+
+        :returns: deserialized value.
+        """
+
+        deserialized_value = NULL
+        deserializable, pattern = self.is_deserializable(value, **options)
+        if deserializable is True:
+            options.update(matching_pattern=pattern)
+            deserialized_value = self._deserialize(value.strip(), **options)
+
+        return deserialized_value
+
+    def get_matching_pattern(self, value):
+        """
+        gets the matching pattern for given value. returns None if no pattern found.
+
+        :param object value: value to be deserialized.
+
+        :rtype: Pattern
+        """
+
+        for pattern, length in self.accepted_formats:
+            if pattern.match(value):
+                return pattern
+
+        return None

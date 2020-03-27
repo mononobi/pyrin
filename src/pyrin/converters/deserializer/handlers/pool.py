@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-deserializer pool module.
+deserializer handlers pool module.
 """
 
 import re
@@ -10,7 +10,6 @@ from sqlalchemy.pool import Pool, NullPool, AssertionPool, QueuePool, \
 
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
-from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -21,7 +20,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
 
     # matches the pool class inside string.
     # example: Pool, NullPool, AssertionPool, QueuePool, SingletonThreadPool, StaticPool
-    # matching are case-insensitive.
+    # matching is case-insensitive.
     POOL_REGEX = re.compile(r'^Pool$', re.IGNORECASE)
     NULL_POOL_REGEX = re.compile(r'^NullPool$', re.IGNORECASE)
     ASSERTION_POOL_REGEX = re.compile(r'^AssertionPool$', re.IGNORECASE)
@@ -48,20 +47,16 @@ class PoolDeserializer(StringPatternDeserializerBase):
         """
         deserializes the given value.
 
-        returns `NULL` object if deserialization fails.
-
         :param str value: value to be deserialized.
 
-        :rtype: type
+        :rtype: type[Pool]
         """
 
-        deserializable, pattern = self.is_deserializable(value, **options)
-        if not deserializable:
-            return NULL
-
+        pattern = options.pop('matching_pattern')
         return self._converter_map[pattern]
 
-    def get_default_formats(self):
+    @property
+    def default_formats(self):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 

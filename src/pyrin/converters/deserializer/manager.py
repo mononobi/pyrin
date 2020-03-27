@@ -40,8 +40,6 @@ class DeserializerManager(Manager):
         """
 
         options.update(accepted_type=type(value))
-        deserialized_value = NULL
-
         for deserializer in self.get_deserializers(**options):
             deserialized_value = deserializer.deserialize(value, **options)
 
@@ -77,8 +75,8 @@ class DeserializerManager(Manager):
                                                .format(instance=instance,
                                                        base=AbstractDeserializerBase))
 
-        previous_instances = self._deserializers.get(instance.get_accepted_type(), [])
-        if instance.get_accepted_type() in self._deserializers:
+        previous_instances = self._deserializers.get(instance.accepted_type, [])
+        if instance.accepted_type in self._deserializers:
             if len(previous_instances) > 0:
                 old_instance = self._get_deserializer_with_name(instance.get_name(),
                                                                 previous_instances)
@@ -93,7 +91,7 @@ class DeserializerManager(Manager):
                                                           'be registered.'
                                                           .format(name=instance.get_name(),
                                                                   accepted_type=instance.
-                                                                  get_accepted_type(),
+                                                                  accepted_type,
                                                                   instance=instance))
 
                     print_warning('Deserializer [{old_instance}] is going '
@@ -105,7 +103,7 @@ class DeserializerManager(Manager):
 
         previous_instances.append(instance)
         self._set_next_handlers(previous_instances)
-        self._deserializers[instance.get_accepted_type()] = previous_instances
+        self._deserializers[instance.accepted_type] = previous_instances
 
     def _set_next_handlers(self, deserializers):
         """

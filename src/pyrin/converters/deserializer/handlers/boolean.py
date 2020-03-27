@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-deserializer boolean module.
+deserializer handlers boolean module.
 """
 
 import re
 
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
-from pyrin.core.globals import NULL
 
 
 @deserializer()
@@ -41,20 +40,16 @@ class BooleanDeserializer(StringPatternDeserializerBase):
         """
         deserializes the given value.
 
-        returns `NULL` object if deserialization fails.
-
         :param str value: value to be deserialized.
 
         :rtype: bool
         """
 
-        deserializable, pattern = self.is_deserializable(value, **options)
-        if not deserializable:
-            return NULL
-
+        pattern = options.pop('matching_pattern')
         return self._converter_map[pattern]
 
-    def get_default_formats(self):
+    @property
+    def default_formats(self):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
