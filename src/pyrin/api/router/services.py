@@ -64,6 +64,9 @@ def create_route(rule, **options):
                         B entities in A will also be included in the result dict.
                         actually, `depth` specifies that relationships in an
                         entity should be followed by how much depth.
+                        note that, if `columns` is also provided, it is required to
+                        specify relationship property names in provided columns.
+                        otherwise they won't be included even if `depth` is provided.
                         defaults to `default_depth` value of database config store.
                         please be careful on increasing `depth`, it could fail
                         application if set to higher values. choose it wisely.
@@ -149,6 +152,9 @@ def add_route(url, endpoint=None, view_func=None,
                         B entities in A will also be included in the result dict.
                         actually, `depth` specifies that relationships in an
                         entity should be followed by how much depth.
+                        note that, if `columns` is also provided, it is required to
+                        specify relationship property names in provided columns.
+                        otherwise they won't be included even if `depth` is provided.
                         defaults to `default_depth` value of database config store.
                         please be careful on increasing `depth`, it could fail
                         application if set to higher values. choose it wisely.

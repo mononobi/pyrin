@@ -26,8 +26,7 @@ class RowResultSerializer(SerializerBase):
                                     for example:
                                     `columns=['id', 'name', 'age']`
                                     if provided column names are not
-                                    available in result, they will be
-                                    ignored.
+                                    available in result, error will be raised.
 
         :keyword dict[str, str] rename: column names that must be renamed in the result.
                                         it must be a dict with keys as original column
@@ -99,8 +98,7 @@ class RowResultSerializer(SerializerBase):
                                     for example:
                                     `columns=['id', 'name', 'age']`
                                     if provided column names are not
-                                    available in result, they will be
-                                    ignored.
+                                    available in result, error will be raised.
 
         :keyword dict[str, str] rename: column names that must be renamed in the result.
                                         it must be a dict with keys as original column
