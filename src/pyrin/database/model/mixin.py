@@ -531,7 +531,7 @@ class ConverterMixin(PropertyMixin):
             difference = set(requested_columns).difference(set(base_columns))
             if len(difference) > 0:
                 raise ColumnNotExistedError('Requested columns {columns} are '
-                                            'not available in entity [{entity}].'
+                                            'not available in entity [{entity}]. '
                                             'it might be because of "exposed_only" '
                                             'parameter value passed to this method.'
                                             .format(columns=list(difference), entity=self))
