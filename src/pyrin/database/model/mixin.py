@@ -501,6 +501,9 @@ class ConverterMixin(PropertyMixin):
                             B entities in A will also be included in the result dict.
                             actually, `depth` specifies that relationships in an
                             entity should be followed by how much depth.
+                            note that, if `columns` is also provided, it is required to
+                            specify relationship property names in provided columns.
+                            otherwise they won't be included even if `depth` is provided.
                             defaults to `default_depth` value of database config store.
                             please be careful on increasing `depth`, it could fail
                             application if set to higher values. choose it wisely.
@@ -515,55 +518,65 @@ class ConverterMixin(PropertyMixin):
         :rtype: dict
         """
 
-        base_columns = None
+        base_columns_and_relationships = None
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
+
         exposed_only = options.get('exposed_only', True)
+        if exposed_only is None:
+            exposed_only = True
+
         depth = options.get('depth', None)
         if depth is None:
             depth = config_services.get('database', 'conversion', 'default_depth')
 
         if exposed_only is False:
-            base_columns = self.all_columns
+            base_columns_and_relationships = self.all_columns_and_relationships
         else:
-            base_columns = self.exposed_columns
+            base_columns_and_relationships = self.exposed_columns_and_relationships
+
+        relations = self.relationships
+        requested_relationships = []
 
         if len(requested_columns) > 0:
-            difference = set(requested_columns).difference(set(base_columns))
+            difference = set(requested_columns).difference(set(base_columns_and_relationships))
             if len(difference) > 0:
-                raise ColumnNotExistedError('Requested columns {columns} are '
-                                            'not available in entity [{entity}]. '
+                raise ColumnNotExistedError('Requested columns or relationship properties '
+                                            '{columns} are not available in entity [{entity}]. '
                                             'it might be because of "exposed_only" '
                                             'parameter value passed to this method.'
                                             .format(columns=list(difference), entity=self))
         else:
-            requested_columns = base_columns
+            requested_columns = base_columns_and_relationships
 
         result = DTO()
         for col in requested_columns:
             if col not in excluded_columns:
-                result[rename.get(col, col)] = getattr(self, col)
+                if col in relations:
+                    requested_relationships.append(col)
+                else:
+                    result[rename.get(col, col)] = getattr(self, col)
 
-        relations = self.relationships
-        if depth > 0 and len(relations) > 0:
+        if depth > 0 and len(requested_relationships) > 0:
             if depth > self.MAX_DEPTH:
-                raise InvalidDepthProvidedError('Maximum valid "depth" for '
-                                                'conversion is [{max_depth}]. provided '
-                                                'depth [{invalid_depth}] is invalid.'
+                raise InvalidDepthProvidedError('Maximum valid "depth" for conversion '
+                                                'is [{max_depth}]. provided depth '
+                                                '[{invalid_depth}] is invalid.'
                                                 .format(max_depth=self.MAX_DEPTH,
                                                         invalid_depth=depth))
 
             options.update(depth=depth - 1)
-            for relation in relations:
+            for relation in requested_relationships:
                 value = getattr(self, relation)
-                result[relation] = None
+                new_name = rename.get(relation, relation)
+                result[new_name] = None
                 if value is not None:
                     if isinstance(value, LIST_TYPES):
-                        result[relation] = []
+                        result[new_name] = []
                         if len(value) > 0:
                             for entity in value:
-                                result[relation].append(entity.to_dict(**options))
+                                result[new_name].append(entity.to_dict(**options))
                     else:
-                        result[relation] = value.to_dict(**options)
+                        result[new_name] = value.to_dict(**options)
 
         return result
 
