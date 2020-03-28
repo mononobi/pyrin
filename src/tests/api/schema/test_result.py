@@ -7,9 +7,11 @@ import pytest
 
 from pyrin.api.schema.exceptions import SchemaAttributesRequiredError
 from pyrin.api.schema.result import ResultSchema
-from pyrin.converters.serializer.handlers.exceptions import ColumnNotExistedError
+from pyrin.database.model.exceptions import ColumnNotExistedError, InvalidDepthProvidedError
 
-from tests.common.generator import generate_row_results
+from tests.common.generator import generate_row_results, generate_entity_results
+from tests.common.models import RightChildEntity, SampleWithHiddenFieldEntity, ChildEntity, \
+    ParentEntity
 
 
 def test_create_schema():
@@ -90,10 +92,7 @@ def test_filter_single_row():
     columns = ['id', 'name', 'age', 'extra']
     exclude = ['name', 'unavailable']
     rename = dict(id='new_id', age='new_age')
-
-    schema = ResultSchema(columns=columns,
-                          exclude=exclude,
-                          rename=rename)
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     results = generate_row_results(1,
                                    ['id', 'name', 'extra', 'age'],
@@ -179,10 +178,7 @@ def test_filter_rows_with_columns_rename():
 
     columns = ['id', 'name']
     rename = dict(name='new_name')
-
-    schema = ResultSchema(columns=columns,
-                          rename=rename,
-                          exposed_only=False)
+    schema = ResultSchema(columns=columns, rename=rename, exposed_only=False)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -204,10 +200,7 @@ def test_filter_rows_with_exclude_rename():
 
     exclude = ['id', 'name']
     rename = dict(car='new_car', id='new_id')
-
-    schema = ResultSchema(exclude=exclude,
-                          rename=rename,
-                          depth=4)
+    schema = ResultSchema(exclude=exclude, rename=rename, depth=4)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'car'],
@@ -229,9 +222,7 @@ def test_filter_rows_with_columns_exclude():
 
     columns = ['id', 'name', 'age']
     exclude = ['name']
-
-    schema = ResultSchema(columns=columns,
-                          exclude=exclude)
+    schema = ResultSchema(columns=columns, exclude=exclude)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -255,10 +246,7 @@ def test_filter_rows_with_columns_exclude_rename():
     columns = ['id', 'name', 'age', 'extra']
     exclude = ['name', 'unavailable']
     rename = dict(id='new_id', age='new_age')
-
-    schema = ResultSchema(columns=columns,
-                          exclude=exclude,
-                          rename=rename)
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -301,9 +289,7 @@ def test_filter_rows_with_columns_and_invalid_exclude_rename():
     exclude = ['name', 'unavailable', 'fake']
     rename = dict(id='new_id', fake='new_fake', not_present='not_present')
 
-    schema = ResultSchema(columns=columns,
-                          exclude=exclude,
-                          rename=rename)
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -319,14 +305,13 @@ def test_filter_rows_with_columns_and_invalid_exclude_rename():
                sorted(['new_id']) for item in filtered)
 
 
-def test_filter_not_valid_items():
+def test_filter_invalid_items():
     """
     filters the item which is not valid. it should return the same input value.
     """
 
     schema = ResultSchema(depth=5)
     results = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
-
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -343,3 +328,298 @@ def test_filter_none_item():
     filtered = schema.filter(None)
 
     assert filtered is None
+
+
+def test_filter_single_entity():
+    """
+    filters single entity result using given schema.
+    """
+
+    columns = ['id', 'age']
+    exclude = ['id', 'unavailable']
+    rename = dict(id='new_id', age='new_age')
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 1, **kwargs)
+    filtered = schema.filter(results[0])
+
+    assert filtered is not results[0]
+    assert isinstance(filtered, dict)
+    assert sorted(list(filtered.keys())) == sorted(['new_age'])
+
+
+def test_filter_entities_with_columns():
+    """
+    filters entity results using given schema which has columns attribute.
+    """
+
+    columns = ['id', 'age']
+    schema = ResultSchema(columns=columns)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) == sorted(['id', 'age']) for item in filtered)
+
+
+def test_filter_entities_with_exclude():
+    """
+    filters entity results using given schema which has exclude attribute.
+    """
+
+    exclude = ['id', 'age', 'fake']
+    schema = ResultSchema(exclude=exclude)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 1 for item in filtered)
+    assert all(sorted(list(item.keys())) == sorted(['grade']) for item in filtered)
+
+
+def test_filter_entities_with_rename():
+    """
+    filters entity results using given schema which has rename attribute.
+    """
+
+    rename = dict(id='new_id', extra='new_extra',
+                  age='new_age', name='name', fake='fake')
+
+    schema = ResultSchema(rename=rename)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 3 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['new_id', 'new_age', 'grade']) for item in filtered)
+
+
+def test_filter_entities_with_columns_rename():
+    """
+    filters entity results using given schema which has columns and rename attributes.
+    """
+
+    columns = ['id', 'grade']
+    rename = dict(grade='new_grade')
+    schema = ResultSchema(columns=columns, rename=rename, exposed_only=False)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) == sorted(['id', 'new_grade']) for item in filtered)
+
+
+def test_filter_entities_with_exclude_rename():
+    """
+    filters entity results using given schema which has exclude and rename attributes.
+    """
+
+    exclude = ['id']
+    rename = dict(grade='new_grade', id='new_id')
+    schema = ResultSchema(exclude=exclude, rename=rename, depth=4)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) == sorted(['age', 'new_grade']) for item in filtered)
+
+
+def test_filter_entities_with_columns_exclude():
+    """
+    filters entity results using given schema which has columns and exclude attributes.
+    """
+
+    columns = ['id', 'grade', 'age']
+    exclude = ['grade']
+    schema = ResultSchema(columns=columns, exclude=exclude)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) == sorted(['id', 'age']) for item in filtered)
+
+
+def test_filter_entities_with_columns_exclude_rename():
+    """
+    filters entity results using given schema which has
+    columns and exclude and rename attributes.
+    """
+
+    columns = ['id', 'grade', 'age']
+    exclude = ['age', 'unavailable']
+    rename = dict(id='new_id', age='new_age')
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['new_id', 'grade']) for item in filtered)
+
+
+def test_filter_entities_with_invalid_columns():
+    """
+    filters entity results using given schema which has
+    invalid columns attribute. it should raise an error.
+    """
+
+    columns = ['id', 'name', 'age', 'extra', 'fake_column', 'not_available']
+    schema = ResultSchema(columns=columns)
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+
+    with pytest.raises(ColumnNotExistedError):
+        filtered = schema.filter(results)
+
+
+def test_filter_entities_with_columns_and_invalid_exclude_rename():
+    """
+    filters entity results using given schema which has
+    columns attribute and invalid exclude and rename attributes.
+    """
+
+    columns = ['id', 'age']
+    exclude = ['name', 'unavailable', 'fake']
+    rename = dict(id='new_id', fake='new_fake', not_present='not_present')
+    schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
+
+    kwargs = dict(id=1, age=25, grade=5)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 2 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['new_id', 'age']) for item in filtered)
+
+
+def test_filter_entities_with_exposed_only_true():
+    """
+    filters entity results using given schema which has `exposed_only=True` attribute.
+    """
+
+    rename = dict(id='new_id', fake='new_fake', not_present='not_present')
+    schema = ResultSchema(rename=rename)
+
+    kwargs = dict(id=1, sub_id='sub_1', age=25, name='some_name', hidden_field='some_secret')
+    results = generate_entity_results(SampleWithHiddenFieldEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 4 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['new_id', 'sub_id', 'age', 'name']) for item in filtered)
+
+
+def test_filter_entities_with_exposed_only_false():
+    """
+    filters entity results using given schema which has `exposed_only=False` attribute.
+    """
+
+    rename = dict(id='new_id', fake='new_fake', not_present='not_present')
+    schema = ResultSchema(rename=rename, exposed_only=False)
+
+    kwargs = dict(id=1, sub_id='sub_1', age=25, name='some_name', hidden_field='some_secret')
+    results = generate_entity_results(SampleWithHiddenFieldEntity, 20, **kwargs)
+    filtered = schema.filter(results)
+
+    assert len(filtered) == len(results)
+    assert filtered is not results
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 5 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['new_id', 'sub_id', 'age', 'name', 'hidden_field']) for item in filtered)
+
+
+def test_filter_related_entities_without_depth():
+    """
+    filters entity results which have relationships
+    using given schema with `depth=0` attribute.
+    """
+
+    schema = ResultSchema(depth=0)
+    child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+    filtered = schema.filter(children)
+
+    assert len(filtered) == len(children)
+    assert filtered is not children
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 3 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['id', 'name', 'parent_id']) for item in filtered)
+
+
+def test_filter_related_entities_with_depth():
+    """
+    filters entity results which have relationships
+    using given schema with `depth=1` attribute.
+    """
+
+    schema = ResultSchema(depth=1)
+    child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+    filtered = schema.filter(children)
+
+    assert len(filtered) == len(children)
+    assert filtered is not children
+    assert all(isinstance(item, dict) for item in filtered)
+    assert all(len(item) == 4 for item in filtered)
+    assert all(sorted(list(item.keys())) ==
+               sorted(['id', 'name', 'parent_id', 'parent']) for item in filtered)
+    assert all(isinstance(item.get('parent'), dict) for item in filtered)
+    assert all(sorted(list(item.get('parent').keys())) ==
+               sorted(['id', 'name']) for item in filtered)
+
+
+def test_filter_related_entities_with_invalid_depth():
+    """
+    filters entity results which have relationships using given schema
+    with invalid depth attribute. it should raise an error.
+    """
+
+    schema = ResultSchema(depth=6)
+    child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+
+    with pytest.raises(InvalidDepthProvidedError):
+        filtered = schema.filter(children)

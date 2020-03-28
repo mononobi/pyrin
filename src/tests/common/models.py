@@ -4,6 +4,7 @@ common models module.
 """
 
 from sqlalchemy import Unicode, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 from pyrin.core.structs import DTO
 from pyrin.database.model.decorators import bind
@@ -138,3 +139,29 @@ class LeftChildEntity(SubBaseEntity):
     __table_args__ = DTO(extend_existing=True)
 
     point = CoreColumn(name='point', type_=Integer)
+
+
+class ParentEntity(CoreEntity):
+    """
+    parent entity class.
+    """
+
+    __tablename__ = 'parent_table'
+
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    children = relationship('ChildEntity', back_populates='parent', uselist=True)
+
+
+class ChildEntity(CoreEntity):
+    """
+    child entity class.
+    """
+
+    __tablename__ = 'child_table'
+
+    id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
+    name = CoreColumn(name='name', type_=Unicode)
+    parent_id = CoreColumn(ForeignKey('parent_table.id'),
+                           name='parent_id', type_=Integer, index=True)
+    parent = relationship('ParentEntity', back_populates='children', uselist=False)
