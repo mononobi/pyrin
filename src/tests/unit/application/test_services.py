@@ -9,7 +9,9 @@ import pytest
 
 import pyrin.application.services as application_services
 
+from pyrin.api.router.services import create_route
 from pyrin.application.base import Application
+from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.core.structs import CoreObject, DTO
 from pyrin.core.enumerations import HTTPMethodEnum
@@ -67,6 +69,16 @@ def test_get_context():
 
     application_services.add_context('context4', 'value4')
     assert application_services.get_context('context4') == 'value4'
+
+
+def test_get_context_invalid():
+    """
+    gets the application context value that does not exist.
+    it should raise an error.
+    """
+
+    with pytest.raises(ContextAttributeError):
+        application_services.get_context('not_present_context')
 
 
 def test_register_component():
@@ -414,6 +426,14 @@ def test_register_route_factory_not_callable():
         application_services.register_route_factory(1)
 
 
+def test_get_current_route_factory():
+    """
+    gets application's current route factory.
+    """
+
+    assert application_services.get_current_route_factory() == create_route
+
+
 def test_get_application_root_path():
     """
     gets the application root path.
@@ -511,6 +531,17 @@ def test_configure():
                    ['fake_name', 'fake_id', 'fake_number', 'fake_value'])
 
 
+def test_get_configs():
+    """
+    gets application's configuration dict.
+    """
+
+    configs = application_services.get_configs()
+
+    assert isinstance(configs, dict)
+    assert len(configs) > 0
+
+
 def test_all_configs_available():
     """
     checks that all application related configs are loaded from settings files.
@@ -594,3 +625,19 @@ def test_get_application_name():
     """
 
     assert application_services.get_application_name() == 'tests.unit'
+
+
+def test_get_class_name():
+    """
+    gets the application class name.
+    """
+
+    assert application_services.get_class_name() == 'PyrinUnitTestApplication'
+
+
+def test_get_module_name():
+    """
+    gets the application module name.
+    """
+
+    assert application_services.get_module_name() == 'tests.unit'
