@@ -329,10 +329,10 @@ class Application(Flask, HookMixin, SignalMixin,
         :returns: related value to given key.
         """
 
-        default = options.get('default', NULL)
-        if default is NULL:
+        if 'default' not in options:
             return self._context[key]
 
+        default = options.get('default')
         return self._context.get(key, default)
 
     @setupmethod
@@ -499,10 +499,11 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         self._set_status(ApplicationStatusEnum.LOADING)
-        self._resolve_all_paths(**options)
+        self._resolve_required_paths(**options)
         self._load_environment_variables()
 
         packaging_services.load_components(**options)
+        self._resolve_python_path()
 
         # we should call this method after loading components
         # to be able to use configuration package.
@@ -518,20 +519,14 @@ class Application(Flask, HookMixin, SignalMixin,
         if self.is_scripting_mode() is False:
             self._prepare_runtime_data()
 
-    def _resolve_all_paths(self, **options):
+    def _resolve_required_paths(self, **options):
         """
         resolves all required paths for application.
         """
 
-        self._resolve_pyrin_main_package_path(**options)
-        self._resolve_application_main_package_path(**options)
-        self._resolve_pyrin_root_path(**options)
-        self._resolve_application_root_path(**options)
-        self._resolve_default_settings_path()
         self._resolve_settings_path(**options)
         self._resolve_migrations_path(**options)
         self._resolve_locale_path(**options)
-        self._resolve_python_path()
 
     def _load_configs(self, **options):
         """
@@ -860,6 +855,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_default_settings_path()
         return self.get_context(self.PYRIN_DEFAULT_SETTINGS_CONTEXT_KEY)
 
     def get_settings_path(self):
@@ -869,6 +869,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.SETTINGS_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_settings_path()
         return self.get_context(self.SETTINGS_CONTEXT_KEY)
 
     def get_migrations_path(self):
@@ -878,6 +883,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.MIGRATIONS_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_migrations_path()
         return self.get_context(self.MIGRATIONS_CONTEXT_KEY)
 
     def get_locale_path(self):
@@ -887,6 +897,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.LOCALE_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_locale_path()
         return self.get_context(self.LOCALE_CONTEXT_KEY)
 
     def get_application_main_package_path(self):
@@ -896,6 +911,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.APPLICATION_PATH_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_application_main_package_path()
         return self.get_context(self.APPLICATION_PATH_CONTEXT_KEY)
 
     def get_pyrin_root_path(self):
@@ -905,6 +925,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.ROOT_PYRIN_PATH_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_pyrin_root_path()
         return self.get_context(self.ROOT_PYRIN_PATH_CONTEXT_KEY)
 
     def get_application_root_path(self):
@@ -914,6 +939,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_application_root_path()
         return self.get_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY)
 
     def get_pyrin_main_package_path(self):
@@ -923,7 +953,27 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: str
         """
 
+        result = self.get_context(self.PYRIN_PATH_CONTEXT_KEY, default=None)
+        if result is not None:
+            return result
+
+        self._resolve_pyrin_main_package_path()
         return self.get_context(self.PYRIN_PATH_CONTEXT_KEY)
+
+    def get_working_directory(self):
+        """
+        gets working directory path of application.
+
+        this is required when application starts from any of test applications.
+        then we should move root path up, to the correct root to be able to
+        include real application packages too.
+        if the application has been started from real application, this method
+        returns the same result as `get_application_root_path()` method.
+
+        :rtype: str
+        """
+
+        return packaging_services.get_working_directory(self.get_application_root_path())
 
     def get_configs(self):
         """
@@ -1068,7 +1118,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         if self._scripting_mode is True:
-            set_python_path(self.get_application_root_path())
+            set_python_path(self.get_working_directory())
 
     def _load_environment_variables(self):
         """

@@ -29,3 +29,21 @@ def register_hook(instance):
     """
 
     get_component(PackagingPackage.COMPONENT_NAME).register_hook(instance)
+
+
+def get_working_directory(root_path):
+    """
+    gets working directory path according to given root path.
+
+    this is required when application starts from any of test applications.
+    then we should move root path up, to the correct root to be able to
+    include real application packages too.
+    if the application has been started from real application, this method
+    returns the same input.
+
+    :param str root_path: root path to get working directory from.
+
+    :rtype: str
+    """
+
+    return get_component(PackagingPackage.COMPONENT_NAME).get_working_directory(root_path)

@@ -330,6 +330,22 @@ def get_pyrin_main_package_path():
     return get_current_app().get_pyrin_main_package_path()
 
 
+def get_working_directory():
+    """
+    gets working directory path of application.
+
+    this is required when application starts from any of test applications.
+    then we should move root path up, to the correct root to be able to
+    include real application packages too.
+    if the application has been started from real application, this method
+    returns the same result as `get_application_root_path()` method.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_working_directory()
+
+
 def get_configs():
     """
     gets a shallow copy of application's configuration dictionary.

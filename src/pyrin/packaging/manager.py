@@ -385,21 +385,21 @@ class PackagingManager(Manager, HookMixin):
         """
 
         application_root_path = application_services.get_application_root_path()
-        normalized_root_path = self._get_normalized_root_path(application_root_path)
+        working_directory = self.get_working_directory(application_root_path)
         pyrin_path = application_services.get_pyrin_main_package_path()
-        self._find_loadable_components(normalized_root_path, exclude=pyrin_path)
+        self._find_loadable_components(working_directory, exclude=pyrin_path)
 
-    def _get_normalized_root_path(self, root_path):
+    def get_working_directory(self, root_path):
         """
-        gets normalized root path according to given root path.
+        gets working directory path according to given root path.
 
         this is required when application starts from any of test applications.
         then we should move root path up, to the correct root to be able to
-        include real application packages too, for loading.
+        include real application packages too.
         if the application has been started from real application, this method
         returns the same input.
 
-        :param str root_path: root path to be normalized.
+        :param str root_path: root path to get working directory from.
 
         :rtype: str
         """
