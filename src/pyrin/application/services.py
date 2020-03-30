@@ -384,6 +384,8 @@ def get_application_name():
     gets the application name.
 
     it is actually the application main package name.
+    first, it gets the import name of application if available.
+    otherwise gets the first part of application package name
 
     :rtype: str
     """

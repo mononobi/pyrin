@@ -25,3 +25,10 @@ class ComponentModuleNotFoundError(PackagingManagerException):
     component module not found error.
     """
     pass
+
+
+class BothUnitAndIntegrationTestsCouldNotBeLoadedError(PackagingManagerException):
+    """
+    both unit and integration tests could not be loaded error.
+    """
+    pass

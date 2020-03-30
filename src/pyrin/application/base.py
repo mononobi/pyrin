@@ -107,6 +107,14 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         initializes an instance of Application.
 
+        :keyword str import_name: the name of the application package.
+                                  it will be assumed equal to first part
+                                  of application package name if not provided.
+                                  for example: `pyrin`.
+                                  but if the main package name of application includes
+                                  more that one package you should provide it manually.
+                                  for example: `tests.unit`
+
         :keyword bool host_matching: set `url_map.host_matching` attribute.
                                      defaults to False.
 
@@ -153,11 +161,17 @@ class Application(Flask, HookMixin, SignalMixin,
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.get('scripting_mode', False)
 
+        self._import_name = options.get('import_name', None)
+        if self._import_name is not None and (self._import_name == '' or
+                                              self._import_name.isspace()):
+            self._import_name = None
+
         flask_kw = self._remove_flask_unrecognized_keywords(**options)
         # we should pass `static_folder=None` to prevent flask from
         # adding static route on startup, then we register required static routes
         # through a different mechanism later.
-        super().__init__(self.get_application_name(), static_folder=None, **flask_kw)
+        flask_kw.update(static_folder=None)
+        super().__init__(self.get_application_name(), **flask_kw)
 
         # Flask does not call 'super()' in its '__init__()' method.
         # so we have to start initialization of other parents manually.
@@ -189,6 +203,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         result = dict(**options)
+        result.pop('import_name', None)
         result.pop('scripting_mode', None)
         result.pop('settings_directory', None)
         result.pop('migrations_directory', None)
@@ -932,8 +947,7 @@ class Application(Flask, HookMixin, SignalMixin,
                           'pyrin default settings will be used. you could change '
                           'any of default setting files inside [{path}] on your preference. '
                           'DO NOT use pyrin default settings in production!'
-                          .format(path=settings_path,
-                                  default=self.get_default_settings_path()))
+                          .format(path=settings_path))
 
         self.add_context(self.SETTINGS_CONTEXT_KEY, settings_path)
 
@@ -995,7 +1009,12 @@ class Application(Flask, HookMixin, SignalMixin,
         it registers it in application context with `APPLICATION_PATH_CONTEXT_KEY` key.
         """
 
-        main_package_path = path_utils.get_main_package_path(self.__module__)
+        main_package_path = None
+        if self._import_name is None:
+            main_package_path = path_utils.get_main_package_path(self.__module__)
+        else:
+            main_package_path = path_utils.get_package_path(self._import_name)
+
         self.add_context(self.APPLICATION_PATH_CONTEXT_KEY, main_package_path)
 
     def _resolve_pyrin_main_package_path(self, **options):
@@ -1154,11 +1173,13 @@ class Application(Flask, HookMixin, SignalMixin,
         gets the application name.
 
         it is actually the application main package name.
+        first, it gets the import name of application if available.
+        otherwise gets the first part of application package name
 
         :rtype: str
         """
 
-        return path_utils.get_main_package_name(self.__module__)
+        return self._import_name or path_utils.get_main_package_name(self.__module__)
 
     def _prepare_termination(self, signal_number):
         """

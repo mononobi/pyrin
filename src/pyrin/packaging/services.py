@@ -10,6 +10,10 @@ from pyrin.application.services import get_component
 def load_components(**options):
     """
     loads required packages and modules for application startup.
+
+    :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
+                                                              tests could not be loaded
+                                                              error.
     """
 
     get_component(PackagingPackage.COMPONENT_NAME).load_components(**options)

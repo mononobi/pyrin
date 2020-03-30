@@ -22,7 +22,7 @@ from pyrin.packaging.base import Package
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
-    ComponentModuleNotFoundError
+    ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError
 
 
 class PackagingManager(Manager, HookMixin):
@@ -63,6 +63,12 @@ class PackagingManager(Manager, HookMixin):
         # configs will be filled from packaging config file.
         self._configs = DTO()
 
+        # holds the root package names in which all test packages are resided.
+        self._test_roots = []
+
+        # holds the base roots for different test root packages.
+        self._test_roots_bases = []
+
         # these will keep all loaded components for different
         # categories inside them. extended components in each
         # category are those that extending the exact component
@@ -72,10 +78,14 @@ class PackagingManager(Manager, HookMixin):
         self._application_components = DTO()
         self._custom_components = DTO()
         self._test_components = DTO()
+        self._unit_test_components = DTO()
+        self._integration_test_components = DTO()
         self._extended_application_components = DTO()
         self._other_application_components = DTO()
-        self._extended_test_components = DTO()
-        self._other_test_components = DTO()
+        self._extended_unit_test_components = DTO()
+        self._other_unit_test_components = DTO()
+        self._extended_integration_test_components = DTO()
+        self._other_integration_test_components = DTO()
 
     def _create_config_file(self):
         """
@@ -93,6 +103,7 @@ class PackagingManager(Manager, HookMixin):
         self._configs.clear()
         configs = config_utils.load(self._get_config_file_path())
         self._configs = configs.get('general')
+        self._extract_test_roots()
 
     def _get_config_file_path(self):
         """
@@ -141,18 +152,57 @@ class PackagingManager(Manager, HookMixin):
         self._application_components.clear()
         self._custom_components.clear()
         self._test_components.clear()
+        self._unit_test_components.clear()
+        self._integration_test_components.clear()
         self._extended_application_components.clear()
         self._other_application_components.clear()
-        self._extended_test_components.clear()
-        self._other_test_components.clear()
+        self._extended_unit_test_components.clear()
+        self._other_unit_test_components.clear()
+        self._extended_integration_test_components.clear()
+        self._other_integration_test_components.clear()
 
         self._pyrin_package_name = path_utils.get_pyrin_main_package_name()
         self._load_configs()
         self._initialize_loaded_packages()
 
+    def _extract_test_roots(self):
+        """
+        extracts the root package names in which all test packages are resided.
+        """
+
+        self._test_roots.clear()
+        self._test_roots_bases.clear()
+
+        unit = self._configs.unit_test_package
+        integration = self._configs.integration_test_package
+
+        if unit not in (None, '') and not unit.isspace():
+            unit_root = unit.split('.')
+            if len(unit_root) > 1:
+                unit_root.pop()
+
+            self._test_roots.append('.'.join(unit_root))
+            self._test_roots_bases.append(unit_root[0])
+
+        if integration not in (None, '') and not integration.isspace():
+            integration_root = integration.split('.')
+            if len(integration_root) > 1:
+                integration_root.pop()
+
+            value = '.'.join(integration_root)
+            if value not in self._test_roots:
+                self._test_roots.append(value)
+
+            if integration_root[0] not in self._test_roots_bases:
+                self._test_roots_bases.append(integration_root[0])
+
     def load_components(self, **options):
         """
         loads required packages and modules for application startup.
+
+        :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
+                                                                  tests could not be loaded
+                                                                  error.
         """
 
         try:
@@ -176,10 +226,7 @@ class PackagingManager(Manager, HookMixin):
             self._load_components(self._other_application_components, **options)
             self._load_components(self._custom_components, **options)
 
-            if self._configs.load_test_packages is True:
-                self._load_components(self._extended_test_components, **options)
-                self._load_components(self._other_test_components, **options)
-
+            self._load_tests(**options)
             self._after_packages_loaded()
 
             print_info('Total of [{count}] packages loaded.'
@@ -190,6 +237,34 @@ class PackagingManager(Manager, HookMixin):
         finally:
             if self._lock.locked():
                 self._lock.release()
+
+    def _load_tests(self, **options):
+        """
+        loads test packages if needed.
+
+        :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
+                                                                  tests could not be loaded
+                                                                  error.
+        """
+
+        if self._configs.load_unit_test is True and \
+                self._configs.load_integration_test is True:
+            raise BothUnitAndIntegrationTestsCouldNotBeLoadedError('Both unit and '
+                                                                   'integration tests '
+                                                                   'could not be loaded '
+                                                                   'at the same time.')
+
+        if self._configs.load_unit_test is True or \
+                self._configs.load_integration_test is True:
+            self._load_components(self._test_components, **options)
+
+            if self._configs.load_unit_test is True:
+                self._load_components(self._extended_unit_test_components, **options)
+                self._load_components(self._other_unit_test_components, **options)
+
+            elif self._configs.load_integration_test is True:
+                self._load_components(self._extended_integration_test_components, **options)
+                self._load_components(self._other_integration_test_components, **options)
 
     def _after_packages_loaded(self):
         """
@@ -310,8 +385,32 @@ class PackagingManager(Manager, HookMixin):
         """
 
         application_root_path = application_services.get_application_root_path()
+        normalized_root_path = self._get_normalized_root_path(application_root_path)
         pyrin_path = application_services.get_pyrin_main_package_path()
-        self._find_loadable_components(application_root_path, exclude=pyrin_path)
+        self._find_loadable_components(normalized_root_path, exclude=pyrin_path)
+
+    def _get_normalized_root_path(self, root_path):
+        """
+        gets normalized root path according to given root path.
+
+        this is required when application starts from any of test applications.
+        then we should move root path up, to the correct root to be able to
+        include real application packages too, for loading.
+        if the application has been started from real application, this method
+        returns the same input.
+
+        :param str root_path: root path to be normalized.
+
+        :rtype: str
+        """
+
+        roots = tuple(item.replace('.', os.path.sep) for item in self._test_roots)
+        if len(roots) > 0:
+            for item in roots:
+                if root_path.endswith(item):
+                    return root_path.replace(item, '').rstrip(os.path.sep)
+
+        return root_path
 
     def _find_loadable_components(self, root_path, include=None,
                                   exclude=None, **options):
@@ -365,6 +464,10 @@ class PackagingManager(Manager, HookMixin):
                     self._pyrin_components[package_name] = []
                 elif self._is_custom_package(package_name):
                     self._custom_components[package_name] = []
+                elif self._is_unit_test_package(package_name):
+                    self._unit_test_components[package_name] = []
+                elif self._is_integration_test_package(package_name):
+                    self._integration_test_components[package_name] = []
                 elif self._is_test_package(package_name):
                     self._test_components[package_name] = []
                 else:
@@ -384,6 +487,10 @@ class PackagingManager(Manager, HookMixin):
                         self._pyrin_components[package_name].append(full_module_name)
                     elif self._is_custom_module(full_module_name):
                         self._custom_components[package_name].append(full_module_name)
+                    elif self._is_unit_test_module(full_module_name):
+                        self._unit_test_components[package_name].append(full_module_name)
+                    elif self._is_integration_test_module(full_module_name):
+                        self._integration_test_components[package_name].append(full_module_name)
                     elif self._is_test_module(full_module_name):
                         self._test_components[package_name].append(full_module_name)
                     else:
@@ -400,14 +507,25 @@ class PackagingManager(Manager, HookMixin):
             self._other_application_components = self._detach_extended_packages(
                 list(self._pyrin_components.keys()), self._application_components)
 
-        test_base_components = self._application_components
+        unit_test_base_components = self._application_components
+        integration_test_base_components = self._application_components
         if len(self._application_components) <= 0:
-            test_base_components = self._pyrin_components
-        self._extended_test_components, \
-            self._other_test_components = self._detach_extended_packages(
-                list(test_base_components.keys()), self._test_components)
+            unit_test_base_components = self._pyrin_components
+            integration_test_base_components = self._pyrin_components
 
-    def _detach_extended_packages(self, base_components, components):
+        self._extended_unit_test_components, \
+            self._other_unit_test_components = self._detach_extended_packages(
+                list(unit_test_base_components.keys()),
+                self._unit_test_components,
+                main_package_name=self._configs.unit_test_package)
+
+        self._extended_integration_test_components, \
+            self._other_integration_test_components = self._detach_extended_packages(
+                list(integration_test_base_components.keys()),
+                self._integration_test_components,
+                main_package_name=self._configs.integration_test_package)
+
+    def _detach_extended_packages(self, base_components, components, **options):
         """
         detaches components which extend existing base components from new components.
 
@@ -417,6 +535,14 @@ class PackagingManager(Manager, HookMixin):
                                 them extend base components.
 
         :note components: dict[str package_name: list[str] modules]
+
+        :keyword str main_package_name: main package name of given components.
+                                        if not provided, it will be assumed equal
+                                        to the first part of component name.
+                                        for example: if component is `pyrin.api.schema`
+                                        then, it will be assumed equal to `pyrin`.
+                                        if the package structure has a root with more
+                                        than one part, it should be provided manually.
 
         :returns: tuple[dict extended_components, dict other_components]
 
@@ -430,7 +556,9 @@ class PackagingManager(Manager, HookMixin):
         other_components = DTO()
         if len(components) > 0:
             component_keys = list(components.keys())
-            root_name = self._get_root_package(component_keys[0])
+            root_name = options.get('main_package_name', None)
+            if root_name is None:
+                root_name = self._get_root_package(component_keys[0])
             base_names = [self._replace_root_package(item, root_name) for item in base_components]
             for package in components:
                 if package in base_names:
@@ -689,24 +817,103 @@ class PackagingManager(Manager, HookMixin):
 
         return self._is_custom_component(module_name)
 
-    def _is_test_component(self, component_name):
+    def _is_unit_test_component(self, component_name):
         """
-        gets a value indicating that given component is a test component.
+        gets a value indicating that given component is a unit test component.
 
         :param str component_name: full package or module name.
 
         :rtype: bool
         """
 
-        for test in self._configs.test_packages:
-            if self._contains(test, component_name) is True:
-                return True
+        return self._contains(self._configs.unit_test_package, component_name)
+
+    def _is_unit_test_package(self, package_name):
+        """
+        gets a value indicating that given package is a unit test package.
+
+        :param str package_name: full package name.
+                                 example package_name = 'test.api'
+
+        :rtype: bool
+        """
+
+        return self._is_unit_test_component(package_name)
+
+    def _is_unit_test_module(self, module_name):
+        """
+        gets a value indicating that given module is a unit test module.
+
+        :param str module_name: full module name.
+                                example module_name = 'test.api.error_handlers'
+
+        :rtype: bool
+        """
+
+        return self._is_unit_test_component(module_name)
+
+    def _is_integration_test_component(self, component_name):
+        """
+        gets a value indicating that given component is an integration test component.
+
+        :param str component_name: full package or module name.
+
+        :rtype: bool
+        """
+
+        return self._contains(self._configs.integration_test_package, component_name)
+
+    def _is_integration_test_package(self, package_name):
+        """
+        gets a value indicating that given package is an integration test package.
+
+        :param str package_name: full package name.
+                                 example package_name = 'test.api'
+
+        :rtype: bool
+        """
+
+        return self._is_integration_test_component(package_name)
+
+    def _is_integration_test_module(self, module_name):
+        """
+        gets a value indicating that given module is an integration test module.
+
+        :param str module_name: full module name.
+                                example module_name = 'test.api.error_handlers'
+
+        :rtype: bool
+        """
+
+        return self._is_integration_test_component(module_name)
+
+    def _is_test_component(self, component_name):
+        """
+        gets a value indicating that given component is a test component.
+
+        this method specifies those components that are test components but
+        won't be included neither in unit nor integration test components.
+
+        :param str component_name: full package or module name.
+
+        :rtype: bool
+        """
+
+        if not self._is_integration_test_component(component_name) and \
+                not self._is_unit_test_component(component_name):
+            for root in self._test_roots_bases:
+                is_test = self._contains(root, component_name)
+                if is_test is True:
+                    return True
 
         return False
 
     def _is_test_package(self, package_name):
         """
         gets a value indicating that given package is a test package.
+
+        this method specifies those packages that are test packages but
+        won't be included neither in unit nor integration test packages.
 
         :param str package_name: full package name.
                                  example package_name = 'test.api'
@@ -719,6 +926,9 @@ class PackagingManager(Manager, HookMixin):
     def _is_test_module(self, module_name):
         """
         gets a value indicating that given module is a test module.
+
+        this method specifies those modules that are test modules but
+        won't be included neither in unit nor integration test modules.
 
         :param str module_name: full module name.
                                 example module_name = 'test.api.error_handlers'

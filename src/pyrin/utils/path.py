@@ -104,6 +104,20 @@ def get_package_name(path, root_path):
     return path.replace(root_path, '').replace(os.path.sep, '.').lstrip('.')
 
 
+def get_package_path(module_name):
+    """
+    gets the absolute path of the package of module with given name.
+
+    :param str module_name: module name to get its package path.
+
+    :rtype: str
+    """
+
+    absolute_module_path = get_module_file_path(module_name)
+    parts = os.path.split(absolute_module_path)
+    return parts[0]
+
+
 def create_directory(target):
     """
     creates a directory with given absolute target path.
