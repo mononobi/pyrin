@@ -24,7 +24,8 @@ set_python_path('.')
 from tests.unit import PyrinUnitTestApplication
 
 
-app_instance = PyrinUnitTestApplication(scripting_mode=True)
+app_instance = PyrinUnitTestApplication(import_name='tests.unit',
+                                        scripting_mode=True)
 
 
 class Groups(object):
