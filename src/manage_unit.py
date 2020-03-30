@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-manage module.
+manage_unit module.
 
-to enable locale management for application, execute:
+to enable locale management for unit tests, execute:
 `python manage.py babel enable`
 
-to enable migrations for application, execute:
+to enable migrations for unit tests, execute:
 `python manage.py alembic enable`
 
-to create a new package for application, execute:
+to create a new package for unit tests, execute:
 `python manage.py template package`
 """
 
@@ -21,10 +21,10 @@ from pyrin.utils.environment import set_python_path
 
 set_python_path('.')
 
-from tests import PyrinTestApplication
+from tests.unit import PyrinUnitTestApplication
 
 
-app_instance = PyrinTestApplication(scripting_mode=True)
+app_instance = PyrinUnitTestApplication(scripting_mode=True)
 
 
 class Groups(object):

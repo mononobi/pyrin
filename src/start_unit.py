@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-start tests module.
+start_unit module.
 """
 
 import os
@@ -13,18 +13,20 @@ import pyrin.configuration.services as config_services
 
 from pyrin.utils.custom_print import print_warning, print_info
 
-from tests import PyrinTestApplication
+from tests.unit import PyrinUnitTestApplication
 
 
-def remove(name):
+def remove(*name):
     """
     removes a file or directory by specified name from application root directory.
 
     :param str name: name of the file or directory to be removed.
+                     it could be multiple related names to form a
+                     relative path.
     """
 
-    root_path = application_services.get_application_root_path()
-    file_path = os.path.join(root_path, name)
+    root_path = os.path.abspath('.')
+    file_path = os.path.join(root_path, *name)
     file_path = os.path.abspath(file_path)
 
     if os.path.exists(file_path):
@@ -53,7 +55,7 @@ def remove_pytest_cache():
     removes pytest cache directory.
     """
 
-    remove('.pytest_cache')
+    remove('tests', 'unit', '.pytest_cache')
 
 
 def remove_coverage():
@@ -82,9 +84,10 @@ def start_tests(coverage=False):
                           start tests without coverage.
     """
 
-    root_path = application_services.get_application_root_path()
+    root_path = application_services.get_application_main_package_path()
     args = ['--cache-clear',
-            '--rootdir={root}'.format(root=root_path)]
+            '--rootdir', root_path,
+            '--pyargs', 'tests.unit']
     if coverage is True:
         config_file = config_services.get_file_path('pytest.coverage')
         args.extend(['--cov-config={config_file}'.format(config_file=config_file),
@@ -97,5 +100,5 @@ def start_tests(coverage=False):
 # the if condition is to ensure that multiprocessing
 # on windows works as expected.
 if __name__ == '__main__':
-    app = PyrinTestApplication()
-    start_tests(coverage=False)
+    app = PyrinUnitTestApplication(import_name='tests.unit')
+    start_tests(coverage=True)
