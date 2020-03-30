@@ -81,6 +81,16 @@ def test_get_context_invalid():
         application_services.get_context('not_present_context')
 
 
+def test_get_context_invalid_with_default():
+    """
+    gets the application context value that does not exist.
+    it should return the provided default value.
+    """
+
+    value = application_services.get_context('not_present_context', default=1003)
+    assert value == 1003
+
+
 def test_register_component():
     """
     registers given application component.
