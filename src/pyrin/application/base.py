@@ -30,7 +30,7 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.globals import LIST_TYPES
+from pyrin.core.globals import LIST_TYPES, NULL
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
@@ -315,16 +315,25 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self._context[key] = value
 
-    def get_context(self, key):
+    def get_context(self, key, **options):
         """
         gets the application context value that belongs to given key.
 
         :param str key: key for requested application context.
 
+        :keyword object default: default value to be returned if key is not available.
+                                 otherwise, it raises an error if key is not available.
+
+        :raises ContextAttributeError: context attribute error.
+
         :returns: related value to given key.
         """
 
-        return self._context[key]
+        default = options.get('default', NULL)
+        if default is NULL:
+            return self._context[key]
+
+        return self._context.get(key, default)
 
     @setupmethod
     def register_component(self, component, **options):

@@ -23,16 +23,21 @@ def add_context(key, value, **options):
     get_current_app().add_context(key, value, **options)
 
 
-def get_context(key):
+def get_context(key, **options):
     """
     gets the application context value that belongs to given key.
 
     :param str key: key for requested application context.
 
+    :keyword object default: default value to be returned if key is not available.
+                             otherwise, it raises an error if key is not available.
+
+    :raises ContextAttributeError: context attribute error.
+
     :returns: related value to given key.
     """
 
-    return get_current_app().get_context(key)
+    return get_current_app().get_context(key, **options)
 
 
 def register_component(component, **options):
