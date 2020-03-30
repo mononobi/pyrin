@@ -522,6 +522,15 @@ def test_get_locale_path():
     assert application_services.get_locale_path() == locale_path
 
 
+def test_get_working_directory():
+    """
+    gets application's working directory path.
+    """
+
+    working_directory = application_services.get_working_directory()
+    assert os.path.abspath('.') == working_directory
+
+
 def test_configure():
     """
     configures the application with given dict.
