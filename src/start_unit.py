@@ -101,4 +101,4 @@ def start_tests(coverage=False):
 # on windows works as expected.
 if __name__ == '__main__':
     app = PyrinUnitTestApplication(import_name='tests.unit')
-    start_tests(coverage=True)
+    start_tests(coverage=False)
