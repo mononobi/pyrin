@@ -60,7 +60,6 @@ setup(
     install_requires=[
         'aniso8601>=8.0.0',
         'bcrypt>=3.1.7',
-        'cffi>=1.13.2',
         'pytz>=2019.3',
         'Flask>=1.1.1',
         'PyJWT>=1.7.1',
