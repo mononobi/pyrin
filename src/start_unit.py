@@ -16,17 +16,17 @@ from pyrin.utils.custom_print import print_warning, print_info
 from tests.unit import PyrinUnitTestApplication
 
 
-def remove(*name):
+def remove(*names):
     """
     removes a file or directory by specified name from application root directory.
 
-    :param str name: name of the file or directory to be removed.
-                     it could be multiple related names to form a
-                     relative path.
+    :param str names: name of the file or directory to be removed.
+                      it could be multiple related names to form a
+                      relative path.
     """
 
     root_path = os.path.abspath('.')
-    file_path = os.path.join(root_path, *name)
+    file_path = os.path.join(root_path, *names)
     file_path = os.path.abspath(file_path)
 
     if os.path.exists(file_path):
