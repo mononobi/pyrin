@@ -42,7 +42,7 @@ To be able to run tests:
    - Windows:  **`C:\Windows\System32\Drivers\etc\hosts`**
    - Mac:      **`/etc/hosts`**
 
-3. Now you could execute **`python3 start_tests.py`** to start all tests.
+3. Now you could execute **`python3 start_unit.py`** to start all unit tests.
 
 # Demo Application
 
