@@ -30,7 +30,7 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.globals import LIST_TYPES, NULL
+from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
