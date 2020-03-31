@@ -9,6 +9,7 @@ from pyrin.core.structs import Hook
 class PackagingHookBase(Hook):
     """
     packaging hook base class.
+
     all packages that need to be hooked into packaging business must
     implement this class and register it in packaging hooks.
     """
