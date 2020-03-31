@@ -12,7 +12,6 @@ psycopg2-binary = "*"
 [packages]
 aniso8601 = "*"
 bcrypt = "*"
-cffi = "*"
 pytz = "*"
 Flask = "*"
 PyJWT = "*"
