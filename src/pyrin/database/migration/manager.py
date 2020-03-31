@@ -172,7 +172,7 @@ class DatabaseMigrationManager(Manager):
                 connection_url == 'sqlite:///':
             return connection_url
 
-        root_path = application_services.get_application_root_path()
+        root_path = application_services.get_working_directory()
         url = connection_url.replace('sqlite:///', '')
         full_path = path.join(root_path, url)
         absolute_path = path.abspath(full_path)

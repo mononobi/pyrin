@@ -38,7 +38,7 @@ class PackageTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase):
         self._package_class_name = None
         self._package_base = None
         self._application_path = application_services.get_application_main_package_path()
-        self._application_root_path = application_services.get_application_root_path()
+        self._working_directory = application_services.get_working_directory()
 
         super().__init__(name, source)
 
@@ -104,7 +104,7 @@ class PackageTemplateHandlerBase(TemplateHandlerWithInterfaceInputBase):
             self._application_path, self._package_path))
         self._package_name = ' '.join(self._package_path.split(os.path.sep)).lower().strip()
         self._package_full_name = path_utils.get_package_name(self._package_full_path,
-                                                              self._application_root_path)
+                                                              self._working_directory)
         self._package_base = self._package_path.replace(os.path.sep, '.')
         self._package_class_name = package_class_name.replace(' ', '')
         self._target = self._package_full_path
