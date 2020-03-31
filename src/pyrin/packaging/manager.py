@@ -13,6 +13,7 @@ import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 import pyrin.utils.path as path_utils
+import pyrin.utils.environment as env_utils
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
@@ -164,6 +165,7 @@ class PackagingManager(Manager, HookMixin):
         self._pyrin_package_name = path_utils.get_pyrin_main_package_name()
         self._load_configs()
         self._initialize_loaded_packages()
+        self._resolve_python_path()
 
     def _extract_test_roots(self):
         """
@@ -412,6 +414,14 @@ class PackagingManager(Manager, HookMixin):
                     return root_path.replace(item, '').rstrip(os.path.sep)
 
         return root_path
+
+    def _resolve_python_path(self):
+        """
+        resolves python path to put in `PYTHONPATH` variable.
+        """
+
+        application_root_path = application_services.get_application_root_path()
+        env_utils.set_python_path(self.get_working_directory(application_root_path))
 
     def _find_loadable_components(self, root_path, include=None,
                                   exclude=None, **options):

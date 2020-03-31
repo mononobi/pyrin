@@ -37,7 +37,6 @@ from pyrin.packaging.component import PackagingComponent
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
-from pyrin.utils.environment import set_python_path
 from pyrin.application.structs import CoreResponse, CoreRequest, ApplicationContext, \
     ApplicationComponent, ApplicationSingletonMeta, Component
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
@@ -503,7 +502,6 @@ class Application(Flask, HookMixin, SignalMixin,
         self._load_environment_variables()
 
         packaging_services.load_components(**options)
-        self._resolve_python_path()
 
         # we should call this method after loading components
         # to be able to use configuration package.
@@ -1110,16 +1108,6 @@ class Application(Flask, HookMixin, SignalMixin,
         root_path = os.path.join(main_package_path, '..')
         root_path = os.path.abspath(root_path)
         self.add_context(self.ROOT_APPLICATION_PATH_CONTEXT_KEY, root_path)
-
-    def _resolve_python_path(self):
-        """
-        resolves python path to put in `PYTHONPATH` variable.
-
-        this is only needed when application starts in scripting mode.
-        """
-
-        if self._scripting_mode is True:
-            set_python_path(self.get_working_directory())
 
     def _load_environment_variables(self):
         """
