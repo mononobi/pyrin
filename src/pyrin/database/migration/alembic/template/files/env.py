@@ -16,9 +16,6 @@ import pyrin.configuration.services as config_services
 import pyrin.logging.services as logging_services
 
 from pyrin.utils.custom_print import print_default
-from pyrin.utils.environment import set_python_path
-
-set_python_path('.')
 
 from APPLICATION_MODULE import APPLICATION_CLASS
 
