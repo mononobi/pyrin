@@ -77,6 +77,7 @@ class DatabaseMigrationManager(Manager):
     def get_connection_urls(self):
         """
         gets all database connection urls for each engine.
+
         it gets the values from active section of each store.
         in case of sqlite usage, all urls will be made absolute.
 
@@ -84,23 +85,23 @@ class DatabaseMigrationManager(Manager):
         :rtype: dict
         """
 
+        prefix = database_services.get_configs_prefix()
+        url_key = '{prefix}url'.format(prefix=prefix)
         connections = DTO()
         connections[database_services.get_default_database_name()] = \
-            self._get_absolute_connection_url(config_services.get_active('database',
-                                                                         'sqlalchemy_url'))
+            self._get_absolute_connection_url(config_services.get_active('database', url_key))
 
         for bind_name in self.get_bind_name_to_metadata_map():
             if bind_name != database_services.get_default_database_name():
                 section_name = database_services.get_bind_config_section_name(bind_name)
                 connections[bind_name] = self._get_absolute_connection_url(
-                    config_services.get('database.binds', section_name, 'sqlalchemy_url'))
+                    config_services.get('database.binds', section_name, url_key))
 
         return connections
 
     def _map_bind_to_metadata(self):
         """
-        maps bind names of different engines to a
-        metadata representing the related tables.
+        maps bind names of different engines to a metadata representing the related tables.
         """
 
         for engine, tables in self._engine_to_table_map.items():
@@ -157,6 +158,7 @@ class DatabaseMigrationManager(Manager):
     def _get_absolute_connection_url(self, connection_url):
         """
         gets absolute path of given connection string if required.
+
         it is only required when sqlite is in use.
 
         :param str connection_url: connection url.

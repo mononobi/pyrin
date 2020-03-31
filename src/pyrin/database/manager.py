@@ -177,8 +177,19 @@ class DatabaseManager(Manager, HookMixin):
         :rtype: Engine
         """
 
-        configs_prefix = config_services.get_active('database', 'configs_prefix')
+        configs_prefix = self.get_configs_prefix()
         return engine_from_config(database_configs, prefix=configs_prefix, **kwargs)
+
+    def get_configs_prefix(self):
+        """
+        gets the configs prefix for sqlalchemy keys in database config store.
+
+        it gets the value of `configs_prefix` key from database config store.
+
+        :rtype: str
+        """
+
+        return config_services.get_active('database', 'configs_prefix')
 
     def _create_bounded_engines(self):
         """

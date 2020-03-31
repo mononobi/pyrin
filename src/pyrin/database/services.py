@@ -259,3 +259,15 @@ def get_default_database_name():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_default_database_name()
+
+
+def get_configs_prefix():
+    """
+    gets the configs prefix for sqlalchemy keys in database config store.
+
+    it gets the value of `configs_prefix` key from database config store.
+
+    :rtype: str
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_configs_prefix()

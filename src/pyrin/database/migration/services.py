@@ -26,6 +26,7 @@ def drop_all():
 def get_connection_urls():
     """
     gets all database connection urls for each engine.
+
     it gets the values from active section of each store.
     in case of sqlite usage, all urls will be made absolute.
 
