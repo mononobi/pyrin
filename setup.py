@@ -11,10 +11,10 @@ from setuptools import setup
 
 
 with io.open('README.md', 'rt', encoding='utf8') as readme_file:
-    readme = readme_file.read()
+    README = readme_file.read()
 
 with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
-    version = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
+    VERSION = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
 
 PACKAGES = [
     'aniso8601>=8.0.0',
@@ -47,7 +47,7 @@ DOC_PACKAGES = [
 
 setup(
     name='pyrin',
-    version=version,
+    version=VERSION,
     url='https://github.com/mononobi/pyrin',
     project_urls={
         # 'Documentation': '',
@@ -61,8 +61,10 @@ setup(
     maintainer_email='mohamadnobakht@gmail.com',
     description='Application framework for developing small to '
                 'large scale enterprise applications.',
-    long_description=readme,
+    long_description=README,
     long_description_content_type='text/markdown',
+    keywords=('flask python sqlalchemy pyrin core alembic multi-database '
+              'application-framework rest-api dependency-injection ioc'),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
