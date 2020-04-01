@@ -9,11 +9,41 @@ import re
 from setuptools import find_namespace_packages
 from setuptools import setup
 
+
 with io.open('README.md', 'rt', encoding='utf8') as readme_file:
     readme = readme_file.read()
 
 with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
     version = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
+
+PACKAGES = [
+    'aniso8601>=8.0.0',
+    'bcrypt>=3.1.7',
+    'pytz>=2019.3',
+    'Flask>=1.1.1',
+    'PyJWT>=1.7.1',
+    'SQLAlchemy>=1.3.13',
+    'colorama>=0.4.3',
+    'python-dotenv>=0.10.5',
+    'cryptography>=2.8',
+    'flask-babel>=1.0.0',
+    'babel>=2.8.0',
+    'alembic>=1.4.0',
+    'fire>=0.2.1',
+    'sqlparse>=0.3.0',
+]
+
+TEST_PACKAGES = PACKAGES + [
+    'pytest',
+    'pytest-cov',
+    'pygments',
+]
+
+DOC_PACKAGES = [
+    'sphinx',
+    'sphinxcontrib-log-cabinet',
+    'sphinx-issues',
+]
 
 setup(
     name='pyrin',
@@ -57,33 +87,10 @@ setup(
     package_data={'': ['*']},
     include_package_data=True,
     python_requires='>=3.5',
-    install_requires=[
-        'aniso8601>=8.0.0',
-        'bcrypt>=3.1.7',
-        'pytz>=2019.3',
-        'Flask>=1.1.1',
-        'PyJWT>=1.7.1',
-        'SQLAlchemy>=1.3.13',
-        'colorama>=0.4.3',
-        'python-dotenv>=0.10.5',
-        'cryptography>=2.8',
-        'flask-babel>=1.0.0',
-        'babel>=2.8.0',
-        'alembic>=1.4.0',
-        'fire>=0.2.1',
-        'sqlparse>=0.3.0',
-    ],
+    install_requires=PACKAGES,
     extras_require={
-        'tests': [
-            'pytest',
-            'pytest-cov',
-            'pygments',
-        ],
-        'docs': [
-            'sphinx',
-            'sphinxcontrib-log-cabinet',
-            'sphinx-issues',
-        ],
+        'tests': TEST_PACKAGES,
+        'docs': DOC_PACKAGES,
     },
     entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
 )
