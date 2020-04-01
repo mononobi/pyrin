@@ -59,8 +59,8 @@ setup(
     author_email='mohamadnobakht@gmail.com',
     maintainer='Mohamad Nobakht',
     maintainer_email='mohamadnobakht@gmail.com',
-    description='Application framework for developing small to '
-                'large scale enterprise applications.',
+    description='A rich platform-independent application framework '
+                'to build apps using Flask on top of it.',
     long_description=README,
     long_description_content_type='text/markdown',
     keywords=('flask python sqlalchemy pyrin core alembic multi-database '
