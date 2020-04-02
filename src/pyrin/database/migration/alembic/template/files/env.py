@@ -20,7 +20,7 @@ from pyrin.utils.custom_print import print_default
 from APPLICATION_MODULE import APPLICATION_CLASS
 
 
-app_instance = APPLICATION_CLASS(scripting_mode=True)
+app_instance = APPLICATION_CLASS(scripting_mode=True, import_name='APPLICATION_IMPORT_NAME')
 
 USE_TWOPHASE = config_services.get('alembic', 'alembic', 'use_twophase')
 
@@ -81,6 +81,8 @@ def run_migrations_offline():
 
     engines = {}
     for name in db_names:
+        if name not in connection_urls:
+            continue
         engines[name] = rec = {}
         rec['url'] = connection_urls.get(name)
         rec['engine'] = engine_from_config(
@@ -139,6 +141,8 @@ def run_migrations_online():
 
     engines = {}
     for name in db_names:
+        if name not in connection_urls:
+            continue
         engines[name] = rec = {}
         rec['engine'] = engine_from_config(
             dict(url=connection_urls.get(name)),

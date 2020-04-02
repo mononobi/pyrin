@@ -100,6 +100,26 @@ def get_file_path(store_name, **options):
                                                                             **options)
 
 
+def get_default_file_path(store_name, **options):
+    """
+    gets the default configuration file path for given config store.
+
+    it gets the file path in `pyrin.settings.default` directory.
+    if the file is not available, it could return None or raise an error.
+
+    :param str store_name: config store name to get its file path.
+
+    :keyword bool silent: specifies that if a related default configuration
+                          file for the given store name not found, ignore it.
+                          otherwise raise an error. defaults to False.
+
+    :raises ConfigurationFileNotFoundError: configuration file not found error.
+    """
+
+    return get_component(ConfigurationPackage.COMPONENT_NAME).get_default_file_path(
+        store_name, **options)
+
+
 def get_file_name(store_name, **options):
     """
     gets the configuration file name for given config store.
@@ -123,14 +143,28 @@ def create_config_files(*stores, **options):
     """
     creates the config files for given store names in application settings path.
 
-    it creates files based on files available in pyrin default settings.
+    it creates the files based on files available in pyrin default settings.
 
-    :param str stores: store names to create config files for them.
+    :param str stores: store names to create config file for them.
 
-    :keyword bool ignore_on_existed: specifies that if a config file for a
+    :keyword bool replace_existing: specifies that it should replace file if a config
+                                    file is already available for given store name.
+                                    this argument takes precedence over
+                                    `ignore_on_existed` argument.
+                                    defaults to False if not provided.
+
+    :keyword bool ignore_on_existed: specifies that if a config file for the
                                      store name is already existed, ignore
                                      it, otherwise raise an error.
                                      defaults to False if not provided.
+
+    :keyword bool silent: specifies that if a related default configuration
+                          file for the given store name not found, ignore it.
+                          otherwise raise an error. defaults to False.
+
+    :keyword dict[str, str] data: keyword with values to be replaced in config file.
+                                  any keyword that does not exist in config file, will
+                                  be ignored. defaults to None if not provided.
 
     :raises ConfigurationFileNotFoundError: configuration file not found error.
     :raises ConfigurationFileExistedError: configuration file existed error.
@@ -148,10 +182,24 @@ def create_config_file(store, **options):
 
     :param str store: store name to create config file for it.
 
+    :keyword bool replace_existing: specifies that it should replace file if a config
+                                    file is already available for given store name.
+                                    this argument takes precedence over
+                                    `ignore_on_existed` argument.
+                                    defaults to False if not provided.
+
     :keyword bool ignore_on_existed: specifies that if a config file for the
                                      store name is already existed, ignore
                                      it, otherwise raise an error.
                                      defaults to False if not provided.
+
+    :keyword bool silent: specifies that if a related default configuration
+                          file for the given store name not found, ignore it.
+                          otherwise raise an error. defaults to False.
+
+    :keyword dict[str, str] data: keyword with values to be replaced in config file.
+                                  any keyword that does not exist in config file, will
+                                  be ignored. defaults to None if not provided.
 
     :raises ConfigurationFileNotFoundError: configuration file not found error.
     :raises ConfigurationFileExistedError: configuration file existed error.
@@ -188,6 +236,7 @@ def get(store_name, section, key, **options):
 def get_active(store_name, key, **options):
     """
     gets the value of given key from active section of given config store.
+
     if this store does not have an active section, it raises an error.
 
     :param str store_name: config store name.
@@ -270,8 +319,9 @@ def get_section_keys(store_name, section, **options):
 
 def get_all(store_name, **options):
     """
-    gets all available key/values from different sections of
-    given config store in a flat dict, eliminating the sections.
+    gets all available key/values from different sections of given config store.
+
+    in a flat dict, eliminating the sections.
     note that if there are same key names with different values
     in different sections, it raises an error to prevent overwriting
     values. also note that if given config store contains `active` section,
@@ -296,6 +346,7 @@ def get_all(store_name, **options):
 def get_active_section(store_name, **options):
     """
     gets the active section available in given config store.
+
     this method gets the section that it's name is under [active]
     section, for example:
 
@@ -339,6 +390,7 @@ def get_active_section(store_name, **options):
 def get_active_section_name(store_name):
     """
     gets the active section name of given config store if available.
+
     if the store does not have an active section, it raises an error.
 
     :param str store_name: config store name.

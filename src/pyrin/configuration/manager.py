@@ -7,6 +7,7 @@ import os
 
 import pyrin.application.services as application_services
 import pyrin.utils.path as path_utils
+import pyrin.utils.file as file_utils
 
 from pyrin.configuration.store import ConfigStore
 from pyrin.core.structs import Context, Manager
@@ -101,7 +102,9 @@ class ConfigurationManager(Manager):
         file_path = self._get_relevant_file_path(name, **options)
         if file_path is not None:
             self._add_config_store(name, file_path, **options)
-            self.create_config_file(name, ignore_on_existed=True)
+
+            options.update(ignore_on_existed=True, silent=True)
+            self.create_config_file(name, **options)
 
     def load_configurations(self, *names, **options):
         """
@@ -135,9 +138,16 @@ class ConfigurationManager(Manager):
     def _get_relevant_file_path(self, name, **options):
         """
         gets the relevant file path to specified store name in settings folder.
+
         it returns None if the file is not available and `silent=True` is given.
 
         :param str name: config store name.
+
+        :keyword bool only_default: specifies that it should return the file path only
+                                    if it's available in default settings directory.
+                                    otherwise it returns the file path from application
+                                    settings if available. if not, returns it from default
+                                    settings directory. defaults to False if not provided.
 
         :keyword bool silent: specifies that if a related configuration file
                               for the given store name not found, ignore it.
@@ -146,10 +156,13 @@ class ConfigurationManager(Manager):
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
+        only_default = options.get('only_default', False)
+        paths = (self._settings_path, self._default_settings_path)
+        if only_default is True:
+            paths = (self._default_settings_path, )
+
         config_name = self._get_file_name(name)
-        config_path = path_utils.get_first_available_file(self._settings_path,
-                                                          self._default_settings_path,
-                                                          file_name=config_name)
+        config_path = path_utils.get_first_available_file(*paths, file_name=config_name)
 
         silent = options.get('silent', False)
         if config_path is None and silent is not True:
@@ -189,6 +202,25 @@ class ConfigurationManager(Manager):
         """
 
         self._get_config_store(store_name).reload(**options)
+
+    def get_default_file_path(self, store_name, **options):
+        """
+        gets the default configuration file path for given config store.
+
+        it gets the file path in `pyrin.settings.default` directory.
+        if the file is not available, it could return None or raise an error.
+
+        :param str store_name: config store name to get its file path.
+
+        :keyword bool silent: specifies that if a related default configuration
+                              file for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
+        """
+
+        options.update(only_default=True)
+        return self._get_relevant_file_path(store_name, **options)
 
     def get_file_path(self, store_name, **options):
         """
@@ -233,14 +265,28 @@ class ConfigurationManager(Manager):
         """
         creates the config files for given store names in application settings path.
 
-        it creates files based on files available in pyrin default settings.
+        it creates the files based on files available in pyrin default settings.
 
-        :param str stores: store names to create config files for them.
+        :param str stores: store names to create config file for them.
 
-        :keyword bool ignore_on_existed: specifies that if a config file for a
+        :keyword bool replace_existing: specifies that it should replace file if a config
+                                        file is already available for given store name.
+                                        this argument takes precedence over
+                                        `ignore_on_existed` argument.
+                                        defaults to False if not provided.
+
+        :keyword bool ignore_on_existed: specifies that if a config file for the
                                          store name is already existed, ignore
                                          it, otherwise raise an error.
                                          defaults to False if not provided.
+
+        :keyword bool silent: specifies that if a related default configuration
+                              file for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :keyword dict[str, str] data: keyword with values to be replaced in config file.
+                                      any keyword that does not exist in config file, will
+                                      be ignored. defaults to None if not provided.
 
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         :raises ConfigurationFileExistedError: configuration file existed error.
@@ -257,30 +303,54 @@ class ConfigurationManager(Manager):
 
         :param str store: store name to create config file for it.
 
+        :keyword bool replace_existing: specifies that it should replace file if a config
+                                        file is already available for given store name.
+                                        this argument takes precedence over
+                                        `ignore_on_existed` argument.
+                                        defaults to False if not provided.
+
         :keyword bool ignore_on_existed: specifies that if a config file for the
                                          store name is already existed, ignore
                                          it, otherwise raise an error.
                                          defaults to False if not provided.
 
+        :keyword bool silent: specifies that if a related default configuration
+                              file for the given store name not found, ignore it.
+                              otherwise raise an error. defaults to False.
+
+        :keyword dict[str, str] data: keyword with values to be replaced in config file.
+                                      any keyword that does not exist in config file, will
+                                      be ignored. defaults to None if not provided.
+
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         :raises ConfigurationFileExistedError: configuration file existed error.
         """
 
-        source_path = self.get_file_path(store)
+        source_path = self.get_default_file_path(store, **options)
+        if source_path is None:
+            return
+
         config_name = self._get_file_name(store)
         config_path = os.path.abspath(os.path.join(self._settings_path, config_name))
+        replace_existing = options.get('replace_existing', False)
         ignore_on_existed = options.get('ignore_on_existed', False)
+        data = options.get('data', None)
 
-        if os.path.exists(config_path):
-            if ignore_on_existed is False:
+        existed = os.path.exists(config_path)
+        if existed and replace_existing is not True:
+            if ignore_on_existed is not True:
                 raise ConfigurationFileExistedError('Configuration file for store [{store}] '
-                                                    'is already existed at [{file_path}].'
+                                                    'is already existed in [{file_path}].'
                                                     .format(store=store, file_path=config_path))
         else:
+            if existed is True:
+                path_utils.remove_file(config_path)
+
             if os.path.exists(self._settings_path) is False:
                 path_utils.create_directory(self._settings_path)
 
             path_utils.copy_file(source_path, config_path)
+            self._replace_config_values(config_path, data)
 
     def get(self, store_name, section, key, **options):
         """
@@ -307,6 +377,7 @@ class ConfigurationManager(Manager):
     def get_active(self, store_name, key, **options):
         """
         gets the value of given key from active section of given config store.
+
         if this store does not have an active section, it raises an error.
 
         :param str store_name: config store name.
@@ -385,8 +456,9 @@ class ConfigurationManager(Manager):
 
     def get_all(self, store_name, **options):
         """
-        gets all available key/values from different sections of
-        given config store in a flat dict, eliminating the sections.
+        gets all available key/values from different sections of given config store.
+
+        in a flat dict, eliminating the sections.
         note that if there are same key names with different values
         in different sections, it raises an error to prevent overwriting
         values. also note that if given config store contains `active` section,
@@ -410,6 +482,7 @@ class ConfigurationManager(Manager):
     def get_active_section(self, store_name, **options):
         """
         gets the active section available in given config store.
+
         this method gets the section that it's name is under [active]
         section, for example:
 
@@ -451,6 +524,7 @@ class ConfigurationManager(Manager):
     def get_active_section_name(self, store_name):
         """
         gets the active section name of given config store if available.
+
         if the store does not have an active section, it raises an error.
 
         :param str store_name: config store name.
@@ -497,3 +571,33 @@ class ConfigurationManager(Manager):
         """
 
         return self._get_config_store(store_name).get_all_sections(**options)
+
+    def _replace_config_values(self, config_file, data):
+        """
+        replaces all config values available in given config file.
+
+        with values provided in keyword arguments. the keys in kwargs, must
+        be the same as the keys available in config file to be replaced.
+
+        :param str config_file: absolute path to config file.
+
+        :param dict[str, str] data: keyword with values to be replaced in config file.
+                                    any keyword that does not exist in config file, will
+                                    be ignored. defaults to None if not provided.
+
+        :raises ConfigurationFileNotFoundError: configuration file not found error.
+        """
+
+        if not os.path.exists(config_file):
+            raise ConfigurationFileNotFoundError('Config file [{file}] does not '
+                                                 'exist in application settings.'
+                                                 .format(file=config_file))
+
+        result_dict = {}
+        if data is not None and len(data) > 0:
+            for name, value in data.items():
+                regex = r'^{name}( )*[:=]{{1}}( )*(.*)$'.format(name=name)
+                replace = '{name}: {value}'.format(name=name, value=value)
+                result_dict[regex] = replace
+
+            file_utils.replace_file_values_regex(config_file, result_dict)

@@ -82,7 +82,8 @@ class Package(CoreObject):
 
         if len(self.EXTRA_CONFIG_STORE_NAMES) > 0:
             config_services.create_config_files(*self.EXTRA_CONFIG_STORE_NAMES,
-                                                ignore_on_existed=True)
+                                                ignore_on_existed=True,
+                                                silent=True)
 
         self._load_configs(config_services)
 

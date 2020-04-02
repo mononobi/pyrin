@@ -154,6 +154,21 @@ def copy_file(source, target):
     shutil.copy2(source, target)
 
 
+def remove_file(source):
+    """
+    removes the given source file.
+
+    :param str source: source file absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    """
+
+    assert_exists(source)
+    os.remove(source)
+
+
 def copy_directory(source, target, ignore_existed=False, ignore=None):
     """
     copies the given source directory contents into given target directory.

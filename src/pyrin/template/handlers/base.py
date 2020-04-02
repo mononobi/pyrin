@@ -59,6 +59,7 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         self._target = target
         self._config_stores = self._get_config_stores()
         self._data = None
+        self._config_data = None
 
     def create(self, *args, **kwargs):
         """
@@ -76,10 +77,10 @@ class TemplateHandlerBase(AbstractTemplateHandler):
 
         self._create(*args, **kwargs)
         self._data = self._get_data()
+        self._config_data = self._get_config_data()
         self._validate_target()
         self._copy_config_files()
         self._copy_template_files()
-        self._replace_config_values()
         self._replace_template_values()
         self._create_required_directories()
         self._finalize()
@@ -130,7 +131,9 @@ class TemplateHandlerBase(AbstractTemplateHandler):
         """
 
         if len(self._config_stores) > 0:
-            config_services.create_config_files(*self._config_stores, ignore_on_existed=True)
+            config_services.create_config_files(*self._config_stores,
+                                                replace_existing=True,
+                                                data=self._config_data)
 
     def _copy_template_files(self):
         """
@@ -139,16 +142,6 @@ class TemplateHandlerBase(AbstractTemplateHandler):
 
         path_utils.copy_directory(self._source, self._target,
                                   ignore_existed=True, ignore=path_utils.get_pycache)
-
-    def _replace_config_values(self):
-        """
-        replaces the values of config files with values in given dict.
-        """
-
-        if len(self._data) > 0 and len(self._config_stores) > 0:
-            for store in self._config_stores:
-                config_path = config_services.get_file_path(store)
-                file_utils.replace_file_values(config_path, self._data)
 
     def _replace_template_values(self):
         """
@@ -184,6 +177,17 @@ class TemplateHandlerBase(AbstractTemplateHandler):
     def _get_data(self):
         """
         gets the data required in template generation to replace in files.
+
+        this method is intended to be overridden by subclasses.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def _get_config_data(self):
+        """
+        gets the data required in template generation to replace in config files.
 
         this method is intended to be overridden by subclasses.
 

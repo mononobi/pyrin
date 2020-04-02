@@ -271,3 +271,17 @@ def get_configs_prefix():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_configs_prefix()
+
+
+def get_all_database_names():
+    """
+    gets all database names defined in application.
+
+    it returns all available database names, even those
+    that do not have any entity bounded to them.
+    the result also includes the default database name.
+
+    :rtype: list[str]
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_all_database_names()

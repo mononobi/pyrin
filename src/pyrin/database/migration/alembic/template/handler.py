@@ -6,6 +6,7 @@ alembic template handler module.
 import os
 
 import pyrin.application.services as application_services
+import pyrin.database.services as database_services
 
 from pyrin.core.structs import DTO
 from pyrin.database.migration.alembic.enumerations import AlembicCLIHandlersEnum
@@ -48,9 +49,19 @@ class AlembicTemplateHandler(TemplateHandlerBase):
         :rtype: dict
         """
 
-        return DTO(MIGRATIONS_PATH=application_services.get_migrations_path(),
-                   APPLICATION_CLASS=application_services.get_class_name(),
-                   APPLICATION_MODULE=application_services.get_module_name())
+        return DTO(APPLICATION_CLASS=application_services.get_class_name(),
+                   APPLICATION_MODULE=application_services.get_module_name(),
+                   APPLICATION_IMPORT_NAME=application_services.get_application_name())
+
+    def _get_config_data(self):
+        """
+        gets the data required in template generation to replace in config files.
+
+        :rtype: dict
+        """
+
+        return DTO(script_location=application_services.get_migrations_path(),
+                   databases=database_services.get_all_database_names())
 
     def _get_config_stores(self):
         """
