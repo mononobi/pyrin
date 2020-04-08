@@ -21,6 +21,7 @@ from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
 class ConfigStore(CoreObject):
     """
     config store class.
+
     all configurations will be stored with lowercase keys.
     """
 
@@ -90,8 +91,11 @@ class ConfigStore(CoreObject):
         :raises ConfigurationFileNotFoundError: configuration file not found error.
         """
 
-        if options.get('defaults', None) is None:
+        defaults = options.get('defaults', None)
+        if defaults is None:
             options.update(defaults=self._defaults)
+        else:
+            self._defaults = defaults
 
         self._configs.clear()
         self._load(**options)
@@ -129,6 +133,7 @@ class ConfigStore(CoreObject):
     def get_active(self, key, **options):
         """
         gets the value of given key from active section of this config store.
+
         if this store does not have an active section, it raises an error.
 
         :param str key: config key to get it's value.
@@ -203,8 +208,9 @@ class ConfigStore(CoreObject):
 
     def get_all(self, **options):
         """
-        gets all available key/values from different sections of
-        this config store in a flat dict, eliminating the sections.
+        gets all available key/values from different sections of this config store.
+
+        in a flat dict, eliminating the sections.
         note that if there are same key names with different values
         in different sections, it raises an error to prevent overwriting
         values. also note that if this config store contains `active` section,
@@ -279,6 +285,7 @@ class ConfigStore(CoreObject):
     def get_active_section(self, **options):
         """
         gets the active section available in related config file.
+
         this method gets the section that it's name is under [active]
         section, for example:
 
@@ -333,6 +340,7 @@ class ConfigStore(CoreObject):
     def _get_from_env(self, key, **options):
         """
         gets the value of given key from environment variable if available.
+
         otherwise may raise an exception or ignore it depending on `silent` keyword.
 
         :param str key: key to get it's value from environment variable.
@@ -368,7 +376,8 @@ class ConfigStore(CoreObject):
 
     def _sync_with_env(self, **options):
         """
-        synchronizes all keys with None value of this config store
+        synchronizes all keys with None value of this config store.
+
         with environment variables with the same name if available.
 
         :keyword bool silent: indicates that if an environment variable for the
@@ -387,6 +396,7 @@ class ConfigStore(CoreObject):
     def get_active_section_name(self):
         """
         gets the active section name of this config store if available.
+
         if the store does not have an active section, it raises an error.
 
         :raises ConfigurationStoreSectionNotFoundError: configuration store
