@@ -5,6 +5,8 @@ configuration test_services module.
 
 import os
 
+from datetime import date
+
 import pytest
 
 from sqlalchemy.pool import Pool, StaticPool
@@ -45,6 +47,15 @@ def test_load_configuration_already_loaded():
         config_services.load_configuration('application')
 
 
+def test_load_configuration_already_loaded_with_ignore():
+    """
+    loads an already loaded config store with `ignore_on_existed`
+    option, it should not raise an error.
+    """
+
+    config_services.load_configuration('database', ignore_on_existed=True)
+
+
 def test_load_configuration_invalid_name():
     """
     loads a config store that does not exist in settings, it should raise an error.
@@ -63,13 +74,32 @@ def test_load_configuration_invalid_name_with_silent():
     config_services.load_configuration('fake_settings_silent', silent=True)
 
 
+def test_load_configuration_with_interpolation():
+    """
+    loads a config file which needs interpolation.
+    """
+
+    defaults = dict(env_name='test_env', year_num='2020')
+    config_services.load_configuration('interpolation', defaults=defaults)
+    configs = config_services.get_all('interpolation')
+
+    assert isinstance(configs, dict)
+    assert configs.get('name', None) == 'interpolation_config'
+    assert configs.get('year', None) == 2020
+    assert configs.get('environment', None) == 'test_env'
+    assert configs.get('date', None) == date(2020, 12, 10)
+    assert configs.get('another_year', None) == 2020
+
+
 def test_load_configuration_for_all():
     """
     checks all configs have been loaded.
     """
 
-    config_stores = ['application',
+    config_stores = ['alembic',
+                     'application',
                      'api',
+                     'babel',
                      'communication',
                      'database',
                      'database.binds',
@@ -182,6 +212,16 @@ def test_load_configurations_already_loaded():
         config_services.load_configurations(*stores)
 
 
+def test_load_configurations_already_loaded_with_ignore():
+    """
+    loads given configurations which has been already loaded with
+    `ignore_on_existed` option. it should not raise an error.
+    """
+
+    stores = ['application', 'database']
+    config_services.load_configurations(*stores, ignore_on_existed=True)
+
+
 def test_reload():
     """
     reloads the configuration store from it's relevant file.
@@ -189,6 +229,41 @@ def test_reload():
     """
 
     config_services.reload('database')
+
+
+def test_reload_with_new_interpolation():
+    """
+    reloads the configuration store from it's relevant
+    file which needs interpolation, with new interpolation defaults.
+    """
+
+    defaults = dict(env_name='new_test_env', year_num='2000')
+    config_services.reload('interpolation', defaults=defaults)
+    configs = config_services.get_all('interpolation')
+
+    assert isinstance(configs, dict)
+    assert configs.get('name', None) == 'interpolation_config'
+    assert configs.get('year', None) == 2000
+    assert configs.get('environment', None) == 'new_test_env'
+    assert configs.get('date', None) == date(2000, 12, 10)
+    assert configs.get('another_year', None) == 2000
+
+
+def test_reload_with_old_interpolation():
+    """
+    reloads the configuration store from it's relevant
+    file which needs interpolation, with old interpolation defaults.
+    """
+
+    config_services.reload('interpolation')
+    configs = config_services.get_all('interpolation')
+
+    assert isinstance(configs, dict)
+    assert configs.get('name', None) == 'interpolation_config'
+    assert configs.get('year', None) == 2000
+    assert configs.get('environment', None) == 'new_test_env'
+    assert configs.get('date', None) == date(2000, 12, 10)
+    assert configs.get('another_year', None) == 2000
 
 
 def test_reload_for_not_loaded_store():
@@ -201,8 +276,6 @@ def test_reload_for_not_loaded_store():
         try:
             create_settings_file('new_settings_reload.config')
             config_services.reload('new_settings_reload')
-            sections = config_services.get_section_names('new_settings_reload')
-            assert sections is not None
         finally:
             delete_settings_file('new_settings_reload.config')
 
@@ -219,7 +292,7 @@ def test_reload_for_invalid_store():
 
 def test_get_file_path_database():
     """
-    checks the configuration file path for database config store.
+    gets the configuration file path for database settings.
     """
 
     path = config_services.get_file_path('database')
@@ -230,7 +303,7 @@ def test_get_file_path_database():
 
 def test_get_file_path_logging():
     """
-    checks the configuration file path for logging settings.
+    gets the configuration file path for logging settings.
     """
 
     path = config_services.get_file_path('logging')
@@ -241,12 +314,94 @@ def test_get_file_path_logging():
 
 def test_get_file_path_not_existed():
     """
-    checks the configuration file path for a not available
+    gets the configuration file path for a not available
     config store. it should raise an error.
     """
 
     with pytest.raises(ConfigurationFileNotFoundError):
         config_services.get_file_path('not_available_store')
+
+
+def test_get_file_path_not_existed_with_silent():
+    """
+    gets the configuration file path for a not available
+    config store with `silent` option. it should not raise an error.
+    """
+
+    file_path = config_services.get_file_path('not_available_store', silent=True)
+    assert file_path is None
+
+
+def test_get_default_file_path_with_no_default():
+    """
+    gets the default configuration file path for a config
+    store which does not have a default setting file.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationFileNotFoundError):
+        config_services.get_default_file_path('interpolation')
+
+
+def test_get_default_file_path_not_existed():
+    """
+    gets the default configuration file path for a not
+    available config store. it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationFileNotFoundError):
+        config_services.get_default_file_path('not_available_store')
+
+
+def test_get_default_file_path_with_no_default_with_silent():
+    """
+    gets the default configuration file path for a config
+    store which does not have a default setting file with
+    `silent` option. it should not raise an error.
+    """
+
+    file_path = config_services.get_default_file_path('interpolation', silent=True)
+    assert file_path is None
+
+
+def test_get_default_file_path_not_existed_with_silent():
+    """
+    gets the default configuration file path for a not
+    available config store with `silent` option.
+    it should not raise an error.
+    """
+
+    file_path = config_services.get_default_file_path('not_available_store', silent=True)
+    assert file_path is None
+
+
+def test_get_file_name():
+    """
+    gets configuration file name for environment config store.
+    """
+
+    file_name = config_services.get_file_name('environment')
+    assert file_name == 'environment.config'
+
+
+def test_get_file_name_not_existed():
+    """
+    gets configuration file name for a not available config store.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationFileNotFoundError):
+        config_services.get_file_name('not_available_store')
+
+
+def test_get_file_name_not_existed_with_silent():
+    """
+    gets configuration file name for a not available config store
+    with `silent` option. it should not raise an error.
+    """
+
+    file_name = config_services.get_file_name('not_available_store', silent=True)
+    assert file_name is None
 
 
 def test_get():
