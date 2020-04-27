@@ -8,9 +8,6 @@ to be available before server startup.
 # default response status code.
 DEFAULT_STATUS_CODE = 200
 
-# default jsonify mime-type.
-JSONIFY_MIMETYPE = 'application/json'
-
 # default application encoding.
 APPLICATION_ENCODING = 'utf-8'
 
