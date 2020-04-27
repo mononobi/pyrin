@@ -37,7 +37,7 @@ class HTMLMIMETypeHandler(MIMETypeHandlerBase):
 
         returns None if it fails to detect the mimetype.
 
-        :param object value: value to detect its mimetype.
+        :param str value: value to detect its mimetype.
 
         :rtype: str
         """

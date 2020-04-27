@@ -20,7 +20,7 @@ class TextResponse(CoreResponse):
         """
         initializes an instance of TextResponse.
 
-        :param object response: an object containing the response value.
+        :param str response: an object containing the response value.
 
         :param str | int status: a string with a status or an integer
                                  with the status code.

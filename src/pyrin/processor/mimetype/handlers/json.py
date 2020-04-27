@@ -29,7 +29,7 @@ class JSONMIMETypeHandler(MIMETypeHandlerBase):
 
         returns None if it fails to detect the mimetype.
 
-        :param object value: value to detect its mimetype.
+        :param dict value: value to detect its mimetype.
 
         :rtype: str
         """
@@ -65,7 +65,7 @@ class JSONStringMIMETypeHandler(JSONMIMETypeHandler):
 
         returns None if it fails to detect the mimetype.
 
-        :param object value: value to detect its mimetype.
+        :param str value: value to detect its mimetype.
 
         :rtype: str
         """
