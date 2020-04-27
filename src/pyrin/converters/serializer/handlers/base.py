@@ -33,6 +33,7 @@ class SerializerBase(AbstractSerializerBase):
         :param object value: value to be serialized.
 
         :returns: serialized object
+        :rtype: dict | list[dict]
         """
 
         if self.is_serializable(value, **options) is False:
@@ -51,6 +52,7 @@ class SerializerBase(AbstractSerializerBase):
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: serialized object
+        :rtype: dict | list[dict]
         """
 
         raise CoreNotImplementedError()

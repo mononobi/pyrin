@@ -33,7 +33,7 @@ class ListSerializer(SerializerBase):
                                         defaults to True if not provided.
 
         :returns: serialized list of objects
-        :rtype: list
+        :rtype: list[dict]
         """
 
         if len(value) <= 0:

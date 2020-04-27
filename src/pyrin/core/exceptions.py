@@ -15,19 +15,21 @@ class CoreException(Exception):
         super().__init__(*args, **kwargs)
         self._data = {}
         self._traceback = None
-        self.code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
-        self.description = str(self)
+        self._code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+        self._description = str(self)
 
-    def get_code(self):
+    @property
+    def code(self):
         """
         gets the error code.
 
-        :rtype: str
+        :rtype: int
         """
 
-        return self.code
+        return self._code
 
-    def get_data(self):
+    @property
+    def data(self):
         """
         gets the error data.
 
@@ -36,23 +38,25 @@ class CoreException(Exception):
 
         return self._data
 
-    def get_traceback(self):
+    @property
+    def traceback(self):
         """
-        returns the traceback of this exception.
+        gets the traceback of this exception.
 
         :rtype: object
         """
 
         return self._traceback
 
-    def get_description(self):
+    @property
+    def description(self):
         """
         gets the error description.
 
         :rtype: str
         """
 
-        return self.description
+        return self._description
 
 
 class CoreBusinessException(CoreException):
@@ -62,7 +66,7 @@ class CoreBusinessException(CoreException):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
+        self._code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
 
 
 class CoreAttributeError(CoreException, AttributeError):

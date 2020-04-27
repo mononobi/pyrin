@@ -19,6 +19,7 @@ import pyrin.configuration.services as config_services
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
+import pyrin.processor.mimetype.services as mimetype_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 
@@ -30,15 +31,18 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.globals import LIST_TYPES
+from pyrin.core.globals import LIST_TYPES, ROW_RESULT
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
-from pyrin.application.structs import CoreResponse, CoreRequest, ApplicationContext, \
-    ApplicationComponent, ApplicationSingletonMeta, Component
+from pyrin.processor.mimetype.enumerations import MIMETypeEnum
+from pyrin.processor.response.wrappers.base import CoreResponse
+from pyrin.processor.request.base import CoreRequest
+from pyrin.application.structs import ApplicationContext, ApplicationComponent, \
+    ApplicationSingletonMeta, Component
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
@@ -145,6 +149,11 @@ class Application(Flask, HookMixin, SignalMixin,
                                       get fired when the app runs in scripting mode.
                                       defaults to False, if not provided.
 
+        :keyword bool force_json_response: specifies that if response object is
+                                           not an html string, consider it as json
+                                           and convert it to be json serializable.
+                                           defaults to True if not provided.
+
         :keyword str settings_directory: settings directory name.
                                          if not provided, defaults to `settings`.
 
@@ -159,6 +168,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.get('scripting_mode', False)
+        self._force_json_response = options.get('force_json_response', True)
 
         self._import_name = options.get('import_name', None)
         if self._import_name is not None and (self._import_name == '' or
@@ -207,6 +217,7 @@ class Application(Flask, HookMixin, SignalMixin,
         result.pop('settings_directory', None)
         result.pop('migrations_directory', None)
         result.pop('locale_directory', None)
+        result.pop('force_json_response', None)
 
         return result
 
@@ -610,9 +621,9 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises AuthenticationFailedError: authentication failed error.
         """
 
-        # we have to override whole `dispatch_request` method to be able to customize it,
-        # because of the flask design that everything is embedded inside
-        # the `dispatch_request` method.
+        # we have to override whole `dispatch_request` method to be able to
+        # customize it, because of the flask design that everything is embedded
+        # inside the `dispatch_request` method.
 
         client_request = session_services.get_current_request()
         if client_request.routing_exception is not None:
@@ -646,11 +657,46 @@ class Application(Flask, HookMixin, SignalMixin,
 
         note that the `rv` value before passing to base method must
         be a `tuple`, `dict`, `str` or `CoreResponse`. otherwise
-        the value will not be json serialized and it causes an error.
+        it might causes an error.
+
+        :param tuple | dict | str | CoreResponse rv: the return value
+                                                     from the view function.
+
+        :rtype: CoreResponse
+        """
+
+        data = rv
+        is_tuple = False
+        if not isinstance(rv, CoreResponse):
+            if isinstance(rv, tuple) and not \
+                    isinstance(rv, ROW_RESULT) and len(rv) in (2, 3):
+                is_tuple = True
+                data = rv[0]
+
+            mimetype = mimetype_services.get_mimetype(data)
+            if mimetype not in (MIMETypeEnum.HTML, MIMETypeEnum.JSON):
+                if self._force_json_response is True:
+                    data = self._prepare_json(data)
+                elif data is None:
+                    data = ''
+
+            if is_tuple:
+                if len(rv) == 2:
+                    rv = data, rv[1]
+                elif len(rv) == 3:
+                    rv = data, rv[1], rv[2]
+            else:
+                rv = data
+
+        return super().make_response(rv)
+
+    def _prepare_json(self, rv):
+        """
+        prepares the input value to be convertible to json.
 
         :param object rv: the return value from the view function.
 
-        :rtype: CoreResponse
+        :rtype: dict
         """
 
         if rv is None:
@@ -658,27 +704,29 @@ class Application(Flask, HookMixin, SignalMixin,
         else:
             rv = self._serialize_result(rv)
 
-        # we could not return a list as response, so we wrap the
-        # result in a dict when we want to return a list.
+        # we could not return a list as response, so we wrap
+        # the result in a dict when we want to return a list.
         if isinstance(rv, list):
             rv = DTO(items=rv)
 
-        # we should wrap all single values into a dict before returning it to client.
+        # we should wrap all single values into a
+        # dict before returning it to client.
         if not isinstance(rv, (tuple, dict, CoreResponse)):
             rv = DTO(value=rv)
 
-        return super().make_response(rv)
+        return rv
 
     def _serialize_result(self, rv):
         """
         serializes the return value if needed.
 
         this method could be overridden in subclasses.
-        it must return the same exact input if could not convert it.
+        it must return a dict or a list of dicts on success or
+        the same exact input if could not convert it.
 
         :param object rv: the return value from the view function.
 
-        :rtype: dict
+        :rtype: dict | list[dict]
         """
 
         result_schema = session_services.get_current_request_context().get('result_schema',

@@ -52,7 +52,7 @@ class LargeContentError(RouterHandlerBusinessException):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = ClientErrorResponseCodeEnum.PAYLOAD_TOO_LARGE
+        self._code = ClientErrorResponseCodeEnum.PAYLOAD_TOO_LARGE
 
 
 class PermissionTypeError(RouterHandlerException):

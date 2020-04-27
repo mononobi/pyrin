@@ -19,6 +19,7 @@ def serialize(value, **options):
     :param object value: value to be serialized.
 
     :returns: serialized object
+    :rtype: dict | list[dict]
     """
 
     return get_component(SerializerPackage.COMPONENT_NAME).serialize(value, **options)

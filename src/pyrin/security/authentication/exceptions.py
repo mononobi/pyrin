@@ -29,7 +29,7 @@ class AuthenticationFailedError(AuthenticationManagerBusinessException):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = ClientErrorResponseCodeEnum.UNAUTHORIZED
+        self._code = ClientErrorResponseCodeEnum.UNAUTHORIZED
 
 
 class AccessTokenRequiredError(AuthenticationFailedError):

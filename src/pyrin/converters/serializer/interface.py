@@ -38,6 +38,7 @@ class AbstractSerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: serialized object
+        :rtype: dict | list[dict]
         """
 
         raise CoreNotImplementedError()

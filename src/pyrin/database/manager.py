@@ -8,6 +8,7 @@ from sqlalchemy import engine_from_config
 import pyrin.configuration.services as config_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
+import pyrin.processor.response.services as response_services
 import pyrin.utils.dictionary as dict_utils
 
 from pyrin.core.globals import LIST_TYPES
@@ -17,7 +18,6 @@ from pyrin.database.model.base import BaseEntity
 from pyrin.core.structs import DTO, Manager
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
 from pyrin.database.interface import AbstractSessionFactoryBase
-from pyrin.utils import response as response_utils
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
     DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError, \
@@ -300,9 +300,9 @@ class DatabaseManager(Manager, HookMixin):
                 session_factory.remove()
         except Exception as error:
             self.LOGGER.exception(str(error))
-            return response_utils.make_exception_response(error,
-                                                          code=ServerErrorResponseCodeEnum.
-                                                          INTERNAL_SERVER_ERROR)
+            return response_services.make_exception_response(error,
+                                                             code=ServerErrorResponseCodeEnum.
+                                                             INTERNAL_SERVER_ERROR)
 
     def cleanup_session(self, exception):
         """

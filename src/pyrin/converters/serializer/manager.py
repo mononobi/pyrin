@@ -39,6 +39,7 @@ class SerializerManager(Manager):
         :param object value: value to be serialized.
 
         :returns: serialized object
+        :rtype: dict | list[dict]
         """
 
         if value is None:

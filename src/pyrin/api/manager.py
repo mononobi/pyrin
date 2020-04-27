@@ -5,10 +5,10 @@ api manager module.
 
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
+import pyrin.processor.response.services as response_services
 
 from pyrin.core.structs import Manager
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
-from pyrin.utils import response as response_utils
 from pyrin.core.globals import _
 
 
@@ -31,7 +31,7 @@ class APIManager(Manager):
         """
 
         self._log_exception(exception)
-        return response_utils.make_exception_response(exception)
+        return response_services.make_exception_response(exception)
 
     def handle_server_business_error(self, exception):
         """
@@ -45,7 +45,7 @@ class APIManager(Manager):
         """
 
         self._log_exception(exception)
-        return response_utils.make_exception_response(exception)
+        return response_services.make_exception_response(exception)
 
     def handle_server_error(self, exception):
         """
@@ -63,10 +63,10 @@ class APIManager(Manager):
 
         self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
-            return response_utils.make_exception_response(exception)
+            return response_services.make_exception_response(exception)
 
-        return response_utils.make_error_response(self._get_generic_error_message(),
-                                                  code=exception.code)
+        return response_services.make_error_response(self._get_generic_error_message(),
+                                                     code=exception.code)
 
     def handle_server_unknown_error(self, exception):
         """
@@ -84,13 +84,13 @@ class APIManager(Manager):
 
         self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
-            return response_utils.make_exception_response(exception,
-                                                          code=ServerErrorResponseCodeEnum.
-                                                          INTERNAL_SERVER_ERROR)
+            return response_services.make_exception_response(exception,
+                                                             code=ServerErrorResponseCodeEnum.
+                                                             INTERNAL_SERVER_ERROR)
 
-        return response_utils.make_error_response(self._get_generic_error_message(),
-                                                  code=ServerErrorResponseCodeEnum.
-                                                  INTERNAL_SERVER_ERROR)
+        return response_services.make_error_response(self._get_generic_error_message(),
+                                                     code=ServerErrorResponseCodeEnum.
+                                                     INTERNAL_SERVER_ERROR)
 
     def _get_generic_error_message(self):
         """
