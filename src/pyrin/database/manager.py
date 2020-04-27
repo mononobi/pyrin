@@ -69,7 +69,7 @@ class DatabaseManager(Manager, HookMixin):
         # and False for request unbounded.
         self._session_factories = DTO()
 
-    def get_current_store(self):
+    def get_current_store(self, **kwargs):
         """
         gets current database store.
 
@@ -78,11 +78,20 @@ class DatabaseManager(Manager, HookMixin):
         session, but if you are not in an atomic context, it will get you the related
         session to current scope.
 
+        :keyword object **kwargs: keyword arguments will be passed to the
+                                  `CoreScopedSession.session_factory` callable
+                                  to configure the new session that's being
+                                  created, if an existing session is not present.
+                                  if the session is present and keyword arguments
+                                  have been passed, an error will be raised.
+
+        :raises ScopedSessionIsAlreadyPresentError: scoped session is already present error.
+
         :returns: database session
         :rtype: CoreSession
         """
 
-        return self._get_current_session_factory()()
+        return self._get_current_session_factory()(**kwargs)
 
     def get_current_session_factory(self):
         """
@@ -97,7 +106,7 @@ class DatabaseManager(Manager, HookMixin):
 
         return self._get_current_session_factory()
 
-    def get_atomic_store(self):
+    def get_atomic_store(self, **kwargs):
         """
         gets an atomic database store.
 
@@ -113,11 +122,16 @@ class DatabaseManager(Manager, HookMixin):
         scope. this is why it's recommended not to get an atomic session manually, and
         instead use `@atomic` decorator when you need an atomic session.
 
+        :keyword object **kwargs: keyword arguments will be passed to the
+                                  `CoreScopedSession.session_factory` callable
+                                  to configure the new atomic session that's
+                                  being created.
+
         :returns: database session
         :rtype: CoreSession
         """
 
-        return self._get_current_session_factory()(True)
+        return self._get_current_session_factory()(atomic=True, **kwargs)
 
     def _get_current_session_factory(self):
         """

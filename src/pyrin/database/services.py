@@ -7,7 +7,7 @@ from pyrin.application.services import get_component
 from pyrin.database import DatabasePackage
 
 
-def get_current_store():
+def get_current_store(**kwargs):
     """
     gets current database store.
 
@@ -16,11 +16,20 @@ def get_current_store():
     session, but if you are not in an atomic context, it will get you the related
     session to current scope.
 
+    :keyword object **kwargs: keyword arguments will be passed to the
+                              `CoreScopedSession.session_factory` callable
+                              to configure the new session that's being
+                              created, if an existing session is not present.
+                              if the session is present and keyword arguments
+                              have been passed, an error will be raised.
+
+    :raises ScopedSessionIsAlreadyPresentError: scoped session is already present error.
+
     :returns: database session
     :rtype: CoreSession
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_current_store(**kwargs)
 
 
 def get_current_session_factory():
@@ -37,7 +46,7 @@ def get_current_session_factory():
     return get_component(DatabasePackage.COMPONENT_NAME).get_current_session_factory()
 
 
-def get_atomic_store():
+def get_atomic_store(**kwargs):
     """
     gets an atomic database store.
 
@@ -53,11 +62,16 @@ def get_atomic_store():
     scope. this is why it's recommended not to get an atomic session manually, and
     instead use `@atomic` decorator when you need an atomic session.
 
+    :keyword object **kwargs: keyword arguments will be passed to the
+                              `CoreScopedSession.session_factory` callable
+                              to configure the new atomic session that's
+                              being created.
+
     :returns: database session
     :rtype: CoreSession
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).get_atomic_store()
+    return get_component(DatabasePackage.COMPONENT_NAME).get_atomic_store(**kwargs)
 
 
 def finalize_transaction(response):
