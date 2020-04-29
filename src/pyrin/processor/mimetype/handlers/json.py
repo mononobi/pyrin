@@ -50,7 +50,7 @@ class JSONMIMETypeHandler(MIMETypeHandlerBase):
 
 
 @mimetype_handler()
-class JSONStringMIMETypeHandler(JSONMIMETypeHandler):
+class JSONStringMIMETypeHandler(MIMETypeHandlerBase):
     """
     json string mimetype handler class.
     """
@@ -71,7 +71,7 @@ class JSONStringMIMETypeHandler(JSONMIMETypeHandler):
         """
 
         if self.JSON_REGEX.match(value.strip()):
-            return super()._mimetype(value, **options)
+            return MIMETypeEnum.JSON
 
         return None
 
