@@ -18,9 +18,10 @@ import pyrin.utils.string as string_utils
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
     ConfigurationFileNotFoundError, ConfigurationStoreNotFoundError, \
     ConfigurationStoreSectionNotFoundError, ConfigurationStoreKeyNotFoundError, \
-    ConfigurationStoreDuplicateKeyError
+    ConfigurationStoreDuplicateKeyError, ConfigurationFileExistedError
 
-from tests.unit.common.utils import create_settings_file, delete_settings_file
+from tests.unit.common.utils import create_config_file, delete_config_file, \
+    assert_config_file_not_existed, assert_config_file_existed
 
 
 def test_load_configuration():
@@ -30,12 +31,12 @@ def test_load_configuration():
     """
 
     try:
-        create_settings_file('new_settings_load.config')
+        create_config_file('new_settings_load.config')
         config_services.load_configuration('new_settings_load')
         sections = config_services.get_section_names('new_settings_load')
         assert sections is not None
     finally:
-        delete_settings_file('new_settings_load.config')
+        delete_config_file('new_settings_load.config')
 
 
 def test_load_configuration_already_loaded():
@@ -148,7 +149,7 @@ def test_load_configurations():
     stores = ['store1', 'store2', 'store3']
     try:
         for store in stores:
-            create_settings_file('{store}.config'.format(store=store))
+            create_config_file('{store}.config'.format(store=store))
 
         config_services.load_configurations(*stores)
 
@@ -156,7 +157,7 @@ def test_load_configurations():
             assert config_services.get_section_names(store) is not None
     finally:
         for store in stores:
-            delete_settings_file('{store}.config'.format(store=store))
+            delete_config_file('{store}.config'.format(store=store))
 
 
 def test_load_configurations_invalid_name():
@@ -171,12 +172,12 @@ def test_load_configurations_invalid_name():
         stores_extended.extend(stores)
         try:
             for store in stores:
-                create_settings_file('{store}.config'.format(store=store))
+                create_config_file('{store}.config'.format(store=store))
 
             config_services.load_configurations(*stores_extended)
         finally:
             for store in stores:
-                delete_settings_file('{store}.config'.format(store=store))
+                delete_config_file('{store}.config'.format(store=store))
 
 
 def test_load_configurations_invalid_name_with_silent():
@@ -190,7 +191,7 @@ def test_load_configurations_invalid_name_with_silent():
     stores_extended.extend(stores)
     try:
         for store in stores:
-            create_settings_file('{store}.config'.format(store=store))
+            create_config_file('{store}.config'.format(store=store))
 
         config_services.load_configurations(*stores_extended, silent=True)
 
@@ -198,7 +199,7 @@ def test_load_configurations_invalid_name_with_silent():
             assert config_services.get_section_names(store) is not None
     finally:
         for store in stores:
-            delete_settings_file('{store}.config'.format(store=store))
+            delete_config_file('{store}.config'.format(store=store))
 
 
 def test_load_configurations_already_loaded():
@@ -274,10 +275,10 @@ def test_reload_for_not_loaded_store():
 
     with pytest.raises(ConfigurationStoreNotFoundError):
         try:
-            create_settings_file('new_settings_reload.config')
+            create_config_file('new_settings_reload.config')
             config_services.reload('new_settings_reload')
         finally:
-            delete_settings_file('new_settings_reload.config')
+            delete_config_file('new_settings_reload.config')
 
 
 def test_reload_for_invalid_store():
@@ -402,6 +403,90 @@ def test_get_file_name_not_existed_with_silent():
 
     file_name = config_services.get_file_name('not_available_store', silent=True)
     assert file_name is None
+
+
+def test_create_config_file():
+    """
+    creates the requested config file from default pyrin configurations.
+    """
+
+    name = 'api.config'
+    delete_config_file(name)
+    assert_config_file_not_existed(name)
+    config_services.create_config_file('api')
+    assert_config_file_existed(name)
+
+
+def test_create_config_file_not_existed():
+    """
+    creates the requested config file from default pyrin configurations.
+    the config file is not available in pyrin default settings and it should
+    raise an error.
+    """
+
+    with pytest.raises(ConfigurationFileNotFoundError):
+        config_services.create_config_file('my_own_config')
+
+    assert_config_file_not_existed('my_own_config.config')
+
+
+def test_create_config_file_not_existed_with_silent():
+    """
+    creates the requested config file from default pyrin configurations.
+    the config file is not available in pyrin default settings but because
+    of silent option it should not raise an error.
+    """
+
+    config_services.create_config_file('my_own_config', silent=True)
+    assert_config_file_not_existed('my_own_config.config')
+
+
+def test_create_config_file_existed():
+    """
+    creates the requested config file from default pyrin configurations.
+    the config file is already available in application settings.
+    it should raise an error.
+    """
+
+    with pytest.raises(ConfigurationFileExistedError):
+        config_services.create_config_file('api')
+
+
+def test_create_config_file_existed_with_ignore():
+    """
+    creates the requested config file from default pyrin configurations.
+    the config file is already available in application settings.
+    it should ignore the creation of a new file.
+    """
+
+    assert_config_file_existed('api.config')
+    config_services.create_config_file('api', ignore_on_existed=True)
+
+
+def test_create_config_file_existed_with_replace():
+    """
+    creates the requested config file from default pyrin configurations.
+    the config file is already available in application settings.
+    it should replace the existing config file.
+    """
+
+    assert_config_file_existed('api.config')
+    config_services.create_config_file('api', replace_existing=True)
+
+
+def test_create_config_files():
+    """
+    creates the requested config files from default pyrin configurations.
+    """
+
+    names = ['api.config', 'babel.mappings.config']
+    for file in names:
+        delete_config_file(file)
+        assert_config_file_not_existed(file)
+
+    config_services.create_config_files('api', 'babel.mappings')
+    for file in names:
+        assert_config_file_existed(file)
 
 
 def test_get():
