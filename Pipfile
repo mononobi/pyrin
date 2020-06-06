@@ -9,6 +9,7 @@ pytest-cov = "*"
 pygments = "*"
 setuptools = "*"
 psycopg2-binary = "*"
+twine = "*"
 
 [packages]
 aniso8601 = "*"
