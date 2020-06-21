@@ -24,7 +24,7 @@ class DeserializerManager(Manager):
         super().__init__()
 
         # a dictionary containing information of registered deserializers.
-        # example: dic(type accepted_type: list[AbstractDeserializerBase] instances)
+        # example: dict(type accepted_type: list[AbstractDeserializerBase] instances)
         self._deserializers = Context()
 
     def deserialize(self, value, **options):
