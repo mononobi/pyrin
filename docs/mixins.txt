@@ -1,0 +1,16 @@
+* mixin classes could be used in three main scenarios:
+
+    - when we have some business that many domains must implement it, so it is good
+      to implement that business as a mixin to let others inherit form it and reduce
+      code duplication.
+
+    - when we have a very large business that could be decoupled into smaller parts
+      to improve code maintainability.
+
+    - when a domain must handle some extra businesses that are not directly related
+      to that domain, so it is good to implement that extra businesses as mixin classes.
+
+* the important thing for mixin classes is that they should not inherit from any non-mixin
+  classes. so they should only inherit from CoreObject or Other mixin classes. if there is
+  a situation that a mixin class needs to inherit from another non-mixin class, it is a clear
+  sign that it must not be implemented as a mixin class.
