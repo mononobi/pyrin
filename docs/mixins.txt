@@ -5,10 +5,11 @@
       code duplication.
 
     - when we have a very large business that could be decoupled into smaller parts
-      to improve code maintainability.
+      to improve code maintainability and extendability.
 
     - when a domain must handle some extra businesses that are not directly related
-      to that domain, so it is good to implement that extra businesses as mixin classes.
+      to that domain, so it is good to implement that extra businesses as mixin classes
+      when they could not be implemented as a totally separated business.
 
 * the important thing for mixin classes is that they should not inherit from any non-mixin
   classes. so they should only inherit from CoreObject or Other mixin classes. if there is
