@@ -29,6 +29,12 @@ class AuthorizationFailedError(AuthorizationManagerBusinessException):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of AuthorizationFailedError.
+
+        :keyword dict data: extra data for exception.
+        """
+
         super().__init__(*args, **kwargs)
         self._code = ClientErrorResponseCodeEnum.FORBIDDEN
 

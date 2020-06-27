@@ -1,0 +1,546 @@
+# -*- coding: utf-8 -*-
+"""
+validator handlers misc module.
+"""
+
+from pyrin.core.globals import _, LIST_TYPES
+from pyrin.validator.exceptions import ValidationError
+from pyrin.validator.handlers.base import ValidatorBase
+from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
+    ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
+    AcceptedMinimumValueMustBeProvidedError, AcceptedMaximumValueMustBeProvidedError, \
+    ValidValuesMustBeProvidedError, InvalidValuesMustBeProvidedError
+
+
+class MinimumValidator(ValidatorBase):
+    """
+    minimum validator class.
+    """
+
+    minimum_value_error = ValueIsLowerThanMinimumError
+    minimum_value_message = _('The provided value for [{param_name}] is lower than '
+                              'the accepted minimum value, which is [{minimum}].')
+
+    def __init__(self, domain, name, **options):
+        """
+        initializes an instance of MinimumValidator.
+
+        :param type[BaseEntity] | str domain: the domain in which this validator
+                                              must be registered. it could be a
+                                              type of a BaseEntity subclass.
+                                              if a validator must be registered
+                                              independent from any BaseEntity subclass,
+                                              the domain could be a unique string name.
+                                              note that the provided string name must be
+                                              unique at application level.
+
+        :param str name: validator name.
+                         each validator will be registered with its name
+                         in corresponding domain.
+                         to enable automatic validations, the provided
+                         name must be the exact name of the parameter
+                         which this validator will validate.
+
+        :keyword type | tuple[type] accepted_type: accepted type for value.
+                                                   no type checking will be
+                                                   done if not provided.
+
+        :keyword bool nullable: specifies that null values should be accepted as valid.
+                                defaults to True if not provided.
+
+        :keyword str localized_name: localized name of the parameter
+                                     which this validator will validate.
+                                     it must be passed using `_` method
+                                     from `pyrin.core.globals`.
+                                     defaults to `name` if not provided.
+
+        :keyword object accepted_minimum: the lower bound of values that
+                                          this validator considers valid.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this value has precedence over `inclusive_minimum`
+                                         instance attribute if provided.
+
+        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
+        :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
+                                                         must be provided error.
+        """
+
+        super().__init__(domain, name, **options)
+
+        inclusive_minimum = options.get('inclusive_minimum', None)
+        if inclusive_minimum is None:
+            inclusive_minimum = True
+
+        accepted_minimum = options.get('accepted_minimum', None)
+        if accepted_minimum is None:
+            raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
+                                                          'could not be None.')
+
+        self._accepted_minimum = accepted_minimum
+        self._inclusive_minimum = inclusive_minimum
+
+        self._validate_exception_type(self.minimum_value_error)
+
+    def _validate(self, value, **options):
+        """
+        validates the given value.
+
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate()`
+        preferably at the beginning.
+
+        :param object value: value to be validated.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this value has precedence over `inclusive_minimum`
+                                         instance attribute if provided.
+
+        :raises ValueIsLowerThanMinimumError: value is lower than minimum error.
+        """
+
+        super()._validate(value, **options)
+
+        inclusive_minimum = options.get('inclusive_minimum', None) or self.inclusive_minimum
+        if value < self.accepted_minimum or \
+                (value == self.accepted_minimum and inclusive_minimum is not True):
+            raise self.minimum_value_error(
+                self.minimum_value_message.format(param_name=self.localized_name,
+                                                  minimum=self.accepted_minimum))
+
+    @property
+    def accepted_minimum(self):
+        """
+        gets the lower bound of values that this validator considers valid.
+
+        :rtype: object
+        """
+
+        return self._accepted_minimum
+
+    @property
+    def inclusive_minimum(self):
+        """
+        gets a value indicating that values equal to accepted minimum must be considered valid.
+
+        :rtype: bool
+        """
+
+        return self._inclusive_minimum
+
+
+class MaximumValidator(ValidatorBase):
+    """
+    maximum validator class.
+    """
+
+    maximum_value_error = ValueIsHigherThanMaximumError
+    maximum_value_message = _('The provided value for [{param_name}] is higher than '
+                              'the accepted maximum value, which is [{maximum}].')
+
+    def __init__(self, domain, name, **options):
+        """
+        initializes an instance of MaximumValidator.
+
+        :param type[BaseEntity] | str domain: the domain in which this validator
+                                              must be registered. it could be a
+                                              type of a BaseEntity subclass.
+                                              if a validator must be registered
+                                              independent from any BaseEntity subclass,
+                                              the domain could be a unique string name.
+                                              note that the provided string name must be
+                                              unique at application level.
+
+        :param str name: validator name.
+                         each validator will be registered with its name
+                         in corresponding domain.
+                         to enable automatic validations, the provided
+                         name must be the exact name of the parameter
+                         which this validator will validate.
+
+        :keyword type | tuple[type] accepted_type: accepted type for value.
+                                                   no type checking will be
+                                                   done if not provided.
+
+        :keyword bool nullable: specifies that null values should be accepted as valid.
+                                defaults to True if not provided.
+
+        :keyword str localized_name: localized name of the parameter
+                                     which this validator will validate.
+                                     it must be passed using `_` method
+                                     from `pyrin.core.globals`.
+                                     defaults to `name` if not provided.
+
+        :keyword object accepted_maximum: the upper bound of values that
+                                          this validator considers valid.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this value has precedence over `inclusive_maximum`
+                                         instance attribute if provided.
+
+        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
+        :raises AcceptedMaximumValueMustBeProvidedError: accepted maximum value
+                                                         must be provided error.
+        """
+
+        super().__init__(domain, name, **options)
+
+        inclusive_maximum = options.get('inclusive_maximum', None)
+        if inclusive_maximum is None:
+            inclusive_maximum = True
+
+        accepted_maximum = options.get('accepted_maximum', None)
+        if accepted_maximum is None:
+            raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
+                                                          'could not be None.')
+
+        self._accepted_maximum = accepted_maximum
+        self._inclusive_maximum = inclusive_maximum
+
+        self._validate_exception_type(self.maximum_value_error)
+
+    def _validate(self, value, **options):
+        """
+        validates the given value.
+
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate()`
+        preferably at the beginning.
+
+        :param object value: value to be validated.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this value has precedence over `inclusive_maximum`
+                                         instance attribute if provided.
+
+        :raises ValueIsHigherThanMaximumError: value is higher than maximum error.
+        """
+
+        super()._validate(value, **options)
+
+        inclusive_maximum = options.get('inclusive_maximum', None) or self.inclusive_maximum
+        if value > self.accepted_maximum or \
+                (value == self.accepted_maximum and inclusive_maximum is not True):
+            raise self.maximum_value_error(
+                self.maximum_value_message.format(param_name=self.localized_name,
+                                                  maximum=self.accepted_maximum))
+
+    @property
+    def accepted_maximum(self):
+        """
+        gets the upper bound of values that this validator considers valid.
+
+        :rtype: object
+        """
+
+        return self._accepted_maximum
+
+    @property
+    def inclusive_maximum(self):
+        """
+        gets a value indicating that values equal to accepted maximum must be considered valid.
+
+        :rtype: bool
+        """
+
+        return self._inclusive_maximum
+
+
+class RangeValidator(MinimumValidator, MaximumValidator):
+    """
+    range validator class.
+    """
+
+    range_value_error = ValueIsOutOfRangeError
+    range_value_message = _('The provided value for [{param_name}] must '
+                            'be between [{lower}] and [{upper}].')
+
+    def __init__(self, domain, name, **options):
+        """
+        initializes an instance of RangeValidator.
+
+        :param type[BaseEntity] | str domain: the domain in which this validator
+                                              must be registered. it could be a
+                                              type of a BaseEntity subclass.
+                                              if a validator must be registered
+                                              independent from any BaseEntity subclass,
+                                              the domain could be a unique string name.
+                                              note that the provided string name must be
+                                              unique at application level.
+
+        :param str name: validator name.
+                         each validator will be registered with its name
+                         in corresponding domain.
+                         to enable automatic validations, the provided
+                         name must be the exact name of the parameter
+                         which this validator will validate.
+
+        :keyword type | tuple[type] accepted_type: accepted type for value.
+                                                   no type checking will be
+                                                   done if not provided.
+
+        :keyword bool nullable: specifies that null values should be accepted as valid.
+                                defaults to True if not provided.
+
+        :keyword str localized_name: localized name of the parameter
+                                     which this validator will validate.
+                                     it must be passed using `_` method
+                                     from `pyrin.core.globals`.
+                                     defaults to `name` if not provided.
+
+        :keyword object accepted_minimum: the lower bound of values that
+                                          this validator considers valid.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this value has precedence over `inclusive_minimum`
+                                         instance attribute if provided.
+
+        :keyword object accepted_maximum: the upper bound of values that
+                                          this validator considers valid.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this value has precedence over `inclusive_maximum`
+                                         instance attribute if provided.
+
+        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
+        :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
+                                                         must be provided error.
+        :raises AcceptedMaximumValueMustBeProvidedError: accepted maximum value
+                                                         must be provided error.
+        """
+
+        super().__init__(domain, name, **options)
+        self._validate_exception_type(self.range_value_error)
+
+    def _validate(self, value, **options):
+        """
+        validates the given value.
+
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate()`
+        preferably at the beginning.
+
+        :param object value: value to be validated.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this value has precedence over `inclusive_minimum`
+                                         instance attribute if provided.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this value has precedence over `inclusive_maximum`
+                                         instance attribute if provided.
+
+        :raises ValueIsOutOfRangeError: value is out of range error.
+        """
+
+        try:
+            super()._validate(value, **options)
+        except ValidationError:
+            raise self.range_value_error(self.range_value_message.format(
+                param_name=self.localized_name,
+                lower=self.accepted_minimum,
+                upper=self.accepted_maximum))
+
+
+class InValidator(ValidatorBase):
+    """
+    in validator class.
+    """
+
+    not_in_value_error = ValueIsOutOfRangeError
+    not_in_value_message = _('The provided value for [{param_name}] '
+                             'must be from [{values}].')
+
+    def __init__(self, domain, name, **options):
+        """
+        initializes an instance of InValidator.
+
+        :param type[BaseEntity] | str domain: the domain in which this validator
+                                              must be registered. it could be a
+                                              type of a BaseEntity subclass.
+                                              if a validator must be registered
+                                              independent from any BaseEntity subclass,
+                                              the domain could be a unique string name.
+                                              note that the provided string name must be
+                                              unique at application level.
+
+        :param str name: validator name.
+                         each validator will be registered with its name
+                         in corresponding domain.
+                         to enable automatic validations, the provided
+                         name must be the exact name of the parameter
+                         which this validator will validate.
+
+        :keyword type | tuple[type] accepted_type: accepted type for value.
+                                                   no type checking will be
+                                                   done if not provided.
+
+        :keyword bool nullable: specifies that null values should be accepted as valid.
+                                defaults to True if not provided.
+
+        :keyword str localized_name: localized name of the parameter
+                                     which this validator will validate.
+                                     it must be passed using `_` method
+                                     from `pyrin.core.globals`.
+                                     defaults to `name` if not provided.
+
+        :keyword list[object] valid_values: a list of valid values.
+
+        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
+        :raises ValidValuesMustBeProvidedError: valid values must be provided error.
+        """
+
+        super().__init__(domain, name, **options)
+
+        valid_values = options.get('valid_values', None)
+        if valid_values is None or not \
+                isinstance(valid_values, LIST_TYPES) or len(valid_values) <= 0:
+            raise ValidValuesMustBeProvidedError('Valid values must be provided.')
+
+        self._valid_values = valid_values
+        self._validate_exception_type(self.not_in_value_error)
+
+    def _validate(self, value, **options):
+        """
+        validates the given value.
+
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate()`
+        preferably at the beginning.
+
+        :param object value: value to be validated.
+
+        :raises ValueIsOutOfRangeError: value is out of range error.
+        """
+
+        super()._validate(value, **options)
+
+        if value not in self.valid_values:
+            raise self.not_in_value_error(self.not_in_value_message.format(
+                param_name=self.localized_name, values=self.valid_values))
+
+    @property
+    def valid_values(self):
+        """
+        gets a list of valid values for this validator.
+
+        :rtype: list[object]
+        """
+
+        return self._valid_values
+
+
+class NotInValidator(ValidatorBase):
+    """
+    not in validator class.
+    """
+
+    in_value_error = ValueIsOutOfRangeError
+    in_value_message = _('The provided value for [{param_name}] '
+                         'could not be from [{values}].')
+
+    def __init__(self, domain, name, **options):
+        """
+        initializes an instance of NotInValidator.
+
+        :param type[BaseEntity] | str domain: the domain in which this validator
+                                              must be registered. it could be a
+                                              type of a BaseEntity subclass.
+                                              if a validator must be registered
+                                              independent from any BaseEntity subclass,
+                                              the domain could be a unique string name.
+                                              note that the provided string name must be
+                                              unique at application level.
+
+        :param str name: validator name.
+                         each validator will be registered with its name
+                         in corresponding domain.
+                         to enable automatic validations, the provided
+                         name must be the exact name of the parameter
+                         which this validator will validate.
+
+        :keyword type | tuple[type] accepted_type: accepted type for value.
+                                                   no type checking will be
+                                                   done if not provided.
+
+        :keyword bool nullable: specifies that null values should be accepted as valid.
+                                defaults to True if not provided.
+
+        :keyword str localized_name: localized name of the parameter
+                                     which this validator will validate.
+                                     it must be passed using `_` method
+                                     from `pyrin.core.globals`.
+                                     defaults to `name` if not provided.
+
+        :keyword list[object] invalid_values: a list of invalid values.
+
+        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
+        :raises InvalidValuesMustBeProvidedError: invalid values must be provided error.
+        """
+
+        super().__init__(domain, name, **options)
+
+        invalid_values = options.get('invalid_values', None)
+        if invalid_values is None or not \
+                isinstance(invalid_values, LIST_TYPES) or len(invalid_values) <= 0:
+            raise InvalidValuesMustBeProvidedError('Invalid values must be provided.')
+
+        self._invalid_values = invalid_values
+        self._validate_exception_type(self.in_value_error)
+
+    def _validate(self, value, **options):
+        """
+        validates the given value.
+
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate()`
+        preferably at the beginning.
+
+        :param object value: value to be validated.
+
+        :raises ValueIsOutOfRangeError: value is out of range error.
+        """
+
+        super()._validate(value, **options)
+
+        if value in self.invalid_values:
+            raise self.in_value_error(self.in_value_message.format(
+                param_name=self.localized_name, values=self.invalid_values))
+
+    @property
+    def invalid_values(self):
+        """
+        gets a list of invalid values for this validator.
+
+        :rtype: list[object]
+        """
+
+        return self._invalid_values

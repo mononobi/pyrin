@@ -12,8 +12,14 @@ class CoreException(Exception):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._data = {}
+        """
+        initializes an instance of CoreException.
+
+        :keyword dict data: extra data for exception.
+        """
+
+        super().__init__(*args)
+        self._data = kwargs.get('data', None) or {}
         self._traceback = None
         self._code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
         self._description = str(self)
@@ -65,6 +71,12 @@ class CoreBusinessException(CoreException):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreBusinessException.
+
+        :keyword dict data: extra data for exception.
+        """
+
         super().__init__(*args, **kwargs)
         self._code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
 
@@ -89,6 +101,12 @@ class CoreNotImplementedError(CoreException, NotImplementedError):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreNotImplementedError.
+
+        :keyword dict data: extra data for exception.
+        """
+
         super().__init__('This method does not have an implementation.',
                          *args, **kwargs)
 
