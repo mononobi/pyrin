@@ -3,6 +3,8 @@
 validator handlers base module.
 """
 
+import inspect
+
 from pyrin.core.globals import _
 from pyrin.database.model.base import BaseEntity
 from pyrin.validator.exceptions import ValidationError
@@ -67,8 +69,8 @@ class ValidatorBase(AbstractValidatorBase):
         if name in (None, '') or name.isspace():
             raise ValidatorNameIsRequiredError('Validator name must be provided.')
 
-        if (not issubclass(domain, BaseEntity) and
-                not isinstance(domain, str)) or domain == '':
+        if (not inspect.isclass(domain) or not issubclass(domain, BaseEntity)) and \
+                (not isinstance(domain, str) or domain.isspace()):
             raise InvalidValidatorDomainError('The provided domain for validator [{name}] is '
                                               'not an instance of [{entity}] or [{string}].'
                                               .format(name=name, entity=BaseEntity, string=str))

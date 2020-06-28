@@ -3,13 +3,20 @@
 validator handlers number module.
 """
 
+from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
+from pyrin.validator.handlers.exceptions import ValueIsNotNumberError, ValueIsNotIntegerError, \
+    ValueIsNotFloatError
 
 
 class NumberValidator(ValidatorBase):
     """
     number validator class.
     """
+
+    invalid_type_error = ValueIsNotNumberError
+    invalid_type_message = _('The provided value for [{param_name}] '
+                             'must be a number.')
 
     def __init__(self, domain, name, **options):
         """
@@ -54,6 +61,10 @@ class IntegerValidator(ValidatorBase):
     integer validator class.
     """
 
+    invalid_type_error = ValueIsNotIntegerError
+    invalid_type_message = _('The provided value for [{param_name}] '
+                             'must be an integer.')
+
     def __init__(self, domain, name, **options):
         """
         initializes an instance of IntegerValidator.
@@ -96,6 +107,10 @@ class FloatValidator(ValidatorBase):
     """
     float validator class.
     """
+
+    invalid_type_error = ValueIsNotFloatError
+    invalid_type_message = _('The provided value for [{param_name}] '
+                             'must be a float number.')
 
     def __init__(self, domain, name, **options):
         """

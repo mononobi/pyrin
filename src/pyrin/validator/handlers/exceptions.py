@@ -4,7 +4,6 @@ validator handlers exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException, CoreBusinessException
-
 from pyrin.validator.exceptions import ValidationError
 
 
@@ -23,6 +22,16 @@ class ValidatorHandlersBusinessException(CoreBusinessException,
     pass
 
 
+class HandlersValidationException(ValidationError,
+                                  ValidatorHandlersBusinessException):
+    """
+    handlers validation exception.
+
+    this class should be used as the base class for all handlers validation errors.
+    """
+    pass
+
+
 class ValidatorNameIsRequiredError(ValidatorHandlersException):
     """
     validator name is required error.
@@ -30,56 +39,49 @@ class ValidatorNameIsRequiredError(ValidatorHandlersException):
     pass
 
 
-class ValueCouldNotBeNoneError(ValidatorHandlersBusinessException,
-                               ValidationError):
+class ValueCouldNotBeNoneError(HandlersValidationException):
     """
     value could not be none error.
     """
     pass
 
 
-class ValueIsLowerThanMinimumError(ValidatorHandlersBusinessException,
-                                   ValidationError):
+class ValueIsLowerThanMinimumError(HandlersValidationException):
     """
     value is lower than minimum error.
     """
     pass
 
 
-class ValueIsHigherThanMaximumError(ValidatorHandlersBusinessException,
-                                    ValidationError):
+class ValueIsHigherThanMaximumError(HandlersValidationException):
     """
     value is higher than maximum error.
     """
     pass
 
 
-class ValueIsOutOfRangeError(ValidatorHandlersBusinessException,
-                             ValidationError):
+class ValueIsOutOfRangeError(HandlersValidationException):
     """
     value is out of range error.
     """
     pass
 
 
-class InvalidValueTypeError(ValidatorHandlersBusinessException,
-                            ValidationError):
+class InvalidValueTypeError(HandlersValidationException):
     """
     invalid value type error.
     """
     pass
 
 
-class InvalidValueError(ValidatorHandlersBusinessException,
-                        ValidationError):
+class InvalidValueError(HandlersValidationException):
     """
     invalid value error.
     """
     pass
 
 
-class ValueDoesNotMatchPatternError(ValidatorHandlersBusinessException,
-                                    ValidationError):
+class ValueDoesNotMatchPatternError(HandlersValidationException):
     """
     value does not match pattern error.
     """
@@ -135,24 +137,21 @@ class InvalidValuesMustBeProvidedError(ValidatorHandlersException):
     pass
 
 
-class InvalidStringLengthError(ValidatorHandlersBusinessException,
-                               ValidationError):
+class InvalidStringLengthError(HandlersValidationException):
     """
     invalid string length error.
     """
     pass
 
 
-class ValueCouldNotBeBlankError(ValidatorHandlersBusinessException,
-                                ValidationError):
+class ValueCouldNotBeBlankError(HandlersValidationException):
     """
     value could not be blank error.
     """
     pass
 
 
-class ValueCouldNotBeWhitespaceError(ValidatorHandlersBusinessException,
-                                     ValidationError):
+class ValueCouldNotBeWhitespaceError(HandlersValidationException):
     """
     value could not be whitespace error.
     """
@@ -169,5 +168,61 @@ class InvalidRegularExpressionError(ValidatorHandlersException):
 class RegularExpressionMustBeProvidedError(ValidatorHandlersException):
     """
     regular expression must be provided error.
+    """
+    pass
+
+
+class ValueIsNotNumberError(InvalidValueTypeError):
+    """
+    value is not number error.
+    """
+    pass
+
+
+class ValueIsNotIntegerError(InvalidValueTypeError):
+    """
+    value is not integer error.
+    """
+    pass
+
+
+class ValueIsNotFloatError(InvalidValueTypeError):
+    """
+    value is not float error.
+    """
+    pass
+
+
+class ValueIsNotStringError(InvalidValueTypeError):
+    """
+    value is not string error.
+    """
+    pass
+
+
+class ValueIsNotDateTimeError(InvalidValueTypeError):
+    """
+    value is not datetime error.
+    """
+    pass
+
+
+class ValueIsNotDateError(InvalidValueTypeError):
+    """
+    value is not date error.
+    """
+    pass
+
+
+class ValueIsNotTimeError(InvalidValueTypeError):
+    """
+    value is not time error.
+    """
+    pass
+
+
+class ValueIsNotBooleanError(InvalidValueTypeError):
+    """
+    value is not boolean error.
     """
     pass

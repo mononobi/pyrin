@@ -9,7 +9,7 @@ from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import InvalidStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
-    InvalidRegularExpressionError, RegularExpressionMustBeProvidedError
+    InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError
 
 
 class StringValidator(ValidatorBase):
@@ -17,6 +17,9 @@ class StringValidator(ValidatorBase):
     string validator class.
     """
 
+    invalid_type_error = ValueIsNotStringError
+    invalid_type_message = _('The provided value for [{param_name}] '
+                             'must be a string.')
     invalid_length_error = InvalidStringLengthError
     invalid_length_message = _('The provided value for [{param_name}] '
                                'has an invalid length.')
