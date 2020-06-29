@@ -226,3 +226,17 @@ class ValueIsNotBooleanError(InvalidValueTypeError):
     value is not boolean error.
     """
     pass
+
+
+class MinimumLengthHigherThanMaximumLengthError(ValidatorHandlersException):
+    """
+    minimum length higher than maximum length error.
+    """
+    pass
+
+
+class MinimumValueLargerThanMaximumValueError(ValidatorHandlersException):
+    """
+    minimum value larger than maximum value error.
+    """
+    pass

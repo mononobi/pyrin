@@ -79,7 +79,12 @@ class ResponseManager(Manager):
         if code is None:
             code = ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
             options.update(code=code)
-        options.update(message=message)
+
+        data = options.get('data', None)
+        if data is None:
+            data = {}
+
+        options.update(message=message, data=data)
 
         return self.make_response(**options)
 

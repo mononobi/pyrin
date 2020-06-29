@@ -9,7 +9,8 @@ from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
     ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
     AcceptedMinimumValueMustBeProvidedError, AcceptedMaximumValueMustBeProvidedError, \
-    ValidValuesMustBeProvidedError, InvalidValuesMustBeProvidedError
+    ValidValuesMustBeProvidedError, InvalidValuesMustBeProvidedError, \
+    MinimumValueLargerThanMaximumValueError
 
 
 class MinimumValidator(ValidatorBase):
@@ -324,9 +325,17 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                                          must be provided error.
         :raises AcceptedMaximumValueMustBeProvidedError: accepted maximum value
                                                          must be provided error.
+        :raises MinimumValueLargerThanMaximumValueError: minimum value larger
+                                                         than maximum value error.
         """
 
         super().__init__(domain, name, **options)
+
+        if self.accepted_minimum is not None and self.accepted_maximum is not None \
+                and self.accepted_minimum > self.accepted_maximum:
+            raise MinimumValueLargerThanMaximumValueError('Accepted minimum value could not be '
+                                                          'larger than accepted maximum value.')
+
         self._validate_exception_type(self.range_value_error)
 
     def _validate(self, value, **options):

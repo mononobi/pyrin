@@ -9,7 +9,8 @@ from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import InvalidStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
-    InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError
+    InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError, \
+    MinimumLengthHigherThanMaximumLengthError
 
 
 class StringValidator(ValidatorBase):
@@ -77,6 +78,8 @@ class StringValidator(ValidatorBase):
         :raises InvalidStringLengthError: invalid string length error.
         :raises ValueCouldNotBeBlankError: value could not be blank error.
         :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
+        :raises MinimumLengthHigherThanMaximumLengthError: minimum length higher than
+                                                           maximum length error.
         """
 
         options.update(accepted_type=str)
@@ -92,6 +95,12 @@ class StringValidator(ValidatorBase):
 
         self._minimum_length = options.get('minimum_length', None)
         self._maximum_length = options.get('maximum_length', None)
+        if self._minimum_length is not None and self._maximum_length is not None \
+                and self._minimum_length > self._maximum_length:
+            raise MinimumLengthHigherThanMaximumLengthError('Minimum length of string '
+                                                            'could not be higher than '
+                                                            'maximum length.')
+
         self._allow_blank = allow_blank
         self._allow_whitespace = allow_whitespace
 
@@ -264,6 +273,10 @@ class RegexValidator(StringValidator):
         :keyword int maximum_length: specifies the maximum valid length for string value.
                                      no max length checking will be done if not provided.
 
+        :keyword int flags: flags to be used for regular expression
+                            compilation using `re.compile` method.
+                            this will only be used if a string regex is provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -288,7 +301,10 @@ class RegexValidator(StringValidator):
                                                        'expression could not be blank.')
 
         if is_string:
-            self._pattern = re.compile(self.regex)
+            flags = options.get('flags', None)
+            if flags is None:
+                flags = 0
+            self._pattern = re.compile(self.regex, flags=flags)
         else:
             self._pattern = self.regex
 
