@@ -23,7 +23,8 @@ from pyrin.packaging.base import Package
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
-    ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError
+    ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError, \
+    InvalidPackagingHookTypeError
 
 
 class PackagingManager(Manager, HookMixin):
@@ -31,8 +32,9 @@ class PackagingManager(Manager, HookMixin):
     packaging manager class.
     """
 
-    _hook_type = PackagingHookBase
     _lock = Lock()
+    hook_type = PackagingHookBase
+    invalid_hook_type_error = InvalidPackagingHookTypeError
 
     def __init__(self):
         """

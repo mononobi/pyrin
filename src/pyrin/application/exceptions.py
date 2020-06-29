@@ -95,3 +95,10 @@ class ApplicationIsNotSubclassedError(ApplicationException):
     application is not subclassed error.
     """
     pass
+
+
+class InvalidApplicationHookTypeError(ApplicationException):
+    """
+    invalid application hook type error.
+    """
+    pass

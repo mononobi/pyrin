@@ -21,7 +21,7 @@ from pyrin.database.interface import AbstractSessionFactoryBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
     DuplicatedSessionFactoryError, SessionFactoryNotExistedError, InvalidEntityTypeError, \
-    InvalidDatabaseBindError
+    InvalidDatabaseBindError, InvalidDatabaseHookTypeError
 
 
 class DatabaseManager(Manager, HookMixin):
@@ -32,7 +32,8 @@ class DatabaseManager(Manager, HookMixin):
     LOGGER = logging_services.get_logger('database')
     BIND_REMOVE_KEY_PREFIX = '__'
     DEFAULT_DATABASE_NAME = 'default'
-    _hook_type = DatabaseHookBase
+    hook_type = DatabaseHookBase
+    invalid_hook_type_error = InvalidDatabaseHookTypeError
 
     def __init__(self):
         """

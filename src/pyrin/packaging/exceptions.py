@@ -32,3 +32,10 @@ class BothUnitAndIntegrationTestsCouldNotBeLoadedError(PackagingManagerException
     both unit and integration tests could not be loaded error.
     """
     pass
+
+
+class InvalidPackagingHookTypeError(PackagingManagerException):
+    """
+    invalid packaging hook type error.
+    """
+    pass

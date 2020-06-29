@@ -10,10 +10,12 @@ from pyrin.core.exceptions import InvalidHookTypeError
 class HookMixin(CoreObject):
     """
     hook mixin class.
+
     every class that needs to provide hooks must inherit from this.
     """
 
-    _hook_type = Hook
+    hook_type = Hook
+    invalid_hook_type_error = InvalidHookTypeError
 
     def __init__(self, *args, **kwargs):
         """
@@ -42,10 +44,9 @@ class HookMixin(CoreObject):
         :raises InvalidHookTypeError: invalid hook type error.
         """
 
-        if not isinstance(instance, self._hook_type):
-            raise InvalidHookTypeError('Input parameter [{instance}] is '
-                                       'not an instance of [{hook}].'
-                                       .format(instance=str(instance),
-                                               hook=self._hook_type))
-
+        if not isinstance(instance, self.hook_type):
+            raise self.invalid_hook_type_error('Input parameter [{instance}] is '
+                                               'not an instance of [{hook}].'
+                                               .format(instance=instance,
+                                                       hook=self.hook_type))
         self._hooks.append(instance)

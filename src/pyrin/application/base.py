@@ -47,7 +47,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
     ApplicationInScriptingModeError, ComponentAttributeError, \
-    ApplicationIsNotSubclassedError
+    ApplicationIsNotSubclassedError, InvalidApplicationHookTypeError
 
 
 class Application(Flask, HookMixin, SignalMixin,
@@ -104,7 +104,8 @@ class Application(Flask, HookMixin, SignalMixin,
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
     json_encoder = CoreJSONEncoder
-    _hook_type = ApplicationHookBase
+    hook_type = ApplicationHookBase
+    invalid_hook_type_error = InvalidApplicationHookTypeError
 
     def __init__(self, **options):
         """
