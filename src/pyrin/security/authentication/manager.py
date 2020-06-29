@@ -77,7 +77,7 @@ class AuthenticationManager(Manager):
         :rtype: str
         """
 
-        return client_request.context.get('authorization', None)
+        return client_request.authorization
 
     def _push_data(self, header, payload, **options):
         """

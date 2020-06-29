@@ -25,6 +25,25 @@ class CoreRequest(Request):
     # charset of the request.
     charset = APPLICATION_ENCODING
 
+    # these are query param names that application expects for locale and timezone.
+    LOCALE_PARAM_NAME = 'lang'
+    TIMEZONE_PARAM_NAME = 'tz'
+
+    # application expects an authorization header in request with this key.
+    AUTHORIZATION_HEADER_KEY = 'Authorization'
+
+    # application expects one of these keys in environ dict to get client ip from.
+    CLIENT_IP_ENVIRON_KEY_1 = 'HTTP_X_REAL_IP'
+    CLIENT_IP_ENVIRON_KEY_2 = 'REMOTE_ADDR'
+
+    # these are the keys that application will use to store
+    # locale and timezone in them and put inside request context.
+    LOCALE_CONTEXT_KEY = 'locale'
+    TIMEZONE_CONTEXT_KEY = 'timezone'
+
+    # application will store authorization header in request context with this key.
+    AUTHORIZATION_CONTEXT_KEY = 'authorization'
+
     def __init__(self, environ, populate_request=True,
                  shallow=False, **options):
         """
@@ -41,15 +60,15 @@ class CoreRequest(Request):
         self._request_date = datetime_services.now()
         self._user = None
         self._component_custom_key = DEFAULT_COMPONENT_KEY
-        self._client_ip = self._extract_client_ip()
-        self._safe_content_length = self._extract_safe_content_length()
+        self._client_ip = self._get_client_ip()
+        self._safe_content_length = self._get_safe_content_length()
         self._context = Context()
-        self._context.update(authorization=self._extract_authorization_header())
 
         # holds the inputs of request. this value will be
         # calculated once per each request and cached.
         self._inputs = None
 
+        self._extract_authorization_header()
         self._extract_locale()
         self._extract_timezone()
 
@@ -68,23 +87,24 @@ class CoreRequest(Request):
     def __hash__(self):
         return hash(self._request_id)
 
-    def _extract_client_ip(self):
+    def _get_client_ip(self):
         """
         gets client ip from environ if available, otherwise returns None.
 
         :rtype: str
         """
 
-        return self.environ.get('HTTP_X_REAL_IP', self.environ.get('REMOTE_ADDR', None))
+        return self.environ.get(self.CLIENT_IP_ENVIRON_KEY_1,
+                                self.environ.get(self.CLIENT_IP_ENVIRON_KEY_2, None))
 
     def _extract_authorization_header(self):
         """
-        gets the authorization header if available, otherwise returns None.
-
-        :rtype: str
+        extracts authorization header if available and puts it into
+        request context, otherwise puts None into request context.
         """
 
-        return self.headers.get('Authorization', None)
+        self._context[self.AUTHORIZATION_CONTEXT_KEY] = \
+            self.headers.get(self.AUTHORIZATION_HEADER_KEY, None)
 
     def get_inputs(self, silent=False):
         """
@@ -107,14 +127,32 @@ class CoreRequest(Request):
 
         if self._inputs is None:
             converted_args = deserializer_services.deserialize(self.args)
+            self._remove_extra_query_params(converted_args)
             self._inputs = DTO(**(converted_args or {}))
             self._inputs.update(**(self.get_json(silent=silent) or {}))
             self._inputs.update(**(self.view_args or {}))
-            self._inputs.update(files=self.files)
+
+            if self.files is not None and len(self.files) > 0:
+                self._inputs.update(files=self.files)
 
         return self._inputs
 
-    def _extract_safe_content_length(self):
+    def _remove_extra_query_params(self, params):
+        """
+        removes all kwargs that should not be handed to the view function directly.
+
+        for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
+        from query params because they will be stored in request context.
+        this method removes extra kwargs from input dict directly and does
+        not return anything.
+
+        :param dict params: a dict containing all query params.
+        """
+
+        params.pop(self.LOCALE_PARAM_NAME, None)
+        params.pop(self.TIMEZONE_PARAM_NAME, None)
+
+    def _get_safe_content_length(self):
         """
         gets content bytes length of this request if available, otherwise returns 0.
 
@@ -128,16 +166,14 @@ class CoreRequest(Request):
         extracts locale name from request query params and puts it into request context.
         """
 
-        if 'lang' in self.args.keys():
-            self._context.update(locale=self.args.get('lang'))
+        self._context[self.LOCALE_CONTEXT_KEY] = self.args.get(self.LOCALE_PARAM_NAME, None)
 
     def _extract_timezone(self):
         """
         extracts timezone name from request query params and puts it into request context.
         """
 
-        if 'tz' in self.args.keys():
-            self._context.update(timezone=self.args.get('tz'))
+        self._context[self.TIMEZONE_CONTEXT_KEY] = self.args.get(self.TIMEZONE_PARAM_NAME, None)
 
     @property
     def request_id(self):
@@ -242,3 +278,39 @@ class CoreRequest(Request):
         """
 
         return self._context
+
+    @property
+    def locale(self):
+        """
+        gets the locale of current request.
+
+        returns None if locale is not set.
+
+        :rtype: str
+        """
+
+        return self.context.get(self.LOCALE_CONTEXT_KEY, None)
+
+    @property
+    def timezone(self):
+        """
+        gets the timezone of current request.
+
+        returns None if timezone is not set.
+
+        :rtype: str
+        """
+
+        return self.context.get(self.TIMEZONE_CONTEXT_KEY, None)
+
+    @property
+    def authorization(self):
+        """
+        gets the authorization header of current request.
+
+        returns None if authorization header is not set.
+
+        :rtype: str
+        """
+
+        return self.context.get(self.AUTHORIZATION_CONTEXT_KEY, None)
