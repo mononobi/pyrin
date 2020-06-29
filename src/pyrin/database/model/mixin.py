@@ -909,7 +909,7 @@ class MagicMethodMixin(PrimaryKeyMixin):
         this method is required to overcome circular dependency problem as mixin
         module could not import `BaseEntity` because `BaseEntity` itself references
         to mixin module. and also we could not inject `BaseEntity` dependency through
-        `__init_()` method of `MagicMethodMixin` class, because sqlalchemy does not
+        `__init__()` method of `MagicMethodMixin` class, because sqlalchemy does not
         call `__init__()` method of entities for populating database results, so
         `__init__()` call is not guaranteed and will only take place on user code.
         so we have to define this method to get `BaseEntity` type here.

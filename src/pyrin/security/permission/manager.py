@@ -28,7 +28,7 @@ class PermissionManager(Manager):
         super().__init__()
 
         # holds a dict of all application's loaded permissions.
-        # in the form of dict[str permission_id: PermissionBase permission]
+        # in the form of dict[object permission_id: PermissionBase instance]
         self.__permissions = Context()
 
     def register_permission(self, instance, **options):
