@@ -55,7 +55,7 @@
 * we should always put a single top line comment in docstrings and an empty
 * line below it, than put other details from 3th line. example 6.
 
-* if we have to provide :rtype and :returns at the same type, they should be
+* if we have to provide :rtype and :returns at the same time, they should be
 * put without any empty line between them, unless one of them being multi-line.
 * example 6.
 
