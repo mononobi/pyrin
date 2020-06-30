@@ -10,6 +10,8 @@ import pyrin.processor.mimetype.services as mimetype_services
 
 from pyrin.core.structs import Context
 from pyrin.processor.mimetype.enumerations import MIMETypeEnum
+from pyrin.processor.response.wrappers.exceptions import InvalidResponseContextKeyNameError, \
+    ResponseContextKeyIsAlreadyPresentError
 from pyrin.settings.static import DEFAULT_STATUS_CODE, APPLICATION_ENCODING
 from pyrin.processor.exceptions import RequestIDAlreadySetError, \
     RequestDateAlreadySetError, RequestUserAlreadySetError
@@ -104,6 +106,61 @@ class CoreResponse(Response):
 
         return mimetype
 
+    def add_context(self, key, value, **options):
+        """
+        adds the given key/value pair into current response context.
+
+        :param str key: key name to be added.
+        :param object value: value to be added.
+
+        :keyword bool replace: specifies that if a key with the same name
+                               is already present, replace it. otherwise
+                               raise an error. defaults to False if not provided.
+
+        :raises InvalidResponseContextKeyNameError: invalid response context key name error.
+        :raises ResponseContextKeyIsAlreadyPresentError: response context key is
+                                                         already present error.
+        """
+
+        if key in (None, '') or key.isspace():
+            raise InvalidResponseContextKeyNameError('Response context key must be provided.')
+
+        if key in self._context:
+            replace = options.get('replace', None)
+            if replace is None:
+                replace = False
+
+            if replace is not True:
+                raise ResponseContextKeyIsAlreadyPresentError('A response context with key '
+                                                              '[{key}] is already present '
+                                                              'and "replace" option is not set.'
+                                                              .format(key=key))
+        self._context[key] = value
+
+    def get_context(self, key, default=None):
+        """
+        gets the value for given key from current response context.
+
+        it gets the default value if key is not present in the response context.
+
+        :param str key: key name to get its value.
+        :param object default: a value to be returned if the provided
+                               key is not present in response context.
+
+        :rtype: object
+        """
+
+        return self._context.get(key, default)
+
+    def remove_context(self, key):
+        """
+        removes the specified key from current response context if available.
+
+        :param str key: key name to be removed from response context.
+        """
+
+        self._context.pop(key, None)
+
     @property
     def request_id(self):
         """
@@ -181,13 +238,3 @@ class CoreResponse(Response):
                                              'has been already set.')
 
         self._user = user
-
-    @property
-    def context(self):
-        """
-        gets current response's context.
-
-        :rtype: dict
-        """
-
-        return self._context
