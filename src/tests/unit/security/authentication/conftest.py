@@ -25,7 +25,7 @@ def client_request_fresh_access_token():
     test_session_services.inject_new_request()
     payload = DTO(user_id=100)
     token = token_services.generate_access_token(payload, is_fresh=True)
-    session_services.get_current_request().context['authorization'] = token
+    session_services.add_request_context('authorization', token, replace=True)
 
     return session_services.get_current_request()
 
@@ -42,7 +42,7 @@ def client_request_access_token():
     test_session_services.inject_new_request()
     payload = DTO(user_id=200)
     token = token_services.generate_access_token(payload)
-    session_services.get_current_request().context['authorization'] = token
+    session_services.add_request_context('authorization', token, replace=True)
 
     return session_services.get_current_request()
 
@@ -59,7 +59,7 @@ def client_request_refresh_token():
     test_session_services.inject_new_request()
     payload = DTO(user_id=300)
     token = token_services.generate_refresh_token(payload)
-    session_services.get_current_request().context['authorization'] = token
+    session_services.add_request_context('authorization', token, replace=True)
 
     return session_services.get_current_request()
 
@@ -91,7 +91,7 @@ def client_request_no_identity_token():
     test_session_services.inject_new_request()
     payload = DTO()
     token = token_services.generate_access_token(payload)
-    session_services.get_current_request().context['authorization'] = token
+    session_services.add_request_context('authorization', token, replace=True)
 
     return session_services.get_current_request()
 
@@ -106,6 +106,6 @@ def client_request_invalid_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    session_services.get_current_request().context['authorization'] = 'an invalid token'
+    session_services.add_request_context('authorization', 'an invalid token', replace=True)
 
     return session_services.get_current_request()

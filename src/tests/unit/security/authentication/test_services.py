@@ -24,8 +24,8 @@ def test_authenticate_with_fresh_access_token(client_request_fresh_access_token)
     assert client_request.user is not None
     assert client_request.user.user_id == 100
     assert session_services.is_fresh()
-    assert client_request.context.get('token_header') is not None
-    assert client_request.context.get('token_payload') is not None
+    assert client_request.get_context('token_header') is not None
+    assert client_request.get_context('token_payload') is not None
 
 
 def test_authenticate_with_access_token(client_request_access_token):
@@ -40,8 +40,8 @@ def test_authenticate_with_access_token(client_request_access_token):
     assert client_request.user is not None
     assert client_request.user.user_id == 200
     assert not session_services.is_fresh()
-    assert client_request.context.get('token_header') is not None
-    assert client_request.context.get('token_payload') is not None
+    assert client_request.get_context('token_header') is not None
+    assert client_request.get_context('token_payload') is not None
 
 
 def test_authenticate_with_refresh_token(client_request_refresh_token):
@@ -65,8 +65,8 @@ def test_authenticate_without_token(client_request_without_token):
     assert client_request is not None
     assert client_request.user is None
     assert not session_services.is_fresh()
-    assert client_request.context.get('token_header') is None
-    assert client_request.context.get('token_payload') is None
+    assert client_request.get_context('token_header') is None
+    assert client_request.get_context('token_payload') is None
 
 
 def test_authenticate_with_no_identity_token(client_request_no_identity_token):
