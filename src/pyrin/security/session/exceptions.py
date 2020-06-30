@@ -21,13 +21,6 @@ class SessionManagerBusinessException(CoreBusinessException,
     pass
 
 
-class InvalidRequestContextKeyNameError(SessionManagerException):
-    """
-    invalid request context key name error.
-    """
-    pass
-
-
 class CouldNotOverwriteCurrentUserError(SessionManagerException):
     """
     could not overwrite current user error.

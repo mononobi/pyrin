@@ -730,8 +730,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: dict | list[dict]
         """
 
-        result_schema = session_services.get_current_request_context().get('result_schema',
-                                                                           None)
+        result_schema = session_services.get_request_context('result_schema', None)
         if result_schema is not None:
             return result_schema.filter(rv)
 

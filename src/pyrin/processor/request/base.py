@@ -9,10 +9,13 @@ import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.converters.deserializer.services as deserializer_services
 
-from pyrin.core.structs import Context, DTO
+from pyrin.core.structs import DTO
+from pyrin.processor.request.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
+from pyrin.processor.request.exceptions import InvalidRequestContextKeyNameError, \
+    RequestContextKeyIsAlreadyPresentError
 
 
 class CoreRequest(Request):
@@ -24,6 +27,9 @@ class CoreRequest(Request):
 
     # charset of the request.
     charset = APPLICATION_ENCODING
+
+    # class to be used as request context holder.
+    request_context_class = RequestContext
 
     # these are query param names that application expects for locale and timezone.
     LOCALE_PARAM_NAME = 'lang'
@@ -62,7 +68,7 @@ class CoreRequest(Request):
         self._component_custom_key = DEFAULT_COMPONENT_KEY
         self._client_ip = self._get_client_ip()
         self._safe_content_length = self._get_safe_content_length()
-        self._context = Context()
+        self._context = self.request_context_class()
 
         # holds the inputs of request. this value will be
         # calculated once per each request and cached.
@@ -103,8 +109,48 @@ class CoreRequest(Request):
         request context, otherwise puts None into request context.
         """
 
-        self._context[self.AUTHORIZATION_CONTEXT_KEY] = \
-            self.headers.get(self.AUTHORIZATION_HEADER_KEY, None)
+        self.add_context(self.AUTHORIZATION_CONTEXT_KEY,
+                         self.headers.get(self.AUTHORIZATION_HEADER_KEY, None))
+
+    def _remove_extra_query_params(self, params):
+        """
+        removes all kwargs that should not be handed to the view function directly.
+
+        for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
+        from query params because they will be stored in request context.
+        this method removes extra kwargs from input dict directly and does
+        not return anything.
+
+        :param dict params: a dict containing all query params.
+        """
+
+        params.pop(self.LOCALE_PARAM_NAME, None)
+        params.pop(self.TIMEZONE_PARAM_NAME, None)
+
+    def _get_safe_content_length(self):
+        """
+        gets content bytes length of this request if available, otherwise returns 0.
+
+        :rtype: int
+        """
+
+        return self.content_length or 0
+
+    def _extract_locale(self):
+        """
+        extracts locale name from request query params and puts it into request context.
+        """
+
+        self.add_context(self.LOCALE_CONTEXT_KEY,
+                         self.args.get(self.LOCALE_PARAM_NAME, None))
+
+    def _extract_timezone(self):
+        """
+        extracts timezone name from request query params and puts it into request context.
+        """
+
+        self.add_context(self.TIMEZONE_CONTEXT_KEY,
+                         self.args.get(self.TIMEZONE_PARAM_NAME, None))
 
     def get_inputs(self, silent=False):
         """
@@ -137,43 +183,60 @@ class CoreRequest(Request):
 
         return self._inputs
 
-    def _remove_extra_query_params(self, params):
+    def add_context(self, key, value, **options):
         """
-        removes all kwargs that should not be handed to the view function directly.
+        adds the given key/value pair into current request context.
 
-        for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
-        from query params because they will be stored in request context.
-        this method removes extra kwargs from input dict directly and does
-        not return anything.
+        :param str key: key name to be added.
+        :param object value: value to be added.
 
-        :param dict params: a dict containing all query params.
-        """
+        :keyword bool replace: specifies that if a key with the same name
+                               is already present, replace it. otherwise
+                               raise an error. defaults to False if not provided.
 
-        params.pop(self.LOCALE_PARAM_NAME, None)
-        params.pop(self.TIMEZONE_PARAM_NAME, None)
-
-    def _get_safe_content_length(self):
-        """
-        gets content bytes length of this request if available, otherwise returns 0.
-
-        :rtype: int
+        :raises InvalidRequestContextKeyNameError: invalid request context key name error.
+        :raises RequestContextKeyIsAlreadyPresentError: request context key is
+                                                        already present error.
         """
 
-        return self.content_length or 0
+        if key in (None, '') or key.isspace():
+            raise InvalidRequestContextKeyNameError('Request context key must be provided.')
 
-    def _extract_locale(self):
+        if key in self._context:
+            replace = options.get('replace', None)
+            if replace is None:
+                replace = False
+
+            if replace is not True:
+                raise RequestContextKeyIsAlreadyPresentError('A request context with key '
+                                                             '[{key}] is already present '
+                                                             'and "replace" option is not set.'
+                                                             .format(key=key))
+        self._context[key] = value
+
+    def get_context(self, key, default=None):
         """
-        extracts locale name from request query params and puts it into request context.
+        gets the value for given key from current request context.
+
+        it gets the default value if key is not present in the request context.
+
+        :param str key: key name to get its value.
+        :param object default: a value to be returned if the provided
+                               key is not present in request context.
+
+        :rtype: object
         """
 
-        self._context[self.LOCALE_CONTEXT_KEY] = self.args.get(self.LOCALE_PARAM_NAME, None)
+        return self._context.get(key, default)
 
-    def _extract_timezone(self):
+    def remove_context(self, key):
         """
-        extracts timezone name from request query params and puts it into request context.
+        removes the specified key from current request context if available.
+
+        :param str key: key name to be removed from request context.
         """
 
-        self._context[self.TIMEZONE_CONTEXT_KEY] = self.args.get(self.TIMEZONE_PARAM_NAME, None)
+        self._context.pop(key, None)
 
     @property
     def request_id(self):
@@ -270,16 +333,6 @@ class CoreRequest(Request):
         return self._safe_content_length
 
     @property
-    def context(self):
-        """
-        gets current request's context.
-
-        :rtype: dict
-        """
-
-        return self._context
-
-    @property
     def locale(self):
         """
         gets the locale of current request.
@@ -289,7 +342,7 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        return self.context.get(self.LOCALE_CONTEXT_KEY, None)
+        return self.get_context(self.LOCALE_CONTEXT_KEY, None)
 
     @property
     def timezone(self):
@@ -301,7 +354,7 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        return self.context.get(self.TIMEZONE_CONTEXT_KEY, None)
+        return self.get_context(self.TIMEZONE_CONTEXT_KEY, None)
 
     @property
     def authorization(self):
@@ -313,4 +366,4 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        return self.context.get(self.AUTHORIZATION_CONTEXT_KEY, None)
+        return self.get_context(self.AUTHORIZATION_CONTEXT_KEY, None)

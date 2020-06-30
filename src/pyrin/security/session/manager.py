@@ -7,8 +7,8 @@ from flask import request
 from flask.ctx import has_request_context
 
 from pyrin.core.structs import DTO, Manager
-from pyrin.security.session.exceptions import InvalidRequestContextKeyNameError, \
-    CouldNotOverwriteCurrentUserError, InvalidUserError, InvalidComponentCustomKeyError
+from pyrin.security.session.exceptions import InvalidUserError, \
+    CouldNotOverwriteCurrentUserError, InvalidComponentCustomKeyError
 
 
 class SessionManager(Manager):
@@ -55,33 +55,52 @@ class SessionManager(Manager):
         with request:
             return request
 
-    def get_current_request_context(self):
-        """
-        gets current request context.
-
-        :rtype: dict
-        """
-
-        return self.get_current_request().context
-
-    def add_request_context(self, key, value):
+    def add_request_context(self, key, value, **options):
         """
         adds the given key/value pair into current request context.
 
-        :param str key: key to be added.
+        :param str key: key name to be added.
         :param object value: value to be added.
 
+        :keyword bool replace: specifies that if a key with the same name
+                               is already present, replace it. otherwise
+                               raise an error. defaults to False if not provided.
+
         :raises InvalidRequestContextKeyNameError: invalid request context key name error.
+        :raises RequestContextKeyIsAlreadyPresentError: request context key is
+                                                        already present error.
         """
 
-        if key is None or len(key.strip()) == 0:
-            raise InvalidRequestContextKeyNameError('Request context key could not be None.')
+        self.get_current_request().add_context(key, value, **options)
 
-        self.get_current_request_context()[key] = value
+    def get_request_context(self, key, default=None):
+        """
+        gets the value for given key from current request context.
+
+        it gets the default value if key is not present in the request context.
+
+        :param str key: key name to get its value.
+        :param object default: a value to be returned if the provided
+                               key is not present in request context.
+
+        :rtype: object
+        """
+
+        return self.get_current_request().get_context(key, default)
+
+    def remove_request_context(self, key):
+        """
+        removes the specified key from current request context if available.
+
+        :param str key: key name to be removed from request context.
+        """
+
+        self.get_current_request().remove_context(key)
 
     def is_fresh(self):
         """
         gets a value indicating that current request has a fresh token.
+
         fresh token means a token which created upon providing user credentials
         to server, not using a refresh token.
 
@@ -97,7 +116,7 @@ class SessionManager(Manager):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_payload', DTO())
+        return self.get_request_context('token_payload', DTO())
 
     def get_current_token_header(self):
         """
@@ -106,7 +125,7 @@ class SessionManager(Manager):
         :rtype: dict
         """
 
-        return self.get_current_request_context().get('token_header', DTO())
+        return self.get_request_context('token_header', DTO())
 
     def set_component_custom_key(self, value):
         """
@@ -134,6 +153,7 @@ class SessionManager(Manager):
     def get_safe_current_request(self):
         """
         gets current request object in a safe manner.
+
         meaning that if the request does not exist in current context, it will
         return a None object instead of raising an error.
 
@@ -148,6 +168,7 @@ class SessionManager(Manager):
     def get_safe_current_user(self):
         """
         gets current user in a safe manner.
+
         meaning that if the request does not exist in current context, it will
         return a None object instead of raising an error.
         """

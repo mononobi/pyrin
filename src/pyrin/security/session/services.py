@@ -40,32 +40,55 @@ def get_current_request():
     return get_component(SessionPackage.COMPONENT_NAME).get_current_request()
 
 
-def get_current_request_context():
-    """
-    gets current request context.
-
-    :rtype: dict
-    """
-
-    return get_component(SessionPackage.COMPONENT_NAME).get_current_request_context()
-
-
-def add_request_context(key, value):
+def add_request_context(key, value, **options):
     """
     adds the given key/value pair into current request context.
 
-    :param str key: key to be added.
+    :param str key: key name to be added.
     :param object value: value to be added.
 
+    :keyword bool replace: specifies that if a key with the same name
+                           is already present, replace it. otherwise
+                           raise an error. defaults to False if not provided.
+
     :raises InvalidRequestContextKeyNameError: invalid request context key name error.
+    :raises RequestContextKeyIsAlreadyPresentError: request context key is
+                                                    already present error.
     """
 
-    return get_component(SessionPackage.COMPONENT_NAME).add_request_context(key, value)
+    get_component(SessionPackage.COMPONENT_NAME).add_request_context(key, value, **options)
+
+
+def get_request_context(key, default=None):
+    """
+    gets the value for given key from current request context.
+
+    it gets the default value if key is not present in the request context.
+
+    :param str key: key name to get its value.
+    :param object default: a value to be returned if the provided
+                           key is not present in request context.
+
+    :rtype: object
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_request_context(key, default)
+
+
+def remove_request_context(key):
+    """
+    removes the specified key from current request context if available.
+
+    :param str key: key name to be removed from request context.
+    """
+
+    get_component(SessionPackage.COMPONENT_NAME).remove_request_context(key)
 
 
 def is_fresh():
     """
     gets a value indicating that current request has a fresh token.
+
     fresh token means a token which created upon providing user credentials
     to server, not using a refresh token.
 
@@ -120,6 +143,7 @@ def get_component_custom_key():
 def get_safe_current_request():
     """
     gets current request object in a safe manner.
+
     meaning that if the request does not exist in current context, it will
     return a None object instead of raising an error.
 
@@ -132,6 +156,7 @@ def get_safe_current_request():
 def get_safe_current_user():
     """
     gets current user in a safe manner.
+
     meaning that if the request does not exist in current context, it will
     return a None object instead of raising an error.
     """
