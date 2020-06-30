@@ -6,7 +6,7 @@ application structs module.
 from pyrin.application.base import Application
 from pyrin.application.structs import Component
 from pyrin.core.structs import Manager
-from pyrin.processor.request.base import CoreRequest
+from pyrin.processor.request.wrappers.base import CoreRequest
 
 
 class ApplicationMock(Application):
