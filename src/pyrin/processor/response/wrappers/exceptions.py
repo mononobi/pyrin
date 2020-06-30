@@ -6,21 +6,21 @@ response wrappers exceptions module.
 from pyrin.core.exceptions import CoreException
 
 
-class ResponseException(CoreException):
+class ResponseWrappersException(CoreException):
     """
-    response exception.
+    response wrappers exception.
     """
     pass
 
 
-class InvalidResponseContextKeyNameError(ResponseException):
+class InvalidResponseContextKeyNameError(ResponseWrappersException):
     """
     invalid response context key name error.
     """
     pass
 
 
-class ResponseContextKeyIsAlreadyPresentError(ResponseException):
+class ResponseContextKeyIsAlreadyPresentError(ResponseWrappersException):
     """
     response context key is already present error.
     """

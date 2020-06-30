@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-request exceptions module.
+request wrappers exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException
 
 
-class RequestException(CoreException):
+class RequestWrappersException(CoreException):
     """
-    request exception.
+    request wrappers exception.
     """
     pass
 
 
-class InvalidRequestContextKeyNameError(RequestException):
+class InvalidRequestContextKeyNameError(RequestWrappersException):
     """
     invalid request context key name error.
     """
     pass
 
 
-class RequestContextKeyIsAlreadyPresentError(RequestException):
+class RequestContextKeyIsAlreadyPresentError(RequestWrappersException):
     """
     request context key is already present error.
     """

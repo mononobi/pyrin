@@ -8,10 +8,10 @@ from flask import Response
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.processor.mimetype.services as mimetype_services
 
-from pyrin.core.structs import Context
 from pyrin.processor.mimetype.enumerations import MIMETypeEnum
 from pyrin.processor.response.wrappers.exceptions import InvalidResponseContextKeyNameError, \
     ResponseContextKeyIsAlreadyPresentError
+from pyrin.processor.response.wrappers.structs import ResponseContext
 from pyrin.settings.static import DEFAULT_STATUS_CODE, APPLICATION_ENCODING
 from pyrin.processor.exceptions import RequestIDAlreadySetError, \
     RequestDateAlreadySetError, RequestUserAlreadySetError
@@ -26,6 +26,9 @@ class CoreResponse(Response):
 
     # charset of the response.
     charset = APPLICATION_ENCODING
+
+    # class to be used as response context holder.
+    response_context_class = ResponseContext
 
     # default status if none is provided.
     default_status = DEFAULT_STATUS_CODE
@@ -71,7 +74,7 @@ class CoreResponse(Response):
         self._request_date = None
         self._response_date = datetime_services.now()
         self._user = None
-        self._context = Context()
+        self._context = self.response_context_class()
 
     def __str__(self):
         result = 'request id: "{request_id}", response date: "{response_date}", ' \

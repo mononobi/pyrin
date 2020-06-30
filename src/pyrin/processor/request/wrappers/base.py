@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-request base module.
+request wrappers base module.
 """
 
 from flask import Request
@@ -10,11 +10,11 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.converters.deserializer.services as deserializer_services
 
 from pyrin.core.structs import DTO
-from pyrin.processor.request.structs import RequestContext
+from pyrin.processor.request.wrappers.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
-from pyrin.processor.request.exceptions import InvalidRequestContextKeyNameError, \
+from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
     RequestContextKeyIsAlreadyPresentError
 
 

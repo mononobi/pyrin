@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-request structs module.
+request wrappers structs module.
 """
 
 from pyrin.core.exceptions import ContextAttributeError
