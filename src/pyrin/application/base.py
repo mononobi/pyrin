@@ -40,7 +40,7 @@ from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
 from pyrin.processor.mimetype.enumerations import MIMETypeEnum
 from pyrin.processor.response.wrappers.base import CoreResponse
-from pyrin.processor.request.base import CoreRequest
+from pyrin.processor.request.wrappers.base import CoreRequest
 from pyrin.application.structs import ApplicationContext, ApplicationComponent, \
     ApplicationSingletonMeta, Component
 from pyrin.application.exceptions import DuplicateContextKeyError, InvalidComponentTypeError, \
