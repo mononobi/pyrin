@@ -308,6 +308,9 @@ class Context(DTO):
     it's actually a dictionary with the capability to add keys directly.
     """
 
+    attribute_error = ContextAttributeError
+    attribute_error_message = 'Property [{name}] not found.'
+
     def __getattr__(self, name):
         if name in self:
             return self.get(name)
@@ -329,7 +332,7 @@ class Context(DTO):
         :raises ContextAttributeError: context attribute error.
         """
 
-        raise ContextAttributeError('Property [{name}] not found.'.format(name=key))
+        raise self.attribute_error(self.attribute_error_message.format(name=key))
 
 
 class HookSingletonMeta(MultiSingletonMeta):

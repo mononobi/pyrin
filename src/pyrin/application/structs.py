@@ -6,7 +6,6 @@ application structs module.
 from threading import Lock
 
 from pyrin.core.structs import Context, CoreObject, UniqueSingletonMeta
-from pyrin.core.exceptions import ContextAttributeError
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.application.exceptions import ComponentAttributeError, InvalidComponentNameError
 
@@ -16,17 +15,7 @@ class ApplicationContext(Context):
     context class to hold application contextual data.
     """
 
-    def _raise_key_error(self, key):
-        """
-        raises an error for given key.
-
-        :param object key: key object that caused the error.
-
-        :raises ContextAttributeError: context attribute error.
-        """
-
-        raise ContextAttributeError('Property [{name}] not found in application context.'
-                                    .format(name=key))
+    attribute_error_message = 'Property [{name}] not found in application context.'
 
 
 class ApplicationComponent(ApplicationContext):
@@ -34,17 +23,8 @@ class ApplicationComponent(ApplicationContext):
     context class to hold application components.
     """
 
-    def _raise_key_error(self, key):
-        """
-        raises an error for given key.
-
-        :param object key: key object that caused the error.
-
-        :raises ComponentAttributeError: component attribute error.
-        """
-
-        raise ComponentAttributeError('Component [{name}] is not available '
-                                      'in application components.'.format(name=key))
+    attribute_error = ComponentAttributeError
+    attribute_error_message = 'Component [{name}] is not available in application components.'
 
 
 class Component(CoreObject):
