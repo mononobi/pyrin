@@ -102,3 +102,10 @@ class IsNotDirectoryError(UtilsException):
     is not directory error.
     """
     pass
+
+
+class IsNotUserDefinedFunctionError(UtilsException):
+    """
+    is not user defined function error.
+    """
+    pass

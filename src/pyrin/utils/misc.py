@@ -3,6 +3,7 @@
 utils misc module.
 """
 
+from pyrin.core.globals import LIST_TYPES
 from pyrin.core.structs import DTO
 from pyrin.core.exceptions import CoreAttributeError
 
@@ -51,3 +52,68 @@ def extract_attributes(instance, *attributes):
         result[name] = getattr(instance, name)
 
     return result
+
+
+def make_iterable(values, collection_type=None):
+    """
+    converts the provided values to iterable.
+
+    it returns a collection of values using the given collection type.
+
+    :param object | list[object] | tuple[object] | set[object] values: value or values to make
+                                                                       iterable. if the values
+                                                                       are iterable, it just
+                                                                       converts the collection
+                                                                       to given type.
+
+    :param type[list | tuple | set] collection_type: collection type to use.
+                                                     defaults to list if not provided.
+
+    :rtype: list | tuple | set
+    """
+
+    if collection_type is None:
+        collection_type = list
+
+    if values is None:
+        return collection_type()
+
+    if not isinstance(values, LIST_TYPES):
+        values = (values,)
+
+    return collection_type(values)
+
+
+def try_get_fully_qualified_name(some_object):
+    """
+    tries to get the fully qualified name of given object.
+
+    it tries to return `__module__.__name__` for given object.
+    for example: `pyrin.api.services.create_route`.
+    but if it fails to get any of those, it returns the `__str__` for that object.
+
+    :param object some_object: object to get its fully qualified name.
+
+    :rtype: str
+    """
+
+    module = None
+    name = None
+    try:
+        module = some_object.__module__
+        if module == '' or module.isspace():
+            module = None
+    except AttributeError:
+        module = None
+
+    try:
+        name = some_object.__name__
+        if name == '' or name.isspace():
+            name = None
+    except AttributeError:
+        name = None
+
+    if module is not None and name is not None:
+        return '{module}.{name}'.format(module=module, name=name)
+
+    return str(some_object)
