@@ -73,3 +73,17 @@ class InvalidResultSchemaTypeError(RouterHandlerException):
     invalid result schema type error.
     """
     pass
+
+
+class RouteIsNotBoundedError(RouterHandlerException):
+    """
+    route is not bounded error.
+    """
+    pass
+
+
+class RouteIsNotBoundedToMapError(RouterHandlerException):
+    """
+    route is not bounded to map error.
+    """
+    pass

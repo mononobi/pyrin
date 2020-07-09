@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-public route handler module.
+router handlers public module.
 """
 
 from pyrin.api.router.handlers.base import RouteBase
@@ -11,37 +11,38 @@ class PublicRoute(RouteBase):
     public route class.
 
     this class should be used to manage application public api
-    routes that does not need valid token.
+    routes that do not require authentication.
     """
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of PublicRoute.
+        initializes an instance of PublicRoute.
 
         :param str rule: unique url rule to register this route for.
-                         routes with duplicated urls will be overwritten
-                         if `replace=True` option is provided, otherwise an error
-                         will be raised.
+                         routes with duplicated urls and http methods will be
+                         overwritten if `replace=True` option is provided.
+                         otherwise an error will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
-                                     if not provided, defaults to `GET`, `HEAD`
-                                     and `OPTIONS`.
+        :keyword str | tuple[str] methods: http methods that this route could handle.
+                                           if not provided, defaults to `GET`, `HEAD`
+                                           and `OPTIONS`.
 
-        :keyword callable view_function: a function to be called on accessing this route.
+        :keyword function view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. pyrin
-                               itself assumes the rule as endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule.
 
         :keyword dict defaults: an optional dict with defaults for other rules with the
-                                same endpoint.
-                                this is a bit tricky but useful if you want to have unique urls.
+                                same endpoint. this is a bit tricky but useful if you
+                                want to have unique urls.
 
-        :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
-                                only matches for the `default_subdomain` of the map. if the map is
-                                not bound to a subdomain this feature is disabled.
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the
+                                rule only matches for the `default_subdomain` of the map. if
+                                the map is not bound to a subdomain this feature is disabled.
 
-        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only
-                                      for this rule. if not specified the `Map` setting is used.
+        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for
+                                      this rule. if not specified the `Map` setting is used.
+
+        :keyword bool merge_slashes: override `Map.merge_slashes` for this rule.
 
         :keyword bool build_only: set this to True and the rule will never match but will
                                   create a url that can be build. this is useful if you have
@@ -50,12 +51,12 @@ class PublicRoute(RouteBase):
 
         :keyword str | callable redirect_to: if given this must be either a string
                                              or callable. in case of a callable it's
-                                             called with the url adapter that triggered
-                                             the match and the values of the url as
-                                             keyword arguments and has to return the
-                                             target for the redirect, otherwise it
-                                             has to be a string with placeholders
-                                             in rule syntax.
+                                             called with the url adapter that
+                                             triggered the match and the values
+                                             of the url as keyword arguments and has
+                                             to return the target for the redirect,
+                                             otherwise it has to be a string with
+                                             placeholders in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
                              the same endpoint and arguments.
@@ -63,6 +64,11 @@ class PublicRoute(RouteBase):
         :keyword str host: if provided and the url map has host matching enabled this can be
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
+
+        :keyword bool websocket: if set to True, this rule is only matches for
+                                 websocket (`ws://`, `wss://`) requests. by default,
+                                 rules will only match for http requests.
+                                 defaults to False if not provided.
 
         :keyword int max_content_length: max content length that this route could handle,
                                          in bytes. if not provided, it will be set to

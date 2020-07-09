@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-route base handler module.
+router handlers base module.
 """
 
 from copy import deepcopy
@@ -9,11 +9,14 @@ from werkzeug.routing import Rule
 
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
+import pyrin.utils.misc as misc_utils
 
 from pyrin.api.schema.result import ResultSchema
-from pyrin.core.globals import _, LIST_TYPES
+from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.core.globals import _
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
-    MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError
+    MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
+    RouteIsNotBoundedToMapError, RouteIsNotBoundedError
 
 
 class RouteBase(Rule):
@@ -21,36 +24,41 @@ class RouteBase(Rule):
     route base class.
     """
 
+    # these are http methods that will not be considered as operational.
+    NON_OPERATIONAL_METHODS = [HTTPMethodEnum.HEAD,
+                               HTTPMethodEnum.OPTIONS]
+
     result_schema_class = ResultSchema
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of RouteBase.
+        initializes an instance of RouteBase.
 
         :param str rule: unique url rule to register this route for.
-                         routes with duplicated urls will be overwritten
-                         if `replace=True` option is provided, otherwise an error
-                         will be raised.
+                         routes with duplicated urls and http methods will be
+                         overwritten if `replace=True` option is provided.
+                         otherwise an error will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
-                                     if not provided, defaults to `GET`, `HEAD`
-                                     and `OPTIONS`.
+        :keyword str | tuple[str] methods: http methods that this route could handle.
+                                           if not provided, defaults to `GET`, `HEAD`
+                                           and `OPTIONS`.
                         
-        :keyword callable view_function: a function to be called on accessing this route.
+        :keyword function view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. pyrin
-                               itself assumes the rule as endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule.
 
         :keyword dict defaults: an optional dict with defaults for other rules with the
-                                same endpoint.
-                                this is a bit tricky but useful if you want to have unique urls.
+                                same endpoint. this is a bit tricky but useful if you
+                                want to have unique urls.
 
-        :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
-                                only matches for the `default_subdomain` of the map. if the map is
-                                not bound to a subdomain this feature is disabled.
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the
+                                rule only matches for the `default_subdomain` of the map. if
+                                the map is not bound to a subdomain this feature is disabled.
 
         :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for
                                       this rule. if not specified the `Map` setting is used.
+
+        :keyword bool merge_slashes: override `Map.merge_slashes` for this rule.
 
         :keyword bool build_only: set this to True and the rule will never match but will
                                   create a url that can be build. this is useful if you have
@@ -72,6 +80,11 @@ class RouteBase(Rule):
         :keyword str host: if provided and the url map has host matching enabled this can be
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
+
+        :keyword bool websocket: if set to True, this rule is only matches for
+                                 websocket (`ws://`, `wss://`) requests. by default,
+                                 rules will only match for http requests.
+                                 defaults to False if not provided.
 
         :keyword int max_content_length: max content length that this route could handle,
                                          in bytes. if not provided, it will be set to
@@ -117,13 +130,12 @@ class RouteBase(Rule):
         """
 
         methods = options.get('methods', None)
-        if methods is not None and not isinstance(methods, LIST_TYPES):
-            methods = (methods,)
-            options.update(methods=methods)
+        methods = misc_utils.make_iterable(methods, tuple)
+        options.update(methods=methods)
 
         # we should call super method with exact param names because it
         # does not have `**options` in it's signature and raises an error
-        # if extra keywords passed to it. maybe flask fixes it in the future.
+        # if extra keywords passed to it.
         super().__init__(rule,
                          defaults=options.get('defaults', None),
                          subdomain=options.get('subdomain', None),
@@ -131,23 +143,23 @@ class RouteBase(Rule):
                          build_only=options.get('build_only', False),
                          endpoint=options.get('endpoint', None),
                          strict_slashes=options.get('strict_slashes', None),
+                         merge_slashes=options.get('merge_slashes', None),
                          redirect_to=options.get('redirect_to', None),
                          alias=options.get('alias', False),
-                         host=options.get('host', None))
+                         host=options.get('host', None),
+                         websocket=options.get('websocket', False))
 
         self._view_function = options.get('view_function')
 
         global_limit = config_services.get('api', 'general', 'max_content_length')
-
         restricted_length = options.get('max_content_length',
                                         config_services.get('api',
                                                             'general',
                                                             'restricted_max_content_length'))
-
         if restricted_length > global_limit:
             raise MaxContentLengthLimitMismatchError('Specified max content length '
                                                      '[{restricted}] for route [{route}] is '
-                                                     'greater than global limit which is '
+                                                     'higher than global limit which is '
                                                      '[{global_limit}].'
                                                      .format(restricted=restricted_length,
                                                              route=rule,
@@ -156,12 +168,96 @@ class RouteBase(Rule):
         self._max_content_length = restricted_length
 
         if not callable(self._view_function):
+            full_name = misc_utils.try_get_fully_qualified_name(self._view_function)
             raise InvalidViewFunctionTypeError('The provided view function [{function}] '
-                                               'for route [{route}] is not callable.'
-                                               .format(function=self._view_function,
-                                                       route=self))
+                                               'for route with url [{url}] is not callable.'
+                                               .format(function=full_name,
+                                                       url=self.rule))
 
         self._result_schema = self._extract_schema(**options)
+
+    def __eq__(self, other):
+        """
+        gets a value indicating that current route is equal to provided route.
+
+        note that for two routes to be considered equal, three conditions must be met:
+
+        1. both routes be an instance of `RouteBase`.
+        2. both routes have the same exact url rule.
+        3. both routes have the same exact http methods.
+
+        this has some difference with how flask compares routes.
+        and this is required because pyrin handles routes on its own and assures
+        that there should not be multiple routes with the same url and http methods.
+
+        :param object other: other instance to be compared to current route.
+
+        :rtype: bool
+        """
+
+        if not isinstance(other, RouteBase):
+            return False
+
+        return self._trace == other._trace and \
+            sorted(set(self.methods)) == sorted(set(other.methods))
+
+    def unbind(self, map):
+        """
+        sets this route's map to None.
+
+        :param Map map: the map that this route is bounded to.
+                        it must be the exact map of this route.
+
+        :raises RouteIsNotBoundedError: route is not bounded error.
+        :raises RouteIsNotBoundedToMapError: route is not bounded to map error.
+        """
+
+        if self.map is None:
+            raise RouteIsNotBoundedError('Route [{route}] is not bounded to any Map.'
+                                         .format(route=self))
+
+        if self.map is not map:
+            raise RouteIsNotBoundedToMapError('Route [{route}] is not bounded '
+                                              'to provided Map [{map}].'
+                                              .format(route=self, map=map))
+
+        self.map = None
+
+    def get_duplicate_methods(self, methods):
+        """
+        gets a tuple of this route's methods that are duplicated with provided methods.
+
+        it gets an empty tuple if no duplication found.
+        note that any of `NON_OPERATIONAL_METHODS` will not be considered
+        for duplication. because these two methods will be handled correctly by
+        flask itself. but if you want to explicitly define routes for these type
+        of methods, you have to implement the required parts manually.
+
+        :param str | tuple[str] methods: http methods to check for duplication.
+
+        :returns: tuple of duplicate methods.
+        :rtype: tuple[str]
+        """
+
+        methods = misc_utils.make_iterable(methods, set)
+        duplicate_methods = set(self.methods).intersection(methods)
+        duplicate_methods = duplicate_methods.difference(set(self.NON_OPERATIONAL_METHODS))
+
+        return tuple(duplicate_methods)
+
+    def remove_methods(self, methods):
+        """
+        removes the provided methods from this route's methods.
+
+        note that this will not remove any of `NON_OPERATIONAL_METHODS`.
+
+        :param str | tuple[str] methods: http methods to be removed.
+        """
+
+        to_be_removed = self.get_duplicate_methods(methods)
+        updated_methods = set(self.methods).difference(set(to_be_removed))
+        self.methods = updated_methods
+        self.refresh()
 
     def handle(self, inputs, **options):
         """
@@ -320,3 +416,16 @@ class RouteBase(Rule):
         """
 
         return self._result_schema
+
+    @property
+    def is_operational(self):
+        """
+        gets a value indicating that this route has any operational http methods.
+
+        note that any of `NON_OPERATIONAL_METHODS` will not be considered as operational.
+
+        :rtype: bool
+        """
+
+        operational_methods = set(self.methods).difference(set(self.NON_OPERATIONAL_METHODS))
+        return len(operational_methods) > 0

@@ -18,3 +18,10 @@ class RouteAuthenticationMismatchError(RouterException):
     route authentication mismatch error.
     """
     pass
+
+
+class InvalidCustomRouteTypeError(RouterException):
+    """
+    invalid custom route type error.
+    """
+    pass

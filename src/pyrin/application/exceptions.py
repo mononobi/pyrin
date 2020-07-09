@@ -6,16 +6,16 @@ application exceptions module.
 from pyrin.core.exceptions import ContextAttributeError, CoreException
 
 
-class ComponentAttributeError(ContextAttributeError):
+class ApplicationException(CoreException):
     """
-    component attribute error.
+    application exception.
     """
     pass
 
 
-class ApplicationException(CoreException):
+class ComponentAttributeError(ApplicationException, ContextAttributeError):
     """
-    application exception.
+    component attribute error.
     """
     pass
 
@@ -100,5 +100,12 @@ class ApplicationIsNotSubclassedError(ApplicationException):
 class InvalidApplicationHookTypeError(ApplicationException):
     """
     invalid application hook type error.
+    """
+    pass
+
+
+class OverwritingEndpointIsNotAllowedError(ApplicationException):
+    """
+    overwriting endpoint is not allowed error.
     """
     pass

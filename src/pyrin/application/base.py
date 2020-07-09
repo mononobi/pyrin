@@ -22,7 +22,9 @@ import pyrin.logging.services as logging_services
 import pyrin.processor.mimetype.services as mimetype_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
+import pyrin.utils.function as function_utils
 
+from pyrin.api.router.structs import CoreURLMap
 from pyrin.application.container import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
@@ -30,8 +32,9 @@ from pyrin.application.hooks import ApplicationHookBase
 from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
+from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.globals import LIST_TYPES, ROW_RESULT
+from pyrin.core.globals import ROW_RESULT
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
@@ -47,7 +50,8 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidComponentIDError, DuplicateComponentIDError, DuplicateRouteURLError, \
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
     ApplicationInScriptingModeError, ComponentAttributeError, \
-    ApplicationIsNotSubclassedError, InvalidApplicationHookTypeError
+    ApplicationIsNotSubclassedError, InvalidApplicationHookTypeError, \
+    OverwritingEndpointIsNotAllowedError
 
 
 class Application(Flask, HookMixin, SignalMixin,
@@ -100,6 +104,7 @@ class Application(Flask, HookMixin, SignalMixin,
     packaging_component_class = PackagingComponent
 
     url_rule_class = ProtectedRoute
+    url_map_class = CoreURLMap
     response_class = CoreResponse
     request_class = CoreRequest
     json_decoder = CoreJSONDecoder
@@ -170,6 +175,10 @@ class Application(Flask, HookMixin, SignalMixin,
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.get('scripting_mode', False)
         self._force_json_response = options.get('force_json_response', True)
+
+        # a dict containing the mapping between each url and its available routes.
+        # in the form of: {str url: [RouteBase route]}
+        self._url_to_route_map = DTO()
 
         self._import_name = options.get('import_name', None)
         if self._import_name is not None and (self._import_name == '' or
@@ -635,7 +644,7 @@ class Application(Flask, HookMixin, SignalMixin,
         # if we provide automatic options for this URL and the
         # request came with the OPTIONS method, reply automatically.
         if getattr(route, 'provide_automatic_options', False) \
-           and client_request.method == 'OPTIONS':
+           and client_request.method == HTTPMethodEnum.OPTIONS:
             return self.make_default_options_response()
 
         # otherwise call the handler for this route.
@@ -708,7 +717,8 @@ class Application(Flask, HookMixin, SignalMixin,
         # we could not return a list as response, so we wrap
         # the result in a dict when we want to return a list.
         if isinstance(rv, list):
-            rv = DTO(items=rv)
+            rv = DTO(items=rv,
+                     count=len(rv))
 
         # we should wrap all single values into a
         # dict before returning it to client.
@@ -737,20 +747,41 @@ class Application(Flask, HookMixin, SignalMixin,
         return serializer_services.serialize(rv)
 
     @setupmethod
-    def add_url_rule(self, rule, endpoint=None, view_func=None,
+    def add_url_rule(self, rule, view_func,
                      provide_automatic_options=None, **options):
         """
-        connects a url rule. if a view_func is provided it will be registered with the endpoint.
+        connects a url rule. the provided view_func will be registered with the endpoint.
 
-        if there is another rule with the same url and `replace=True` option is provided,
-        it will be replaced, otherwise an error will be raised.
+        if there is another rule with the same url and http methods and `replace=True`
+        option is provided, it will be replaced. otherwise an error will be raised.
+
+        a note about endpoint. pyrin will handle endpoint generation on its own.
+        so there is no endpoint parameter in this method's signature.
+        this is required to be able to handle uniqueness of endpoints and managing them.
+        despite flask, pyrin will not require you to define view functions with unique names.
+        you could define view functions with the same name in different modules. but to
+        ensure the uniqueness of endpoints, pyrin will use the fully qualified name
+        of function as endpoint. for example: `pyrin.api.services.create_route`.
+        so you could figure out endpoint for any view function to use it in places
+        like `url_for` method.
+
+        pyrin handles endpoints this way to achieve these two important features:
+
+        1. dismissal of the need for view function name uniqueness.
+           when application grows, it's nonsense to be forced to have
+           unique view function names at application level.
+
+        2. managing routes with the same url and http methods, and informing
+           the developer about them to prevent accidental replacements. and also
+           providing a way to replace a route by another route with the same url
+           and http methods if that is what developer actually wants.
+           when application grows, it becomes a point of failure when you have no
+           idea that you've registered a similar route in multiple places and only
+           one of them will be get called based on registration order.
 
         :param str rule: the url rule as string.
 
-        :param str endpoint: the endpoint for the registered url rule.
-                             pyrin itself assumes the url rule as endpoint.
-
-        :param callable view_func: the function to call when serving a request to the
+        :param function view_func: the function to call when serving a request to the
                                    provided endpoint.
 
         :param bool provide_automatic_options: controls whether the `OPTIONS` method should be
@@ -759,25 +790,64 @@ class Application(Flask, HookMixin, SignalMixin,
                                                `view_func.provide_automatic_options = False`
                                                before adding the rule.
 
-        :keyword tuple[str] methods: http methods that this rule should handle.
-                                     if not provided, defaults to `GET`.
+        :keyword str | tuple[str] methods: http methods that this rule should handle.
+                                           if not provided, defaults to `GET`.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
-                                                    to access this route's resource.
+        :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
+                                                                     for accessing this route.
 
         :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not a valid token.
+                                      if the requester has not been authenticated.
                                       defaults to True if not provided.
 
         :keyword bool fresh_token: specifies that this route could not be accessed
-                                   if the requester has not a valid fresh token.
-                                   fresh token means a token that has been created by
-                                   providing user credentials to server.
-                                   defaults to False if not provided.
+                                   if the requester has not a fresh authentication.
+                                   fresh authentication means an authentication that
+                                   has been done by providing user credentials to
+                                   server. defaults to False if not provided.
 
-        :keyword bool replace: specifies that this route must replace
-                               any existing route with the same url or raise
+        :keyword bool replace: specifies that this route must replace any existing
+                               route with the same url and http methods or raise
                                an error if not provided. defaults to False.
+
+        :keyword dict defaults: an optional dict with defaults for other rules with the
+                                same endpoint. this is a bit tricky but useful if you
+                                want to have unique urls.
+
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the
+                                rule only matches for the `default_subdomain` of the map. if
+                                the map is not bound to a subdomain this feature is disabled.
+
+        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for
+                                      this rule. if not specified the `Map` setting is used.
+
+        :keyword bool merge_slashes: override `Map.merge_slashes` for this rule.
+
+        :keyword bool build_only: set this to True and the rule will never match but will
+                                  create a url that can be build. this is useful if you have
+                                  resources on a subdomain or folder that are not handled by
+                                  the WSGI application (like static data)
+
+        :keyword str | callable redirect_to: if given this must be either a string
+                                             or callable. in case of a callable it's
+                                             called with the url adapter that
+                                             triggered the match and the values
+                                             of the url as keyword arguments and has
+                                             to return the target for the redirect,
+                                             otherwise it has to be a string with
+                                             placeholders in rule syntax.
+
+        :keyword bool alias: if enabled this rule serves as an alias for another rule with
+                             the same endpoint and arguments.
+
+        :keyword str host: if provided and the url map has host matching enabled this can be
+                           used to provide a match rule for the whole host. this also means
+                           that the subdomain feature is disabled.
+
+        :keyword bool websocket: if set to True, this rule is only matches for
+                                 websocket (`ws://`, `wss://`) requests. by default,
+                                 rules will only match for http requests.
+                                 defaults to False if not provided.
 
         :keyword int max_content_length: max content length that this route could handle,
                                          in bytes. if not provided, it will be set to
@@ -818,50 +888,140 @@ class Application(Flask, HookMixin, SignalMixin,
                             `result_schema` if provided.
 
         :raises DuplicateRouteURLError: duplicate route url error.
+        :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
+        :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
+        :raises InvalidViewFunctionTypeError: invalid view function type error.
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
         """
 
-        methods = options.get('methods', None)
-        if methods is not None and not isinstance(methods, LIST_TYPES):
-            options.update(methods=(methods,))
+        endpoint = self.generate_endpoint(view_func, **options)
+        options.update(endpoint=endpoint)
 
-        # setting endpoint to url rule instead of view function name,
-        # to be able to have the same function names on different url rules.
-        if endpoint is None:
-            endpoint = rule
+        methods = options.pop('methods', None)
+        if methods is not None:
+            methods = misc_utils.make_iterable(methods, tuple)
 
-        # checking whether is there any registered route with the same url.
-        old_rule = None
-        for rule_item in self.url_map.iter_rules(endpoint=None):
-            if rule_item.rule == rule:
-                old_rule = rule_item
-                break
+        # if the methods are not given and the view_func object knows its
+        # methods we can use that instead. if neither exists, we go with
+        # a tuple of only `GET` as default.
+        if methods is None:
+            methods = getattr(view_func, 'methods', None) or (HTTPMethodEnum.GET,)
 
-        replace = options.get('replace', False)
-        if old_rule is not None:
-            if replace is True:
-                self.url_map._rules.remove(old_rule)
-                if old_rule.endpoint in self.view_functions.keys():
-                    self.view_functions.pop(old_rule.endpoint)
-                if old_rule.endpoint in self.url_map._rules_by_endpoint.keys():
-                    self.url_map._rules_by_endpoint.pop(old_rule.endpoint)
+        methods = set(item.upper() for item in methods)
+        required_methods = set(getattr(view_func, 'required_methods', ()))
 
-                print_warning('Registered route for url [{url}] is '
-                              'going to be replaced by a new route.'
-                              .format(url=rule))
+        # starting with flask 0.8 the view_func object can disable and
+        # force-enable the automatic options handling.
+        if provide_automatic_options is None:
+            provide_automatic_options = getattr(
+                view_func, 'provide_automatic_options', None)
+
+        if provide_automatic_options is None:
+            if HTTPMethodEnum.OPTIONS not in methods:
+                provide_automatic_options = True
+                required_methods.add(HTTPMethodEnum.OPTIONS)
             else:
-                raise DuplicateRouteURLError('There is another registered route with the '
-                                             'same url [{url}], but "replace" option is not '
-                                             'set, so the new route could not be registered.'
-                                             .format(url=rule))
+                provide_automatic_options = False
+
+        # add the required methods now.
+        methods |= required_methods
 
         # we have to put `view_function=view_func` into options to be able to deliver it
         # to route initialization in the super method. that's because of flask design
-        # that does not forward all params to inner method calls. and this is the less
-        # ugly way in comparison to overriding the whole `add_url_rule` function.
+        # that does not forward all params to inner method calls.
         options.update(view_function=view_func)
 
-        super().add_url_rule(rule, endpoint, view_func,
-                             provide_automatic_options, **options)
+        route = self.url_rule_class(rule, methods=methods, **options)
+        route.provide_automatic_options = provide_automatic_options
+        self._add_url_to_route_map(route, **options)
+
+        old_func = self.view_functions.get(endpoint, None)
+        if old_func is not None and old_func != view_func:
+            old_name = function_utils.get_fully_qualified_name(old_func)
+            new_name = function_utils.get_fully_qualified_name(view_func)
+            raise OverwritingEndpointIsNotAllowedError('View function [{new_function}] '
+                                                       'is overwriting an existing endpoint '
+                                                       '[{endpoint}] with registered view '
+                                                       'function [{old_function}]. this could '
+                                                       'be the result of manually modified '
+                                                       'endpoints. pyrin will handle endpoint '
+                                                       'generation on its own. so it is '
+                                                       'recommended not to define or modify '
+                                                       'endpoints manually.'
+                                                       .format(new_function=new_name,
+                                                               endpoint=endpoint,
+                                                               old_function=old_name))
+
+        self.view_functions[endpoint] = view_func
+
+    def generate_endpoint(self, func, **options):
+        """
+        generates endpoint for given function.
+
+        pyrin will assume endpoint as function's fully qualified name.
+        this method could be overridden in subclasses to change the endpoint generation.
+
+        :param function func: function to generate endpoint for it.
+
+        :rtype: str
+        """
+
+        return function_utils.get_fully_qualified_name(func)
+
+    def _add_url_to_route_map(self, route, **options):
+        """
+        adds the given route into url to route map.
+
+        :param RouteBase route: route instance to add into url to route map.
+
+        :keyword bool replace: specifies that this route must replace
+                               any existing route with the same url and http
+                               methods or raise an error if not provided.
+                               defaults to False.
+
+        :raises DuplicateRouteURLError: duplicate route url error.
+        """
+
+        replace = options.get('replace', False)
+        existing_routes = self._url_to_route_map.get(route.rule, None)
+        if existing_routes is None:
+            existing_routes = []
+
+        duplicate_methods = DTO()
+        for item in existing_routes:
+            duplicated = item.get_duplicate_methods(route.methods)
+            if len(duplicated) > 0:
+                duplicated_for_show = list(duplicated)
+                old_func = function_utils.get_fully_qualified_name(item.view_function)
+                new_func = function_utils.get_fully_qualified_name(route.view_function)
+                if replace is True:
+                    duplicate_methods[tuple(duplicated)] = item
+                    print_warning('Registered route with url [{url}] for http methods '
+                                  '{methods} on view function [{old_func}] is going to be '
+                                  'replaced by a new route on view function [{new_func}].'
+                                  .format(url=route.rule, methods=duplicated_for_show,
+                                          old_func=old_func, new_func=new_func))
+                else:
+                    raise DuplicateRouteURLError('There is another registered route with the '
+                                                 'same url [{url}] and http methods {methods} '
+                                                 'on view function [{old_func}], but "replace" '
+                                                 'option is not set, so the new route on view '
+                                                 'function [{new_func}] could not be registered.'
+                                                 .format(url=route.rule,
+                                                         methods=duplicated_for_show,
+                                                         old_func=old_func, new_func=new_func))
+
+        if len(duplicate_methods) > 0:
+            for methods, duplicate_route in duplicate_methods.items():
+                duplicate_route.remove_methods(methods)
+                if not duplicate_route.is_operational:
+                    self.url_map.remove(duplicate_route)
+                    existing_routes.remove(duplicate_route)
+                    self.view_functions.pop(duplicate_route.endpoint, None)
+
+        existing_routes.append(route)
+        self._url_to_route_map[route.rule] = existing_routes
+        self.url_map.add(route)
 
     @setupmethod
     def register_route_factory(self, factory):
@@ -876,12 +1036,14 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if not callable(factory):
             raise InvalidRouteFactoryTypeError('Input parameter [{factory}] is not callable.'
-                                               .format(factory=str(factory)))
+                                               .format(factory=factory))
 
+        old_factory = misc_utils.try_get_fully_qualified_name(self.url_rule_class)
+        new_factory = misc_utils.try_get_fully_qualified_name(factory)
         print_warning('Registered route factory [{old_factory}] is '
                       'going to be replaced by a new route factory [{new_factory}].'
-                      .format(old_factory=str(self.url_rule_class),
-                              new_factory=str(factory)))
+                      .format(old_factory=old_factory,
+                              new_factory=new_factory))
 
         self.url_rule_class = factory
 

@@ -63,7 +63,7 @@ def error_handler(code_or_exception):
         """
         decorates the given function and registers it as an error handler.
 
-        :param callable func: function to register it as an error handler.
+        :param function func: function to register it as an error handler.
 
         :rtype: callable
         """
@@ -86,7 +86,7 @@ def before_request_handler():
         """
         decorates the given function and registers it into application before request handlers.
 
-        :param callable func: function to register it into application before request handlers.
+        :param function func: function to register it into application before request handlers.
 
         :rtype: callable
         """
@@ -109,7 +109,7 @@ def after_request_handler():
         """
         decorates the given function and registers it into application after request handlers.
 
-        :param callable func: function to register it into application after request handlers.
+        :param function func: function to register it into application after request handlers.
 
         :rtype: callable
         """
@@ -132,7 +132,7 @@ def teardown_request_handler():
         """
         decorates the given function and registers it into application teardown request handlers.
 
-        :param callable func: function to register it into application teardown request handlers.
+        :param function func: function to register it into application teardown request handlers.
 
         :rtype: callable
         """
@@ -146,25 +146,25 @@ def teardown_request_handler():
 
 def route_factory():
     """
-    decorator to register a function as application route factory.
+    decorator to register a function or class as application route factory.
 
     :raises InvalidRouteFactoryTypeError: invalid route factory type error.
 
     :rtype: callable
     """
 
-    def decorator(func):
+    def decorator(factory):
         """
-        decorates the given function and registers it as application route factory.
+        decorates the given function or class and registers it as application route factory.
 
-        :param callable func: function to register it as application route factory.
+        :param callable factory: function or class to register it as application route factory.
 
         :rtype: callable
         """
 
-        application_services.register_route_factory(func)
+        application_services.register_route_factory(factory)
 
-        return func
+        return factory
 
     return decorator
 

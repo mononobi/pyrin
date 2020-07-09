@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-protected route handler module.
+router handlers protected module.
 """
 
 import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
+import pyrin.utils.misc as misc_utils
 
 from pyrin.api.router.handlers.base import RouteBase
 from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError, PermissionTypeError
-from pyrin.core.globals import _, LIST_TYPES
+from pyrin.core.globals import _
 from pyrin.security.permission.base import PermissionBase
 
 
@@ -16,51 +17,53 @@ class ProtectedRoute(RouteBase):
     """
     protected route class.
 
-    this class should be used to manage application protected api routes that need valid token.
+    this class should be used to manage application protected api
+    routes that require authenticated access.
     """
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of ProtectedRoute.
+        initializes an instance of ProtectedRoute.
 
         :param str rule: unique url rule to register this route for.
-                         routes with duplicated urls will be overwritten
-                         if `replace=True` option is provided, otherwise an error
-                         will be raised.
+                         routes with duplicated urls and http methods will be
+                         overwritten if `replace=True` option is provided.
+                         otherwise an error will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
-                                     if not provided, defaults to `GET`, `HEAD`
-                                     and `OPTIONS`.
+        :keyword str | tuple[str] methods: http methods that this route could handle.
+                                           if not provided, defaults to `GET`, `HEAD`
+                                           and `OPTIONS`.
 
-        :keyword callable view_function: a function to be called on accessing this route.
+        :keyword function view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. pyrin
-                               itself assumes the rule as endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule.
 
-        :keyword dict defaults: an optional dict with defaults for other rules with the same
-                                endpoint. this is a bit tricky but useful if you want
-                                to have unique urls.
+        :keyword dict defaults: an optional dict with defaults for other rules with the
+                                same endpoint. this is a bit tricky but useful if you
+                                want to have unique urls.
 
-        :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
-                                only matches for the `default_subdomain` of the map. if the map is
-                                not bound to a subdomain this feature is disabled.
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the
+                                rule only matches for the `default_subdomain` of the map. if
+                                the map is not bound to a subdomain this feature is disabled.
 
-        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only
-                                      for this rule. if not specified the `Map` setting is used.
+        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for
+                                      this rule. if not specified the `Map` setting is used.
+
+        :keyword bool merge_slashes: override `Map.merge_slashes` for this rule.
 
         :keyword bool build_only: set this to True and the rule will never match but will
-                                  create a url that can be build. this is useful if you
-                                  have resources on a subdomain or folder that are not
-                                  handled by the WSGI application (like static data)
+                                  create a url that can be build. this is useful if you have
+                                  resources on a subdomain or folder that are not handled by
+                                  the WSGI application (like static data)
 
-        :keyword str | callable redirect_to: if given this must be either a string or
-                                             callable. in case of a callable it's
-                                             called with the url adapter that triggered
-                                             the match and the values of the url as
-                                             keyword arguments and has to return the
-                                             target for the redirect, otherwise it
-                                             has to be a string with placeholders
-                                             in rule syntax.
+        :keyword str | callable redirect_to: if given this must be either a string
+                                             or callable. in case of a callable it's
+                                             called with the url adapter that
+                                             triggered the match and the values
+                                             of the url as keyword arguments and has
+                                             to return the target for the redirect,
+                                             otherwise it has to be a string with
+                                             placeholders in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
                              the same endpoint and arguments.
@@ -68,9 +71,11 @@ class ProtectedRoute(RouteBase):
         :keyword str host: if provided and the url map has host matching enabled this can be
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
-                               
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
-                                                    to access this route's resource.
+
+        :keyword bool websocket: if set to True, this rule is only matches for
+                                 websocket (`ws://`, `wss://`) requests. by default,
+                                 rules will only match for http requests.
+                                 defaults to False if not provided.
 
         :keyword int max_content_length: max content length that this route could handle,
                                          in bytes. if not provided, it will be set to
@@ -110,6 +115,9 @@ class ProtectedRoute(RouteBase):
                             this value will override the corresponding value of
                             `result_schema` if provided.
 
+        :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
+                                                                     to access this route.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -119,10 +127,7 @@ class ProtectedRoute(RouteBase):
         super().__init__(rule, **options)
 
         self._permissions = options.get('permissions', None)
-        if self._permissions is None:
-            self._permissions = ()
-        elif not isinstance(self._permissions, LIST_TYPES):
-            self._permissions = (self._permissions,)
+        self._permissions = misc_utils.make_iterable(self._permissions, tuple)
 
         if not all(isinstance(item, PermissionBase) for item in self._permissions):
             raise PermissionTypeError('All route permissions must be an '
@@ -175,52 +180,53 @@ class FreshProtectedRoute(ProtectedRoute):
     fresh protected route class.
 
     this class should be used to manage application protected api routes that
-    need valid fresh token. fresh token means a token that has been created
-    by providing user credentials to server.
+    require fresh authenticated access. fresh authentication means an authentication
+    that has been done by providing user credentials to server.
     """
 
     def __init__(self, rule, **options):
         """
-        initializes a new instance of FreshProtectedRoute.
+        initializes an instance of FreshProtectedRoute.
 
         :param str rule: unique url rule to register this route for.
-                         routes with duplicated urls will be overwritten
-                         if `replace=True` option is provided, otherwise an error
-                         will be raised.
+                         routes with duplicated urls and http methods will be
+                         overwritten if `replace=True` option is provided.
+                         otherwise an error will be raised.
 
-        :keyword tuple[str] methods: http methods that this route could handle.
-                                     if not provided, defaults to `GET`, `HEAD`
-                                     and `OPTIONS`.
+        :keyword str | tuple[str] methods: http methods that this route could handle.
+                                           if not provided, defaults to `GET`, `HEAD`
+                                           and `OPTIONS`.
 
-        :keyword callable view_function: a function to be called on accessing this route.
+        :keyword function view_function: a function to be called on accessing this route.
 
-        :keyword str endpoint: the endpoint for the registered url rule. pyrin
-                               itself assumes the rule as endpoint if not provided.
+        :keyword str endpoint: the endpoint for the registered url rule.
 
-        :keyword dict defaults: an optional dict with defaults for other rules with the same
-                                endpoint. this is a bit tricky but useful if you want
-                                to have unique urls.
+        :keyword dict defaults: an optional dict with defaults for other rules with the
+                                same endpoint. this is a bit tricky but useful if you
+                                want to have unique urls.
 
-        :keyword str subdomain: the subdomain rule string for this rule. If not specified the rule
-                                only matches for the `default_subdomain` of the map. if the map is
-                                not bound to a subdomain this feature is disabled.
+        :keyword str subdomain: the subdomain rule string for this rule. If not specified the
+                                rule only matches for the `default_subdomain` of the map. if
+                                the map is not bound to a subdomain this feature is disabled.
 
-        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only
-                                      for this rule. if not specified the `Map` setting is used.
+        :keyword bool strict_slashes: override the `Map` setting for `strict_slashes` only for
+                                      this rule. if not specified the `Map` setting is used.
+
+        :keyword bool merge_slashes: override `Map.merge_slashes` for this rule.
 
         :keyword bool build_only: set this to True and the rule will never match but will
-                                  create a url that can be build. this is useful if you
-                                  have resources on a subdomain or folder that are not
-                                  handled by the WSGI application (like static data)
+                                  create a url that can be build. this is useful if you have
+                                  resources on a subdomain or folder that are not handled by
+                                  the WSGI application (like static data)
 
-        :keyword str | callable redirect_to: if given this must be either a string or
-                                             callable. in case of a callable it's
-                                             called with the url adapter that triggered
-                                             the match and the values of the url as
-                                             keyword arguments and has to return the
-                                             target for the redirect, otherwise it
-                                             has to be a string with placeholders
-                                             in rule syntax.
+        :keyword str | callable redirect_to: if given this must be either a string
+                                             or callable. in case of a callable it's
+                                             called with the url adapter that
+                                             triggered the match and the values
+                                             of the url as keyword arguments and has
+                                             to return the target for the redirect,
+                                             otherwise it has to be a string with
+                                             placeholders in rule syntax.
 
         :keyword bool alias: if enabled this rule serves as an alias for another rule with
                              the same endpoint and arguments.
@@ -229,8 +235,10 @@ class FreshProtectedRoute(ProtectedRoute):
                            used to provide a match rule for the whole host. this also means
                            that the subdomain feature is disabled.
 
-        :keyword tuple[PermissionBase] permissions: tuple of all required permissions
-                                                    to access this route's resource.
+        :keyword bool websocket: if set to True, this rule is only matches for
+                                 websocket (`ws://`, `wss://`) requests. by default,
+                                 rules will only match for http requests.
+                                 defaults to False if not provided.
 
         :keyword int max_content_length: max content length that this route could handle,
                                          in bytes. if not provided, it will be set to
@@ -270,6 +278,9 @@ class FreshProtectedRoute(ProtectedRoute):
                             this value will override the corresponding value of
                             `result_schema` if provided.
 
+        :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
+                                                                     to access this route.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -282,7 +293,7 @@ class FreshProtectedRoute(ProtectedRoute):
         """
         authorizes the route permissions for current user.
 
-        also checks that the user has a fresh token.
+        also checks that the user has a fresh authentication.
 
         :raises FreshTokenRequiredError: fresh token required error.
         :raises UserNotAuthenticatedError: user not authenticated error.
