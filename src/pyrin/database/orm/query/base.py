@@ -9,7 +9,9 @@ from sqlalchemy import inspection, log, func
 from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from pyrin.core.globals import LIST_TYPES, _
+import pyrin.utils.misc as misc_utils
+
+from pyrin.core.globals import _
 from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
@@ -118,11 +120,8 @@ class CoreQuery(Query):
         if scope is None or entities is None:
             return
 
-        if not isinstance(scope, LIST_TYPES):
-            scope = (scope,)
-
-        if not isinstance(entities, LIST_TYPES):
-            entities = (entities,)
+        scope = misc_utils.make_iterable(scope, tuple)
+        entities = misc_utils.make_iterable(entities, tuple)
 
         if len(scope) <= 0 or len(entities) <= 0:
             return

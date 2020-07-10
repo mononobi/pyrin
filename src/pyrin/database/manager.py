@@ -11,13 +11,13 @@ import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 import pyrin.processor.response.services as response_services
 import pyrin.utils.dictionary as dict_utils
+import pyrin.utils.misc as misc_utils
 
-from pyrin.core.globals import LIST_TYPES
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import BaseEntity
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.enumerations import ClientErrorResponseCodeEnum, ServerErrorResponseCodeEnum
+from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.database.interface import AbstractSessionFactoryBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
@@ -221,8 +221,7 @@ class DatabaseManager(Manager, HookMixin):
 
         if binds_names is None:
             return engines
-        if not isinstance(binds_names, LIST_TYPES):
-            binds_names = [binds_names]
+        binds_names = misc_utils.make_iterable(binds_names, list)
         if len(binds_names) <= 0:
             return engines
 
@@ -420,10 +419,7 @@ class DatabaseManager(Manager, HookMixin):
         """
 
         binds = config_services.get_active('database', 'bind_names')
-        if binds is None:
-            binds = []
-        if not isinstance(binds, LIST_TYPES):
-            binds = [binds]
+        binds = misc_utils.make_iterable(binds, list)
 
         for entity, bind_name in self._binds.items():
             if bind_name not in binds:

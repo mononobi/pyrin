@@ -427,7 +427,7 @@ class InValidator(ValidatorBase):
         valid_values = options.get('valid_values', None)
         if valid_values is None or not \
                 isinstance(valid_values, LIST_TYPES) or len(valid_values) <= 0:
-            raise ValidValuesMustBeProvidedError('Valid values must be provided.')
+            raise ValidValuesMustBeProvidedError('Valid values must be provided as iterable.')
 
         self._valid_values = valid_values
         self._validate_exception_type(self.not_in_value_error)
@@ -519,7 +519,8 @@ class NotInValidator(ValidatorBase):
         invalid_values = options.get('invalid_values', None)
         if invalid_values is None or not \
                 isinstance(invalid_values, LIST_TYPES) or len(invalid_values) <= 0:
-            raise InvalidValuesMustBeProvidedError('Invalid values must be provided.')
+            raise InvalidValuesMustBeProvidedError('Invalid values must be '
+                                                   'provided as iterable.')
 
         self._invalid_values = invalid_values
         self._validate_exception_type(self.in_value_error)

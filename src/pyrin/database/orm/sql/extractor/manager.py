@@ -9,8 +9,9 @@ from sqlalchemy.sql.elements import TextClause
 from sqlparse.tokens import DML, Keyword
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison, TokenList
 
+import pyrin.utils.misc as misc_utils
+
 from pyrin.core.structs import Manager
-from pyrin.core.globals import LIST_TYPES
 
 
 class ORMSQLExtractorManager(Manager):
@@ -292,8 +293,7 @@ class ORMSQLExtractorManager(Manager):
 
         result = []
         if token_stream is not None:
-            if not isinstance(token_stream, LIST_TYPES):
-                token_stream = [token_stream]
+            token_stream = misc_utils.make_iterable(token_stream, list)
             for item in token_stream:
                 if item is not None:
                     if isinstance(item, IdentifierList):

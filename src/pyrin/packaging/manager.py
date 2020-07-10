@@ -14,8 +14,8 @@ import pyrin.configuration.services as config_services
 import pyrin.utils.configuration as config_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.environment as env_utils
+import pyrin.utils.misc as misc_utils
 
-from pyrin.core.globals import LIST_TYPES
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.structs import DTO, Manager
@@ -442,11 +442,8 @@ class PackagingManager(Manager, HookMixin):
                                         it loops in all available directories.
         """
 
-        if include is not None and not isinstance(include, LIST_TYPES):
-            include = [include]
-
-        if exclude is not None and not isinstance(exclude, LIST_TYPES):
-            exclude = [exclude]
+        include = misc_utils.make_iterable(include, list)
+        exclude = misc_utils.make_iterable(exclude, list)
 
         for root, directories, file_names in os.walk(root_path, followlinks=True):
             temp_dirs = list(directories)
