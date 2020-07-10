@@ -58,7 +58,7 @@ class ApplicationHookBase(Hook):
         :param str old_status: old application status.
         :param str new_status: new application status.
 
-        :note status:
+        :enum status:
             INITIALIZING = 'Initializing'
             LOADING = 'Loading'
             READY = 'Ready'
