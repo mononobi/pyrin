@@ -87,7 +87,7 @@ def atomic(func):
             raise ex
         finally:
             factory = database_services.get_current_session_factory()
-            factory.remove(True)
+            factory.remove(atomic=True)
 
     return update_wrapper(decorator, func)
 
