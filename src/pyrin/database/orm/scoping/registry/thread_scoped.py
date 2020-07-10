@@ -20,7 +20,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         """
         initializes and instance of ThreadScopedRegistry.
 
-        :param callable createfunc: a creation function that will generate a new
+        :param function createfunc: a creation function that will generate a new
                                     value for the current scope, if none is present.
         """
 

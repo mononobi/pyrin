@@ -35,7 +35,7 @@ class LocaleManager(Manager):
         """
         sets the given function as locale selector.
 
-        :param callable func: function to be set as locale selector.
+        :param function func: function to be set as locale selector.
 
         :raises InvalidLocaleSelectorTypeError: invalid locale selector type error.
 
@@ -58,7 +58,7 @@ class LocaleManager(Manager):
         """
         sets the given function as timezone selector.
 
-        :param callable func: function to be set as timezone selector.
+        :param function func: function to be set as timezone selector.
 
         :raises InvalidTimezoneSelectorTypeError: invalid timezone selector type error.
 

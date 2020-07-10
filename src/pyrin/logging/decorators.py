@@ -15,7 +15,7 @@ def audit(func):
     """
     decorator to log execution time of a function.
 
-    :param callable func: function.
+    :param function func: function.
 
     :returns: function result.
     """

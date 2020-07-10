@@ -20,7 +20,7 @@ class RequestScopedAtomicContainer(AbstractAtomicContainerBase):
         """
         initializes an instance of RequestScopedAtomicContainer.
 
-        :param callable scopefunc: a function that returns a hashable
+        :param function scopefunc: a function that returns a hashable
                                    token representing the current scope.
                                    such as, current thread identifier.
         """

@@ -24,10 +24,10 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
         """
         initializes and instance of RequestScopedRegistry.
 
-        :param callable createfunc: a creation function that will generate a new
+        :param function createfunc: a creation function that will generate a new
                                     value for the current scope, if none is present.
 
-        :param callable scopefunc: a function that returns a hashable
+        :param function scopefunc: a function that returns a hashable
                                    token representing the current scope.
                                    such as, current thread identifier.
         """

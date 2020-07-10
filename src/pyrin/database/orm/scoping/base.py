@@ -29,7 +29,7 @@ class CoreScopedSession(scoped_session):
                                         instances. this is usually, but not
                                         necessarily, an instance of `sessionmaker`.
 
-        :param callable scopefunc: optional function which defines the current scope.
+        :param function scopefunc: optional function which defines the current scope.
                                    if not passed, the `scoped_session` class object
                                    assumes `thread-local` scope, and will use a python
                                    `threading.local()` in order to maintain the current
