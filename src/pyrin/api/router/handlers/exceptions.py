@@ -87,3 +87,10 @@ class RouteIsNotBoundedToMapError(RouterHandlerException):
     route is not bounded to map error.
     """
     pass
+
+
+class InvalidResponseStatusCodeError(RouterHandlerException):
+    """
+    invalid response status code error.
+    """
+    pass

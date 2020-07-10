@@ -6,6 +6,7 @@ database manager module.
 from sqlalchemy import engine_from_config
 
 import pyrin.configuration.services as config_services
+import pyrin.processor.response.status.services as status_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
 import pyrin.processor.response.services as response_services
@@ -302,7 +303,8 @@ class DatabaseManager(Manager, HookMixin):
         try:
             session_factory = self.get_current_session_factory()
             try:
-                if response.status_code >= ClientErrorResponseCodeEnum.BAD_REQUEST:
+                if status_services.is_error(response.status_code,
+                                            strict_status=False) is True:
                     session_factory.rollback_all()
                     return response
 

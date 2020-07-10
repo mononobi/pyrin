@@ -7,16 +7,17 @@ from copy import deepcopy
 
 from werkzeug.routing import Rule
 
+import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
 
+from pyrin.core.globals import _
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
-from pyrin.core.globals import _
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
-    RouteIsNotBoundedToMapError, RouteIsNotBoundedError
+    RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError
 
 
 class RouteBase(Rule):
@@ -93,6 +94,25 @@ class RouteBase(Rule):
                                          to `max_content_length` api config key, otherwise
                                          it will cause an error.
 
+        :keyword int status_code: status code to be returned on successful responses.
+                                  defaults to corresponding status code of request's
+                                  http method if not provided.
+
+        :note status_code: it could be a value from `InformationResponseCodeEnum`
+                           or `SuccessfulResponseCodeEnum` or `RedirectionResponseCodeEnum`.
+
+        :keyword bool strict_status: specifies that it should only consider
+                                     the status code as processed if it is from
+                                     `InformationResponseCodeEnum` or
+                                     `SuccessfulResponseCodeEnum` or
+                                     `RedirectionResponseCodeEnum` values. otherwise
+                                     all codes from `INFORMATION_CODE_MIN`
+                                     to `INFORMATION_CODE_MAX` or from
+                                     `SUCCESS_CODE_MIN` to `SUCCESS_CODE_MAX`
+                                     or from `REDIRECTION_CODE_MIN` to
+                                     `REDIRECTION_CODE_MAX` will be considered
+                                     as processed. defaults to True if not provided.
+
         :keyword ResultSchema result_schema: result schema to be used to filter results.
 
         :keyword bool exposed_only: if set to False, it returns all
@@ -127,6 +147,7 @@ class RouteBase(Rule):
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
+        :raises InvalidResponseStatusCodeError: invalid response status code error.
         """
 
         methods = options.get('methods', None)
@@ -162,19 +183,36 @@ class RouteBase(Rule):
                                                      'higher than global limit which is '
                                                      '[{global_limit}].'
                                                      .format(restricted=restricted_length,
-                                                             route=rule,
+                                                             route=self.rule,
                                                              global_limit=global_limit))
 
         self._max_content_length = restricted_length
 
+        full_name = misc_utils.try_get_fully_qualified_name(self._view_function)
         if not callable(self._view_function):
-            full_name = misc_utils.try_get_fully_qualified_name(self._view_function)
             raise InvalidViewFunctionTypeError('The provided view function [{function}] '
                                                'for route with url [{url}] is not callable.'
                                                .format(function=full_name,
                                                        url=self.rule))
 
         self._result_schema = self._extract_schema(**options)
+
+        status_code = options.pop('status_code', None)
+        if status_code is not None and \
+                status_services.is_processed(status_code, **options) is not True:
+            raise InvalidResponseStatusCodeError('The provided status code [{status}] for '
+                                                 'route [{route}] on view function [{function}] '
+                                                 'must be from information or success or '
+                                                 'redirection codes. and if you want to return '
+                                                 'a status code for errors, you should raise '
+                                                 'an exception with relevant code as status '
+                                                 'code inside your method. pyrin will handle '
+                                                 'exceptions and converts them to correct '
+                                                 'responses.'
+                                                 .format(status=status_code,
+                                                         route=self.rule,
+                                                         function=full_name))
+        self._status_code = status_code
 
     def __eq__(self, other):
         """
@@ -429,3 +467,15 @@ class RouteBase(Rule):
 
         operational_methods = set(self.methods).difference(set(self.NON_OPERATIONAL_METHODS))
         return len(operational_methods) > 0
+
+    @property
+    def status_code(self):
+        """
+        gets this route's success response status code.
+
+        it could be None if not provided.
+
+        :rtype: int
+        """
+
+        return self._status_code

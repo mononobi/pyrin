@@ -130,7 +130,7 @@ class CoreScopedSession(scoped_session):
                             defaults to False if not provided.
         """
 
-        self._remove_atomic(atomic)
+        self._remove_atomic(atomic=atomic)
         if atomic is False:
             self._remove()
 
@@ -169,10 +169,10 @@ class CoreScopedSession(scoped_session):
         if atomic is False:
             self._remove_all_atomic()
         else:
-            atomic_session = self.registry.get(True)
+            atomic_session = self.registry.get(atomic=True)
             if atomic_session is not None:
                 atomic_session.close()
-                self.registry.clear(True)
+                self.registry.clear(atomic=True)
 
     def _remove_all_atomic(self):
         """
@@ -200,7 +200,7 @@ class CoreScopedSession(scoped_session):
                             scope. defaults to False if not provided.
         """
 
-        self._commit_atomic(atomic)
+        self._commit_atomic(atomic=atomic)
         if atomic is False:
             self._commit()
 
@@ -228,7 +228,7 @@ class CoreScopedSession(scoped_session):
         if atomic is False:
             self._commit_all_atomic()
         else:
-            atomic_session = self.registry.get(True)
+            atomic_session = self.registry.get(atomic=True)
             if atomic_session is not None:
                 atomic_session.commit()
 
@@ -250,7 +250,7 @@ class CoreScopedSession(scoped_session):
                             defaults to False if not provided.
         """
 
-        self._rollback_atomic(atomic)
+        self._rollback_atomic(atomic=atomic)
         if atomic is False:
             self._rollback()
 
@@ -278,7 +278,7 @@ class CoreScopedSession(scoped_session):
         if atomic is False:
             self._rollback_all_atomic()
         else:
-            atomic_session = self.registry.get(True)
+            atomic_session = self.registry.get(atomic=True)
             if atomic_session is not None:
                 atomic_session.rollback()
 

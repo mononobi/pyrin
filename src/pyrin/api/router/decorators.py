@@ -41,6 +41,25 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
                                      to `max_content_length` api config key, otherwise
                                      it will cause an error.
 
+    :keyword int status_code: status code to be returned on successful responses.
+                              defaults to corresponding status code of request's
+                              http method if not provided.
+
+    :note status_code: it could be a value from `InformationResponseCodeEnum`
+                       or `SuccessfulResponseCodeEnum` or `RedirectionResponseCodeEnum`.
+
+    :keyword bool strict_status: specifies that it should only consider
+                                 the status code as processed if it is from
+                                 `InformationResponseCodeEnum` or
+                                 `SuccessfulResponseCodeEnum` or
+                                 `RedirectionResponseCodeEnum` values. otherwise
+                                 all codes from `INFORMATION_CODE_MIN`
+                                 to `INFORMATION_CODE_MAX` or from
+                                 `SUCCESS_CODE_MIN` to `SUCCESS_CODE_MAX`
+                                 or from `REDIRECTION_CODE_MIN` to
+                                 `REDIRECTION_CODE_MAX` will be considered
+                                 as processed. defaults to True if not provided.
+
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
     :keyword bool exposed_only: if set to False, it returns all
@@ -122,6 +141,7 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
     :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
     :raises InvalidViewFunctionTypeError: invalid view function type error.
     :raises InvalidResultSchemaTypeError: invalid result schema type error.
+    :raises InvalidResponseStatusCodeError: invalid response status code error.
 
     :rtype: function
     """
