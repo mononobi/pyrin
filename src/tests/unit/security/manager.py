@@ -3,7 +3,8 @@
 security manager module.
 """
 
-from pyrin.core.globals import LIST_TYPES
+import pyrin.utils.misc as misc_utils
+
 from pyrin.security.manager import SecurityManager as BaseSecurityManager
 
 from tests.unit.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
@@ -26,9 +27,7 @@ class SecurityManager(BaseSecurityManager):
         """
 
         required_permissions = permissions
-        if not isinstance(permissions, LIST_TYPES):
-            required_permissions = [permissions]
-
+        required_permissions = misc_utils.make_iterable(required_permissions, list)
         needed_permissions = set(required_permissions)
         user_permissions = {PERMISSION_TEST_ONE,
                             PERMISSION_TEST_TWO,
