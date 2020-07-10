@@ -23,7 +23,7 @@
 * if type of a :rtype needs more clarification, we could put :returns: type
 * on top of :rtype and show detailed type info. example 6.
 
-* enumeration values of an argument must be declared using :note below
+* enumeration values of an argument must be declared using :enum below
 * the argument definition. example 6.
 
 * if a :param or :keyword or :rtype has more than one type, they should
@@ -74,7 +74,7 @@ def function(name, **options):
     :keyword list[Car] cars: cars list.
 
     :keyword int customer_type: customer type.
-    :note customer_type:
+    :enum customer_type:
         REAL = 1
         LEGAL = 2
 
@@ -167,7 +167,7 @@ def api(url, methods, login_required, permissions, **options):
 
     :keyword int customer_type: customer type which
                                 can use this service.
-    :note customer_type:
+    :enum customer_type:
         REAL = 1
         LEGAL = 2
 
