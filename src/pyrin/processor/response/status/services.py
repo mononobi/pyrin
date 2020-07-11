@@ -45,7 +45,7 @@ def is_client_error(status_code, **options):
     """
     gets a value indicating that given status code is a client error.
 
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `ClientErrorResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -68,7 +68,7 @@ def is_server_error(status_code, **options):
     """
     gets a value indicating that given status code is a server error.
 
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `ServerErrorResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -91,7 +91,7 @@ def is_error(status_code, **options):
     """
     gets a value indicating that given status code is a client or server error.
 
-    if returns True if the provided status_code is from
+    if returns True if the provided status code is from
     `ClientErrorResponseCodeEnum` or `ServerErrorResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -117,7 +117,7 @@ def is_information(status_code, **options):
     """
     gets a value indicating that given status code is a information code.
 
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `InformationResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -140,7 +140,7 @@ def is_success(status_code, **options):
     """
     gets a value indicating that given status code is a success code.
 
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `SuccessfulResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -163,7 +163,7 @@ def is_redirection(status_code, **options):
     """
     gets a value indicating that given status code is a redirection code.
 
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `RedirectionResponseCodeEnum` values.
 
     :param int status_code: status code to be checked.
@@ -187,7 +187,7 @@ def is_processed(status_code, **options):
     gets a value indicating that given status code is a processed code.
 
     processed codes are information or success or redirection code.
-    if returns True if the provided status_code is
+    if returns True if the provided status code is
     from `InformationResponseCodeEnum` or `SuccessfulResponseCodeEnum`
     or `RedirectionResponseCodeEnum` values.
 
