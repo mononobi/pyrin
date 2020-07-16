@@ -118,19 +118,27 @@ def get_package_path(module_name):
     return parts[0]
 
 
-def create_directory(target):
+def create_directory(target, ignore_existed=False):
     """
     creates a directory with given absolute target path.
 
+    it will create all not available intermediate directories as well.
+
     :param str target: absolute path of directory to be created.
+
+    :param bool ignore_existed: specifies that if the directory is
+                                already existed, ignore it. otherwise
+                                raise an error.
 
     :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
     :raises PathAlreadyExistedError: path already existed error.
     """
 
-    assert_not_exists(target)
-    os.mkdir(target)
+    if ignore_existed is not True:
+        assert_not_exists(target)
+
+    os.makedirs(target, exist_ok=ignore_existed)
 
 
 def copy_file(source, target):
