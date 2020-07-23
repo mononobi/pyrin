@@ -430,6 +430,8 @@ class RouteBase(Rule):
         body, status_code, headers = response_services.unpack_response(response)
         if status_code is None and self.status_code is not None:
             status_code = self.status_code
+        elif status_code is None and self.status_code is None:
+            status_code = status_services.get_status_code()
 
         return response_services.pack_response(body, status_code, headers)
 
