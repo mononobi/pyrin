@@ -66,3 +66,40 @@ def make_exception_response(exception, **options):
 
     return get_component(ResponsePackage.COMPONENT_NAME).make_exception_response(exception,
                                                                                  **options)
+
+
+def unpack_response(response, **options):
+    """
+    unpacks the response object into a tuple of three parts.
+
+    in the form of `(body, status_code, headers)`. if any of these
+    parts are not present in provided response, it returns None for
+    that specific part.
+
+    :param tuple | object response: response object to be unpacked.
+
+    :returns: tuple[object body, int status_code, dict headers]
+    :rtype: tuple[object, int, dict]
+    """
+
+    return get_component(ResponsePackage.COMPONENT_NAME).unpack_response(response,
+                                                                         **options)
+
+
+def pack_response(body, status_code, headers, **options):
+    """
+    packs the response using given values.
+
+    it returns a tuple if status code or headers are
+    not None, otherwise it just returns the body.
+
+    :param object | CoreResponse body: body of response.
+    :param int status_code: status code of response.
+    :param dict headers: dict of response headers.
+
+    :returns: tuple[object body, int status_code, dict headers] | object
+    :rtype: tuple[object, int, dict] | object
+    """
+
+    return get_component(ResponsePackage.COMPONENT_NAME).pack_response(body, status_code,
+                                                                       headers, **options)

@@ -3,9 +3,11 @@
 response manager module.
 """
 
+from werkzeug.datastructures import Headers
 from flask import make_response as flask_response
 
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
+from pyrin.core.globals import ROW_RESULT
 from pyrin.settings.static import DEFAULT_STATUS_CODE
 from pyrin.core.structs import Manager
 
@@ -115,3 +117,61 @@ class ResponseManager(Manager):
             options.update(code=code)
 
         return self.make_error_response(message, **options)
+
+    def unpack_response(self, response, **options):
+        """
+        unpacks the response object into a tuple of three parts.
+
+        in the form of `(body, status_code, headers)`. if any of these
+        parts are not present in provided response, it returns None for
+        that specific part.
+
+        :param tuple | object response: response object to be unpacked.
+
+        :returns: tuple[object body, int status_code, dict headers]
+        :rtype: tuple[object, int, dict]
+        """
+
+        body = None
+        status_code = None
+        headers = None
+        if isinstance(response, tuple) and \
+                not isinstance(response, ROW_RESULT) and len(response) in (2, 3):
+            length = len(response)
+            if length == 3:
+                body, status_code, headers = response
+            else:
+                if isinstance(response[1], (Headers, dict, tuple, list)):
+                    body, headers = response
+                else:
+                    body, status_code = response
+        else:
+            body = response
+
+        return body, status_code, headers
+
+    def pack_response(self, body, status_code, headers, **options):
+        """
+        packs the response using given values.
+
+        it returns a tuple if status code or headers are
+        not None, otherwise it just returns the body.
+
+        :param object | CoreResponse body: body of response.
+        :param int status_code: status code of response.
+        :param dict headers: dict of response headers.
+
+        :returns: tuple[object body, int status_code, dict headers] | object
+        :rtype: tuple[object, int, dict] | object
+        """
+
+        if status_code is not None and headers is not None:
+            return body, status_code, headers
+
+        if status_code is not None:
+            return body, status_code
+
+        if headers is not None:
+            return body, headers
+
+        return body

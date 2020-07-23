@@ -20,6 +20,7 @@ import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.processor.mimetype.services as mimetype_services
+import pyrin.processor.response.services as response_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.function as function_utils
@@ -34,7 +35,6 @@ from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.globals import ROW_RESULT
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
@@ -103,6 +103,16 @@ class Application(Flask, HookMixin, SignalMixin,
     # decorator to register itself, application will register it instead.
     packaging_component_class = PackagingComponent
 
+    # a function to be used as default response converter when
+    # the mimetype of response could not be detected from its body or
+    # the founded mimetype could not be handled by pyrin itself.
+    # this function should accept a single parameter as response body
+    # and extra optional keyword arguments. the founded mimetype will be
+    # passed to this function as 'mimetype' keyword argument. the function
+    # must return a response object or an object which could be converted
+    # to response by flask.
+    default_response_converter = None
+
     url_rule_class = ProtectedRoute
     url_map_class = CoreURLMap
     response_class = CoreResponse
@@ -151,13 +161,15 @@ class Application(Flask, HookMixin, SignalMixin,
                                 manually defined.
 
         :keyword bool scripting_mode: specifies that the application has been started in
-                                      scripting mode. some application hooks will not
-                                      get fired when the app runs in scripting mode.
-                                      defaults to False, if not provided.
+                                      scripting mode. application will not be run in
+                                      scripting mode and some application hooks will not
+                                      get fired when the application has initialized in
+                                      scripting mode. defaults to False, if not provided.
 
         :keyword bool force_json_response: specifies that if response object is
                                            not an html string, consider it as json
                                            and convert it to be json serializable.
+                                           even if it is not a dict.
                                            defaults to True if not provided.
 
         :keyword str settings_directory: settings directory name.
@@ -667,7 +679,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         note that the `rv` value before passing to base method must
         be a `tuple`, `dict`, `str` or `CoreResponse`. otherwise
-        it might causes an error.
+        it causes an error.
 
         :param tuple | dict | str | CoreResponse rv: the return value
                                                      from the view function.
@@ -675,30 +687,20 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: CoreResponse
         """
 
-        data = rv
-        is_tuple = False
-        if not isinstance(rv, CoreResponse):
-            if isinstance(rv, tuple) and not \
-                    isinstance(rv, ROW_RESULT) and len(rv) in (2, 3):
-                is_tuple = True
-                data = rv[0]
-
-            mimetype = mimetype_services.get_mimetype(data)
+        body, status_code, headers = response_services.unpack_response(rv)
+        if not isinstance(body, CoreResponse):
+            mimetype = mimetype_services.get_mimetype(body)
             if mimetype not in (MIMETypeEnum.HTML, MIMETypeEnum.JSON):
                 if self._force_json_response is True:
-                    data = self._prepare_json(data)
-                elif data is None:
-                    data = ''
+                    body = self._prepare_json(body)
+                elif self.default_response_converter is not None:
+                    body = self.default_response_converter(body, mimetype=mimetype)
 
-            if is_tuple:
-                if len(rv) == 2:
-                    rv = data, rv[1]
-                elif len(rv) == 3:
-                    rv = data, rv[1], rv[2]
-            else:
-                rv = data
+                if body is None:
+                    body = ''
 
-        return super().make_response(rv)
+        response = response_services.pack_response(body, status_code, headers)
+        return super().make_response(response)
 
     def _prepare_json(self, rv):
         """

@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from werkzeug.routing import Rule
 
+import pyrin.processor.response.services as response_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
@@ -15,6 +16,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError
@@ -316,8 +318,9 @@ class RouteBase(Rule):
             self._inject_result_schema()
 
         self._handle(inputs, **options)
+        result = self._call_view_function(inputs, **options)
 
-        return self._call_view_function(inputs, **options)
+        return self._prepare_response(result)
 
     def _handle(self, inputs, **options):
         """
@@ -338,7 +341,7 @@ class RouteBase(Rule):
         """
 
         client_request = session_services.get_current_request()
-        if client_request.safe_content_length > self._max_content_length:
+        if client_request.safe_content_length > self.max_content_length:
             raise LargeContentError(_('Request content is too large.'))
 
     def _extract_schema(self, **options):
@@ -405,6 +408,31 @@ class RouteBase(Rule):
 
         return result_schema
 
+    def _prepare_response(self, response):
+        """
+        prepares given response to be returned to client.
+
+        it does some operations such as adding this route's status code
+        into response. if the response from view function already is a
+        tuple with status code, then the status code of this route
+        won't be injected.
+
+        :param object | tuple | dict | CoreResponse response: response value to be prepared.
+        :note response: it could be an object or a dict or a tuple with the length of 2 or 3.
+                        in the form of: body
+                                        body, status_code
+                                        body, headers
+                                        body, status_code, header
+
+        :rtype: tuple[object, int, dict] | object
+        """
+
+        body, status_code, headers = response_services.unpack_response(response)
+        if status_code is None and self.status_code is not None:
+            status_code = self.status_code
+
+        return response_services.pack_response(body, status_code, headers)
+
     def _inject_result_schema(self):
         """
         injects this route's result schema into current request context.
@@ -423,7 +451,7 @@ class RouteBase(Rule):
         :rtype: object
         """
 
-        return self._view_function(**inputs)
+        return self.view_function(**inputs)
 
     @property
     def view_function(self):
