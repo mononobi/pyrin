@@ -24,7 +24,8 @@ from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError, \
-    InvalidPackagingHookTypeError
+    InvalidPackagingHookTypeError, CircularDependencyDetectedError, PackageNotExistedError, \
+    PackageIsIgnoredError, PackageIsDisabledError
 
 
 class PackagingManager(Manager, HookMixin):
@@ -50,11 +51,19 @@ class PackagingManager(Manager, HookMixin):
 
         self._pyrin_package_name = None
 
-        # holds the loaded packages.
+        # holds the names of all application packages that should be loaded.
+        self._all_packages = []
+
+        # holds the name of loaded packages.
         self._loaded_packages = []
 
         # holds the name of disabled packages.
         self._disabled_packages = []
+
+        # a dict containing each package name and all of its dependency package names.
+        # in the form of:
+        # {str package_name: list[str dependency_package_name]}
+        self._dependency_map = DTO()
 
         # holds the full path of directories that are not a package (not having __init__.py)
         self._not_packages = []
@@ -149,6 +158,8 @@ class PackagingManager(Manager, HookMixin):
 
         self._disabled_packages.clear()
         self._not_packages.clear()
+        self._dependency_map.clear()
+        self._all_packages.clear()
         self._loaded_packages.clear()
         self._loaded_modules.clear()
         self._pyrin_components.clear()
@@ -207,6 +218,10 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageIsIgnoredError: package is ignored error.
+        :raises PackageIsDisabledError: package is disabled error.
+        :raises PackageNotExistedError: package not existed error.
         """
 
         try:
@@ -229,8 +244,8 @@ class PackagingManager(Manager, HookMixin):
             self._load_components(self._extended_application_components, **options)
             self._load_components(self._other_application_components, **options)
             self._load_components(self._custom_components, **options)
-
             self._load_tests(**options)
+
             self._after_packages_loaded()
 
             print_info('Total of [{count}] packages loaded.'
@@ -249,6 +264,10 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageIsIgnoredError: package is ignored error.
+        :raises PackageIsDisabledError: package is disabled error.
+        :raises PackageNotExistedError: package not existed error.
         """
 
         if self._configs.load_unit_test is True and \
@@ -338,23 +357,33 @@ class PackagingManager(Manager, HookMixin):
                                 modules to be loaded.
 
         :note components: dict[str package_name: list[str] modules]
+
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageIsIgnoredError: package is ignored error.
+        :raises PackageIsDisabledError: package is disabled error.
+        :raises PackageNotExistedError: package not existed error.
         """
 
         # a dictionary containing all dependent package names and their respective modules.
-        # in the form of {package_name: [modules]}.
+        # in the form of {str package_name: [str module]}.
         dependent_components = DTO()
 
         for package in components:
+            dependencies = []
             package_class = self._get_package_class(package)
+            if package_class is not None:
+                dependencies = package_class.DEPENDS
+
+            self._check_circular_dependency(package, dependencies)
+            self._check_dependencies_exist(package, dependencies)
 
             # checking whether this package has any dependencies.
             # if so, check those dependencies have been loaded or not.
             # if not, then put this package into dependent_packages and
             # load it later. otherwise load it now.
-            if (package_class is None or
-                len(package_class.DEPENDS) == 0 or
-                self._is_dependencies_loaded(package_class.DEPENDS) is True) and \
-               self._is_parent_loaded(package) is True:
+            if (len(dependencies) <= 0 or
+                self._is_dependencies_loaded(dependencies) is True) and \
+                    self._is_parent_loaded(package) is True:
 
                 instance = None
                 if package_class is not None:
@@ -371,6 +400,68 @@ class PackagingManager(Manager, HookMixin):
         # now, go through dependent components if any, and try to load them.
         if len(dependent_components) > 0:
             self._load_components(dependent_components, **options)
+
+    def _check_circular_dependency(self, package_name, dependencies):
+        """
+        checks that given package does not have any circular dependency with it's dependencies.
+
+        it raises an error if a circular dependency detected.
+        for example, if `pyrin.database` has a dependency on `pyrin.logging`
+        and `pyrin.logging` also has a dependency on `pyrin.database`, this
+        method raises an error.
+
+        :param str package_name: package name.
+        :param list[str] dependencies: list of given package's dependencies.
+
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        """
+
+        dependencies = misc_utils.make_iterable(dependencies, list)
+        self._dependency_map[package_name] = dependencies
+        if len(dependencies) <= 0:
+            return
+
+        for item in dependencies:
+            reverse_dependencies = self._dependency_map.get(item)
+            if reverse_dependencies is not None:
+                if package_name in reverse_dependencies:
+                    raise CircularDependencyDetectedError('There is a circular dependency '
+                                                          'between [{source}] and [{reverse}] '
+                                                          'packages.'
+                                                          .format(source=package_name,
+                                                                  reverse=item))
+
+    def _check_dependencies_exist(self, package_name, dependencies):
+        """
+        checks that given dependency packages are available in the application scope.
+
+        :param str package_name: package name.
+        :param list[str] dependencies: list of given package's dependencies.
+
+        :raises PackageIsIgnoredError: package is ignored error.
+        :raises PackageIsDisabledError: package is disabled error.
+        :raises PackageNotExistedError: package not existed error.
+        """
+
+        if dependencies is None:
+            return
+
+        for item in dependencies:
+            if item not in self._all_packages:
+                base_message = 'Provided dependency package [{name}] ' \
+                               'specified in [{source}] package,' \
+                    .format(name=item, source=package_name)
+
+                if self._is_ignored_package(item):
+                    raise PackageIsIgnoredError('{base_message} is ignored in '
+                                                'packaging config store.'
+                                                .format(base_message=base_message))
+                if self._is_disabled_package(item):
+                    raise PackageIsDisabledError('{base_message} is disabled.'
+                                                 .format(base_message=base_message))
+
+                raise PackageNotExistedError('{base_message} does not exist.'
+                                             .format(base_message=base_message))
 
     def _find_pyrin_loadable_components(self):
         """
@@ -469,6 +560,8 @@ class PackagingManager(Manager, HookMixin):
 
                 if self._is_disabled_package(package_name):
                     continue
+
+                self._all_packages.append(package_name)
 
                 if self._is_pyrin_package(package_name):
                     self._pyrin_components[package_name] = []
