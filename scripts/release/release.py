@@ -18,6 +18,25 @@ class ReleaseManager:
     PYRIN_VERSION_FILE = '../../src/pyrin/__init__.py'
     DEFAULT_CHANGE = 'patch'
     DEFAULT_IS_BETA = False
+    PIPFILE = '../../Pipfile'
+    PYTHON_VERSION = 'python{version}'
+    PYPI_PACKAGE_NAME = 'pyrin'
+
+    def __init__(self):
+        """
+        initializes an instance of ReleaseManager.
+        """
+
+        self._load_python_version()
+
+    def _load_python_version(self):
+        """
+        loads python version from Pipfile.
+        """
+
+        with io.open(self.PIPFILE, 'rt', encoding='utf8') as pipfile:
+            version = re.search(r'python_version = "(.*?)"', pipfile.read()).group(1)
+            self.PYTHON_VERSION = self.PYTHON_VERSION.format(version=version)
 
     def _get_current_version(self):
         """
@@ -109,6 +128,7 @@ class ReleaseManager:
     def _normalize_version(self, major, minor, patch, beta):
         """
         normalizes given version to be under correct range.
+
         maximum minor and patch number is 30, if they go upper
         than that, the previous version part will be increased by 1,
         and the value itself will be set to zero.
@@ -231,21 +251,24 @@ class ReleaseManager:
         makes release files.
         """
 
-        self._execute_command('cd ../.. ; python3.7 setup.py sdist bdist_wheel')
+        self._execute_command('cd ../.. ; {python} setup.py sdist bdist_wheel'
+                              .format(python=self.PYTHON_VERSION))
 
     def _upload(self):
         """
         uploads the release files to pypi.
         """
 
-        self._execute_command('cd ../.. ; python3.7 -m twine upload dist/*')
+        self._execute_command('cd ../.. ; {python} -m twine upload dist/*'
+                              .format(python=self.PYTHON_VERSION))
 
     def _clear(self):
         """
         clears released files.
         """
 
-        self._execute_command('cd ../.. ; rm -r build/ dist/ ; cd src ; rm -r pyrin.egg-info/')
+        self._execute_command('cd ../.. ; rm -r build/ dist/ ; cd src ; rm -r {pypi}.egg-info/'
+                              .format(pypi=self.PYPI_PACKAGE_NAME))
 
     def _execute_command(self, command):
         """
