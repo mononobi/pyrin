@@ -134,7 +134,7 @@ class Something(CoreObject):
 
 example 6:
 
-def api(url, methods, login_required, permissions, **options):
+def api(url, methods, authenticated, permissions, **options):
     """
     decorator to register an api handler for application.
 
@@ -145,9 +145,9 @@ def api(url, methods, login_required, permissions, **options):
     :param tuple[str] | str methods: http methods that this rule should handle.
                                      if not provided, defaults to `GET`.
 
-    :param bool login_required: specifies that this route could not be accessed
-                                if the requester has not a valid token.
-                                defaults to True if not provided.
+    :param bool authenticated: specifies that this route could not be accessed
+                               if the requester has not a valid authentication.
+                               defaults to True if not provided.
 
     :param list[PermissionBase] permissions: list of all required permissions
                                              to access this route's resource.
@@ -155,11 +155,11 @@ def api(url, methods, login_required, permissions, **options):
     :param tuple[int, str] input: input value.
     :note input: tuple[int id, str name]
 
-    :keyword bool | int fresh_token: specifies that this route could not be accessed
-                                     if the requester has not a valid fresh token.
-                                     fresh token means a token that has been created by
-                                     providing user credentials to server.
-                                     defaults to False if not provided.
+    :keyword bool | int fresh_auth: specifies that this route could not be accessed
+                                    if the requester has not a valid fresh authentication.
+                                    fresh authentication means an authentication that has
+                                    been done by providing user credentials to server.
+                                    defaults to False if not provided.
 
     :keyword bool replace: specifies that this route must replace
                            any existing route with the same url or raise
