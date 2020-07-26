@@ -9,7 +9,8 @@ from pyrin.security.token import TokenPackage
 
 def register_token_handler(instance, **options):
     """
-    registers a new token handler or replaces the existing one
+    registers a new token handler or replaces the existing one.
+
     if `replace=True` is provided. otherwise, it raises an error
     on adding an instance which it's name is already available
     in registered handlers.
@@ -35,6 +36,7 @@ def register_token_handler(instance, **options):
 def generate_access_token(payload, **options):
     """
     generates an access token using specified handler from the given inputs and returns it.
+
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
@@ -65,6 +67,7 @@ def generate_access_token(payload, **options):
 def generate_refresh_token(payload, **options):
     """
     generates a refresh token using specified handler from the given inputs and returns it.
+
     the generated token is in the form of `header_hash.payload_hash.signature_hash`
     and each part is encoded using a signing key.
 
@@ -107,6 +110,7 @@ def get_payload(token, **options):
 def get_unverified_payload(token, **options):
     """
     decodes token and gets the payload data without verifying the signature.
+
     note that returned payload must not be trusted for any critical operations.
 
     :param str token: token to get it's payload.
@@ -125,6 +129,7 @@ def get_unverified_payload(token, **options):
 def get_unverified_header(token, **options):
     """
     gets the header dict of token without verifying the signature.
+
     note that the returned header must not be trusted for critical operations.
 
     :param str token: token to get it's header.

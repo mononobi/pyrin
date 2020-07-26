@@ -41,6 +41,7 @@ class TokenBase(AbstractTokenBase):
     def generate_access_token(self, payload, **options):
         """
         generates an access token from the given inputs and returns it.
+
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -67,6 +68,7 @@ class TokenBase(AbstractTokenBase):
     def generate_refresh_token(self, payload, **options):
         """
         generates a refresh token from the given inputs and returns it.
+
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -121,8 +123,9 @@ class TokenBase(AbstractTokenBase):
 
     def get_payload(self, token, **options):
         """
-        decodes token and gets the payload data. if token signature could
-        not be verified, it will raise an error.
+        decodes token and gets the payload data.
+
+        if token signature could not be verified, it will raise an error.
 
         :param str token: token to get it's payload.
 
@@ -162,6 +165,7 @@ class TokenBase(AbstractTokenBase):
     def get_unverified_payload(self, token, **options):
         """
         decodes token and gets the payload data without verifying the signature.
+
         note that returned payload must not be trusted for any critical operations.
 
         :param str token: token to get it's payload.
@@ -179,6 +183,7 @@ class TokenBase(AbstractTokenBase):
     def get_unverified_header(self, token, **options):
         """
         gets the header dict of token without verifying the signature.
+
         note that returned header must not be trusted for critical operations.
 
         :param str token: token to get it's header.
@@ -200,8 +205,7 @@ class TokenBase(AbstractTokenBase):
 
     def _get_common_required_claims(self):
         """
-        gets a dictionary containing common required claims
-        for access and refresh tokens.
+        gets a dictionary containing common required claims for access and refresh tokens.
 
         :returns: dict(str jti: jwt id,
                        float iat: issued time)
@@ -337,6 +341,7 @@ class TokenBase(AbstractTokenBase):
 class SymmetricTokenBase(TokenBase):
     """
     symmetric token base class.
+
     this token type uses a single symmetric key for decoding and encoding.
     """
 
@@ -361,6 +366,7 @@ class SymmetricTokenBase(TokenBase):
 class AsymmetricTokenBase(TokenBase):
     """
     asymmetric token base class.
+
     this token type uses a pair of public/private asymmetric keys for decoding and encoding.
     """
 
@@ -376,6 +382,7 @@ class AsymmetricTokenBase(TokenBase):
 class RSTokenBase(AsymmetricTokenBase):
     """
     rs token base class.
+
     this token type uses a pair of public/private asymmetric keys for decoding and encoding.
     """
 

@@ -31,15 +31,15 @@ class RouterManager(Manager):
                          overwritten if `replace=True` option is provided.
                          otherwise an error will be raised.
 
-        :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not been authenticated.
-                                      defaults to True if not provided.
+        :keyword bool authenticated: specifies that this route could not be accessed
+                                     if the requester has not been authenticated.
+                                     defaults to True if not provided.
 
-        :keyword bool fresh_token: specifies that this route could not be accessed
-                                   if the requester has not a fresh authentication.
-                                   fresh authentication means an authentication that
-                                   has been done by providing user credentials to server.
-                                   defaults to False if not provided.
+        :keyword bool fresh_auth: specifies that this route could not be accessed
+                                  if the requester has not a fresh authentication.
+                                  fresh authentication means an authentication that
+                                  has been done by providing user credentials to server.
+                                  defaults to False if not provided.
 
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
@@ -168,26 +168,26 @@ class RouterManager(Manager):
                                                   .format(route=route_name, base=base_name))
             return route
 
-        login_required = options.get('login_required', None)
-        if login_required is None:
-            login_required = True
+        authenticated = options.get('authenticated', None)
+        if authenticated is None:
+            authenticated = True
 
-        fresh_token = options.get('fresh_token', None)
-        if fresh_token is None:
-            fresh_token = False
+        fresh_auth = options.get('fresh_auth', None)
+        if fresh_auth is None:
+            fresh_auth = False
 
-        if login_required is False and fresh_token is False:
+        if authenticated is False and fresh_auth is False:
             return PublicRoute(rule, **options)
-        elif login_required is True and fresh_token is False:
+        elif authenticated is True and fresh_auth is False:
             return ProtectedRoute(rule, **options)
-        elif login_required is True and fresh_token is True:
+        elif authenticated is True and fresh_auth is True:
             return FreshProtectedRoute(rule, **options)
         else:
-            raise RouteAuthenticationMismatchError('"login_required={login}" and '
-                                                   '"fresh_token={fresh}" in route '
+            raise RouteAuthenticationMismatchError('"authenticated={auth}" and '
+                                                   '"fresh_auth={fresh}" in route '
                                                    '[{route}] are incompatible.'
-                                                   .format(login=login_required,
-                                                           fresh=fresh_token,
+                                                   .format(auth=authenticated,
+                                                           fresh=fresh_auth,
                                                            route=rule))
 
     def _create_route(self, rule, **options):
@@ -203,15 +203,15 @@ class RouterManager(Manager):
                          overwritten if `replace=True` option is provided.
                          otherwise an error will be raised.
 
-        :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not been authenticated.
-                                      defaults to True if not provided.
+        :keyword bool authenticated: specifies that this route could not be accessed
+                                     if the requester has not been authenticated.
+                                     defaults to True if not provided.
 
-        :keyword bool fresh_token: specifies that this route could not be accessed
-                                   if the requester has not a fresh authentication.
-                                   fresh authentication means an authentication that
-                                   has been done by providing user credentials to server.
-                                   defaults to False if not provided.
+        :keyword bool fresh_auth: specifies that this route could not be accessed
+                                  if the requester has not a fresh authentication.
+                                  fresh authentication means an authentication that
+                                  has been done by providing user credentials to server.
+                                  defaults to False if not provided.
 
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
@@ -379,15 +379,15 @@ class RouterManager(Manager):
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      for accessing this route.
 
-        :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not been authenticated.
-                                      defaults to True if not provided.
+        :keyword bool authenticated: specifies that this route could not be accessed
+                                     if the requester has not been authenticated.
+                                     defaults to True if not provided.
 
-        :keyword bool fresh_token: specifies that this route could not be accessed
-                                   if the requester has not a fresh authentication.
-                                   fresh authentication means an authentication that
-                                   has been done by providing user credentials to
-                                   server. defaults to False if not provided.
+        :keyword bool fresh_auth: specifies that this route could not be accessed
+                                  if the requester has not a fresh authentication.
+                                  fresh authentication means an authentication that
+                                  has been done by providing user credentials to
+                                  server. defaults to False if not provided.
 
         :keyword bool replace: specifies that this route must replace any existing
                                route with the same url and http methods or raise

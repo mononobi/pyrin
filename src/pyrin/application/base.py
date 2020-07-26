@@ -816,15 +816,15 @@ class Application(Flask, HookMixin, SignalMixin,
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      for accessing this route.
 
-        :keyword bool login_required: specifies that this route could not be accessed
-                                      if the requester has not been authenticated.
-                                      defaults to True if not provided.
+        :keyword bool authenticated: specifies that this route could not be accessed
+                                     if the requester has not been authenticated.
+                                     defaults to True if not provided.
 
-        :keyword bool fresh_token: specifies that this route could not be accessed
-                                   if the requester has not a fresh authentication.
-                                   fresh authentication means an authentication that
-                                   has been done by providing user credentials to
-                                   server. defaults to False if not provided.
+        :keyword bool fresh_auth: specifies that this route could not be accessed
+                                  if the requester has not a fresh authentication.
+                                  fresh authentication means an authentication that
+                                  has been done by providing user credentials to
+                                  server. defaults to False if not provided.
 
         :keyword bool replace: specifies that this route must replace any existing
                                route with the same url and http methods or raise

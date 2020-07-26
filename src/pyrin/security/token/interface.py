@@ -29,6 +29,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     def generate_access_token(self, payload, **options):
         """
         generates an access token from the given inputs and returns it.
+
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -55,6 +56,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     def generate_refresh_token(self, payload, **options):
         """
         generates a refresh token from the given inputs and returns it.
+
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
@@ -75,8 +77,9 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     @abstractmethod
     def get_payload(self, token, **options):
         """
-        decodes token and gets the payload data. if token signature could
-        not be verified, it will raise an error.
+        decodes token and gets the payload data.
+
+        if token signature could not be verified, it will raise an error.
 
         :param str token: token to get it's payload.
 
@@ -91,6 +94,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     def get_unverified_payload(self, token, **options):
         """
         decodes token and gets the payload data without verifying the signature.
+
         note that returned payload must not be trusted for any critical operations.
 
         :param str token: token to get it's payload.
@@ -106,6 +110,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     def get_unverified_header(self, token, **options):
         """
         gets the header dict of token without verifying the signature.
+
         note that returned header must not be trusted for critical operations.
 
         :param str token: token to get it's header.
@@ -137,6 +142,7 @@ class AbstractTokenBase(CoreObject, metaclass=TokenSingletonMeta):
     def get_kid(self):
         """
         gets kid value to be used in token header for this handler.
+
         it must be unique for each handler.
 
         :raises CoreNotImplementedError: core not implemented error.

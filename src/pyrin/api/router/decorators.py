@@ -6,7 +6,7 @@ router decorators module.
 import pyrin.api.router.services as router_services
 
 
-def api(url, methods=None, login_required=True, permissions=None, **options):
+def api(url, methods=None, authenticated=True, permissions=None, **options):
     """
     decorator to register an api handler for application.
 
@@ -17,18 +17,18 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
     :param str | tuple[str] methods: http methods that this rule should handle.
                                      if not provided, defaults to `GET`.
 
-    :param bool login_required: specifies that this route could not be accessed
-                                if the requester has not been authenticated.
-                                defaults to True if not provided.
+    :param bool authenticated: specifies that this route could not be accessed
+                               if the requester has not been authenticated.
+                               defaults to True if not provided.
 
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
 
-    :keyword bool fresh_token: specifies that this route could not be accessed
-                               if the requester has not a fresh authentication.
-                               fresh authentication means an authentication that
-                               has been done by providing user credentials to
-                               server. defaults to False if not provided.
+    :keyword bool fresh_auth: specifies that this route could not be accessed
+                              if the requester has not a fresh authentication.
+                              fresh authentication means an authentication that
+                              has been done by providing user credentials to
+                              server. defaults to False if not provided.
 
     :keyword bool replace: specifies that this route must replace any existing
                            route with the same url and http methods or raise
@@ -164,7 +164,7 @@ def api(url, methods=None, login_required=True, permissions=None, **options):
         """
 
         router_services.add_route(url, view_func=func, methods=methods,
-                                  login_required=login_required,
+                                  authenticated=authenticated,
                                   permissions=permissions, **options)
 
         return func
