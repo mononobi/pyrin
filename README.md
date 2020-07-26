@@ -118,7 +118,7 @@ from pyrin.utils.unique_id import generate_uuid4
 from demo.models import GuestEntity
 
 
-@api('/introduce/<name>', login_required=False)
+@api('/introduce/<name>', authenticated=False)
 def introduce(name, **options):
     store = get_current_store()
     id = generate_uuid4()
@@ -127,13 +127,13 @@ def introduce(name, **options):
     return 'Hello dear {name}, you have been added to our app.'.format(name=name)
 
 
-@api('/guests', login_required=False)
+@api('/guests', authenticated=False)
 def guests(**options):
     store = get_current_store()
     return store.query(GuestEntity).all()
 
 
-@api('/', login_required=False)
+@api('/', authenticated=False)
 def hello(**options):
     store = get_current_store()
     count = store.query(GuestEntity.id).count()
