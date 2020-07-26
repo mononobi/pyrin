@@ -30,7 +30,7 @@ def test_create_route_fresh_protected():
     route = router_services.create_route('/api/router/fresh_protected',
                                          methods=HTTPMethodEnum.GET,
                                          view_function=mock_view_function,
-                                         fresh_token=True,
+                                         fresh_auth=True,
                                          max_content_length=15000)
 
     assert isinstance(route, FreshProtectedRoute)
@@ -46,7 +46,7 @@ def test_create_route_public():
     route = router_services.create_route('/api/router/public',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          max_content_length=12000)
 
     assert isinstance(route, PublicRoute)
@@ -82,7 +82,7 @@ def test_create_route_fresh_protected_with_single_permission():
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
                                          max_content_length=500,
-                                         fresh_token=True,
+                                         fresh_auth=True,
                                          permissions=permission)
 
     assert isinstance(route, FreshProtectedRoute)
@@ -116,8 +116,8 @@ def test_create_route_with_mismatch_authentication():
         route = router_services.create_route('/api/router/mismatch_protected',
                                              methods=HTTPMethodEnum.GET,
                                              view_function=mock_view_function,
-                                             fresh_token=True,
-                                             login_required=False,
+                                             fresh_auth=True,
+                                             authenticated=False,
                                              max_content_length=15000)
 
 
@@ -131,8 +131,8 @@ def test_create_route_with_invalid_max_content_length():
         route = router_services.create_route('/api/router/over_max_content_length',
                                              methods=HTTPMethodEnum.GET,
                                              view_function=mock_view_function,
-                                             fresh_token=True,
-                                             login_required=True,
+                                             fresh_auth=True,
+                                             authenticated=True,
                                              max_content_length=99999999999999999)
 
 
@@ -146,8 +146,8 @@ def test_create_route_with_invalid_view_function():
         route = router_services.create_route('/api/router/invalid_view_function',
                                              methods=HTTPMethodEnum.PUT,
                                              view_function=1,
-                                             fresh_token=False,
-                                             login_required=False)
+                                             fresh_auth=False,
+                                             authenticated=False)
 
 
 def test_create_route_validate_max_content_length():
@@ -159,8 +159,8 @@ def test_create_route_validate_max_content_length():
     route = router_services.create_route('/api/router/check_max_content',
                                          methods=HTTPMethodEnum.PUT,
                                          view_function=mock_view_function,
-                                         fresh_token=False,
-                                         login_required=False,
+                                         fresh_auth=False,
+                                         authenticated=False,
                                          max_content_length=12345)
 
     assert route.max_content_length == 12345
@@ -174,7 +174,7 @@ def test_create_route_with_schema_attributes():
     route = router_services.create_route('/api/router/public_with_depth_and_exposed',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          depth=3,
                                          exposed_only=False)
 
@@ -198,7 +198,7 @@ def test_create_route_with_schema():
     route = router_services.create_route('/api/router/public_with_schema',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          result_schema=schema)
 
     assert route is not None
@@ -220,7 +220,7 @@ def test_create_route_with_schema_with_overridden_attributes():
     route = router_services.create_route('/api/router/public_with_schema_overridden',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          result_schema=schema,
                                          depth=4,
                                          exposed_only=True)
@@ -246,7 +246,7 @@ def test_create_route_with_depth():
     route = router_services.create_route('/api/router/public_with_depth',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          depth=8)
 
     assert route is not None
@@ -263,7 +263,7 @@ def test_create_route_with_exposed_only():
     route = router_services.create_route('/api/router/public_with_exposed_only',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
-                                         login_required=False,
+                                         authenticated=False,
                                          exposed_only=False)
 
     assert route is not None
@@ -282,7 +282,7 @@ def test_add_route():
                               view_func=mock_view_function,
                               methods=HTTPMethodEnum.GET,
                               permissions=permission,
-                              login_required=True)
+                              authenticated=True)
 
 
 def test_add_route_duplicate():
@@ -297,12 +297,12 @@ def test_add_route_duplicate():
                                   view_func=mock_view_function,
                                   methods=HTTPMethodEnum.GET,
                                   permissions=permission,
-                                  login_required=True)
+                                  authenticated=True)
 
         router_services.add_route('/tests/api/router/duplicate_route',
                                   view_func=mock_view_function,
                                   methods=HTTPMethodEnum.POST,
-                                  login_required=False,
+                                  authenticated=False,
                                   max_content_length=123)
 
 
@@ -319,12 +319,12 @@ def test_add_route_duplicate_with_replace():
                               view_func=mock_view_function,
                               methods=HTTPMethodEnum.POST,
                               permissions=permissions,
-                              login_required=True)
+                              authenticated=True)
 
     router_services.add_route('/tests/api/router/duplicate_route_with_replace',
                               view_func=mock_view_function,
                               methods=(HTTPMethodEnum.GET, HTTPMethodEnum.PUT),
-                              login_required=False,
+                              authenticated=False,
                               max_content_length=123,
                               permissions=permissions,
                               replace=True)
