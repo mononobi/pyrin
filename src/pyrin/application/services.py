@@ -268,6 +268,14 @@ def add_url_rule(rule, view_func,
                                  `REDIRECTION_CODE_MAX` will be considered
                                  as processed. defaults to True if not provided.
 
+    :keyword str | list[str] environments: a list of all environments that this
+                                           route must be exposed on them.
+                                           the values could be from all available
+                                           environments in environments config store.
+                                           for example: `production`, `development`.
+                                           if not provided, the route will be exposed
+                                           on all environments.
+
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
     :keyword bool exposed_only: if set to False, it returns all
@@ -465,6 +473,16 @@ def configure(config_store):
     """
 
     get_current_app().configure(config_store)
+
+
+def load_configs(**options):
+    """
+    loads all configurations related to application package.
+
+    normally, you should not call this method manually.
+    """
+
+    get_current_app().load_configs(**options)
 
 
 def get_current_app():

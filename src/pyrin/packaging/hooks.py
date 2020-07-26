@@ -14,15 +14,16 @@ class PackagingHookBase(Hook):
     implement this class and register it in packaging hooks.
     """
 
-    def __init__(self):
-        """
-        initializes an instance of PackagingHookBase.
-        """
-
-        super().__init__()
-
     def after_packages_loaded(self):
         """
-        this method will be called after all application packages has been loaded.
+        this method will be called after all application packages have been loaded.
+        """
+        pass
+
+    def package_loaded(self, package_name, **options):
+        """
+        this method will be called after each application package has been loaded.
+
+        :param str package_name: name of the loaded package.
         """
         pass

@@ -15,16 +15,9 @@ class PackagingHook(PackagingHookBase):
     packaging hook class.
     """
 
-    def __init__(self):
-        """
-        initializes an instance of PackagingHook.
-        """
-
-        super().__init__()
-
     def after_packages_loaded(self):
         """
-        this method will be called after all application packages has been loaded.
+        this method will be called after all application packages have been loaded.
         """
 
         # we must wrap all available loggers into an adapter

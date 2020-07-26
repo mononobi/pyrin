@@ -3,6 +3,8 @@
 core mixin module.
 """
 
+import pyrin.utils.misc as misc_utils
+
 from pyrin.core.structs import CoreObject, Hook
 from pyrin.core.exceptions import InvalidHookTypeError
 
@@ -45,8 +47,9 @@ class HookMixin(CoreObject):
         """
 
         if not isinstance(instance, self.hook_type):
+            full_name = misc_utils.try_get_fully_qualified_name(self.hook_type)
             raise self.invalid_hook_type_error('Input parameter [{instance}] is '
                                                'not an instance of [{hook}].'
                                                .format(instance=instance,
-                                                       hook=self.hook_type))
+                                                       hook=full_name))
         self._hooks.append(instance)

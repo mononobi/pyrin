@@ -15,13 +15,6 @@ class ApplicationHook(ApplicationHookBase):
     application hook class.
     """
 
-    def __init__(self):
-        """
-        initializes an instance of ApplicationHook.
-        """
-
-        super().__init__()
-
     def prepare_runtime_data(self):
         """
         this method will be get called after application has been fully initialized.

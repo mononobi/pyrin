@@ -17,13 +17,6 @@ class DatabaseHook(DatabaseHookBase):
     database hook class.
     """
 
-    def __init__(self):
-        """
-        initializes an instance of DatabaseHook.
-        """
-
-        super().__init__()
-
     def after_session_factories_configured(self):
         """
         this method will be called after all database session factories have been configured.
@@ -37,13 +30,6 @@ class ApplicationHook(ApplicationHookBase):
     """
     application hook class.
     """
-
-    def __init__(self):
-        """
-        initializes an instance of ApplicationHook.
-        """
-
-        super().__init__()
 
     def after_application_loaded(self):
         """

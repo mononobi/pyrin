@@ -29,7 +29,7 @@ from pyrin.api.router.structs import CoreURLMap
 from pyrin.application.container import _set_app
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
-from pyrin.application.hooks import ApplicationHookBase
+from pyrin.application.hooks import ApplicationHookBase, PackagingHook
 from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
@@ -211,9 +211,9 @@ class Application(Flask, HookMixin, SignalMixin,
         self._context = ApplicationContext()
         self._components = ApplicationComponent()
 
-        # we should register some packages manually because they are referenced
-        # in `application.base` module and could not be loaded automatically
-        # because packaging package will not handle them.
+        # we have to register some components manually because they are
+        # referenced in `application.base` module and could not be loaded
+        # automatically because packaging package could not handle them.
         self._register_required_components()
 
         # setting the application instance in application container module.
@@ -287,6 +287,17 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self.register_component(self.packaging_component_class(
             PackagingPackage.COMPONENT_NAME))
+
+    def _register_required_hooks(self):
+        """
+        registers the required hooks that the Application needs them.
+
+        this type of hooks could not be registered using @hook decorators,
+        because they will be referenced before Application instance gets
+        initialized.
+        """
+
+        packaging_services.register_hook(PackagingHook())
 
     def _set_status(self, status):
         """
@@ -533,12 +544,9 @@ class Application(Flask, HookMixin, SignalMixin,
         self._set_status(ApplicationStatusEnum.LOADING)
         self._resolve_required_paths(**options)
         self._load_environment_variables()
+        self._register_required_hooks()
 
         packaging_services.load_components(**options)
-
-        # we should call this method after loading components
-        # to be able to use configuration package.
-        self._load_configs(**options)
 
         # calling `after_application_loaded` method of all registered hooks.
         self._after_application_loaded()
@@ -569,6 +577,15 @@ class Application(Flask, HookMixin, SignalMixin,
             config_dict = config_services.get_all(store_name, **options)
             self.configure(config_dict)
 
+    def load_configs(self, **options):
+        """
+        loads all configurations related to application package.
+
+        normally, you should not call this method manually.
+        """
+
+        self._load_configs(**options)
+
     def _configure(self, config_store):
         """
         configures the application with given dict.
@@ -584,6 +601,7 @@ class Application(Flask, HookMixin, SignalMixin,
     def configure(self, config_store):
         """
         configures the application with given dict.
+
         all keys will be converted to uppercase for flask compatibility.
 
         :param dict config_store: a dictionary containing configuration key/values.
@@ -877,6 +895,14 @@ class Application(Flask, HookMixin, SignalMixin,
                                      `REDIRECTION_CODE_MAX` will be considered
                                      as processed. defaults to True if not provided.
 
+        :keyword str | list[str] environments: a list of all environments that this
+                                               route must be exposed on them.
+                                               the values could be from all available
+                                               environments in environments config store.
+                                               for example: `production`, `development`.
+                                               if not provided, the route will be exposed
+                                               on all environments.
+
         :keyword ResultSchema result_schema: result schema to be used to filter results.
 
         :keyword bool exposed_only: if set to False, it returns all
@@ -915,6 +941,11 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
         :raises InvalidResponseStatusCodeError: invalid response status code error.
         """
+
+        environments = options.get('environments')
+        if self._should_expose_route(rule, view_func,
+                                     environments) is not True:
+            return
 
         endpoint = self.generate_endpoint(view_func, **options)
         options.update(endpoint=endpoint)
@@ -975,6 +1006,39 @@ class Application(Flask, HookMixin, SignalMixin,
                                                                old_function=old_name))
 
         self.view_functions[endpoint] = view_func
+
+    def _should_expose_route(self, url, view_func, environments):
+        """
+        gets a value indicating that given route must be exposed on current environment.
+
+        :param str url: the url rule as string.
+
+        :param function view_func: the function to call when serving a request to the
+                                   provided endpoint.
+
+        :param str | list[str] environments: a list of all environments that this
+                                             route must be exposed on them.
+                                             the values could be from all available
+                                             environments in environments config store.
+                                             for example: `production`, `development`.
+                                             if not provided, the route will be exposed
+                                             on all environments.
+
+        :rtype: bool
+        """
+
+        environments = misc_utils.make_iterable(environments, list)
+        should_expose = True
+        if len(environments) > 0:
+            current_env = config_services.get_active_section_name('environment')
+            should_expose = current_env in environments
+            if should_expose is not True:
+                func_name = function_utils.get_fully_qualified_name(view_func)
+                print_warning('Route [{url}] on view function [{func}] will only be '
+                              'exposed on {env} environments. the current environment '
+                              'is [{current}].'.format(url=url, func=func_name,
+                                                       env=environments, current=current_env))
+        return should_expose
 
     def generate_endpoint(self, func, **options):
         """

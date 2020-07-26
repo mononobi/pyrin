@@ -3,7 +3,11 @@
 application hooks module.
 """
 
+import pyrin.application.services as application_services
+
 from pyrin.core.structs import Hook
+from pyrin.configuration import ConfigurationPackage
+from pyrin.packaging.hooks import PackagingHookBase
 
 
 class ApplicationHookBase(Hook):
@@ -13,13 +17,6 @@ class ApplicationHookBase(Hook):
     all packages that need to be hooked into application business must
     implement this class and register it in application hooks.
     """
-
-    def __init__(self):
-        """
-        initializes an instance of ApplicationHookBase.
-        """
-
-        super().__init__()
 
     def after_application_loaded(self):
         """
@@ -66,3 +63,22 @@ class ApplicationHookBase(Hook):
             TERMINATED = 'Terminated'
         """
         pass
+
+
+class PackagingHook(PackagingHookBase):
+    """
+    packaging hook class.
+    """
+
+    def package_loaded(self, package_name, **options):
+        """
+        this method will be called after each application package has been loaded.
+
+        :param str package_name: name of the loaded package.
+        """
+
+        # we should call this method as soon as configuration package is
+        # loaded, to make sure application configs are loaded before any
+        # other package needing them.
+        if package_name == ConfigurationPackage.NAME:
+            application_services.load_configs(**options)

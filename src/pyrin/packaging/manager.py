@@ -297,6 +297,16 @@ class PackagingManager(Manager, HookMixin):
         for hook in self._get_hooks():
             hook.after_packages_loaded()
 
+    def _package_loaded(self, package_name, **options):
+        """
+        this method will call `package_loaded` method of all registered hooks.
+
+        :param str package_name: name of the loaded package.
+        """
+
+        for hook in self._get_hooks():
+            hook.package_loaded(package_name, **options)
+
     def load(self, module_name, **options):
         """
         loads the specified module.
@@ -344,6 +354,7 @@ class PackagingManager(Manager, HookMixin):
                 self.load(module, **options)
 
         self._loaded_packages.append(package_name)
+        self._package_loaded(package_name, **options)
 
         print_default('[{package}] package loaded. including [{module_count}] modules.'
                       .format(package=package_name,
