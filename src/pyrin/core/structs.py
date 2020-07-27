@@ -134,14 +134,14 @@ class MultiSingletonMeta(SingletonMetaBase):
         :rtype: bool
         """
 
-        return str(cls) in cls._instances
+        return cls in cls._instances
 
     def _register_instance(cls, instance):
         """
         registers the given instance.
         """
 
-        cls._instances[str(cls)] = instance
+        cls._instances[cls] = instance
 
     def _get_instance(cls):
         """
@@ -150,7 +150,7 @@ class MultiSingletonMeta(SingletonMetaBase):
         :rtype: object
         """
 
-        return cls._instances.get(str(cls))
+        return cls._instances.get(cls)
 
 
 class DTO(dict):
