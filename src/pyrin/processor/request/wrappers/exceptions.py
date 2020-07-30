@@ -50,3 +50,24 @@ class BadRequestError(RequestWrappersBusinessException):
 
         super().__init__(*args, **kwargs)
         self._code = ClientErrorResponseCodeEnum.BAD_REQUEST
+
+
+class BothRequestBodyAndFormDataProvidedError(BadRequestError):
+    """
+    both request body and form data provided error.
+    """
+    pass
+
+
+class JSONBodyDecodingError(BadRequestError):
+    """
+    json body decoding error.
+    """
+    pass
+
+
+class BodyDecodingError(BadRequestError):
+    """
+    body decoding error.
+    """
+    pass

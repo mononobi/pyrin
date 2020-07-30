@@ -17,7 +17,8 @@ from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
-    RequestContextKeyIsAlreadyPresentError, BadRequestError
+    RequestContextKeyIsAlreadyPresentError, BadRequestError, \
+    BothRequestBodyAndFormDataProvidedError, JSONBodyDecodingError, BodyDecodingError
 
 
 class CoreRequest(Request):
@@ -230,7 +231,10 @@ class CoreRequest(Request):
                             request body, it should not raise an error.
                             defaults to False.
 
-        :raises BadRequestError: bad request error.
+        :raises JSONBodyDecodingError: json body decoding error.
+        :raises BodyDecodingError: body decoding error.
+        :raises BothRequestBodyAndFormDataProvidedError: both request body and
+                                                         form data provided error.
 
         :rtype: dict
         """
@@ -246,8 +250,9 @@ class CoreRequest(Request):
             body = self.get_body(silent=silent) or {}
 
             if len(body) > 0 and len(form_data) > 0:
-                error = BadRequestError(_('Request could not contain both body '
-                                          'and form data at the same time.'))
+                error = BothRequestBodyAndFormDataProvidedError(_('Request could not contain '
+                                                                  'both body and form data at '
+                                                                  'the same time.'))
                 if silent is not True:
                     raise error
                 self._body_decoding_error = error
@@ -319,20 +324,20 @@ class CoreRequest(Request):
 
         self._context.pop(key, None)
 
-    def on_json_loading_failed(self, e):
+    def on_json_loading_failed(self, error):
         """
         raises an error on json loading failure.
 
-        :param object e: json object that failed to load.
+        :param Exception error: exception that occurred on loading the json body.
 
-        :raises BadRequestError: bad request error.
+        :raises JSONBodyDecodingError: json body decoding error.
         """
 
         if config_services.get_active('environment', 'debug', default=False) is True:
-            raise BadRequestError('Failed to decode JSON '
-                                  'object: [{object}]'.format(object=e))
+            raise JSONBodyDecodingError('Failed to decode JSON '
+                                        'object: [{error}]'.format(error=error))
 
-        self.on_bad_request_received()
+        self._on_bad_request_received(JSONBodyDecodingError)
 
     def on_body_loading_failed(self, error):
         """
@@ -340,24 +345,26 @@ class CoreRequest(Request):
 
         :param Exception error: exception that occurred on loading the body.
 
-        :raises BadRequestError: bad request error.
+        :raises BodyDecodingError: body decoding error.
         """
 
         if config_services.get_active('environment', 'debug', default=False) is True:
-            raise BadRequestError('Failed to decode request '
-                                  'body: [{error}]'.format(error=error))
+            raise BodyDecodingError('Failed to decode request '
+                                    'body: [{error}]'.format(error=error))
 
-        self.on_bad_request_received()
+        self._on_bad_request_received(BodyDecodingError)
 
-    def on_bad_request_received(self):
+    def _on_bad_request_received(self, error_class):
         """
         raises a generic error on receiving a bad request.
+
+        :param type[BadRequestError] error_class: error class type that has been occurred.
 
         :raises BadRequestError: bad request error.
         """
 
-        raise BadRequestError(_('The browser (or proxy) sent a request '
-                                'that this server could not understand.'))
+        raise error_class(_('The browser (or proxy) sent a request '
+                            'that this server could not understand.'))
 
     @property
     def request_id(self):
