@@ -538,7 +538,7 @@ def test_get_from_not_available_key_with_default_value():
     it should not raise an error and should return the default value.
     """
 
-    value = config_services.get('globalization', 'locale', 'fake_key', default_value=123)
+    value = config_services.get('globalization', 'locale', 'fake_key', default=123)
     assert value == 123
 
 
@@ -629,7 +629,7 @@ def test_get_active_invalid_key_with_default_value():
     it should not raise an error and should return the default value.
     """
 
-    value = config_services.get_active('environment', 'missing_key', default_value=False)
+    value = config_services.get_active('environment', 'missing_key', default=False)
     assert value is False
 
 
