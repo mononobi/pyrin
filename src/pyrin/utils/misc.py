@@ -4,7 +4,6 @@ utils misc module.
 """
 
 from pyrin.core.globals import LIST_TYPES
-from pyrin.core.structs import DTO
 from pyrin.core.exceptions import CoreAttributeError
 
 
@@ -40,8 +39,7 @@ def extract_attributes(instance, *attributes):
     :rtype: dict
     """
 
-    result = DTO()
-
+    result = dict()
     if instance is None:
         return result
 
@@ -54,7 +52,7 @@ def extract_attributes(instance, *attributes):
     return result
 
 
-def make_iterable(values, collection_type=None):
+def make_iterable(values, collection=None):
     """
     converts the provided values to iterable.
 
@@ -66,22 +64,22 @@ def make_iterable(values, collection_type=None):
                                                                        converts the collection
                                                                        to given type.
 
-    :param type[list | tuple | set] collection_type: collection type to use.
-                                                     defaults to list if not provided.
+    :param type[list | tuple | set] collection: collection type to use.
+                                                defaults to list if not provided.
 
     :rtype: list | tuple | set
     """
 
-    if collection_type is None:
-        collection_type = list
+    if collection is None:
+        collection = list
 
     if values is None:
-        return collection_type()
+        return collection()
 
     if not isinstance(values, LIST_TYPES):
         values = (values,)
 
-    return collection_type(values)
+    return collection(values)
 
 
 def try_get_fully_qualified_name(some_object):
@@ -117,3 +115,16 @@ def try_get_fully_qualified_name(some_object):
         return '{module}.{name}'.format(module=module, name=name)
 
     return str(some_object)
+
+
+def iterate_items(collection, *args, **kwargs):
+    """
+    iterates over the items of given object.
+
+    :param type collection: collection type to be used to
+                            iterate over given object's items.
+
+    :rtype: iterator[tuple[object, object]]
+    """
+
+    return iter(collection.items(*args, **kwargs))

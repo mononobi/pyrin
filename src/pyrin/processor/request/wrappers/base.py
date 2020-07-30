@@ -8,14 +8,16 @@ from flask import Request
 import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.converters.deserializer.services as deserializer_services
+import pyrin.configuration.services as config_services
 
-from pyrin.core.structs import DTO
+from pyrin.core.globals import _
+from pyrin.core.structs import DTO, CoreImmutableMultiDict
 from pyrin.processor.request.wrappers.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
-    RequestContextKeyIsAlreadyPresentError
+    RequestContextKeyIsAlreadyPresentError, BadRequestError
 
 
 class CoreRequest(Request):
@@ -30,6 +32,12 @@ class CoreRequest(Request):
 
     # class to be used as request context holder.
     request_context_class = RequestContext
+
+    # class to be used for 'args' and 'form' data.
+    parameter_storage_class = CoreImmutableMultiDict
+
+    # class to be used for dict values from the incoming WSGI.
+    dict_storage_class = CoreImmutableMultiDict
 
     # these are query param names that application expects for locale and timezone.
     LOCALE_PARAM_NAME = 'lang'
@@ -78,20 +86,25 @@ class CoreRequest(Request):
         self._extract_locale()
         self._extract_timezone()
 
+        # this holds any exception that might be raised on body decoding.
+        # when silent is not passed to 'get_inputs' method, if this value
+        # is not None, it will be raised.
+        self._body_decoding_error = None
+
     def __str__(self):
         result = 'method: "{method}", route: "{route}", request id: "{request_id}", ' \
                  'request date: "{request_date}", user: "{user}", client_ip: "{client_ip}", ' \
                  'component_custom_key: "{component}"'
-        return result.format(request_id=self._request_id,
-                             request_date=self._request_date,
-                             user=self._user,
-                             client_ip=self._client_ip,
+        return result.format(request_id=self.request_id,
+                             request_date=self.request_date,
+                             user=self.user,
+                             client_ip=self.client_ip,
                              route=self.path,
                              method=self.method,
-                             component=self._component_custom_key)
+                             component=self.component_custom_key)
 
     def __hash__(self):
-        return hash(self._request_id)
+        return hash(self.request_id)
 
     def _get_client_ip(self):
         """
@@ -152,6 +165,51 @@ class CoreRequest(Request):
         self.add_context(self.TIMEZONE_CONTEXT_KEY,
                          self.args.get(self.TIMEZONE_PARAM_NAME, None))
 
+    def get_body(self, silent=False):
+        """
+        gets data from request body.
+
+        this method gets body as a dict if it is a json data.
+        otherwise it returns an empty dict.
+
+        :param bool silent: specifies that if an error occurred on processing
+                            request body, it should not raise an error.
+                            defaults to False.
+
+        :raises BadRequestError: bad request error.
+
+        :rtype: dict
+        """
+
+        if self.is_json is True:
+            try:
+                return self.get_json(silent=False) or {}
+            except Exception as json_error:
+                if silent is not True:
+                    raise
+                self._body_decoding_error = json_error
+                return {}
+
+        try:
+            return self._get_custom_body() or {}
+        except Exception as body_error:
+            if silent is not True:
+                self.on_body_loading_failed(error=body_error)
+            self._body_decoding_error = body_error
+            return {}
+
+    def _get_custom_body(self):
+        """
+        gets data from a custom format request body.
+
+        this method is intended to be overridden by subclasses.
+        they must return an empty dict if could not convert the body.
+
+        :rtype: dict
+        """
+
+        return {}
+
     def get_inputs(self, silent=False):
         """
         gets request inputs.
@@ -159,27 +217,50 @@ class CoreRequest(Request):
         not that if the same keyword is available in different param
         holders, the value will be replaced and no error will be raised.
         the replacement priority is as follows:
-        query_strings -> body -> view_args -> files
+        [query_strings] -> [body or form_data] -> [view_args] -> [uploaded_files]
 
         for example, if a keyword named 'sample_key' is available in both body and
         query strings, the value of body will be available at the end.
 
+        note that in the context of http requests, it is not possible for a
+        request to have both body and form data at the same time. so this method
+        will raise an error in such scenario.
+
         :param bool silent: specifies that if an error occurred on processing
-                            json body, it should not raise an error.
+                            request body, it should not raise an error.
                             defaults to False.
+
+        :raises BadRequestError: bad request error.
 
         :rtype: dict
         """
 
+        if silent is not True and self._body_decoding_error is not None:
+            raise self._body_decoding_error
+
         if self._inputs is None:
-            converted_args = deserializer_services.deserialize(self.args)
-            self._remove_extra_query_params(converted_args)
-            self._inputs = DTO(**(converted_args or {}))
-            self._inputs.update(**(self.get_json(silent=silent) or {}))
+            query_strings = deserializer_services.deserialize(self.args.to_dict(flat=False,
+                                                                                all_list=False))
+            form_data = deserializer_services.deserialize(self.form.to_dict(flat=False,
+                                                                            all_list=False))
+            body = self.get_body(silent=silent) or {}
+
+            if len(body) > 0 and len(form_data) > 0:
+                error = BadRequestError(_('Request could not contain both body '
+                                          'and form data at the same time.'))
+                if silent is not True:
+                    raise error
+                self._body_decoding_error = error
+
+            self._remove_extra_query_params(query_strings)
+            self._inputs = DTO(**(query_strings or {}))
+            self._inputs.update(**body)
+            self._inputs.update(**(form_data or {}))
             self._inputs.update(**(self.view_args or {}))
 
             if self.files is not None and len(self.files) > 0:
-                self._inputs.update(files=self.files)
+                self._inputs.update(uploaded_files=self.files.to_dict(flat=False,
+                                                                      all_list=False))
 
         return self._inputs
 
@@ -237,6 +318,46 @@ class CoreRequest(Request):
         """
 
         self._context.pop(key, None)
+
+    def on_json_loading_failed(self, e):
+        """
+        raises an error on json loading failure.
+
+        :param object e: json object that failed to load.
+
+        :raises BadRequestError: bad request error.
+        """
+
+        if config_services.get_active('environment', 'debug', default=False) is True:
+            raise BadRequestError('Failed to decode JSON '
+                                  'object: [{object}]'.format(object=e))
+
+        self.on_bad_request_received()
+
+    def on_body_loading_failed(self, error):
+        """
+        raises an error on body loading failure.
+
+        :param Exception error: exception that occurred on loading the body.
+
+        :raises BadRequestError: bad request error.
+        """
+
+        if config_services.get_active('environment', 'debug', default=False) is True:
+            raise BadRequestError('Failed to decode request '
+                                  'body: [{error}]'.format(error=error))
+
+        self.on_bad_request_received()
+
+    def on_bad_request_received(self):
+        """
+        raises a generic error on receiving a bad request.
+
+        :raises BadRequestError: bad request error.
+        """
+
+        raise BadRequestError(_('The browser (or proxy) sent a request '
+                                'that this server could not understand.'))
 
     @property
     def request_id(self):

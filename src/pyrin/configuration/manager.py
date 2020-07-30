@@ -360,8 +360,8 @@ class ConfigurationManager(Manager):
         :param str section: config section name.
         :param str key: config key to get it's value.
 
-        :keyword object default_value: default value if key not present in config section.
-                                       if not provided, error will be raised.
+        :keyword object default: default value if key not present in config section.
+                                 if not provided, error will be raised.
 
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
 
@@ -383,8 +383,8 @@ class ConfigurationManager(Manager):
         :param str store_name: config store name.
         :param str key: config key to get it's value.
 
-        :keyword object default_value: default value if key not present in config section.
-                                       if not provided, error will be raised.
+        :keyword object default: default value if key not present in config section.
+                                 if not provided, error will be raised.
 
         :raises ConfigurationStoreNotFoundError: configuration store not found error.
 

@@ -107,8 +107,8 @@ class ConfigStore(CoreObject):
         :param str section: config section name.
         :param str key: config key to get it's value.
 
-        :keyword object default_value: default value if key not present in config section.
-                                       if not provided, error will be raised.
+        :keyword object default: default value if key not present in config section.
+                                 if not provided, error will be raised.
 
         :raises ConfigurationStoreSectionNotFoundError: configuration store
                                                         section not found error.
@@ -121,14 +121,14 @@ class ConfigStore(CoreObject):
         if key in section_data.keys():
             return section_data[key]
 
-        if 'default_value' not in options.keys():
+        if 'default' not in options.keys():
             raise ConfigurationStoreKeyNotFoundError('Key [{key}] not found in section '
                                                      '[{section}] from config store [{name}].'
                                                      .format(key=key,
                                                              section=section,
                                                              name=self._name))
 
-        return options.get('default_value')
+        return options.get('default')
 
     def get_active(self, key, **options):
         """
@@ -138,8 +138,8 @@ class ConfigStore(CoreObject):
 
         :param str key: config key to get it's value.
 
-        :keyword object default_value: default value if key not present in config section.
-                                       if not provided, error will be raised.
+        :keyword object default: default value if key not present in config section.
+                                 if not provided, error will be raised.
 
         :raises ConfigurationStoreSectionNotFoundError: configuration store
                                                         section not found error.

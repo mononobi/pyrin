@@ -6,11 +6,9 @@ core globals module.
 from flask_babel import gettext
 from sqlalchemy.util._collections import AbstractKeyedTuple
 
-from pyrin.core.structs import CoreObject
-
 
 # this value should be used as `None`, where the `None` itself has a meaning.
-NULL = CoreObject()
+NULL = object()
 
 # this value should be used where we need to reference class type of None objects.
 NONE_TYPE = type(None)

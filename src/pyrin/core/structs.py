@@ -7,6 +7,10 @@ from collections import deque
 from threading import Lock
 from abc import abstractmethod
 
+from werkzeug.datastructures import MultiDict, ImmutableMultiDict
+
+import pyrin.utils.misc as misc_utils
+
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError, \
     CoreNotImplementedError
 
@@ -474,3 +478,78 @@ class Stack(deque):
         """
 
         del self[-1]
+
+
+class CoreMultiDict(MultiDict):
+    """
+    core multi dict class.
+
+    this class extends MultiDict to let `to_dict` method gets values that are
+    not multiple as a single object instead of a list with a single item.
+    """
+
+    def to_dict(self, flat=True, **options):
+        """
+        returns the contents as regular dict.
+
+        if `flat=True` the returned dict will only have the first item present.
+
+        if `flat=False` and `all_list=True` is provided, all values will be get as list.
+
+        if `flat=False` and `all_list=False` is provided, all values that are multiple
+        will be get as list. but single values will be get as a single object.
+
+        :param bool flat: if set to False the dict returned will have lists
+                          with all the values in it. otherwise it will only
+                          contain the first value for each key.
+                          defaults to True if not provided.
+
+        :keyword bool all_list: if set to True and `flat` is set to False, all
+                                values will be returned as list. but if set to
+                                False and `flat` is also set to False, values
+                                that are multiple will be returned as list and
+                                single values will be returned as a single object.
+                                if `flat` is set to True, this parameter has no
+                                effect. defaults to True if not provided.
+
+        :rtype: dict
+        """
+
+        all_list = options.get('all_list')
+        if all_list is None:
+            all_list = True
+
+        if flat is True or all_list is True:
+            return super().to_dict(flat=flat)
+
+        return dict(self.singles_or_lists())
+
+    def singles_or_lists(self):
+        """
+        returns an iterator of `(key, values)` pairs.
+
+        where values is the list of all values associated with the key or
+        a single object if values have only a single item in it.
+        """
+
+        for key, values in misc_utils.iterate_items(dict, self):
+            if len(values) == 1:
+                yield key, values[0]
+            else:
+                yield key, list(values)
+
+
+class CoreImmutableMultiDict(ImmutableMultiDict, CoreMultiDict):
+    """
+    core immutable multi dict class.
+    """
+
+    def copy(self):
+        """
+        returns a shallow mutable copy of this object.
+
+        keep in mind that the standard library's `copy` function is a
+        no-op for this class like for any other python immutable type.
+        """
+
+        return CoreMultiDict(self)
