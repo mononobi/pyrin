@@ -5,6 +5,7 @@ router handlers exceptions module.
 
 from pyrin.core.enumerations import ClientErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreException, CoreBusinessException
+from pyrin.processor.request.wrappers.exceptions import BadRequestError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
 
 
@@ -92,5 +93,13 @@ class RouteIsNotBoundedToMapError(RouterHandlerException):
 class InvalidResponseStatusCodeError(RouterHandlerException):
     """
     invalid response status code error.
+    """
+    pass
+
+
+class MissingRequiredViewFunctionParamsError(BadRequestError,
+                                             RouterHandlerBusinessException):
+    """
+    missing required view function params error.
     """
     pass

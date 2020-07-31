@@ -19,7 +19,8 @@ from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
-    RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError
+    RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
+    MissingRequiredViewFunctionParamsError
 
 
 class RouteBase(Rule):
@@ -306,9 +307,10 @@ class RouteBase(Rule):
         :param dict inputs: view function inputs.
 
         :raises LargeContentError: large content error.
+        :raises MissingRequiredViewFunctionParamsError: missing required view
+                                                        function params error.
 
         :returns: view function's result.
-
         :rtype: object
         """
 
@@ -448,12 +450,21 @@ class RouteBase(Rule):
 
         :param dict inputs: view function inputs.
 
-        :returns: view function's result.
+        :raises MissingRequiredViewFunctionParamsError: missing required view
+                                                        function params error.
 
+        :returns: view function's result.
         :rtype: object
         """
 
-        return self.view_function(**inputs)
+        try:
+            return self.view_function(**inputs)
+        except TypeError as error:
+            if config_services.get_active('environment', 'debug', default=False) is True:
+                raise MissingRequiredViewFunctionParamsError(error) from error
+
+            raise MissingRequiredViewFunctionParamsError(_('All required parameters must be '
+                                                           'provided to access this resource.'))
 
     @property
     def view_function(self):
