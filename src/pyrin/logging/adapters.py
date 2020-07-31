@@ -67,13 +67,13 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param str msg: log message.
         :param dict kwargs: keyword arguments passed to logging call.
 
-        :keyword dict data: data to be used for interpolation.
+        :keyword dict interpolation_data: data to be used for interpolation.
 
         :returns: tuple[str message, dict kwargs]
         :rtype: tuple[str, dict]
         """
 
-        data = kwargs.pop('data', None)
+        data = kwargs.pop('interpolation_data', None)
         if data is not None:
             msg = logging_services.interpolate(msg, data)
 

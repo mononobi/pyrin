@@ -29,7 +29,8 @@ class LoggingHookBase(Hook):
         :returns: modified or same input data.
         :rtype: dict | object
         """
-        pass
+
+        return data
 
     def before_emit(self, data, **options):
         """
