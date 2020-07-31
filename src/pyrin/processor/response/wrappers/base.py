@@ -62,6 +62,11 @@ class CoreResponse(Response):
                                         called before iteration which makes it
                                         possible to pass special iterators through
                                         unchanged.
+
+        :keyword dict original_data: a dict containing the original
+                                     data of response before encoding.
+                                     this value will be used in logging
+                                     to mask critical values.
         """
 
         if mimetype is None:
@@ -70,6 +75,8 @@ class CoreResponse(Response):
         super().__init__(response, status, headers, mimetype,
                          content_type, direct_passthrough)
 
+        self._original_data = None
+        self.original_data = options.get('original_data')
         self._request_id = None
         self._request_date = None
         self._response_date = datetime_services.now()
@@ -80,13 +87,13 @@ class CoreResponse(Response):
         result = 'request id: "{request_id}", response date: "{response_date}", ' \
                  'request date: "{request_date}", user: "{user}", status_code: "{status_code}"'
         return result.format(response_date=self._response_date,
-                             request_id=self._request_id,
-                             request_date=self._request_date,
-                             user=self._user,
+                             request_id=self.request_id,
+                             request_date=self.request_date,
+                             user=self.user,
                              status_code=self.status_code)
 
     def __hash__(self):
-        return hash(self._request_id)
+        return hash(self.request_id)
 
     def _get_mimetype(self, response):
         """
@@ -99,9 +106,6 @@ class CoreResponse(Response):
         :returns: mimetype name
         :rtype: str
         """
-
-        if isinstance(response, CoreResponse):
-            return response.mimetype or response.default_mimetype
 
         mimetype = mimetype_services.get_mimetype(response)
         if mimetype is None:
@@ -241,3 +245,30 @@ class CoreResponse(Response):
                                              'has been already set.')
 
         self._user = user
+
+    @property
+    def original_data(self):
+        """
+        gets the original data of this response.
+
+        it returns a dict if the original data was a dict, otherwise
+        it gets the response data as text.
+
+        :rtype: dict | str
+        """
+
+        return self._original_data or self.get_data(as_text=True)
+
+    @original_data.setter
+    def original_data(self, data):
+        """
+        sets the response original data if it is of dict type.
+
+        otherwise sets None for this value.
+        this value will be used for response logging to let loggers mask critical values.
+
+        :param dict data: data to be registered.
+        """
+
+        if isinstance(data, dict):
+            self._original_data = dict(data)

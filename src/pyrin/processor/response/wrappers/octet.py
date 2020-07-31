@@ -32,6 +32,11 @@ class OCTETResponse(CoreResponse):
                                         called before iteration which makes it
                                         possible to pass special iterators through
                                         unchanged.
+
+        :keyword dict original_data: a dict containing the original
+                                     data of response before encoding.
+                                     this value will be used in logging
+                                     to mask critical values.
         """
 
         super().__init__(response, status, headers,

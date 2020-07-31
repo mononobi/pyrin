@@ -721,7 +721,9 @@ class Application(Flask, HookMixin, SignalMixin,
                     body = ''
 
         response = response_services.pack_response(body, status_code, headers)
-        return super().make_response(response)
+        result = super().make_response(response)
+        result.original_data = body
+        return result
 
     def _prepare_json(self, rv):
         """
@@ -1457,19 +1459,19 @@ class Application(Flask, HookMixin, SignalMixin,
             logging_services.exception(str(error))
 
         process_start_time = time()
-        logging_services.info('request received with params: [{params}]'
+        logging_services.info('Request received with params: [{params}]'
                               .format(params=client_request.get_inputs(silent=True)))
 
         response = super().full_dispatch_request()
 
         process_end_time = time()
-        logging_services.info('request executed in [{time} ms].'
+        logging_services.info('Request executed in [{time} ms].'
                               .format(time='{:0.3f}'
                                       .format((process_end_time - process_start_time) * 1000)))
 
-        logging_services.debug('[{response}] returned with result: [{result}]'
+        logging_services.debug('Response [{response}] returned with result: [{result}]'
                                .format(response=response,
-                                       result=response.get_data(as_text=True)))
+                                       result=response.original_data))
 
         return response
 
