@@ -1459,8 +1459,8 @@ class Application(Flask, HookMixin, SignalMixin,
             logging_services.exception(str(error))
 
         process_start_time = time()
-        logging_services.info('Request received with params: [{params}]'
-                              .format(params=client_request.get_inputs(silent=True)))
+        logging_services.info('Request received with params: [{params}]',
+                              data=dict(params=client_request.get_inputs(silent=True)))
 
         response = super().full_dispatch_request()
 
@@ -1469,9 +1469,9 @@ class Application(Flask, HookMixin, SignalMixin,
                               .format(time='{:0.3f}'
                                       .format((process_end_time - process_start_time) * 1000)))
 
-        logging_services.debug('Response [{response}] returned with result: [{result}]'
-                               .format(response=response,
-                                       result=response.original_data))
+        logging_services.debug('Response [{response}] returned with result: [{result}]',
+                               data=dict(response=response,
+                                         result=response.original_data))
 
         return response
 

@@ -93,8 +93,9 @@ class CoreRequest(Request):
         self._body_decoding_error = None
 
     def __str__(self):
-        result = 'method: "{method}", route: "{route}", request id: "{request_id}", ' \
-                 'request date: "{request_date}", user: "{user}", client_ip: "{client_ip}", ' \
+        result = 'request id: "{request_id}", request date: "{request_date}", ' \
+                 'user: "{user}", method: "{method}", route: "{route}", ' \
+                 'endpoint: "{endpoint}", client_ip: "{client_ip}", ' \
                  'component_custom_key: "{component}"'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
@@ -102,10 +103,25 @@ class CoreRequest(Request):
                              client_ip=self.client_ip,
                              route=self.path,
                              method=self.method,
+                             endpoint=self._get_endpoint(),
                              component=self.component_custom_key)
 
     def __hash__(self):
         return hash(self.request_id)
+
+    def _get_endpoint(self):
+        """
+        gets the endpoint if available.
+
+        otherwise return None.
+
+        :rtype: str
+        """
+
+        if self.url_rule is not None:
+            return self.url_rule.endpoint
+
+        return None
 
     def _get_client_ip(self):
         """

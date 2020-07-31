@@ -127,3 +127,28 @@ def critical(msg, *args, **kwargs):
     """
 
     return get_component(LoggingPackage.COMPONENT_NAME).critical(msg, *args, **kwargs)
+
+
+def interpolate(msg, data=None):
+    """
+    interpolates the given message with given data.
+
+    :param str msg: log message.
+    :param dict data: data to be used for interpolation.
+
+    :rtype: str
+    """
+
+    return get_component(LoggingPackage.COMPONENT_NAME).interpolate(msg, data)
+
+
+def register_hook(instance):
+    """
+    registers the given instance into logging hooks.
+
+    :param LoggingHookBase instance: logging hook instance to be registered.
+
+    :raises InvalidLoggingHookTypeError: invalid logging hook type error.
+    """
+
+    return get_component(LoggingPackage.COMPONENT_NAME).register_hook(instance)

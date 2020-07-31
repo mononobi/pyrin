@@ -3,18 +3,16 @@
 logging adapters module.
 """
 
-from abc import abstractmethod
 from logging import LoggerAdapter
 
 import pyrin.security.session.services as session_services
-
-from pyrin.core.structs import DTO
-from pyrin.core.exceptions import CoreNotImplementedError
+import pyrin.logging.services as logging_services
 
 
 class BaseLoggerAdapter(LoggerAdapter):
     """
     base logger adapter class.
+
     all logger adapters should be subclassed from this.
     """
 
@@ -25,7 +23,7 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param Logger logger: logger instance to be wrapped.
         """
 
-        super().__init__(logger, DTO())
+        super().__init__(logger, dict())
 
         # these attributes have been added for compatibility
         # with loggers common api.
@@ -37,6 +35,7 @@ class BaseLoggerAdapter(LoggerAdapter):
     def addHandler(self, hdlr):
         """
         adds the specified handler to this logger.
+
         this method has been added for compatibility
         with loggers common api.
 
@@ -48,6 +47,7 @@ class BaseLoggerAdapter(LoggerAdapter):
     def removeHandler(self, hdlr):
         """
         removes the specified handler from this logger.
+
         this method has been added for compatibility
         with loggers common api.
 
@@ -56,7 +56,6 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         self.logger.removeHandler(hdlr)
 
-    @abstractmethod
     def process(self, msg, kwargs):
         """
         processes the logging message and keyword arguments passed in to a logging call.
@@ -65,31 +64,59 @@ class BaseLoggerAdapter(LoggerAdapter):
         the message itself, the keyword args or both. return the message
         and kwargs modified (or not) to suit your needs.
 
-        normally, you'll only need to override this one method in a
-        `LoggerAdapter` subclass for your specific needs.
+        :param str msg: log message.
+        :param dict kwargs: keyword arguments passed to logging call.
 
-        :raises CoreNotImplementedError: core not implemented error.
+        :keyword dict data: data to be used for interpolation.
 
         :returns: tuple[str message, dict kwargs]
         :rtype: tuple[str, dict]
         """
 
-        raise CoreNotImplementedError()
+        data = kwargs.pop('data', None)
+        if data is not None:
+            msg = logging_services.interpolate(msg, data)
 
+        custom_message, custom_kwargs = self._process(msg, kwargs)
+        return super().process(custom_message, custom_kwargs)
 
-class RequestInfoLoggerAdapter(BaseLoggerAdapter):
-    """
-    request info logger adapter.
-    this adapter adds request info into generated logs.
-    """
-
-    def process(self, msg, kwargs):
+    def _process(self, msg, kwargs):
         """
         processes the logging message and keyword arguments passed in to a logging call.
 
         it's to insert contextual information. you can either manipulate
         the message itself, the keyword args or both. return the message
         and kwargs modified (or not) to suit your needs.
+
+        this method is intended to be overridden in subclasses.
+
+        :param str msg: log message.
+        :param dict kwargs: keyword arguments passed to logging call.
+
+        :returns: tuple[str message, dict kwargs]
+        :rtype: tuple[str, dict]
+        """
+
+        return msg, kwargs
+
+
+class RequestInfoLoggerAdapter(BaseLoggerAdapter):
+    """
+    request info logger adapter.
+
+    this adapter adds request info into generated logs.
+    """
+
+    def _process(self, msg, kwargs):
+        """
+        processes the logging message and keyword arguments passed in to a logging call.
+
+        it's to insert contextual information. you can either manipulate
+        the message itself, the keyword args or both. return the message
+        and kwargs modified (or not) to suit your needs.
+
+        :param str msg: log message.
+        :param dict kwargs: keyword arguments passed to logging call.
 
         :returns: tuple[str message, dict kwargs]
         :rtype: tuple[str, dict]

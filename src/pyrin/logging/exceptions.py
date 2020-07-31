@@ -25,3 +25,10 @@ class LoggerNotExistedError(LoggingManagerException):
     logger not existed error.
     """
     pass
+
+
+class InvalidLoggingHookTypeError(LoggingManagerException):
+    """
+    invalid logging hook type error.
+    """
+    pass

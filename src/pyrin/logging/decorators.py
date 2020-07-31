@@ -7,6 +7,7 @@ import time
 
 from functools import update_wrapper
 
+import pyrin.utils.misc as misc_utils
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 
@@ -42,10 +43,38 @@ def audit(func):
 
         finally:
             end_time = time.time()
-            logging_services.debug('Duration of function call [{module}.{name}]: [{time} ms].'
-                                   .format(module=func.__module__,
-                                           name=func.__name__,
+            logging_services.debug('Duration of function call [{name}]: [{time} ms].'
+                                   .format(name=misc_utils.try_get_fully_qualified_name(func),
                                            time='{:0.5f}'
                                            .format((end_time - start_time) * 1000)))
 
     return update_wrapper(decorator, func)
+
+
+def logging_hook():
+    """
+    decorator to register a logging hook.
+
+    :raises InvalidLoggingHookTypeError: invalid logging hook type error.
+
+    :returns: logging hook class.
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given class and registers an instance
+        of it into available logging hooks.
+
+        :param type cls: logging hook class.
+
+        :returns: logging hook class.
+        :rtype: type
+        """
+
+        instance = cls()
+        logging_services.register_hook(instance)
+
+        return cls
+
+    return decorator

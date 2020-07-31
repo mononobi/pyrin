@@ -84,8 +84,9 @@ class CoreResponse(Response):
         self._context = self.response_context_class()
 
     def __str__(self):
-        result = 'request id: "{request_id}", response date: "{response_date}", ' \
-                 'request date: "{request_date}", user: "{user}", status_code: "{status_code}"'
+        result = 'request id: "{request_id}", request date: "{request_date}", ' \
+                 'response date: "{response_date}", user: "{user}", ' \
+                 'status_code: "{status_code}"'
         return result.format(response_date=self._response_date,
                              request_id=self.request_id,
                              request_date=self.request_date,

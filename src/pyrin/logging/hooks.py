@@ -5,8 +5,47 @@ logging hooks module.
 
 import pyrin.logging.services as logging_services
 
+from pyrin.core.structs import Hook
 from pyrin.packaging.decorators import packaging_hook
 from pyrin.packaging.hooks import PackagingHookBase
+
+
+class LoggingHookBase(Hook):
+    """
+    logging hook base class.
+
+    all packages that need to be hooked into logging business must
+    implement this class and register it in logging hooks.
+    """
+
+    def prepare_data(self, data, **options):
+        """
+        this method will be called when a log message interpolation is required.
+
+        each subclass must return the modified or same input data.
+
+        :param dict | object data: data that is passed to logging method.
+
+        :returns: modified or same input data.
+        :rtype: dict | object
+        """
+        pass
+
+    def before_emit(self, data, **options):
+        """
+        this method will be called before a log is emitted.
+
+        :param dict | object data: data that is passed to logging method.
+        """
+        pass
+
+    def after_emit(self, data, **options):
+        """
+        this method will be called after a log is emitted.
+
+        :param dict | object data: data that is passed to logging method.
+        """
+        pass
 
 
 @packaging_hook()

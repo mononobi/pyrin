@@ -10,19 +10,25 @@ from logging import Logger
 
 import pyrin.configuration.services as config_services
 
+from pyrin.core.mixin import HookMixin
 from pyrin.logging import LoggingPackage
 from pyrin.core.structs import Manager
 from pyrin.logging.adapters import RequestInfoLoggerAdapter, BaseLoggerAdapter
-from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError
+from pyrin.logging.hooks import LoggingHookBase
+from pyrin.logging.exceptions import InvalidLoggerAdapterTypeError, LoggerNotExistedError, \
+    InvalidLoggingHookTypeError
 
 
-class LoggingManager(Manager):
+class LoggingManager(Manager, HookMixin):
     """
     logging manager class.
     """
 
     # the logger adapter could be overridden in subclasses.
     LOGGER_ADAPTER = RequestInfoLoggerAdapter
+
+    hook_type = LoggingHookBase
+    invalid_hook_type_error = InvalidLoggingHookTypeError
 
     def __init__(self):
         """
@@ -235,3 +241,57 @@ class LoggingManager(Manager):
         """
 
         logging.critical(msg, *args, **kwargs)
+
+    def interpolate(self, msg, data=None):
+        """
+        interpolates the given message with given data.
+
+        if the data is not a dict, no interpolation will be done.
+
+        :param str msg: log message.
+        :param dict data: data to be used for interpolation.
+
+        :rtype: str
+        """
+
+        if not isinstance(data, dict):
+            return msg
+
+        prepared_data = self._prepare_data(data)
+        return msg.format(**prepared_data)
+
+    def _prepare_data(self, data, **options):
+        """
+        this method will call `prepare_data` method of all registered hooks.
+
+        :param dict | object data: data that is passed to logging method.
+
+        :returns: modified or same input data.
+        :rtype: dict | object
+        """
+
+        prepared_data = data
+        for hook in self._hooks:
+            prepared_data = hook.prepare_data(prepared_data, **options)
+
+        return prepared_data
+
+    def _before_emit(self, data, **options):
+        """
+        this method will call `before_emit` method of all registered hooks.
+
+        :param dict | object data: data that is passed to logging method.
+        """
+
+        for hook in self._hooks:
+            hook.before_emit(data, **options)
+
+    def _after_emit(self, data, **options):
+        """
+        this method will call `after_emit` method of all registered hooks.
+
+        :param dict | object data: data that is passed to logging method.
+        """
+
+        for hook in self._hooks:
+            hook.after_emit(data, **options)
