@@ -193,6 +193,8 @@ class LoggingManager(Manager, HookMixin):
         emits a log with debug level.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.debug(msg, *args, **kwargs)
@@ -202,6 +204,8 @@ class LoggingManager(Manager, HookMixin):
         emits a log with info level.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.info(msg, *args, **kwargs)
@@ -211,6 +215,8 @@ class LoggingManager(Manager, HookMixin):
         emits a log with warning level.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.warning(msg, *args, **kwargs)
@@ -220,6 +226,8 @@ class LoggingManager(Manager, HookMixin):
         emits a log with error level.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.error(msg, *args, **kwargs)
@@ -229,6 +237,8 @@ class LoggingManager(Manager, HookMixin):
         emits a log with error level and exception information.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.exception(msg, *args, **kwargs)
@@ -238,29 +248,13 @@ class LoggingManager(Manager, HookMixin):
         emits a log with critical level.
 
         :param str msg: log message.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
         """
 
         logging.critical(msg, *args, **kwargs)
 
-    def interpolate(self, msg, data=None):
-        """
-        interpolates the given message with given data.
-
-        if the data is not a dict, no interpolation will be done.
-
-        :param str msg: log message.
-        :param dict data: data to be used for interpolation.
-
-        :rtype: str
-        """
-
-        if not isinstance(data, dict):
-            return msg
-
-        prepared_data = self._prepare_data(data)
-        return msg.format(**prepared_data)
-
-    def _prepare_data(self, data, **options):
+    def prepare_data(self, data, **options):
         """
         this method will call `prepare_data` method of all registered hooks.
 
@@ -276,7 +270,7 @@ class LoggingManager(Manager, HookMixin):
 
         return prepared_data
 
-    def _before_emit(self, data, **options):
+    def before_emit(self, data, **options):
         """
         this method will call `before_emit` method of all registered hooks.
 
@@ -286,7 +280,7 @@ class LoggingManager(Manager, HookMixin):
         for hook in self._hooks:
             hook.before_emit(data, **options)
 
-    def _after_emit(self, data, **options):
+    def after_emit(self, data, **options):
         """
         this method will call `after_emit` method of all registered hooks.
 

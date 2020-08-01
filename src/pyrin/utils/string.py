@@ -57,3 +57,21 @@ def remove_duplicate_space(value):
         value = value.replace('  ', ' ')
 
     return value
+
+
+def interpolate(message, data):
+    """
+    interpolates the given message with given data.
+
+    if data is not a dict, no interpolation will be done.
+
+    :param str message: message to be interpolated.
+    :param dict data: data to be used for interpolation.
+
+    :rtype: str
+    """
+
+    if not isinstance(data, dict):
+        return message
+
+    return message.format(**data)

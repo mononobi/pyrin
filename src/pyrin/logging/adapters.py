@@ -7,6 +7,7 @@ from logging import LoggerAdapter
 
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
+import pyrin.utils.string as string_utils
 
 
 class BaseLoggerAdapter(LoggerAdapter):
@@ -56,6 +57,29 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         self.logger.removeHandler(hdlr)
 
+    def log(self, level, msg, *args, **kwargs):
+        """
+        delegates a log call to the underlying logger.
+
+        this method is overridden to execute before and after emit hooks.
+        and also performing interpolation data preparation if required.
+
+        :param int level: log level.
+        :param str msg: log message.
+        :param dict kwargs: keyword arguments passed to logging call.
+
+        :keyword dict interpolation_data: data to be used for interpolation.
+        """
+
+        if self.isEnabledFor(level):
+            data = kwargs.pop('interpolation_data', None)
+            if data is not None:
+                data = logging_services.prepare_data(data)
+
+            logging_services.before_emit(data, **kwargs)
+            super().log(level, msg, *args, **kwargs, interpolation_data=data)
+            logging_services.after_emit(data, **kwargs)
+
     def process(self, msg, kwargs):
         """
         processes the logging message and keyword arguments passed in to a logging call.
@@ -75,7 +99,7 @@ class BaseLoggerAdapter(LoggerAdapter):
 
         data = kwargs.pop('interpolation_data', None)
         if data is not None:
-            msg = logging_services.interpolate(msg, data)
+            msg = string_utils.interpolate(msg, data)
 
         custom_message, custom_kwargs = self._process(msg, kwargs)
         return super().process(custom_message, custom_kwargs)
