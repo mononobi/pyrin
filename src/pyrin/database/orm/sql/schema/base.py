@@ -11,6 +11,7 @@ from pyrin.database.orm.sql.operators.base import CoreColumnOperators
 class CoreColumn(Column, CoreColumnOperators):
     """
     core column class.
+
     all application models columns must be an instance of this class.
     """
 
@@ -104,11 +105,13 @@ class CoreColumn(Column, CoreColumnOperators):
         self.exposed = kwargs.pop('exposed', True)
         super().__init__(*args, **kwargs)
 
+    @property
     def fullname(self):
         """
-        gets the column's fullname. fullname is made up
-        of `table_fullname.column_name`. if the column
-        has no table, it only returns the `column_name`.
+        gets the column's fullname.
+
+        fullname is made up of `table_fullname.column_name`.
+        if the column has no table, it only returns the `column_name`.
 
         :rtype: str
         """
@@ -121,6 +124,16 @@ class CoreColumn(Column, CoreColumnOperators):
                 for base_column in single_column.base_columns:
                     return '{table}.{column}'.format(table=base_column.table.fullname,
                                                      column=self._real_name())
+
+    @property
+    def is_foreign_key(self):
+        """
+        gets a value indicating that this column is a foreign key.
+
+        :rtype: bool
+        """
+
+        return len(self.foreign_keys) > 0
 
     def _real_name(self):
         """
