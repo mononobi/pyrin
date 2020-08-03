@@ -184,14 +184,14 @@ def test_from_dict_with_invalid_column_and_not_silent():
     """
     updates the column values of the entity from those
     values that are available in input keyword arguments.
-    there is some invalid column names and `silent_on_invalid_column=False`
+    there is some invalid column names and `ignore_invalid_column=False`
     has been set. it should raise an error.
     """
 
     with pytest.raises(ColumnNotExistedError):
         dict_value = DTO(id=1300, name='jack', age=40, ignored_key='nothing')
         entity = SampleEntity()
-        entity.from_dict(False, **dict_value)
+        entity.from_dict(ignore_invalid_column=False, **dict_value)
 
 
 def test_from_dict_with_hidden_column():
