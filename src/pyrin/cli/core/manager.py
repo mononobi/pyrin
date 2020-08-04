@@ -53,7 +53,7 @@ class CLICoreManager(Manager):
             raise CLICoreTemplateHandlerNotFoundError('Command [{name}] is not valid. '
                                                       'available commands: {commands}.'
                                                       .format(name=name,
-                                                              commands=list(
-                                                                  self._handlers.keys())))
+                                                              commands=
+                                                              list(self._handlers.keys())))
 
         return self._handlers[name][0]

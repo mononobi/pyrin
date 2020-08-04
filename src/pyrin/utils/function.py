@@ -57,6 +57,8 @@ def get_fully_qualified_name(func):
     for example: `pyrin.api.services.create_route`.
 
     :param function func: function to get its fully qualified name.
+                          it must be a stand-alone function, not an
+                          instance or class method.
 
     :raises IsNotUserDefinedFunctionError: is not user defined function error.
 
@@ -65,7 +67,7 @@ def get_fully_qualified_name(func):
 
     if not inspect.isfunction(func):
         raise IsNotUserDefinedFunctionError('The provided parameter [{function}] is not a '
-                                            'user defined function. use the method '
+                                            'user defined stand-alone function. use the method '
                                             '"pyrin.utils.misc.try_get_fully_qualified_name" '
                                             'for other object types.')
 

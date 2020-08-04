@@ -3,63 +3,85 @@
 caching decorators module.
 """
 
+from functools import update_wrapper
 
-# def atomic(*old_func, auto_commit=True):
-#     """
-#     decorator to make a function execution atomic.
-#
-#     meaning that before starting the execution of the function, a new session with a
-#     new transaction will be started, and after the completion of that function, if it
-#     was successful, the new transaction will be committed or if it was not successful
-#     the new transaction will be rolled back without the consideration or affecting the
-#     parent transaction which by default is scoped to request. the corresponding new
-#     session will also be removed after function execution.
-#
-#     this decorator supports with or without argument usage.
-#     for example: `@atomic` or `@atomic(auto_commit=False)`
-#
-#     :param bool auto_commit: specifies that the result of the function must be
-#                              auto committed. defaults to True if not provided.
-#
-#     :returns: function result.
-#     """
-#
-#     def decorator(func):
-#         """
-#         decorates the given function and makes its execution atomic.
-#
-#         :param function func: function.
-#
-#         :returns: function result.
-#         """
-#
-#         def wrapper(*args, **kwargs):
-#             """
-#             decorates the given function and makes its execution atomic.
-#
-#             :param object args: function arguments.
-#             :param object kwargs: function keyword arguments.
-#
-#             :returns: function result.
-#             """
-#
-#             store = database_services.get_atomic_store()
-#             try:
-#                 result = func(*args, **kwargs)
-#                 if auto_commit is True:
-#                     store.commit()
-#                 return result
-#             except Exception as ex:
-#                 store.rollback()
-#                 raise ex
-#             finally:
-#                 if auto_commit is True:
-#                     factory = database_services.get_current_session_factory()
-#                     factory.remove(True)
-#
-#         return update_wrapper(wrapper, func)
-#
-#     if len(old_func) > 0:
-#         return decorator(old_func[0])
-#
-#     return decorator
+from pyrin.caching.exceptions import NotBoundedToClassError
+from pyrin.caching.structs import SharedContainer
+
+
+def shared_cache(*old_method_or_property, container=None):
+    """
+    decorator to convert a method or property into a lazy one.
+
+    the method or property result will be calculated once and then it will
+    be cached. each result will be cached using a tuple of method or property
+    class type and method or property name as a key into the provided container.
+    so all instances of the same class type will have access to the same shared
+    cache storage. if you want to use a cache per each instance of a class
+    type, you could use `cached_property` or `cached_method` decorators.
+
+    note that this decorator could only be used on instance or class methods and properties.
+
+    :param function | property old_method_or_property: the original decorated
+                                                       method or property.
+
+    :param type[SharedContainer] container: container class type to be used
+                                            as cache storage.
+                                            if not provided, defaults to
+                                            an application level shared
+                                            container. it must be a subclass
+                                            of `SharedContainer` class.
+
+    :raises NotBoundedToClassError: not bounded to class error.
+
+    :returns: method or property result.
+    """
+
+    def decorator(method_or_property):
+        """
+        decorates the given method or property and makes it a lazy one.
+
+        :param function | property method_or_property: decorated method or property.
+
+        :returns: method or property result.
+        """
+
+        def wrapper(*args, **kwargs):
+            """
+            decorates the given method or property and makes it a lazy one.
+
+            :param object args: method arguments.
+            :param object kwargs: method keyword arguments.
+
+            :returns: method or property result.
+            """
+
+            storage = container
+            if storage is None:
+                storage = SharedContainer
+
+            if len(args) <= 0:
+                raise NotBoundedToClassError('"@shared_cache" decorator could only '
+                                             'be used on instance or class methods '
+                                             'and properties.')
+
+            class_type = args[0]
+            method_name = method_or_property.__name__
+            if not isinstance(class_type, type):
+                class_type = type(class_type)
+
+            key = (class_type, method_name)
+            result = storage.get(key)
+            if result is not None:
+                return result
+
+            result = method_or_property(*args, **kwargs)
+            storage.set(key, result)
+            return result
+
+        return update_wrapper(wrapper, method_or_property)
+
+    if len(old_method_or_property) > 0:
+        return decorator(old_method_or_property[0])
+
+    return decorator
