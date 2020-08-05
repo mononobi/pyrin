@@ -21,6 +21,7 @@ def shared_cache(*old_method_or_property, container=None):
     type, you could use `cached_property` or `cached_method` decorators.
 
     note that this decorator could only be used on instance or class methods and properties.
+    this decorator does not handle methods that have inputs.
 
     :param function | property old_method_or_property: the original decorated
                                                        method or property.
@@ -46,12 +47,11 @@ def shared_cache(*old_method_or_property, container=None):
         :returns: method or property result.
         """
 
-        def wrapper(*args, **kwargs):
+        def wrapper(self):
             """
             decorates the given method or property and makes it a lazy one.
 
-            :param object args: method arguments.
-            :param object kwargs: method keyword arguments.
+            :param object self: the method's parent class instance or type.
 
             :returns: method or property result.
             """
@@ -60,12 +60,12 @@ def shared_cache(*old_method_or_property, container=None):
             if storage is None:
                 storage = SharedContainer
 
-            if len(args) <= 0:
+            if self is None:
                 raise NotBoundedToClassError('"@shared_cache" decorator could only '
                                              'be used on instance or class methods '
                                              'and properties.')
 
-            class_type = args[0]
+            class_type = self
             method_name = method_or_property.__name__
             if not isinstance(class_type, type):
                 class_type = type(class_type)
@@ -75,7 +75,7 @@ def shared_cache(*old_method_or_property, container=None):
             if result is not None:
                 return result
 
-            result = method_or_property(*args, **kwargs)
+            result = method_or_property(self)
             storage.set(key, result)
             return result
 
