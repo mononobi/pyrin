@@ -24,6 +24,7 @@ from sqlalchemy.exc import NoInspectionAvailable
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 
+from pyrin.caching.decorators import shared_cache
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -31,105 +32,70 @@ from pyrin.database.services import get_current_store
 from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
+from pyrin.database.model.cache import ColumnCache, PrimaryKeyCache, \
+    ForeignKeyCache, RelationshipCache, PropertyCache
 
 
 class ColumnMixin(CoreObject):
     """
     column mixin class.
 
-    this class adds functionalities about columns to its subclasses.
+    this class adds functionalities about columns (other than pk and fk) to its subclasses.
     """
 
-    def _set_all_columns(self, columns):
-        """
-        sets all column names attribute for this class.
-
-        :param tuple[str] columns: column names.
-        """
-
-        if getattr(ColumnMixin, '_all_columns', None) is None:
-            ColumnMixin._all_columns = DTO()
-
-        ColumnMixin._all_columns[type(self)] = columns
-
-    def _set_exposed_columns(self, columns):
-        """
-        sets exposed column names attribute for this class.
-
-        :param tuple[str] columns: column names.
-        """
-
-        if getattr(ColumnMixin, '_exposed_columns', None) is None:
-            ColumnMixin._exposed_columns = DTO()
-
-        ColumnMixin._exposed_columns[type(self)] = columns
-
     @property
+    @shared_cache(container=ColumnCache)
     def all_columns(self):
         """
         gets all column names of this entity.
 
+        note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        columns = self._get_all_columns()
-        if columns is None:
-            info = sqla_inspect(type(self))
-            columns = tuple(attr.key for attr in info.column_attrs)
-            self._set_all_columns(columns)
-
-        return columns
+        return self.exposed_columns + self.not_exposed_columns
 
     @property
+    @shared_cache(container=ColumnCache)
     def exposed_columns(self):
         """
         gets exposed column names of this entity, which are those that have `exposed=True`.
 
+        note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        columns = self._get_exposed_columns()
-        if columns is None:
-            info = sqla_inspect(type(self))
-            columns = tuple(attr.key for attr in info.column_attrs
-                            if attr.columns[0].exposed is True)
-            self._set_exposed_columns(columns)
+        info = sqla_inspect(type(self))
+        columns = tuple(attr.key for attr in info.column_attrs
+                        if attr.columns[0].is_foreign_key is False and
+                        attr.columns[0].primary_key is False and
+                        attr.columns[0].exposed is True)
 
         return columns
 
-    def _get_all_columns(self):
+    @property
+    @shared_cache(container=ColumnCache)
+    def not_exposed_columns(self):
         """
-        gets all column names of this entity.
+        gets not exposed column names of this entity, which are those that have `exposed=False`.
 
-        returns None if not found.
+        note that primary and foreign keys are not included in columns.
+        column names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        columns = getattr(ColumnMixin, '_all_columns', None)
-        if columns is not None:
-            return columns.get(type(self), None)
+        info = sqla_inspect(type(self))
+        columns = tuple(attr.key for attr in info.column_attrs
+                        if attr.columns[0].is_foreign_key is False and
+                        attr.columns[0].primary_key is False and
+                        attr.columns[0].exposed is False)
 
-        return None
-
-    def _get_exposed_columns(self):
-        """
-        gets exposed column names of this entity, which are those that have `exposed=True`.
-
-        returns None if not found.
-
-        :rtype: tuple[str]
-        """
-
-        columns = getattr(ColumnMixin, '_exposed_columns', None)
-        if columns is not None:
-            return columns.get(type(self), None)
-
-        return None
+        return columns
 
 
 class RelationshipMixin(CoreObject):
@@ -139,19 +105,8 @@ class RelationshipMixin(CoreObject):
     this class adds functionalities about relationship properties to its subclasses.
     """
 
-    def _set_relationships(self, relationships):
-        """
-        sets relationship property names attribute for this class.
-
-        :param tuple[str] relationships: relationship property names.
-        """
-
-        if getattr(RelationshipMixin, '_relationships', None) is None:
-            RelationshipMixin._relationships = DTO()
-
-        RelationshipMixin._relationships[type(self)] = relationships
-
     @property
+    @shared_cache(container=RelationshipCache)
     def relationships(self):
         """
         gets all relationship property names of this entity.
@@ -161,135 +116,67 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        relationships = self._get_relationships()
-        if relationships is None:
-            info = sqla_inspect(type(self))
-            relationships = tuple(attr.key for attr in info.relationships)
-            self._set_relationships(relationships)
-
+        info = sqla_inspect(type(self))
+        relationships = tuple(attr.key for attr in info.relationships)
         return relationships
 
-    def _get_relationships(self):
-        """
-        gets all relationship property names of this entity.
 
-        returns None if not found.
-
-        :rtype: tuple[str]
-        """
-
-        relationships = getattr(RelationshipMixin, '_relationships', None)
-        if relationships is not None:
-            return relationships.get(type(self), None)
-
-        return None
-
-
-class PropertyMixin(ColumnMixin, RelationshipMixin):
+class PropertyMixin(CoreObject):
     """
     property mixin class.
 
-    this class adds functionalities about column and
-    relationship properties to its subclasses.
+    this class adds functionalities about all properties to its subclasses.
     """
 
-    def _set_all_columns_and_relationships(self, all_properties):
+    @property
+    @shared_cache(container=PropertyCache)
+    def all_properties(self):
         """
-        sets all column and relationship property names attribute for this class.
+        gets all columns (including pk and fk) and relationship property names.
 
-        :param tuple[str] all_properties: all property names.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
         """
 
-        if getattr(PropertyMixin, '_all_columns_and_relationships', None) is None:
-            PropertyMixin._all_columns_and_relationships = DTO()
+        return self.all_exposed_properties + self.all_not_exposed_properties
 
-        PropertyMixin._all_columns_and_relationships[type(self)] = all_properties
-
-    def _set_exposed_columns_and_relationships(self, exposed_properties):
+    @property
+    @shared_cache(container=PropertyCache)
+    def all_exposed_properties(self):
         """
-        sets exposed column and relationship property names attribute for this class.
+        gets all exposed columns (including pk and fk) and relationship property names.
 
         exposed columns are those that have `exposed=True` in their definition.
-
-        :param tuple[str] exposed_properties: exposed property names.
-        """
-
-        if getattr(PropertyMixin, '_exposed_columns_and_relationships', None) is None:
-            PropertyMixin._exposed_columns_and_relationships = DTO()
-
-        PropertyMixin._exposed_columns_and_relationships[type(self)] = exposed_properties
-
-    @property
-    def all_columns_and_relationships(self):
-        """
-        gets all column and relationship property names of this entity.
-
         property names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        all_properties = self._get_all_columns_and_relationships()
-        if all_properties is None:
-            all_properties = self.all_columns + self.relationships
-            self._set_all_columns_and_relationships(all_properties)
-
-        return all_properties
+        return self.exposed_primary_key_columns + self.exposed_foreign_key_columns + \
+            self.exposed_columns + self.relationships
 
     @property
-    def exposed_columns_and_relationships(self):
+    @shared_cache(container=PropertyCache)
+    def all_not_exposed_properties(self):
         """
-        gets exposed column and relationship property names of this entity.
+        gets all not exposed columns (including pk and fk) and relationship property names.
 
-        exposed columns are those that have `exposed=True` is their definition.
+        not exposed columns are those that have `exposed=False` in their definition.
         property names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        exposed_properties = self._get_exposed_columns_and_relationships()
-        if exposed_properties is None:
-            exposed_properties = self.exposed_columns + self.relationships
-            self._set_exposed_columns_and_relationships(exposed_properties)
-
-        return exposed_properties
-
-    def _get_all_columns_and_relationships(self):
-        """
-        gets all column and relationship property names of this entity.
-
-        returns None if not found.
-
-        :rtype: tuple[str]
-        """
-
-        all_properties = getattr(PropertyMixin, '_all_columns_and_relationships', None)
-        if all_properties is not None:
-            return all_properties.get(type(self), None)
-
-        return None
-
-    def _get_exposed_columns_and_relationships(self):
-        """
-        gets exposed column and relationship property names of this entity.
-
-        returns None if not found.
-
-        :rtype: tuple[str]
-        """
-
-        exposed_properties = getattr(PropertyMixin, '_exposed_columns_and_relationships', None)
-        if exposed_properties is not None:
-            return exposed_properties.get(type(self), None)
-
-        return None
+        return self.not_exposed_primary_key_columns + self.not_exposed_foreign_key_columns + \
+            self.not_exposed_columns + self.relationships
 
 
 class PrimaryKeyMixin(CoreObject):
     """
     primary key mixin class.
 
-    this class adds functionalities about primary key columns to its subclasses.
+    this class adds functionalities about primary keys to its subclasses.
     """
 
     def _is_primary_key_comparable(self, primary_key):
@@ -340,51 +227,112 @@ class PrimaryKeyMixin(CoreObject):
         else:
             return tuple(getattr(self, col) for col in columns)
 
-    def _set_primary_key_columns(self, columns):
-        """
-        sets primary key column names attribute for this class.
-
-        :param tuple[str] columns: column names.
-        """
-
-        if getattr(PrimaryKeyMixin, '_primary_key_columns', None) is None:
-            PrimaryKeyMixin._primary_key_columns = DTO()
-
-        PrimaryKeyMixin._primary_key_columns[type(self)] = columns
-
-    def _get_primary_keys(self):
-        """
-        gets current entity's primary key column names if available.
-
-        :rtype: tuple[str]
-        """
-
-        columns = getattr(PrimaryKeyMixin, '_primary_key_columns', None)
-        if columns is not None:
-            return columns.get(type(self), None)
-
-        return None
-
     @property
+    @shared_cache(container=PrimaryKeyCache)
     def primary_key_columns(self):
         """
-        gets the primary key column names of this entity.
+        gets all primary key column names of this entity.
 
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        pk = self._get_primary_keys()
-        if pk is None:
-            info = sqla_inspect(type(self))
-            pk = tuple(info.get_property_by_column(col).key for col in info.primary_key)
-            self._set_primary_key_columns(pk)
+        return self.exposed_primary_key_columns + self.not_exposed_primary_key_columns
+
+    @property
+    @shared_cache(container=PrimaryKeyCache)
+    def exposed_primary_key_columns(self):
+        """
+        gets the exposed primary key column names of this entity.
+
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
+                   if col.exposed is True)
+
+        return pk
+
+    @property
+    @shared_cache(container=PrimaryKeyCache)
+    def not_exposed_primary_key_columns(self):
+        """
+        gets not exposed primary key column names of this entity.
+
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
+                   if col.exposed is False)
 
         return pk
 
 
-class ConverterMixin(PropertyMixin):
+class ForeignKeyMixin(CoreObject):
+    """
+    foreign key mixin class.
+
+    this class adds functionalities about foreign keys to its subclasses.
+    """
+
+    @property
+    @shared_cache(container=ForeignKeyCache)
+    def foreign_key_columns(self):
+        """
+        gets all foreign key column names of this entity.
+
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.exposed_foreign_key_columns + self.not_exposed_foreign_key_columns
+
+    @property
+    @shared_cache(container=ForeignKeyCache)
+    def exposed_foreign_key_columns(self):
+        """
+        gets the exposed foreign key column names of this entity.
+
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        fk = tuple(attr.key for attr in info.column_attrs
+                   if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].exposed is True)
+
+        return fk
+
+    @property
+    @shared_cache(container=ForeignKeyCache)
+    def not_exposed_foreign_key_columns(self):
+        """
+        gets not exposed foreign key column names of this entity.
+
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        fk = tuple(attr.key for attr in info.column_attrs
+                   if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].exposed is False)
+
+        return fk
+
+
+class ConverterMixin(CoreObject):
     """
     converter mixin class.
 
@@ -402,8 +350,8 @@ class ConverterMixin(PropertyMixin):
         """
         converts the entity into a dict and returns it.
 
-        it could convert columns and also relationship properties
-        if `depth` is provided.
+        it could convert primary keys, foreign keys, other columns and
+        also relationship properties if `depth` is provided.
         the result dict by default only contains the exposed columns of the
         entity which are those that their `exposed` attribute is set to True.
 
@@ -518,43 +466,39 @@ class ConverterMixin(PropertyMixin):
         :rtype: dict
         """
 
-        base_columns_and_relationships = None
+        base_properties = None
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
-
         exposed_only = options.get('exposed_only', True)
-        if exposed_only is None:
-            exposed_only = True
 
         depth = options.get('depth', None)
         if depth is None:
             depth = config_services.get('database', 'conversion', 'default_depth')
 
         if exposed_only is False:
-            base_columns_and_relationships = self.all_columns_and_relationships
+            base_properties = self.all_properties
         else:
-            base_columns_and_relationships = self.exposed_columns_and_relationships
+            base_properties = self.all_exposed_properties
 
         relations = self.relationships
         requested_relationships = []
-
+        base_properties = set(base_properties)
         if len(requested_columns) > 0:
-            difference = set(requested_columns).difference(set(base_columns_and_relationships))
-            if len(difference) > 0:
+            not_existed = requested_columns.difference(base_properties)
+            if len(not_existed) > 0:
                 raise ColumnNotExistedError('Requested columns or relationship properties '
                                             '{columns} are not available in entity [{entity}]. '
                                             'it might be because of "exposed_only" '
                                             'parameter value passed to this method.'
-                                            .format(columns=list(difference), entity=self))
+                                            .format(columns=list(not_existed), entity=self))
         else:
-            requested_columns = base_columns_and_relationships
+            requested_columns = base_properties.difference(excluded_columns)
 
         result = DTO()
         for col in requested_columns:
-            if col not in excluded_columns:
-                if col in relations:
-                    requested_relationships.append(col)
-                else:
-                    result[rename.get(col, col)] = getattr(self, col)
+            if col in relations:
+                requested_relationships.append(col)
+            else:
+                result[rename.get(col, col)] = getattr(self, col)
 
         if depth > 0 and len(requested_relationships) > 0:
             if depth > self.MAX_DEPTH:
@@ -580,32 +524,96 @@ class ConverterMixin(PropertyMixin):
 
         return result
 
-    def from_dict(self, silent_on_invalid_column=True, **kwargs):
+    def from_dict(self, **kwargs):
         """
         updates the column values of this entity with values in keyword arguments.
 
-        it could fill columns and also relationship properties if provided.
-        note that relationship values must be entities. this method could not convert
-        relationships which are dict, into entities.
+        it could fill primary keys, foreign keys, other columns and also
+        relationship properties provided in keyword arguments.
+        note that relationship values must be entities. this method could
+        not convert relationships which are dict, into entities.
 
-        :param bool silent_on_invalid_column: specifies that if a key is not available
-                                              in entity columns, do not raise an error.
-                                              defaults to True if not provided.
+        :keyword bool ignore_invalid_column: specifies that if a key is not available
+                                             in entity columns, do not raise an error.
+                                             defaults to True if not provided.
+
+        :keyword bool ignore_pk: specifies that any primary key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set primary keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to True if not provided.
+
+        :keyword bool ignore_fk: specifies that any foreign key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set foreign keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to False if not provided.
+
+        :keyword bool ignore_not_exposed: specifies that any column which has
+                                          `exposed=False` should not be populated
+                                          from given values. this is useful if you
+                                          want to fill an entity with keyword arguments
+                                          passed from client and then doing the validation.
+                                          but do not want to expose a security risk.
+                                          especially in update operations.
+                                          defaults to True if not provided.
+
+        :keyword bool ignore_relationships: specifies that any relationship property
+                                            should not be populated with given values.
+                                            defaults to True if not provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        all_properties = self.all_columns_and_relationships
-        for key, value in kwargs.items():
-            if key in all_properties:
-                setattr(self, key, value)
+        ignore_invalid = kwargs.pop('ignore_invalid_column', True)
+        ignore_not_exposed = kwargs.pop('ignore_not_exposed', True)
+        ignore_pk = kwargs.pop('ignore_pk', True)
+        ignore_fk = kwargs.pop('ignore_fk', False)
+        ignore_relationships = kwargs.pop('ignore_relationships', True)
+
+        accessible_columns = self.exposed_columns
+        if ignore_not_exposed is False:
+            accessible_columns = accessible_columns + self.not_exposed_columns
+
+        accessible_pk = ()
+        if ignore_pk is False:
+            if ignore_not_exposed is False:
+                accessible_pk = self.primary_key_columns
             else:
-                if silent_on_invalid_column is False:
-                    raise ColumnNotExistedError('Entity [{entity}] does not have '
-                                                'a column or relationship attribute '
-                                                'named [{column}].'
-                                                .format(entity=self,
-                                                        column=key))
+                accessible_pk = self.exposed_primary_key_columns
+
+        accessible_fk = ()
+        if ignore_fk is not True:
+            if ignore_not_exposed is False:
+                accessible_fk = self.foreign_key_columns
+            else:
+                accessible_fk = self.exposed_foreign_key_columns
+
+        accessible_relationships = ()
+        if ignore_relationships is False:
+            accessible_relationships = self.relationships
+
+        all_accessible_columns = accessible_pk + accessible_fk + \
+            accessible_columns + accessible_relationships
+
+        provided_columns = set(kwargs.keys())
+        result_columns = set(all_accessible_columns).intersection(provided_columns)
+        if ignore_invalid is False:
+            not_existed = provided_columns.difference(result_columns)
+            if len(not_existed) > 0:
+                raise ColumnNotExistedError('Provided columns or relationship properties '
+                                            '{columns} are not available in entity [{entity}].'
+                                            .format(entity=self,
+                                                    columns=list(not_existed)))
+
+        for column in result_columns:
+            setattr(self, column, kwargs.get(column))
 
     def _extract_conditions(self, **options):
         """
@@ -695,11 +703,11 @@ class ConverterMixin(PropertyMixin):
 
         :note exclude: dict[str entity_class_name, list[str column_name]] | list[str column_name]
 
-        :returns: tuple[list[str column_name],
+        :returns: tuple[set[str column_name],
                         dict[str original_column, str new_column],
-                        list[str excluded_column]]
+                        set[str excluded_column]]
 
-        :rtype: tuple[list[str], dict[str, str], list[str]]
+        :rtype: tuple[set[str], dict[str, str], set[str]]
         """
 
         columns = options.get('columns', None)
@@ -726,10 +734,12 @@ class ConverterMixin(PropertyMixin):
         if exclude is None:
             exclude = []
 
-        return columns, rename, exclude
+        columns = set(columns)
+        exclude = set(exclude)
+        return columns.difference(exclude), rename, exclude
 
 
-class MagicMethodMixin(PrimaryKeyMixin):
+class MagicMethodMixin(CoreObject):
     """
     magic method mixin class.
 
@@ -904,7 +914,7 @@ class MagicMethodMixin(PrimaryKeyMixin):
         """
         gets base entity class of application.
 
-        this method must be overridden by `BaseEntity` class.
+        this method must be overridden in `BaseEntity` class.
         it should return type of `BaseEntity` class itself.
         this method is required to overcome circular dependency problem as mixin
         module could not import `BaseEntity` because `BaseEntity` itself references
@@ -1002,7 +1012,7 @@ class QueryMixin(CoreObject):
         return store.query(*used_entities, **options)
 
 
-class CRUDMixin(ConverterMixin):
+class CRUDMixin(CoreObject):
     """
     crud mixin class.
 
@@ -1020,20 +1030,55 @@ class CRUDMixin(ConverterMixin):
         store.add(self)
         return self
 
-    def update(self, silent_on_invalid_column=True, **kwargs):
+    def update(self, **kwargs):
         """
         updates the column values of this entity with values in keyword arguments.
 
-        it could fill columns and also relationship properties if provided.
+        then persists changes into database.
+        it could fill primary keys, foreign keys, other columns and also
+        relationship properties provided in keyword arguments.
+        note that relationship values must be entities. this method could
+        not convert relationships which are dict, into entities.
 
-        :param bool silent_on_invalid_column: specifies that if a key is not available
-                                              in entity columns, do not raise an error.
-                                              defaults to True if not provided.
+        :keyword bool ignore_invalid_column: specifies that if a key is not available
+                                             in entity columns, do not raise an error.
+                                             defaults to True if not provided.
+
+        :keyword bool ignore_pk: specifies that any primary key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set primary keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to True if not provided.
+
+        :keyword bool ignore_fk: specifies that any foreign key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set foreign keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to False if not provided.
+
+        :keyword bool ignore_not_exposed: specifies that any column which has
+                                          `exposed=False` should not be populated
+                                          from given values. this is useful if you
+                                          want to fill an entity with keyword arguments
+                                          passed from client and then doing the validation.
+                                          but do not want to expose a security risk.
+                                          especially in update operations.
+                                          defaults to True if not provided.
+
+        :keyword bool ignore_relationships: specifies that any relationship property
+                                            should not be populated with given values.
+                                            defaults to True if not provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        self.from_dict(silent_on_invalid_column, **kwargs)
+        self.from_dict(**kwargs)
         return self.save()
 
     def delete(self):

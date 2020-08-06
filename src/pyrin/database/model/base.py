@@ -5,10 +5,15 @@ model base module.
 
 from sqlalchemy.ext.declarative import as_declarative
 
-from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin
+from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
+    ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
+    PropertyMixin, ConverterMixin
 
 
-class BaseEntity(MagicMethodMixin, CRUDMixin, QueryMixin):
+class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
+                 ForeignKeyMixin, ColumnMixin,
+                 RelationshipMixin, PropertyMixin,
+                 CRUDMixin, QueryMixin, ConverterMixin):
     """
     base entity class.
 
@@ -42,9 +47,45 @@ class BaseEntity(MagicMethodMixin, CRUDMixin, QueryMixin):
         that results returned by orm from database will not call `__init__`
         of each entity.
 
-        it also could set attributes on the constructed instance using the
-        names and values in `kwargs`. all keys that are present as either mapped
-        columns or relationship properties of the instance's class are allowed.
+        it could fill primary keys, foreign keys, other columns and also
+        relationship properties provided in keyword arguments.
+        note that relationship values must be entities. this method could
+        not convert relationships which are dict, into entities.
+
+        :keyword bool ignore_invalid_column: specifies that if a key is not available
+                                             in entity columns, do not raise an error.
+                                             defaults to True if not provided.
+
+        :keyword bool ignore_pk: specifies that any primary key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set primary keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to True if not provided.
+
+        :keyword bool ignore_fk: specifies that any foreign key column
+                                 should not be populated with given values.
+                                 this is useful if you want to fill an entity
+                                 with keyword arguments passed from client
+                                 and then doing the validation. but do not
+                                 want to let user set foreign keys and exposes
+                                 a security risk. especially in update operations.
+                                 defaults to False if not provided.
+
+        :keyword bool ignore_not_exposed: specifies that any column which has
+                                          `exposed=False` should not be populated
+                                          from given values. this is useful if you
+                                          want to fill an entity with keyword arguments
+                                          passed from client and then doing the validation.
+                                          but do not want to expose a security risk.
+                                          especially in update operations.
+                                          defaults to True if not provided.
+
+        :keyword bool ignore_relationships: specifies that any relationship property
+                                            should not be populated with given values.
+                                            defaults to True if not provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """
@@ -52,7 +93,7 @@ class BaseEntity(MagicMethodMixin, CRUDMixin, QueryMixin):
         super().__init__()
 
         self._set_name(self.__class__.__name__)
-        self.from_dict(False, **kwargs)
+        self.from_dict(**kwargs)
 
     @property
     def _base_entity_class(self):
