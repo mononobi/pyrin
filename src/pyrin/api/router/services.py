@@ -109,10 +109,11 @@ def create_route(rule, **options):
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
-    :keyword bool exposed_only: if set to False, it returns all
-                                columns of the entity as dict.
+    :keyword bool exposed_only: specifies that any column or attribute which
+                                has `exposed=False` or its name starts with
+                                underscore `_`, should not be included in result
+                                dict. defaults to True if not provided.
                                 it will be used only for entity conversion.
-                                if not provided, defaults to True.
                                 this value will override the corresponding
                                 value of `result_schema` if provided.
 
@@ -289,10 +290,11 @@ def add_route(url, view_func=None,
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
-    :keyword bool exposed_only: if set to False, it returns all
-                                columns of the entity as dict.
+    :keyword bool exposed_only: specifies that any column or attribute which
+                                has `exposed=False` or its name starts with
+                                underscore `_`, should not be included in result
+                                dict. defaults to True if not provided.
                                 it will be used only for entity conversion.
-                                if not provided, defaults to True.
                                 this value will override the corresponding
                                 value of `result_schema` if provided.
 

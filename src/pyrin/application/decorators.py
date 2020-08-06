@@ -8,7 +8,8 @@ import pyrin.application.services as application_services
 
 def component(component_name, *args, **kwargs):
     """
-    decorator to register a component in application or replace the existing one
+    decorator to register a component in application or replace the existing one.
+
     if `replace=True` is provided. otherwise, it raises an error on adding an instance
     which it's id is already available in registered components.
 
@@ -53,8 +54,8 @@ def error_handler(code_or_exception):
     """
     decorator to register an error handler for application.
 
-    :param int | Exception code_or_exception: code or exception type to
-                                              register handler for.
+    :param int | type[Exception] code_or_exception: code or exception type to
+                                                    register handler for.
 
     :rtype: callable
     """

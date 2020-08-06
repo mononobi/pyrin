@@ -98,8 +98,8 @@ def register_error_handler(code_or_exception, func):
     """
     registers the given function as an error handler for given code or exception type.
 
-    :param int | Exception code_or_exception: code or exception to
-                                              register error handler for.
+    :param int | type[Exception] code_or_exception: code or exception to
+                                                    register error handler for.
 
     :param function func: function to register it as an error handler.
     """
@@ -278,10 +278,11 @@ def add_url_rule(rule, view_func,
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
-    :keyword bool exposed_only: if set to False, it returns all
-                                columns of the entity as dict.
+    :keyword bool exposed_only: specifies that any column or attribute which
+                                has `exposed=False` or its name starts with
+                                underscore `_`, should not be included in result
+                                dict. defaults to True if not provided.
                                 it will be used only for entity conversion.
-                                if not provided, defaults to True.
                                 this value will override the corresponding
                                 value of `result_schema` if provided.
 

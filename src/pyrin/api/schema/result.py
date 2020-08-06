@@ -20,10 +20,11 @@ class ResultSchema(CoreObject):
 
         note that at least one of keyword arguments must be provided.
 
-        :keyword bool exposed_only: if set to False, it returns all
-                                    columns of the entity as dict.
+        :keyword bool exposed_only: specifies that any column or attribute which
+                                    has `exposed=False` or its name starts with
+                                    underscore `_`, should not be included in result
+                                    dict. defaults to True if not provided.
                                     it will be used only for entity conversion.
-                                    if not provided, defaults to True.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -226,8 +227,10 @@ class ResultSchema(CoreObject):
         """
         gets the exposed_only attribute of this schema.
 
-        it specifies that just exposed columns of an entity must be
-        included in result. it will be used only for entity conversion.
+        it specifies that just exposed attributes of an entity must be
+        included in result. which are those that have `exposed=True`
+        and their name does not start with underscore `_`.
+        it will be used only for entity conversion.
 
         :rtype: bool
         """
@@ -239,8 +242,10 @@ class ResultSchema(CoreObject):
         """
         sets the exposed_only attribute of this schema.
 
-        it specifies that just exposed columns of an entity must be
-        included in result. it will be used only for entity conversion.
+        it specifies that just exposed attributes of an entity must be
+        included in result. which are those that have `exposed=True`
+        and their name does not start with underscore `_`.
+        it will be used only for entity conversion.
 
         :param bool value: exposed only value to be set.
         """
