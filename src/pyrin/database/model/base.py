@@ -52,6 +52,15 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
+        :keyword bool exposed_only: specifies that any column which has
+                                    `exposed=False` should not be populated
+                                    from given values. this is useful if you
+                                    want to fill an entity with keyword arguments
+                                    passed from client and then doing the validation.
+                                    but do not want to expose a security risk.
+                                    especially in update operations.
+                                    defaults to True if not provided.
+
         :keyword bool ignore_invalid_column: specifies that if a key is not available
                                              in entity columns, do not raise an error.
                                              defaults to True if not provided.
@@ -73,15 +82,6 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                                  want to let user set foreign keys and exposes
                                  a security risk. especially in update operations.
                                  defaults to False if not provided.
-
-        :keyword bool ignore_not_exposed: specifies that any column which has
-                                          `exposed=False` should not be populated
-                                          from given values. this is useful if you
-                                          want to fill an entity with keyword arguments
-                                          passed from client and then doing the validation.
-                                          but do not want to expose a security risk.
-                                          especially in update operations.
-                                          defaults to True if not provided.
 
         :keyword bool ignore_relationships: specifies that any relationship property
                                             should not be populated with given values.

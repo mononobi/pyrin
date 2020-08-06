@@ -533,6 +533,15 @@ class ConverterMixin(CoreObject):
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
+        :keyword bool exposed_only: specifies that any column which has
+                                    `exposed=False` should not be populated
+                                    from given values. this is useful if you
+                                    want to fill an entity with keyword arguments
+                                    passed from client and then doing the validation.
+                                    but do not want to expose a security risk.
+                                    especially in update operations.
+                                    defaults to True if not provided.
+
         :keyword bool ignore_invalid_column: specifies that if a key is not available
                                              in entity columns, do not raise an error.
                                              defaults to True if not provided.
@@ -555,15 +564,6 @@ class ConverterMixin(CoreObject):
                                  a security risk. especially in update operations.
                                  defaults to False if not provided.
 
-        :keyword bool ignore_not_exposed: specifies that any column which has
-                                          `exposed=False` should not be populated
-                                          from given values. this is useful if you
-                                          want to fill an entity with keyword arguments
-                                          passed from client and then doing the validation.
-                                          but do not want to expose a security risk.
-                                          especially in update operations.
-                                          defaults to True if not provided.
-
         :keyword bool ignore_relationships: specifies that any relationship property
                                             should not be populated with given values.
                                             defaults to True if not provided.
@@ -572,25 +572,25 @@ class ConverterMixin(CoreObject):
         """
 
         ignore_invalid = kwargs.pop('ignore_invalid_column', True)
-        ignore_not_exposed = kwargs.pop('ignore_not_exposed', True)
+        exposed_only = kwargs.pop('exposed_only', True)
         ignore_pk = kwargs.pop('ignore_pk', True)
         ignore_fk = kwargs.pop('ignore_fk', False)
         ignore_relationships = kwargs.pop('ignore_relationships', True)
 
         accessible_columns = self.exposed_columns
-        if ignore_not_exposed is False:
+        if exposed_only is False:
             accessible_columns = accessible_columns + self.not_exposed_columns
 
         accessible_pk = ()
         if ignore_pk is False:
-            if ignore_not_exposed is False:
+            if exposed_only is False:
                 accessible_pk = self.primary_key_columns
             else:
                 accessible_pk = self.exposed_primary_key_columns
 
         accessible_fk = ()
         if ignore_fk is not True:
-            if ignore_not_exposed is False:
+            if exposed_only is False:
                 accessible_fk = self.foreign_key_columns
             else:
                 accessible_fk = self.exposed_foreign_key_columns
@@ -1040,6 +1040,15 @@ class CRUDMixin(CoreObject):
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
+        :keyword bool exposed_only: specifies that any column which has
+                                    `exposed=False` should not be populated
+                                    from given values. this is useful if you
+                                    want to fill an entity with keyword arguments
+                                    passed from client and then doing the validation.
+                                    but do not want to expose a security risk.
+                                    especially in update operations.
+                                    defaults to True if not provided.
+
         :keyword bool ignore_invalid_column: specifies that if a key is not available
                                              in entity columns, do not raise an error.
                                              defaults to True if not provided.
@@ -1061,15 +1070,6 @@ class CRUDMixin(CoreObject):
                                  want to let user set foreign keys and exposes
                                  a security risk. especially in update operations.
                                  defaults to False if not provided.
-
-        :keyword bool ignore_not_exposed: specifies that any column which has
-                                          `exposed=False` should not be populated
-                                          from given values. this is useful if you
-                                          want to fill an entity with keyword arguments
-                                          passed from client and then doing the validation.
-                                          but do not want to expose a security risk.
-                                          especially in update operations.
-                                          defaults to True if not provided.
 
         :keyword bool ignore_relationships: specifies that any relationship property
                                             should not be populated with given values.
