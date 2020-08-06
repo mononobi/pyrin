@@ -7,13 +7,14 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
-    PropertyMixin, ConverterMixin
+    PropertyMixin, ConverterMixin, AttributeMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  ForeignKeyMixin, ColumnMixin,
                  RelationshipMixin, PropertyMixin,
-                 CRUDMixin, QueryMixin, ConverterMixin):
+                 AttributeMixin, CRUDMixin,
+                 QueryMixin, ConverterMixin):
     """
     base entity class.
 
@@ -53,10 +54,11 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         not convert relationships which are dict, into entities.
 
         :keyword bool exposed_only: specifies that any column which has
-                                    `exposed=False` should not be populated
-                                    from given values. this is useful if you
-                                    want to fill an entity with keyword arguments
-                                    passed from client and then doing the validation.
+                                    `exposed=False` or its name starts with
+                                    underscore `_`, should not be populated from
+                                    given values. this is useful if you want to
+                                    fill an entity with keyword arguments passed
+                                    from client and then doing the validation.
                                     but do not want to expose a security risk.
                                     especially in update operations.
                                     defaults to True if not provided.

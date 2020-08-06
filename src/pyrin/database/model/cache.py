@@ -36,6 +36,16 @@ class PropertyCache(SharedContainer):
     _storage = dict()
 
 
+class AttributeCache(SharedContainer):
+    """
+    attribute cache class.
+
+    this class is used to save all attribute names of different entity types.
+    """
+
+    _storage = dict()
+
+
 class PrimaryKeyCache(SharedContainer):
     """
     primary key cache class.
