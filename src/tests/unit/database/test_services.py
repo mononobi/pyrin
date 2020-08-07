@@ -51,16 +51,6 @@ def test_get_session_factory_unbounded():
     assert session_factory.session_factory_name == 'ThreadScopedSessionFactory'
 
 
-def test_get_session_factory_bounded():
-    """
-    gets the request bounded database session factory.
-    """
-
-    session_factory = database_services.get_current_session_factory()
-    assert session_factory.request_bounded is True
-    assert session_factory.session_factory_name == 'RequestScopedSessionFactory'
-
-
 def test_register_session_factory_invalid_type():
     """
     registers a session factory which has an invalid type.
