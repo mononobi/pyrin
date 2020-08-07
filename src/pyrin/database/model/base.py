@@ -19,7 +19,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
     """
     base entity class.
 
-    it should be used as the base class by for every declarative base class.
+    it should be used as the base class for every declarative base class.
     for example `CoreEntity`, which by default is the application's declarative
     base class, inherits from this.
 
@@ -124,47 +124,6 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         """
 
         return BaseEntity
-
-    @classmethod
-    def table_name(cls):
-        """
-        gets the table name that this entity represents in database.
-
-        :rtype: str
-        """
-
-        return cls.table
-
-    @classmethod
-    def table_schema(cls):
-        """
-        gets the table schema that this entity represents in database.
-
-        it might be `None` if schema has not been set for this entity.
-
-        :rtype: str
-        """
-
-        return cls.schema
-
-    @classmethod
-    def table_fullname(cls):
-        """
-        gets the table fullname that this entity represents in database.
-
-        fullname is `schema.table_name` if schema is available, otherwise it
-        defaults to `table_name`.
-
-        :rtype: str
-        """
-
-        schema = cls.table_schema()
-        name = cls.table_name()
-
-        if schema is not None:
-            return '{schema}.{name}'.format(schema=schema, name=name)
-        else:
-            return name
 
 
 @as_declarative(constructor=None)

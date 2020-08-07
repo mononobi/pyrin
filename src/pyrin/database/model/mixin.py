@@ -1274,28 +1274,29 @@ class MetadataMixin(CoreObject):
     metadata mixin class.
     """
 
-    table = None
+    # table name
+    _table = None
 
     # table args
-    schema = None
-    extend_existing = None
+    _schema = None
+    _extend_existing = None
 
     # mapper args
-    polymorphic_on = None
-    polymorphic_identity = None
-    concrete = None
+    _polymorphic_on = None
+    _polymorphic_identity = None
+    _concrete = None
 
     @declared_attr
     def __tablename__(cls):
         """
         gets the table name of current entity.
 
-        it returns the value of `table_name` class attribute of entity.
+        it returns the value of `_table` class attribute of entity.
 
         :rtype: str
         """
 
-        return cls.table
+        return cls._table
 
     @declared_attr
     @shared_cache(container=MetadataCache)
@@ -1312,31 +1313,100 @@ class MetadataMixin(CoreObject):
         """
 
         table_args = dict()
-        if cls.schema is not None:
-            table_args.update(schema=cls.schema)
+        if cls._schema is not None:
+            table_args.update(schema=cls._schema)
 
-        if cls.extend_existing is not None:
-            table_args.update(extend_existing=cls.extend_existing)
+        if cls._extend_existing is not None:
+            table_args.update(extend_existing=cls._extend_existing)
 
+        cls._customize_table_args(table_args)
         return table_args
 
     @declared_attr
     @shared_cache(container=MetadataCache)
     def __mapper_args__(cls):
         """
-        gets all mapper args of current entity.
+        gets the mapper args of current entity.
 
         :rtype: dict
         """
 
         mapper_args = dict()
-        if cls.polymorphic_on is not None:
-            mapper_args.update(polymorphic_on=cls.polymorphic_on)
+        if cls._polymorphic_on is not None:
+            mapper_args.update(polymorphic_on=cls._polymorphic_on)
 
-        if cls.polymorphic_identity is not None:
-            mapper_args.update(polymorphic_identity=cls.polymorphic_identity)
+        if cls._polymorphic_identity is not None:
+            mapper_args.update(polymorphic_identity=cls._polymorphic_identity)
 
-        if cls.concrete is not None:
-            mapper_args.update(concrete=cls.concrete)
+        if cls._concrete is not None:
+            mapper_args.update(concrete=cls._concrete)
 
+        cls._customize_mapper_args(mapper_args)
         return mapper_args
+
+    @classmethod
+    def _customize_table_args(cls, table_args):
+        """
+        customizes different table args for current entity.
+
+        this method is intended to be overridden by subclasses to customize
+        table args per entity type if the required customization needs extra work.
+        it must modify values of input dict in-place if required.
+
+        :param dict table_args: a dict containing different table args.
+        """
+        pass
+
+    @classmethod
+    def _customize_mapper_args(cls, mapper_args):
+        """
+        customizes different mapper args for current entity.
+
+        this method is intended to be overridden by subclasses to customize
+        mapper args per entity type if the required customization needs extra work.
+        it must modify values of input dict in-place if required.
+
+        :param dict mapper_args: a dict containing different mapper args.
+        """
+        pass
+
+    @classmethod
+    def table_name(cls):
+        """
+        gets the table name that this entity represents in database.
+
+        :rtype: str
+        """
+
+        return cls._table
+
+    @classmethod
+    def table_schema(cls):
+        """
+        gets the table schema that this entity represents in database.
+
+        it might be `None` if schema has not been set for this entity.
+
+        :rtype: str
+        """
+
+        return cls._schema
+
+    @classmethod
+    def table_fullname(cls):
+        """
+        gets the table fullname that this entity represents in database.
+
+        fullname is `schema.table_name` if schema is available, otherwise it
+        defaults to `table_name`.
+
+        :rtype: str
+        """
+
+        schema = cls.table_schema()
+        name = cls.table_name()
+
+        if schema is not None:
+            return '{schema}.{name}'.format(schema=schema, name=name)
+        else:
+            return name
