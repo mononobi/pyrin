@@ -1283,6 +1283,7 @@ class MetadataMixin(CoreObject):
     # mapper args
     polymorphic_on = None
     polymorphic_identity = None
+    concrete = None
 
     @declared_attr
     def __tablename__(cls):
@@ -1334,5 +1335,8 @@ class MetadataMixin(CoreObject):
 
         if cls.polymorphic_identity is not None:
             mapper_args.update(polymorphic_identity=cls.polymorphic_identity)
+
+        if cls.concrete is not None:
+            mapper_args.update(concrete=cls.concrete)
 
         return mapper_args
