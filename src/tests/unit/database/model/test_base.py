@@ -388,8 +388,8 @@ def test_entity_with_schema_table_fullname():
         sample with schema entity class.
         """
 
-        __tablename__ = 'sample_with_schema_table'
-        __table_args__ = DTO(schema='my_schema')
+        table = 'sample_with_schema_table'
+        schema = 'my_schema'
 
         id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
         sub_id = CoreColumn(name='sub_id', type_=Unicode, primary_key=True)
