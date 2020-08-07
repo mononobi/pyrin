@@ -21,3 +21,11 @@ _ = gettext
 
 # this value should be used when working on AbstractKeyedTuple objects.
 ROW_RESULT = AbstractKeyedTuple
+
+# this value should be used instead of True when we want to preserve security of
+# inputs which come from client to prevent injection of invalid values through options.
+SECURE_TRUE = object()
+
+# this value should be used instead of False when we want to preserve security of
+# inputs which come from client to prevent injection of invalid values through options.
+SECURE_FALSE = object()

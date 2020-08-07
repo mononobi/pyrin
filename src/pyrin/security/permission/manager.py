@@ -7,6 +7,7 @@ from abc import abstractmethod
 
 import pyrin.converters.serializer.services as serializer_services
 
+from pyrin.core.globals import SECURE_FALSE
 from pyrin.core.structs import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
@@ -111,7 +112,7 @@ class PermissionManager(Manager):
             store = get_current_store()
             store.bulk_insert_mappings(type(entities[0]),
                                        serializer_services.serialize(entities,
-                                                                     exposed_only=False))
+                                                                     exposed_only=SECURE_FALSE))
 
     def _bulk_update(self, entities):
         """
@@ -124,4 +125,4 @@ class PermissionManager(Manager):
             store = get_current_store()
             store.bulk_update_mappings(type(entities[0]),
                                        serializer_services.serialize(entities,
-                                                                     exposed_only=False))
+                                                                     exposed_only=SECURE_FALSE))

@@ -20,12 +20,13 @@ from abc import abstractmethod
 
 from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.exc import NoInspectionAvailable
+from sqlalchemy.ext.hybrid import hybrid_property
 
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 
 from pyrin.caching.decorators import shared_cache
-from pyrin.core.globals import LIST_TYPES
+from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
@@ -33,7 +34,7 @@ from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 from pyrin.database.model.cache import ColumnCache, PrimaryKeyCache, \
-    ForeignKeyCache, RelationshipCache, PropertyCache
+    ForeignKeyCache, RelationshipCache, HybridPropertyCache, AttributeCache
 
 
 class ColumnMixin(CoreObject):
@@ -61,8 +62,10 @@ class ColumnMixin(CoreObject):
     @shared_cache(container=ColumnCache)
     def exposed_columns(self):
         """
-        gets exposed column names of this entity, which are those that have `exposed=True`.
+        gets exposed column names of this entity.
 
+        which are those that have `exposed=True` in their definition
+        and their name does not start with underscore `_`.
         note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
 
@@ -71,7 +74,8 @@ class ColumnMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         columns = tuple(attr.key for attr in info.column_attrs
-                        if attr.columns[0].is_foreign_key is False and
+                        if self.is_exposed(attr.key) is True and
+                        attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False and
                         attr.columns[0].exposed is True)
 
@@ -81,8 +85,10 @@ class ColumnMixin(CoreObject):
     @shared_cache(container=ColumnCache)
     def not_exposed_columns(self):
         """
-        gets not exposed column names of this entity, which are those that have `exposed=False`.
+        gets not exposed column names of this entity.
 
+        which are those that have `exposed=False` in their definition
+        or their name starts with underscore `_`.
         note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
 
@@ -91,9 +97,10 @@ class ColumnMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         columns = tuple(attr.key for attr in info.column_attrs
-                        if attr.columns[0].is_foreign_key is False and
-                        attr.columns[0].primary_key is False and
-                        attr.columns[0].exposed is False)
+                        if (self.is_exposed(attr.key) is False or
+                            attr.columns[0].exposed is False) and
+                        attr.columns[0].is_foreign_key is False and
+                        attr.columns[0].primary_key is False)
 
         return columns
 
@@ -116,60 +123,102 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
+        return self.exposed_relationships + self.not_exposed_relationships
+
+    @property
+    @shared_cache(container=RelationshipCache)
+    def exposed_relationships(self):
+        """
+        gets exposed relationship property names of this entity.
+
+        which are those that their name does not start with underscore `_`.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
         info = sqla_inspect(type(self))
-        relationships = tuple(attr.key for attr in info.relationships)
+        relationships = tuple(attr.key for attr in info.relationships
+                              if self.is_exposed(attr.key) is True)
+        return relationships
+
+    @property
+    @shared_cache(container=RelationshipCache)
+    def not_exposed_relationships(self):
+        """
+        gets not exposed relationship property names of this entity.
+
+        which are those that their name starts with underscore `_`.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        relationships = tuple(attr.key for attr in info.relationships
+                              if self.is_exposed(attr.key) is False)
         return relationships
 
 
-class PropertyMixin(CoreObject):
+class HybridPropertyMixin(CoreObject):
     """
-    property mixin class.
+    hybrid property mixin class.
 
-    this class adds functionalities about all properties to its subclasses.
+    this class adds functionalities about all hybrid properties to its subclasses.
     """
 
     @property
-    @shared_cache(container=PropertyCache)
-    def all_properties(self):
+    @shared_cache(container=HybridPropertyCache)
+    def all_hybrid_properties(self):
         """
-        gets all columns (including pk and fk) and relationship property names.
+        gets all hybrid property names of this entity.
 
         property names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        return self.all_exposed_properties + self.all_not_exposed_properties
+        return self.exposed_hybrid_properties + self.not_exposed_hybrid_properties
 
     @property
-    @shared_cache(container=PropertyCache)
-    def all_exposed_properties(self):
+    @shared_cache(container=HybridPropertyCache)
+    def exposed_hybrid_properties(self):
         """
-        gets all exposed columns (including pk and fk) and relationship property names.
+        gets exposed hybrid property names of this entity.
 
-        exposed columns are those that have `exposed=True` in their definition.
+        exposed hybrid properties are those that their name does
+        not start with underscore `_`.
         property names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        return self.exposed_primary_key_columns + self.exposed_foreign_key_columns + \
-            self.exposed_columns + self.relationships
+        info = sqla_inspect(type(self))
+        hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
+                                  if isinstance(item, hybrid_property)
+                                  and self.is_exposed(item.__name__) is True)
+
+        return hybrid_properties
 
     @property
-    @shared_cache(container=PropertyCache)
-    def all_not_exposed_properties(self):
+    @shared_cache(container=HybridPropertyCache)
+    def not_exposed_hybrid_properties(self):
         """
-        gets all not exposed columns (including pk and fk) and relationship property names.
+        gets not exposed hybrid property names of this entity.
 
-        not exposed columns are those that have `exposed=False` in their definition.
+        not exposed hybrid properties are those that their
+        name starts with underscore `_`.
         property names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        return self.not_exposed_primary_key_columns + self.not_exposed_foreign_key_columns + \
-            self.not_exposed_columns + self.relationships
+        info = sqla_inspect(type(self))
+        hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
+                                  if isinstance(item, hybrid_property)
+                                  and self.is_exposed(item.__name__) is False)
+
+        return hybrid_properties
 
 
 class PrimaryKeyMixin(CoreObject):
@@ -246,6 +295,8 @@ class PrimaryKeyMixin(CoreObject):
         """
         gets the exposed primary key column names of this entity.
 
+        which are those that have `exposed=True` in their definition
+        and their name does not start with underscore `_`.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
@@ -253,7 +304,8 @@ class PrimaryKeyMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if col.exposed is True)
+                   if self.is_exposed(info.get_property_by_column(col).key) is True
+                   and col.exposed is True)
 
         return pk
 
@@ -263,6 +315,8 @@ class PrimaryKeyMixin(CoreObject):
         """
         gets not exposed primary key column names of this entity.
 
+        which are those that have `exposed=False` in their definition
+        or their name starts with underscore `_`.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
@@ -270,7 +324,8 @@ class PrimaryKeyMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if col.exposed is False)
+                   if self.is_exposed(info.get_property_by_column(col).key) is False
+                   or col.exposed is False)
 
         return pk
 
@@ -301,6 +356,8 @@ class ForeignKeyMixin(CoreObject):
         """
         gets the exposed foreign key column names of this entity.
 
+        which are those that have `exposed=True` in their definition
+        and their name does not start with underscore `_`.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
@@ -309,6 +366,7 @@ class ForeignKeyMixin(CoreObject):
         info = sqla_inspect(type(self))
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
+                   and self.is_exposed(attr.key) is True
                    and attr.columns[0].exposed is True)
 
         return fk
@@ -319,6 +377,8 @@ class ForeignKeyMixin(CoreObject):
         """
         gets not exposed foreign key column names of this entity.
 
+        which are those that have `exposed=False` in their definition
+        or their name starts with underscore `_`.
         column names will be calculated once and cached.
 
         :rtype: tuple[str]
@@ -326,10 +386,80 @@ class ForeignKeyMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         fk = tuple(attr.key for attr in info.column_attrs
-                   if attr.columns[0].is_foreign_key is True
-                   and attr.columns[0].exposed is False)
+                   if attr.columns[0].is_foreign_key is True and
+                   (self.is_exposed(attr.key) is False or
+                    attr.columns[0].exposed is False))
 
         return fk
+
+
+class AttributeMixin(CoreObject):
+    """
+    attribute mixin class.
+
+    this class adds functionalities about all attributes to its subclasses.
+    attributes includes pk, fk, columns, relationships and hybrid properties.
+    """
+
+    @property
+    @shared_cache(container=AttributeCache)
+    def all_attributes(self):
+        """
+        gets all attribute names of current entity.
+
+        attribute names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.all_exposed_attributes + self.all_not_exposed_attributes
+
+    @property
+    @shared_cache(container=AttributeCache)
+    def all_exposed_attributes(self):
+        """
+        gets all exposed attribute names of current entity.
+
+        which are those that have `exposed=True` (only for columns) in
+        their definition and their name does not start with underscore `_`.
+        attribute names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.exposed_primary_key_columns + self.exposed_foreign_key_columns + \
+            self.exposed_columns + self.exposed_relationships + self.exposed_hybrid_properties
+
+    @property
+    @shared_cache(container=AttributeCache)
+    def all_not_exposed_attributes(self):
+        """
+        gets all not exposed attribute names of current entity.
+
+        which are those that have `exposed=False` (only for columns) in
+        their definition or their name starts with underscore `_`.
+        attribute names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.not_exposed_primary_key_columns + self.not_exposed_foreign_key_columns + \
+            self.not_exposed_columns + self.not_exposed_relationships + \
+            self.not_exposed_hybrid_properties
+
+    def is_exposed(self, name):
+        """
+        gets a value indicating that an attribute with given name is exposed.
+
+        it simply checks that the given name starts with an underscore `_`.
+        if so, it is considered as not exposed.
+
+        :param str name: attribute name.
+
+        :rtype: bool
+        """
+
+        return not name.startswith('_')
 
 
 class ConverterMixin(CoreObject):
@@ -340,24 +470,28 @@ class ConverterMixin(CoreObject):
     entity and vice versa to its subclasses.
     """
 
-    # maximum valid depth for conversion.
+    # maximum allowed depth for conversion.
     # note that higher depth values may cause performance issues or
     # application failure in some cases. so if you do not know how
     # much depth is required for conversion, start without providing depth.
+    # this value could be overridden in concrete entities if required.
     MAX_DEPTH = 5
 
     def to_dict(self, **options):
         """
         converts the entity into a dict and returns it.
 
-        it could convert primary keys, foreign keys, other columns and
-        also relationship properties if `depth` is provided.
-        the result dict by default only contains the exposed columns of the
-        entity which are those that their `exposed` attribute is set to True.
+        it could convert primary keys, foreign keys, other columns, hybrid
+        properties and also relationship properties if `depth` is provided.
+        the result dict by default only contains the exposed attributes of the
+        entity which are those that have `exposed=True` (only for columns) and
+        their name does not start with underscore `_`.
 
-        :keyword bool exposed_only: if set to False, it returns all
-                                    columns of the entity as dict.
-                                    if not provided, defaults to True.
+        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
+                                                          which has `exposed=False` or its name
+                                                          starts with underscore `_`, should not
+                                                          be included in result dict. defaults to
+                                                          `SECURE_TRUE` if not provided.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -466,24 +600,26 @@ class ConverterMixin(CoreObject):
         :rtype: dict
         """
 
-        base_properties = None
+        all_attributes = None
+        relations = None
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
-        exposed_only = options.get('exposed_only', True)
+        exposed_only = options.get('exposed_only', SECURE_TRUE)
 
         depth = options.get('depth', None)
         if depth is None:
             depth = config_services.get('database', 'conversion', 'default_depth')
 
-        if exposed_only is False:
-            base_properties = self.all_properties
+        if exposed_only is SECURE_FALSE:
+            all_attributes = self.all_attributes
+            relations = self.relationships
         else:
-            base_properties = self.all_exposed_properties
+            all_attributes = self.all_exposed_attributes
+            relations = self.exposed_relationships
 
-        relations = self.relationships
         requested_relationships = []
-        base_properties = set(base_properties)
+        all_attributes = set(all_attributes)
         if len(requested_columns) > 0:
-            not_existed = requested_columns.difference(base_properties)
+            not_existed = requested_columns.difference(all_attributes)
             if len(not_existed) > 0:
                 raise ColumnNotExistedError('Requested columns or relationship properties '
                                             '{columns} are not available in entity [{entity}]. '
@@ -491,7 +627,7 @@ class ConverterMixin(CoreObject):
                                             'parameter value passed to this method.'
                                             .format(columns=list(not_existed), entity=self))
         else:
-            requested_columns = base_properties.difference(excluded_columns)
+            requested_columns = all_attributes.difference(excluded_columns)
 
         result = DTO()
         for col in requested_columns:
@@ -533,78 +669,104 @@ class ConverterMixin(CoreObject):
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
-        :keyword bool exposed_only: specifies that any column which has
-                                    `exposed=False` should not be populated
-                                    from given values. this is useful if you
-                                    want to fill an entity with keyword arguments
-                                    passed from client and then doing the validation.
-                                    but do not want to expose a security risk.
-                                    especially in update operations.
-                                    defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
+                                                          `exposed=False` or its name starts
+                                                          with underscore `_`, should not be
+                                                          populated from given values. this
+                                                          is useful if you want to fill an
+                                                          entity with keyword arguments passed
+                                                          from client and then doing the
+                                                          validation. but do not want to expose
+                                                          a security risk. especially in update
+                                                          operations. defaults to `SECURE_TRUE`
+                                                          if not provided.
 
-        :keyword bool ignore_invalid_column: specifies that if a key is not available
-                                             in entity columns, do not raise an error.
-                                             defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
+                                                                   not available in entity
+                                                                   columns, do not raise an
+                                                                   error. defaults to
+                                                                   `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_pk: specifies that any primary key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set primary keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_pk: specifies that any primary key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want to
+                                                       fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set primary keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_fk: specifies that any foreign key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set foreign keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to False if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_fk: specifies that any foreign key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want
+                                                       to fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set foreign keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_FALSE` if not provided.
 
-        :keyword bool ignore_relationships: specifies that any relationship property
-                                            should not be populated with given values.
-                                            defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_relationships: specifies that any relationship
+                                                                  property should not be populated
+                                                                  with given values. defaults to
+                                                                  `SECURE_TRUE` if not provided.
+
+        :keyword SECURE_TRUE | SECURE_FALSE populate_all: specifies that all available values
+                                                          must be populated from provided keyword
+                                                          arguments. if set to `SECURE_TRUE`, all
+                                                          other parameters will be bypassed.
+                                                          this is for convenience of usage.
+                                                          defaults to `SECURE_FALSE` if not
+                                                          provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """
 
-        ignore_invalid = kwargs.pop('ignore_invalid_column', True)
-        exposed_only = kwargs.pop('exposed_only', True)
-        ignore_pk = kwargs.pop('ignore_pk', True)
-        ignore_fk = kwargs.pop('ignore_fk', False)
-        ignore_relationships = kwargs.pop('ignore_relationships', True)
+        ignore_invalid = kwargs.pop('ignore_invalid_column', SECURE_TRUE)
+        populate_all = kwargs.pop('populate_all', SECURE_FALSE)
+        if populate_all is SECURE_TRUE:
+            exposed_only = SECURE_FALSE
+            ignore_pk = SECURE_FALSE
+            ignore_fk = SECURE_FALSE
+            ignore_relationships = SECURE_FALSE
+        else:
+            exposed_only = kwargs.pop('exposed_only', SECURE_TRUE)
+            ignore_pk = kwargs.pop('ignore_pk', SECURE_TRUE)
+            ignore_fk = kwargs.pop('ignore_fk', SECURE_FALSE)
+            ignore_relationships = kwargs.pop('ignore_relationships', SECURE_TRUE)
 
         accessible_columns = self.exposed_columns
-        if exposed_only is False:
+        if exposed_only is SECURE_FALSE:
             accessible_columns = accessible_columns + self.not_exposed_columns
 
         accessible_pk = ()
-        if ignore_pk is False:
-            if exposed_only is False:
+        if ignore_pk is SECURE_FALSE:
+            if exposed_only is SECURE_FALSE:
                 accessible_pk = self.primary_key_columns
             else:
                 accessible_pk = self.exposed_primary_key_columns
 
         accessible_fk = ()
-        if ignore_fk is not True:
-            if exposed_only is False:
+        if ignore_fk is not SECURE_TRUE:
+            if exposed_only is SECURE_FALSE:
                 accessible_fk = self.foreign_key_columns
             else:
                 accessible_fk = self.exposed_foreign_key_columns
 
         accessible_relationships = ()
-        if ignore_relationships is False:
-            accessible_relationships = self.relationships
+        if ignore_relationships is SECURE_FALSE:
+            if exposed_only is SECURE_FALSE:
+                accessible_relationships = self.relationships
+            else:
+                accessible_relationships = self.exposed_relationships
 
         all_accessible_columns = accessible_pk + accessible_fk + \
             accessible_columns + accessible_relationships
 
         provided_columns = set(kwargs.keys())
         result_columns = set(all_accessible_columns).intersection(provided_columns)
-        if ignore_invalid is False:
+        if ignore_invalid is SECURE_FALSE:
             not_existed = provided_columns.difference(result_columns)
             if len(not_existed) > 0:
                 raise ColumnNotExistedError('Provided columns or relationship properties '
@@ -1040,40 +1202,56 @@ class CRUDMixin(CoreObject):
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
-        :keyword bool exposed_only: specifies that any column which has
-                                    `exposed=False` should not be populated
-                                    from given values. this is useful if you
-                                    want to fill an entity with keyword arguments
-                                    passed from client and then doing the validation.
-                                    but do not want to expose a security risk.
-                                    especially in update operations.
-                                    defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
+                                                          `exposed=False` or its name starts
+                                                          with underscore `_`, should not be
+                                                          populated from given values. this
+                                                          is useful if you want to fill an
+                                                          entity with keyword arguments passed
+                                                          from client and then doing the
+                                                          validation. but do not want to expose
+                                                          a security risk. especially in update
+                                                          operations. defaults to `SECURE_TRUE`
+                                                          if not provided.
 
-        :keyword bool ignore_invalid_column: specifies that if a key is not available
-                                             in entity columns, do not raise an error.
-                                             defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
+                                                                   not available in entity
+                                                                   columns, do not raise an
+                                                                   error. defaults to
+                                                                   `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_pk: specifies that any primary key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set primary keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_pk: specifies that any primary key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want to
+                                                       fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set primary keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_fk: specifies that any foreign key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set foreign keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to False if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_fk: specifies that any foreign key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want
+                                                       to fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set foreign keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_FALSE` if not provided.
 
-        :keyword bool ignore_relationships: specifies that any relationship property
-                                            should not be populated with given values.
-                                            defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_relationships: specifies that any relationship
+                                                                  property should not be populated
+                                                                  with given values. defaults to
+                                                                  `SECURE_TRUE` if not provided.
+
+        :keyword SECURE_TRUE | SECURE_FALSE populate_all: specifies that all available values
+                                                          must be populated from provided keyword
+                                                          arguments. if set to `SECURE_TRUE`, all
+                                                          other parameters will be bypassed.
+                                                          this is for convenience of usage.
+                                                          defaults to `SECURE_FALSE` if not
+                                                          provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """

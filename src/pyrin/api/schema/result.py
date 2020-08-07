@@ -5,8 +5,10 @@ schema result module.
 
 import pyrin.converters.serializer.services as serializer_services
 
+from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.core.structs import CoreObject
-from pyrin.api.schema.exceptions import SchemaAttributesRequiredError
+from pyrin.api.schema.exceptions import SchemaAttributesRequiredError, \
+    SecureBooleanIsRequiredError
 
 
 class ResultSchema(CoreObject):
@@ -20,11 +22,13 @@ class ResultSchema(CoreObject):
 
         note that at least one of keyword arguments must be provided.
 
-        :keyword bool exposed_only: specifies that any column or attribute which
-                                    has `exposed=False` or its name starts with
-                                    underscore `_`, should not be included in result
-                                    dict. defaults to True if not provided.
-                                    it will be used only for entity conversion.
+        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
+                                                          which has `exposed=False` or its name
+                                                          starts with underscore `_`, should not
+                                                          be included in result dict. defaults to
+                                                          `SECURE_TRUE` if not provided.
+                                                          it will be used only for entity
+                                                          conversion.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -129,6 +133,7 @@ class ResultSchema(CoreObject):
                             it will be used only for entity conversion.
 
         :raises SchemaAttributesRequiredError: schema attributes required error.
+        :raises SecureBooleanIsRequiredError: secure boolean is required error.
         """
 
         super().__init__()
@@ -232,7 +237,7 @@ class ResultSchema(CoreObject):
         and their name does not start with underscore `_`.
         it will be used only for entity conversion.
 
-        :rtype: bool
+        :rtype: SECURE_TRUE | SECURE_FALSE
         """
 
         return self._exposed_only
@@ -247,8 +252,16 @@ class ResultSchema(CoreObject):
         and their name does not start with underscore `_`.
         it will be used only for entity conversion.
 
-        :param bool value: exposed only value to be set.
+        :param SECURE_TRUE | SECURE_FALSE value: exposed only value to be set.
+
+        :raises SecureBooleanIsRequiredError: secure boolean is required error.
         """
+
+        if value not in (None, SECURE_TRUE, SECURE_FALSE):
+            raise SecureBooleanIsRequiredError('The "exposed_only" attribute of [{schema}] must '
+                                               'be set to "SECURE_TRUE" or "SECURE_FALSE" but '
+                                               'it is currently set to [{current}].'
+                                               .format(schema=self, current=value))
 
         self._exposed_only = value
 

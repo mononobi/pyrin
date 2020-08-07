@@ -18,3 +18,10 @@ class SchemaAttributesRequiredError(SchemaException):
     schema attributes required error.
     """
     pass
+
+
+class SecureBooleanIsRequiredError(SchemaException):
+    """
+    secure boolean is required error.
+    """
+    pass

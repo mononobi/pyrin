@@ -7,12 +7,12 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
-    PropertyMixin, ConverterMixin, AttributeMixin
+    HybridPropertyMixin, ConverterMixin, AttributeMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  ForeignKeyMixin, ColumnMixin,
-                 RelationshipMixin, PropertyMixin,
+                 RelationshipMixin, HybridPropertyMixin,
                  AttributeMixin, CRUDMixin,
                  QueryMixin, ConverterMixin):
     """
@@ -53,41 +53,56 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
-        :keyword bool exposed_only: specifies that any column which has
-                                    `exposed=False` or its name starts with
-                                    underscore `_`, should not be populated from
-                                    given values. this is useful if you want to
-                                    fill an entity with keyword arguments passed
-                                    from client and then doing the validation.
-                                    but do not want to expose a security risk.
-                                    especially in update operations.
-                                    defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
+                                                          `exposed=False` or its name starts
+                                                          with underscore `_`, should not be
+                                                          populated from given values. this
+                                                          is useful if you want to fill an
+                                                          entity with keyword arguments passed
+                                                          from client and then doing the
+                                                          validation. but do not want to expose
+                                                          a security risk. especially in update
+                                                          operations. defaults to `SECURE_TRUE`
+                                                          if not provided.
 
-        :keyword bool ignore_invalid_column: specifies that if a key is not available
-                                             in entity columns, do not raise an error.
-                                             defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
+                                                                   not available in entity
+                                                                   columns, do not raise an
+                                                                   error. defaults to
+                                                                   `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_pk: specifies that any primary key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set primary keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_pk: specifies that any primary key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want to
+                                                       fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set primary keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_TRUE` if not provided.
 
-        :keyword bool ignore_fk: specifies that any foreign key column
-                                 should not be populated with given values.
-                                 this is useful if you want to fill an entity
-                                 with keyword arguments passed from client
-                                 and then doing the validation. but do not
-                                 want to let user set foreign keys and exposes
-                                 a security risk. especially in update operations.
-                                 defaults to False if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_fk: specifies that any foreign key column
+                                                       should not be populated with given
+                                                       values. this is useful if you want
+                                                       to fill an entity with keyword arguments
+                                                       passed from client and then doing the
+                                                       validation. but do not want to let user
+                                                       set foreign keys and exposes a security
+                                                       risk. especially in update operations.
+                                                       defaults to `SECURE_FALSE` if not provided.
 
-        :keyword bool ignore_relationships: specifies that any relationship property
-                                            should not be populated with given values.
-                                            defaults to True if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE ignore_relationships: specifies that any relationship
+                                                                  property should not be populated
+                                                                  with given values. defaults to
+                                                                  `SECURE_TRUE` if not provided.
+
+        :keyword SECURE_TRUE | SECURE_FALSE populate_all: specifies that all available values
+                                                          must be populated from provided keyword
+                                                          arguments. if set to `SECURE_TRUE`, all
+                                                          other parameters will be bypassed.
+                                                          this is for convenience of usage.
+                                                          defaults to `SECURE_FALSE` if not
+                                                          provided.
 
         :raises ColumnNotExistedError: column not existed error.
         """

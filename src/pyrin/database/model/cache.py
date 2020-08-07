@@ -6,7 +6,17 @@ model cache module.
 from pyrin.caching.structs import SharedContainer
 
 
-class ColumnCache(SharedContainer):
+class ModelLocalCache(SharedContainer):
+    """
+    model local cache class.
+
+    all model cache classes must be subclassed from this.
+    """
+
+    _storage = dict()
+
+
+class ColumnCache(ModelLocalCache):
     """
     column cache class.
 
@@ -16,7 +26,7 @@ class ColumnCache(SharedContainer):
     _storage = dict()
 
 
-class RelationshipCache(SharedContainer):
+class RelationshipCache(ModelLocalCache):
     """
     relationship cache class.
 
@@ -26,17 +36,17 @@ class RelationshipCache(SharedContainer):
     _storage = dict()
 
 
-class PropertyCache(SharedContainer):
+class HybridPropertyCache(ModelLocalCache):
     """
-    property cache class.
+    hybrid property cache class.
 
-    this class is used to save all property names of different entity types.
+    this class is used to save all hybrid property names of different entity types.
     """
 
     _storage = dict()
 
 
-class AttributeCache(SharedContainer):
+class AttributeCache(ModelLocalCache):
     """
     attribute cache class.
 
@@ -46,7 +56,7 @@ class AttributeCache(SharedContainer):
     _storage = dict()
 
 
-class PrimaryKeyCache(SharedContainer):
+class PrimaryKeyCache(ModelLocalCache):
     """
     primary key cache class.
 
@@ -56,7 +66,7 @@ class PrimaryKeyCache(SharedContainer):
     _storage = dict()
 
 
-class ForeignKeyCache(SharedContainer):
+class ForeignKeyCache(ModelLocalCache):
     """
     foreign key cache class.
 
