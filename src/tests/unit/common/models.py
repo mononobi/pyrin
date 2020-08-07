@@ -6,7 +6,6 @@ common models module.
 from sqlalchemy import Unicode, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from pyrin.core.structs import DTO
 from pyrin.database.model.decorators import bind
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
@@ -18,7 +17,7 @@ class SampleEntity(CoreEntity):
     sample entity class.
     """
 
-    table = 'sample_table'
+    _table = 'sample_table'
 
     id = CoreColumn(name='id', type_=GUID, primary_key=True)
     name = CoreColumn(name='name', type_=Unicode)
@@ -31,7 +30,7 @@ class BoundedLocalEntity(CoreEntity):
     bounded local entity class.
     """
 
-    table = 'bounded_local_table'
+    _table = 'bounded_local_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
@@ -44,7 +43,7 @@ class BoundedTestEntity(CoreEntity):
     bounded test entity class.
     """
 
-    table = 'bounded_test_table'
+    _table = 'bounded_test_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
@@ -57,7 +56,7 @@ class ManualBoundedLocalEntity(CoreEntity):
     manual bounded local entity class.
     """
 
-    table = 'manual_bounded_local_table'
+    _table = 'manual_bounded_local_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
@@ -69,7 +68,7 @@ class SampleTestEntity(CoreEntity):
     sample test entity class.
     """
 
-    table = 'sample_test_table'
+    _table = 'sample_test_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
@@ -83,7 +82,7 @@ class SampleWithHiddenFieldBaseEntity(CoreEntity):
     sample with hidden field base entity class.
     """
 
-    table = 'sample_with_hidden_field_table'
+    _table = 'sample_with_hidden_field_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     sub_id = CoreColumn(name='sub_id', type_=Unicode, primary_key=True)
@@ -94,7 +93,7 @@ class SampleWithHiddenFieldEntity(SampleWithHiddenFieldBaseEntity):
     sample with hidden field entity class.
     """
 
-    extend_existing = True
+    _extend_existing = True
 
     name = CoreColumn(name='name', type_=Unicode)
     age = CoreColumn(name='age', type_=Integer)
@@ -106,7 +105,7 @@ class BaseEntity(CoreEntity):
     base entity class.
     """
 
-    table = 'base_table'
+    _table = 'base_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
 
@@ -116,7 +115,7 @@ class SubBaseEntity(BaseEntity):
     sub base entity class.
     """
 
-    extend_existing = True
+    _extend_existing = True
 
     age = CoreColumn(name='age', type_=Integer)
 
@@ -126,7 +125,7 @@ class RightChildEntity(SubBaseEntity):
     right child entity class.
     """
 
-    extend_existing = True
+    _extend_existing = True
 
     grade = CoreColumn(name='grade', type_=Integer)
 
@@ -136,7 +135,7 @@ class LeftChildEntity(SubBaseEntity):
     left child entity class.
     """
 
-    extend_existing = True
+    _extend_existing = True
 
     point = CoreColumn(name='point', type_=Integer)
 
@@ -146,7 +145,7 @@ class ParentEntity(CoreEntity):
     parent entity class.
     """
 
-    table = 'parent_table'
+    _table = 'parent_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
@@ -158,7 +157,7 @@ class ChildEntity(CoreEntity):
     child entity class.
     """
 
-    table = 'child_table'
+    _table = 'child_table'
 
     id = CoreColumn(name='id', type_=Integer, primary_key=True, autoincrement=False)
     name = CoreColumn(name='name', type_=Unicode)
