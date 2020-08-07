@@ -13,6 +13,7 @@ from pyrin.api.router.handlers.public import PublicRoute
 from pyrin.api.schema.result import ResultSchema
 from pyrin.application.exceptions import DuplicateRouteURLError
 from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
 from pyrin.api.router.handlers.exceptions import MaxContentLengthLimitMismatchError, \
     InvalidViewFunctionTypeError, PermissionTypeError
 
@@ -176,12 +177,12 @@ def test_create_route_with_schema_attributes():
                                          view_function=mock_view_function,
                                          authenticated=False,
                                          depth=3,
-                                         exposed_only=False)
+                                         exposed_only=SECURE_FALSE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema.depth == 3
-    assert route.result_schema.exposed_only is False
+    assert route.result_schema.exposed_only is SECURE_FALSE
 
 
 def test_create_route_with_schema():
@@ -192,7 +193,7 @@ def test_create_route_with_schema():
     schema = ResultSchema(columns=['id', 'name', 'age'],
                           rename=dict(id='new_id', name='new_name'),
                           exclude=['extra'],
-                          exposed_only=False,
+                          exposed_only=SECURE_FALSE,
                           depth=5)
 
     route = router_services.create_route('/api/router/public_with_schema',
@@ -214,7 +215,7 @@ def test_create_route_with_schema_with_overridden_attributes():
     schema = ResultSchema(columns=['id', 'name', 'age'],
                           rename=dict(id='new_id', name='new_name'),
                           exclude=['extra'],
-                          exposed_only=False,
+                          exposed_only=SECURE_FALSE,
                           depth=0)
 
     route = router_services.create_route('/api/router/public_with_schema_overridden',
@@ -223,18 +224,18 @@ def test_create_route_with_schema_with_overridden_attributes():
                                          authenticated=False,
                                          result_schema=schema,
                                          depth=4,
-                                         exposed_only=True)
+                                         exposed_only=SECURE_TRUE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema is not schema
     assert route.result_schema.depth == 4
-    assert route.result_schema.exposed_only is True
+    assert route.result_schema.exposed_only is SECURE_TRUE
     assert route.result_schema.columns == schema.columns
     assert route.result_schema.exclude == schema.exclude
     assert route.result_schema.rename == schema.rename
 
-    assert schema.exposed_only is False
+    assert schema.exposed_only is SECURE_FALSE
     assert schema.depth == 0
 
 
@@ -264,12 +265,12 @@ def test_create_route_with_exposed_only():
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
                                          authenticated=False,
-                                         exposed_only=False)
+                                         exposed_only=SECURE_FALSE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema.depth is None
-    assert route.result_schema.exposed_only is False
+    assert route.result_schema.exposed_only is SECURE_FALSE
 
 
 def test_add_route():
@@ -301,7 +302,7 @@ def test_add_route_duplicate():
 
         router_services.add_route('/tests/api/router/duplicate_route',
                                   view_func=mock_view_function,
-                                  methods=HTTPMethodEnum.POST,
+                                  methods=HTTPMethodEnum.GET,
                                   authenticated=False,
                                   max_content_length=123)
 

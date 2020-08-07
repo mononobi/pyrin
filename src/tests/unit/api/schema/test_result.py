@@ -7,6 +7,7 @@ import pytest
 
 from pyrin.api.schema.exceptions import SchemaAttributesRequiredError
 from pyrin.api.schema.result import ResultSchema
+from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.exceptions import ColumnNotExistedError, InvalidDepthProvidedError
 
 from tests.unit.common.generator import generate_row_results, generate_entity_results
@@ -22,7 +23,7 @@ def test_create_schema():
     columns = ['id', 'name']
     exclude = ['age']
     rename = dict(name='new_name')
-    exposed_only = False
+    exposed_only = SECURE_FALSE
     depth = 2
 
     schema = ResultSchema(columns=columns,
@@ -178,7 +179,7 @@ def test_filter_rows_with_columns_rename():
 
     columns = ['id', 'name']
     rename = dict(name='new_name')
-    schema = ResultSchema(columns=columns, rename=rename, exposed_only=False)
+    schema = ResultSchema(columns=columns, rename=rename, exposed_only=SECURE_FALSE)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -324,7 +325,7 @@ def test_filter_none_item():
     filters the item which is None. it should return the same input value.
     """
 
-    schema = ResultSchema(exposed_only=True)
+    schema = ResultSchema(exposed_only=SECURE_TRUE)
     filtered = schema.filter(None)
 
     assert filtered is None
@@ -341,7 +342,7 @@ def test_filter_single_entity():
     schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 1, **kwargs)
+    results = generate_entity_results(RightChildEntity, 1, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results[0])
 
     assert filtered is not results[0]
@@ -358,7 +359,7 @@ def test_filter_entities_with_columns():
     schema = ResultSchema(columns=columns)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -377,7 +378,7 @@ def test_filter_entities_with_exclude():
     schema = ResultSchema(exclude=exclude)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -398,7 +399,7 @@ def test_filter_entities_with_rename():
     schema = ResultSchema(rename=rename)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -416,10 +417,11 @@ def test_filter_entities_with_columns_rename():
 
     columns = ['id', 'grade']
     rename = dict(grade='new_grade')
-    schema = ResultSchema(columns=columns, rename=rename, exposed_only=False)
+    schema = ResultSchema(columns=columns, rename=rename, exposed_only=SECURE_FALSE)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs,
+                                      populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -439,7 +441,7 @@ def test_filter_entities_with_exclude_rename():
     schema = ResultSchema(exclude=exclude, rename=rename, depth=4)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -459,7 +461,7 @@ def test_filter_entities_with_columns_exclude():
     schema = ResultSchema(columns=columns, exclude=exclude)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -481,7 +483,7 @@ def test_filter_entities_with_columns_exclude_rename():
     schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -501,7 +503,7 @@ def test_filter_entities_with_invalid_columns():
     columns = ['id', 'name', 'age', 'extra', 'fake_column', 'not_available']
     schema = ResultSchema(columns=columns)
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
 
     with pytest.raises(ColumnNotExistedError):
         filtered = schema.filter(results)
@@ -519,7 +521,7 @@ def test_filter_entities_with_columns_and_invalid_exclude_rename():
     schema = ResultSchema(columns=columns, exclude=exclude, rename=rename)
 
     kwargs = dict(id=1, age=25, grade=5)
-    results = generate_entity_results(RightChildEntity, 20, **kwargs)
+    results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -532,14 +534,15 @@ def test_filter_entities_with_columns_and_invalid_exclude_rename():
 
 def test_filter_entities_with_exposed_only_true():
     """
-    filters entity results using given schema which has `exposed_only=True` attribute.
+    filters entity results using given schema which have `exposed_only=SECURE_TRUE` attribute.
     """
 
     rename = dict(id='new_id', fake='new_fake', not_present='not_present')
     schema = ResultSchema(rename=rename)
 
     kwargs = dict(id=1, sub_id='sub_1', age=25, name='some_name', hidden_field='some_secret')
-    results = generate_entity_results(SampleWithHiddenFieldEntity, 20, **kwargs)
+    results = generate_entity_results(SampleWithHiddenFieldEntity, 20,
+                                      **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -552,14 +555,15 @@ def test_filter_entities_with_exposed_only_true():
 
 def test_filter_entities_with_exposed_only_false():
     """
-    filters entity results using given schema which has `exposed_only=False` attribute.
+    filters entity results using given schema which have `exposed_only=SECURE_FALSE` attribute.
     """
 
     rename = dict(id='new_id', fake='new_fake', not_present='not_present')
-    schema = ResultSchema(rename=rename, exposed_only=False)
+    schema = ResultSchema(rename=rename, exposed_only=SECURE_FALSE)
 
     kwargs = dict(id=1, sub_id='sub_1', age=25, name='some_name', hidden_field='some_secret')
-    results = generate_entity_results(SampleWithHiddenFieldEntity, 20, **kwargs)
+    results = generate_entity_results(SampleWithHiddenFieldEntity, 20,
+                                      **kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
@@ -578,7 +582,7 @@ def test_filter_related_entities_without_depth():
 
     schema = ResultSchema(depth=0)
     child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
-    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(children)
 
     assert len(filtered) == len(children)
@@ -597,7 +601,7 @@ def test_filter_related_entities_with_depth():
 
     schema = ResultSchema(depth=1)
     child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
-    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs, populate_all=SECURE_TRUE)
     filtered = schema.filter(children)
 
     assert len(filtered) == len(children)
@@ -619,7 +623,7 @@ def test_filter_related_entities_with_invalid_depth():
 
     schema = ResultSchema(depth=6)
     child_kwargs = dict(name='child_name', parent=ParentEntity(name='parent_name'))
-    children = generate_entity_results(ChildEntity, 20, **child_kwargs)
+    children = generate_entity_results(ChildEntity, 20, **child_kwargs, populate_all=SECURE_TRUE)
 
     with pytest.raises(InvalidDepthProvidedError):
         filtered = schema.filter(children)

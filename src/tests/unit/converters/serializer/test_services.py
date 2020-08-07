@@ -6,6 +6,8 @@ serializer test_services module.
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 import pyrin.converters.serializer.services as serializer_services
 
+from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
+
 from tests.unit.common.models import RightChildEntity, SampleWithHiddenFieldEntity
 
 
@@ -100,7 +102,7 @@ def test_serialize_entity():
     serializes the given entity into dict.
     """
 
-    entity = RightChildEntity(grade=20, id=1, age=10)
+    entity = RightChildEntity(grade=20, id=1, age=10, populate_all=SECURE_TRUE)
     result = serializer_services.serialize(entity)
 
     assert isinstance(result, dict)
@@ -117,7 +119,8 @@ def test_serialize_entity_exposed_only():
     """
 
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
-                                         age=10, hidden_field='some_secret')
+                                         age=10, hidden_field='some_secret',
+                                         populate_all=SECURE_TRUE)
     result = serializer_services.serialize(entity)
 
     assert isinstance(result, dict)
@@ -136,8 +139,9 @@ def test_serialize_entity_all():
     """
 
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
-                                         age=10, hidden_field='some_secret')
-    result = serializer_services.serialize(entity, exposed_only=False)
+                                         age=10, hidden_field='some_secret',
+                                         populate_all=SECURE_TRUE)
+    result = serializer_services.serialize(entity, exposed_only=SECURE_FALSE)
 
     assert isinstance(result, dict)
     assert len(result) == 5
@@ -153,9 +157,9 @@ def test_serialize_entity_list():
     serializes the given entity list into dict list.
     """
 
-    entity1 = RightChildEntity(grade=10, id=1, age=11)
-    entity2 = RightChildEntity(grade=22, id=2, age=25)
-    entity3 = RightChildEntity(grade=32, id=3, age=30)
+    entity1 = RightChildEntity(grade=10, id=1, age=11, populate_all=SECURE_TRUE)
+    entity2 = RightChildEntity(grade=22, id=2, age=25, populate_all=SECURE_TRUE)
+    entity3 = RightChildEntity(grade=32, id=3, age=30, populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
     results = serializer_services.serialize(values)
 
@@ -192,11 +196,14 @@ def test_serialize_entity_list_exposed_only():
     """
 
     entity1 = SampleWithHiddenFieldEntity(id=1, sub_id='1', name='my_name1',
-                                          age=10, hidden_field='some_secret1')
+                                          age=10, hidden_field='some_secret1',
+                                          populate_all=SECURE_TRUE)
     entity2 = SampleWithHiddenFieldEntity(id=2, sub_id='2', name='my_name2',
-                                          age=20, hidden_field='some_secret2')
+                                          age=20, hidden_field='some_secret2',
+                                          populate_all=SECURE_TRUE)
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
-                                          age=30, hidden_field='some_secret3')
+                                          age=30, hidden_field='some_secret3',
+                                          populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
     results = serializer_services.serialize(values)
 
@@ -240,13 +247,16 @@ def test_serialize_entity_list_all():
     """
 
     entity1 = SampleWithHiddenFieldEntity(id=1, sub_id='1', name='my_name1',
-                                          age=10, hidden_field='some_secret1')
+                                          age=10, hidden_field='some_secret1',
+                                          populate_all=SECURE_TRUE)
     entity2 = SampleWithHiddenFieldEntity(id=2, sub_id='2', name='my_name2',
-                                          age=20, hidden_field='some_secret2')
+                                          age=20, hidden_field='some_secret2',
+                                          populate_all=SECURE_TRUE)
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
-                                          age=30, hidden_field='some_secret3')
+                                          age=30, hidden_field='some_secret3',
+                                          populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
-    results = serializer_services.serialize(values, exposed_only=False)
+    results = serializer_services.serialize(values, exposed_only=SECURE_FALSE)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -287,12 +297,14 @@ def test_serialize_entity_list_mixed_none():
     """
 
     entity1 = SampleWithHiddenFieldEntity(id=1, sub_id='1', name='my_name1',
-                                          age=10, hidden_field='some_secret1')
+                                          age=10, hidden_field='some_secret1',
+                                          populate_all=SECURE_TRUE)
     entity2 = None
     entity3 = SampleWithHiddenFieldEntity(id=3, sub_id='3', name='my_name3',
-                                          age=30, hidden_field='some_secret3')
+                                          age=30, hidden_field='some_secret3',
+                                          populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
-    results = serializer_services.serialize(values, exposed_only=True)
+    results = serializer_services.serialize(values, exposed_only=SECURE_TRUE)
 
     assert isinstance(results, list)
     assert len(results) == 3

@@ -3,6 +3,7 @@
 permission base module.
 """
 
+from pyrin.core.globals import SECURE_TRUE
 from pyrin.security.permission.base import PermissionBase
 
 from tests.unit.security.permission.models import PermissionEntity
@@ -36,7 +37,8 @@ class PermissionMock(PermissionBase):
         :rtype: PermissionEntity
         """
 
-        return PermissionEntity(id=self.id, description=self.description)
+        return PermissionEntity(id=self.id, description=self.description,
+                                populate_all=SECURE_TRUE)
 
     def get_id(self):
         """
