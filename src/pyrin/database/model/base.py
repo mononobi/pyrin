@@ -7,14 +7,15 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
-    HybridPropertyMixin, ConverterMixin, AttributeMixin
+    HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  ForeignKeyMixin, ColumnMixin,
                  RelationshipMixin, HybridPropertyMixin,
                  AttributeMixin, CRUDMixin,
-                 QueryMixin, ConverterMixin):
+                 QueryMixin, ConverterMixin,
+                 MetadataMixin):
     """
     base entity class.
 
@@ -30,15 +31,6 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
     models, do not mix the use of your new base class and `CoreEntity`, otherwise
     you will face problems in migrations and also multi-database environments.
     """
-
-    # holds the table name in database.
-    __tablename__ = None
-
-    # holds the extra arguments for table.
-    # for example:
-    # __table_args__ = {'schema': 'database_name.schema_name',
-    #                   'extend_existing': True}
-    __table_args__ = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -141,7 +133,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         :rtype: str
         """
 
-        return cls.__tablename__
+        return cls.table
 
     @classmethod
     def table_schema(cls):
@@ -153,11 +145,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         :rtype: str
         """
 
-        schema = None
-        if cls.__table_args__ is not None:
-            schema = cls.__table_args__.get('schema', None)
-
-        return schema
+        return cls.schema
 
     @classmethod
     def table_fullname(cls):

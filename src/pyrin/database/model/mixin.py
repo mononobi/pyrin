@@ -20,6 +20,7 @@ from abc import abstractmethod
 
 from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.exc import NoInspectionAvailable
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
 import pyrin.database.model.services as model_services
@@ -34,7 +35,7 @@ from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 from pyrin.database.model.cache import ColumnCache, PrimaryKeyCache, \
-    ForeignKeyCache, RelationshipCache, HybridPropertyCache, AttributeCache
+    ForeignKeyCache, RelationshipCache, HybridPropertyCache, AttributeCache, MetadataCache
 
 
 class ColumnMixin(CoreObject):
@@ -1266,3 +1267,72 @@ class CRUDMixin(CoreObject):
 
         store = get_current_store()
         store.delete(self)
+
+
+class MetadataMixin(CoreObject):
+    """
+    metadata mixin class.
+    """
+
+    table = None
+
+    # table args
+    schema = None
+    extend_existing = None
+
+    # mapper args
+    polymorphic_on = None
+    polymorphic_identity = None
+
+    @declared_attr
+    def __tablename__(cls):
+        """
+        gets the table name of current entity.
+
+        it returns the value of `table_name` class attribute of entity.
+
+        :rtype: str
+        """
+
+        return cls.table
+
+    @declared_attr
+    @shared_cache(container=MetadataCache)
+    def __table_args__(cls):
+        """
+        gets the table args of current entity.
+
+        it returns a dict of all configured table args.
+
+        for example: {'schema': 'database_name.schema_name',
+                      'extend_existing': True}
+
+        :rtype: dict
+        """
+
+        table_args = dict()
+        if cls.schema is not None:
+            table_args.update(schema=cls.schema)
+
+        if cls.extend_existing is not None:
+            table_args.update(extend_existing=cls.extend_existing)
+
+        return table_args
+
+    @declared_attr
+    @shared_cache(container=MetadataCache)
+    def __mapper_args__(cls):
+        """
+        gets all mapper args of current entity.
+
+        :rtype: dict
+        """
+
+        mapper_args = dict()
+        if cls.polymorphic_on is not None:
+            mapper_args.update(polymorphic_on=cls.polymorphic_on)
+
+        if cls.polymorphic_identity is not None:
+            mapper_args.update(polymorphic_identity=cls.polymorphic_identity)
+
+        return mapper_args

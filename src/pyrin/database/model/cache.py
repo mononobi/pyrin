@@ -74,3 +74,13 @@ class ForeignKeyCache(ModelLocalCache):
     """
 
     _storage = dict()
+
+
+class MetadataCache(ModelLocalCache):
+    """
+    metadata cache class.
+
+    this class is used to save metadata info for different entity types.
+    """
+
+    _storage = dict()
