@@ -15,7 +15,8 @@ from pyrin.configuration.exceptions import ConfigurationFileNotFoundError, \
     ConfigurationStoreKeyNotFoundError, ConfigurationStoreSectionNotFoundError, \
     ConfigurationStoreDuplicateKeyError, ConfigurationEnvironmentVariableNotFoundError, \
     InvalidConfigurationEnvironmentVariableValueError, \
-    ConfigurationStoreAttributeNotFoundException
+    ConfigurationStoreAttributeNotFoundException, InvalidEnvironmentVariableKeyError, \
+    InvalidPlaceHolderForEnvironmentVariableError
 
 
 class ConfigStore(CoreObject):
@@ -27,6 +28,11 @@ class ConfigStore(CoreObject):
 
     ACTIVE_SECTION_NAME = 'active'
     SELECTED_SECTION_NAME = 'selected'
+
+    ENV_SEPARATOR = ':'
+    # all values of different keys in a config store which start
+    # with this, will be get from environment variables.
+    ENV_PLACE_HOLDER = 'from_env' + ENV_SEPARATOR
 
     def __init__(self, name, config_file_path, **options):
         """
@@ -379,19 +385,105 @@ class ConfigStore(CoreObject):
         synchronizes all keys with None value of this config store.
 
         with environment variables with the same name if available.
+        it also updates all keys that their values start with `ENV_PLACE_HOLDER`
+        from environment variables.
 
         :keyword bool silent: indicates that if an environment variable for the
                               config key not found, ignore it and return None, otherwise
                               raise an error. defaults to True.
+                              note that this option is only for keys that have None value.
+                              but those keys that have `ENV_PLACE_HOLDER` will always cause
+                              an error if environment variable not found for them.
+
+        :raises ConfigurationEnvironmentVariableNotFoundError: configuration environment
+                                                               variable not found error.
+
+        :raises InvalidConfigurationEnvironmentVariableValueError: invalid configuration
+                                                                   environment variable
+                                                                   value error.
+
+        :raises InvalidPlaceHolderForEnvironmentVariableError: invalid place holder for
+                                                               environment variable error.
+
+        :raises InvalidEnvironmentVariableKeyError: invalid environment variable key error.
         """
 
         for section_name in self.get_section_names():
             section = self.get_section(section_name)
             for key, value in section.items():
-                if value is None:
-                    env_value = self._get_from_env(key, **options)
+                if self._should_try_env(value) is True:
+                    env_value = None
+                    if value is None:
+                        env_value = self._get_from_env(key, **options)
+                    else:
+                        env_key = self._extract_env_key(section_name, key, value)
+                        env_value = self._get_from_env(env_key, silent=False)
                     converted_value = deserializer_services.deserialize(env_value)
                     self._configs[section_name][key] = converted_value
+
+    def _extract_env_key(self, section, key, value):
+        """
+        extracts environment variable key name from given value.
+
+        :param str section: config section name.
+        :param str key: key to get it's value from environment variable.
+        :param str value: value to get environment variable key name from it.
+
+        :raises InvalidPlaceHolderForEnvironmentVariableError: invalid place holder for
+                                                               environment variable error.
+
+        :raises InvalidEnvironmentVariableKeyError: invalid environment variable key error.
+
+        :rtype: str
+        """
+
+        if self.ENV_SEPARATOR not in value:
+            raise InvalidPlaceHolderForEnvironmentVariableError('Environment variable place '
+                                                                'holder must contain a [{sep}] '
+                                                                'character. but value [{value}] '
+                                                                'for key [{key}] of section '
+                                                                '[{section}] in config store '
+                                                                '[{store}] does not contain any '
+                                                                'of it.'
+                                                                .format(sep=self.ENV_SEPARATOR,
+                                                                        value=value, key=key,
+                                                                        section=section,
+                                                                        store=self))
+        separator_index = value.index(self.ENV_SEPARATOR)
+        env_key = value[separator_index + 1:]
+        if env_key in (None, ''):
+            raise InvalidEnvironmentVariableKeyError('Provided environment variable name is '
+                                                     'invalid for config key [{key}] of section '
+                                                     '[{section}] in config store [{store}].'
+                                                     .format(key=key, section=section,
+                                                             store=self))
+        return env_key
+
+    def _should_try_env(self, value):
+        """
+        gets a value indicating that given key could be get from environment variables.
+
+        if the value is None or it starts with 'ENV_PLACE_HOLDER' this method returns true.
+
+        :param object value: current value of given key in config file.
+
+        :rtype: bool
+        """
+
+        return value is None or self._is_env_required(value)
+
+    def _is_env_required(self, value):
+        """
+        gets a value indicating that given key must be get from environment variables.
+
+        if the value starts with 'ENV_PLACE_HOLDER' this method returns true.
+
+        :param object value: current value of given key in config file.
+
+        :rtype: bool
+        """
+
+        return isinstance(value, str) and value.startswith(self.ENV_PLACE_HOLDER)
 
     def get_active_section_name(self):
         """

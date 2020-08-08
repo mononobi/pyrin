@@ -23,6 +23,9 @@ class ConfigurationManager(Manager):
     # config extension to be used for config file names.
     CONFIG_EXTENSION = '.config'
 
+    # class type to be used as config store.
+    config_store_class = ConfigStore
+
     def __init__(self, **options):
         """
         initializes an instance of ConfigurationManager.
@@ -60,7 +63,7 @@ class ConfigurationManager(Manager):
                                                      'existed, config store names must be unique.'
                                                      .format(name=name))
         else:
-            self._config_stores[name] = ConfigStore(name, file_path, **options)
+            self._config_stores[name] = self.config_store_class(name, file_path, **options)
 
     def _is_config_file(self, file_name):
         """

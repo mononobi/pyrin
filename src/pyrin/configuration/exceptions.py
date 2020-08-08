@@ -88,3 +88,17 @@ class ConfigurationFileExistedError(ConfigurationManagerException):
     configuration file existed error.
     """
     pass
+
+
+class InvalidPlaceHolderForEnvironmentVariableError(ConfigurationStoreException):
+    """
+    invalid place holder for environment variable error.
+    """
+    pass
+
+
+class InvalidEnvironmentVariableKeyError(ConfigurationStoreException):
+    """
+    invalid environment variable key error.
+    """
+    pass
