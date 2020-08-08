@@ -100,7 +100,7 @@ from pyrin.database.orm.sql.schema.base import CoreColumn
 
 class GuestEntity(CoreEntity):
 
-    __tablename__ = 'guest'
+    _table = 'guest'
 
     id = CoreColumn(name='id', type_=GUID, primary_key=True, exposed=False)
     name = CoreColumn(name='name', type_=Unicode(100))
