@@ -10,6 +10,7 @@ from pyrin.utils.exceptions import InvalidSchemaNameError, InvalidTableNameError
 def get_schema_name(schema_name, database_name=None):
     """
     gets fully qualified schema name for given database and schema.
+
     if database name is not provided, it returns the schema name only.
 
     note that for database backends which does not support cross
@@ -49,8 +50,7 @@ def get_schema_name(schema_name, database_name=None):
 
 def get_column_name(schema_name, table_name, column_name, database_name=None):
     """
-    gets fully qualified column name for given
-    database and schema and table and column.
+    gets fully qualified column name for given database and schema and table and column.
 
     note that for database backends which does not support cross
     database references, you should leave `database_name=None`.
