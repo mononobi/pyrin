@@ -39,7 +39,7 @@ class MaskedDict(CoreImmutableDict):
                     masked_kwargs[key] = value
 
         if isinstance(mapping, MaskedDict):
-            super().__init__(mapping, **masked_kwargs)
+            super().__init__(self._unify(mapping, masked_kwargs))
 
         elif isinstance(mapping, dict):
             temp = {}
@@ -52,10 +52,28 @@ class MaskedDict(CoreImmutableDict):
                     elif isinstance(value, LIST_TYPES):
                         value = self._mask_list(value)
                     temp[key] = value
-            super().__init__(temp, **masked_kwargs)
+
+            super().__init__(self._unify(temp, masked_kwargs))
 
         else:
-            super().__init__(**masked_kwargs)
+            super().__init__(masked_kwargs)
+
+    def _unify(self, mapping, kwargs):
+        """
+        returns a unified dict from given mapping dict and keyword arguments dict.
+
+        :param dict mapping: a mapping dict.
+        :param dict kwargs: an extra dict to be unified with mapping.
+
+        :rtype: dict
+        """
+
+        if len(kwargs) <= 0:
+            return mapping
+
+        data = dict(mapping)
+        data.update(kwargs)
+        return data
 
     def _mask_dict(self, value):
         """

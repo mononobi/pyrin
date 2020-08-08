@@ -709,7 +709,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         body, status_code, headers = response_services.unpack_response(rv)
-        if not isinstance(body, CoreResponse):
+        if not isinstance(body, self.response_class):
             mimetype = mimetype_services.get_mimetype(body)
             if mimetype not in (MIMETypeEnum.HTML, MIMETypeEnum.JSON):
                 if self._force_json_response is True:
@@ -722,12 +722,13 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if headers is None:
             headers = {}
+        extra_headers = {}
         client_request = session_services.get_current_request()
-        self._provide_response_headers(headers, client_request.endpoint,
+        self._provide_response_headers(extra_headers, client_request.endpoint,
                                        status_code, client_request.method,
                                        user=client_request.user)
-
-        response = response_services.pack_response(body, status_code, headers)
+        extra_headers.update(headers)
+        response = response_services.pack_response(body, status_code, extra_headers)
         result = super().make_response(response)
         result.original_data = body
         return result
@@ -754,7 +755,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         # we should wrap all single values into a
         # dict before returning it to client.
-        if not isinstance(rv, (tuple, dict, CoreResponse)):
+        if not isinstance(rv, (tuple, dict, self.response_class)):
             rv = DTO(value=rv)
 
         return rv

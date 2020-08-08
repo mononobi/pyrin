@@ -4,7 +4,7 @@ response manager module.
 """
 
 from werkzeug.datastructures import Headers
-from flask import make_response as flask_response
+from flask import make_response as flask_response, Response
 
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import ROW_RESULT
@@ -125,6 +125,10 @@ class ResponseManager(Manager):
         in the form of `(body, status_code, headers)`. if any of these
         parts are not present in provided response, it returns None for
         that specific part.
+        note that if a view function returns a `Response` object, the status
+        code will be fetched from that object if available. but if a view function
+        returns (Response response, int status_code) then the stand-alone status
+        code will override the status code of `Response` object.
 
         :param tuple | object response: response object to be unpacked.
 
@@ -147,6 +151,10 @@ class ResponseManager(Manager):
                     body, status_code = response
         else:
             body = response
+
+        if status_code is None and isinstance(body, Response):
+            if body.status_code not in (None, 0):
+                status_code = body.status_code
 
         return body, status_code, headers
 

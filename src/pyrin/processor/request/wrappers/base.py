@@ -263,7 +263,7 @@ class CoreRequest(Request):
                                                                                 all_list=False))
             form_data = deserializer_services.deserialize(self.form.to_dict(flat=False,
                                                                             all_list=False))
-            body = self.get_body(silent=silent) or {}
+            body = self.get_body(silent=silent)
 
             if len(body) > 0 and len(form_data) > 0:
                 error = BothRequestBodyAndFormDataProvidedError(_('Request could not contain '
@@ -274,10 +274,10 @@ class CoreRequest(Request):
                 self._body_decoding_error = error
 
             self._remove_extra_query_params(query_strings)
-            self._inputs = DTO(**(query_strings or {}))
-            self._inputs.update(**body)
-            self._inputs.update(**(form_data or {}))
-            self._inputs.update(**(self.view_args or {}))
+            self._inputs = DTO(query_strings)
+            self._inputs.update(body)
+            self._inputs.update(form_data)
+            self._inputs.update(self.view_args)
 
             if self.files is not None and len(self.files) > 0:
                 self._inputs.update(uploaded_files=self.files.to_dict(flat=False,

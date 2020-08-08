@@ -75,6 +75,10 @@ def unpack_response(response, **options):
     in the form of `(body, status_code, headers)`. if any of these
     parts are not present in provided response, it returns None for
     that specific part.
+    note that if a view function returns a `Response` object, the status
+    code will be fetched from that object if available. but if a view function
+    returns (Response response, int status_code) then the stand-alone status
+    code will override the status code of `Response` object.
 
     :param tuple | object response: response object to be unpacked.
 
