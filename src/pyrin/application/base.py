@@ -9,7 +9,7 @@ from time import time
 
 import dotenv
 
-from flask import Flask, request
+from flask import Flask, request as flask_request
 from flask.app import setupmethod
 from flask.ctx import has_request_context
 
@@ -472,8 +472,8 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         if has_request_context() is True:
-            with request:
-                return request
+            with flask_request:
+                return flask_request
 
         return None
 
@@ -719,6 +719,13 @@ class Application(Flask, HookMixin, SignalMixin,
 
                 if body is None:
                     body = ''
+
+        if headers is None:
+            headers = {}
+        client_request = session_services.get_current_request()
+        self._provide_response_headers(headers, client_request.endpoint,
+                                       status_code, client_request.method,
+                                       user=client_request.user)
 
         response = response_services.pack_response(body, status_code, headers)
         result = super().make_response(response)
@@ -1582,3 +1589,28 @@ class Application(Flask, HookMixin, SignalMixin,
 
         for hook in self._get_hooks():
             hook.prepare_runtime_data()
+
+    def _provide_response_headers(self, headers, endpoint,
+                                  status_code, method, **options):
+        """
+        this method will call `provide_response_headers` method of all registered hooks.
+
+        :param dict | Headers headers: current response headers.
+
+        :param str endpoint: the endpoint of the route that
+                             handled the current request.
+                             by default, it is the fully qualified
+                             name of the view function.
+
+        :param int status_code: response status code.
+                                it could be None if not provided.
+
+        :param str method: the http method of current request.
+
+        :keyword user: the user of current request.
+                       it could be None.
+        """
+
+        for hook in self._get_hooks():
+            hook.provide_response_headers(headers, endpoint,
+                                          status_code, method, **options)

@@ -64,6 +64,31 @@ class ApplicationHookBase(Hook):
         """
         pass
 
+    def provide_response_headers(self, headers, endpoint,
+                                 status_code, method, **options):
+        """
+        this method will be called whenever a response is going to be returned from server.
+
+        subclasses could override this to provide custom or modified response headers.
+        they must modify or extend headers in-place.
+
+        :param dict | Headers headers: current response headers.
+
+        :param str endpoint: the endpoint of the route that
+                             handled the current request.
+                             by default, it is the fully qualified
+                             name of the view function.
+
+        :param int status_code: response status code.
+                                it could be None if not provided.
+
+        :param str method: the http method of current request.
+
+        :keyword user: the user of current request.
+                       it could be None.
+        """
+        pass
+
 
 class PackagingHook(PackagingHookBase):
     """
