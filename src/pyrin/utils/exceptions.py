@@ -109,3 +109,10 @@ class IsNotUserDefinedFunctionError(UtilsException):
     is not user defined function error.
     """
     pass
+
+
+class CheckConstraintValuesRequiredError(UtilsException):
+    """
+    check constraint values required error.
+    """
+    pass

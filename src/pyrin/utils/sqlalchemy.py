@@ -3,13 +3,14 @@
 utils sqlalchemy module.
 """
 
+from sqlalchemy import CheckConstraint
 from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
-    FieldsAndValuesCountMismatchError
+    FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError
 
 
 LIKE_CHAR_COUNT_LIMIT = 20
@@ -322,3 +323,60 @@ def create_row_result(fields, values):
     result = keyed_tuple(values)
 
     return result
+
+
+def check_constraint(column, values, **options):
+    """
+    generates a check constraint for given column and values.
+
+    by default, it generates an `in` check, but this could be changed to
+    `not in` by providing `use_in=False` in options.
+
+    if the first item of values is a string, all values will be quoted.
+
+    :param str column: column name to be used in check constraint.
+    :param list values: values to be used in check constraint.
+
+    :keyword bool use_in: specifies that it must generate an `in` check.
+                          otherwise it generates a `not in` check.
+                          defaults to True if not provided.
+
+    :keyword **options: all other keyword arguments will be passed to
+                        underlying `CheckConstraint` constructor.
+
+    :raises CheckConstraintValuesRequiredError: check constraint values required error.
+
+    :rtype: CheckConstraint
+    """
+
+    if values is None or len(values) <= 0:
+        raise CheckConstraintValuesRequiredError('Values for generating a check '
+                                                 'constraint must be provided.')
+
+    convertor = str
+    is_string = isinstance(values[0], str)
+    if is_string:
+        convertor = quote
+    use_in = options.pop('use_in', True)
+    condition = 'in'
+    if use_in is False:
+        condition = 'not in'
+
+    string_values = ','.join(convertor(item) for item in values)
+    sql_text = '{column} {condition} ({values})'.format(column=column,
+                                                        condition=condition,
+                                                        values=string_values)
+    options.update(sqltext=sql_text)
+    return CheckConstraint(**options)
+
+
+def quote(value):
+    """
+    quotes the given string value.
+
+    :param str value: value to be quoted.
+
+    :rtype: str
+    """
+
+    return "'{value}'".format(value=str(value))

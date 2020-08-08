@@ -25,6 +25,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
+import pyrin.utils.misc as misc_utils
 
 from pyrin.caching.decorators import shared_cache
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
@@ -1289,7 +1290,7 @@ class MetadataMixin(CoreObject):
     @declared_attr
     def __tablename__(cls):
         """
-        gets the table name of current entity.
+        gets the table name of current entity type.
 
         it returns the value of `_table` class attribute of entity.
 
@@ -1302,14 +1303,14 @@ class MetadataMixin(CoreObject):
     @shared_cache(container=MetadataCache)
     def __table_args__(cls):
         """
-        gets the table args of current entity.
+        gets the table args of current entity type.
 
-        it returns a dict of all configured table args.
+        it returns a dict or tuple of all configured table args.
 
         for example: {'schema': 'database_name.schema_name',
                       'extend_existing': True}
 
-        :rtype: dict
+        :rtype: dict | tuple
         """
 
         table_args = dict()
@@ -1319,14 +1320,21 @@ class MetadataMixin(CoreObject):
         if cls._extend_existing is not None:
             table_args.update(extend_existing=cls._extend_existing)
 
-        cls._customize_table_args(table_args)
-        return table_args
+        extra_args = cls._customize_table_args(table_args)
+        if extra_args is None:
+            return table_args
+
+        extra_args = misc_utils.make_iterable(extra_args, tuple)
+        if len(extra_args) <= 0:
+            return table_args
+
+        return extra_args + (table_args,)
 
     @declared_attr
     @shared_cache(container=MetadataCache)
     def __mapper_args__(cls):
         """
-        gets the mapper args of current entity.
+        gets the mapper args of current entity type.
 
         :rtype: dict
         """
@@ -1347,20 +1355,27 @@ class MetadataMixin(CoreObject):
     @classmethod
     def _customize_table_args(cls, table_args):
         """
-        customizes different table args for current entity.
+        customizes different table args for current entity type.
 
         this method is intended to be overridden by subclasses to customize
         table args per entity type if the required customization needs extra work.
-        it must modify values of input dict in-place if required.
+        it must modify input dict values in-place if required.
+        if other table args must be added (ex. UniqueConstraint or CheckConstraint ...)
+        it must return those as a tuple. it could also return a single object as
+        extra table arg (ex. a single UniqueConstraint).
+        if no changes are required this method should not return anything.
 
         :param dict table_args: a dict containing different table args.
+                                any changes to this dict must be done in-place.
+
+        :rtype: tuple | object
         """
         pass
 
     @classmethod
     def _customize_mapper_args(cls, mapper_args):
         """
-        customizes different mapper args for current entity.
+        customizes different mapper args for current entity type.
 
         this method is intended to be overridden by subclasses to customize
         mapper args per entity type if the required customization needs extra work.
