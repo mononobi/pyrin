@@ -84,6 +84,8 @@ class ApplicationHookBase(Hook):
 
         :param str method: the http method of current request.
 
+        :keyword str url: the url of the route that handled this request.
+
         :keyword user: the user of current request.
                        it could be None.
         """

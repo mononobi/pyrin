@@ -7,7 +7,7 @@ from collections import deque
 from threading import Lock
 from abc import abstractmethod
 
-from werkzeug.datastructures import MultiDict, ImmutableMultiDict, ImmutableDict
+from werkzeug.datastructures import MultiDict, ImmutableMultiDict, ImmutableDict, Headers
 
 import pyrin.utils.misc as misc_utils
 
@@ -562,3 +562,10 @@ class CoreImmutableDict(ImmutableDict):
 
     def __repr__(self):
         return dict.__repr__(self)
+
+
+class CoreHeaders(Headers):
+    """
+    core headers class.
+    """
+    pass

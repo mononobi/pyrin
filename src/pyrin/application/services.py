@@ -309,6 +309,10 @@ def add_url_rule(rule, view_func,
                         this value will override the corresponding value of
                         `result_schema` if provided.
 
+    :keyword bool no_cache: a value indicating that the response returning from this route
+                            must have a `Cache-Control: no-cache` header. this header will
+                            be automatically added. defaults to False if not provided.
+
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
     :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.

@@ -34,7 +34,7 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.enumerations import HTTPMethodEnum
-from pyrin.core.structs import DTO, Manager
+from pyrin.core.structs import DTO, Manager, CoreHeaders
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
@@ -113,6 +113,7 @@ class Application(Flask, HookMixin, SignalMixin,
     # to response by flask.
     default_response_converter = None
 
+    headers_class = CoreHeaders
     url_rule_class = ProtectedRoute
     url_map_class = CoreURLMap
     response_class = CoreResponse
@@ -722,10 +723,11 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if headers is None:
             headers = {}
-        extra_headers = {}
+        extra_headers = self.headers_class()
         client_request = session_services.get_current_request()
         self._provide_response_headers(extra_headers, client_request.endpoint,
                                        status_code, client_request.method,
+                                       url=client_request.path,
                                        user=client_request.user)
         extra_headers.update(headers)
         response = response_services.pack_response(body, status_code, extra_headers)
@@ -949,6 +951,10 @@ class Application(Flask, HookMixin, SignalMixin,
                             it will be used only for entity conversion.
                             this value will override the corresponding value of
                             `result_schema` if provided.
+
+        :keyword bool no_cache: a value indicating that the response returning from this route
+                                must have a `Cache-Control: no-cache` header. this header will
+                                be automatically added. defaults to False if not provided.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
@@ -1607,6 +1613,8 @@ class Application(Flask, HookMixin, SignalMixin,
                                 it could be None if not provided.
 
         :param str method: the http method of current request.
+
+        :keyword str url: the url of the route that handled this request.
 
         :keyword user: the user of current request.
                        it could be None.

@@ -101,6 +101,10 @@ def api(url, methods=None, authenticated=True, permissions=None, **options):
                         this value will override the corresponding value of
                         `result_schema` if provided.
 
+    :keyword bool no_cache: a value indicating that the response returning from this route
+                            must have a `Cache-Control: no-cache` header. this header will
+                            be automatically added. defaults to False if not provided.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the

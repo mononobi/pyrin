@@ -136,6 +136,10 @@ class ProtectedRoute(RouteBase):
                             this value will override the corresponding value of
                             `result_schema` if provided.
 
+        :keyword bool no_cache: a value indicating that the response returning from this route
+                                must have a `Cache-Control: no-cache` header. this header will
+                                be automatically added. defaults to False if not provided.
+
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
 

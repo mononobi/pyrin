@@ -16,6 +16,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.processor.response.enumerations import ResponseHeaderEnum
 from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
@@ -150,6 +151,10 @@ class RouteBase(Rule):
                             this value will override the corresponding value of
                             `result_schema` if provided.
 
+        :keyword bool no_cache: a value indicating that the response returning from this route
+                                must have a `Cache-Control: no-cache` header. this header will
+                                be automatically added. defaults to False if not provided.
+
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -202,6 +207,7 @@ class RouteBase(Rule):
                                                        url=self.rule))
 
         self._result_schema = self._extract_schema(**options)
+        self._no_cache = options.get('no_cache', False)
 
         status_code = options.pop('status_code', None)
         if status_code is not None and \
@@ -423,13 +429,14 @@ class RouteBase(Rule):
         won't be injected.
 
         :param object | tuple | dict | CoreResponse response: response value to be prepared.
+
         :note response: it could be an object or a dict or a tuple with the length of 2 or 3.
                         in the form of: body
                                         body, status_code
                                         body, headers
                                         body, status_code, header
 
-        :rtype: tuple[object, int, dict] | object
+        :rtype: tuple[object, int, dict | Headers] | object
         """
 
         body, status_code, headers = response_services.unpack_response(response)
@@ -438,7 +445,25 @@ class RouteBase(Rule):
         elif status_code is None and self.status_code is None:
             status_code = status_services.get_status_code()
 
+        headers = self._prepare_headers(headers)
         return response_services.pack_response(body, status_code, headers)
+
+    def _prepare_headers(self, headers):
+        """
+        prepares required headers into given dict.
+
+        :param dict | Headers headers: headers dict to be prepared.
+
+        :rtype: dict | Headers
+        """
+
+        if self._no_cache is True:
+            if headers is None:
+                headers = {}
+
+            headers[ResponseHeaderEnum.CACHE_CONTROL] = 'no-cache'
+
+        return headers
 
     def _inject_result_schema(self):
         """

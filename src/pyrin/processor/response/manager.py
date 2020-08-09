@@ -45,7 +45,7 @@ class ResponseManager(Manager):
                            defaults to `DEFAULT_STATUS_CODE`
                            code, if not provided.
 
-        :keyword dict headers: headers to add into response.
+        :keyword dict | Headers headers: headers to add into response.
 
         :rtype: CoreResponse
         """
@@ -72,7 +72,7 @@ class ResponseManager(Manager):
                            defaults to `INTERNAL_SERVER_ERROR`
                            code, if not provided.
 
-        :keyword dict headers: headers to add into response.
+        :keyword dict | Headers headers: headers to add into response.
 
         :rtype: CoreResponse
         """
@@ -104,7 +104,7 @@ class ResponseManager(Manager):
                            provided. defaults to `INTERNAL_SERVER_ERROR`
                            code if not available in exception.
 
-        :keyword dict headers: headers to add into response.
+        :keyword dict | Headers headers: headers to add into response.
 
         :rtype: CoreResponse
         """
@@ -132,8 +132,8 @@ class ResponseManager(Manager):
 
         :param tuple | object response: response object to be unpacked.
 
-        :returns: tuple[object body, int status_code, dict headers]
-        :rtype: tuple[object, int, dict]
+        :returns: tuple[object body, int status_code, dict | Headers headers]
+        :rtype: tuple[object, int, dict | Headers]
         """
 
         body = None
@@ -167,10 +167,10 @@ class ResponseManager(Manager):
 
         :param object | CoreResponse body: body of response.
         :param int status_code: status code of response.
-        :param dict headers: dict of response headers.
+        :param dict | Headers headers: all response headers.
 
-        :returns: tuple[object body, int status_code, dict headers] | object
-        :rtype: tuple[object, int, dict] | object
+        :returns: tuple[object body, int status_code, dict | Headers headers] | object
+        :rtype: tuple[object, int, dict | Headers] | object
         """
 
         if status_code is not None and headers is not None:
