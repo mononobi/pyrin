@@ -277,7 +277,7 @@ class CoreRequest(Request):
             self._inputs = DTO(query_strings)
             self._inputs.update(body)
             self._inputs.update(form_data)
-            self._inputs.update(self.view_args)
+            self._inputs.update(self.view_args or {})
 
             if self.files is not None and len(self.files) > 0:
                 self._inputs.update(uploaded_files=self.files.to_dict(flat=False,
