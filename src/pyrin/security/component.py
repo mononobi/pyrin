@@ -12,6 +12,6 @@ from pyrin.application.structs import Component
 @component(SecurityPackage.COMPONENT_NAME)
 class SecurityComponent(Component, SecurityManager):
     """
-    security component class.
+    security component class .
     """
     pass
