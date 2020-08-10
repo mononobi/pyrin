@@ -64,7 +64,7 @@ class CoreRequest(Request):
         """
         initializes an instance of CoreRequest.
 
-        :param environ: a wsgi environment object.
+        :param dict environ: a wsgi environment object.
         :param bool populate_request: specifies that request should be populated.
         :param bool shallow: specifies that request should not consume form data.
         """

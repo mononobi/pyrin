@@ -52,8 +52,23 @@ class SessionManager(Manager):
         :rtype: CoreRequest
         """
 
-        with request:
-            return request
+        return request
+
+    def get_current_request_id(self):
+        """
+        gets current request id.
+
+        this method is implemented to overcome the hash problem of requests.
+        `CoreRequest` objects are hashable themselves, but when they used as a dict key
+        some hash collisions will occur. so we have to expose the exact request id to
+        be able to use it as a dict key in places such as database scoped sessions.
+
+        :raises RuntimeError: runtime error.
+
+        :rtype: str
+        """
+
+        return self.get_current_request().request_id
 
     def add_request_context(self, key, value, **options):
         """

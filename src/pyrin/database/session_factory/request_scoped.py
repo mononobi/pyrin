@@ -44,7 +44,7 @@ class RequestScopedSessionFactory(SessionFactoryBase):
         session_configs = config_services.get_section('database', 'request_scoped_session')
         return CoreScopedSession(sessionmaker(bind=engine, class_=CoreSession,
                                               query_cls=CoreQuery, **session_configs),
-                                 scopefunc=session_services.get_current_request)
+                                 scopefunc=session_services.get_current_request_id)
 
     @property
     def request_bounded(self):

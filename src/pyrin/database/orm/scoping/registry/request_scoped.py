@@ -34,14 +34,6 @@ class RequestScopedRegistry(ScopedRegistry, AbstractScopedRegistryBase):
 
         super().__init__(createfunc, scopefunc)
 
-        # a dictionary containing all atomic sessions that are present.
-        # each atomic session corresponds to a request scoped session.
-        # each request could contain a 'Stack' of current atomic sessions.
-        # each time an atomic session is requested, it gets the last inserted
-        # atomic session, this way it provides the ability to use chained
-        # atomic sessions. for example multiple methods using '@atomic' decorator
-        # in a single call hierarchy.
-        # in the form of: {int key_hash: Stack[object] objects}
         self.atomic_registry = RequestScopedAtomicContainer(scopefunc)
 
     def __call__(self, atomic=False):

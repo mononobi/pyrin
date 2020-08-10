@@ -473,8 +473,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         if has_request_context() is True:
-            with flask_request:
-                return flask_request
+            return flask_request
 
         return None
 

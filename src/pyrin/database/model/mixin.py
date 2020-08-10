@@ -911,6 +911,18 @@ class MagicMethodMixin(CoreObject):
     """
 
     def __eq__(self, other):
+        """
+        gets the equality comparison result.
+
+        first, it compares primary keys if they have value in both entities
+        and both entities have a common root parent.
+        otherwise it compares them using python default memory location comparison.
+
+        :param CoreEntity other: other entity to compare for equality.
+
+        :rtype: bool
+        """
+
         if isinstance(other, self.root_base_class):
             if self._is_primary_key_comparable(self.primary_key()) is True:
                 return self.primary_key() == other.primary_key()
@@ -920,9 +932,27 @@ class MagicMethodMixin(CoreObject):
         return False
 
     def __ne__(self, other):
+        """
+        gets the not equality comparison result.
+
+        :param CoreEntity other: other entity to compare for not equality.
+
+        :rtype: bool
+        """
+
         return not self == other
 
     def __hash__(self):
+        """
+        gets the hash of current entity.
+
+        if the entity has valid primary key values, it will be considered
+        in hash generation. otherwise it falls back to general hash generation
+        based on python defaults.
+
+        :rtype: int
+        """
+
         if self._is_primary_key_comparable(self.primary_key()) is True:
             return hash('{root_base}.{pk}'.format(root_base=self.root_base_class,
                                                   pk=self.primary_key()))
@@ -935,6 +965,7 @@ class MagicMethodMixin(CoreObject):
 
         :rtype: str
         """
+
         return '{module}.{name} [{pk}]'.format(module=self.__module__,
                                                name=self.get_name(),
                                                pk=self.primary_key())
