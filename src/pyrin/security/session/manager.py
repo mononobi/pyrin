@@ -65,7 +65,7 @@ class SessionManager(Manager):
 
         :raises RuntimeError: runtime error.
 
-        :rtype: str
+        :rtype: uuid.UUID
         """
 
         return self.get_current_request().request_id

@@ -3,12 +3,70 @@
 transaction contexts module.
 """
 
-from contextlib import AbstractContextManager
-
 import pyrin.database.services as database_services
 
+from pyrin.core.contexts import ContextManagerBase
 
-class atomic_context(AbstractContextManager):
+
+class TransactionalContextManagerBase(ContextManagerBase):
+    """
+    transactional context manager base class.
+
+    this class should be used as the base for all transactional context managers.
+    """
+
+    def __init__(self, store):
+        """
+        initializes an instance of TransactionalContextManagerBase.
+
+        :param CoreSession store: the session object for current context.
+        """
+
+        self._store = store
+
+    def __enter__(self):
+        """
+        begins the current context and returns the related session for current context.
+
+        note that you *should not* commit or rollback the transaction inside the current
+        context. the context manager itself will do it automatically. if you do commit
+        or rollback manually, unexpected behaviors may occur.
+
+        :rtype: CoreSession
+        """
+
+        return self._store
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        does the finalizing of current transaction.
+
+        it commits the transaction if it was successful, otherwise rollbacks it.
+
+        :param type[Exception] exc_type: the exception type that has been
+                                         occurred during current context.
+
+        :param Exception exc_value: exception instance that has been
+                                    occurred during current context.
+
+        :param traceback traceback: traceback of occurred exception.
+        """
+
+        try:
+            if exc_type is None:
+                try:
+                    self._store.commit()
+                except Exception as error:
+                    self._store.rollback()
+                    raise error
+            else:
+                self._store.rollback()
+        except Exception as error:
+            if self._should_be_raised(error, exc_type) is True:
+                raise error
+
+
+class atomic_context(TransactionalContextManagerBase):
     """
     atomic context manager to make a code block execution atomic.
 
@@ -19,16 +77,18 @@ class atomic_context(AbstractContextManager):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after code execution.
 
-    note that it's not required to commit or rollback anything inside an atomic
-    context, the `atomic` context manager will handle commit or rollback operations
-    when needed.
+    note that you *should not* commit or rollback the transaction inside the current
+    context. the context manager itself will do it automatically. if you do commit
+    or rollback manually, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory
-    when using `atomic` context. the removal operation will be handled by context manager
+    when using `atomic_context`. the removal operation will be handled by context manager
     itself and if you remove session manually, it will cause broken chain of sessions
     and unexpected behaviour.
 
-    this context manager also supports multiple `atomic` usage in a single call hierarchy.
+    this context manager also supports multiple `atomic_context` usage in a single
+    call hierarchy.
+
     for example:
 
     def service_root():
@@ -66,33 +126,7 @@ class atomic_context(AbstractContextManager):
         initializes an instance of atomic_context.
         """
 
-        self._store = database_services.get_atomic_store()
-
-    def __enter__(self):
-        """
-        begins the current context and returns the atomic session for current context.
-
-        example usage:
-
-        with atomic_context() as store:
-            user = UserEntity(id=1, name='Dave')
-            store.add(user)
-
-        or you could get the current store inside the block, it
-        will always give you the correct session:
-
-        with atomic_context():
-            store = database_services.get_current_store()
-            user = UserEntity(id=1, name='Dave')
-            store.add(user)
-
-        note that there is no need to commit or rollback the transaction inside
-        the current context, the `atomic` context manager will do it automatically.
-
-        :rtype: CoreSession
-        """
-
-        return self._store
+        super().__init__(database_services.get_atomic_store())
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
@@ -110,21 +144,12 @@ class atomic_context(AbstractContextManager):
         """
 
         try:
-            if exc_type is None:
-                try:
-                    self._store.commit()
-                except Exception as error:
-                    self._store.rollback()
-                    raise error
-                finally:
-                    self._remove_session()
-            else:
-                try:
-                    self._store.rollback()
-                finally:
-                    self._remove_session()
+            try:
+                super().__exit__(exc_type, exc_value, traceback)
+            finally:
+                self._remove_session()
         except Exception as error:
-            if exc_type is None or type(error) is not exc_type:
+            if self._should_be_raised(error, exc_type) is True:
                 raise error
 
     def _remove_session(self):
@@ -134,3 +159,111 @@ class atomic_context(AbstractContextManager):
 
         factory = database_services.get_current_session_factory()
         factory.remove(atomic=True)
+
+
+class nested_context(TransactionalContextManagerBase):
+    """
+    nested context manager to make a code block executed in nested transaction.
+
+    meaning that before starting the execution of the code, a new nested transaction
+    will be started, and after the completion of that code, if it was not successful
+    the nested transaction will be rolled back without the consideration or affecting
+    the parent transaction which by default is scoped to request.
+
+    note that in nested transactions, the parent transaction must be committed to persist
+    generated data during nested transaction, so committing the nested transaction itself,
+    does not persist anything, it just releases the savepoint. if you want an independent
+    transaction from parent that could commit its own changes on its own, use `atomic_context`.
+
+    note that you *should not* commit or rollback the transaction inside the current
+    context. the context manager itself will do it automatically. if you do commit
+    or rollback manually, unexpected behaviors may occur.
+
+    this context manager also supports multiple `nested_context` usage in a single
+    call hierarchy.
+
+    example usage:
+
+    with nested_context():
+        store = database_services.get_current_store()
+        user = UserEntity(id=1, name='Dave')
+        store.add(user)
+    """
+
+    def __init__(self):
+        """
+        initializes an instance of nested_context.
+        """
+
+        super().__init__(database_services.get_current_store().begin_nested())
+
+    def __enter__(self):
+        """
+        begins the current context.
+
+        note that you *should not* commit or rollback the transaction inside the current
+        context. the context manager itself will do it automatically. if you do commit
+        or rollback manually, unexpected behaviors may occur.
+
+        also note that by beginning the context, it does not return any session
+        object. so you should not use `with nested_context() as store` code style.
+        because store will always be None.
+
+        :rtype: CoreSession
+        """
+
+        return None
+
+
+class subtransaction_context(TransactionalContextManagerBase):
+    """
+    subtransaction context manager to make a code block executed in subtransaction.
+
+    meaning that before starting the execution of the code, a new subtransaction
+    will be started, and after the completion of that code, if it was not successful
+    the subtransaction will be rolled back and it will also force the parent transaction
+    which by default is scoped to request to be rolled backed.
+
+    note that in subtransactions, the parent transaction must be committed to persist
+    generated data during subtransaction, so committing the subtransaction itself, does
+    not persist anything, it just ends the subtransaction's scope. if you want an independent
+    transaction from parent that could commit its own changes on its own, use `atomic_context`.
+
+    note that you *should not* commit or rollback the transaction inside the current
+    context. the context manager itself will do it automatically. if you do commit
+    or rollback manually, unexpected behaviors may occur.
+
+    this context manager also supports multiple `subtransaction_context` usage in a single
+    call hierarchy.
+
+    example usage:
+
+    with subtransaction_context():
+        store = database_services.get_current_store()
+        user = UserEntity(id=1, name='Dave')
+        store.add(user)
+    """
+
+    def __init__(self):
+        """
+        initializes an instance of subtransaction_context.
+        """
+
+        super().__init__(database_services.get_current_store().begin(subtransactions=True))
+
+    def __enter__(self):
+        """
+        begins the current context.
+
+        note that you *should not* commit or rollback the transaction inside the current
+        context. the context manager itself will do it automatically. if you do commit
+        or rollback manually, unexpected behaviors may occur.
+
+        also note that by beginning the context, it does not return any session
+        object. so you should not use `with subtransaction_context() as store` code
+        style. because store will always be None.
+
+        :rtype: CoreSession
+        """
+
+        return None

@@ -19,9 +19,9 @@ def atomic(func):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after function execution.
 
-    note that it's not required to commit or rollback anything inside an atomic
+    note that you *should not* commit or rollback anything inside an atomic
     function, the `@atomic` decorator will handle commit or rollback operations
-    when needed.
+    when needed. otherwise, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory
     when using `@atomic` decorator. the removal operation will be handled by decorator
@@ -107,6 +107,10 @@ def nested(func):
     transaction from parent that could commit its own changes on its own, use `@atomic`
     decorator.
 
+    note that you *should not* commit or rollback anything inside a nested
+    function, the `@nested` decorator will handle commit or rollback operations
+    when needed. otherwise, unexpected behaviors may occur.
+
     :param function func: function.
 
     :returns: function result.
@@ -149,6 +153,10 @@ def subtransaction(func):
     not persist anything, it just ends the subtransaction's scope. if you want an independent
     transaction from parent that could commit its own changes on its own, use `@atomic`
     decorator.
+
+    note that you *should not* commit or rollback anything inside a subtransaction
+    function, the `@subtransaction` decorator will handle commit or rollback operations
+    when needed. otherwise, unexpected behaviors may occur.
 
     :param function func: function.
 

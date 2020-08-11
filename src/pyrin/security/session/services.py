@@ -51,7 +51,7 @@ def get_current_request_id():
 
     :raises RuntimeError: runtime error.
 
-    :rtype: str
+    :rtype: uuid.UUID
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_current_request_id()
