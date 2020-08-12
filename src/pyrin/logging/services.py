@@ -166,21 +166,23 @@ def prepare_data(data, **options):
     return get_component(LoggingPackage.COMPONENT_NAME).prepare_data(data, **options)
 
 
-def before_emit(data, **options):
+def before_emit(message, data, **options):
     """
     this method will call `before_emit` method of all registered hooks.
 
+    :param str message: the log message that must be emitted.
     :param dict | object data: data that is passed to logging method.
     """
 
-    return get_component(LoggingPackage.COMPONENT_NAME).before_emit(data, **options)
+    return get_component(LoggingPackage.COMPONENT_NAME).before_emit(message, data, **options)
 
 
-def after_emit(data, **options):
+def after_emit(message, data, **options):
     """
     this method will call `after_emit` method of all registered hooks.
 
+    :param str message: the log message that has been emitted.
     :param dict | object data: data that is passed to logging method.
     """
 
-    return get_component(LoggingPackage.COMPONENT_NAME).after_emit(data, **options)
+    return get_component(LoggingPackage.COMPONENT_NAME).after_emit(message, data, **options)

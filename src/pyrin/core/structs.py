@@ -376,7 +376,11 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
 
     all application manager classes must be subclassed from this one.
     """
-    pass
+
+    # this attribute should be set with the package class of current manager.
+    # this is useful if you want to extend pyrin packages in your application
+    # and let pyrin use your custom package's package class in its code.
+    package_class = None
 
 
 class CLISingletonMeta(MultiSingletonMeta):

@@ -32,18 +32,20 @@ class LoggingHookBase(Hook):
 
         return data
 
-    def before_emit(self, data, **options):
+    def before_emit(self, message, data, **options):
         """
         this method will be called before a log is emitted.
 
+        :param str message: the log message that must be emitted.
         :param dict | object data: data that is passed to logging method.
         """
         pass
 
-    def after_emit(self, data, **options):
+    def after_emit(self, message, data, **options):
         """
         this method will be called after a log is emitted.
 
+        :param str message: the log message that has been emitted.
         :param dict | object data: data that is passed to logging method.
         """
         pass

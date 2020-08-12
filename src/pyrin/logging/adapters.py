@@ -75,10 +75,12 @@ class BaseLoggerAdapter(LoggerAdapter):
             data = kwargs.pop('interpolation_data', None)
             if data is not None:
                 data = logging_services.prepare_data(data)
+                msg = string_utils.interpolate(msg, data)
 
-            logging_services.before_emit(data, **kwargs)
-            super().log(level, msg, *args, **kwargs, interpolation_data=data)
-            logging_services.after_emit(data, **kwargs)
+            custom_message, custom_kwargs = self.process(msg, kwargs)
+            logging_services.before_emit(custom_message, data, **custom_kwargs)
+            self.logger.log(level, custom_message, *args, **custom_kwargs)
+            logging_services.after_emit(custom_message, data, **custom_kwargs)
 
     def process(self, msg, kwargs):
         """
@@ -91,15 +93,9 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param str msg: log message.
         :param dict kwargs: keyword arguments passed to logging call.
 
-        :keyword dict interpolation_data: data to be used for interpolation.
-
         :returns: tuple[str message, dict kwargs]
         :rtype: tuple[str, dict]
         """
-
-        data = kwargs.pop('interpolation_data', None)
-        if data is not None:
-            msg = string_utils.interpolate(msg, data)
 
         custom_message, custom_kwargs = self._process(msg, kwargs)
         return super().process(custom_message, custom_kwargs)

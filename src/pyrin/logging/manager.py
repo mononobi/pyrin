@@ -25,8 +25,7 @@ class LoggingManager(Manager, HookMixin):
     """
 
     # the logger adapter could be overridden in subclasses.
-    LOGGER_ADAPTER = RequestInfoLoggerAdapter
-
+    logger_adapter_class = RequestInfoLoggerAdapter
     hook_type = LoggingHookBase
     invalid_hook_type_error = InvalidLoggingHookTypeError
 
@@ -77,7 +76,7 @@ class LoggingManager(Manager, HookMixin):
         """
 
         if self.should_be_wrapped(logger) is True:
-            return self.LOGGER_ADAPTER(logger)
+            return self.logger_adapter_class(logger)
 
         return logger
 
@@ -265,27 +264,29 @@ class LoggingManager(Manager, HookMixin):
         """
 
         prepared_data = data
-        for hook in self._hooks:
+        for hook in self._get_hooks():
             prepared_data = hook.prepare_data(prepared_data, **options)
 
         return prepared_data
 
-    def before_emit(self, data, **options):
+    def before_emit(self, message, data, **options):
         """
         this method will call `before_emit` method of all registered hooks.
 
+        :param str message: the log message that must be emitted.
         :param dict | object data: data that is passed to logging method.
         """
 
-        for hook in self._hooks:
-            hook.before_emit(data, **options)
+        for hook in self._get_hooks():
+            hook.before_emit(message, data, **options)
 
-    def after_emit(self, data, **options):
+    def after_emit(self, message, data, **options):
         """
         this method will call `after_emit` method of all registered hooks.
 
+        :param str message: the log message that has been emitted.
         :param dict | object data: data that is passed to logging method.
         """
 
-        for hook in self._hooks:
-            hook.after_emit(data, **options)
+        for hook in self._get_hooks():
+            hook.after_emit(message, data, **options)
