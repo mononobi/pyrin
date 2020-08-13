@@ -10,11 +10,15 @@ from pyrin.security.authentication.exceptions import AuthenticationFailedError
 from pyrin.security.authentication.manager import AuthenticationManager as \
     BaseAuthenticationManager
 
+from tests.unit.security.authentication import AuthenticationPackage
+
 
 class AuthenticationManager(BaseAuthenticationManager):
     """
     authentication manager class.
     """
+
+    package_class = AuthenticationPackage
 
     def _push_custom_data(self, header, payload, **options):
         """

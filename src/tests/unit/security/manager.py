@@ -7,6 +7,7 @@ import pyrin.utils.misc as misc_utils
 
 from pyrin.security.manager import SecurityManager as BaseSecurityManager
 
+from tests.unit.security import SecurityPackage
 from tests.unit.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
     PERMISSION_TEST_THREE
 
@@ -15,6 +16,8 @@ class SecurityManager(BaseSecurityManager):
     """
     security manager class.
     """
+
+    package_class = SecurityPackage
 
     def has_permission(self, user, permissions, **options):
         """

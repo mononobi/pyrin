@@ -6,6 +6,7 @@ permission manager module.
 from pyrin.database.services import get_current_store
 from pyrin.security.permission.manager import PermissionManager as BasePermissionManager
 
+from tests.unit.security.permission import PermissionPackage
 from tests.unit.security.permission.models import PermissionEntity
 
 
@@ -13,6 +14,8 @@ class PermissionManager(BasePermissionManager):
     """
     permission manager class.
     """
+
+    package_class = PermissionPackage
 
     def _exists(self, permission_id):
         """

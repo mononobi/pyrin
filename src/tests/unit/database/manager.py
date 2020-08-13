@@ -5,11 +5,15 @@ database manager module.
 
 from pyrin.database.manager import DatabaseManager as BaseDatabaseManager
 
+from tests.unit.database import DatabasePackage
+
 
 class DatabaseManager(BaseDatabaseManager):
     """
     database manager class.
     """
+
+    package_class = DatabasePackage
 
     def __init__(self):
         """
