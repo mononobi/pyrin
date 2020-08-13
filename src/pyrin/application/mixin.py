@@ -8,9 +8,10 @@ import signal
 
 from abc import abstractmethod
 
+import pyrin.logging.services as logging_services
+
 from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.utils.custom_print import print_error
 
 
 class SignalMixin(CoreObject):
@@ -59,10 +60,12 @@ class SignalMixin(CoreObject):
         :param int | FrameType frame: interrupted stack frame.
         """
 
-        print_error('A TERMINATION SIGNAL CAUGHT! signal [{signal_number}] '
-                    'is going to terminate the application [{name}].'
-                    .format(signal_number=signal_number,
-                            name=self.get_application_name()))
+        message = 'A TERMINATION SIGNAL CAUGHT! signal [{signal_number}] ' \
+                  'is going to terminate the application [{name}].' \
+            .format(signal_number=signal_number,
+                    name=self.get_application_name())
+
+        logging_services.error(message)
 
         # terminating the application with 'status = 1' to notice a failure.
         self.terminate(signal_number, status=1)
@@ -81,8 +84,10 @@ class SignalMixin(CoreObject):
                              if not provided, status=0 will be used.
         """
 
-        print_error('Terminating application [{name}].'
-                    .format(name=self.get_application_name()))
+        message = 'Terminating application [{name}].'.format(
+            name=self.get_application_name())
+
+        logging_services.error(message)
 
         # forcing termination after 10 seconds.
         signal.alarm(10)

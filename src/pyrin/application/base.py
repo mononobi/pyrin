@@ -220,6 +220,8 @@ class Application(Flask, HookMixin, SignalMixin,
         # setting the application instance in application container module.
         _set_app(self)
 
+        self._register_required_hooks()
+
         # we should load application at this stage to be able to perform pytest
         # tests after application has been fully loaded. because if we call
         # application.run(), we could not continue execution of other codes.
@@ -253,7 +255,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises ApplicationIsNotSubclassedError: application is not subclassed error.
         """
 
-        if type(self) == Application:
+        if type(self) is Application:
             raise ApplicationIsNotSubclassedError('Current application instance is a direct '
                                                   'instance of [{base}]. you must subclass '
                                                   'from [{base}] in your project and create '
@@ -289,6 +291,7 @@ class Application(Flask, HookMixin, SignalMixin,
         self.register_component(self.packaging_component_class(
             PackagingPackage.COMPONENT_NAME))
 
+    @setupmethod
     def _register_required_hooks(self):
         """
         registers the required hooks that the Application needs them.
@@ -325,7 +328,8 @@ class Application(Flask, HookMixin, SignalMixin,
         old_status = self.__status
         self.__status = status
 
-        self._application_status_changed(old_status, status)
+        if old_status != status:
+            self._application_status_changed(old_status, status)
 
     def get_status(self):
         """
@@ -544,7 +548,6 @@ class Application(Flask, HookMixin, SignalMixin,
         self._set_status(ApplicationStatusEnum.LOADING)
         self._resolve_required_paths(**options)
         self._load_environment_variables()
-        self._register_required_hooks()
 
         packaging_services.load_components(**options)
 
@@ -577,6 +580,7 @@ class Application(Flask, HookMixin, SignalMixin,
             config_dict = config_services.get_all(store_name, **options)
             self.configure(config_dict)
 
+    @setupmethod
     def load_configs(self, **options):
         """
         loads all configurations related to application package.
@@ -598,6 +602,7 @@ class Application(Flask, HookMixin, SignalMixin,
         upper_dict = make_key_upper(config_store)
         self.config.update(upper_dict)
 
+    @setupmethod
     def configure(self, config_store):
         """
         configures the application with given dict.
