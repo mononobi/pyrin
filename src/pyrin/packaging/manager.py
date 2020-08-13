@@ -801,11 +801,9 @@ class PackagingManager(Manager, HookMixin):
         if len(condition_parts) > len(full_module_or_package_parts):
             return False
 
-        index = 0
-        for item in condition_parts:
+        for index, item in enumerate(condition_parts):
             if item != '*' and item != full_module_or_package_parts[index]:
                 return False
-            index = index + 1
 
         return True
 
