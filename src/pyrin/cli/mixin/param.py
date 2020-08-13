@@ -171,8 +171,8 @@ class CLIParamMixin(CoreObject):
         :param index: zero-based index in which arguments must be injected.
         """
 
-        for i in range(len(arguments)):
-            commands.insert(index + i, arguments[i])
+        for item_index, item in enumerate(arguments):
+            commands.insert(index + item_index, item)
 
     def __get_params(self, help_param=True):
         """
