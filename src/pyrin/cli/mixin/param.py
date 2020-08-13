@@ -161,7 +161,7 @@ class CLIParamMixin(CoreObject):
 
     def _inject_positional_arguments(self, commands, arguments, index):
         """
-        injects(in-place) given arguments into specified index of given commands list.
+        injects (in-place) given arguments into specified index of given commands list.
 
         :param list[object] commands: list of cli commands.
 
