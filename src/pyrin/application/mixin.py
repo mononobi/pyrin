@@ -68,9 +68,9 @@ class SignalMixin(CoreObject):
         logging_services.error(message)
 
         # terminating the application with 'status = 1' to notice a failure.
-        self.terminate(signal_number, status=1)
+        self._terminate(signal_number, status=1)
 
-    def terminate(self, signal_number, **options):
+    def _terminate(self, signal_number, **options):
         """
         terminates the application.
 
