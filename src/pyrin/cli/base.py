@@ -18,6 +18,7 @@ from pyrin.cli.exceptions import InvalidCLIHandlerNameError
 class CLIHandlerSingletonMeta(MultiSingletonMeta):
     """
     cli handler singleton meta class.
+
     this is a thread-safe implementation of singleton.
     """
 
@@ -61,6 +62,7 @@ class AbstractCLIHandlerBase(CoreObject, metaclass=CLIHandlerSingletonMeta):
 class CLIHandlerBase(CLIParamMixin, AbstractCLIHandlerBase):
     """
     cli handler base class.
+
     all application cli handlers must be subclassed from this.
     """
 
