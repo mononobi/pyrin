@@ -4,6 +4,7 @@ model manager module.
 """
 
 from pyrin.core.structs import Manager
+from pyrin.database.model import ModelPackage
 from pyrin.database.model.base import CoreEntity
 
 
@@ -11,6 +12,8 @@ class ModelManager(Manager):
     """
     model manager class.
     """
+
+    package_class = ModelPackage
 
     def get_declarative_base(self):
         """

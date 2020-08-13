@@ -6,11 +6,15 @@ permission manager module.
 from pyrin.security.permission.manager import PermissionManager as BasePermissionManager
 from pyrin.core.exceptions import CoreNotImplementedError
 
+from APPLICATION_PACKAGE.security.permission import PermissionPackage
+
 
 class PermissionManager(BasePermissionManager):
     """
     permission manager class.
     """
+
+    package_class = PermissionPackage
 
     def _exists(self, *primary_key):
         """

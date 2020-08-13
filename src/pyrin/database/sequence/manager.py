@@ -11,6 +11,7 @@ import pyrin.database.services as database_services
 
 from pyrin.core.structs import Manager, DTO
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.database.sequence import SequencePackage
 from pyrin.database.services import get_current_store
 
 
@@ -18,6 +19,8 @@ class SequenceManager(Manager):
     """
     sequence manager class.
     """
+
+    package_class = SequencePackage
 
     def __init__(self):
         """

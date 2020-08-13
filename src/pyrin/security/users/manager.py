@@ -7,6 +7,7 @@ from abc import abstractmethod
 
 from pyrin.core.structs import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security.users import UsersPackage
 
 
 class UsersManager(Manager):
@@ -15,6 +16,8 @@ class UsersManager(Manager):
     this class is intended to provide some services needed in pyrin application.
     the top level application must extend this class considering business requirements.
     """
+
+    package_class = UsersPackage
 
     @abstractmethod
     def is_active(self, user, **options):

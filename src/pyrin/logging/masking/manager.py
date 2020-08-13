@@ -6,6 +6,7 @@ logging masking manager module.
 import pyrin.configuration.services as config_services
 
 from pyrin.core.structs import Manager
+from pyrin.logging.masking import LoggingMaskingPackage
 from pyrin.logging.masking.structs import MaskedDict
 
 
@@ -88,6 +89,7 @@ class LoggingMaskingManager(Manager):
 
     # a class type to be used as masked dict.
     masked_dict_class = MaskedDict
+    package_class = LoggingMaskingPackage
 
     def __init__(self):
         """

@@ -12,12 +12,15 @@ from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.structs import Manager
+from pyrin.database.orm.sql.extractor import ORMSQLExtractorPackage
 
 
 class ORMSQLExtractorManager(Manager):
     """
     orm sql extractor manager class.
     """
+
+    package_class = ORMSQLExtractorPackage
 
     def find_table_names(self, expression, **options):
         """

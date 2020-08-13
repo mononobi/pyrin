@@ -9,6 +9,7 @@ import colorama
 
 import pyrin.utils.function as func_utils
 
+from pyrin.cli import CLIPackage
 from pyrin.core.structs import Manager
 from pyrin.utils.custom_print import print_colorful, print_error
 from pyrin.cli.exceptions import InvalidCLIDecoratedMethodError
@@ -18,6 +19,8 @@ class CLIManager(Manager):
     """
     cli manager class.
     """
+
+    package_class = CLIPackage
 
     def process_function(self, func, func_args, func_kwargs):
         """

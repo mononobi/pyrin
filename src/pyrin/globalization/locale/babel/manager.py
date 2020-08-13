@@ -10,6 +10,7 @@ import pyrin.application.services as application_services
 
 from pyrin.cli.mixin.handler import CLIMixin
 from pyrin.core.structs import Manager
+from pyrin.globalization.locale.babel import BabelPackage
 from pyrin.globalization.locale.babel.enumerations import BabelCLIHandlersEnum
 from pyrin.globalization.locale.babel.exceptions import LocaleAlreadyExistedError
 from pyrin.globalization.locale.babel.interface import BabelCLIHandlerBase
@@ -23,6 +24,7 @@ class BabelManager(Manager, CLIMixin):
     """
 
     _cli_handler_type = BabelCLIHandlerBase
+    package_class = BabelPackage
 
     def enable(self, include_pyrin=True, include_app=True):
         """

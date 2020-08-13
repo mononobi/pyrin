@@ -10,6 +10,7 @@ import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager
+from pyrin.security.authorization import AuthorizationPackage
 from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
     UserNotAuthenticatedError, UserIsNotActiveError
 
@@ -21,6 +22,8 @@ class AuthorizationManager(Manager):
     this class is intended to provide some services needed in pyrin application.
     the top level application must extend this class considering business requirements.
     """
+
+    package_class = AuthorizationPackage
 
     def authorize(self, user, permissions, **options):
         """

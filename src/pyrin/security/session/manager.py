@@ -7,6 +7,7 @@ from flask import request
 from flask.ctx import has_request_context
 
 from pyrin.core.structs import DTO, Manager
+from pyrin.security.session import SessionPackage
 from pyrin.security.session.exceptions import InvalidUserError, \
     CouldNotOverwriteCurrentUserError, InvalidComponentCustomKeyError
 
@@ -15,6 +16,8 @@ class SessionManager(Manager):
     """
     session manager class.
     """
+
+    package_class = SessionPackage
 
     def get_current_user(self):
         """

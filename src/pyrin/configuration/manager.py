@@ -9,6 +9,7 @@ import pyrin.application.services as application_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.file as file_utils
 
+from pyrin.configuration import ConfigurationPackage
 from pyrin.configuration.store import ConfigStore
 from pyrin.core.structs import Context, Manager
 from pyrin.configuration.exceptions import ConfigurationStoreExistedError, \
@@ -25,6 +26,7 @@ class ConfigurationManager(Manager):
 
     # class type to be used as config store.
     config_store_class = ConfigStore
+    package_class = ConfigurationPackage
 
     def __init__(self, **options):
         """

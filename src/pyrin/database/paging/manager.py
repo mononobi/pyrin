@@ -6,6 +6,7 @@ database paging manager module.
 import pyrin.configuration.services as config_services
 
 from pyrin.core.structs import Manager
+from pyrin.database.paging import DatabasePagingPackage
 
 
 class DatabasePagingManager(Manager):
@@ -16,6 +17,8 @@ class DatabasePagingManager(Manager):
     PAGING_KEY = '__paging__'
     LIMIT_KEY = '__limit__'
     OFFSET_KEY = '__offset__'
+
+    package_class = DatabasePagingPackage
 
     def __init__(self):
         """

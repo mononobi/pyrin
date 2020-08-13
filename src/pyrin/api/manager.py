@@ -7,6 +7,7 @@ import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.services as response_services
 
+from pyrin.api import APIPackage
 from pyrin.core.structs import Manager
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import _
@@ -17,6 +18,7 @@ class APIManager(Manager):
     api manager class.
     """
 
+    package_class = APIPackage
     LOGGER = logging_services.get_logger('api')
 
     def handle_http_error(self, exception):

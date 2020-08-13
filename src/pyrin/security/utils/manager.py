@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives import serialization
 import pyrin.configuration.services as config_services
 
 from pyrin.core.structs import Manager
+from pyrin.security.utils import SecurityUtilsPackage
 from pyrin.settings.static import APPLICATION_ENCODING
 
 
@@ -19,6 +20,8 @@ class SecurityUtilsManager(Manager):
     """
     security utils manager class.
     """
+
+    package_class = SecurityUtilsPackage
 
     def generate_rsa_key(self, length=None, **options):
         """

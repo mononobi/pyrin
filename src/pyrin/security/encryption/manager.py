@@ -5,6 +5,7 @@ encryption manager module.
 
 import pyrin.configuration.services as config_services
 
+from pyrin.security.encryption import EncryptionPackage
 from pyrin.security.encryption.interface import AbstractEncrypterBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.structs import Context, Manager
@@ -17,6 +18,8 @@ class EncryptionManager(Manager):
     """
     encryption manager class.
     """
+
+    package_class = EncryptionPackage
 
     def __init__(self):
         """

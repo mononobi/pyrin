@@ -13,6 +13,7 @@ import pyrin.application.services as application_services
 import pyrin.database.model.services as model_services
 
 from pyrin.core.structs import DTO, Manager
+from pyrin.database.migration import DatabaseMigrationPackage
 from pyrin.database.migration.exceptions import EngineBindNameNotFoundError
 from pyrin.utils.custom_print import print_warning, print_info
 
@@ -21,6 +22,8 @@ class DatabaseMigrationManager(Manager):
     """
     database migration manager class.
     """
+
+    package_class = DatabaseMigrationPackage
 
     def __init__(self):
         """

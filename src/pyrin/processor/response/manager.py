@@ -8,6 +8,7 @@ from flask import make_response as flask_response, Response
 
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import ROW_RESULT
+from pyrin.processor.response import ResponsePackage
 from pyrin.settings.static import DEFAULT_STATUS_CODE
 from pyrin.core.structs import Manager
 
@@ -16,6 +17,8 @@ class ResponseManager(Manager):
     """
     response manager class.
     """
+
+    package_class = ResponsePackage
 
     def _render_body(self, **options):
         """

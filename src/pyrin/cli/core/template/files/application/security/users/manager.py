@@ -6,11 +6,15 @@ users manager module.
 from pyrin.security.users.manager import UsersManager as BaseUsersManager
 from pyrin.core.exceptions import CoreNotImplementedError
 
+from APPLICATION_PACKAGE.security.users import UsersPackage
+
 
 class UsersManager(BaseUsersManager):
     """
     users manager class.
     """
+
+    package_class = UsersPackage
 
     def is_active(self, user, **options):
         """

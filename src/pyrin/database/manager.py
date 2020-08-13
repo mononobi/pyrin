@@ -13,6 +13,7 @@ import pyrin.processor.response.services as response_services
 import pyrin.utils.dictionary as dict_utils
 import pyrin.utils.misc as misc_utils
 
+from pyrin.database import DatabasePackage
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import BaseEntity
@@ -35,6 +36,7 @@ class DatabaseManager(Manager, HookMixin):
     DEFAULT_DATABASE_NAME = 'default'
     hook_type = DatabaseHookBase
     invalid_hook_type_error = InvalidDatabaseHookTypeError
+    package_class = DatabasePackage
 
     def __init__(self):
         """

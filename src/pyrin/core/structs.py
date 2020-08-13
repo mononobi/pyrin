@@ -12,7 +12,7 @@ from werkzeug.datastructures import MultiDict, ImmutableMultiDict, ImmutableDict
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError, \
-    CoreNotImplementedError
+    CoreNotImplementedError, PackageClassIsNotSetError
 
 
 class SingletonMetaBase(type):
@@ -242,8 +242,7 @@ class CoreObject(object):
         :rtype: str
         """
 
-        return '{module}.{name}'.format(module=self.__module__,
-                                        name=self.__class__.__name__)
+        return self.get_fully_qualified_name()
 
     def get_name(self):
         """
@@ -293,6 +292,18 @@ class CoreObject(object):
         """
 
         return self.__doc__
+
+    def get_fully_qualified_name(self):
+        """
+        gets fully qualified name of this object.
+
+        it gets `module_name.class_name` as fully qualified name.
+
+        :rtype: str
+        """
+
+        return '{module}.{name}'.format(module=self.__module__,
+                                        name=self.__class__.__name__)
 
     def _setattr(self, name, value):
         """
@@ -381,6 +392,30 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
     # this is useful if you want to extend pyrin packages in your application
     # and let pyrin use your custom package's package class in its code.
     package_class = None
+
+    def get_package_class(self):
+        """
+        gets the package class of current manager.
+
+        this method is useful if you want to access the correct package class of a
+        manager using services module of that package.
+
+        each package that needs to expose this method, could implement a service method
+        and return the result of this method.
+
+        :raises PackageClassIsNotSetError: package class is not set error.
+
+        :returns: type[Package]
+        """
+
+        if self.package_class is None:
+            raise PackageClassIsNotSetError('Package class for current manager '
+                                            '[{manager}] is not set. you must set '
+                                            '"package_class" attribute for this manager '
+                                            'to be able to use this method.'
+                                            .format(manager=self))
+
+        return self.package_class
 
 
 class CLISingletonMeta(MultiSingletonMeta):

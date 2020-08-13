@@ -94,3 +94,15 @@ def check_init(locale):
     """
 
     return get_component(BabelPackage.COMPONENT_NAME).check_init(locale)
+
+
+def get_package_class():
+    """
+    gets the package class of babel manager.
+
+    :raises PackageClassIsNotSetError: package class is not set error.
+
+    :returns: type[BabelPackage]
+    """
+
+    return get_component(BabelPackage.COMPONENT_NAME).get_package_class()

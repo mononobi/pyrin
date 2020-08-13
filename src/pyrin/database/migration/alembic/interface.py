@@ -4,10 +4,10 @@ alembic interface module.
 """
 
 import pyrin.configuration.services as config_services
+import pyrin.database.migration.alembic.services as alembic_services
 
 from pyrin.cli.base import CLIHandlerBase
 from pyrin.cli.params import CLIParamBase
-from pyrin.database.migration.alembic import AlembicPackage
 
 
 class AlembicCLIParamBase(CLIParamBase):
@@ -36,8 +36,8 @@ class AlembicCLIHandlerBase(CLIHandlerBase):
         """
 
         super().__init__(name)
-        self._config_file_path = config_services.get_file_path(
-            AlembicPackage.CONFIG_STORE_NAMES[0])
+        package = alembic_services.get_package_class()
+        self._config_file_path = config_services.get_file_path(package.CONFIG_STORE_NAMES[0])
 
     def _get_common_cli_options(self):
         """

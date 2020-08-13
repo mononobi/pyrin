@@ -28,6 +28,7 @@ class LoggingManager(Manager, HookMixin):
     logger_adapter_class = RequestInfoLoggerAdapter
     hook_type = LoggingHookBase
     invalid_hook_type_error = InvalidLoggingHookTypeError
+    package_class = LoggingPackage
 
     def __init__(self):
         """
@@ -37,7 +38,7 @@ class LoggingManager(Manager, HookMixin):
         super().__init__()
 
         self._config_file_path = config_services.get_file_path(
-            LoggingPackage.EXTRA_CONFIG_STORE_NAMES[0])
+            self.package_class.EXTRA_CONFIG_STORE_NAMES[0])
         self._load_configs(self._config_file_path)
 
     def _load_configs(self, config_file_path):

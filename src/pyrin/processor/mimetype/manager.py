@@ -4,6 +4,7 @@ mimetype manager module.
 """
 
 from pyrin.core.structs import Manager, Context
+from pyrin.processor.mimetype import MIMETypePackage
 from pyrin.processor.mimetype.interface import AbstractMIMETypeHandlerBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.processor.mimetype.exceptions import InvalidMIMETypeHandlerTypeError, \
@@ -14,6 +15,8 @@ class MIMETypeManager(Manager):
     """
     mimetype manager class.
     """
+
+    package_class = MIMETypePackage
 
     def __init__(self):
         """

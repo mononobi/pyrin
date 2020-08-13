@@ -11,12 +11,15 @@ import pyrin.configuration.services as config_services
 import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.structs import Manager
+from pyrin.globalization.datetime import DateTimePackage
 
 
 class DateTimeManager(Manager):
     """
     datetime manager class.
     """
+
+    package_class = DateTimePackage
 
     def __init__(self, **options):
         """

@@ -47,3 +47,15 @@ def enable():
     """
 
     return get_component(AlembicPackage.COMPONENT_NAME).enable()
+
+
+def get_package_class():
+    """
+    gets the package class of alembic manager.
+
+    :raises PackageClassIsNotSetError: package class is not set error.
+
+    :returns: type[AlembicPackage]
+    """
+
+    return get_component(AlembicPackage.COMPONENT_NAME).get_package_class()

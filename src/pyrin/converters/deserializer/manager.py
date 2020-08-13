@@ -3,6 +3,7 @@
 deserializer manager module.
 """
 
+from pyrin.converters.deserializer import DeserializerPackage
 from pyrin.converters.deserializer.interface import AbstractDeserializerBase
 from pyrin.core.structs import Context, Manager
 from pyrin.core.globals import NULL
@@ -15,6 +16,8 @@ class DeserializerManager(Manager):
     """
     deserializer manager class.
     """
+
+    package_class = DeserializerPackage
 
     def __init__(self):
         """

@@ -7,11 +7,15 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.manager import AuthenticationManager as \
     BaseAuthenticationManager
 
+from APPLICATION_PACKAGE.security.authentication import AuthenticationPackage
+
 
 class AuthenticationManager(BaseAuthenticationManager):
     """
     authentication manager class.
     """
+
+    package_class = AuthenticationPackage
 
     def _push_custom_data(self, header, payload, **options):
         """

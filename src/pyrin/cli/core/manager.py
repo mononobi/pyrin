@@ -3,6 +3,7 @@
 cli core manager module.
 """
 
+from pyrin.cli.core import CLICorePackage
 from pyrin.cli.core.exceptions import CLICoreTemplateHandlerNotFoundError
 from pyrin.cli.core.template.handlers import ScriptsTemplateHandler, ApplicationTemplateHandler
 from pyrin.core.structs import Manager, DTO
@@ -12,6 +13,8 @@ class CLICoreManager(Manager):
     """
     cli core manager class.
     """
+
+    package_class = CLICorePackage
 
     def __init__(self):
         """

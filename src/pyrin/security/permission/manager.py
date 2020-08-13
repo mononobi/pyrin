@@ -11,6 +11,7 @@ from pyrin.core.globals import SECURE_FALSE
 from pyrin.core.structs import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
+from pyrin.security.permission import PermissionPackage
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
     DuplicatedPermissionError
@@ -20,6 +21,8 @@ class PermissionManager(Manager):
     """
     permission manager class.
     """
+
+    package_class = PermissionPackage
 
     def __init__(self):
         """

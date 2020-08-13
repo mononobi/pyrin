@@ -3,6 +3,7 @@
 serializer manager module.
 """
 
+from pyrin.converters.serializer import SerializerPackage
 from pyrin.converters.serializer.interface import AbstractSerializerBase
 from pyrin.core.structs import Context, Manager
 from pyrin.core.globals import NULL
@@ -15,6 +16,8 @@ class SerializerManager(Manager):
     """
     serializer manager class.
     """
+
+    package_class = SerializerPackage
 
     def __init__(self):
         """

@@ -165,3 +165,10 @@ class InvalidHookTypeError(CoreException):
     invalid hook type error.
     """
     pass
+
+
+class PackageClassIsNotSetError(CoreException):
+    """
+    package class is not set error.
+    """
+    pass

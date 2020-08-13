@@ -6,6 +6,7 @@ validator manager module.
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager, Context, DTO
 from pyrin.utils.custom_print import print_warning
+from pyrin.validator import ValidatorPackage
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.exceptions import InvalidValidatorTypeError, DuplicatedValidatorError, \
     ValidatorNotFoundError, ValidationError, InvalidEntityForValidationError, \
@@ -16,6 +17,8 @@ class ValidatorManager(Manager):
     """
     validator manager class.
     """
+
+    package_class = ValidatorPackage
 
     def __init__(self):
         """

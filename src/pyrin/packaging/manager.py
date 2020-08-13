@@ -36,6 +36,7 @@ class PackagingManager(Manager, HookMixin):
     _lock = Lock()
     hook_type = PackagingHookBase
     invalid_hook_type_error = InvalidPackagingHookTypeError
+    package_class = PackagingPackage
 
     def __init__(self):
         """
@@ -104,7 +105,7 @@ class PackagingManager(Manager, HookMixin):
         creates packaging config file in application settings path if not available.
         """
 
-        config_services.create_config_file(PackagingPackage.CONFIG_STORE_NAMES[0],
+        config_services.create_config_file(self.package_class.CONFIG_STORE_NAMES[0],
                                            ignore_on_existed=True)
 
     def _load_configs(self):
@@ -131,7 +132,8 @@ class PackagingManager(Manager, HookMixin):
 
         app_settings_directory = application_services.get_settings_path()
         pyrin_settings_directory = application_services.get_default_settings_path()
-        config_file_name = '{store}.config'.format(store=PackagingPackage.CONFIG_STORE_NAMES[0])
+        config_file_name = '{store}.config'.format(store=self.package_class.
+                                                   CONFIG_STORE_NAMES[0])
         config_path = path_utils.get_first_available_file(app_settings_directory,
                                                           pyrin_settings_directory,
                                                           file_name=config_file_name)

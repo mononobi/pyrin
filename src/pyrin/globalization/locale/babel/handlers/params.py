@@ -7,9 +7,9 @@ import os
 
 import pyrin.configuration.services as config_services
 import pyrin.application.services as application_services
+import pyrin.globalization.locale.babel.services as babel_services
 
 from pyrin.globalization.locale.babel.interface import BabelCLIParamBase
-from pyrin.globalization.locale.babel import BabelPackage
 from pyrin.cli.arguments import KeywordArgument, BooleanArgument, \
     PositionalArgument, CompositeKeywordArgument
 
@@ -424,7 +424,8 @@ class MappingParam(KeywordArgument, BabelCLIParamBase):
         """
 
         if default is None:
-            default = config_services.get_file_path(BabelPackage.EXTRA_CONFIG_STORE_NAMES[0])
+            package = babel_services.get_package_class()
+            default = config_services.get_file_path(package.EXTRA_CONFIG_STORE_NAMES[0])
 
         super().__init__('mapping', '--mapping', default=default)
 

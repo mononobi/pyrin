@@ -11,6 +11,7 @@ import pyrin.security.hashing.services as hashing_services
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.security import SecurityPackage
 from pyrin.security.exceptions import InvalidPasswordLengthError, \
     InvalidEncryptionTextLengthError
 
@@ -21,6 +22,8 @@ class SecurityManager(Manager):
     this class is intended to provide some services needed in pyrin application.
     the top level application must extend this class considering business requirements.
     """
+
+    package_class = SecurityPackage
 
     def get_password_hash(self, password, **options):
         """

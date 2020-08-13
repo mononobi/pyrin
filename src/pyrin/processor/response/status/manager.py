@@ -5,6 +5,7 @@ response status manager module.
 
 import pyrin.security.session.services as session_services
 
+from pyrin.processor.response.status import ResponseStatusPackage
 from pyrin.settings.static import DEFAULT_STATUS_CODE
 from pyrin.core.structs import Manager, DTO
 from pyrin.core.enumerations import SuccessfulResponseCodeEnum, HTTPMethodEnum, \
@@ -35,6 +36,8 @@ class ResponseStatusManager(Manager):
 
     REDIRECTION_CODE_MIN = RedirectionResponseCodeEnum.MULTIPLE_CHOICE
     REDIRECTION_CODE_MAX = 399
+
+    package_class = ResponseStatusPackage
 
     def __init__(self):
         """

@@ -6,6 +6,7 @@ router manager module.
 import pyrin.application.services as application_services
 import pyrin.utils.misc as misc_utils
 
+from pyrin.api.router import RouterPackage
 from pyrin.api.router.handlers.base import RouteBase
 from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
@@ -18,6 +19,8 @@ class RouterManager(Manager):
     """
     router manager class.
     """
+
+    package_class = RouterPackage
 
     def create_route(self, rule, **options):
         """

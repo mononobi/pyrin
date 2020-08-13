@@ -3,6 +3,7 @@
 template manager module.
 """
 
+from pyrin.template import TemplatePackage
 from pyrin.template.interface import AbstractTemplateHandler
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.structs import Manager, DTO
@@ -14,6 +15,8 @@ class TemplateManager(Manager):
     """
     template manager class.
     """
+
+    package_class = TemplatePackage
 
     def __init__(self):
         """

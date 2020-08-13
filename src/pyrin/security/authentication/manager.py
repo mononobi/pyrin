@@ -10,6 +10,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager
+from pyrin.security.authentication import AuthenticationPackage
 from pyrin.security.enumerations import TokenTypeEnum
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError, \
@@ -23,6 +24,8 @@ class AuthenticationManager(Manager):
     this class is intended to be an interface for top level
     application's authentication package.
     """
+
+    package_class = AuthenticationPackage
 
     def authenticate(self, client_request, **options):
         """

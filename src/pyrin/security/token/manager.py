@@ -8,6 +8,7 @@ import jwt
 import pyrin.configuration.services as config_services
 
 from pyrin.core.structs import Context, DTO, Manager
+from pyrin.security.token import TokenPackage
 from pyrin.security.token.interface import AbstractTokenBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.security.token.exceptions import InvalidTokenHandlerTypeError, \
@@ -20,6 +21,8 @@ class TokenManager(Manager):
     """
     token manager class.
     """
+
+    package_class = TokenPackage
 
     def __init__(self):
         """

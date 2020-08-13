@@ -12,6 +12,7 @@ import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.core.structs import Manager
 from pyrin.application.services import get_current_app
+from pyrin.globalization.locale import LocalePackage
 from pyrin.globalization.locale.exceptions import InvalidLocaleSelectorTypeError, \
     InvalidTimezoneSelectorTypeError, LocaleSelectorHasBeenAlreadySetError, \
     TimezoneSelectorHasBeenAlreadySetError
@@ -21,6 +22,8 @@ class LocaleManager(Manager):
     """
     locale manager class.
     """
+
+    package_class = LocalePackage
 
     def __init__(self, **options):
         """
