@@ -20,7 +20,8 @@ def make_response(**options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(ResponsePackage.COMPONENT_NAME).make_response(**options)
@@ -38,7 +39,8 @@ def make_error_response(message, **options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(ResponsePackage.COMPONENT_NAME).make_error_response(message,
@@ -61,7 +63,8 @@ def make_exception_response(exception, **options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(ResponsePackage.COMPONENT_NAME).make_exception_response(exception,

@@ -5,6 +5,8 @@ caching decorators module.
 
 from functools import update_wrapper
 
+from werkzeug.utils import cached_property as cached_property_base
+
 from pyrin.caching.exceptions import NotBoundedToClassError
 from pyrin.caching.structs import SharedContainer
 
@@ -85,3 +87,19 @@ def shared_cache(*old_method_or_property, container=None):
         return decorator(old_method_or_property[0])
 
     return decorator
+
+
+class cached_property(cached_property_base):
+    """
+    a decorator to convert a property into a cached property.
+
+    the result of the property will be calculated once and cached.
+    the cached value is per instance not per type.
+
+    usage example:
+
+    @cached_property
+    def is_valid(self):
+        return True
+    """
+    pass

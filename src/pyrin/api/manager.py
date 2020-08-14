@@ -29,7 +29,8 @@ class APIManager(Manager):
 
         :param HTTPException exception: exception instance.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         self._log_exception(exception)
@@ -43,7 +44,8 @@ class APIManager(Manager):
 
         :param CoreBusinessException exception: core business exception instance.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         self._log_exception(exception)
@@ -60,7 +62,8 @@ class APIManager(Manager):
 
         :param CoreException exception: core exception instance.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         self._log_exception(exception)
@@ -81,7 +84,8 @@ class APIManager(Manager):
 
         :param Exception exception: exception instance.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         self._log_exception(exception)

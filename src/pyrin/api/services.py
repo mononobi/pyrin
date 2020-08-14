@@ -20,7 +20,8 @@ def handle_http_error(exception):
 
     :param HTTPException exception: exception instance.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(APIPackage.COMPONENT_NAME).handle_http_error(exception)
@@ -35,7 +36,8 @@ def handle_server_business_error(exception):
 
     :param CoreBusinessException exception: core business exception instance.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(APIPackage.COMPONENT_NAME).handle_server_business_error(exception)
@@ -53,7 +55,8 @@ def handle_server_error(exception):
 
     :param CoreException exception: core exception instance.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(APIPackage.COMPONENT_NAME).handle_server_error(exception)
@@ -71,7 +74,8 @@ def handle_server_unknown_error(exception):
 
     :param Exception exception: exception instance.
 
-    :rtype: CoreResponse
+    :returns: tuple[dict | object, int, dict | Headers]
+    :rtype: tuple
     """
 
     return get_component(APIPackage.COMPONENT_NAME).handle_server_unknown_error(exception)

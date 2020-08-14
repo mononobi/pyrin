@@ -170,6 +170,16 @@ class CoreResponse(Response):
         self._context.pop(key, None)
 
     @property
+    def safe_content_length(self):
+        """
+        gets current response's content length if available, otherwise returns 0.
+
+        :rtype: int
+        """
+
+        return self.content_length or 0
+
+    @property
     def request_id(self):
         """
         gets current response's request id.

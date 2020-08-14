@@ -4,7 +4,7 @@ response manager module.
 """
 
 from werkzeug.datastructures import Headers
-from flask import make_response as flask_response, Response
+from flask import Response
 
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import ROW_RESULT
@@ -50,7 +50,8 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         code = options.get('code', None)
@@ -62,8 +63,7 @@ class ResponseManager(Manager):
         if headers is None:
             headers = {}
 
-        response = self._render_body(**options), code, headers
-        return flask_response(response)
+        return self._render_body(**options), code, headers
 
     def make_error_response(self, message, **options):
         """
@@ -77,7 +77,8 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         code = options.get('code', None)
@@ -90,7 +91,6 @@ class ResponseManager(Manager):
             data = {}
 
         options.update(message=message, data=data)
-
         return self.make_response(**options)
 
     def make_exception_response(self, exception, **options):
@@ -109,7 +109,8 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :rtype: CoreResponse
+        :returns: tuple[dict | object, int, dict | Headers]
+        :rtype: tuple
         """
 
         message = getattr(exception, 'description', str(exception))

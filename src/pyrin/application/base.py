@@ -725,16 +725,7 @@ class Application(Flask, HookMixin, SignalMixin,
                 if body is None:
                     body = ''
 
-        if headers is None:
-            headers = {}
-        extra_headers = self.headers_class()
-        client_request = session_services.get_current_request()
-        self._provide_response_headers(extra_headers, client_request.endpoint,
-                                       status_code, client_request.method,
-                                       url=client_request.path,
-                                       user=client_request.user)
-        extra_headers.update(headers)
-        response = response_services.pack_response(body, status_code, extra_headers)
+        response = response_services.pack_response(body, status_code, headers)
         result = super().make_response(response)
         result.original_data = body
         return result
@@ -1482,7 +1473,7 @@ class Application(Flask, HookMixin, SignalMixin,
         process_start_time = time()
         logging_services.info('Request received with params: [{params}]',
                               interpolation_data=
-                              dict(params=client_request.get_inputs(silent=True)))
+                              dict(params=self._get_request_data_for_logging(client_request)))
 
         response = super().full_dispatch_request()
 
@@ -1492,10 +1483,88 @@ class Application(Flask, HookMixin, SignalMixin,
                                       .format((process_end_time - process_start_time) * 1000)))
 
         logging_services.debug('Response [{response}] returned with result: [{result}]',
-                               interpolation_data=dict(response=response,
-                                                       result=response.original_data))
+                               interpolation_data=
+                               dict(response=response,
+                                    result=self._get_response_data_for_logging(response)))
 
         return response
+
+    def finalize_request(self, rv, from_error_handler=False):
+        """
+        given the return value from a view function this finalizes the request.
+
+        by converting it into a response and invoking the postprocessing functions.
+        this is invoked for both normal request dispatching as well as error handlers.
+
+        because this means that it might be called as a result of a failure a special
+        safe mode is available which can be enabled with the `from_error_handler` flag.
+        if enabled, failures in response processing will be logged and otherwise ignored.
+
+        this method is overridden to inject custom response headers using application hook.
+
+        :param object | tuple | CoreResponse rv: response from view function or error handlers.
+
+        :param bool from_error_handler: specifies that this method is called as a result
+                                        of a failure. defaults to False if not provided.
+
+        :rtype: CoreResponse
+        """
+
+        body, status_code, headers = response_services.unpack_response(rv)
+        if headers is None:
+            headers = {}
+        extra_headers = self.headers_class()
+        client_request = session_services.get_current_request()
+        self._provide_response_headers(extra_headers, client_request.endpoint,
+                                       status_code, client_request.method,
+                                       url=client_request.path,
+                                       user=client_request.user)
+        extra_headers.update(headers)
+        response = response_services.pack_response(body, status_code, extra_headers)
+
+        return super().finalize_request(response, from_error_handler=from_error_handler)
+
+    def _get_request_data_for_logging(self, request):
+        """
+        gets the request data for logging.
+
+        if request content length is larger than allowed value, it will be ignored.
+
+        :param CoreRequest request: request instance.
+
+        :rtype: dict
+        """
+
+        max_length = config_services.get_active('logging', 'max_request_size')
+        if request.safe_content_length > max_length:
+            return 'Request payload [{size} Bytes] is too large for logging.' \
+                .format(size=request.safe_content_length)
+
+        return request.get_inputs(silent=True)
+
+    def _get_response_data_for_logging(self, response):
+        """
+        gets the response data for logging.
+
+        if response content length is larger than allowed value, it will be ignored.
+
+        :param CoreResponse response: response instance.
+
+        :rtype: dict | object
+        """
+
+        max_length = config_services.get_active('logging', 'max_response_size')
+        if response.safe_content_length > max_length:
+            return 'Response payload [{size} Bytes] is too large for logging.' \
+                .format(size=response.safe_content_length)
+
+        log_all_types = config_services.get_active('logging', 'log_all_response_types')
+        if response.content_type != MIMETypeEnum.JSON and \
+                log_all_types is not True:
+            return 'Response payload type [{content_type}] will be ignored for logging.' \
+                .format(content_type=response.content_type)
+
+        return response.original_data
 
     def _set_component_attributes(self, old_instance, new_instance):
         """
@@ -1516,7 +1585,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         all_attributes = vars(old_instance)
         required_attributes = DTO()
-        for attribute_name in all_attributes.keys():
+        for attribute_name in all_attributes:
             if isinstance(all_attributes[attribute_name], (list, dict)) \
                     or '___' in attribute_name:
                 required_attributes[attribute_name] = all_attributes[attribute_name]
