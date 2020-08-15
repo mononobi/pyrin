@@ -20,7 +20,7 @@ def handle_http_error(exception):
 
     :param HTTPException exception: exception instance.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -36,7 +36,7 @@ def handle_server_business_error(exception):
 
     :param CoreBusinessException exception: core business exception instance.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -55,7 +55,7 @@ def handle_server_error(exception):
 
     :param CoreException exception: core exception instance.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -74,7 +74,7 @@ def handle_server_unknown_error(exception):
 
     :param Exception exception: exception instance.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 

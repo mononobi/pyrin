@@ -607,4 +607,27 @@ class CoreHeaders(Headers):
     """
     core headers class.
     """
-    pass
+
+    def to_dict(self):
+        """
+        gets a dict version of current `Headers` object.
+
+        each duplicate key available in this object, will have
+        a list of all values in result dict.
+
+        :rtype: dict
+        """
+
+        keys = set(self.keys())
+        result = dict()
+        for item in keys:
+            value = self.getlist(item)
+            if len(value) <= 0:
+                continue
+
+            if len(value) == 1:
+                result[item] = value[0]
+            else:
+                result[item] = value
+
+        return result

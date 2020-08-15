@@ -20,7 +20,7 @@ def make_response(**options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -39,7 +39,7 @@ def make_error_response(message, **options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -63,7 +63,7 @@ def make_exception_response(exception, **options):
 
     :keyword dict | Headers headers: headers to add into response.
 
-    :returns: tuple[dict | object, int, dict | Headers]
+    :returns: tuple[dict | object, int, CoreHeaders]
     :rtype: tuple
     """
 
@@ -85,8 +85,8 @@ def unpack_response(response, **options):
 
     :param tuple | object response: response object to be unpacked.
 
-    :returns: tuple[object body, int status_code, dict | Headers headers]
-    :rtype: tuple[object, int, dict | Headers]
+    :returns: tuple[object body, int status_code, CoreHeaders headers]
+    :rtype: tuple[object, int, CoreHeaders]
     """
 
     return get_component(ResponsePackage.COMPONENT_NAME).unpack_response(response,
@@ -104,8 +104,8 @@ def pack_response(body, status_code, headers, **options):
     :param int status_code: status code of response.
     :param dict | Headers headers: all response headers.
 
-    :returns: tuple[object body, int status_code, dict | Headers headers] | object
-    :rtype: tuple[object, int, dict | Headers] | object
+    :returns: tuple[object body, int status_code, CoreHeaders headers] | object
+    :rtype: tuple[object, int, CoreHeaders] | object
     """
 
     return get_component(ResponsePackage.COMPONENT_NAME).pack_response(body, status_code,

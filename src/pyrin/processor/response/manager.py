@@ -6,6 +6,8 @@ response manager module.
 from werkzeug.datastructures import Headers
 from flask import Response
 
+import pyrin.utils.headers as header_utils
+
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import ROW_RESULT
 from pyrin.processor.response import ResponsePackage
@@ -50,7 +52,7 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :returns: tuple[dict | object, int, dict | Headers]
+        :returns: tuple[dict | object, int, CoreHeaders]
         :rtype: tuple
         """
 
@@ -60,10 +62,9 @@ class ResponseManager(Manager):
             options.update(code=code)
 
         headers = options.pop('headers', None)
-        if headers is None:
-            headers = {}
-
-        return self._render_body(**options), code, headers
+        headers = header_utils.convert_headers(headers)
+        body = self._render_body(**options)
+        return self.pack_response(body, code, headers)
 
     def make_error_response(self, message, **options):
         """
@@ -77,7 +78,7 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :returns: tuple[dict | object, int, dict | Headers]
+        :returns: tuple[dict | object, int, CoreHeaders]
         :rtype: tuple
         """
 
@@ -109,7 +110,7 @@ class ResponseManager(Manager):
 
         :keyword dict | Headers headers: headers to add into response.
 
-        :returns: tuple[dict | object, int, dict | Headers]
+        :returns: tuple[dict | object, int, CoreHeaders]
         :rtype: tuple
         """
 
@@ -136,8 +137,8 @@ class ResponseManager(Manager):
 
         :param tuple | object response: response object to be unpacked.
 
-        :returns: tuple[object body, int status_code, dict | Headers headers]
-        :rtype: tuple[object, int, dict | Headers]
+        :returns: tuple[object body, int status_code, CoreHeaders headers]
+        :rtype: tuple[object, int, CoreHeaders]
         """
 
         body = None
@@ -160,6 +161,7 @@ class ResponseManager(Manager):
             if body.status_code not in (None, 0):
                 status_code = body.status_code
 
+        headers = header_utils.convert_headers(headers)
         return body, status_code, headers
 
     def pack_response(self, body, status_code, headers, **options):
@@ -173,9 +175,11 @@ class ResponseManager(Manager):
         :param int status_code: status code of response.
         :param dict | Headers headers: all response headers.
 
-        :returns: tuple[object body, int status_code, dict | Headers headers] | object
-        :rtype: tuple[object, int, dict | Headers] | object
+        :returns: tuple[object body, int status_code, CoreHeaders headers] | object
+        :rtype: tuple[object, int, CoreHeaders] | object
         """
+
+        headers = header_utils.convert_headers(headers)
 
         if status_code is not None and headers is not None:
             return body, status_code, headers

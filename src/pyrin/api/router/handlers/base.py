@@ -12,6 +12,7 @@ import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.headers as header_utils
 
 from pyrin.core.globals import _
 from pyrin.api.schema.result import ResultSchema
@@ -454,14 +455,13 @@ class RouteBase(Rule):
 
         :param dict | Headers headers: headers dict to be prepared.
 
-        :rtype: dict | Headers
+        :rtype: CoreHeaders
         """
 
         if self._no_cache is True:
-            if headers is None:
-                headers = {}
-
-            headers[ResponseHeaderEnum.CACHE_CONTROL] = 'no-cache'
+            headers = header_utils.convert_headers(headers, ignore_null=False)
+            cache_header = {ResponseHeaderEnum.CACHE_CONTROL: 'no-cache'}
+            headers.extend(cache_header)
 
         return headers
 

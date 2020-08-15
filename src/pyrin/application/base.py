@@ -1471,9 +1471,11 @@ class Application(Flask, HookMixin, SignalMixin,
             logging_services.exception(str(error))
 
         process_start_time = time()
-        logging_services.info('Request received with params: [{params}]',
+        logging_services.info('Request received with params: [{params}] '
+                              'and headers: [{headers}].',
                               interpolation_data=
-                              dict(params=self._get_request_data_for_logging(client_request)))
+                              dict(params=self._get_request_data_for_logging(client_request),
+                                   headers=client_request.headers))
 
         response = super().full_dispatch_request()
 
@@ -1482,10 +1484,12 @@ class Application(Flask, HookMixin, SignalMixin,
                               .format(time='{:0.3f}'
                                       .format((process_end_time - process_start_time) * 1000)))
 
-        logging_services.debug('Response [{response}] returned with result: [{result}]',
+        logging_services.debug('Response [{response}] returned with result: [{result}] '
+                               'and headers: [{headers}].',
                                interpolation_data=
                                dict(response=response,
-                                    result=self._get_response_data_for_logging(response)))
+                                    result=self._get_response_data_for_logging(response),
+                                    headers=response.headers))
 
         return response
 
@@ -1511,15 +1515,14 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         body, status_code, headers = response_services.unpack_response(rv)
-        if headers is None:
-            headers = {}
+
         extra_headers = self.headers_class()
         client_request = session_services.get_current_request()
         self._provide_response_headers(extra_headers, client_request.endpoint,
                                        status_code, client_request.method,
                                        url=client_request.path,
                                        user=client_request.user)
-        extra_headers.update(headers)
+        extra_headers.extend(headers or {})
         response = response_services.pack_response(body, status_code, extra_headers)
 
         return super().finalize_request(response, from_error_handler=from_error_handler)

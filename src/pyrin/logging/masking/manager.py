@@ -3,6 +3,8 @@
 logging masking manager module.
 """
 
+from werkzeug.datastructures import Headers
+
 import pyrin.configuration.services as config_services
 
 from pyrin.core.structs import Manager
@@ -177,7 +179,8 @@ class LoggingMaskingManager(Manager):
         :rtype: MaskedDict | object
         """
 
-        if isinstance(data, dict) and not isinstance(data, self.masked_dict_class):
+        if (isinstance(data, dict) and not
+           isinstance(data, self.masked_dict_class)) or isinstance(data, Headers):
             return self.masked_dict_class(data)
 
         return data
