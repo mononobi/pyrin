@@ -5,6 +5,8 @@ router handlers public module.
 
 import time
 
+from threading import Lock
+
 from pyrin.core.globals import _
 from pyrin.api.router.handlers.base import RouteBase
 from pyrin.api.router.handlers.exceptions import InvalidRequestLimitError, \
@@ -196,6 +198,10 @@ class PublicTemporaryRoute(PublicRoute):
         self._registered_time = time.time()
         self._total_requests = 0
 
+        # the threading lock must be separated for each instance.
+        # because each route will have its own unique instance during application runtime.
+        self._lock = Lock()
+
     def _is_request_limit_reached(self):
         """
         gets a value indicating that request count limit has been reached.
@@ -231,10 +237,11 @@ class PublicTemporaryRoute(PublicRoute):
 
     def _increase_performed_requests(self):
         """
-        increases performed request count of this route by one.
+        increases performed requests count of this route by one.
         """
 
-        self._total_requests = self._total_requests + 1
+        with self._lock:
+            self._total_requests = self._total_requests + 1
 
     def _handle(self, inputs, **options):
         """
