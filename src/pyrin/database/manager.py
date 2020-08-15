@@ -46,7 +46,7 @@ class DatabaseManager(Manager, HookMixin):
         super().__init__()
 
         # contains the application default database engine.
-        self.___engine = self._create_default_engine()
+        self.__engine = self._create_default_engine()
 
         # a dictionary containing engines for different bounded databases.
         # in the form of: {str bind_name: Engine engine}
@@ -460,7 +460,7 @@ class DatabaseManager(Manager, HookMixin):
         :rtype: Engine
         """
 
-        return self.___engine
+        return self.__engine
 
     def get_bounded_engines(self):
         """

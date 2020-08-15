@@ -437,8 +437,8 @@ class Application(Flask, HookMixin, SignalMixin,
 
             old_instance = self._components[component.get_id()]
 
-            # we should update all list and dict attributes and also those that have
-            # three consecutive underscores in their names of new component with values
+            # we should update all list and dict attributes and also those that their name
+            # starts with two consecutive underscores of new component with values
             # from old_instance to prevent loss of any attribute value (for example values
             # that has been added using decorators).
             # this has an obvious caveat, and it is that child classes could not do
@@ -1574,8 +1574,8 @@ class Application(Flask, HookMixin, SignalMixin,
         replaces required component attributes from old instance into new instance.
 
         it will replace all list and dict attributes from old instance into new instance.
-        all the attributes which their name starts with three underscores will also
-        be replaced from old instance into new instance.
+        all the attributes which their name starts with two underscores (private attributes)
+        will also be replaced from old instance into new instance.
 
         :param Component old_instance: old component instance to get attributes from.
         :param Component new_instance: new component instance to set its attributes.
@@ -1589,11 +1589,32 @@ class Application(Flask, HookMixin, SignalMixin,
         all_attributes = vars(old_instance)
         required_attributes = DTO()
         for attribute_name in all_attributes:
-            if isinstance(all_attributes[attribute_name], (list, dict)) \
-                    or '___' in attribute_name:
+            if self._should_fill_from_parent(attribute_name,
+                                             all_attributes[attribute_name]) is True:
                 required_attributes[attribute_name] = all_attributes[attribute_name]
 
         return misc_utils.set_attributes(new_instance, **required_attributes)
+
+    def _should_fill_from_parent(self, name, value):
+        """
+        gets a value indicating that given attribute value must be filled from parent.
+
+        it is used on initializing subclassed managers (components) in extended packages.
+        all list and dict values will result in True.
+        all the attributes which their name starts with two underscores (private attributes)
+        will also result in True.
+        other attributes result in False.
+
+        :param str name: attribute name to be checked.
+        :param object value: attribute value to be checked.
+
+        :rtype: bool
+        """
+
+        if '__' in name:
+            return True
+
+        return isinstance(value, (list, dict))
 
     def _after_application_loaded(self):
         """
