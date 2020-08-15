@@ -9,7 +9,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.api.router import RouterPackage
 from pyrin.api.router.handlers.base import RouteBase
 from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute
-from pyrin.api.router.handlers.public import PublicRoute
+from pyrin.api.router.handlers.public import PublicRoute, PublicTemporaryRoute
 from pyrin.core.structs import Manager
 from pyrin.api.router.exceptions import RouteAuthenticationMismatchError, \
     InvalidCustomRouteTypeError
@@ -158,6 +158,19 @@ class RouterManager(Manager):
                                 must have a `Cache-Control: no-cache` header. this header will
                                 be automatically added. defaults to False if not provided.
 
+        :keyword int request_limit: number of allowed requests to this
+                                    route before it unregisters itself.
+                                    defaults to None if not Provided.
+
+        :keyword int lifetime: number of seconds in which this route must remain
+                               responsive after initial registration. after this
+                               period, the route will unregister itself.
+                               defaults to None if not provided.
+
+        :note request_limit, lifetime: if both of these values are provided, this
+                                       route will unregister itself if any of
+                                       these two conditions are met.
+
         :raises InvalidCustomRouteTypeError: invalid custom route type error.
         :raises RouteAuthenticationMismatchError: route authentication mismatch error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
@@ -178,26 +191,34 @@ class RouterManager(Manager):
                                                   .format(route=route_name, base=base_name))
             return route
 
-        authenticated = options.get('authenticated', None)
+        authenticated = options.get('authenticated')
         if authenticated is None:
             authenticated = True
 
-        fresh_auth = options.get('fresh_auth', None)
+        fresh_auth = options.get('fresh_auth')
         if fresh_auth is None:
             fresh_auth = False
 
-        if authenticated is False and fresh_auth is False:
+        request_limit = options.get('request_limit')
+        lifetime = options.get('lifetime')
+        temporary = request_limit is not None or lifetime is not None
+
+        if authenticated is False and fresh_auth is False and temporary is False:
             return PublicRoute(rule, **options)
-        elif authenticated is True and fresh_auth is False:
+        elif authenticated is False and fresh_auth is False and temporary is True:
+            return PublicTemporaryRoute(rule, **options)
+        elif authenticated is True and fresh_auth is False and temporary is False:
             return ProtectedRoute(rule, **options)
-        elif authenticated is True and fresh_auth is True:
+        elif authenticated is True and fresh_auth is True and temporary is False:
             return FreshProtectedRoute(rule, **options)
         else:
             raise RouteAuthenticationMismatchError('"authenticated={auth}" and '
-                                                   '"fresh_auth={fresh}" in route '
+                                                   '"fresh_auth={fresh}" and '
+                                                   '"temporary={temp}" in route '
                                                    '[{route}] are incompatible.'
                                                    .format(auth=authenticated,
                                                            fresh=fresh_auth,
+                                                           temp=temporary,
                                                            route=rule))
 
     def _create_route(self, rule, **options):
@@ -336,6 +357,19 @@ class RouterManager(Manager):
         :keyword bool no_cache: a value indicating that the response returning from this route
                                 must have a `Cache-Control: no-cache` header. this header will
                                 be automatically added. defaults to False if not provided.
+
+        :keyword int request_limit: number of allowed requests to this
+                                    route before it unregisters itself.
+                                    defaults to None if not Provided.
+
+        :keyword int lifetime: number of seconds in which this route must remain
+                               responsive after initial registration. after this
+                               period, the route will unregister itself.
+                               defaults to None if not provided.
+
+        :note request_limit, lifetime: if both of these values are provided, this
+                                       route will unregister itself if any of
+                                       these two conditions are met.
 
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
@@ -520,6 +554,19 @@ class RouterManager(Manager):
         :keyword bool no_cache: a value indicating that the response returning from this route
                                 must have a `Cache-Control: no-cache` header. this header will
                                 be automatically added. defaults to False if not provided.
+
+        :keyword int request_limit: number of allowed requests to this
+                                    route before it unregisters itself.
+                                    defaults to None if not Provided.
+
+        :keyword int lifetime: number of seconds in which this route must remain
+                               responsive after initial registration. after this
+                               period, the route will unregister itself.
+                               defaults to None if not provided.
+
+        :note request_limit, lifetime: if both of these values are provided, this
+                                       route will unregister itself if any of
+                                       these two conditions are met.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.

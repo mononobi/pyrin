@@ -313,6 +313,19 @@ def add_url_rule(rule, view_func,
                             must have a `Cache-Control: no-cache` header. this header will
                             be automatically added. defaults to False if not provided.
 
+    :keyword int request_limit: number of allowed requests to this
+                                route before it unregisters itself.
+                                defaults to None if not Provided.
+
+    :keyword int lifetime: number of seconds in which this route must remain
+                           responsive after initial registration. after this
+                           period, the route will unregister itself.
+                           defaults to None if not provided.
+
+    :note request_limit, lifetime: if both of these values are provided, this
+                                   route will unregister itself if any of
+                                   these two conditions are met.
+
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
     :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.

@@ -103,3 +103,40 @@ class MissingRequiredViewFunctionParamsError(BadRequestError,
     missing required view function params error.
     """
     pass
+
+
+class InvalidRequestLimitError(RouterHandlerException):
+    """
+    invalid request limit error.
+    """
+    pass
+
+
+class InvalidLifetimeError(RouterHandlerException):
+    """
+    invalid lifetime error.
+    """
+    pass
+
+
+class RequestLimitOrLifetimeRequiredError(RouterHandlerException):
+    """
+    request limit or lifetime required error.
+    """
+    pass
+
+
+class URLNotFoundError(RouterHandlerBusinessException):
+    """
+    url not found error.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of URLNotFoundError.
+
+        :keyword dict data: extra data for exception.
+        """
+
+        super().__init__(*args, **kwargs)
+        self._code = ClientErrorResponseCodeEnum.NOT_FOUND

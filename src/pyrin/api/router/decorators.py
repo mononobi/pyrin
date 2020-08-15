@@ -105,6 +105,19 @@ def api(url, methods=None, authenticated=True, permissions=None, **options):
                             must have a `Cache-Control: no-cache` header. this header will
                             be automatically added. defaults to False if not provided.
 
+    :keyword int request_limit: number of allowed requests to this
+                                route before it unregisters itself.
+                                defaults to None if not Provided.
+
+    :keyword int lifetime: number of seconds in which this route must remain
+                           responsive after initial registration. after this
+                           period, the route will unregister itself.
+                           defaults to None if not provided.
+
+    :note request_limit, lifetime: if both of these values are provided, this
+                                   route will unregister itself if any of
+                                   these two conditions are met.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the

@@ -331,6 +331,7 @@ class RouteBase(Rule):
 
         self._handle(inputs, **options)
         result = self._call_view_function(inputs, **options)
+        self._finished(result, **options)
 
         return self._prepare_response(result)
 
@@ -342,6 +343,17 @@ class RouteBase(Rule):
         view function execution, must override this method.
 
         :param dict inputs: view function inputs.
+        """
+        pass
+
+    def _finished(self, result, **options):
+        """
+        does the extra required works after the view function has been executed.
+
+        routes which need to perform extra operations after
+        view function execution, must override this method.
+
+        :param object result: view function execution result.
         """
         pass
 
