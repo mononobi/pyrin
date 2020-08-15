@@ -21,6 +21,9 @@ def set_attributes(instance, **kwargs):
         return instance
 
     for name, value in kwargs.items():
+        if hasattr(instance, name):
+            delattr(instance, name)
+
         setattr(instance, name, value)
 
     return instance
