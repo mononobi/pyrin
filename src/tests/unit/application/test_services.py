@@ -235,7 +235,7 @@ def test_register_component_duplicate_with_replace():
 def test_register_component_duplicate_with_replace_with_custom_attributes():
     """
     registers given duplicate application component which has some list and
-    dict attributes and attributes with three consecutive underlines in their
+    dict attributes and attributes with two consecutive underlines in their
     names that should be passed to new component with replace option.
     """
 
@@ -271,7 +271,7 @@ def test_register_component_duplicate_with_replace_with_custom_attributes():
     assert hasattr(newly_added_component, 'dict_field') is True
     assert hasattr(newly_added_component, '___old_attribute') is True
 
-    assert getattr(newly_added_component, '__private_field') is False
+    assert getattr(newly_added_component, '__private_field') is True
     assert getattr(newly_added_component, '_protected_field') == 450
     assert getattr(newly_added_component, 'child_attribute') == 100
     assert getattr(newly_added_component, 'list_field') == [1, 2, 3]
