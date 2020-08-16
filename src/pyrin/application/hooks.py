@@ -106,6 +106,6 @@ class PackagingHook(PackagingHookBase):
 
         # we should call this method as soon as configuration package is
         # loaded, to make sure application configs are loaded before any
-        # other package needing them.
+        # other package needs them.
         if package_name == ConfigurationPackage.NAME:
             application_services.load_configs(**options)
