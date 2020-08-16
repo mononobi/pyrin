@@ -48,6 +48,20 @@ class CircularDependencyDetectedError(PackagingManagerException):
     pass
 
 
+class SelfDependencyDetectedError(PackagingManagerException):
+    """
+    self dependency detected error.
+    """
+    pass
+
+
+class SubPackageDependencyDetectedError(PackagingManagerException):
+    """
+    sub-package dependency detected error.
+    """
+    pass
+
+
 class PackageNotExistedError(PackagingManagerException):
     """
     package not existed error.

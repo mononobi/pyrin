@@ -25,7 +25,8 @@ from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError, \
     InvalidPackagingHookTypeError, CircularDependencyDetectedError, PackageNotExistedError, \
-    PackageIsIgnoredError, PackageIsDisabledError
+    PackageIsIgnoredError, PackageIsDisabledError, SelfDependencyDetectedError, \
+    SubPackageDependencyDetectedError
 
 
 class PackagingManager(Manager, HookMixin):
@@ -37,6 +38,7 @@ class PackagingManager(Manager, HookMixin):
     hook_type = PackagingHookBase
     invalid_hook_type_error = InvalidPackagingHookTypeError
     package_class = PackagingPackage
+    REQUIRED_PACKAGES = ('application', 'packaging')
 
     def __init__(self):
         """
@@ -51,6 +53,7 @@ class PackagingManager(Manager, HookMixin):
         self._is_loaded = False
 
         self._pyrin_package_name = None
+        self._required_packages = []
 
         # holds the names of all application packages that should be loaded.
         self._all_packages = []
@@ -68,10 +71,6 @@ class PackagingManager(Manager, HookMixin):
 
         # holds the full path of directories that are not a package (not having __init__.py)
         self._not_packages = []
-
-        # holds the instance of all loaded modules.
-        # in the form of: {str module_name: Module module}
-        self._loaded_modules = DTO()
 
         # configs will be filled from packaging config file.
         self._configs = DTO()
@@ -140,19 +139,6 @@ class PackagingManager(Manager, HookMixin):
 
         return config_path
 
-    def _initialize_loaded_packages(self):
-        """
-        adds `pyrin.application` and `pyrin.packaging` into loaded packages.
-
-        those packages will load immediately and will not be added
-        to loaded packages through normal operations.
-        """
-
-        for package in self._configs.ignored_packages:
-            if package in ('pyrin.application', 'pyrin.packaging'):
-                if package not in self._loaded_packages:
-                    self._loaded_packages.append(package)
-
     def _initialize(self):
         """
         initializes required data.
@@ -163,7 +149,7 @@ class PackagingManager(Manager, HookMixin):
         self._dependency_map.clear()
         self._all_packages.clear()
         self._loaded_packages.clear()
-        self._loaded_modules.clear()
+        self._required_packages.clear()
         self._pyrin_components.clear()
         self._application_components.clear()
         self._custom_components.clear()
@@ -178,9 +164,27 @@ class PackagingManager(Manager, HookMixin):
         self._other_integration_test_components.clear()
 
         self._pyrin_package_name = path_utils.get_pyrin_main_package_name()
+        self._load_required_packages(self._pyrin_package_name)
         self._load_configs()
-        self._initialize_loaded_packages()
         self._resolve_python_path()
+
+    def _load_required_packages(self, pyrin_package):
+        """
+        loads all required package names.
+
+        these packages are always loaded before any other package and
+        they do not need to be handled by packaging package itself.
+
+        :param str pyrin_package: the name of pyrin package.
+                                  it would always be `pyrin` in normal cases.
+        """
+
+        for item in self.REQUIRED_PACKAGES:
+            full_name = '{pyrin}.{package}'.format(pyrin=pyrin_package,
+                                                   package=item)
+            self._required_packages.append(full_name)
+            self._loaded_packages.append(full_name)
+            self._all_packages.append(full_name)
 
     def _extract_test_roots(self):
         """
@@ -220,6 +224,8 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
         :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
@@ -266,6 +272,8 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
         :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
@@ -320,8 +328,6 @@ class PackagingManager(Manager, HookMixin):
         """
 
         module = import_module(module_name)
-        self._loaded_modules[module.__name__] = module
-
         return module
 
     def _load_component(self, package_name, module_names, component_name, **options):
@@ -362,6 +368,11 @@ class PackagingManager(Manager, HookMixin):
                       .format(package=package_name,
                               module_count=len(module_names)))
 
+        if package_name == self._pyrin_package_name:
+            for item in self._required_packages:
+                print_default('[{package}] package loaded.'
+                              .format(package=item))
+
     def _load_components(self, components, **options):
         """
         loads the given components considering their dependency on each other.
@@ -371,6 +382,8 @@ class PackagingManager(Manager, HookMixin):
 
         :note components: dict[str package_name: list[str] modules]
 
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
         :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
@@ -426,6 +439,8 @@ class PackagingManager(Manager, HookMixin):
         :param str package_name: package name.
         :param list[str] dependencies: list of given package's dependencies.
 
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
         :raises CircularDependencyDetectedError: circular dependency detected error.
         """
 
@@ -434,7 +449,19 @@ class PackagingManager(Manager, HookMixin):
         if len(dependencies) <= 0:
             return
 
+        if package_name in dependencies:
+            raise SelfDependencyDetectedError('Package [{source}] has a dependency on itself. '
+                                              'it is a mistake to depend a package on itself.'
+                                              .format(source=package_name))
+
         for item in dependencies:
+            if self._contains(package_name, item) is True:
+                raise SubPackageDependencyDetectedError('Provided package [{root}] has '
+                                                        'a dependency on its sub-package '
+                                                        '[{child}]. it is a mistake to depend '
+                                                        'a package on its own sub-packages.'
+                                                        .format(root=package_name, child=item))
+
             reverse_dependencies = self._dependency_map.get(item)
             if reverse_dependencies is not None:
                 if package_name in reverse_dependencies:
@@ -834,6 +861,9 @@ class PackagingManager(Manager, HookMixin):
 
         :rtype: bool
         """
+
+        if package_name in self._required_packages:
+            return True
 
         for ignored in self._configs.ignored_packages:
             if package_name.startswith(ignored) or self._is_equal(ignored, package_name):
