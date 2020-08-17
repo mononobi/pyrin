@@ -22,6 +22,9 @@ class MaskedDict(CoreImmutableDict):
     dict could not be changed after initialization.
     """
 
+    # the value to be used for masked keys.
+    MASK = '*'
+
     def __init__(self, mapping=None, **kwargs):
         """
         initializes an instance of MaskedDict.
@@ -33,7 +36,7 @@ class MaskedDict(CoreImmutableDict):
         if len(kwargs) > 0:
             for key, value in kwargs.items():
                 if masking_services.should_mask(key) is True:
-                    masked_kwargs[key] = '*'
+                    masked_kwargs[key] = self.MASK
                 else:
                     masked_kwargs[key] = self._mask(value)
 
@@ -44,7 +47,7 @@ class MaskedDict(CoreImmutableDict):
             temp = {}
             for key, value in mapping.items():
                 if masking_services.should_mask(key) is True:
-                    temp[key] = '*'
+                    temp[key] = self.MASK
                 else:
                     temp[key] = self._mask(value)
 
@@ -54,7 +57,7 @@ class MaskedDict(CoreImmutableDict):
             temp = {}
             for key, value in mapping.items():
                 if masking_services.should_mask(key) is True:
-                    temp[key] = '*'
+                    temp[key] = self.MASK
                 else:
                     temp[key] = self._mask(value)
 
