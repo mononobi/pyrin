@@ -20,13 +20,14 @@ from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
 from pyrin.core.structs import DTO, Manager
 from pyrin.packaging.base import Package
+from pyrin.packaging.enumerations import PackageScopeEnum
 from pyrin.packaging.hooks import PackagingHookBase
 from pyrin.utils.custom_print import print_info, print_default
 from pyrin.packaging.exceptions import InvalidPackageNameError, \
     ComponentModuleNotFoundError, BothUnitAndIntegrationTestsCouldNotBeLoadedError, \
     InvalidPackagingHookTypeError, CircularDependencyDetectedError, PackageNotExistedError, \
     PackageIsIgnoredError, PackageIsDisabledError, SelfDependencyDetectedError, \
-    SubPackageDependencyDetectedError
+    SubPackageDependencyDetectedError, PackageExternalDependencyError
 
 
 class PackagingManager(Manager, HookMixin):
@@ -224,12 +225,13 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
-        :raises SelfDependencyDetectedError: self dependency detected error.
-        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
-        :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
         :raises PackageNotExistedError: package not existed error.
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageExternalDependencyError: package external dependency error.
         """
 
         try:
@@ -272,12 +274,13 @@ class PackagingManager(Manager, HookMixin):
         :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                                   tests could not be loaded
                                                                   error.
-        :raises SelfDependencyDetectedError: self dependency detected error.
-        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
-        :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
         :raises PackageNotExistedError: package not existed error.
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageExternalDependencyError: package external dependency error.
         """
 
         if self._configs.load_unit_test is True and \
@@ -382,12 +385,13 @@ class PackagingManager(Manager, HookMixin):
 
         :note components: dict[str package_name: list[str] modules]
 
-        :raises SelfDependencyDetectedError: self dependency detected error.
-        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
-        :raises CircularDependencyDetectedError: circular dependency detected error.
         :raises PackageIsIgnoredError: package is ignored error.
         :raises PackageIsDisabledError: package is disabled error.
         :raises PackageNotExistedError: package not existed error.
+        :raises SelfDependencyDetectedError: self dependency detected error.
+        :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
+        :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageExternalDependencyError: package external dependency error.
         """
 
         # a dictionary containing all dependent package names and their respective modules.
@@ -400,8 +404,7 @@ class PackagingManager(Manager, HookMixin):
             if package_class is not None:
                 dependencies = package_class.DEPENDS
 
-            self._check_circular_dependency(package, dependencies)
-            self._check_dependencies_exist(package, dependencies)
+            self._validate_dependencies(package, dependencies)
 
             # checking whether this package has any dependencies.
             # if so, check those dependencies have been loaded or not.
@@ -427,11 +430,14 @@ class PackagingManager(Manager, HookMixin):
         if len(dependent_components) > 0:
             self._load_components(dependent_components, **options)
 
-    def _check_circular_dependency(self, package_name, dependencies):
+    def _validate_dependencies(self, package_name, dependencies):
         """
-        checks that given package does not have any circular dependency with it's dependencies.
+        validates that given package's dependencies have no problem.
 
-        it raises an error if a circular dependency detected.
+        it checks for different problems such as self and circular
+        dependencies, unavailable dependencies, external dependencies and more.
+
+        it raises an error if a problem has been detected.
         for example, if `pyrin.database` has a dependency on `pyrin.logging`
         and `pyrin.logging` also has a dependency on `pyrin.database`, this
         method raises an error.
@@ -439,12 +445,18 @@ class PackagingManager(Manager, HookMixin):
         :param str package_name: package name.
         :param list[str] dependencies: list of given package's dependencies.
 
+        :raises PackageIsIgnoredError: package is ignored error.
+        :raises PackageIsDisabledError: package is disabled error.
+        :raises PackageNotExistedError: package not existed error.
         :raises SelfDependencyDetectedError: self dependency detected error.
         :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
         :raises CircularDependencyDetectedError: circular dependency detected error.
+        :raises PackageExternalDependencyError: package external dependency error.
         """
 
         dependencies = misc_utils.make_iterable(dependencies, list)
+        self._check_dependencies_exist(package_name, dependencies)
+
         self._dependency_map[package_name] = dependencies
         if len(dependencies) <= 0:
             return
@@ -456,10 +468,10 @@ class PackagingManager(Manager, HookMixin):
 
         for item in dependencies:
             if self._contains(package_name, item) is True:
-                raise SubPackageDependencyDetectedError('Provided package [{root}] has '
-                                                        'a dependency on its sub-package '
-                                                        '[{child}]. it is a mistake to depend '
-                                                        'a package on its own sub-packages.'
+                raise SubPackageDependencyDetectedError('Package [{root}] has a dependency on '
+                                                        'its sub-package [{child}]. it is a '
+                                                        'mistake to depend a package on its '
+                                                        'own sub-packages.'
                                                         .format(root=package_name, child=item))
 
             reverse_dependencies = self._dependency_map.get(item)
@@ -470,6 +482,14 @@ class PackagingManager(Manager, HookMixin):
                                                           'packages.'
                                                           .format(source=package_name,
                                                                   reverse=item))
+
+            if self._is_valid_external_dependency(package_name, item) is False:
+                raise PackageExternalDependencyError('Package [{source}] has a dependency '
+                                                     'on package [{other}] which is from '
+                                                     'an outer scope. a package could not be '
+                                                     'dependent on outer scope packages.'
+                                                     .format(source=package_name,
+                                                             other=item))
 
     def _check_dependencies_exist(self, package_name, dependencies):
         """
@@ -502,6 +522,138 @@ class PackagingManager(Manager, HookMixin):
 
                 raise PackageNotExistedError('{base_message} does not exist.'
                                              .format(base_message=base_message))
+
+    def _is_valid_external_dependency(self, package_name, dependency):
+        """
+        gets a value indicating that given dependency package is a valid external dependency.
+
+        a package could not be dependent on external scope packages.
+        for example `pyrin.database` package could not be dependent on
+        `my_app.database` package which is from outer scope.
+
+        note that a package could be dependent on another package from inner
+        scopes, although it is nonsense. so a package like `my_app.database`
+        could be dependent on `pyrin.database` but it is not required to put this
+        dependency in package info because the `pyrin.database` package is always
+        gets loaded before any package of outer scope application gets loaded.
+
+        :param str package_name: package name to check its dependency.
+        :param str dependency: dependency package name to be checked.
+
+        :rtype: bool
+        """
+
+        package_scope = self._get_package_scope(package_name)
+        dependency_scope = self._get_package_scope(dependency)
+
+        if package_scope == PackageScopeEnum.UNKNOWN or \
+                dependency_scope == PackageScopeEnum.UNKNOWN:
+            return False
+
+        if (self._is_unit_test_scope(package_scope) and
+            self._is_integration_test_scope(dependency_scope)) or \
+                (self._is_integration_test_scope(package_scope) and
+                 self._is_unit_test_scope(dependency_scope)):
+            return False
+
+        return dependency_scope <= package_scope
+
+    def _is_integration_test_scope(self, scope):
+        """
+        gets a value indicating that given value belongs to any of integration test scopes.
+
+        :param int scope: the scope to be checked.
+        :enum scope:
+            PYRIN = 0
+            EXTENDED_APPLICATION = 1
+            OTHER_APPLICATION = 2
+            CUSTOM_APPLICATION = 3
+            TEST = 4
+            EXTENDED_UNIT_TEST = 5
+            OTHER_UNIT_TEST = 6
+            EXTENDED_INTEGRATION_TEST = 7
+            OTHER_INTEGRATION_TEST = 8
+            UNKNOWN = 100
+
+        :rtype: bool
+        """
+
+        return scope in (PackageScopeEnum.OTHER_INTEGRATION_TEST,
+                         PackageScopeEnum.EXTENDED_INTEGRATION_TEST)
+
+    def _is_unit_test_scope(self, scope):
+        """
+        gets a value indicating that given value belongs to any of unit test scopes.
+
+        :param int scope: the scope to be checked.
+        :enum scope:
+            PYRIN = 0
+            EXTENDED_APPLICATION = 1
+            OTHER_APPLICATION = 2
+            CUSTOM_APPLICATION = 3
+            TEST = 4
+            EXTENDED_UNIT_TEST = 5
+            OTHER_UNIT_TEST = 6
+            EXTENDED_INTEGRATION_TEST = 7
+            OTHER_INTEGRATION_TEST = 8
+            UNKNOWN = 100
+
+        :rtype: bool
+        """
+
+        return scope in (PackageScopeEnum.OTHER_UNIT_TEST,
+                         PackageScopeEnum.EXTENDED_UNIT_TEST)
+
+    def _get_package_scope(self, package_name):
+        """
+        gets the scope of given package.
+
+        :param str package_name: package name to get its scope.
+
+        :returns: the scope of given package.
+        :enum scope:
+            PYRIN = 0
+            EXTENDED_APPLICATION = 1
+            OTHER_APPLICATION = 2
+            CUSTOM_APPLICATION = 3
+            TEST = 4
+            EXTENDED_UNIT_TEST = 5
+            OTHER_UNIT_TEST = 6
+            EXTENDED_INTEGRATION_TEST = 7
+            OTHER_INTEGRATION_TEST = 8
+            UNKNOWN = 100
+
+        :rtype: int
+        """
+
+        if self._is_pyrin_package(package_name) is True:
+            return PackageScopeEnum.PYRIN
+
+        if self._is_extended_application_package(package_name) is True:
+            return PackageScopeEnum.EXTENDED_APPLICATION
+
+        if self._is_other_application_package(package_name) is True:
+            return PackageScopeEnum.OTHER_APPLICATION
+
+        if self._is_custom_package(package_name) is True:
+            return PackageScopeEnum.CUSTOM_APPLICATION
+
+        if self._is_test_package(package_name) is True:
+            return PackageScopeEnum.TEST
+
+        if self._is_extended_unit_test_package(package_name) is True:
+            return PackageScopeEnum.EXTENDED_UNIT_TEST
+
+        if self._is_other_unit_test_package(package_name) is True:
+            return PackageScopeEnum.OTHER_UNIT_TEST
+
+        if self._is_extended_integration_test_package(package_name) is True:
+            return PackageScopeEnum.EXTENDED_INTEGRATION_TEST
+
+        if self._is_other_integration_test_package(package_name) is True:
+            return PackageScopeEnum.OTHER_INTEGRATION_TEST
+
+        return PackageScopeEnum.UNKNOWN
 
     def _find_pyrin_loadable_components(self):
         """
@@ -922,6 +1074,28 @@ class PackagingManager(Manager, HookMixin):
 
         return self._is_pyrin_component(module_name)
 
+    def _is_other_application_package(self, package_name):
+        """
+        gets a value indicating that given package is from other application packages.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._other_application_components
+
+    def _is_extended_application_package(self, package_name):
+        """
+        gets a value indicating that given package is an extended application package.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._extended_application_components
+
     def _is_custom_component(self, component_name):
         """
         gets a value indicating that given component is a custom component.
@@ -996,6 +1170,28 @@ class PackagingManager(Manager, HookMixin):
 
         return self._is_unit_test_component(module_name)
 
+    def _is_other_unit_test_package(self, package_name):
+        """
+        gets a value indicating that given package is from other unit packages.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._other_unit_test_components
+
+    def _is_extended_unit_test_package(self, package_name):
+        """
+        gets a value indicating that given package is an extended unit test package.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._extended_unit_test_components
+
     def _is_integration_test_component(self, component_name):
         """
         gets a value indicating that given component is an integration test component.
@@ -1030,6 +1226,28 @@ class PackagingManager(Manager, HookMixin):
         """
 
         return self._is_integration_test_component(module_name)
+
+    def _is_other_integration_test_package(self, package_name):
+        """
+        gets a value indicating that given package is from other integration test packages.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._other_integration_test_components
+
+    def _is_extended_integration_test_package(self, package_name):
+        """
+        gets a value indicating that given package is an extended integration test package.
+
+        :param str package_name: full package name.
+
+        :rtype: bool
+        """
+
+        return package_name in self._extended_integration_test_components
 
     def _is_test_component(self, component_name):
         """

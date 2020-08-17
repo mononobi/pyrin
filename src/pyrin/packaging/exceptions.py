@@ -62,6 +62,13 @@ class SubPackageDependencyDetectedError(PackagingManagerException):
     pass
 
 
+class PackageExternalDependencyError(PackagingManagerException):
+    """
+    package external dependency error.
+    """
+    pass
+
+
 class PackageNotExistedError(PackagingManagerException):
     """
     package not existed error.

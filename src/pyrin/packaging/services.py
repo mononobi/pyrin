@@ -14,10 +14,13 @@ def load_components(**options):
     :raises BothUnitAndIntegrationTestsCouldNotBeLoadedError: both unit and integration
                                                               tests could not be loaded
                                                               error.
-    :raises CircularDependencyDetectedError: circular dependency detected error.
     :raises PackageIsIgnoredError: package is ignored error.
     :raises PackageIsDisabledError: package is disabled error.
     :raises PackageNotExistedError: package not existed error.
+    :raises SelfDependencyDetectedError: self dependency detected error.
+    :raises SubPackageDependencyDetectedError: sub-package dependency detected error.
+    :raises CircularDependencyDetectedError: circular dependency detected error.
+    :raises PackageExternalDependencyError: package external dependency error.
     """
 
     get_component(PackagingPackage.COMPONENT_NAME).load_components(**options)
