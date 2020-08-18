@@ -276,4 +276,5 @@ class PublicTemporaryRoute(PublicRoute):
         """
         unregisters current route from application.
         """
-        pass
+
+        self.map.remove(self)

@@ -189,10 +189,6 @@ class Application(Flask, HookMixin, SignalMixin,
         self._scripting_mode = options.get('scripting_mode', False)
         self._force_json_response = options.get('force_json_response', True)
 
-        # a dict containing the mapping between each url and its available routes.
-        # in the form of: {str url: [RouteBase route]}
-        self._url_to_route_map = DTO()
-
         self._import_name = options.get('import_name', None)
         if self._import_name is not None and (self._import_name == '' or
                                               self._import_name.isspace()):
@@ -1016,7 +1012,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         route = self.url_rule_class(rule, methods=methods, **options)
         route.provide_automatic_options = provide_automatic_options
-        self._add_url_to_route_map(route, **options)
+        self._add_to_map(route, **options)
 
         old_func = self.view_functions.get(endpoint, None)
         if old_func is not None and old_func != view_func:
@@ -1084,11 +1080,11 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return function_utils.get_fully_qualified_name(func)
 
-    def _add_url_to_route_map(self, route, **options):
+    def _add_to_map(self, route, **options):
         """
-        adds the given route into url to route map.
+        adds the given route into map.
 
-        :param RouteBase route: route instance to add into url to route map.
+        :param RouteBase route: route instance to be added into map.
 
         :keyword bool replace: specifies that this route must replace
                                any existing route with the same url and http
@@ -1099,9 +1095,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         replace = options.get('replace', False)
-        existing_routes = self._url_to_route_map.get(route.rule, None)
-        if existing_routes is None:
-            existing_routes = []
+        existing_routes = self.url_map.get_routes_by_url(route.rule)
 
         duplicate_methods = DTO()
         for item in existing_routes:
@@ -1132,11 +1126,7 @@ class Application(Flask, HookMixin, SignalMixin,
                 duplicate_route.remove_methods(methods)
                 if not duplicate_route.is_operational:
                     self.url_map.remove(duplicate_route)
-                    existing_routes.remove(duplicate_route)
-                    self.view_functions.pop(duplicate_route.endpoint, None)
 
-        existing_routes.append(route)
-        self._url_to_route_map[route.rule] = existing_routes
         self.url_map.add(route)
 
     @setupmethod
