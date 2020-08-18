@@ -1304,6 +1304,8 @@ class CRUDMixin(CoreObject):
 class MetadataMixin(CoreObject):
     """
     metadata mixin class.
+
+    this class provides a simple and extensible api for declarative models configuration.
     """
 
     # table name
@@ -1394,14 +1396,15 @@ class MetadataMixin(CoreObject):
         if other table args must be added (ex. UniqueConstraint or CheckConstraint ...)
         it must return those as a tuple. it could also return a single object as
         extra table arg (ex. a single UniqueConstraint).
-        if no changes are required this method should not return anything.
+        if no changes are required this method must return None.
 
         :param dict table_args: a dict containing different table args.
                                 any changes to this dict must be done in-place.
 
         :rtype: tuple | object
         """
-        pass
+
+        return None
 
     @classmethod
     def _customize_mapper_args(cls, mapper_args):
