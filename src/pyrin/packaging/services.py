@@ -55,3 +55,13 @@ def get_working_directory(root_path):
     """
 
     return get_component(PackagingPackage.COMPONENT_NAME).get_working_directory(root_path)
+
+
+def get_loaded_packages():
+    """
+    gets the name of all loaded packages.
+
+    :rtype: list[str]
+    """
+
+    return get_component(PackagingPackage.COMPONENT_NAME).get_loaded_packages()

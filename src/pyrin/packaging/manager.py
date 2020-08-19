@@ -1497,3 +1497,13 @@ class PackagingManager(Manager, HookMixin):
             return True
 
         return self._is_dependencies_loaded([parent_package])
+
+    def get_loaded_packages(self):
+        """
+        gets the name of all loaded packages.
+
+        :rtype: list[str]
+        """
+
+        return list(self._loaded_packages)
+
