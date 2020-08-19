@@ -117,10 +117,10 @@ class SessionManager(Manager):
 
     def is_fresh(self):
         """
-        gets a value indicating that current request has a fresh token.
+        gets a value indicating that current request has a fresh authentication.
 
-        fresh token means a token which created upon providing user credentials
-        to server, not using a refresh token.
+        fresh authentication means an authentication which is done by providing
+        user credentials to server.
 
         :rtype: bool
         """

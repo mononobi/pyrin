@@ -7,10 +7,11 @@ import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
 
-from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
-from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError, PermissionTypeError
 from pyrin.core.globals import _
+from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
 from pyrin.security.permission.base import PermissionBase
+from pyrin.api.router.handlers.exceptions import FreshAuthenticationRequiredError, \
+    PermissionTypeError
 
 
 class ProtectedRoute(RouteBase):
@@ -217,15 +218,15 @@ class FreshProtectedRoute(ProtectedRoute):
 
         also checks that the user has a fresh authentication.
 
-        :raises FreshTokenRequiredError: fresh token required error.
+        :raises FreshAuthenticationRequiredError: fresh authentication required error.
         :raises UserNotAuthenticatedError: user not authenticated error.
         :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 
         if not session_services.is_fresh():
-            raise FreshTokenRequiredError(_('Fresh authentication is required '
-                                            'to access the requested resource.'))
+            raise FreshAuthenticationRequiredError(_('Fresh authentication is required '
+                                                     'to access the requested resource.'))
 
         super()._authorize()
 

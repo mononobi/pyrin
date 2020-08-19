@@ -38,10 +38,10 @@ class MaxContentLengthLimitMismatchError(RouterHandlerException):
     pass
 
 
-class FreshTokenRequiredError(AuthenticationFailedError,
-                              RouterHandlerBusinessException):
+class FreshAuthenticationRequiredError(AuthenticationFailedError,
+                                       RouterHandlerBusinessException):
     """
-    fresh token required error.
+    fresh authentication required error.
     """
     pass
 
