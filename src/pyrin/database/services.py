@@ -74,22 +74,23 @@ def get_atomic_store(**kwargs):
     return get_component(DatabasePackage.COMPONENT_NAME).get_atomic_store(**kwargs)
 
 
-def finalize_transaction(response):
+def finalize_transaction(response, **options):
     """
     this method will finalize database transaction of each request.
 
     this method will finalize both normal and atomic sessions of
     current request if available.
-    we should not raise any exception in request handlers, so we return
-    an error response in case of any exception.
+    we should not raise any exception in finalize transaction hook,
+    so we return an error response in case of any exception.
     note that normally you should never call this method manually.
 
     :param CoreResponse response: response object.
 
-    :rtype: CoreResponse
+    :rtype: CoreResponse | tuple
     """
 
-    return get_component(DatabasePackage.COMPONENT_NAME).finalize_transaction(response)
+    return get_component(DatabasePackage.COMPONENT_NAME).finalize_transaction(response,
+                                                                              **options)
 
 
 def cleanup_session(exception):

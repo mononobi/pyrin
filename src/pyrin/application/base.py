@@ -1481,6 +1481,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                    headers=client_request.headers))
 
         response = super().full_dispatch_request()
+        response = self._finalize_transaction(response)
 
         process_end_time = time()
         logging_services.info('Request executed in [{time} ms].'
@@ -1543,7 +1544,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         max_length = config_services.get_active('logging', 'max_request_size')
         if request.safe_content_length > max_length:
-            return 'Request payload [{size} Bytes] is too large for logging.' \
+            return 'Request payload [{size} bytes] is too large for logging.' \
                 .format(size=request.safe_content_length)
 
         return request.get_inputs(silent=True)
@@ -1561,13 +1562,13 @@ class Application(Flask, HookMixin, SignalMixin,
 
         max_length = config_services.get_active('logging', 'max_response_size')
         if response.safe_content_length > max_length:
-            return 'Response payload [{size} Bytes] is too large for logging.' \
+            return 'Response payload [{size} bytes] is too large for logging.' \
                 .format(size=response.safe_content_length)
 
         log_all_types = config_services.get_active('logging', 'log_all_response_types')
         if response.content_type != MIMETypeEnum.JSON and \
                 log_all_types is not True:
-            return 'Response payload type [{content_type}] will be ignored for logging.' \
+            return 'Response payload type [{content_type}] is ignored for logging.' \
                 .format(content_type=response.content_type)
 
         return response.original_data
@@ -1723,3 +1724,26 @@ class Application(Flask, HookMixin, SignalMixin,
         for hook in self._get_hooks():
             hook.provide_response_headers(headers, endpoint,
                                           status_code, method, **options)
+
+    def _finalize_transaction(self, response, **options):
+        """
+        this method will call `finalize_transaction` on all registered hooks.
+
+        :param CoreResponse response: response object.
+
+        :rtype: CoreResponse
+        """
+
+        result_response = response
+        for hook in self._get_hooks():
+            try:
+                result = hook.finalize_transaction(result_response, **options)
+                if result is not None:
+                    result_response = result
+            except Exception as error:
+                logging_services.exception(str(error))
+
+        if not isinstance(result_response, self.response_class):
+            result_response = self.make_response(result_response)
+
+        return result_response

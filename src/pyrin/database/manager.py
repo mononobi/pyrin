@@ -286,19 +286,19 @@ class DatabaseManager(Manager, HookMixin):
 
         return bind_config_key
 
-    def finalize_transaction(self, response):
+    def finalize_transaction(self, response, **options):
         """
         this method will finalize database transaction of each request.
 
         this method will finalize both normal and atomic sessions of
         current request if available.
-        we should not raise any exception in request handlers, so we return
-        an error response in case of any exception.
+        we should not raise any exception in finalize transaction hook,
+        so we return an error response in case of any exception.
         note that normally you should never call this method manually.
 
         :param CoreResponse response: response object.
 
-        :rtype: CoreResponse
+        :rtype: CoreResponse | tuple
         """
 
         try:

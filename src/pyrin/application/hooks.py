@@ -91,6 +91,27 @@ class ApplicationHookBase(Hook):
         """
         pass
 
+    def finalize_transaction(self, response, **options):
+        """
+        this method will be called after a request has been fully processed.
+
+        note that this method will be called after all `after_request_handlers`
+        have been executed. even if any handler had error, this method call is
+        guaranteed.
+        subclasses must return the same input response, a modified response or a
+        new response object. but if they don't, it will be converted to a response.
+        note that it is recommended for subclasses not to raise any exceptions
+        in this method. but if they do so, other handlers will still get executed.
+        the main use case for this hook is to finalize any present transactions,
+        such as database.
+
+        :param CoreResponse response: response object.
+
+        :rtype: CoreResponse
+        """
+
+        return response
+
 
 class PackagingHook(PackagingHookBase):
     """
