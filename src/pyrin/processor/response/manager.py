@@ -191,3 +191,19 @@ class ResponseManager(Manager):
             return body, headers
 
         return body
+
+    def get_body(self, response, **options):
+        """
+        gets the first part of a response tuple.
+
+        it could be the body data or a response object itself.
+        if response is not a tuple, the return value is the response itself.
+
+        :param tuple | CoreResponse | object response: the response object
+                                                       or instance or tuple.
+
+        :rtype: CoreResponse | object
+        """
+
+        body, status, headers = self.unpack_response(response, **options)
+        return body

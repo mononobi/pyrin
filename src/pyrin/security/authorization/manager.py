@@ -47,7 +47,7 @@ class AuthorizationManager(Manager):
 
         if user_services.is_active(user, **options) is not True:
             message = _('User [{user}] is not active.')
-            raise UserIsNotActiveError(message.format(user=str(user)))
+            raise UserIsNotActiveError(message.format(user=user))
 
         # we must check whether input permissions object is iterable.
         # if not, we make it manually.

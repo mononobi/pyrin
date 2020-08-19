@@ -7,7 +7,7 @@ import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
 
-from pyrin.api.router.handlers.base import RouteBase
+from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
 from pyrin.api.router.handlers.exceptions import FreshTokenRequiredError, PermissionTypeError
 from pyrin.core.globals import _
 from pyrin.security.permission.base import PermissionBase
@@ -175,6 +175,7 @@ class ProtectedRoute(RouteBase):
         """
 
         self._authorize()
+        super()._handle(inputs, **options)
 
     def _authorize(self):
         """
@@ -223,7 +224,33 @@ class FreshProtectedRoute(ProtectedRoute):
         """
 
         if not session_services.is_fresh():
-            raise FreshTokenRequiredError(_('Fresh token is required to '
-                                            'access the requested resource.'))
+            raise FreshTokenRequiredError(_('Fresh authentication is required '
+                                            'to access the requested resource.'))
 
         super()._authorize()
+
+
+class ProtectedTemporaryRoute(ProtectedRoute, TemporaryRouteBase):
+    """
+    protected temporary route class.
+
+    this class should be used to manage application protected api
+    routes that require authenticated access and must be unregistered
+    after a specified number of requests or a duration of time.
+    this is useful for a couple of different things but mostly for system
+    health checking after each new deployment on production.
+    """
+    pass
+
+
+class FreshProtectedTemporaryRoute(FreshProtectedRoute, TemporaryRouteBase):
+    """
+    fresh protected temporary route class.
+
+    this class should be used to manage application protected api routes
+    that require fresh authenticated access and must be unregistered
+    after a specified number of requests or a duration of time.
+    this is useful for a couple of different things but mostly for system
+    health checking after each new deployment on production.
+    """
+    pass

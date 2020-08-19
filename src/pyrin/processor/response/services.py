@@ -110,3 +110,19 @@ def pack_response(body, status_code, headers, **options):
 
     return get_component(ResponsePackage.COMPONENT_NAME).pack_response(body, status_code,
                                                                        headers, **options)
+
+
+def get_body(response, **options):
+    """
+    gets the first part of a response tuple.
+
+    it could be the body data or a response object itself.
+    if response is not a tuple, the return value is the response itself.
+
+    :param tuple | CoreResponse | object response: the response object
+                                                   or instance or tuple.
+
+    :rtype: CoreResponse | object
+    """
+
+    return get_component(ResponsePackage.COMPONENT_NAME).get_body(response, **options)

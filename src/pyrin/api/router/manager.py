@@ -6,11 +6,12 @@ router manager module.
 import pyrin.application.services as application_services
 import pyrin.utils.misc as misc_utils
 
+from pyrin.core.structs import Manager
 from pyrin.api.router import RouterPackage
 from pyrin.api.router.handlers.base import RouteBase
-from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute, PublicTemporaryRoute
-from pyrin.core.structs import Manager
+from pyrin.api.router.handlers.protected import ProtectedRoute, FreshProtectedRoute, \
+    ProtectedTemporaryRoute, FreshProtectedTemporaryRoute
 from pyrin.api.router.exceptions import RouteAuthenticationMismatchError, \
     InvalidCustomRouteTypeError
 
@@ -209,12 +210,16 @@ class RouterManager(Manager):
             return PublicTemporaryRoute(rule, **options)
         elif authenticated is True and fresh_auth is False and temporary is False:
             return ProtectedRoute(rule, **options)
+        elif authenticated is True and fresh_auth is False and temporary is True:
+            return ProtectedTemporaryRoute(rule, **options)
         elif authenticated is True and fresh_auth is True and temporary is False:
             return FreshProtectedRoute(rule, **options)
+        elif authenticated is True and fresh_auth is True and temporary is True:
+            return FreshProtectedTemporaryRoute(rule, **options)
         else:
-            raise RouteAuthenticationMismatchError('"authenticated={auth}" and '
-                                                   '"fresh_auth={fresh}" and '
-                                                   '"temporary={temp}" in route '
+            raise RouteAuthenticationMismatchError('[authenticated={auth}] and '
+                                                   '[fresh_auth={fresh}] and '
+                                                   '[temporary={temp}] in route '
                                                    '[{route}] are incompatible.'
                                                    .format(auth=authenticated,
                                                            fresh=fresh_auth,
