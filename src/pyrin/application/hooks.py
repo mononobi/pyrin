@@ -112,6 +112,21 @@ class ApplicationHookBase(Hook):
 
         return response
 
+    def validate_request(self, request, **options):
+        """
+        this method will be called whenever a request is received before any other operation.
+
+        subclasses could use this to validate request and if required, raise an error
+        to prevent request progression.
+        if any subclass raises an error during validation, all hooks, request handlers
+        and url processors will be ignored and error response will be returned to client
+        immediately.
+        note that the returned value of this method will be ignored.
+
+        :param CoreRequest request: current request instance.
+        """
+        pass
+
 
 class PackagingHook(PackagingHookBase):
     """

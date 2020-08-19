@@ -1467,20 +1467,29 @@ class Application(Flask, HookMixin, SignalMixin,
         this method has been overridden to log before and after request dispatching.
         """
 
+        response = None
         client_request = session_services.get_current_request()
-        try:
-            self._authenticate(client_request)
-        except Exception as error:
-            logging_services.exception(str(error))
-
         process_start_time = time()
         logging_services.info('Request received with params: [{params}] '
                               'and headers: [{headers}].',
                               interpolation_data=
                               dict(params=self._get_request_data_for_logging(client_request),
                                    headers=client_request.headers))
+        try:
+            self._validate_request(client_request)
+        except Exception as error:
+            logging_services.exception(str(error))
+            response = response_services.make_exception_response(error)
+            response = self.make_response(response)
 
-        response = super().full_dispatch_request()
+        if response is None:
+            try:
+                self._authenticate(client_request)
+            except Exception as error:
+                logging_services.exception(str(error))
+
+            response = super().full_dispatch_request()
+
         response = self._finalize_transaction(response)
 
         process_end_time = time()
@@ -1727,7 +1736,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
     def _finalize_transaction(self, response, **options):
         """
-        this method will call `finalize_transaction` on all registered hooks.
+        this method will call `finalize_transaction` of all registered hooks.
 
         :param CoreResponse response: response object.
 
@@ -1746,3 +1755,13 @@ class Application(Flask, HookMixin, SignalMixin,
                 logging_services.exception(str(error))
 
         return result_response
+
+    def _validate_request(self, request, **options):
+        """
+        this method will call `validate_request` method of all registered hooks.
+
+        :param CoreRequest request: current request instance.
+        """
+
+        for hook in self._get_hooks():
+            hook.validate_request(request, **options)
