@@ -81,7 +81,7 @@ class LoggingMaskingManager(Manager):
                                'postal_address',
                                'postal_code',
                                'private_key',
-                               'proxy_authorization'
+                               'proxy_authorization',
                                'refresh_token',
                                'rsa',
                                'rsa_key',
