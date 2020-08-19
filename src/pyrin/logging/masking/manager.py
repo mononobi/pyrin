@@ -21,7 +21,8 @@ class LoggingMaskingManager(Manager):
     # these values could be extended or disabled in 'logging.masking' config store.
     # note that all values will be normalized and matched against also normalized values.
     # for example 'api_key' and 'APIkey' and 'api-key' will be considered equal.
-    DEFAULT_MASKED_KEYWORDS = {'address',
+    DEFAULT_MASKED_KEYWORDS = {'access_token',
+                               'address',
                                'api_key',
                                'api_token',
                                'auth_token',
@@ -36,6 +37,7 @@ class LoggingMaskingManager(Manager):
                                'card_number',
                                'certificate',
                                'cookie',
+                               'cookies',
                                'credential',
                                'credentials',
                                'credit_card',
@@ -65,6 +67,7 @@ class LoggingMaskingManager(Manager):
                                'national_number',
                                'oauth',
                                'oauth_token',
+                               'otp',
                                'pass',
                                'passport',
                                'passport_no',
@@ -78,15 +81,18 @@ class LoggingMaskingManager(Manager):
                                'postal_address',
                                'postal_code',
                                'private_key',
+                               'proxy_authorization'
+                               'refresh_token',
                                'rsa',
                                'rsa_key',
                                'secret',
                                'secret_key',
                                'session',
+                               'session_id',
                                'token',
                                'uploaded_files',
                                'username',
-                               'www-authenticate',
+                               'www_authenticate',
                                'zip_code'}
 
     # a class type to be used as masked dict.
