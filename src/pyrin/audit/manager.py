@@ -26,7 +26,7 @@ class AuditManager(Manager, HookMixin):
     hook_type = AuditHookBase
     invalid_hook_type_error = InvalidAuditHookTypeError
 
-    def _inspect(self, **options):
+    def _inspect_packages(self, **options):
         """
         this method will call `inspect` method of all registered hooks.
 
@@ -55,7 +55,7 @@ class AuditManager(Manager, HookMixin):
         """
 
         verbose = options.get('verbose', False)
-        data = self._inspect(**options)
+        data = self._inspect_packages(**options)
         data.update(application=self.get_application_info(**options),
                     framework=self.get_framework_info(**options))
 
@@ -63,9 +63,6 @@ class AuditManager(Manager, HookMixin):
             packages = packaging_services.get_loaded_packages()
             data.update(packages=packages,
                         packages_count=len(packages))
-
-        packages_info = self._inspect(**options)
-        data.update(packages_info)
 
         return data
 
