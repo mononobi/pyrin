@@ -1739,11 +1739,10 @@ class Application(Flask, HookMixin, SignalMixin,
             try:
                 result = hook.finalize_transaction(result_response, **options)
                 if result is not None:
+                    if not isinstance(result, self.response_class):
+                        result = self.make_response(result)
                     result_response = result
             except Exception as error:
                 logging_services.exception(str(error))
-
-        if not isinstance(result_response, self.response_class):
-            result_response = self.make_response(result_response)
 
         return result_response
