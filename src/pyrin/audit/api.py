@@ -10,7 +10,7 @@ from pyrin.core.enumerations import HTTPMethodEnum
 
 
 @api('/audit', methods=HTTPMethodEnum.GET,
-     authenticated=False, request_limit=3, no_cache=True)
+     authenticated=False, request_limit=5, no_cache=True)
 def inspect(**options):
     """
     inspects all registered packages and gets inspection data.

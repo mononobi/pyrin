@@ -23,7 +23,101 @@ def inspect(**options):
     """
     inspects all registered packages and gets inspection data.
 
+    it includes all available info, but it could be customized using different options.
+    other custom implementations could also be excluded from result if the related name
+    of their hook is passed with False value. for example `database=False`.
+
+    :keyword bool application: specifies that application info must be included.
+    :keyword bool packages: specifies that loaded packages info must be included.
+    :keyword bool framework: specifies that framework info must be included.
+    :keyword bool python: specifies that python info must be included.
+    :keyword bool os: specifies that operating system info must be included.
+    :keyword bool hardware: specifies that hardware info must be included.
+
+    :returns: dict(dict application: application info,
+                   dict packages: loaded packages info,
+                   dict framework: framework info,
+                   dict python: python info,
+                   dict platform: platform info)
     :rtype: dict
     """
 
     return get_component(AuditPackage.COMPONENT_NAME).inspect(**options)
+
+
+def get_application_info(**options):
+    """
+    gets the info of current application.
+
+    :returns: dict(str name: application name,
+                   datetime datetime: application current datetime)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_application_info(**options)
+
+
+def get_framework_info(**options):
+    """
+    gets the info of current framework.
+
+    :returns: dict(str name: framework name,
+                   str version: framework version)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_framework_info(**options)
+
+
+def get_python_info(**options):
+    """
+    gets the current python version info which application is running on it.
+
+    :returns: dict(str version: python version,
+                   str implementation: python implementation)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_python_info(**options)
+
+
+def get_operating_system_info(**options):
+    """
+    gets the current operating system info.
+
+    :returns: dict(str name: os name,
+                   str release: os release,
+                   str version: os version)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_operating_system_info(**options)
+
+
+def get_hardware_info(**options):
+    """
+    gets the current machine's hardware info.
+
+    :returns: dict(str processor: processor name,
+                   str machine: machine name)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_hardware_info(**options)
+
+
+def get_platform_info(**options):
+    """
+    gets the platform info of current machine.
+
+    it includes all available info, but it could be customized using different options.
+
+    :keyword bool os: specifies that operating system info must be included.
+    :keyword bool hardware: specifies that hardware info must be included.
+
+    :returns: dict(dict os: os info,
+                   dict hardware: hardware info)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_platform_info(**options)
