@@ -15,7 +15,7 @@ class AuditHookBase(Hook):
     """
 
     # name of the current audit, for example: database or celery.
-    # the result of this audit will be added to final result dict using this key.
+    # the result of each audit will be added to final result dict using this key.
     audit_name = None
 
     def inspect(self, **options):
