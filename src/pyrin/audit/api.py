@@ -34,6 +34,10 @@ if is_enabled is True:
         :keyword bool os: specifies that operating system info must be included.
         :keyword bool hardware: specifies that hardware info must be included.
 
+        :keyword bool traceback: specifies that on failure report, it must include
+                                 the traceback of errors.
+                                 defaults to True if not provided.
+
         :returns: tuple[dict(dict application: application info,
                              dict packages: loaded packages info,
                              dict framework: framework info,

@@ -73,8 +73,8 @@ class CoreSession(Session):
             bind = database_services.get_bounded_engines().get(bind_name, None)
             if bind is None:
                 raise InvalidDatabaseBindError('Database bind name [{bind_name}] '
-                                               'is not available in '
-                                               '[database.binds.config] file.'
+                                               'is not available in database.binds '
+                                               'config store.'
                                                .format(bind_name=bind_name))
 
         return super().execute(clause, params, mapper, bind, **kw)

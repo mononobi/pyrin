@@ -29,6 +29,10 @@ class AuditHookBase(Hook):
         subclasses could also raise an exception instead of returning a value to
         indicate the failure, if required.
 
+        :keyword bool traceback: specifies that on failure report, it must include
+                                 the traceback of errors.
+                                 defaults to True if not provided.
+
         :rtype: tuple[dict, bool]
         """
 

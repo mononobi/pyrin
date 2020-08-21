@@ -300,3 +300,16 @@ def get_all_database_names():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_all_database_names()
+
+
+def get_database_bind_names():
+    """
+    gets all database bind names defined in application.
+
+    it returns all available database bind names, even those
+    that do not have any entity bounded to them.
+
+    :rtype: list[str]
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_database_bind_names()

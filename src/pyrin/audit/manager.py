@@ -13,6 +13,7 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 
+from pyrin.audit.enumerations import InspectionStatusEnum
 from pyrin.audit.exceptions import InvalidAuditHookTypeError
 from pyrin.audit.hooks import AuditHookBase
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
@@ -45,11 +46,16 @@ class AuditManager(Manager, HookMixin):
         by all registered hooks, and the second value is a bool value indicating that all
         hooks have been succeeded or not.
 
+        :keyword bool traceback: specifies that on failure report, it must include
+                                 the traceback of errors.
+                                 defaults to True if not provided.
+
         :rtype: tuple[dict, bool]
         """
 
         data = {}
         all_succeeded = True
+        include_traceback = options.get('traceback', True)
         for hook in self._get_hooks():
             try:
                 should_inspect = options.get(hook.audit_name, True)
@@ -60,8 +66,11 @@ class AuditManager(Manager, HookMixin):
                     data[hook.audit_name] = result
             except Exception as error:
                 all_succeeded = False
-                data[hook.audit_name] = dict(status='Failed', error=str(error),
-                                             traceback=traceback.format_exc())
+                error_data = dict(status=InspectionStatusEnum.FAILED,
+                                  error=str(error))
+                if include_traceback is not False:
+                    error_data.update(traceback=traceback.format_exc())
+                data[hook.audit_name] = error_data
 
         return data, all_succeeded
 
@@ -84,6 +93,10 @@ class AuditManager(Manager, HookMixin):
         :keyword bool python: specifies that python info must be included.
         :keyword bool os: specifies that operating system info must be included.
         :keyword bool hardware: specifies that hardware info must be included.
+
+        :keyword bool traceback: specifies that on failure report, it must include
+                                 the traceback of errors.
+                                 defaults to True if not provided.
 
         :returns: tuple[dict(dict application: application info,
                              dict packages: loaded packages info,

@@ -571,6 +571,22 @@ class DatabaseManager(Manager, HookMixin):
         """
 
         result = [self.get_default_database_name()]
+        binds = self.get_database_bind_names()
+        result.extend(binds)
+
+        return result
+
+    def get_database_bind_names(self):
+        """
+        gets all database bind names defined in application.
+
+        it returns all available database bind names, even those
+        that do not have any entity bounded to them.
+
+        :rtype: list[str]
+        """
+
+        result = []
         binds = config_services.get_active('database', 'bind_names')
         if binds is not None:
             result.extend(binds)
