@@ -22,9 +22,14 @@ class AuditHookBase(Hook):
         """
         this method will be called to inspect the status of a package or resource.
 
-        each subclass must return a dict containing the inspection data.
+        each subclass must return a tuple of two values. first value is a dict
+        containing the inspection data. and the second value is a bool value
+        indicating that inspection has been succeeded or failed.
 
-        :rtype: dict
+        subclasses could also raise an exception instead of returning a value to
+        indicate the failure, if required.
+
+        :rtype: tuple[dict, bool]
         """
 
-        return {}
+        return {}, True

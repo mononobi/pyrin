@@ -12,5 +12,7 @@ class AuditPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.api.router']
+    DEPENDS = ['pyrin.api.router',
+               'pyrin.configuration']
     COMPONENT_NAME = 'audit.component'
+    CONFIG_STORE_NAMES = ['audit']

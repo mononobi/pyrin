@@ -3,15 +3,19 @@
 audit manager module.
 """
 
+import traceback
 import platform
 
 import pyrin
 import pyrin.application.services as application_services
 import pyrin.packaging.services as packaging_services
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.processor.response.status.services as status_services
+import pyrin.configuration.services as config_services
 
 from pyrin.audit.exceptions import InvalidAuditHookTypeError
 from pyrin.audit.hooks import AuditHookBase
+from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.audit import AuditPackage
@@ -37,20 +41,29 @@ class AuditManager(Manager, HookMixin):
         each registered hook could be excluded from result if the related name of the hook
         is passed with False value. for example `database=False`.
 
-        :rtype: dict
+        it returns a tuple of two values. first value is a dict containing the data provided
+        by all registered hooks, and the second value is a bool value indicating that all
+        hooks have been succeeded or not.
+
+        :rtype: tuple[dict, bool]
         """
 
         data = {}
+        all_succeeded = True
         for hook in self._get_hooks():
             try:
-                should_get = options.get(hook.audit_name, True)
-                if should_get is True:
-                    result = hook.inspect(**options)
+                should_inspect = options.get(hook.audit_name, True)
+                if should_inspect is True:
+                    result, succeeded = hook.inspect(**options)
+                    if succeeded is False:
+                        all_succeeded = False
                     data[hook.audit_name] = result
             except Exception as error:
-                data[hook.audit_name] = dict(status='Failed', error=str(error))
+                all_succeeded = False
+                data[hook.audit_name] = dict(status='Failed', error=str(error),
+                                             traceback=traceback.format_exc())
 
-        return data
+        return data, all_succeeded
 
     def inspect(self, **options):
         """
@@ -60,6 +73,11 @@ class AuditManager(Manager, HookMixin):
         other custom implementations could also be excluded from result if the related name
         of their hook is passed with False value. for example `database=False`.
 
+        it returns a tuple of two values. the first value is a dict containing the
+        inspection data, and the second value is the related status code for the response.
+        in case of any inspection has been failed, the status code will be internal
+        server error 500.
+
         :keyword bool application: specifies that application info must be included.
         :keyword bool packages: specifies that loaded packages info must be included.
         :keyword bool framework: specifies that framework info must be included.
@@ -67,12 +85,13 @@ class AuditManager(Manager, HookMixin):
         :keyword bool os: specifies that operating system info must be included.
         :keyword bool hardware: specifies that hardware info must be included.
 
-        :returns: dict(dict application: application info,
-                       dict packages: loaded packages info,
-                       dict framework: framework info,
-                       dict python: python info,
-                       dict platform: platform info)
-        :rtype: dict
+        :returns: tuple[dict(dict application: application info,
+                             dict packages: loaded packages info,
+                             dict framework: framework info,
+                             dict python: python info,
+                             dict platform: platform info),
+                        int status_code]
+        :rtype: tuple[dict, int]
         """
 
         application = options.get('application', True)
@@ -80,7 +99,7 @@ class AuditManager(Manager, HookMixin):
         framework = options.get('framework', True)
         python = options.get('python', True)
 
-        data = self._inspect_packages(**options)
+        data, succeeded = self._inspect_packages(**options)
 
         if application is True:
             data.update(application=self.get_application_info(**options))
@@ -101,7 +120,10 @@ class AuditManager(Manager, HookMixin):
         if len(platform_info) > 0:
             data.update(platform=platform_info)
 
-        return data
+        if succeeded is False:
+            return data, ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+
+        return data, status_services.get_status_code()
 
     def get_application_info(self, **options):
         """
@@ -203,3 +225,16 @@ class AuditManager(Manager, HookMixin):
             data.update(hardware=self.get_hardware_info(**options))
 
         return data
+
+    def get_audit_configurations(self):
+        """
+        gets the audit api configurations.
+
+        :returns: dict(bool enabled: enable audit api,
+                       bool authenticated: audit api access type,
+                       int request_limit: audit api request count limit,
+                       str url: audit api exposed url)
+        :rtype: dict
+        """
+
+        return config_services.get_active_section('audit')

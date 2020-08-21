@@ -27,6 +27,11 @@ def inspect(**options):
     other custom implementations could also be excluded from result if the related name
     of their hook is passed with False value. for example `database=False`.
 
+    it returns a tuple of two values. the first value is a dict containing the
+    inspection data, and the second value is the related status code for the response.
+    in case of any inspection has been failed, the status code will be internal
+    server error 500.
+
     :keyword bool application: specifies that application info must be included.
     :keyword bool packages: specifies that loaded packages info must be included.
     :keyword bool framework: specifies that framework info must be included.
@@ -34,12 +39,13 @@ def inspect(**options):
     :keyword bool os: specifies that operating system info must be included.
     :keyword bool hardware: specifies that hardware info must be included.
 
-    :returns: dict(dict application: application info,
-                   dict packages: loaded packages info,
-                   dict framework: framework info,
-                   dict python: python info,
-                   dict platform: platform info)
-    :rtype: dict
+    :returns: tuple[dict(dict application: application info,
+                         dict packages: loaded packages info,
+                         dict framework: framework info,
+                         dict python: python info,
+                         dict platform: platform info),
+                    int status_code]
+    :rtype: tuple[dict, int]
     """
 
     return get_component(AuditPackage.COMPONENT_NAME).inspect(**options)
@@ -121,3 +127,17 @@ def get_platform_info(**options):
     """
 
     return get_component(AuditPackage.COMPONENT_NAME).get_platform_info(**options)
+
+
+def get_audit_configurations():
+    """
+    gets the audit api configurations.
+
+    :returns: dict(bool enabled: enable audit api,
+                   bool authenticated: audit api access type,
+                   int request_limit: audit api request count limit,
+                   str url: audit api exposed url)
+    :rtype: dict
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).get_audit_configurations()
