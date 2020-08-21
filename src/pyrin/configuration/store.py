@@ -183,14 +183,13 @@ class ConfigStore(CoreObject):
         :rtype: dict
         """
 
-        if section not in self._configs.keys():
+        if section not in self._configs:
             raise ConfigurationStoreSectionNotFoundError('Section [{section}] not found in '
                                                          'config store [{name}].'
                                                          .format(section=section,
                                                                  name=self._name))
 
-        result = self._configs.get(section)
-
+        result = DTO(self._configs.get(section))
         return self._change_key_case(result, **options)
 
     def get_section_keys(self, section, **options):
@@ -246,7 +245,7 @@ class ConfigStore(CoreObject):
         for section_data in self._get_sections(**options):
             if isinstance(section_data, dict):
                 for key, value in section_data.items():
-                    if key in flat_dict.keys() and value != flat_dict.get(key):
+                    if key in flat_dict and value != flat_dict.get(key):
                         raise ConfigurationStoreDuplicateKeyError('Key [{key}] is available '
                                                                   'in multiple sections of '
                                                                   'config store [{name}] '
@@ -511,4 +510,4 @@ class ConfigStore(CoreObject):
         :rtype: dict
         """
 
-        return DTO(**self._configs)
+        return DTO(self._configs)
