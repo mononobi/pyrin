@@ -56,9 +56,9 @@ Then open the project in your IDE and create your pipenv environment.
 Then you could start developing Pyrin.
 
 # Thanks To JetBrains
-![https://www.jetbrains.com/?from=pyrin](./resources/images/jetbrains.png)
+![](./resources/images/jetbrains.png)
 
-We develop pyrin using JetBrains products with the awesome open source license provided by JetBrains.
+We develop pyrin using [JetBrains](https://www.jetbrains.com/?from=pyrin) products with the awesome open source license provided by JetBrains.
 
 # Extremely Simple Usage Example
 
