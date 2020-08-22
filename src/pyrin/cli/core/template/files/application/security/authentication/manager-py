@@ -7,7 +7,7 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authentication.manager import AuthenticationManager as \
     BaseAuthenticationManager
 
-from APPLICATION_PACKAGE.security.authentication import AuthenticationPackage
+from {APPLICATION_PACKAGE}.security.authentication import AuthenticationPackage
 
 
 class AuthenticationManager(BaseAuthenticationManager):

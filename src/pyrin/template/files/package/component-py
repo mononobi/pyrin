@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+"""
+{PACKAGE_TITLE} component module.
+"""
+
+from pyrin.application.decorators import component
+from pyrin.application.structs import Component
+
+from {PACKAGE_FULL_NAME} import {PACKAGE_CLASS_NAME}Package
+from {PACKAGE_FULL_NAME}.manager import {PACKAGE_CLASS_NAME}Manager
+
+
+@component({PACKAGE_CLASS_NAME}Package.COMPONENT_NAME)
+class {PACKAGE_CLASS_NAME}Component(Component, {PACKAGE_CLASS_NAME}Manager):
+    """
+    {PACKAGE_TITLE} component class.
+    """
+    pass

@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+{PACKAGE_TITLE} exceptions module.
+"""
+
+from pyrin.core.exceptions import CoreException, CoreBusinessException
+
+
+class {PACKAGE_CLASS_NAME}Exception(CoreException):
+    """
+    {PACKAGE_TITLE} exception.
+    """
+    pass
+
+
+class {PACKAGE_CLASS_NAME}BusinessException(CoreBusinessException, {PACKAGE_CLASS_NAME}Exception):
+    """
+    {PACKAGE_TITLE} business exception.
+    """
+    pass

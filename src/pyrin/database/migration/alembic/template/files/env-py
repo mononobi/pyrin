@@ -17,10 +17,10 @@ import pyrin.logging.services as logging_services
 
 from pyrin.utils.custom_print import print_default
 
-from APPLICATION_MODULE import APPLICATION_CLASS
+from {APPLICATION_MODULE} import {APPLICATION_CLASS}
 
 
-app_instance = APPLICATION_CLASS(scripting_mode=True, import_name='APPLICATION_IMPORT_NAME')
+app_instance = {APPLICATION_CLASS}(scripting_mode=True, import_name='{APPLICATION_IMPORT_NAME}')
 
 USE_TWOPHASE = config_services.get('alembic', 'alembic', 'use_twophase')
 
@@ -46,10 +46,8 @@ connection_urls = migration_services.get_connection_urls()
 # helpful here in case a 'copy' of
 # a metadata is needed.
 # from myapp import mymodel
-# target_metadata = {
-#       'default':mymodel.metadata1,
-#       'engine2':mymodel.metadata2
-# }
+# target_metadata = dict(default=mymodel.metadata1,
+#                        engine2=mymodel.metadata2)
 target_metadata = migration_services.get_bind_name_to_metadata_map()
 
 
@@ -79,11 +77,11 @@ def run_migrations_offline():
     # for the --sql use case, run migrations for each URL into
     # individual files.
 
-    engines = {}
+    engines = {{}}
     for name in db_names:
         if name not in connection_urls:
             continue
-        engines[name] = rec = {}
+        engines[name] = rec = {{}}
         rec['url'] = connection_urls.get(name)
         rec['engine'] = engine_from_config(
             dict(url=connection_urls.get(name)),
@@ -98,14 +96,14 @@ def run_migrations_offline():
     for name, rec in engines.items():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()
-        print_message('Migrating database [{name}]'.format(name=name))
+        print_message('Migrating database [{{name}}]'.format(name=name))
 
         migrations_path = application_services.get_migrations_path()
-        file_ = 'sql/{timestamp}_{name}.sql'.format(timestamp=timestamp,
+        file_ = 'sql/{{timestamp}}_{{name}}.sql'.format(timestamp=timestamp,
                                                     name=name)
         full_migrations_file_path = path.join(migrations_path, file_)
 
-        message = 'Writing output to [{file_name}]'.format(file_name=full_migrations_file_path)
+        message = 'Writing output to [{{file_name}}]'.format(file_name=full_migrations_file_path)
         LOGGER.debug(message)
         print_message(message)
 
@@ -117,7 +115,7 @@ def run_migrations_offline():
                 target_metadata=target_metadata.get(name),
                 literal_binds=True,
                 as_sql=True,
-                dialect_opts={'paramstyle': 'named'},
+                dialect_opts={{'paramstyle': 'named'}},
                 compare_type=config_services.get('alembic', 'alembic', 'compare_type'),
                 compare_server_default=config_services.get('alembic', 'alembic',
                                                            'compare_server_default'),
@@ -139,11 +137,11 @@ def run_migrations_online():
     # for the direct-to-db use case, start a transaction on all
     # engines, then run all migrations, then commit all transactions.
 
-    engines = {}
+    engines = {{}}
     for name in db_names:
         if name not in connection_urls:
             continue
-        engines[name] = rec = {}
+        engines[name] = rec = {{}}
         rec['engine'] = engine_from_config(
             dict(url=connection_urls.get(name)),
             prefix="",
@@ -161,7 +159,7 @@ def run_migrations_online():
 
     try:
         for name, rec in engines.items():
-            message = 'Migrating database [{name}]'.format(name=name)
+            message = 'Migrating database [{{name}}]'.format(name=name)
             LOGGER.debug(message)
             print_message(message)
             context.configure(

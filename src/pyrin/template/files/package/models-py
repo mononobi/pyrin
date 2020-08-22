@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PACKAGE_NAME models module.
+{PACKAGE_TITLE} models module.
 """
 
 from sqlalchemy import Unicode, Integer, ForeignKey, CheckConstraint

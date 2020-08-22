@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+{PACKAGE_TITLE} manager module.
+"""
+
+from pyrin.core.structs import Manager
+
+from {PACKAGE_FULL_NAME} import {PACKAGE_CLASS_NAME}Package
+
+
+class {PACKAGE_CLASS_NAME}Manager(Manager):
+    """
+    {PACKAGE_TITLE} manager class.
+    """
+
+    package_class = {PACKAGE_CLASS_NAME}Package

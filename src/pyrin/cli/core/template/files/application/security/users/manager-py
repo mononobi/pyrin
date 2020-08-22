@@ -6,7 +6,7 @@ users manager module.
 from pyrin.security.users.manager import UsersManager as BaseUsersManager
 from pyrin.core.exceptions import CoreNotImplementedError
 
-from APPLICATION_PACKAGE.security.users import UsersPackage
+from {APPLICATION_PACKAGE}.security.users import UsersPackage
 
 
 class UsersManager(BaseUsersManager):

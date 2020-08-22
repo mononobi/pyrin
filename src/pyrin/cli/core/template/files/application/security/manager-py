@@ -6,7 +6,7 @@ security manager module.
 from pyrin.security.manager import SecurityManager as BaseSecurityManager
 from pyrin.core.exceptions import CoreNotImplementedError
 
-from APPLICATION_PACKAGE.security import SecurityPackage
+from {APPLICATION_PACKAGE}.security import SecurityPackage
 
 
 class SecurityManager(BaseSecurityManager):

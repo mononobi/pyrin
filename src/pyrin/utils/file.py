@@ -105,8 +105,7 @@ def replace_file_values(source, data):
         with open(source, 'r') as file:
             file_data = file.read()
 
-        for key, value in data.items():
-            file_data = file_data.replace(key, value)
+        file_data = file_data.format(**data)
 
         with open(source, 'w') as file:
             file.write(file_data)

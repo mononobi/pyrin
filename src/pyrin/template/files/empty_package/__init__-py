@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-PACKAGE_NAME package.
+{PACKAGE_TITLE} package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class PACKAGE_CLASS_NAMEPackage(Package):
+class {PACKAGE_CLASS_NAME}Package(Package):
     """
-    PACKAGE_NAME package class.
+    {PACKAGE_TITLE} package class.
     """
 
     NAME = __name__
