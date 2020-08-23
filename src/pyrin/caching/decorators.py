@@ -7,23 +7,24 @@ from functools import update_wrapper
 
 from werkzeug.utils import cached_property as cached_property_base
 
-from pyrin.caching.exceptions import NotBoundedToClassError
 from pyrin.caching.structs import SharedContainer
+from pyrin.caching.key_providers import TypedKeyProvider
 
 
-def shared_cache(*old_method_or_property, container=None):
+def local_cached(*old_method_or_property, container=None):
     """
-    decorator to convert a method or property into a lazy one.
+    decorator to convert a method, property or function into a lazy one.
 
-    the method or property result will be calculated once and then it will
-    be cached. each result will be cached using a tuple of method or property
-    class type and method or property name as a key into the provided container.
-    so all instances of the same class type will have access to the same shared
-    cache storage. if you want to use a cache per each instance of a class
-    type, you could use `cached_property` or `cached_method` decorators.
+    the result will be calculated once and then it will be cached. each result
+    will be cached using a tuple of class type, method or property or function
+    name, inputs and current component key as a key into the provided container.
+    so if used on instance or class methods, all instances of the same class type
+    will have access to the same shared cache storage. if you want to use a cache per
+    each instance of a class type, you could use `cached_property` or `cached_method`
+    decorators.
 
-    note that this decorator could only be used on instance or class methods and properties.
-    this decorator does not handle methods that have inputs.
+    note that if this decorator is used for stand-alone functions, the class type
+    part of the generated key will always be None.
 
     :param function | property old_method_or_property: the original decorated
                                                        method or property.
@@ -35,50 +36,39 @@ def shared_cache(*old_method_or_property, container=None):
                                             container. it must be a subclass
                                             of `SharedContainer` class.
 
-    :raises NotBoundedToClassError: not bounded to class error.
-
-    :returns: method or property result.
+    :returns: method, property or function result.
     """
 
     def decorator(method_or_property):
         """
-        decorates the given method or property and makes it a lazy one.
+        decorates the given method, property or function and makes it a lazy one.
 
-        :param function | property method_or_property: decorated method or property.
+        :param function | property method_or_property: decorated method, property or function.
 
-        :returns: method or property result.
+        :returns: method, property or function result.
         """
 
-        def wrapper(self):
+        def wrapper(*args, **kwargs):
             """
-            decorates the given method or property and makes it a lazy one.
+            decorates the given method, property or function and makes it a lazy one.
 
-            :param object self: the method's parent class instance or type.
+            :param object args: positional arguments of method.
+            :keyword object kwargs: keyword arguments of method.
 
-            :returns: method or property result.
+            :returns: method, property or function result.
             """
 
             storage = container
             if storage is None:
                 storage = SharedContainer
 
-            if self is None:
-                raise NotBoundedToClassError('"@shared_cache" decorator could only '
-                                             'be used on instance or class methods '
-                                             'and properties.')
-
-            class_type = self
-            method_name = method_or_property.__name__
-            if not isinstance(class_type, type):
-                class_type = type(class_type)
-
-            key = (class_type, method_name)
-            result = storage.get(key)
+            key_provider = TypedKeyProvider(method_or_property, args, kwargs)
+            result = storage.get(key_provider.key)
             if result is not None:
                 return result
 
-            result = method_or_property(self)
-            storage.set(key, result)
+            result = method_or_property(*args, **kwargs)
+            storage.set(key_provider.key, result)
             return result
 
         return update_wrapper(wrapper, method_or_property)

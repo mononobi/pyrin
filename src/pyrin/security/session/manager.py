@@ -168,6 +168,22 @@ class SessionManager(Manager):
 
         return self.get_current_request().component_custom_key
 
+    def get_safe_component_custom_key(self):
+        """
+        gets component custom key in a safe manner.
+
+        meaning that if the request does not exist in current context, it will
+        return a None object instead of raising an error.
+
+        :rtype: object
+        """
+
+        current_request = self.get_safe_current_request()
+        if current_request is None:
+            return None
+
+        return current_request.component_custom_key
+
     def get_safe_current_request(self):
         """
         gets current request object in a safe manner.

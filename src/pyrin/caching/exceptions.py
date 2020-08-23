@@ -12,10 +12,3 @@ class CachingManagerException(CoreException):
     caching manager exception.
     """
     pass
-
-
-class NotBoundedToClassError(CachingManagerException):
-    """
-    not bounded to class error.
-    """
-    pass

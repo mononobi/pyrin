@@ -157,6 +157,19 @@ def get_component_custom_key():
     return get_component(SessionPackage.COMPONENT_NAME).get_component_custom_key()
 
 
+def get_safe_component_custom_key():
+    """
+    gets component custom key in a safe manner.
+
+    meaning that if the request does not exist in current context, it will
+    return a None object instead of raising an error.
+
+    :rtype: object
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_safe_component_custom_key()
+
+
 def get_safe_current_request():
     """
     gets current request object in a safe manner.
