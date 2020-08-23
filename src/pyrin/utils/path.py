@@ -353,7 +353,10 @@ def copytree_ex(source, destination, symlinks=False, ignore=None,
         if name in ignored_names:
             continue
         source_name = os.path.join(source, name)
-        destination_name = os.path.join(destination, name.replace('-py', '.py'))
+        real_name = name
+        if real_name.endswith('-py'):
+            real_name = real_name.replace('-py', '.py')
+        destination_name = os.path.join(destination, real_name)
         try:
             if os.path.islink(source_name):
                 link_to = os.readlink(source_name)
