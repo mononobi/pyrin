@@ -21,7 +21,7 @@ class TemplateHandlerSingletonMeta(MultiSingletonMeta):
     _lock = Lock()
 
 
-class AbstractTemplateHandler(CoreObject):
+class AbstractTemplateHandler(CoreObject, metaclass=TemplateHandlerSingletonMeta):
     """
     abstract template handler class.
     """
