@@ -34,16 +34,12 @@ class MaskedDict(CoreImmutableDict):
 
         masked_kwargs = {}
         if len(kwargs) > 0:
-            for key, value in kwargs.items():
-                if masking_services.should_mask(key) is True:
-                    masked_kwargs[key] = self.MASK
-                else:
-                    masked_kwargs[key] = self._mask(value)
+            masked_kwargs = self._mask_dict(kwargs)
 
         if isinstance(mapping, MaskedDict):
             super().__init__(self._unify(mapping, masked_kwargs))
 
-        elif isinstance(mapping, Headers):
+        elif isinstance(mapping, (dict, Headers)):
             temp = {}
             for key, value in mapping.items():
                 if masking_services.should_mask(key) is True:
@@ -53,15 +49,15 @@ class MaskedDict(CoreImmutableDict):
 
             super().__init__(self._unify(temp, masked_kwargs))
 
-        elif isinstance(mapping, dict):
-            temp = {}
-            for key, value in mapping.items():
+        elif isinstance(mapping, LIST_TYPES):
+            temp = []
+            for key, value in mapping:
                 if masking_services.should_mask(key) is True:
-                    temp[key] = self.MASK
+                    temp.append((key, self._mask(value)))
                 else:
-                    temp[key] = self._mask(value)
+                    temp.append((key, value))
 
-            super().__init__(self._unify(temp, masked_kwargs))
+            super().__init__(temp, **masked_kwargs)
 
         else:
             super().__init__(masked_kwargs)
@@ -131,9 +127,9 @@ class MaskedDict(CoreImmutableDict):
         """
         masks all required keys of different items of given iterable.
 
-        :param list | tuple | set items: items to mask their keys.
+        :param iterable items: items to mask their keys.
 
-        :rtype list | tuple | set
+        :rtype: list | tuple | set
         """
 
         result_type = type(items)
