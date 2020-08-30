@@ -124,10 +124,10 @@ class ConfigStore(CoreObject):
         """
 
         section_data = self.get_section(section, **options)
-        if key in section_data.keys():
+        if key in section_data:
             return section_data[key]
 
-        if 'default' not in options.keys():
+        if 'default' not in options:
             raise ConfigurationStoreKeyNotFoundError('Key [{key}] not found in section '
                                                      '[{section}] from config store [{name}].'
                                                      .format(key=key,
@@ -164,7 +164,7 @@ class ConfigStore(CoreObject):
         :rtype: list[str]
         """
 
-        return self._configs.keys()
+        return list(self._configs.keys())
 
     def get_section(self, section, **options):
         """
@@ -209,7 +209,7 @@ class ConfigStore(CoreObject):
         :rtype: list[str]
         """
 
-        return self.get_section(section, **options).keys()
+        return list(self.get_section(section, **options).keys())
 
     def get_all(self, **options):
         """
