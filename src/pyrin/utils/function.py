@@ -7,7 +7,6 @@ import inspect
 
 import pyrin.utils.misc as misc_utils
 
-from pyrin.core.structs import DTO
 from pyrin.utils.exceptions import IsNotUserDefinedFunctionError
 
 
@@ -75,13 +74,15 @@ def get_fully_qualified_name(func):
     return misc_utils.try_get_fully_qualified_name(func)
 
 
-def get_inputs(func, args, kwargs, **options):
+def get_inputs(func, args, kwargs, container=dict, **options):
     """
-    gets a hashable dict of all function passed inputs.
+    gets given function inputs as a dict from provided args and kwargs.
 
     :param function func: function to get its inputs.
     :param tuple args: a tuple of function positional inputs.
     :param dict kwargs: a dictionary of function keyword arguments.
+    :param type container: a dict like object to be used for returning inputs.
+                           defaults to dict if not provided.
 
     :keyword bool remove_self: specifies that `self` parameter must be
                                removed from inputs. defaults to False
@@ -95,15 +96,14 @@ def get_inputs(func, args, kwargs, **options):
     """
 
     if len(args) == 0 and len(kwargs) == 0:
-        return DTO()
+        return container()
 
     remove_self = options.get('remove_self', False)
     remove_cls = options.get('remove_cls', False)
 
     signature = inspect.signature(func)
     bounded_args = signature.bind_partial(*args, **kwargs)
-    inputs = DTO(bounded_args.kwargs)
-    inputs.update(bounded_args.arguments)
+    inputs = container(bounded_args.arguments, **bounded_args.kwargs)
 
     if remove_self is True:
         inputs.pop('self', None)
