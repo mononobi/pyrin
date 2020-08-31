@@ -103,7 +103,7 @@ def get_inputs(func, args, kwargs, container=dict, **options):
 
     signature = inspect.signature(func)
     bounded_args = signature.bind_partial(*args, **kwargs)
-    inputs = container(bounded_args.arguments, **bounded_args.kwargs)
+    inputs = dict(bounded_args.arguments, **bounded_args.kwargs)
 
     if remove_self is True:
         inputs.pop('self', None)
@@ -111,4 +111,4 @@ def get_inputs(func, args, kwargs, container=dict, **options):
     if remove_cls is True:
         inputs.pop('cls', None)
 
-    return inputs
+    return container(inputs)
