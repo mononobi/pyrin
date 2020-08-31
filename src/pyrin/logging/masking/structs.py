@@ -29,7 +29,8 @@ class MaskedDict(CoreImmutableDict):
         """
         initializes an instance of MaskedDict.
 
-        :param dict | MaskedDict | Headers mapping: values to create a dict form them.
+        :param dict | MaskedDict | Headers | iterable mapping: values to create a
+                                                               dict form them.
         """
 
         masked_kwargs = {}
