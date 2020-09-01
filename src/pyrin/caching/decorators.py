@@ -7,74 +7,294 @@ from functools import update_wrapper
 
 from werkzeug.utils import cached_property as cached_property_base
 
-from pyrin.caching.structs import SharedContainer
-from pyrin.caching.key_providers import TypedKeyProvider
+import pyrin.caching.services as caching_services
 
 
-def local_cached(*old_method_or_property, container=None):
+def cache(*args, **kwargs):
     """
-    decorator to convert a method, property or function into a lazy one.
+    decorator to register a caching handler.
 
-    the result will be calculated once and then it will be cached. each result
-    will be cached using a tuple of class type, method or property or function
-    name, inputs and current component key as a key into the provided container.
-    so if used on instance or class methods, all instances of the same class type
-    will have access to the same shared cache storage. if you want to use a cache per
-    each instance of a class type, you could use `cached_property` or `cached_method`
-    decorators.
+    :param object args: caching handler class constructor arguments.
+    :param object kwargs: caching handler class constructor keyword arguments.
 
-    note that if this decorator is used for stand-alone functions, the class type
-    part of the generated key will always be None.
+    :keyword bool replace: specifies that if there is another registered
+                           handler with the same name, replace it with
+                           the new one, otherwise raise an error.
+                           defaults to False.
 
-    :param function | property old_method_or_property: the original decorated
-                                                       method or property.
+    :keyword int limit: limit count of cached items.
+                        if not provided, it will be get
+                        from `caching` config store.
+                        if you want to remove count limit,
+                        you could pass `caching.globals.NO_LIMIT`
+                        as input. this is only used in complex handlers.
 
-    :param type[SharedContainer] container: container class type to be used
-                                            as cache storage.
-                                            if not provided, defaults to
-                                            an application level shared
-                                            container. it must be a subclass
-                                            of `SharedContainer` class.
+    :keyword int timeout: default timeout of cached items.
+                          if not provided, it will be get
+                          from `caching` config store.
+                          this is only used in complex handlers.
 
-    :returns: method, property or function result.
+    :keyword bool use_lifo: specifies that items of the cache must
+                            be removed in lifo order. if not provided,
+                            it will be get from `caching` config store.
+                            this is only used in complex handlers.
+
+    :keyword int clear_count: number of old items to be removed from cache when
+                              the cache is full. if not provided, it will be get
+                              from `caching` config store.
+                              note that reducing this value to extremely low values
+                              will cause a performance issue when the cache becomes full.
+                              this is only used in complex handlers.
+
+    :keyword bool consider_user: specifies that current user must be included in
+                                 key generation. if not provided, it will be get
+                                 from `caching` config store.
+
+    :raises InvalidCachingHandlerTypeError: invalid caching handler type error.
+    :raises DuplicatedCachingHandlerError: duplicated caching handler error.
+
+    :returns: caching handler class.
+    :rtype: type
     """
 
-    def decorator(method_or_property):
+    def decorator(cls):
         """
-        decorates the given method, property or function and makes it a lazy one.
+        decorates the given class and registers an instance
+        of it into available caching handlers.
 
-        :param function | property method_or_property: decorated method, property or function.
+        :param type cls: caching handler class.
 
-        :returns: method, property or function result.
+        :returns: caching handler class.
+        :rtype: type
+        """
+
+        instance = cls(*args, **kwargs)
+        caching_services.register_caching_handler(instance, **kwargs)
+
+        return cls
+
+    return decorator
+
+
+def permanent(*old_method):
+    """
+    decorator to convert a method or property into a lazy one.
+
+    note that this cache type is permanent and will not consider method inputs
+    in caching. the result will be calculated once and then it will be cached.
+    each result will be cached using a tuple of class type and method name as
+    a key in the cache. so if used on instance or class methods, all instances
+    of the same class type will have access to the same shared cache. if you want
+    to use a cache per each instance of a class type, you could use `cached_property`
+    or `cached_method` decorators.
+
+    note that this decorator should only be used on instance or class methods or
+    properties. otherwise the result would be inconsistent.
+    for stand-alone functions use `permanent_function` decorator.
+
+    :param function | property old_method: the original decorated method or property.
+
+    :returns: method or property result.
+    """
+
+    def decorator(method):
+        """
+        decorates the given method or property and makes it a lazy one.
+
+        :param function | property method: decorated method or property.
+
+        :returns: method or property result.
+        """
+
+        def wrapper(self):
+            """
+            decorates the given method or property and makes it a lazy one.
+
+            :returns: method or property result.
+            """
+
+            result = caching_services.try_get('permanent', method, self)
+            if result is not None:
+                return result
+
+            result = method(self)
+            caching_services.try_set('permanent', result, method, self)
+            return result
+
+        return update_wrapper(wrapper, method)
+
+    if len(old_method) > 0:
+        return decorator(old_method[0])
+
+    return decorator
+
+
+def permanent_function(*old_func):
+    """
+    decorator to convert a function into a lazy one.
+
+    note that this cache type is permanent and will not consider function inputs
+    in caching. the result will be calculated once and then it will be cached.
+    each result will be cached using a tuple of function fully qualified name as
+    a key in the cache.
+
+    note that this decorator should only be used on stand-alone functions.
+    otherwise the result would be inconsistent. for instance or class methods
+    use `permanent` decorator.
+
+    :param function old_func: the original decorated function.
+
+    :returns: function result.
+    """
+
+    def decorator(func):
+        """
+        decorates the given function and makes it a lazy one.
+
+        :param function func: decorated function.
+
+        :returns: function result.
+        """
+
+        def wrapper():
+            """
+            decorates the given function and makes it a lazy one.
+
+            :returns: function result.
+            """
+
+            result = caching_services.try_get('permanent', func, None)
+            if result is not None:
+                return result
+
+            result = func()
+            caching_services.try_set('permanent', result, func, None)
+            return result
+
+        return update_wrapper(wrapper, func)
+
+    if len(old_func) > 0:
+        return decorator(old_func[0])
+
+    return decorator
+
+
+def extended_permanent(*old_func, **options):
+    """
+    decorator to convert a method or function into a lazy one.
+
+    note that this cache type is permanent but will consider function inputs
+    in caching. the result will be calculated once and then it will be cached.
+    each result will be cached using a tuple of parent class type, function fully
+    qualified name, inputs, current user and component key as a key in the cache.
+
+    that this decorator could be used on both instance or class level methods and
+    properties or stand-alone functions.
+
+    :param function old_func: the original decorated method or function.
+
+    :keyword bool consider_user: specifies that current user must be included in
+                                 key generation. if not provided, it will be get
+                                 from `caching` config store.
+
+    :returns: function result.
+    """
+
+    def decorator(func):
+        """
+        decorates the given method or function and makes it a lazy one.
+
+        :param function func: decorated method or function.
+
+        :returns: function result.
         """
 
         def wrapper(*args, **kwargs):
             """
-            decorates the given method, property or function and makes it a lazy one.
+            decorates the given method or function and makes it a lazy one.
 
-            :param object args: positional arguments of method.
-            :keyword object kwargs: keyword arguments of method.
+            :param object args: function positional arguments.
+            :param object kwargs: function keyword arguments.
 
-            :returns: method, property or function result.
+            :returns: function result.
             """
 
-            storage = container
-            if storage is None:
-                storage = SharedContainer
-
-            key_provider = TypedKeyProvider(method_or_property, args, kwargs)
-            result = storage.get(key_provider.key)
+            result = caching_services.try_get('extended.permanent', func,
+                                              args, kwargs, **options)
             if result is not None:
                 return result
 
-            result = method_or_property(*args, **kwargs)
-            storage.set(key_provider.key, result)
+            result = func(*args, **kwargs)
+            caching_services.try_set('extended.permanent', result, func,
+                                     args, kwargs, **options)
             return result
 
-        return update_wrapper(wrapper, method_or_property)
+        return update_wrapper(wrapper, func)
 
-    if len(old_method_or_property) > 0:
-        return decorator(old_method_or_property[0])
+    if len(old_func) > 0:
+        return decorator(old_func[0])
+
+    return decorator
+
+
+def cached(*old_method, **options):
+    """
+    decorator to convert a method or function into a lazy one.
+
+    note that this cache type supports expire time and will consider method inputs
+    in caching. the result will be calculated once and then it will be cached.
+    each result will be cached using a tuple of class type, method name, inputs,
+    current user and component key as a key in the cache.
+
+    that this decorator could be used on both instance or class level methods and
+    properties or stand-alone functions.
+
+    :param function | property old_method: the original decorated method or function.
+
+    :keyword bool consider_user: specifies that current user must be included in
+                                 key generation. if not provided, it will be get
+                                 from `caching` config store.
+
+    :keyword int timeout: timeout for given key in milliseconds.
+                          if not provided, it will be get from
+                          `caching` config store.
+
+    :returns: method or function result.
+    """
+
+    def decorator(method):
+        """
+        decorates the given method or function and makes it a lazy one.
+
+        :param function | property method: decorated method or function.
+
+        :returns: method or function result.
+        """
+
+        def wrapper(*args, **kwargs):
+            """
+            decorates the given method or function and makes it a lazy one.
+
+            :param object args: function positional arguments.
+            :param object kwargs: function keyword arguments.
+
+            :returns: method or function result.
+            """
+
+            result = caching_services.try_get('complex', method, args,
+                                              kwargs, **options)
+            if result is not None:
+                return result
+
+            result = method(*args, **kwargs)
+            caching_services.try_set('complex', result, method,
+                                     args, kwargs, **options)
+            return result
+
+        return update_wrapper(wrapper, method)
+
+    if len(old_method) > 0:
+        return decorator(old_method[0])
 
     return decorator
 

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-caching handlers package.
+caching containers package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class CachingHandlersPackage(Package):
+class CachingContainersPackage(Package):
     """
-    caching handlers package class.
+    caching containers package class.
     """
 
     NAME = __name__
