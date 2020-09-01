@@ -13,6 +13,7 @@ import pyrin.configuration.services as config_services
 from pyrin.core.globals import _
 from pyrin.core.structs import DTO, CoreImmutableMultiDict
 from pyrin.processor.request.wrappers.structs import RequestContext
+from pyrin.security.users.structs import UserDTO
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
@@ -425,6 +426,9 @@ class CoreRequest(Request):
         if self._user is not None:
             raise RequestUserAlreadySetError('Request user for current request '
                                              'has been already set.')
+
+        if isinstance(user, dict):
+            user = UserDTO(user)
 
         self._user = user
 

@@ -78,37 +78,26 @@ def get_inputs(func, args, kwargs, container=dict, **options):
     """
     gets given function inputs as a dict from provided args and kwargs.
 
+    it also returns the parent class or instance of function if available.
+
     :param function func: function to get its inputs.
     :param tuple args: a tuple of function positional inputs.
     :param dict kwargs: a dictionary of function keyword arguments.
     :param type container: a dict like object to be used for returning inputs.
                            defaults to dict if not provided.
 
-    :keyword bool remove_self: specifies that `self` parameter must be
-                               removed from inputs. defaults to False
-                               if not provided.
-
-    :keyword bool remove_cls: specifies that `cls` parameter must be
-                              removed from inputs. defaults to False
-                              if not provided.
-
-    :rtype: dict
+    :returns: tuple[dict inputs, object | type parent]
+    :rtype: tuple[dict, object | type]
     """
 
     if len(args) == 0 and len(kwargs) == 0:
         return container()
 
-    remove_self = options.get('remove_self', False)
-    remove_cls = options.get('remove_cls', False)
-
     signature = inspect.signature(func)
     bounded_args = signature.bind_partial(*args, **kwargs)
     inputs = dict(bounded_args.arguments, **bounded_args.kwargs)
 
-    if remove_self is True:
-        inputs.pop('self', None)
+    parent = inputs.pop('self', None)
+    parent = inputs.pop('cls', parent)
 
-    if remove_cls is True:
-        inputs.pop('cls', None)
-
-    return container(inputs)
+    return container(inputs), parent
