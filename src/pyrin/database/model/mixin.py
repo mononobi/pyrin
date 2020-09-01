@@ -27,7 +27,7 @@ import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.misc as misc_utils
 
-from pyrin.caching.decorators import local_cached
+from pyrin.caching.decorators import permanent
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -35,8 +35,6 @@ from pyrin.database.services import get_current_store
 from pyrin.core.structs import CoreObject, DTO
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
-from pyrin.database.model.cache import ColumnCache, PrimaryKeyCache, \
-    ForeignKeyCache, RelationshipCache, HybridPropertyCache, AttributeCache, MetadataCache
 
 
 class ColumnMixin(CoreObject):
@@ -47,7 +45,7 @@ class ColumnMixin(CoreObject):
     """
 
     @property
-    @local_cached(container=ColumnCache)
+    @permanent
     def all_columns(self):
         """
         gets all column names of this entity.
@@ -61,7 +59,7 @@ class ColumnMixin(CoreObject):
         return self.exposed_columns + self.not_exposed_columns
 
     @property
-    @local_cached(container=ColumnCache)
+    @permanent
     def exposed_columns(self):
         """
         gets exposed column names of this entity.
@@ -84,7 +82,7 @@ class ColumnMixin(CoreObject):
         return columns
 
     @property
-    @local_cached(container=ColumnCache)
+    @permanent
     def not_exposed_columns(self):
         """
         gets not exposed column names of this entity.
@@ -115,7 +113,7 @@ class RelationshipMixin(CoreObject):
     """
 
     @property
-    @local_cached(container=RelationshipCache)
+    @permanent
     def relationships(self):
         """
         gets all relationship property names of this entity.
@@ -128,7 +126,7 @@ class RelationshipMixin(CoreObject):
         return self.exposed_relationships + self.not_exposed_relationships
 
     @property
-    @local_cached(container=RelationshipCache)
+    @permanent
     def exposed_relationships(self):
         """
         gets exposed relationship property names of this entity.
@@ -145,7 +143,7 @@ class RelationshipMixin(CoreObject):
         return relationships
 
     @property
-    @local_cached(container=RelationshipCache)
+    @permanent
     def not_exposed_relationships(self):
         """
         gets not exposed relationship property names of this entity.
@@ -170,7 +168,7 @@ class HybridPropertyMixin(CoreObject):
     """
 
     @property
-    @local_cached(container=HybridPropertyCache)
+    @permanent
     def all_hybrid_properties(self):
         """
         gets all hybrid property names of this entity.
@@ -183,7 +181,7 @@ class HybridPropertyMixin(CoreObject):
         return self.exposed_hybrid_properties + self.not_exposed_hybrid_properties
 
     @property
-    @local_cached(container=HybridPropertyCache)
+    @permanent
     def exposed_hybrid_properties(self):
         """
         gets exposed hybrid property names of this entity.
@@ -203,7 +201,7 @@ class HybridPropertyMixin(CoreObject):
         return hybrid_properties
 
     @property
-    @local_cached(container=HybridPropertyCache)
+    @permanent
     def not_exposed_hybrid_properties(self):
         """
         gets not exposed hybrid property names of this entity.
@@ -279,7 +277,7 @@ class PrimaryKeyMixin(CoreObject):
             return tuple(getattr(self, col) for col in columns)
 
     @property
-    @local_cached(container=PrimaryKeyCache)
+    @permanent
     def primary_key_columns(self):
         """
         gets all primary key column names of this entity.
@@ -292,7 +290,7 @@ class PrimaryKeyMixin(CoreObject):
         return self.exposed_primary_key_columns + self.not_exposed_primary_key_columns
 
     @property
-    @local_cached(container=PrimaryKeyCache)
+    @permanent
     def exposed_primary_key_columns(self):
         """
         gets the exposed primary key column names of this entity.
@@ -312,7 +310,7 @@ class PrimaryKeyMixin(CoreObject):
         return pk
 
     @property
-    @local_cached(container=PrimaryKeyCache)
+    @permanent
     def not_exposed_primary_key_columns(self):
         """
         gets not exposed primary key column names of this entity.
@@ -340,7 +338,7 @@ class ForeignKeyMixin(CoreObject):
     """
 
     @property
-    @local_cached(container=ForeignKeyCache)
+    @permanent
     def foreign_key_columns(self):
         """
         gets all foreign key column names of this entity.
@@ -353,7 +351,7 @@ class ForeignKeyMixin(CoreObject):
         return self.exposed_foreign_key_columns + self.not_exposed_foreign_key_columns
 
     @property
-    @local_cached(container=ForeignKeyCache)
+    @permanent
     def exposed_foreign_key_columns(self):
         """
         gets the exposed foreign key column names of this entity.
@@ -374,7 +372,7 @@ class ForeignKeyMixin(CoreObject):
         return fk
 
     @property
-    @local_cached(container=ForeignKeyCache)
+    @permanent
     def not_exposed_foreign_key_columns(self):
         """
         gets not exposed foreign key column names of this entity.
@@ -404,7 +402,7 @@ class AttributeMixin(CoreObject):
     """
 
     @property
-    @local_cached(container=AttributeCache)
+    @permanent
     def all_attributes(self):
         """
         gets all attribute names of current entity.
@@ -417,7 +415,7 @@ class AttributeMixin(CoreObject):
         return self.all_exposed_attributes + self.all_not_exposed_attributes
 
     @property
-    @local_cached(container=AttributeCache)
+    @permanent
     def all_exposed_attributes(self):
         """
         gets all exposed attribute names of current entity.
@@ -433,7 +431,7 @@ class AttributeMixin(CoreObject):
             self.exposed_columns + self.exposed_relationships + self.exposed_hybrid_properties
 
     @property
-    @local_cached(container=AttributeCache)
+    @permanent
     def all_not_exposed_attributes(self):
         """
         gets all not exposed attribute names of current entity.
@@ -1333,7 +1331,7 @@ class MetadataMixin(CoreObject):
         return cls._table
 
     @declared_attr
-    @local_cached(container=MetadataCache)
+    @permanent
     def __table_args__(cls):
         """
         gets the table args of current entity type.
@@ -1364,7 +1362,7 @@ class MetadataMixin(CoreObject):
         return extra_args + (table_args,)
 
     @declared_attr
-    @local_cached(container=MetadataCache)
+    @permanent
     def __mapper_args__(cls):
         """
         gets the mapper args of current entity type.
