@@ -44,6 +44,54 @@ def get_caching_handler(name):
     return get_component(CachingPackage.COMPONENT_NAME).get_caching_handler(name)
 
 
+def contains(name, key):
+    """
+    gets a value indicating that given key is existed in the cached items of given handler.
+
+    :param str name: name of caching handler.
+    :param object key: key to be checked for existence.
+
+    :raises CachingHandlerNotFoundError: caching handler not found error.
+
+    :rtype: bool
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).contains(name, key)
+
+
+def pop(name, key, default=None):
+    """
+    pops the given key from cached items of given handler and returns its value.
+
+    if key does not exist, it returns None or the specified default value.
+
+    :param str name: name of caching handler.
+    :param object key: key to get its value.
+    :param object default: value to be returned if key is not present.
+
+    :raises CachingHandlerNotFoundError: caching handler not found error.
+
+    :returns: object
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).pop(name, key, default=default)
+
+
+def remove(name, key):
+    """
+    removes the given key from cached items of given handler.
+
+    it does nothing if the key is not present in the cache.
+
+    :param str name: name of caching handler.
+    :param object key: key to be removed.
+
+    :raises CachingHandlerNotFoundError: caching handler not found error.
+    """
+
+    get_component(CachingPackage.COMPONENT_NAME).remove(name, key)
+
+
 def clear(name, **options):
     """
     clears a cache with given name.
