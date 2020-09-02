@@ -61,7 +61,7 @@ def get_fully_qualified_name(func):
     :rtype: str
     """
 
-    return misc_utils.try_get_fully_qualified_name(func)
+    return '{module}.{name}'.format(module=func.__module__, name=func.__name__)
 
 
 def get_inputs(func, args, kwargs, container=dict, **options):
@@ -81,7 +81,7 @@ def get_inputs(func, args, kwargs, container=dict, **options):
     """
 
     if len(args) == 0 and len(kwargs) == 0:
-        return container()
+        return container(), None
 
     signature = inspect.signature(func)
     bounded_args = signature.bind_partial(*args, **kwargs)
