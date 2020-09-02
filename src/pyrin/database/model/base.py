@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
-    HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin
+    HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin, ModelCacheMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
@@ -15,7 +15,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  RelationshipMixin, HybridPropertyMixin,
                  AttributeMixin, CRUDMixin,
                  QueryMixin, ConverterMixin,
-                 MetadataMixin):
+                 MetadataMixin, ModelCacheMixin):
     """
     base entity class.
 
