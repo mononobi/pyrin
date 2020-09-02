@@ -92,7 +92,7 @@ def remove(name, key):
     get_component(CachingPackage.COMPONENT_NAME).remove(name, key)
 
 
-def clear(name, **options):
+def clear(name):
     """
     clears a cache with given name.
 
@@ -101,7 +101,7 @@ def clear(name, **options):
     :raises CachingHandlerNotFoundError: caching handler not found error.
     """
 
-    get_component(CachingPackage.COMPONENT_NAME).clear(name, **options)
+    get_component(CachingPackage.COMPONENT_NAME).clear(name)
 
 
 def set(name, key, value, **options):

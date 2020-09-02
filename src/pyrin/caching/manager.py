@@ -138,7 +138,7 @@ class CachingManager(Manager):
         cache = self.get_caching_handler(name)
         cache.remove(key)
 
-    def clear(self, name, **options):
+    def clear(self, name):
         """
         clears a cache with given name.
 
