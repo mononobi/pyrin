@@ -7,8 +7,6 @@ import inspect
 
 import pyrin.utils.misc as misc_utils
 
-from pyrin.utils.exceptions import IsNotUserDefinedFunctionError
-
 
 def get_doc(func, include_returns=True):
     """
@@ -60,16 +58,8 @@ def get_fully_qualified_name(func):
                           it must be a stand-alone function, not an
                           instance or class method.
 
-    :raises IsNotUserDefinedFunctionError: is not user defined function error.
-
     :rtype: str
     """
-
-    if not inspect.isfunction(func):
-        raise IsNotUserDefinedFunctionError('The provided parameter [{function}] is not a '
-                                            'user defined stand-alone function. use the method '
-                                            '"pyrin.utils.misc.try_get_fully_qualified_name" '
-                                            'for other object types.')
 
     return misc_utils.try_get_fully_qualified_name(func)
 

@@ -294,8 +294,13 @@ class CachingHandlerBase(AbstractCachingHandler):
         :rtype: int
         """
 
-        parent_type = self._get_parent_type(parent)
-        name = func_utils.get_fully_qualified_name(func)
+        parent_type = None
+        name = func.__name__
+        if parent is None:
+            name = func_utils.get_fully_qualified_name(func)
+        else:
+            parent_type = self._get_parent_type(parent)
+
         return hash((parent_type, name))
 
     @property
@@ -437,8 +442,14 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
         cacheable_inputs, parent = func_utils.get_inputs(func, inputs, kw_inputs,
                                                          CacheableDict)
-        parent_type = self._get_parent_type(parent)
-        name = func_utils.get_fully_qualified_name(func)
+
+        parent_type = None
+        name = func.__name__
+        if parent is None:
+            name = func_utils.get_fully_qualified_name(func)
+        else:
+            parent_type = self._get_parent_type(parent)
+
         component_key = session_services.get_safe_component_custom_key()
         return hash((parent_type, name, cacheable_inputs, current_user, component_key))
 
