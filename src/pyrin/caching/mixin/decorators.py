@@ -18,7 +18,7 @@ def fast_cache(*old_method):
     `TypedCacheMixin` class.
 
     this type of caches are implemented to be used where performance is critical.
-    it has as few as possible overhead even on single usage.
+    it has as few overhead as possible even on single usage.
 
     :param function | property old_method: the original decorated method or property.
 
