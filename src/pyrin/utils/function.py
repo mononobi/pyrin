@@ -5,8 +5,6 @@ utils function module.
 
 import inspect
 
-import pyrin.utils.misc as misc_utils
-
 
 def get_doc(func, include_returns=True):
     """
