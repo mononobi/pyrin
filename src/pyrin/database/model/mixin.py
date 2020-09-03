@@ -18,11 +18,12 @@ import inspect
 
 from abc import abstractmethod
 
-from sqlalchemy import inspect as sqla_inspect
+from sqlalchemy import inspect as sqla_inspect, TIMESTAMP
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
+import pyrin.globalization.datetime.services as datetime_services
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.misc as misc_utils
@@ -30,6 +31,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
+from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
@@ -1468,3 +1470,17 @@ class ModelCacheMixin(TypedCacheMixin):
     """
 
     _container = {}
+
+
+class HistoryMixin(CoreObject):
+    """
+    history mixin class.
+
+    this class adds `created_on` and `modified_on` columns into its subclasses.
+    """
+
+    created_on = CoreColumn(name='created_on', type_=TIMESTAMP(timezone=True),
+                            nullable=False, default=datetime_services.now)
+
+    modified_on = CoreColumn(name='modified_on', type_=TIMESTAMP(timezone=True),
+                             nullable=True, onupdate=datetime_services.now)
