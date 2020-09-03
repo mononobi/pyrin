@@ -5,12 +5,11 @@ permission manager module.
 
 from abc import abstractmethod
 
-import pyrin.converters.serializer.services as serializer_services
+import pyrin.database.bulk.services as bulk_services
 
 from pyrin.core.globals import SECURE_FALSE
 from pyrin.core.structs import Context, Manager
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.database.services import get_current_store
 from pyrin.security.permission import PermissionPackage
 from pyrin.security.permission.base import PermissionBase
 from pyrin.security.permission.exceptions import InvalidPermissionTypeError, \
@@ -80,9 +79,9 @@ class PermissionManager(Manager):
         needs_insert = list(set(entities).difference(set(needs_update)))
 
         if needs_insert:
-            self._bulk_insert(needs_insert)
+            bulk_services.insert(*needs_insert, exposed_only=SECURE_FALSE)
         if needs_update:
-            self._bulk_update(needs_update)
+            bulk_services.update(*needs_update, exposed_only=SECURE_FALSE)
 
     @abstractmethod
     def _exists(self, *primary_key):
@@ -103,29 +102,3 @@ class PermissionManager(Manager):
         """
 
         raise CoreNotImplementedError()
-
-    def _bulk_insert(self, entities):
-        """
-        bulk inserts the given permission entities.
-
-        :param list[BaseEntity] entities: permission entities to be inserted.
-        """
-
-        if len(entities) > 0:
-            store = get_current_store()
-            store.bulk_insert_mappings(type(entities[0]),
-                                       serializer_services.serialize(entities,
-                                                                     exposed_only=SECURE_FALSE))
-
-    def _bulk_update(self, entities):
-        """
-        bulk updates the given permission entities.
-
-        :param list[BaseEntity] entities: permission entities to be updated.
-        """
-
-        if len(entities) > 0:
-            store = get_current_store()
-            store.bulk_update_mappings(type(entities[0]),
-                                       serializer_services.serialize(entities,
-                                                                     exposed_only=SECURE_FALSE))
