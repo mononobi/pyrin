@@ -15,6 +15,11 @@ def insert(*entities, **options):
 
     :param BaseEntity entities: entities to be inserted.
 
+    :keyword int chunk_size: chunk size to insert values.
+                             after each chunk, store will be flushed.
+                             if not provided, all values will be inserted
+                             in a single call and no flush will occur.
+
     :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                       which has `exposed=False` or its name
                                                       starts with underscore `_`, should not
@@ -133,6 +138,11 @@ def update(*entities, **options):
     note that entities must be from the same type.
 
     :param BaseEntity entities: entities to be updated.
+
+    :keyword int chunk_size: chunk size to update values.
+                             after each chunk, store will be flushed.
+                             if not provided, all values will be updated
+                             in a single call and no flush will occur.
 
     :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                       which has `exposed=False` or its name

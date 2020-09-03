@@ -3,6 +3,8 @@
 database bulk manager module.
 """
 
+import math
+
 import pyrin.converters.serializer.services as serializer_services
 
 from pyrin.database.bulk import DatabaseBulkPackage
@@ -25,6 +27,11 @@ class DatabaseBulkManager(Manager):
 
         :param BaseEntity entities: entities to be inserted.
 
+        :keyword int chunk_size: chunk size to insert values.
+                                 after each chunk, store will be flushed.
+                                 if not provided, all values will be inserted
+                                 in a single call and no flush will occur.
+
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name
                                                           starts with underscore `_`, should not
@@ -133,10 +140,25 @@ class DatabaseBulkManager(Manager):
                             `depth` value than this limit, will cause an error.
         """
 
-        if len(entities) > 0:
+        size = len(entities)
+        if size > 0:
             store = get_current_store()
-            store.bulk_insert_mappings(type(entities[0]),
-                                       serializer_services.serialize(entities, **options))
+            chunk = options.get('chunk_size', None)
+            entity_type = type(entities[0])
+            serialized_values = serializer_services.serialize(entities, **options)
+            if chunk is None:
+                chunk = 0
+            chunk = int(chunk)
+            if size <= chunk or chunk <= 0:
+                store.bulk_insert_mappings(entity_type, serialized_values)
+                if chunk > 0:
+                    store.flush()
+            else:
+                rounds = math.ceil(size / chunk)
+                for i in range(rounds):
+                    ready = serialized_values[i * chunk:chunk * (i + 1)]
+                    store.bulk_insert_mappings(entity_type, ready)
+                    store.flush()
 
     def update(self, *entities, **options):
         """
@@ -146,6 +168,11 @@ class DatabaseBulkManager(Manager):
 
         :param BaseEntity entities: entities to be updated.
 
+        :keyword int chunk_size: chunk size to update values.
+                                 after each chunk, store will be flushed.
+                                 if not provided, all values will be updated
+                                 in a single call and no flush will occur.
+
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name
                                                           starts with underscore `_`, should not
@@ -254,7 +281,22 @@ class DatabaseBulkManager(Manager):
                             `depth` value than this limit, will cause an error.
         """
 
-        if len(entities) > 0:
+        size = len(entities)
+        if size > 0:
             store = get_current_store()
-            store.bulk_update_mappings(type(entities[0]),
-                                       serializer_services.serialize(entities, **options))
+            chunk = options.get('chunk_size', None)
+            entity_type = type(entities[0])
+            serialized_values = serializer_services.serialize(entities, **options)
+            if chunk is None:
+                chunk = 0
+            chunk = int(chunk)
+            if size <= chunk or chunk <= 0:
+                store.bulk_update_mappings(entity_type, serialized_values)
+                if chunk > 0:
+                    store.flush()
+            else:
+                rounds = math.ceil(size / chunk)
+                for i in range(rounds):
+                    ready = serialized_values[i * chunk:chunk * (i + 1)]
+                    store.bulk_update_mappings(entity_type, ready)
+                    store.flush()
