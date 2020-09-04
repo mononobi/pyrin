@@ -75,8 +75,7 @@ def extended_fast_cache(*old_method, **options):
 
     important note: if you want to use this decorator inside pyrin code, you must
     add `pyrin.security.session` into depends list of the package that uses this
-    decorator. you must also do this in any pyrin package that defines entity classes.
-    this is not required in top level application.
+    decorator. this is not required in top level application.
 
     :param function | property old_method: the original decorated method or property.
 
