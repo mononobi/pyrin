@@ -229,7 +229,7 @@ def generate_key(name, func, *extra_keys, **options):
     generates a cache key from given inputs for the given cache.
 
     :param str name: caching handler name.
-    :param function func: function to to get its result.
+    :param function func: function to to be cached.
 
     :param type | object parent: parent class or instance of given function.
                                  this should only passed to simple permanent handlers.

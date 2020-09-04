@@ -344,7 +344,7 @@ class CachingHandlerBase(AbstractCachingHandler):
         """
         generates a cache key from given inputs.
 
-        :param function func: function to to get its result.
+        :param function func: function to to be cached.
         :param type | object parent: parent class or instance of given function.
 
         :returns: hash of generated key.
@@ -490,7 +490,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
         """
         generates a cache key from given inputs.
 
-        :param function func: function to to get its result.
+        :param function func: function to to be cached.
         :param tuple inputs: function positional arguments.
         :param dict kw_inputs: function keyword arguments.
 
