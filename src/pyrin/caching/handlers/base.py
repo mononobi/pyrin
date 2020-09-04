@@ -386,12 +386,14 @@ class CachingHandlerBase(AbstractCachingHandler):
         get the statistic info about cached items.
 
         :returns: dict(int count: items count,
-                       datetime last_cleared_time: last cleared time)
+                       datetime last_cleared_time: last cleared time,
+                       bool persistent: persistent caching handler)
         :rtype: dict
         """
 
         return dict(count=self.count,
-                    last_cleared_time=self.last_cleared_time)
+                    last_cleared_time=self.last_cleared_time,
+                    persistent=self.persistent)
 
     @property
     def persistent(self):
@@ -537,14 +539,15 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
         :returns: dict(int count: items count,
                        datetime last_cleared_time: last cleared time,
+                       bool persistent: persistent caching handler,
                        bool consider_user: consider user in cache key)
         :rtype: dict
         """
 
         base_stats = super().stats
         stats = dict(consider_user=self.consider_user)
-
-        return base_stats.update(stats)
+        base_stats.update(stats)
+        return base_stats
 
 
 class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachingHandler):
@@ -984,6 +987,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         :returns: dict(int count: items count,
                        datetime last_cleared_time: last cleared time,
+                       bool persistent: persistent caching handler,
                        bool consider_user: consider user in cache key,
                        int hit: hit count,
                        int miss: miss count,
@@ -992,7 +996,6 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                        int timeout: items default timeout,
                        bool use_lifo: use lifo order,
                        int clear_count: clear count,
-                       bool persistent: persistent cache,
                        int chunk_size: chunk size)
         :rtype: dict
         """
@@ -1007,10 +1010,10 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                      timeout=self.timeout,
                      use_lifo=self.use_lifo,
                      clear_count=self.clear_count,
-                     persistent=self.persistent,
                      chunk_size=self.chunk_size)
 
-        return base_stats.update(stats)
+        base_stats.update(stats)
+        return base_stats
 
     @property
     def persistent(self):
