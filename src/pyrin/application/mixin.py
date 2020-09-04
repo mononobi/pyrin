@@ -89,8 +89,8 @@ class SignalMixin(CoreObject):
 
         logging_services.error(message)
 
-        # forcing termination after 10 seconds.
-        signal.alarm(10)
+        # forcing termination after 120 seconds if it was not done.
+        signal.alarm(120)
 
         self._prepare_termination(signal_number)
         sys.exit(options.get('status', 0))
