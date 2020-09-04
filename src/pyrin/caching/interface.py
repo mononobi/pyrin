@@ -118,6 +118,8 @@ class AbstractCachingHandler(CoreObject):
         sets a new value into cached items.
 
         this method will generate cache key from given type and function.
+        if the provided values are not hashable, this method won't raise
+        an error and logs it silently.
 
         :param object value: value to be cached.
         :param object keys: value to be used for key generation.
@@ -134,6 +136,8 @@ class AbstractCachingHandler(CoreObject):
 
         this method will generate cache key from given type and function.
         if key does not exist, it returns None or the specified default value.
+        if the provided values are not hashable, this method won't raise
+        an error and logs it silently.
 
         :param object keys: value to be used for key generation.
         :param object default: value to be returned if key is not present.

@@ -69,6 +69,13 @@ class InvalidChunkSizeError(CachingHandlersException):
     pass
 
 
+class CachePersistentLockTypeIsRequiredError(CachingHandlersException):
+    """
+    cache persistent lock type is required error.
+    """
+    pass
+
+
 class CacheVersionIsRequiredError(CachingHandlersException):
     """
     cache version is required error.

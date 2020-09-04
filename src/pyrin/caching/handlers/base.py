@@ -28,7 +28,8 @@ from pyrin.caching.interface import AbstractCachingHandler, AbstractComplexCachi
 from pyrin.caching.handlers.exceptions import CacheNameIsRequiredError, \
     InvalidCachingContainerTypeError, InvalidCacheItemTypeError, InvalidCacheLimitError, \
     InvalidCacheTimeoutError, InvalidCacheClearCountError, InvalidChunkSizeError, \
-    CacheClearanceLockTypeIsRequiredError, CacheVersionIsRequiredError
+    CacheClearanceLockTypeIsRequiredError, CacheVersionIsRequiredError, \
+    CachePersistentLockTypeIsRequiredError
 
 
 class CachingHandlerBase(AbstractCachingHandler):
@@ -62,6 +63,8 @@ class CachingHandlerBase(AbstractCachingHandler):
     # a class type to hold each item in the cache.
     # it could be overridden in subclasses.
     cache_item_class = None
+
+    LOGGER = logging_services.get_logger('caching')
 
     def __init__(self, *args, **options):
         """
@@ -157,6 +160,37 @@ class CachingHandlerBase(AbstractCachingHandler):
                                       'configs for caching handler [{name}].'
                                       .format(class_name=self, name=self.get_name()))
 
+    def _try_set(self, value, func, parent, *args, **options):
+        """
+        sets a new value into cached items.
+
+        this method will generate cache key from given type and function.
+
+        :param object value: value to be cached.
+        :param function func: function to cache its result.
+        :param type | object parent: parent class or instance of given function.
+        """
+
+        key = self.generate_key(func, parent, *args, **options)
+        self.set(key, value, **options)
+
+    def _try_get(self, func, parent, *args, default=None, **options):
+        """
+        gets the value from cache.
+
+        this method will generate cache key from given type and function.
+        if key does not exist, it returns None or the specified default value.
+
+        :param function func: function to to get its result.
+        :param type | object parent: parent class or instance of given function.
+        :param object default: value to be returned if key is not present.
+
+        :returns: object
+        """
+
+        key = self.generate_key(func, parent, *args, **options)
+        return self.get(key, default=default, **options)
+
     def set(self, key, value, *args, **options):
         """
         sets a new value into cached items.
@@ -192,14 +226,18 @@ class CachingHandlerBase(AbstractCachingHandler):
         sets a new value into cached items.
 
         this method will generate cache key from given type and function.
+        if the provided values are not hashable, this method won't raise
+        an error and logs it silently.
 
         :param object value: value to be cached.
         :param function func: function to cache its result.
         :param type | object parent: parent class or instance of given function.
         """
 
-        key = self.generate_key(func, parent, *args, **options)
-        self.set(key, value, **options)
+        try:
+            self._try_set(value, func, parent, *args, **options)
+        except TypeError as error:
+            self.LOGGER.exception(str(error))
 
     def try_get(self, func, parent, *args, default=None, **options):
         """
@@ -207,6 +245,8 @@ class CachingHandlerBase(AbstractCachingHandler):
 
         this method will generate cache key from given type and function.
         if key does not exist, it returns None or the specified default value.
+        if the provided values are not hashable, this method won't raise
+        an error and logs it silently.
 
         :param function func: function to to get its result.
         :param type | object parent: parent class or instance of given function.
@@ -215,8 +255,11 @@ class CachingHandlerBase(AbstractCachingHandler):
         :returns: object
         """
 
-        key = self.generate_key(func, parent, *args, **options)
-        return self.get(key, default=default, **options)
+        try:
+            return self._try_get(func, parent, *args, default=None, **options)
+        except TypeError as error:
+            self.LOGGER.exception(str(error))
+            return None
 
     def contains(self, key):
         """
@@ -395,7 +438,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
         return config_services.get_section('caching', 'extended.permanent')
 
-    def try_set(self, value, func, inputs, kw_inputs, *args, **options):
+    def _try_set(self, value, func, inputs, kw_inputs, *args, **options):
         """
         sets a new value into cached items.
 
@@ -415,7 +458,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
         key = self.generate_key(func, inputs, kw_inputs, *args, **options)
         self.set(key, value, **options)
 
-    def try_get(self, func, inputs, kw_inputs, *args, default=None, **options):
+    def _try_get(self, func, inputs, kw_inputs, *args, default=None, **options):
         """
         gets the value from cache.
 
@@ -516,7 +559,10 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
     # a lock type to be used on clearing cached items when cache limit is reached.
     clearance_lock_class = None
-    LOGGER = logging_services.get_logger('caching')
+
+    # a lock type to be used on persisting or loading cached items to or from database.
+    # this will only be used in persistent caching handlers.
+    persistent_lock_class = None
 
     def __init__(self, *args, **options):
         """
@@ -565,6 +611,8 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         :raises InvalidCacheTimeoutError: invalid cache timeout error.
         :raises InvalidCacheClearCountError: invalid cache clear count error.
         :raises InvalidChunkSizeError: invalid chunk size error.
+        :raises CachePersistentLockTypeIsRequiredError: cache persistent lock
+                                                        type is required error.
         """
 
         super().__init__(*args, **options)
@@ -623,6 +671,12 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         if persistent is True and chunk_size is not None and chunk_size <= 0:
             raise InvalidChunkSizeError('Persistent cache chunk size must be a positive integer')
 
+        if persistent is True and self.persistent_lock_class is None:
+            raise CachePersistentLockTypeIsRequiredError('Cache persistent lock type is '
+                                                         'required for persistent caching '
+                                                         'handlers.')
+
+        self._persistent_lock = self.persistent_lock_class()
         self._limit = limit
         self._timeout = timeout
         self._use_lifo = use_lifo
@@ -697,8 +751,9 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         """
 
         store = get_current_store()
-        store.query(CacheItemEntity).filter_by(version=version,
-                                               shard_name=shard_name)\
+        store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
+                                               version=version,
+                                               shard_name=shard_name) \
             .delete(synchronize_session=False)
 
     def set(self, key, value, **options):
@@ -763,31 +818,32 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         self._validate_persisting(version)
 
-        shard_name = config_services.get('caching', 'general', 'shard_name')
-        caches = []
-        for item in self.values():
-            if item.is_expired is False:
-                try:
-                    pickled_item = pickle.dumps(item)
-                    entity = CacheItemEntity()
-                    entity.handler_name = self.get_name()
-                    entity.shard_name = shard_name
-                    entity.version = version
-                    entity.key = item.key
-                    entity.item = pickled_item
-                    caches.append(entity)
+        with self._persistent_lock:
+            shard_name = config_services.get('caching', 'general', 'shard_name')
+            caches = []
+            for item in self.values():
+                if item.is_expired is False:
+                    try:
+                        pickled_item = pickle.dumps(item)
+                        entity = CacheItemEntity()
+                        entity.handler_name = self.get_name()
+                        entity.shard_name = shard_name
+                        entity.version = version
+                        entity.key = item.key
+                        entity.item = pickled_item
+                        caches.append(entity)
 
-                except Exception as error:
-                    self.LOGGER.exception(str(error))
+                    except Exception as error:
+                        self.LOGGER.exception(str(error))
 
-        size = len(caches)
-        if size > 0:
-            bulk_services.insert(*caches, exposed_only=SECURE_FALSE,
-                                 chunk_size=self.chunk_size)
+            size = len(caches)
+            if size > 0:
+                bulk_services.insert(*caches, exposed_only=SECURE_FALSE,
+                                     chunk_size=self.chunk_size)
 
-            self.LOGGER.debug('Caching handler [{name}] persisted into database. '
-                              'including [{count}] items.'
-                              .format(name=self.get_name(), count=size))
+                self.LOGGER.debug('Caching handler [{name}] persisted into database. '
+                                  'including [{count}] items.'
+                                  .format(name=self.get_name(), count=size))
 
     def load(self, version, **options):
         """
@@ -801,26 +857,27 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         self._validate_persisting(version)
 
-        shard_name = config_services.get('caching', 'general', 'shard_name')
-        store = get_current_store()
-        items = store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
-                                                       shard_name=shard_name,
-                                                       version=version).all()
-        for entity in items:
-            try:
-                cache_item = pickle.loads(entity.item)
-                self.set(cache_item.key, cache_item.value, timeout=cache_item.timeout)
+        with self._persistent_lock:
+            shard_name = config_services.get('caching', 'general', 'shard_name')
+            store = get_current_store()
+            items = store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
+                                                           shard_name=shard_name,
+                                                           version=version).all()
+            for entity in items:
+                try:
+                    cache_item = pickle.loads(entity.item)
+                    self.set(cache_item.key, cache_item.value, timeout=cache_item.timeout)
 
-            except Exception as error:
-                self.LOGGER.exception(str(error))
+                except Exception as error:
+                    self.LOGGER.exception(str(error))
 
-        size = len(items)
-        if size > 0:
-            self.LOGGER.debug('Caching handler [{name}] loaded from database. '
-                              'including [{count}] items.'
-                              .format(name=self.get_name(), count=size))
+            size = len(items)
+            if size > 0:
+                self.LOGGER.debug('Caching handler [{name}] loaded from database. '
+                                  'including [{count}] items.'
+                                  .format(name=self.get_name(), count=size))
 
-            self._delete_loaded_caches(version, shard_name)
+                self._delete_loaded_caches(version, shard_name)
 
     @property
     def is_full(self):

@@ -147,6 +147,8 @@ def try_set(name, value, func, *extra_keys, **options):
     sets a new value into given cache.
 
     this method will generate cache key from given inputs.
+    if the provided values are not hashable, this method won't raise
+    an error and logs it silently.
 
     :param str name: caching handler name.
     :param object value: value to be cached.
@@ -187,6 +189,8 @@ def try_get(name, func, *extra_keys, default=None, **options):
 
     this method will generate cache key from given inputs.
     if key does not exist, it returns None or the specified default value.
+    if the provided values are not hashable, this method won't raise
+    an error and logs it silently.
 
     :param str name: caching handler name.
     :param function func: function to to get its result.
