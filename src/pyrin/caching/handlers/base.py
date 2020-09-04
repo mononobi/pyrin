@@ -70,32 +70,37 @@ class CachingHandlerBase(AbstractCachingHandler):
         """
         initializes an instance of CachingHandlerBase.
 
+        :raises CacheNameIsRequiredError: cache name is required error.
         :raises InvalidCachingContainerTypeError: invalid caching container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
-        :raises CacheNameIsRequiredError: cache name is required error.
         """
 
         super().__init__()
 
+        if self.cache_name in (None, '') or self.cache_name.isspace():
+            raise CacheNameIsRequiredError('Cache name must be provided for caching '
+                                           'handler [{name}].'.format(name=self))
+
+        self._set_name(self.cache_name)
+
         if self.container_class is None or \
                 not issubclass(self.container_class, CachingContainerBase):
             raise InvalidCachingContainerTypeError('Provided caching container [{container}] '
-                                                   'is not a subclass of [{base}].'
+                                                   'for caching handler [{name}] is not a '
+                                                   'subclass of [{base}].'
                                                    .format(container=self.container_class,
+                                                           name=self.get_name(),
                                                            base=CachingContainerBase))
 
         if self.cache_item_class is None or \
                 not issubclass(self.cache_item_class, CacheItemBase):
-            raise InvalidCacheItemTypeError('Provided cache item [{item}] '
-                                            'is not a subclass of [{base}].'
+            raise InvalidCacheItemTypeError('Provided cache item [{item}] for caching '
+                                            'handler [{name}] is not a subclass of [{base}].'
                                             .format(item=self.cache_item_class,
+                                                    name=self.get_name(),
                                                     base=CacheItemBase))
 
-        if self.cache_name in (None, '') or self.cache_name.isspace():
-            raise CacheNameIsRequiredError('Cache name must be provided.')
-
         self._container = self.container_class()
-        self._set_name(self.cache_name)
         self._last_cleared_time = datetime_services.now()
 
     def _get_parent_type(self, parent):
@@ -415,9 +420,9 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
 
+        :raises CacheNameIsRequiredError: cache name is required error.
         :raises InvalidCachingContainerTypeError: invalid caching container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
-        :raises CacheNameIsRequiredError: cache name is required error.
         """
 
         super().__init__(*args, **options)
@@ -602,9 +607,9 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                                  after each chunk, store will be flushed.
                                  if not provided, will be get from `caching` config store.
 
+        :raises CacheNameIsRequiredError: cache name is required error.
         :raises InvalidCachingContainerTypeError: invalid caching container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
-        :raises CacheNameIsRequiredError: cache name is required error.
         :raises CacheClearanceLockTypeIsRequiredError: cache clearance lock type
                                                        is required error.
         :raises InvalidCacheLimitError: invalid cache limit error.
@@ -619,15 +624,16 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         if self.cache_item_class is None or \
                 not issubclass(self.cache_item_class, ComplexCacheItemBase):
-            raise InvalidCacheItemTypeError('Provided cache item [{item}] '
-                                            'is not a subclass of [{base}].'
+            raise InvalidCacheItemTypeError('Provided cache item [{item}] for caching '
+                                            'handler [{name}] is not a subclass of [{base}].'
                                             .format(item=self.cache_item_class,
+                                                    name=self.get_name(),
                                                     base=ComplexCacheItemBase))
 
         if self.clearance_lock_class is None:
-            raise CacheClearanceLockTypeIsRequiredError('Cache clearance lock type is '
-                                                        'required for complex caching '
-                                                        'handlers.')
+            raise CacheClearanceLockTypeIsRequiredError('Cache clearance lock type for '
+                                                        'caching handler [{name}] is required.'
+                                                        .format(name=self.get_name()))
 
         self._clearance_lock = self.clearance_lock_class()
         self._miss_count = 0
@@ -660,21 +666,29 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
             chunk_size = configs['chunk_size']
 
         if limit != NO_LIMIT and limit <= 0:
-            raise InvalidCacheLimitError('Cache limit must be a positive integer.')
+            raise InvalidCacheLimitError('Cache limit for caching handler '
+                                         '[{name}] must be a positive integer.'
+                                         .format(name=self.get_name()))
 
         if timeout <= 0:
-            raise InvalidCacheTimeoutError('Cache timeout must be a positive integer.')
+            raise InvalidCacheTimeoutError('Cache timeout for caching handler '
+                                           '[{name}] must be a positive integer.'
+                                           .format(name=self.get_name()))
 
         if clear_count <= 0:
-            raise InvalidCacheClearCountError('Cache clear count must be a positive integer.')
+            raise InvalidCacheClearCountError('Cache clear count for caching handler '
+                                              '[{name}] must be a positive integer.'
+                                              .format(name=self.get_name()))
 
         if persistent is True and chunk_size is not None and chunk_size <= 0:
-            raise InvalidChunkSizeError('Persistent cache chunk size must be a positive integer')
+            raise InvalidChunkSizeError('Persistent cache chunk size for caching '
+                                        'handler [{name}] must be a positive integer'
+                                        .format(name=self.get_name()))
 
         if persistent is True and self.persistent_lock_class is None:
-            raise CachePersistentLockTypeIsRequiredError('Cache persistent lock type is '
-                                                         'required for persistent caching '
-                                                         'handlers.')
+            raise CachePersistentLockTypeIsRequiredError('Cache persistent lock type for '
+                                                         'caching handler [{name}] is required.'
+                                                         .format(name=self.get_name()))
 
         self._persistent_lock = self.persistent_lock_class()
         self._limit = limit

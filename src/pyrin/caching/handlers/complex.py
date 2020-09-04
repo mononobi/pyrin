@@ -25,3 +25,4 @@ class ComplexCachingHandler(ComplexCachingHandlerBase):
     container_class = LocalContainer
     cache_item_class = ComplexCacheItem
     clearance_lock_class = Lock
+    persistent_lock_class = Lock
