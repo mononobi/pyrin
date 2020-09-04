@@ -7,7 +7,7 @@ import time
 
 from functools import update_wrapper
 
-import pyrin.utils.misc as misc_utils
+import pyrin.utils.function as func_utils
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 
@@ -44,7 +44,7 @@ def audit(func):
         finally:
             end_time = time.time()
             logging_services.debug('Duration of function call [{name}]: [{time} ms].'
-                                   .format(name=misc_utils.try_get_fully_qualified_name(func),
+                                   .format(name=func_utils.get_fully_qualified_name(func),
                                            time='{:0.5f}'
                                            .format((end_time - start_time) * 1000)))
 
