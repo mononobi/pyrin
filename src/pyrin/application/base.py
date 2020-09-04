@@ -38,6 +38,7 @@ from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import DTO, Manager, CoreHeaders
 from pyrin.core.mixin import HookMixin
+from pyrin.database.transaction.contexts import atomic_context
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
@@ -1702,12 +1703,16 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         this method will call `prepare_runtime_data` method of all registered hooks.
 
-        note that this method will not get called when
-        application starts in scripting mode.
+        this method will commit any changes of each hook to database, so you should
+        not commit anything in the hooks. if you do commit manually, unexpected
+        behaviors may occur.
+
+        note that this method will not get called when application starts in scripting mode.
         """
 
         for hook in self._get_hooks():
-            hook.prepare_runtime_data()
+            with atomic_context():
+                hook.prepare_runtime_data()
 
     def _provide_response_headers(self, headers, endpoint,
                                   status_code, method, **options):

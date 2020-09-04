@@ -347,3 +347,16 @@ def load_all(**options):
     """
 
     return get_component(CachingPackage.COMPONENT_NAME).load_all(**options)
+
+
+def clear_required_caches():
+    """
+    clears all caches that are required.
+
+    normally, you should never call this method manually. but it is
+    implemented to be used for clearing extended and complex caches after
+    application has been fully loaded. to enforce that valid results are
+    cached based on loaded packages.
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).clear_required_caches()

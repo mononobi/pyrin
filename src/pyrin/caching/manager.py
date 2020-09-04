@@ -6,7 +6,7 @@ caching manager module.
 import pyrin.application.services as application_services
 
 from pyrin.caching import CachingPackage
-from pyrin.caching.interface import AbstractCachingHandler
+from pyrin.caching.interface import AbstractCachingHandler, AbstractExtendedCachingHandler
 from pyrin.core.structs import Manager
 from pyrin.utils.custom_print import print_warning
 from pyrin.caching.exceptions import CachingHandlerNotFoundError, \
@@ -402,3 +402,17 @@ class CachingManager(Manager):
         for name, cache in self._caching_handlers.items():
             if cache.persistent is True:
                 self.load(name, **options)
+
+    def clear_required_caches(self):
+        """
+        clears all caches that are required.
+
+        normally, you should never call this method manually. but it is
+        implemented to be used for clearing extended and complex caches after
+        application has been fully loaded. to enforce that valid results are
+        cached based on loaded packages.
+        """
+
+        for name, cache in self._caching_handlers.items():
+            if isinstance(cache, AbstractExtendedCachingHandler):
+                cache.clear()

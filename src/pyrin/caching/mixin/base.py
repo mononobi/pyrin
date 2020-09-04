@@ -45,6 +45,14 @@ class CacheMixinBase(CoreObject):
         return cls._container.get(key)
 
     @classmethod
+    def clear_cache(cls):
+        """
+        clears all cached values.
+        """
+
+        cls._container.clear()
+
+    @classmethod
     @abstractmethod
     def generate_key(cls, *keys, **options):
         """
