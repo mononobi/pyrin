@@ -24,6 +24,7 @@ import pyrin.processor.response.services as response_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.function as function_utils
+import pyrin
 
 from pyrin.api.router.structs import CoreURLMap
 from pyrin.application.container import _set_app
@@ -34,6 +35,7 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import DTO, Manager, CoreHeaders
 from pyrin.core.mixin import HookMixin
 from pyrin.packaging import PackagingPackage
@@ -1765,3 +1767,25 @@ class Application(Flask, HookMixin, SignalMixin,
 
         for hook in self._get_hooks():
             hook.validate_request(request, **options)
+
+    def get_application_version(self):
+        """
+        gets application version.
+
+        this method must be overridden in subclasses.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
+    def get_pyrin_version(self):
+        """
+        gets pyrin version.
+
+        :rtype: str
+        """
+
+        return pyrin.__version__

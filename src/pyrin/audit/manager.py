@@ -6,7 +6,6 @@ audit manager module.
 import traceback
 import platform
 
-import pyrin
 import pyrin.application.services as application_services
 import pyrin.packaging.services as packaging_services
 import pyrin.globalization.datetime.services as datetime_services
@@ -143,13 +142,15 @@ class AuditManager(Manager, HookMixin):
         gets the info of current application.
 
         :returns: dict(str name: application name,
-                       datetime datetime: application current datetime)
+                       datetime datetime: application current datetime,
+                       str version: application version)
         :rtype: dict
         """
 
         data = {}
         data.update(name=application_services.get_application_name(),
-                    datetime=datetime_services.now())
+                    datetime=datetime_services.now(),
+                    version=application_services.get_application_version())
         return data
 
     def get_framework_info(self, **options):
@@ -162,7 +163,8 @@ class AuditManager(Manager, HookMixin):
         """
 
         data = {}
-        data.update(name='pyrin', version=pyrin.__version__)
+        data.update(name='pyrin',
+                    version=application_services.get_pyrin_version())
         return data
 
     def get_python_info(self, **options):

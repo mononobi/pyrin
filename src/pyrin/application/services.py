@@ -572,3 +572,23 @@ def get_module_name():
     """
 
     return get_current_app().get_module_name()
+
+
+def get_application_version():
+    """
+    gets application version.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_application_version()
+
+
+def get_pyrin_version():
+    """
+    gets pyrin version.
+
+    :rtype: str
+    """
+
+    return get_current_app().get_pyrin_version()

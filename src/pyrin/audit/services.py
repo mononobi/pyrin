@@ -60,7 +60,8 @@ def get_application_info(**options):
     gets the info of current application.
 
     :returns: dict(str name: application name,
-                   datetime datetime: application current datetime)
+                   datetime datetime: application current datetime,
+                   str version: application version)
     :rtype: dict
     """
 
