@@ -46,3 +46,10 @@ class CachingHandlerNotFoundError(CachingManagerException):
     caching handler not found error.
     """
     pass
+
+
+class CacheIsNotPersistentError(CachingManagerException):
+    """
+    cache is not persistent error.
+    """
+    pass

@@ -3,12 +3,14 @@
 caching manager module.
 """
 
+import pyrin.application.services as application_services
+
 from pyrin.caching import CachingPackage
 from pyrin.caching.interface import AbstractCachingHandler
 from pyrin.core.structs import Manager
 from pyrin.utils.custom_print import print_warning
 from pyrin.caching.exceptions import CachingHandlerNotFoundError, \
-    DuplicatedCachingHandlerError, InvalidCachingHandlerTypeError
+    DuplicatedCachingHandlerError, InvalidCachingHandlerTypeError, CacheIsNotPersistentError
 
 
 class CachingManager(Manager):
@@ -316,26 +318,83 @@ class CachingManager(Manager):
 
         return list(self._caching_handlers.keys())
 
-    def get_stats(self, name=None):
+    def get_stats(self, name):
         """
         gets statistic info of given caching handler.
 
-        if no name is provided, it gets stats for all handlers.
-
         :param str name: caching handler name to get its info.
-                         if not provided, it gets info for all handlers.
 
         :raises CachingHandlerNotFoundError: caching handler not found error.
 
         :rtype: dict
         """
 
-        if name is not None:
-            cache = self.get_caching_handler(name)
-            return cache.stats
+        cache = self.get_caching_handler(name)
+        return cache.stats
+
+    def get_all_stats(self):
+        """
+        gets statistic info of all caching handlers.
+
+        :rtype: dict
+        """
 
         result = {}
-        for key, handler in self._caching_handlers.items():
-            result[key] = handler.stats
+        for name, cache in self._caching_handlers.items():
+            result[name] = cache.stats
 
         return result
+
+    def persist(self, name, **options):
+        """
+        saves cached items of given caching handler into database.
+
+        :param str name: caching handler name to be persisted.
+
+        :raises CachingHandlerNotFoundError: caching handler not found error.
+        :raises CacheIsNotPersistentError: cache is not persistent error.
+        """
+
+        cache = self.get_caching_handler(name)
+        if cache.persistent is False:
+            raise CacheIsNotPersistentError('Caching handler [{name}] is not persistent.'
+                                            .format(name=cache.get_name()))
+
+        version = application_services.get_application_version()
+        cache.persist(version, **options)
+
+    def persist_all(self, **options):
+        """
+        saves cached items of all persistent caching handlers into database.
+        """
+
+        for name, cache in self._caching_handlers.items():
+            if cache.persistent is True:
+                self.persist(name, **options)
+
+    def load(self, name, **options):
+        """
+        loads cached items of given caching handler from database.
+
+        :param str name: caching handler name to be loaded.
+
+        :raises CachingHandlerNotFoundError: caching handler not found error.
+        :raises CacheIsNotPersistentError: cache is not persistent error.
+        """
+
+        cache = self.get_caching_handler(name)
+        if cache.persistent is False:
+            raise CacheIsNotPersistentError('Caching handler [{name}] is not persistent.'
+                                            .format(name=cache.get_name()))
+
+        version = application_services.get_application_version()
+        cache.load(version, **options)
+
+    def load_all(self, **options):
+        """
+        loads cached items of all persistent caching handlers from database.
+        """
+
+        for name, cache in self._caching_handlers.items():
+            if cache.persistent is True:
+                self.load(name, **options)

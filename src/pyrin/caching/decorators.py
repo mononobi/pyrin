@@ -50,6 +50,17 @@ def cache(*args, **kwargs):
                                  key generation. if not provided, it will be get
                                  from `caching` config store.
 
+    :keyword bool persistent: specifies that cached items must be persisted to
+                              database on application shutdown, and loaded back
+                              on application startup. if not provided, will be
+                              get from `caching` config store.
+                              this is only used in complex handlers.
+
+    :keyword int chunk_size: chunk size to insert values for persistent caches.
+                             after each chunk, store will be flushed.
+                             if not provided, will be get from `caching` config store.
+                             this is only used in complex persistent handlers.
+
     :raises InvalidCachingHandlerTypeError: invalid caching handler type error.
     :raises DuplicatedCachingHandlerError: duplicated caching handler error.
 

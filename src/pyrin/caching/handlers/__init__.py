@@ -12,3 +12,4 @@ class CachingHandlersPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.logging']

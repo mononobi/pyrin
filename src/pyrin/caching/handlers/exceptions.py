@@ -60,3 +60,17 @@ class InvalidCacheClearCountError(CachingHandlersException):
     invalid cache clear count error.
     """
     pass
+
+
+class InvalidChunkSizeError(CachingHandlersException):
+    """
+    invalid chunk size error.
+    """
+    pass
+
+
+class CacheVersionIsRequiredError(CachingHandlersException):
+    """
+    cache version is required error.
+    """
+    pass

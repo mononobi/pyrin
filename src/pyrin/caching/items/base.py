@@ -124,6 +124,14 @@ class ComplexCacheItemBase(CacheItemBase):
 
         return deepcopy(value)
 
+    def refresh(self):
+        """
+        refreshes the current item to extend its expire time.
+        """
+
+        self._refreshed_on = time.time() * 1000
+
+    @property
     def is_expired(self):
         """
         gets a value indicating that this item has been expired.
@@ -133,9 +141,10 @@ class ComplexCacheItemBase(CacheItemBase):
 
         return time.time() * 1000 - self._refreshed_on > self._timeout
 
-    def refresh(self):
+    @property
+    def timeout(self):
         """
-        refreshes the current item to extend its expire time.
+        gets the timeout value of this item.
         """
 
-        self._refreshed_on = time.time() * 1000
+        return self._timeout

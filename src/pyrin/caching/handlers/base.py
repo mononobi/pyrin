@@ -3,23 +3,32 @@
 caching handlers base module.
 """
 
+import pickle
+
 from abc import abstractmethod
 
+import pyrin.database.bulk.services as bulk_services
+import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.function as func_utils
 
+from pyrin.caching.exceptions import CacheIsNotPersistentError
+from pyrin.caching.models import CacheItemEntity
 from pyrin.caching.structs import CacheableDict
 from pyrin.caching.globals import NO_LIMIT
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.caching.items.base import CacheItemBase, ComplexCacheItemBase
+from pyrin.database.services import get_current_store
 from pyrin.caching.containers.base import CachingContainerBase
+from pyrin.core.globals import SECURE_FALSE
 from pyrin.caching.interface import AbstractCachingHandler, AbstractComplexCachingHandler, \
     AbstractExtendedCachingHandler
 from pyrin.caching.handlers.exceptions import CacheNameIsRequiredError, \
     InvalidCachingContainerTypeError, InvalidCacheItemTypeError, InvalidCacheLimitError, \
-    InvalidCacheTimeoutError, InvalidCacheClearCountError, CacheClearanceLockTypeIsRequiredError
+    InvalidCacheTimeoutError, InvalidCacheClearCountError, InvalidChunkSizeError, \
+    CacheClearanceLockTypeIsRequiredError, CacheVersionIsRequiredError
 
 
 class CachingHandlerBase(AbstractCachingHandler):
@@ -336,6 +345,16 @@ class CachingHandlerBase(AbstractCachingHandler):
         return dict(count=self.count,
                     last_cleared_time=self.last_cleared_time)
 
+    @property
+    def persistent(self):
+        """
+        gets a value indicating that cached items must be persisted to database on shutdown.
+
+        :rtype: bool
+        """
+
+        return False
+
 
 class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHandler):
     """
@@ -363,7 +382,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
         consider_user = options.get('consider_user')
         if consider_user is None:
             configs = self._get_configs()
-            consider_user = configs.get('consider_user')
+            consider_user = configs['consider_user']
 
         self._consider_user = consider_user
 
@@ -463,6 +482,22 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
         return self._consider_user
 
+    @property
+    def stats(self):
+        """
+        get the statistic info about cached items.
+
+        :returns: dict(int count: items count,
+                       datetime last_cleared_time: last cleared time,
+                       bool consider_user: consider user in cache key)
+        :rtype: dict
+        """
+
+        base_stats = super().stats
+        stats = dict(consider_user=self.consider_user)
+
+        return base_stats.update(stats)
+
 
 class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachingHandler):
     """
@@ -475,10 +510,13 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     it also supports timeout and size limit for cached items.
     it also keeps a deep copy of the value in the cache.
     it also provides statistic info about hit or missed caches.
+    it also supports persistent mode to save cached values into
+    database on application shutdown and load them back on next startup.
     """
 
     # a lock type to be used on clearing cached items when cache limit is reached.
     clearance_lock_class = None
+    LOGGER = logging_services.get_logger('caching')
 
     def __init__(self, *args, **options):
         """
@@ -509,6 +547,15 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
 
+        :keyword bool persistent: specifies that cached items must be persisted to
+                                  database on application shutdown, and loaded back
+                                  on application startup. if not provided, will be
+                                  get from `caching` config store.
+
+        :keyword int chunk_size: chunk size to insert values for persistent caches.
+                                 after each chunk, store will be flushed.
+                                 if not provided, will be get from `caching` config store.
+
         :raises InvalidCachingContainerTypeError: invalid caching container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
         :raises CacheNameIsRequiredError: cache name is required error.
@@ -517,6 +564,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         :raises InvalidCacheLimitError: invalid cache limit error.
         :raises InvalidCacheTimeoutError: invalid cache timeout error.
         :raises InvalidCacheClearCountError: invalid cache clear count error.
+        :raises InvalidChunkSizeError: invalid chunk size error.
         """
 
         super().__init__(*args, **options)
@@ -541,19 +589,27 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         timeout = options.get('timeout')
         use_lifo = options.get('use_lifo')
         clear_count = options.get('clear_count')
+        persistent = options.get('persistent')
+        chunk_size = options.get('chunk_size')
 
         configs = self._get_configs()
         if limit is None:
-            limit = configs.get('limit')
+            limit = configs['limit']
 
         if timeout is None:
-            timeout = configs.get('timeout')
+            timeout = configs['timeout']
 
         if use_lifo is None:
-            use_lifo = configs.get('use_lifo')
+            use_lifo = configs['use_lifo']
 
         if clear_count is None:
-            clear_count = configs.get('clear_count')
+            clear_count = configs['clear_count']
+
+        if persistent is None:
+            persistent = configs['persistent']
+
+        if chunk_size is None:
+            chunk_size = configs['chunk_size']
 
         if limit != NO_LIMIT and limit <= 0:
             raise InvalidCacheLimitError('Cache limit must be a positive integer.')
@@ -564,10 +620,15 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         if clear_count <= 0:
             raise InvalidCacheClearCountError('Cache clear count must be a positive integer.')
 
+        if persistent is True and chunk_size is not None and chunk_size <= 0:
+            raise InvalidChunkSizeError('Persistent cache chunk size must be a positive integer')
+
         self._limit = limit
         self._timeout = timeout
         self._use_lifo = use_lifo
         self._clear_count = clear_count
+        self._persistent = persistent
+        self._chunk_size = chunk_size
 
     def _get_default_configs(self):
         """
@@ -607,6 +668,38 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                 to_be_removed = self._container.slice(count, self._use_lifo)
                 for key in to_be_removed:
                     self.remove(key)
+
+    def _validate_persisting(self, version):
+        """
+        validates current caching handler for persisting.
+
+        :param str version: version to be saved or loaded.
+
+        :raises CacheIsNotPersistentError: cache is not persistent error.
+        :raises CacheVersionIsRequiredError: cache version is required error.
+        """
+
+        if self._persistent is not True:
+            raise CacheIsNotPersistentError('Caching handler [{name}] is not persistent.'
+                                            .format(name=self.get_name()))
+
+        if version in (None, '') or version.isspace():
+            raise CacheVersionIsRequiredError('Cache version is required for persisting '
+                                              'caching handler [{name}] into database.'
+                                              .format(name=self.get_name()))
+
+    def _delete_loaded_caches(self, version, shard_name, **options):
+        """
+        deletes loaded caches from database.
+
+        :param str version: version to remove its caches.
+        :param str shard_name: shard name to remove its caches.
+        """
+
+        store = get_current_store()
+        store.query(CacheItemEntity).filter_by(version=version,
+                                               shard_name=shard_name)\
+            .delete(synchronize_session=False)
 
     def set(self, key, value, **options):
         """
@@ -657,6 +750,77 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         result.refresh()
         self._container.move_to_end(key_hash, not self._use_lifo)
         return result.value
+
+    def persist(self, version, **options):
+        """
+        saves cached items of this handler into database.
+
+        :param str version: version to be saved with cached items in database.
+
+        :raises CacheIsNotPersistentError: cache is not persistent error.
+        :raises CacheVersionIsRequiredError: cache version is required error.
+        """
+
+        self._validate_persisting(version)
+
+        shard_name = config_services.get('caching', 'general', 'shard_name')
+        caches = []
+        for item in self.values():
+            if item.is_expired is False:
+                try:
+                    pickled_item = pickle.dumps(item)
+                    entity = CacheItemEntity()
+                    entity.handler_name = self.get_name()
+                    entity.shard_name = shard_name
+                    entity.version = version
+                    entity.key = item.key
+                    entity.item = pickled_item
+                    caches.append(entity)
+
+                except Exception as error:
+                    self.LOGGER.exception(str(error))
+
+        size = len(caches)
+        if size > 0:
+            bulk_services.insert(*caches, exposed_only=SECURE_FALSE,
+                                 chunk_size=self.chunk_size)
+
+            self.LOGGER.debug('Caching handler [{name}] persisted into database. '
+                              'including [{count}] items.'
+                              .format(name=self.get_name(), count=size))
+
+    def load(self, version, **options):
+        """
+        loads cached items of this handler from database.
+
+        :param str version: version of cached items to be loaded from database.
+
+        :raises CacheIsNotPersistentError: cache is not persistent error.
+        :raises CacheVersionIsRequiredError: cache version is required error.
+        """
+
+        self._validate_persisting(version)
+
+        shard_name = config_services.get('caching', 'general', 'shard_name')
+        store = get_current_store()
+        items = store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
+                                                       shard_name=shard_name,
+                                                       version=version).all()
+        for entity in items:
+            try:
+                cache_item = pickle.loads(entity.item)
+                self.set(cache_item.key, cache_item.value, timeout=cache_item.timeout)
+
+            except Exception as error:
+                self.LOGGER.exception(str(error))
+
+        size = len(items)
+        if size > 0:
+            self.LOGGER.debug('Caching handler [{name}] loaded from database. '
+                              'including [{count}] items.'
+                              .format(name=self.get_name(), count=size))
+
+            self._delete_loaded_caches(version, shard_name)
 
     @property
     def is_full(self):
@@ -748,15 +912,17 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         get the statistic info about cached items.
 
         :returns: dict(int count: items count,
+                       datetime last_cleared_time: last cleared time,
+                       bool consider_user: consider user in cache key,
                        int hit: hit count,
                        int miss: miss count,
                        str hit_ratio: hit ratio,
                        int limit: items count limit,
                        int timeout: items default timeout,
-                       datetime last_cleared_time: last cleared time,
                        bool use_lifo: use lifo order,
                        int clear_count: clear count,
-                       bool consider_user: consider user in cache key)
+                       bool persistent: persistent cache,
+                       int chunk_size: chunk size)
         :rtype: dict
         """
 
@@ -770,6 +936,27 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                      timeout=self.timeout,
                      use_lifo=self.use_lifo,
                      clear_count=self.clear_count,
-                     consider_user=self.consider_user)
+                     persistent=self.persistent,
+                     chunk_size=self.chunk_size)
 
         return base_stats.update(stats)
+
+    @property
+    def persistent(self):
+        """
+        gets a value indicating that cached items must be persisted to database on shutdown.
+
+        :rtype: bool
+        """
+
+        return self._persistent
+
+    @property
+    def chunk_size(self):
+        """
+        gets the chunk size for this handler.
+
+        :rtype: int
+        """
+
+        return self._chunk_size

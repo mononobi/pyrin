@@ -251,6 +251,30 @@ class AbstractCachingHandler(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def persist(self, version, **options):
+        """
+        saves cached items of this handler into database.
+
+        :param str version: version to be saved with cached items in database.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def load(self, version, **options):
+        """
+        loads cached items of this handler from database.
+
+        :param str version: version of cached items to be loaded from database.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def count(self):
@@ -286,6 +310,32 @@ class AbstractCachingHandler(CoreObject):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: dict
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def persistent(self):
+        """
+        gets a value indicating that cached items must be persisted to database on shutdown.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def chunk_size(self):
+        """
+        gets the chunk size for this handler.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
         """
 
         raise CoreNotImplementedError()
@@ -328,6 +378,8 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     it also supports timeout and size limit for cached items.
     it also keeps a deep copy of the value in the cache.
     it also provides statistic info about hit or missed caches.
+    it also supports persistent mode to save cached values into
+    database on application shutdown and load them back on next startup.
     """
 
     @property

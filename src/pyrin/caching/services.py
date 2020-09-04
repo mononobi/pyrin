@@ -5,6 +5,7 @@ caching services module.
 
 from pyrin.application.services import get_component
 from pyrin.caching import CachingPackage
+from pyrin.database.transaction.decorators import atomic
 
 
 def register_caching_handler(instance, **options):
@@ -276,14 +277,11 @@ def get_cache_names():
     return get_component(CachingPackage.COMPONENT_NAME).get_cache_names()
 
 
-def get_stats(name=None):
+def get_stats(name):
     """
     gets statistic info of given caching handler.
 
-    if no name is provided, it gets stats for all handlers.
-
     :param str name: caching handler name to get its info.
-                     if not provided, it gets info for all handlers.
 
     :raises CachingHandlerNotFoundError: caching handler not found error.
 
@@ -291,3 +289,57 @@ def get_stats(name=None):
     """
 
     return get_component(CachingPackage.COMPONENT_NAME).get_stats(name)
+
+
+def get_all_stats():
+    """
+    gets statistic info of all caching handlers.
+
+    :rtype: dict
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).get_all_stats()
+
+
+def persist(name, **options):
+    """
+    saves cached items of given caching handler into database.
+
+    :param str name: caching handler name to be persisted.
+
+    :raises CachingHandlerNotFoundError: caching handler not found error.
+    :raises CacheIsNotPersistentError: cache is not persistent error.
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).persist(name, **options)
+
+
+@atomic
+def persist_all(**options):
+    """
+    saves cached items of all persistent caching handlers into database.
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).persist_all(**options)
+
+
+def load(name, **options):
+    """
+    loads cached items of given caching handler from database.
+
+    :param str name: caching handler name to be loaded.
+
+    :raises CachingHandlerNotFoundError: caching handler not found error.
+    :raises CacheIsNotPersistentError: cache is not persistent error.
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).load(name, **options)
+
+
+@atomic
+def load_all(**options):
+    """
+    loads cached items of all persistent caching handlers from database.
+    """
+
+    return get_component(CachingPackage.COMPONENT_NAME).load_all(**options)
