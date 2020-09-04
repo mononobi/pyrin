@@ -33,7 +33,7 @@ class TypedCacheMixin(CacheMixinBase):
         return cls, func.__name__
 
 
-class ExtendedTypedCacheMixin(TypedCacheMixin):
+class ExtendedTypedCacheMixin(CacheMixinBase):
     """
     extended typed cache mixin class.
 
