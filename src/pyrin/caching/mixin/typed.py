@@ -6,8 +6,8 @@ caching mixin typed module.
 import pyrin.utils.function as func_utils
 import pyrin.security.session.services as session_services
 
-from pyrin.caching.mixin.base import CacheMixinBase
 from pyrin.caching.structs import CacheableDict
+from pyrin.caching.mixin.base import CacheMixinBase
 
 
 class TypedCacheMixin(CacheMixinBase):

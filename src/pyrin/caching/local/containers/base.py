@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-caching containers base module.
+caching local containers base module.
 """
 
 from abc import abstractmethod
@@ -9,12 +9,12 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import CoreObject
 
 
-class CachingContainerBase(CoreObject):
+class LocalCacheContainerBase(CoreObject):
     """
-    caching container base class.
+    local cache container base class.
 
     it has a similar interface to a normal dict except it has an extra `set` method.
-    all application caching containers must be subclassed from this.
+    all application local cache containers must be subclassed from this.
     """
 
     @abstractmethod
@@ -22,7 +22,7 @@ class CachingContainerBase(CoreObject):
         """
         implements call on this class type.
 
-        in the form of `CachingContainerBase()`.
+        in the form of `LocalCacheContainerBase()`.
 
         :raises CoreNotImplementedError: core not implemented error.
         """

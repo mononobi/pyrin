@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-caching handlers base module.
+caching local handlers base module.
 """
 
 import pickle
@@ -11,33 +11,31 @@ import pyrin.database.bulk.services as bulk_services
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.datetime.services as datetime_services
-import pyrin.security.session.services as session_services
-import pyrin.utils.function as func_utils
 
 from pyrin.caching.exceptions import CacheIsNotPersistentError
+from pyrin.caching.mixin.base import ComplexKeyGeneratorMixin, SimpleKeyGeneratorMixin
 from pyrin.caching.models import CacheItemEntity
-from pyrin.caching.structs import CacheableDict
 from pyrin.caching.globals import NO_LIMIT
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.caching.items.base import CacheItemBase, ComplexCacheItemBase
+from pyrin.caching.local.items.base import LocalCacheItemBase, ComplexLocalCacheItemBase
 from pyrin.database.services import get_current_store
-from pyrin.caching.containers.base import CachingContainerBase
+from pyrin.caching.local.containers.base import LocalCacheContainerBase
 from pyrin.core.globals import SECURE_FALSE
-from pyrin.caching.interface import AbstractCachingHandler, AbstractComplexCachingHandler, \
-    AbstractExtendedCachingHandler
-from pyrin.caching.handlers.exceptions import CacheNameIsRequiredError, \
-    InvalidCachingContainerTypeError, InvalidCacheItemTypeError, InvalidCacheLimitError, \
+from pyrin.caching.interface import AbstractCache, AbstractComplexLocalCache, \
+    AbstractExtendedLocalCache
+from pyrin.caching.local.handlers.exceptions import CacheNameIsRequiredError, \
+    InvalidCacheContainerTypeError, InvalidCacheItemTypeError, InvalidCacheLimitError, \
     InvalidCacheTimeoutError, InvalidCacheClearCountError, InvalidChunkSizeError, \
     CacheClearanceLockTypeIsRequiredError, CacheVersionIsRequiredError, \
     CachePersistentLockTypeIsRequiredError
 
 
-class CachingHandlerBase(AbstractCachingHandler):
+class LocalCacheBase(SimpleKeyGeneratorMixin, AbstractCache):
     """
-    caching handler base class.
+    local cache base class.
 
-    this type of caching handlers does not consider method inputs, current
-    user and component key in key generation. it only considers the class
+    this type of caches does not consider method inputs, current user
+    and component key in key generation. it only considers the class
     type of function and function name itself. this is useful for caching
     items that never change after application startup and are independent
     from different scoped or global variables.
@@ -52,8 +50,8 @@ class CachingHandlerBase(AbstractCachingHandler):
     caches, to gain performance.
     """
 
-    # cache name to be used for this handler.
-    # it must be unique between all caching handlers.
+    # cache name to be used for this cache.
+    # it must be unique between all caches.
     cache_name = None
 
     # a class type to be used as cache container.
@@ -68,57 +66,40 @@ class CachingHandlerBase(AbstractCachingHandler):
 
     def __init__(self, *args, **options):
         """
-        initializes an instance of CachingHandlerBase.
+        initializes an instance of LocalCacheBase.
 
         :raises CacheNameIsRequiredError: cache name is required error.
-        :raises InvalidCachingContainerTypeError: invalid caching container type error.
+        :raises InvalidCacheContainerTypeError: invalid cache container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
         """
 
         super().__init__()
 
         if self.cache_name in (None, '') or self.cache_name.isspace():
-            raise CacheNameIsRequiredError('Cache name must be provided for caching '
-                                           'handler [{name}].'.format(name=self))
+            raise CacheNameIsRequiredError('Cache name must be provided for '
+                                           'cache [{name}].'.format(name=self))
 
         self._set_name(self.cache_name)
 
         if self.container_class is None or \
-                not issubclass(self.container_class, CachingContainerBase):
-            raise InvalidCachingContainerTypeError('Provided caching container [{container}] '
-                                                   'for caching handler [{name}] is not a '
-                                                   'subclass of [{base}].'
-                                                   .format(container=self.container_class,
-                                                           name=self.get_name(),
-                                                           base=CachingContainerBase))
+                not issubclass(self.container_class, LocalCacheContainerBase):
+            raise InvalidCacheContainerTypeError('Provided cache container [{container}] '
+                                                 'for cache [{name}] is not a subclass '
+                                                 'of [{base}].'
+                                                 .format(container=self.container_class,
+                                                         name=self.get_name(),
+                                                         base=LocalCacheContainerBase))
 
         if self.cache_item_class is None or \
-                not issubclass(self.cache_item_class, CacheItemBase):
-            raise InvalidCacheItemTypeError('Provided cache item [{item}] for caching '
-                                            'handler [{name}] is not a subclass of [{base}].'
+                not issubclass(self.cache_item_class, LocalCacheItemBase):
+            raise InvalidCacheItemTypeError('Provided cache item [{item}] for cache '
+                                            '[{name}] is not a subclass of [{base}].'
                                             .format(item=self.cache_item_class,
                                                     name=self.get_name(),
-                                                    base=CacheItemBase))
+                                                    base=LocalCacheItemBase))
 
         self._container = self.container_class()
         self._last_cleared_time = datetime_services.now()
-
-    def _get_parent_type(self, parent):
-        """
-        gets the parent type from given input.
-
-        if it is a class itself, it returns the same input.
-
-        :param type | object parent: class or instance to get its type.
-
-        :rtype: type
-        """
-
-        parent_type = parent
-        if not isinstance(parent_type, type):
-            parent_type = type(parent_type)
-
-        return parent_type
 
     def _get_cache_item(self, value, *args, **options):
         """
@@ -133,9 +114,9 @@ class CachingHandlerBase(AbstractCachingHandler):
 
     def _get_configs(self):
         """
-        gets the configs of this handler from `caching` config store.
+        gets the configs of this cache from `caching` config store.
 
-        first, it checks if a section with the name of this handler
+        first, it checks if a section with the name of this cache
         is present in config store. if so, it returns the values from it.
         otherwise it returns the result of `_get_default_configs` method.
 
@@ -150,10 +131,10 @@ class CachingHandlerBase(AbstractCachingHandler):
     @abstractmethod
     def _get_default_configs(self):
         """
-        gets the defaults configs of this handler from `caching` config store.
+        gets the defaults configs of this cache from `caching` config store.
 
         this method must be overridden in subclasses to provide custom configs if
-        a section with the handler name is not present in config store.
+        a section with the cache name is not present in config store.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -162,7 +143,7 @@ class CachingHandlerBase(AbstractCachingHandler):
 
         raise CoreNotImplementedError('This method must be implemented in '
                                       '[{class_name}] class to provide default '
-                                      'configs for caching handler [{name}].'
+                                      'configs for cache [{name}].'
                                       .format(class_name=self, name=self.get_name()))
 
     def _try_set(self, value, func, parent, *args, **options):
@@ -340,30 +321,10 @@ class CachingHandlerBase(AbstractCachingHandler):
 
         return self._container.values()
 
-    def generate_key(self, func, parent, *args, **options):
-        """
-        generates a cache key from given inputs.
-
-        :param function func: function to to be cached.
-        :param type | object parent: parent class or instance of given function.
-
-        :returns: hash of generated key.
-        :rtype: int
-        """
-
-        parent_type = None
-        name = func.__name__
-        if parent is None:
-            name = func_utils.get_fully_qualified_name(func)
-        else:
-            parent_type = self._get_parent_type(parent)
-
-        return hash((parent_type, name))
-
     @property
     def count(self):
         """
-        gets the count of items of this handler.
+        gets the count of items of this cache.
 
         :rtype: int
         """
@@ -373,7 +334,7 @@ class CachingHandlerBase(AbstractCachingHandler):
     @property
     def last_cleared_time(self):
         """
-        gets the last time in which this handler has been cleared.
+        gets the last time in which this cache has been cleared.
 
         :rtype: datetime.datetime
         """
@@ -387,7 +348,7 @@ class CachingHandlerBase(AbstractCachingHandler):
 
         :returns: dict(int count: items count,
                        datetime last_cleared_time: last cleared time,
-                       bool persistent: persistent caching handler)
+                       bool persistent: persistent cache)
         :rtype: dict
         """
 
@@ -406,24 +367,26 @@ class CachingHandlerBase(AbstractCachingHandler):
         return False
 
 
-class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHandler):
+class ExtendedLocalCacheBase(ComplexKeyGeneratorMixin,
+                             LocalCacheBase,
+                             AbstractExtendedLocalCache):
     """
-    extended caching handler base class.
+    extended local cache base class.
 
-    this type of caching handlers are same as `CachingHandlerBase` type
-    but it also considers method inputs, current user and component key in key generation.
+    this type of caches are same as `LocalCacheBase` type but it also considers
+    method inputs, current user and component key in key generation.
     """
 
     def __init__(self, *args, **options):
         """
-        initializes an instance of ExtendedCachingHandlerBase.
+        initializes an instance of ExtendedLocalCacheBase.
 
         :keyword bool consider_user: specifies that current user must also be
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
 
         :raises CacheNameIsRequiredError: cache name is required error.
-        :raises InvalidCachingContainerTypeError: invalid caching container type error.
+        :raises InvalidCacheContainerTypeError: invalid cache container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
         """
 
@@ -438,7 +401,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
     def _get_default_configs(self):
         """
-        gets the defaults configs of this handler from `caching` config store.
+        gets the defaults configs of this cache from `caching` config store.
 
         :rtype: dict
         """
@@ -488,44 +451,10 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
         key = self.generate_key(func, inputs, kw_inputs, *args, **options)
         return self.get(key, default, **options)
 
-    def generate_key(self, func, inputs, kw_inputs, *args, **options):
-        """
-        generates a cache key from given inputs.
-
-        :param function func: function to to be cached.
-        :param tuple inputs: function positional arguments.
-        :param dict kw_inputs: function keyword arguments.
-
-        :keyword bool consider_user: specifies that current user must be included in
-                                     key generation. it will be get from `caching` config
-                                     store if not provided.
-
-        :returns: hash of generated key.
-        :rtype: int
-        """
-
-        consider_user = options.get('consider_user', self.consider_user)
-        current_user = None
-        if consider_user is not False:
-            current_user = session_services.get_safe_current_user()
-
-        cacheable_inputs, parent = func_utils.get_inputs(func, inputs, kw_inputs,
-                                                         CacheableDict)
-
-        parent_type = None
-        name = func.__name__
-        if parent is None:
-            name = func_utils.get_fully_qualified_name(func)
-        else:
-            parent_type = self._get_parent_type(parent)
-
-        component_key = session_services.get_safe_component_custom_key()
-        return hash((parent_type, name, cacheable_inputs, current_user, component_key))
-
     @property
     def consider_user(self):
         """
-        gets the consider user value for this handler.
+        gets the consider user value for this cache.
 
         :rtype: bool
         """
@@ -539,7 +468,7 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
 
         :returns: dict(int count: items count,
                        datetime last_cleared_time: last cleared time,
-                       bool persistent: persistent caching handler,
+                       bool persistent: persistent cache,
                        bool consider_user: consider user in cache key)
         :rtype: dict
         """
@@ -550,13 +479,13 @@ class ExtendedCachingHandlerBase(CachingHandlerBase, AbstractExtendedCachingHand
         return base_stats
 
 
-class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachingHandler):
+class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
     """
-    complex caching handler base class.
+    complex local cache base class.
 
-    this type of caching handlers will also consider method inputs, current user
-    and component key in key generation. this is useful for caching items that change
-    during application runtime based on different inputs and variables.
+    this type of caches will also consider method inputs, current user and
+    component key in key generation. this is useful for caching items that
+    change during application runtime based on different inputs and variables.
 
     it also supports timeout and size limit for cached items.
     it also keeps a deep copy of the value in the cache.
@@ -569,12 +498,12 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     clearance_lock_class = None
 
     # a lock type to be used on persisting or loading cached items to or from database.
-    # this will only be used in persistent caching handlers.
+    # this will only be used in persistent caches.
     persistent_lock_class = None
 
     def __init__(self, *args, **options):
         """
-        initializes an instance of ComplexCachingHandlerBase.
+        initializes an instance of ComplexLocalCacheBase.
 
         :keyword int limit: limit count of cached items.
                             if not provided, it will be get
@@ -611,7 +540,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                                  if not provided, will be get from `caching` config store.
 
         :raises CacheNameIsRequiredError: cache name is required error.
-        :raises InvalidCachingContainerTypeError: invalid caching container type error.
+        :raises InvalidCacheContainerTypeError: invalid cache container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
         :raises CacheClearanceLockTypeIsRequiredError: cache clearance lock type
                                                        is required error.
@@ -626,16 +555,16 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         super().__init__(*args, **options)
 
         if self.cache_item_class is None or \
-                not issubclass(self.cache_item_class, ComplexCacheItemBase):
-            raise InvalidCacheItemTypeError('Provided cache item [{item}] for caching '
-                                            'handler [{name}] is not a subclass of [{base}].'
+                not issubclass(self.cache_item_class, ComplexLocalCacheItemBase):
+            raise InvalidCacheItemTypeError('Provided cache item [{item}] for cache '
+                                            '[{name}] is not a subclass of [{base}].'
                                             .format(item=self.cache_item_class,
                                                     name=self.get_name(),
-                                                    base=ComplexCacheItemBase))
+                                                    base=ComplexLocalCacheItemBase))
 
         if self.clearance_lock_class is None:
             raise CacheClearanceLockTypeIsRequiredError('Cache clearance lock type for '
-                                                        'caching handler [{name}] is required.'
+                                                        'cache [{name}] is required.'
                                                         .format(name=self.get_name()))
 
         self._clearance_lock = self.clearance_lock_class()
@@ -669,28 +598,28 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
             chunk_size = configs['chunk_size']
 
         if limit != NO_LIMIT and limit <= 0:
-            raise InvalidCacheLimitError('Cache limit for caching handler '
-                                         '[{name}] must be a positive integer.'
+            raise InvalidCacheLimitError('Cache limit for cache [{name}] '
+                                         'must be a positive integer.'
                                          .format(name=self.get_name()))
 
         if timeout <= 0:
-            raise InvalidCacheTimeoutError('Cache timeout for caching handler '
-                                           '[{name}] must be a positive integer.'
+            raise InvalidCacheTimeoutError('Cache timeout for cache [{name}] '
+                                           'must be a positive integer.'
                                            .format(name=self.get_name()))
 
         if clear_count <= 0:
-            raise InvalidCacheClearCountError('Cache clear count for caching handler '
-                                              '[{name}] must be a positive integer.'
+            raise InvalidCacheClearCountError('Cache clear count for cache [{name}] '
+                                              'must be a positive integer.'
                                               .format(name=self.get_name()))
 
         if persistent is True and chunk_size is not None and chunk_size <= 0:
-            raise InvalidChunkSizeError('Persistent cache chunk size for caching '
-                                        'handler [{name}] must be a positive integer'
+            raise InvalidChunkSizeError('Persistent cache chunk size for cache '
+                                        '[{name}] must be a positive integer'
                                         .format(name=self.get_name()))
 
         if persistent is True and self.persistent_lock_class is None:
             raise CachePersistentLockTypeIsRequiredError('Cache persistent lock type for '
-                                                         'caching handler [{name}] is required.'
+                                                         'cache [{name}] is required.'
                                                          .format(name=self.get_name()))
 
         self._persistent_lock = self.persistent_lock_class()
@@ -703,7 +632,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
     def _get_default_configs(self):
         """
-        gets the defaults configs of this handler from `caching` config store.
+        gets the defaults configs of this cache from `caching` config store.
 
         :rtype: dict
         """
@@ -712,7 +641,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
     def _get_hit_ratio(self):
         """
-        gets hit ratio for this handler in percentage.
+        gets hit ratio for this cache in percentage.
 
         :rtype: float
         """
@@ -742,7 +671,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
     def _validate_persisting(self, version):
         """
-        validates current caching handler for persisting.
+        validates current cache for persisting.
 
         :param str version: version to be saved or loaded.
 
@@ -751,12 +680,12 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         """
 
         if self._persistent is not True:
-            raise CacheIsNotPersistentError('Caching handler [{name}] is not persistent.'
+            raise CacheIsNotPersistentError('Cache [{name}] is not persistent.'
                                             .format(name=self.get_name()))
 
         if version in (None, '') or version.isspace():
             raise CacheVersionIsRequiredError('Cache version is required for persisting '
-                                              'caching handler [{name}] into database.'
+                                              'cache [{name}] into database.'
                                               .format(name=self.get_name()))
 
     def _delete_loaded_caches(self, version, shard_name, **options):
@@ -768,7 +697,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         """
 
         store = get_current_store()
-        store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
+        store.query(CacheItemEntity).filter_by(cache_name=self.get_name(),
                                                version=version,
                                                shard_name=shard_name) \
             .delete(synchronize_session=False)
@@ -825,7 +754,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
     def persist(self, version, **options):
         """
-        saves cached items of this handler into database.
+        saves cached items of this cache into database.
 
         :param str version: version to be saved with cached items in database.
 
@@ -843,7 +772,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                     try:
                         pickled_item = pickle.dumps(item)
                         entity = CacheItemEntity()
-                        entity.handler_name = self.get_name()
+                        entity.cache_name = self.get_name()
                         entity.shard_name = shard_name
                         entity.version = version
                         entity.key = item.key
@@ -858,13 +787,13 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
                 bulk_services.insert(*caches, exposed_only=SECURE_FALSE,
                                      chunk_size=self.chunk_size)
 
-                self.LOGGER.debug('Caching handler [{name}] persisted into database. '
+                self.LOGGER.debug('Cache [{name}] persisted into database. '
                                   'including [{count}] items.'
                                   .format(name=self.get_name(), count=size))
 
     def load(self, version, **options):
         """
-        loads cached items of this handler from database.
+        loads cached items of this cache from database.
 
         :param str version: version of cached items to be loaded from database.
 
@@ -877,7 +806,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
         with self._persistent_lock:
             shard_name = config_services.get('caching', 'general', 'shard_name')
             store = get_current_store()
-            items = store.query(CacheItemEntity).filter_by(handler_name=self.get_name(),
+            items = store.query(CacheItemEntity).filter_by(cache_name=self.get_name(),
                                                            shard_name=shard_name,
                                                            version=version).all()
             for entity in items:
@@ -890,7 +819,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
             size = len(items)
             if size > 0:
-                self.LOGGER.debug('Caching handler [{name}] loaded from database. '
+                self.LOGGER.debug('Cache [{name}] loaded from database. '
                                   'including [{count}] items.'
                                   .format(name=self.get_name(), count=size))
 
@@ -903,7 +832,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         it returns a tuple, first item is a boolean indicating the fullness of cache.
         the second item is the number of excess items in the cache that must be removed.
-        the excess value will be calculated using `clear_count` property of this handler.
+        the excess value will be calculated using `clear_count` property of this cache.
 
         :rtype: tuple[bool, int]
         """
@@ -923,7 +852,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def timeout(self):
         """
-        gets timeout value for this handler items in milliseconds.
+        gets default timeout value for this cache's items in milliseconds.
 
         :rtype: int
         """
@@ -933,7 +862,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def limit(self):
         """
-        gets the size limit of this handler.
+        gets the size limit of this cache.
 
         :rtype: int
         """
@@ -943,7 +872,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def hit_count(self):
         """
-        gets the hit count for this handler.
+        gets the hit count for this cache.
 
         :rtype: int
         """
@@ -953,7 +882,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def miss_count(self):
         """
-        gets the miss count for this handler.
+        gets the miss count for this cache.
 
         :rtype: int
         """
@@ -963,7 +892,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def use_lifo(self):
         """
-        gets the use lifo for this handler.
+        gets the use lifo for this cache.
 
         :rtype: bool
         """
@@ -973,7 +902,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def clear_count(self):
         """
-        gets the clear count for this handler.
+        gets the clear count for this cache.
 
         :rtype: int
         """
@@ -987,7 +916,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
 
         :returns: dict(int count: items count,
                        datetime last_cleared_time: last cleared time,
-                       bool persistent: persistent caching handler,
+                       bool persistent: persistent cache,
                        bool consider_user: consider user in cache key,
                        int hit: hit count,
                        int miss: miss count,
@@ -1028,7 +957,7 @@ class ComplexCachingHandlerBase(ExtendedCachingHandlerBase, AbstractComplexCachi
     @property
     def chunk_size(self):
         """
-        gets the chunk size for this handler.
+        gets the chunk size for this cache.
 
         :rtype: int
         """

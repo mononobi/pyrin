@@ -10,14 +10,14 @@ from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import CoreObject
 
 
-class AbstractCachingHandler(CoreObject):
+class AbstractCache(CoreObject):
     """
-    abstract caching handler class.
+    abstract cache class.
 
-    all application caching handlers must be subclassed from this.
+    all application caches must be subclassed from this.
 
-    this type of caching handlers does not consider method inputs, current
-    user and component key in key generation. it only considers the class type
+    this type of caches does not consider method inputs, current user and
+    component key in key generation. it only considers the class type
     of function and function name itself. this is useful for caching items
     that never change after application startup and are independent
     from different scoped or global variables.
@@ -34,7 +34,7 @@ class AbstractCachingHandler(CoreObject):
 
     def __setitem__(self, key, value):
         """
-        sets the given key with given value into this caching handler.
+        sets the given key with given value into this cache.
 
         :param object key: key to set value with it.
         :param object value: value to be cached.
@@ -72,15 +72,6 @@ class AbstractCachingHandler(CoreObject):
         """
 
         return self.contains(key)
-
-    def __len__(self):
-        """
-        gets the count of items of this handler.
-
-        :rtype: int
-        """
-
-        return self.count
 
     @abstractmethod
     def set(self, key, value, *args, **options):
@@ -205,42 +196,6 @@ class AbstractCachingHandler(CoreObject):
         raise CoreNotImplementedError()
 
     @abstractmethod
-    def items(self):
-        """
-        gets an iterable of all keys and their values in the cache.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns: iterable[tuple[object, object]]
-        """
-
-        raise CoreNotImplementedError()
-
-    @abstractmethod
-    def keys(self):
-        """
-        gets all keys of current cache.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns: iterable[object]
-        """
-
-        raise CoreNotImplementedError()
-
-    @abstractmethod
-    def values(self):
-        """
-        gets all values of current cache.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :returns: iterable[object]
-        """
-
-        raise CoreNotImplementedError()
-
-    @abstractmethod
     def generate_key(self, *keys, **options):
         """
         generates a cache key from given inputs.
@@ -257,22 +212,9 @@ class AbstractCachingHandler(CoreObject):
 
     @property
     @abstractmethod
-    def count(self):
-        """
-        gets the count of items of this handler.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: int
-        """
-
-        raise CoreNotImplementedError()
-
-    @property
-    @abstractmethod
     def last_cleared_time(self):
         """
-        gets the last time in which this handler has been cleared.
+        gets the last time in which this cache has been cleared.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -308,21 +250,102 @@ class AbstractCachingHandler(CoreObject):
         raise CoreNotImplementedError()
 
 
-class AbstractExtendedCachingHandler(AbstractCachingHandler):
+class AbstractLocalCache(AbstractCache):
     """
-    abstract extended caching handler class.
+    abstract local cache class.
 
-    all application extended caching handlers must be subclassed from this.
+    all application local caches must be subclassed from this.
 
-    this type of caching handlers are same as `AbstractCachingHandler` type
-    but it also considers method inputs, current user and component key.
+    this type of caches does not consider method inputs, current user and
+    component key in key generation. it only considers the class type
+    of function and function name itself. this is useful for caching items
+    that never change after application startup and are independent
+    from different scoped or global variables.
+
+    it also does not support timeout and size limit for cached values.
+    its values are permanent unless manually removed if required.
+
+    it also keeps the real value in the cache, not a deep copy of it to gain
+    performance.
+
+    it also does not provide statistic info about hit or missed
+    caches, to gain performance.
+    """
+
+    def __len__(self):
+        """
+        gets the count of items of this cache.
+
+        :rtype: int
+        """
+
+        return self.count
+
+    @abstractmethod
+    def items(self):
+        """
+        gets an iterable of all keys and their values in the cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: iterable[tuple[object, object]]
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def keys(self):
+        """
+        gets all keys of current cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: iterable[object]
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def values(self):
+        """
+        gets all values of current cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: iterable[object]
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def count(self):
+        """
+        gets the count of items of this cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+
+class AbstractExtendedLocalCache(AbstractLocalCache):
+    """
+    abstract extended local cache class.
+
+    all application extended local caches must be subclassed from this.
+
+    this type of caches are same as `AbstractLocalCache` type but it also
+    considers method inputs, current user and component key.
     """
 
     @property
     @abstractmethod
     def consider_user(self):
         """
-        gets the consider user value for this handler.
+        gets the consider user value for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -332,13 +355,13 @@ class AbstractExtendedCachingHandler(AbstractCachingHandler):
         raise CoreNotImplementedError()
 
 
-class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
+class AbstractComplexLocalCache(AbstractExtendedLocalCache):
     """
-    abstract complex caching handler class.
+    abstract complex local cache class.
 
-    all application complex caching handlers must be subclassed from this.
+    all application complex local caches must be subclassed from this.
 
-    this type of caching handlers will also consider method inputs, current user
+    this type of caches will also consider method inputs, current user
     and component key in key generation. this is useful for caching items that
     change during application runtime based on different inputs and variables.
 
@@ -352,7 +375,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def persist(self, version, **options):
         """
-        saves cached items of this handler into database.
+        saves cached items of this cache into database.
 
         :param str version: version to be saved with cached items in database.
 
@@ -364,7 +387,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def load(self, version, **options):
         """
-        loads cached items of this handler from database.
+        loads cached items of this cache from database.
 
         :param str version: version of cached items to be loaded from database.
 
@@ -393,7 +416,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def timeout(self):
         """
-        gets default timeout value for this handler's items in milliseconds.
+        gets default timeout value for this cache's items in milliseconds.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -406,7 +429,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def limit(self):
         """
-        gets the count limit of this handler.
+        gets the count limit of this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -419,7 +442,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def hit_count(self):
         """
-        gets the hit count for this handler.
+        gets the hit count for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -432,7 +455,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def miss_count(self):
         """
-        gets the miss count for this handler.
+        gets the miss count for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -445,7 +468,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def use_lifo(self):
         """
-        gets the use lifo for this handler.
+        gets the use lifo for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -458,7 +481,7 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def clear_count(self):
         """
-        gets the clear count for this handler.
+        gets the clear count for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -471,7 +494,67 @@ class AbstractComplexCachingHandler(AbstractExtendedCachingHandler):
     @abstractmethod
     def chunk_size(self):
         """
-        gets the chunk size for this handler.
+        gets the chunk size for this cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+
+class AbstractRemoteCache(AbstractCache):
+    """
+    abstract remote cache class.
+
+    all application remote caches must be subclassed from this.
+    """
+
+    @property
+    @abstractmethod
+    def timeout(self):
+        """
+        gets default timeout value for this cache's items in milliseconds.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def limit(self):
+        """
+        gets the size limit of this cache in megabytes.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def hit_count(self):
+        """
+        gets the hit count for this cache.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def miss_count(self):
+        """
+        gets the miss count for this cache.
 
         :raises CoreNotImplementedError: core not implemented error.
 

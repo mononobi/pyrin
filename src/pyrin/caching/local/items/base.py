@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-caching items base module.
+caching local items base module.
 """
 
 from copy import deepcopy
@@ -10,9 +10,9 @@ import time
 from pyrin.core.structs import CoreObject
 
 
-class CacheItemBase(CoreObject):
+class LocalCacheItemBase(CoreObject):
     """
-    cache item base class.
+    local cache item base class.
 
     this type of cache item does not support timeout.
     it also keeps the original value into the cache to gain performance.
@@ -22,7 +22,7 @@ class CacheItemBase(CoreObject):
 
     def __init__(self, key, value, *args, **kwargs):
         """
-        initializes an instance of CacheItemBase.
+        initializes an instance of LocalCacheItemBase.
         """
 
         super().__init__()
@@ -91,9 +91,9 @@ class CacheItemBase(CoreObject):
         return self._key
 
 
-class ComplexCacheItemBase(CacheItemBase):
+class ComplexLocalCacheItemBase(LocalCacheItemBase):
     """
-    complex cache item base class.
+    complex local cache item base class.
 
     this type of cache item supports timeout.
     it also keeps the deep copy of the value into the cache.
@@ -103,7 +103,7 @@ class ComplexCacheItemBase(CacheItemBase):
 
     def __init__(self, key, value, timeout, **kwargs):
         """
-        initializes an instance of CacheItemBase.
+        initializes an instance of ComplexLocalCacheItemBase.
         """
 
         super().__init__(key, value, **kwargs)

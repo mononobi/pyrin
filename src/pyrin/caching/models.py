@@ -27,7 +27,7 @@ class CacheItemEntity(CacheItemBaseEntity, HistoryMixin):
 
     _extend_existing = True
 
-    handler_name = CoreColumn(name='handler_name', type_=Unicode(length=25), nullable=False)
+    cache_name = CoreColumn(name='cache_name', type_=Unicode(length=25), nullable=False)
     shard_name = CoreColumn(name='shard_name', type_=Unicode(25), nullable=True)
     version = CoreColumn(name='version', type_=Unicode(length=20), nullable=False)
     key = CoreColumn(name='key', type_=BigInteger, nullable=False)

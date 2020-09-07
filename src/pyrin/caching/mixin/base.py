@@ -5,6 +5,10 @@ caching mixin base module.
 
 from abc import abstractmethod
 
+import pyrin.utils.function as func_utils
+import pyrin.security.session.services as session_services
+
+from pyrin.caching.structs import CacheableDict
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import CoreObject
 
@@ -67,3 +71,116 @@ class CacheMixinBase(CoreObject):
         """
 
         raise CoreNotImplementedError()
+
+
+class SimpleKeyGeneratorMixin(CoreObject):
+    """
+    simple key generator mixin class.
+    """
+
+    def generate_key(self, func, parent, *args, **options):
+        """
+        generates a cache key from given inputs.
+
+        :param function func: function to to be cached.
+        :param type | object parent: parent class or instance of given function.
+
+        :returns: hash of generated key
+        :rtype: int
+        """
+
+        return hash(self._generate_key(func, parent, *args, **options))
+
+    def _generate_key(self, func, parent, *args, **options):
+        """
+        generates a cache key from given inputs.
+
+        :param function func: function to to be cached.
+        :param type | object parent: parent class or instance of given function.
+
+        :returns: tuple[type parent, str function_name]
+        :rtype: tuple[type, str]
+        """
+
+        parent_type = None
+        name = func.__name__
+        if parent is None:
+            name = func_utils.get_fully_qualified_name(func)
+        else:
+            parent_type = self._get_parent_type(parent)
+
+        return parent_type, name
+
+    def _get_parent_type(self, parent):
+        """
+        gets the parent type from given input.
+
+        if it is a class itself, it returns the same input.
+
+        :param type | object parent: class or instance to get its type.
+
+        :rtype: type
+        """
+
+        parent_type = parent
+        if not isinstance(parent_type, type):
+            parent_type = type(parent_type)
+
+        return parent_type
+
+
+class ComplexKeyGeneratorMixin(SimpleKeyGeneratorMixin):
+    """
+    complex key generator mixin class.
+    """
+
+    def generate_key(self, func, inputs, kw_inputs, *args, **options):
+        """
+        generates a cache key from given inputs.
+
+        :param function func: function to to be cached.
+        :param tuple inputs: function positional arguments.
+        :param dict kw_inputs: function keyword arguments.
+
+        :keyword bool consider_user: specifies that current user must be included in
+                                     key generation. it will be get from `caching` config
+                                     store if not provided.
+
+        :returns: hash of generated key
+        :rtype: int
+        """
+
+        return hash(self._generate_key(func, inputs, kw_inputs, *args, **options))
+
+    def _generate_key(self, func, inputs, kw_inputs, *args, **options):
+        """
+        generates a cache key from given inputs.
+
+        :param function func: function to to be cached.
+        :param tuple inputs: function positional arguments.
+        :param dict kw_inputs: function keyword arguments.
+
+        :keyword bool consider_user: specifies that current user must be included in
+                                     key generation. it will be get from `caching` config
+                                     store if not provided.
+
+        :returns: tuple[type parent, str function_name,
+                        dict inputs, object user,
+                        object component key]
+
+        :rtype: tuple[type, str, dict, object, object]
+        """
+
+        consider_user = options.get('consider_user', self.consider_user)
+        current_user = None
+        if consider_user is not False:
+            current_user = session_services.get_safe_current_user()
+
+        component_key = session_services.get_safe_component_custom_key()
+
+        cacheable_inputs, parent = func_utils.get_inputs(func, inputs, kw_inputs,
+                                                         CacheableDict)
+
+        parent_type, name = super()._generate_key(func, parent, *args, **options)
+
+        return parent_type, name, cacheable_inputs, current_user, component_key

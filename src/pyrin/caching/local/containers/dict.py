@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-caching containers local module.
+caching local containers dict module.
 """
 
-from pyrin.caching.containers.base import CachingContainerBase
+from pyrin.caching.local.containers.base import LocalCacheContainerBase
 from pyrin.core.compat import PythonOrderedDict
 
 
-class LocalContainer(PythonOrderedDict, CachingContainerBase):
+class OrderedDictContainer(PythonOrderedDict, LocalCacheContainerBase):
     """
-    local container class.
+    ordered dict container class.
 
     it is actually a regular ordered dict.
     it is inherited from `OrderedDict` instead of `dict` to let efficiently

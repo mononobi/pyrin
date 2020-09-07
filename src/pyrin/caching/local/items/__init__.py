@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-caching items package.
+caching local items package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class CachingItemsPackage(Package):
+class CachingLocalItemsPackage(Package):
     """
-    caching items package class.
+    caching local items package class.
     """
 
     NAME = __name__

@@ -50,13 +50,13 @@ class CachingAuditManager(Manager):
 
     def _test_cache(self, name, **options):
         """
-        tests that given caching handler is ready.
+        tests that given cache is ready.
 
         it returns a tuple of two values. first value is a dict containing the inspection
         data. and the second value is a bool value indicating that inspection has been
         succeeded or failed.
 
-        :param str name: caching handler name.
+        :param str name: cache name.
 
         :keyword bool traceback: specifies that on failure report, it must include
                                  the traceback of errors.

@@ -12,13 +12,13 @@ import pyrin.caching.services as caching_services
 
 def cache(*args, **kwargs):
     """
-    decorator to register a caching handler.
+    decorator to register a cache.
 
-    :param object args: caching handler class constructor arguments.
-    :param object kwargs: caching handler class constructor keyword arguments.
+    :param object args: cache class constructor arguments.
+    :param object kwargs: cache class constructor keyword arguments.
 
     :keyword bool replace: specifies that if there is another registered
-                           handler with the same name, replace it with
+                           cache with the same name, replace it with
                            the new one, otherwise raise an error.
                            defaults to False.
 
@@ -27,60 +27,61 @@ def cache(*args, **kwargs):
                         from `caching` config store.
                         if you want to remove count limit,
                         you could pass `caching.globals.NO_LIMIT`
-                        as input. this is only used in complex handlers.
+                        as input. this is only used in complex caches.
 
     :keyword int timeout: default timeout of cached items.
                           if not provided, it will be get
                           from `caching` config store.
-                          this is only used in complex handlers.
+                          this is only used in complex caches.
 
     :keyword bool use_lifo: specifies that items of the cache must
                             be removed in lifo order. if not provided,
                             it will be get from `caching` config store.
-                            this is only used in complex handlers.
+                            this is only used in complex caches.
 
     :keyword int clear_count: number of old items to be removed from cache when
                               the cache is full. if not provided, it will be get
                               from `caching` config store.
                               note that reducing this value to extremely low values
                               will cause a performance issue when the cache becomes full.
-                              this is only used in complex handlers.
+                              this is only used in complex caches.
 
     :keyword bool consider_user: specifies that current user must be included in
                                  key generation. if not provided, it will be get
                                  from `caching` config store.
+                                 this is only used in extended and complex caches.
 
     :keyword bool persistent: specifies that cached items must be persisted to
                               database on application shutdown, and loaded back
                               on application startup. if not provided, will be
                               get from `caching` config store.
-                              this is only used in complex handlers.
+                              this is only used in complex caches.
 
     :keyword int chunk_size: chunk size to insert values for persistent caches.
                              after each chunk, store will be flushed.
                              if not provided, will be get from `caching` config store.
-                             this is only used in complex persistent handlers.
+                             this is only used in complex caches.
 
-    :raises InvalidCachingHandlerTypeError: invalid caching handler type error.
-    :raises DuplicatedCachingHandlerError: duplicated caching handler error.
+    :raises InvalidCacheTypeError: invalid cache type error.
+    :raises DuplicatedCacheError: duplicated cache error.
 
-    :returns: caching handler class.
+    :returns: cache class.
     :rtype: type
     """
 
     def decorator(cls):
         """
         decorates the given class and registers an instance
-        of it into available caching handlers.
+        of it into available caches.
 
-        :param type cls: caching handler class.
+        :param type cls: cache class.
 
-        :returns: caching handler class.
+        :returns: cache class.
         :rtype: type
         """
 
         instance = cls(*args, **kwargs)
-        caching_services.register_caching_handler(instance, **kwargs)
+        caching_services.register_cache(instance, **kwargs)
 
         return cls
 

@@ -27,23 +27,23 @@ class KeyIsNotPresentInCacheError(CachingManagerException):
     pass
 
 
-class InvalidCachingHandlerTypeError(CachingManagerException):
+class InvalidCacheTypeError(CachingManagerException):
     """
-    invalid caching handler type error.
-    """
-    pass
-
-
-class DuplicatedCachingHandlerError(CachingManagerException):
-    """
-    duplicated caching handler error.
+    invalid cache type error.
     """
     pass
 
 
-class CachingHandlerNotFoundError(CachingManagerException):
+class DuplicatedCacheError(CachingManagerException):
     """
-    caching handler not found error.
+    duplicated cache error.
+    """
+    pass
+
+
+class CacheNotFoundError(CachingManagerException):
+    """
+    cache not found error.
     """
     pass
 

@@ -3,7 +3,7 @@
 caching globals module.
 """
 
-# this value must be passed to caching handlers when
+# this value must be passed to caches when
 # no count limit is required.
 NO_LIMIT = 'No Limit'
 
