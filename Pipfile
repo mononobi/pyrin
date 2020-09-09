@@ -26,6 +26,7 @@ babel = "*"
 alembic = "*"
 fire = "*"
 sqlparse = "*"
+pymemcache = "*"
 
 [requires]
 python_version = "3.8"
