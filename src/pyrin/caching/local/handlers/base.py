@@ -757,6 +757,9 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         :param str version: version to be saved with cached items in database.
 
+        :keyword bool clear: clear all caches after persisting them into database.
+                             defaults to False if not provided.
+
         :raises CacheIsNotPersistentError: cache is not persistent error.
         :raises CacheVersionIsRequiredError: cache version is required error.
         """
@@ -790,6 +793,10 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                                   'including [{count}] items.'
                                   .format(name=self.get_name(), count=size))
 
+            clear = options.get('clear', False)
+            if clear is True:
+                self.clear()
+
     def load(self, version, **options):
         """
         loads cached items of this cache from database.
@@ -805,9 +812,16 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         with self._persistent_lock:
             shard_name = config_services.get('caching', 'general', 'shard_name')
             store = get_current_store()
-            items = store.query(CacheItemEntity).filter_by(cache_name=self.get_name(),
-                                                           shard_name=shard_name,
-                                                           version=version).all()
+            expression = store.query(CacheItemEntity).filter_by(
+                cache_name=self.get_name(),
+                shard_name=shard_name,
+                version=version).order_by(
+                CacheItemEntity.created_on.desc())
+
+            if self.limit != NO_LIMIT:
+                expression = expression.limit(self.limit)
+
+            items = expression.all()
             for entity in items:
                 try:
                     cache_item = pickle.loads(entity.item)
@@ -822,7 +836,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                                   'including [{count}] items.'
                                   .format(name=self.get_name(), count=size))
 
-                self._delete_loaded_caches(version, shard_name)
+            self._delete_loaded_caches(version, shard_name)
 
     @property
     def is_full(self):

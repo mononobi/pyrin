@@ -32,7 +32,7 @@ class ApplicationHook(ApplicationHookBase):
         """
 
         if new_status == ApplicationStatusEnum.TERMINATED:
-            caching_services.persist_all()
+            caching_services.persist_all(clear=True)
 
     def prepare_runtime_data(self):
         """

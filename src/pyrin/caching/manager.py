@@ -352,6 +352,9 @@ class CachingManager(Manager):
 
         :param str name: cache name to be persisted.
 
+        :keyword bool clear: clear all caches after persisting them into database.
+                             defaults to False if not provided.
+
         :raises CacheNotFoundError: cache not found error.
         :raises CacheIsNotPersistentError: cache is not persistent error.
         """
@@ -367,6 +370,9 @@ class CachingManager(Manager):
     def persist_all(self, **options):
         """
         saves cached items of all persistent caches into database.
+
+        :keyword bool clear: clear all caches after persisting them into database.
+                             defaults to False if not provided.
         """
 
         for name, cache in self._caches.items():
