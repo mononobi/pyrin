@@ -421,8 +421,8 @@ class Memcached(RemoteCacheBase):
                        bool persistent: persistent cache,
                        bool consider_user: consider user,
                        int expire: cached items expire time,
-                       int hit_count: hit count,
-                       int miss_count: miss count,
+                       int hit: hit count,
+                       int miss: miss count,
                        float hit_ratio: hit ratio,
                        int limit: memory size limit)
         :rtype: dict
