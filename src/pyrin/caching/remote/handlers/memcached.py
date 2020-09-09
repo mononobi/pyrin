@@ -57,8 +57,8 @@ class Memcached(RemoteCacheBase):
 
         super().__init__(*args, **options)
 
-        self.add(self.HIT_KEY, 0, expire=0, noreply=True)
-        self.add(self.MISS_KEY, 0, expire=0, noreply=True)
+        self.client.add(self.HIT_KEY, 0, expire=0, noreply=True)
+        self.client.add(self.MISS_KEY, 0, expire=0, noreply=True)
 
     def _create_client(self, *args, kwargs=None, **configs):
         """
@@ -175,14 +175,14 @@ class Memcached(RemoteCacheBase):
         increases hit count of this cache.
         """
 
-        self.increment(self.HIT_KEY, 1, noreply=True)
+        self.client.incr(self.HIT_KEY, 1, noreply=True)
 
     def _increase_miss(self):
         """
         increases miss count of this cache.
         """
 
-        self.increment(self.MISS_KEY, 1, noreply=True)
+        self.client.incr(self.MISS_KEY, 1, noreply=True)
 
     def _clear(self):
         """
@@ -441,7 +441,7 @@ class Memcached(RemoteCacheBase):
         :rtype: int
         """
 
-        return int(self.get(self.HIT_KEY, default=0))
+        return int(self.client.get(self.HIT_KEY, default=0))
 
     @property
     def miss_count(self):
@@ -451,7 +451,7 @@ class Memcached(RemoteCacheBase):
         :rtype: int
         """
 
-        return int(self.get(self.MISS_KEY, default=0))
+        return int(self.client.get(self.MISS_KEY, default=0))
 
     @property
     def limit(self):

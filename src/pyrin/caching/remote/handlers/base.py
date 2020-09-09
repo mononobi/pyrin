@@ -381,8 +381,8 @@ class RemoteCacheBase(ComplexKeyGeneratorMixin, AbstractRemoteCache):
                        bool persistent: persistent cache,
                        bool consider_user: consider user,
                        int expire: cached items expire time,
-                       int hit_count: hit count,
-                       int miss_count: miss count,
+                       int hit: hit count,
+                       int miss: miss count,
                        str hit_ratio: hit ratio)
         :rtype: dict
         """
@@ -394,8 +394,8 @@ class RemoteCacheBase(ComplexKeyGeneratorMixin, AbstractRemoteCache):
                     persistent=self.persistent,
                     consider_user=self.consider_user,
                     expire=self.expire,
-                    hit_count=self.hit_count,
-                    miss_count=self.miss_count,
+                    hit=self.hit_count,
+                    miss=self.miss_count,
                     hit_ratio=hit_ratio)
 
     @property
