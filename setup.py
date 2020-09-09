@@ -45,6 +45,10 @@ DOC_PACKAGES = [
     'sphinx-issues',
 ]
 
+MEMCACHED_PACKAGES = [
+    'pymemcache>=3.3.0',
+]
+
 setup(
     name='pyrin',
     version=VERSION,
@@ -93,6 +97,7 @@ setup(
     extras_require={
         'tests': TEST_PACKAGES,
         'docs': DOC_PACKAGES,
+        'memcached': MEMCACHED_PACKAGES,
     },
     entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
 )
