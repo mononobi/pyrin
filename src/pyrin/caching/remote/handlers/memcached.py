@@ -423,7 +423,7 @@ class Memcached(RemoteCacheBase):
                        int expire: cached items expire time,
                        int hit: hit count,
                        int miss: miss count,
-                       float hit_ratio: hit ratio,
+                       str hit_ratio: hit ratio,
                        int limit: memory size limit)
         :rtype: dict
         """
