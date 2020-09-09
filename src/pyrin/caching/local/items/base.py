@@ -14,7 +14,7 @@ class LocalCacheItemBase(CoreObject):
     """
     local cache item base class.
 
-    this type of cache item does not support timeout.
+    this type of cache item does not support expire time.
     it also keeps the original value into the cache to gain performance.
 
     all application cache items must be subclassed from this.
@@ -95,13 +95,13 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
     """
     complex local cache item base class.
 
-    this type of cache item supports timeout.
+    this type of cache item supports expire.
     it also keeps the deep copy of the value into the cache.
 
     all application complex cache items must be subclassed from this.
     """
 
-    def __init__(self, key, value, timeout, **kwargs):
+    def __init__(self, key, value, expire, **kwargs):
         """
         initializes an instance of ComplexLocalCacheItemBase.
         """
@@ -109,7 +109,7 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
         super().__init__(key, value, **kwargs)
 
         self._refreshed_on = self._created_on
-        self._timeout = timeout
+        self._expire = expire
 
     def _get_cacheable_value(self, value):
         """
@@ -139,12 +139,12 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
         :rtype: bool
         """
 
-        return time.time() * 1000 - self._refreshed_on > self._timeout
+        return time.time() * 1000 - self._refreshed_on > self._expire
 
     @property
-    def timeout(self):
+    def expire(self):
         """
-        gets the timeout value of this item.
+        gets the expire time value of this item.
         """
 
-        return self._timeout
+        return self._expire

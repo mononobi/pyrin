@@ -122,7 +122,7 @@ class CachingManager(Manager):
         cache = self.get_cache(name)
         return cache.pop(key, default)
 
-    def remove(self, name, key):
+    def remove(self, name, key, **options):
         """
         removes the given key from cached items of given cache.
 
@@ -135,7 +135,7 @@ class CachingManager(Manager):
         """
 
         cache = self.get_cache(name)
-        cache.remove(key)
+        cache.remove(key, **options)
 
     def clear(self, name):
         """
@@ -157,9 +157,9 @@ class CachingManager(Manager):
         :param object key: hashable key of the cache to be registered.
         :param object value: value to be cached.
 
-        :keyword int timeout: timeout for given key in milliseconds.
-                              if not provided, will be get from `caching` config store.
-                              this value is only used in complex caches.
+        :keyword int expire: expire time for given key in milliseconds.
+                             if not provided, will be get from `caching` config store.
+                             this value is only used in complex and remote caches.
 
         :raises CacheNotFoundError: cache not found error.
         """
@@ -212,12 +212,12 @@ class CachingManager(Manager):
         :keyword bool consider_user: specifies that current user must also be
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
-                                     this value is only used in complex and
-                                     extended caches.
+                                     this value is only used in complex,
+                                     extended and remote caches.
 
-        :keyword int timeout: timeout for given key in milliseconds.
-                              if not provided, will be get from `caching` config store.
-                              this value is only used in complex caches.
+        :keyword int expire: expire time for given key in milliseconds.
+                             if not provided, will be get from `caching` config store.
+                             this value is only used in complex and remote caches.
 
         :raises CacheNotFoundError: cache not found error.
         """
@@ -254,8 +254,8 @@ class CachingManager(Manager):
         :keyword bool consider_user: specifies that current user must also be
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
-                                     this value is only used in complex and
-                                     extended caches.
+                                     this value is only used in complex,
+                                     extended and remote caches.
 
         :raises CacheNotFoundError: cache not found error.
 
@@ -287,8 +287,8 @@ class CachingManager(Manager):
         :keyword bool consider_user: specifies that current user must also be
                                      included in cache key. if not provided, will
                                      be get from `caching` config store.
-                                     this value is only used in complex and
-                                     extended caches.
+                                     this value is only used in complex,
+                                     extended and remote caches.
 
         :raises CacheNotFoundError: cache not found error.
 

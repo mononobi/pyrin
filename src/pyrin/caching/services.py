@@ -77,7 +77,7 @@ def pop(name, key, default=None):
     return get_component(CachingPackage.COMPONENT_NAME).pop(name, key, default=default)
 
 
-def remove(name, key):
+def remove(name, key, **options):
     """
     removes the given key from cached items of given cache.
 
@@ -89,7 +89,7 @@ def remove(name, key):
     :raises CacheNotFoundError: cache not found error.
     """
 
-    get_component(CachingPackage.COMPONENT_NAME).remove(name, key)
+    get_component(CachingPackage.COMPONENT_NAME).remove(name, key, **options)
 
 
 def clear(name):
@@ -112,9 +112,9 @@ def set(name, key, value, **options):
     :param object key: hashable key of the cache to be registered.
     :param object value: value to be cached.
 
-    :keyword int timeout: timeout for given key in milliseconds.
-                          if not provided, will be get from `caching` config store.
-                          this value is only used in complex caches.
+    :keyword int expire: expire time for given key in milliseconds.
+                         if not provided, will be get from `caching` config store.
+                         this value is only used in complex and remote caches.
 
     :raises CacheNotFoundError: cache not found error.
     """
@@ -168,12 +168,12 @@ def try_set(name, value, func, *extra_keys, **options):
     :keyword bool consider_user: specifies that current user must also be
                                  included in cache key. if not provided, will
                                  be get from `caching` config store.
-                                 this value is only used in complex and
-                                 extended caches.
+                                 this value is only used in complex, extended
+                                 and remote caches.
 
-    :keyword int timeout: timeout for given key in milliseconds.
-                          if not provided, will be get from `caching` config store.
-                          this value is only used in complex caches.
+    :keyword int expire: expire time for given key in milliseconds.
+                         if not provided, will be get from `caching` config store.
+                         this value is only used in complex and remote caches.
 
     :raises CacheNotFoundError: cache not found error.
     """
@@ -211,8 +211,8 @@ def try_get(name, func, *extra_keys, default=None, **options):
     :keyword bool consider_user: specifies that current user must also be
                                  included in cache key. if not provided, will
                                  be get from `caching` config store.
-                                 this value is only used in complex and
-                                 extended caches.
+                                 this value is only used in complex, extended
+                                 and remote caches.
 
     :raises CacheNotFoundError: cache not found error.
 
@@ -245,8 +245,8 @@ def generate_key(name, func, *extra_keys, **options):
     :keyword bool consider_user: specifies that current user must also be
                                  included in cache key. if not provided, will
                                  be get from `caching` config store.
-                                 this value is only used in complex and
-                                 extended caches.
+                                 this value is only used in complex, extended
+                                 and remote caches.
 
     :raises CacheNotFoundError: cache not found error.
 

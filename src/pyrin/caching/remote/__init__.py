@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-caching containers package.
+caching remote package.
 """
 
 from pyrin.packaging.base import Package
 
 
-class CachingContainersPackage(Package):
+class CachingRemotePackage(Package):
     """
-    caching containers package class.
+    caching remote package class.
     """
 
     NAME = __name__

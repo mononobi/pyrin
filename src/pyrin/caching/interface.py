@@ -15,21 +15,6 @@ class AbstractCache(CoreObject):
     abstract cache class.
 
     all application caches must be subclassed from this.
-
-    this type of caches does not consider method inputs, current user and
-    component key in key generation. it only considers the class type
-    of function and function name itself. this is useful for caching items
-    that never change after application startup and are independent
-    from different scoped or global variables.
-
-    it also does not support timeout and size limit for cached values.
-    its values are permanent unless manually removed if required.
-
-    it also keeps the real value in the cache, not a deep copy of it to gain
-    performance.
-
-    it also does not provide statistic info about hit or missed
-    caches, to gain performance.
     """
 
     def __setitem__(self, key, value):
@@ -172,7 +157,7 @@ class AbstractCache(CoreObject):
         raise CoreNotImplementedError()
 
     @abstractmethod
-    def remove(self, key):
+    def remove(self, key, **options):
         """
         removes the given key from cache.
 
@@ -262,7 +247,7 @@ class AbstractLocalCache(AbstractCache):
     that never change after application startup and are independent
     from different scoped or global variables.
 
-    it also does not support timeout and size limit for cached values.
+    it also does not support expire time and size limit for cached values.
     its values are permanent unless manually removed if required.
 
     it also keeps the real value in the cache, not a deep copy of it to gain
@@ -365,7 +350,7 @@ class AbstractComplexLocalCache(AbstractExtendedLocalCache):
     and component key in key generation. this is useful for caching items that
     change during application runtime based on different inputs and variables.
 
-    it also supports timeout and size limit for cached items.
+    it also supports expire time and size limit for cached items.
     it also keeps a deep copy of the value in the cache.
     it also provides statistic info about hit or missed caches.
     it also supports persistent mode to save cached values into
@@ -414,9 +399,9 @@ class AbstractComplexLocalCache(AbstractExtendedLocalCache):
 
     @property
     @abstractmethod
-    def timeout(self):
+    def expire(self):
         """
-        gets default timeout value for this cache's items in milliseconds.
+        gets default expire time value for this cache's items in milliseconds.
 
         :raises CoreNotImplementedError: core not implemented error.
 
@@ -513,22 +498,9 @@ class AbstractRemoteCache(AbstractCache):
 
     @property
     @abstractmethod
-    def timeout(self):
+    def expire(self):
         """
-        gets default timeout value for this cache's items in milliseconds.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: int
-        """
-
-        raise CoreNotImplementedError()
-
-    @property
-    @abstractmethod
-    def limit(self):
-        """
-        gets the size limit of this cache in megabytes.
+        gets default expire time value for this cache's items in milliseconds.
 
         :raises CoreNotImplementedError: core not implemented error.
 

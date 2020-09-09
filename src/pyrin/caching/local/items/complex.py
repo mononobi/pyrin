@@ -10,7 +10,7 @@ class ComplexLocalCacheItem(ComplexLocalCacheItemBase):
     """
     complex local cache item class.
 
-    this type of cache item supports timeout.
+    this type of cache item supports expire time.
     it also keeps the deep copy of the value into the cache.
     """
     pass

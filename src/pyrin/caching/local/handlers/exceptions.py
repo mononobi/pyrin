@@ -13,13 +13,6 @@ class CachingLocalHandlersException(CoreException):
     pass
 
 
-class CacheNameIsRequiredError(CachingLocalHandlersException):
-    """
-    cache name is required error.
-    """
-    pass
-
-
 class InvalidCacheContainerTypeError(CachingLocalHandlersException):
     """
     invalid cache container type error.
@@ -37,20 +30,6 @@ class InvalidCacheItemTypeError(CachingLocalHandlersException):
 class CacheClearanceLockTypeIsRequiredError(CachingLocalHandlersException):
     """
     cache clearance lock type is required error.
-    """
-    pass
-
-
-class InvalidCacheLimitError(CachingLocalHandlersException):
-    """
-    invalid cache limit error.
-    """
-    pass
-
-
-class InvalidCacheTimeoutError(CachingLocalHandlersException):
-    """
-    invalid cache timeout error.
     """
     pass
 

@@ -12,7 +12,6 @@ import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.datetime.services as datetime_services
 
-from pyrin.caching.exceptions import CacheIsNotPersistentError
 from pyrin.caching.mixin.base import ComplexKeyGeneratorMixin, SimpleKeyGeneratorMixin
 from pyrin.caching.models import CacheItemEntity
 from pyrin.caching.globals import NO_LIMIT
@@ -23,9 +22,10 @@ from pyrin.caching.local.containers.base import LocalCacheContainerBase
 from pyrin.core.globals import SECURE_FALSE
 from pyrin.caching.interface import AbstractCache, AbstractComplexLocalCache, \
     AbstractExtendedLocalCache
-from pyrin.caching.local.handlers.exceptions import CacheNameIsRequiredError, \
-    InvalidCacheContainerTypeError, InvalidCacheItemTypeError, InvalidCacheLimitError, \
-    InvalidCacheTimeoutError, InvalidCacheClearCountError, InvalidChunkSizeError, \
+from pyrin.caching.exceptions import CacheIsNotPersistentError, CacheNameIsRequiredError, \
+    InvalidCacheLimitError, InvalidCacheExpireTimeError
+from pyrin.caching.local.handlers.exceptions import InvalidCacheContainerTypeError, \
+    InvalidCacheItemTypeError, InvalidCacheClearCountError, InvalidChunkSizeError, \
     CacheClearanceLockTypeIsRequiredError, CacheVersionIsRequiredError, \
     CachePersistentLockTypeIsRequiredError
 
@@ -40,7 +40,7 @@ class LocalCacheBase(SimpleKeyGeneratorMixin, AbstractCache):
     items that never change after application startup and are independent
     from different scoped or global variables.
 
-    it also does not support timeout and size limit for cached values.
+    it also does not support expire time and size limit for cached values.
     its values are permanent unless manually removed if required.
 
     it also keeps the real value in the cache, not a deep copy of it to gain
@@ -62,7 +62,7 @@ class LocalCacheBase(SimpleKeyGeneratorMixin, AbstractCache):
     # it could be overridden in subclasses.
     cache_item_class = None
 
-    LOGGER = logging_services.get_logger('caching')
+    LOGGER = logging_services.get_logger('caching.local')
 
     def __init__(self, *args, **options):
         """
@@ -242,7 +242,7 @@ class LocalCacheBase(SimpleKeyGeneratorMixin, AbstractCache):
         """
 
         try:
-            return self._try_get(func, parent, *args, default=None, **options)
+            return self._try_get(func, parent, *args, default=default, **options)
         except TypeError as error:
             self.LOGGER.exception(str(error))
             return None
@@ -272,7 +272,7 @@ class LocalCacheBase(SimpleKeyGeneratorMixin, AbstractCache):
 
         return self._container.pop(hash(key), default)
 
-    def remove(self, key):
+    def remove(self, key, **options):
         """
         removes the given key from cache.
 
@@ -487,7 +487,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
     component key in key generation. this is useful for caching items that
     change during application runtime based on different inputs and variables.
 
-    it also supports timeout and size limit for cached items.
+    it also supports expire time and size limit for cached items.
     it also keeps a deep copy of the value in the cache.
     it also provides statistic info about hit or missed caches.
     it also supports persistent mode to save cached values into
@@ -512,9 +512,9 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                             you could pass `caching.globals.NO_LIMIT`
                             as input.
 
-        :keyword int timeout: default timeout of cached items.
-                              if not provided, it will be get
-                              from `caching` config store.
+        :keyword int expire: default expire time of cached items.
+                             if not provided, it will be get
+                             from `caching` config store.
 
         :keyword bool use_lifo: specifies that items of the cache must
                                 be removed in lifo order. if not provided,
@@ -545,7 +545,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         :raises CacheClearanceLockTypeIsRequiredError: cache clearance lock type
                                                        is required error.
         :raises InvalidCacheLimitError: invalid cache limit error.
-        :raises InvalidCacheTimeoutError: invalid cache timeout error.
+        :raises InvalidCacheExpireTimeError: invalid cache expire time error.
         :raises InvalidCacheClearCountError: invalid cache clear count error.
         :raises InvalidChunkSizeError: invalid chunk size error.
         :raises CachePersistentLockTypeIsRequiredError: cache persistent lock
@@ -572,7 +572,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         self._hit_count = 0
 
         limit = options.get('limit')
-        timeout = options.get('timeout')
+        expire = options.get('expire')
         use_lifo = options.get('use_lifo')
         clear_count = options.get('clear_count')
         persistent = options.get('persistent')
@@ -582,8 +582,8 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         if limit is None:
             limit = configs['limit']
 
-        if timeout is None:
-            timeout = configs['timeout']
+        if expire is None:
+            expire = configs['expire']
 
         if use_lifo is None:
             use_lifo = configs['use_lifo']
@@ -602,10 +602,10 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                                          'must be a positive integer.'
                                          .format(name=self.get_name()))
 
-        if timeout <= 0:
-            raise InvalidCacheTimeoutError('Cache timeout for cache [{name}] '
-                                           'must be a positive integer.'
-                                           .format(name=self.get_name()))
+        if expire <= 0:
+            raise InvalidCacheExpireTimeError('Cache expire time for cache [{name}] '
+                                              'must be a positive integer.'
+                                              .format(name=self.get_name()))
 
         if clear_count <= 0:
             raise InvalidCacheClearCountError('Cache clear count for cache [{name}] '
@@ -624,7 +624,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         self._persistent_lock = self.persistent_lock_class()
         self._limit = limit
-        self._timeout = timeout
+        self._expire = expire
         self._use_lifo = use_lifo
         self._clear_count = clear_count
         self._persistent = persistent
@@ -709,14 +709,13 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         :param object key: hashable key of the cache to be registered.
         :param object value: value to be cached.
 
-        :keyword int timeout: timeout for given key in milliseconds.
-                              defaults to `timeout` attribute if not provided.
+        :keyword int expire: expire time for given key in milliseconds.
+                             defaults to `expire` attribute if not provided.
         """
 
-        timeout = options.get('timeout')
-        if timeout is None:
-            timeout = self.timeout
-            options.update(timeout=timeout)
+        expire = options.get('expire')
+        if expire is None:
+            options.update(expire=self.expire)
 
         is_full, count = self.is_full
         if is_full is True:
@@ -812,7 +811,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
             for entity in items:
                 try:
                     cache_item = pickle.loads(entity.item)
-                    self.set(cache_item.key, cache_item.value, timeout=cache_item.timeout)
+                    self.set(cache_item.key, cache_item.value, expire=cache_item.expire)
 
                 except Exception as error:
                     self.LOGGER.exception(str(error))
@@ -850,14 +849,14 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         return is_full, excess
 
     @property
-    def timeout(self):
+    def expire(self):
         """
-        gets default timeout value for this cache's items in milliseconds.
+        gets default expire time value for this cache's items in milliseconds.
 
         :rtype: int
         """
 
-        return self._timeout
+        return self._expire
 
     @property
     def limit(self):
@@ -922,7 +921,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                        int miss: miss count,
                        str hit_ratio: hit ratio,
                        int limit: items count limit,
-                       int timeout: items default timeout,
+                       int expire: items default expire time,
                        bool use_lifo: use lifo order,
                        int clear_count: clear count,
                        int chunk_size: chunk size)
@@ -936,7 +935,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                      miss=self.miss_count,
                      hit_ratio=hit_ratio,
                      limit=self.limit,
-                     timeout=self.timeout,
+                     expire=self.expire,
                      use_lifo=self.use_lifo,
                      clear_count=self.clear_count,
                      chunk_size=self.chunk_size)

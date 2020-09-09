@@ -10,7 +10,7 @@ class PermanentLocalCacheItem(LocalCacheItemBase):
     """
     permanent local cache item class.
 
-    this type of cache item does not support timeout.
+    this type of cache item does not support expire time.
     it also keeps the original value into the cache to gain performance.
     """
     pass

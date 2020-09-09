@@ -22,17 +22,17 @@ def cache(*args, **kwargs):
                            the new one, otherwise raise an error.
                            defaults to False.
 
-    :keyword int limit: limit count of cached items.
+    :keyword int limit: limit count or size of cached items.
                         if not provided, it will be get
                         from `caching` config store.
                         if you want to remove count limit,
                         you could pass `caching.globals.NO_LIMIT`
-                        as input. this is only used in complex caches.
+                        as input. this is only used in complex
+                        and some remote caches.
 
-    :keyword int timeout: default timeout of cached items.
-                          if not provided, it will be get
-                          from `caching` config store.
-                          this is only used in complex caches.
+    :keyword int expire: default expire time of cached items in milliseconds.
+                         if not provided, it will be get from `caching` config
+                         store. this is only used in complex and remote caches.
 
     :keyword bool use_lifo: specifies that items of the cache must
                             be removed in lifo order. if not provided,
@@ -49,7 +49,8 @@ def cache(*args, **kwargs):
     :keyword bool consider_user: specifies that current user must be included in
                                  key generation. if not provided, it will be get
                                  from `caching` config store.
-                                 this is only used in extended and complex caches.
+                                 this is only used in extended, complex and remote
+                                 caches.
 
     :keyword bool persistent: specifies that cached items must be persisted to
                               database on application shutdown, and loaded back
@@ -267,9 +268,9 @@ def cached(*old_method, **options):
                                  key generation. if not provided, it will be get
                                  from `caching` config store.
 
-    :keyword int timeout: timeout for given key in milliseconds.
-                          if not provided, it will be get from
-                          `caching` config store.
+    :keyword int expire: expire time for given key in milliseconds.
+                         if not provided, it will be get from `caching`
+                         config store.
 
     :returns: method or function result.
     """

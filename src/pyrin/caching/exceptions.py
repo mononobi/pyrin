@@ -53,3 +53,24 @@ class CacheIsNotPersistentError(CachingManagerException):
     cache is not persistent error.
     """
     pass
+
+
+class CacheNameIsRequiredError(CachingManagerException):
+    """
+    cache name is required error.
+    """
+    pass
+
+
+class InvalidCacheLimitError(CachingManagerException):
+    """
+    invalid cache limit error.
+    """
+    pass
+
+
+class InvalidCacheExpireTimeError(CachingManagerException):
+    """
+    invalid cache expire time error.
+    """
+    pass
