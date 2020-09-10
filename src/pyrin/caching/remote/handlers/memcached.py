@@ -5,8 +5,6 @@ caching remote handlers memcached module.
 
 import pickle
 
-from pickle import PickleError
-
 from pymemcache import Client
 
 from pyrin.caching.decorators import cache
@@ -25,8 +23,8 @@ class Memcached(RemoteCacheBase):
 
     cache_name = 'memcached'
 
-    HIT_KEY = '__HIT_COUNT'
-    MISS_KEY = '__MISS_COUNT'
+    HIT_KEY = '__HIT_COUNT__'
+    MISS_KEY = '__MISS_COUNT__'
 
     def __init__(self, *args, **options):
         """
@@ -57,8 +55,8 @@ class Memcached(RemoteCacheBase):
 
         super().__init__(*args, **options)
 
-        self.client.add(self.HIT_KEY, 0, expire=0, noreply=True)
-        self.client.add(self.MISS_KEY, 0, expire=0, noreply=True)
+        self.client.add(self.HIT_KEY, 0, expire=0, noreply=True, flags=1)
+        self.client.add(self.MISS_KEY, 0, expire=0, noreply=True, flags=1)
 
     def _create_client(self, *args, kwargs=None, **configs):
         """
@@ -101,9 +99,6 @@ class Memcached(RemoteCacheBase):
         :keyword bool ignore_exc: True to cause the "get", "gets", "get_many" and
                                   "gets_many" calls to treat any errors as cache
                                   misses. defaults to False.
-
-        :keyword bytes key_prefix: prefix of key. you can use this as namespace.
-                                   defaults to b''.
 
         :keyword bool default_noreply: the default value for 'noreply' as passed to
                                        store commands (except from cas, incr, and decr,
@@ -164,6 +159,7 @@ class Memcached(RemoteCacheBase):
             connect_timeout = connect_timeout / 1000
             configs.update(connect_timeout=connect_timeout)
 
+        configs.update(serde=self)
         client = Client(server, **configs)
         if self.limit != NO_LIMIT:
             client.cache_memlimit(self.limit)
@@ -246,35 +242,39 @@ class Memcached(RemoteCacheBase):
 
         return str(key)
 
-    def _prepare_for_set(self, value):
+    def serialize(self, key, value):
         """
-        prepares the value that must be cached.
+        serializes the given value.
 
-        :param object value: value to be cached.
+        :param object key: key of value to be serialized.
+        :param object value: value to be serialized.
 
-        :returns: prepared value.
-        :rtype: bytes
-        """
-
-        try:
-            return pickle.dumps(value)
-        except PickleError:
-            return value
-
-    def _prepare_for_get(self, value):
-        """
-        prepares the value that must be returned from cache.
-
-        :param bytes value: value to be returned.
-
-        :returns: prepared value.
-        :rtype: object
+        :returns: serialized value
+        :rtype: tuple[bytes | int, int]
         """
 
-        try:
-            return pickle.loads(value)
-        except PickleError:
-            return value
+        if isinstance(value, int):
+            return value, 1
+
+        return pickle.dumps(value), 2
+
+    def deserialize(self, key, value, flags=None):
+        """
+        deserializes the given value.
+
+        :param object key: key of value to be deserialized.
+        :param bytes value: value to be deserialized.
+
+        :param int flags: bitwise flags. if you want to deserialize
+                          an integer value, you could set it to 1.
+
+        :returns: deserialized value
+        """
+
+        if flags == 1:
+            return int(value)
+
+        return pickle.loads(value)
 
     def increment(self, key, value, noreply=False):
         """
@@ -381,7 +381,7 @@ class Memcached(RemoteCacheBase):
         expire = self._get_expire_seconds(expire)
         return self.client.touch(hashed_key, expire=expire, noreply=noreply)
 
-    def add(self, key, value, expire=0, noreply=None, flags=None, pickle_value=False):
+    def add(self, key, value, expire=0, noreply=None, flags=None):
         """
         adds the given key into the cache if it isn't already, otherwise does nothing.
 
@@ -396,10 +396,6 @@ class Memcached(RemoteCacheBase):
 
         :param int flags: arbitrary bit field used for memcached server-specific flags.
 
-        :param bool pickle_value: specifies that value must be pickled
-                                  before storing in the cache. defaults
-                                  to False if not provided.
-
         :returns: True if value is set, False if the key is already existed.
         :rtype: bool
         """
@@ -407,9 +403,6 @@ class Memcached(RemoteCacheBase):
         hashed_key = hash(key)
         hashed_key = self._prepare_key(hashed_key)
         expire = self._get_expire_seconds(expire)
-        if pickle_value is True:
-            value = self._prepare_for_set(value)
-
         return self.client.add(hashed_key, value, expire=expire, noreply=noreply, flags=flags)
 
     @property
@@ -441,7 +434,7 @@ class Memcached(RemoteCacheBase):
         :rtype: int
         """
 
-        return int(self.client.get(self.HIT_KEY, default=0))
+        return self.client.get(self.HIT_KEY, default=0)
 
     @property
     def miss_count(self):
@@ -451,7 +444,7 @@ class Memcached(RemoteCacheBase):
         :rtype: int
         """
 
-        return int(self.client.get(self.MISS_KEY, default=0))
+        return self.client.get(self.MISS_KEY, default=0)
 
     @property
     def limit(self):
