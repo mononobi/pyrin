@@ -79,3 +79,15 @@ def handle_server_unknown_error(exception):
     """
 
     return get_component(APIPackage.COMPONENT_NAME).handle_server_unknown_error(exception)
+
+
+def register_hook(instance):
+    """
+    registers the given instance into api hooks.
+
+    :param APIHookBase instance: api hook instance to be registered.
+
+    :raises InvalidAPIHookTypeError: invalid api hook type error.
+    """
+
+    get_component(APIPackage.COMPONENT_NAME).register_hook(instance)

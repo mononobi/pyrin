@@ -8,18 +8,23 @@ import pyrin.configuration.services as config_services
 import pyrin.processor.response.services as response_services
 
 from pyrin.api import APIPackage
+from pyrin.api.exceptions import InvalidAPIHookTypeError
+from pyrin.api.hooks import APIHookBase
+from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import _
 
 
-class APIManager(Manager):
+class APIManager(Manager, HookMixin):
     """
     api manager class.
     """
 
     package_class = APIPackage
     LOGGER = logging_services.get_logger('api')
+    hook_type = APIHookBase
+    invalid_hook_type_error = InvalidAPIHookTypeError
 
     def handle_http_error(self, exception):
         """
@@ -118,3 +123,14 @@ class APIManager(Manager):
         """
 
         self.LOGGER.exception(str(exception))
+        self._exception_occurred(exception)
+
+    def _exception_occurred(self, error, **options):
+        """
+        this method will call `exception_occurred` method on all registered hooks.
+
+        :param Exception error: exception instance that has been occurred.
+        """
+
+        for hook in self._get_hooks():
+            hook.exception_occurred(error, **options)
