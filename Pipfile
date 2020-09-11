@@ -11,6 +11,9 @@ setuptools = "*"
 psycopg2-binary = "*"
 twine = "*"
 pymemcache = "*"
+sentry-sdk = "*"
+blinker = "*"
+redis = "*"
 
 [packages]
 aniso8601 = "*"
