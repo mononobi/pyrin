@@ -15,11 +15,11 @@ def register_cache(instance, **options):
     if `replace=True` is provided. otherwise, it raises an error
     on adding a cache which is already registered.
 
+    :param AbstractCache instance: cache instance to be registered.
+
     :keyword bool replace: specifies that if there is another registered
                            cache with the same name, replace it with the
                            new one, otherwise raise an error. defaults to False.
-
-    :param AbstractCache instance: cache instance to be registered.
 
     :raises InvalidCacheTypeError: invalid cache type error.
     :raises DuplicatedCacheError: duplicated cache error.
