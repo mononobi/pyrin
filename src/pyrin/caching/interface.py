@@ -4,13 +4,25 @@ caching interface module.
 """
 
 from abc import abstractmethod
+from threading import Lock
 
 from pyrin.caching.exceptions import KeyIsNotPresentInCacheError
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.core.structs import CoreObject
+from pyrin.core.structs import CoreObject, MultiSingletonMeta
 
 
-class AbstractCache(CoreObject):
+class CacheSingletonMeta(MultiSingletonMeta):
+    """
+    cache singleton meta class.
+
+    this is a thread-safe implementation of singleton.
+    """
+
+    _instances = dict()
+    _lock = Lock()
+
+
+class AbstractCache(CoreObject, metaclass=CacheSingletonMeta):
     """
     abstract cache class.
 
