@@ -7,7 +7,7 @@ import pyrin.application.services as application_services
 
 from pyrin.caching import CachingPackage
 from pyrin.caching.interface import AbstractCache, AbstractExtendedLocalCache
-from pyrin.core.structs import Manager
+from pyrin.core.structs import Manager, Context
 from pyrin.utils.custom_print import print_warning
 from pyrin.caching.exceptions import CacheNotFoundError, DuplicatedCacheError, \
     InvalidCacheTypeError, CacheIsNotPersistentError
@@ -27,7 +27,7 @@ class CachingManager(Manager):
 
         super().__init__()
 
-        self._caches = {}
+        self._caches = Context()
 
     def register_cache(self, instance, **options):
         """
