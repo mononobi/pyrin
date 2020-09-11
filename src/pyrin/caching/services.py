@@ -32,7 +32,7 @@ def get_cache(name):
     """
     gets the registered cache with given name.
 
-    it raise an error if no cache found for given name.
+    it raises an error if no cache found for given name.
 
     :param str name: name of cache to be get.
 
