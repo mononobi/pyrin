@@ -270,24 +270,26 @@ class LoggingManager(Manager, HookMixin):
 
         return prepared_data
 
-    def before_emit(self, message, data, **options):
+    def before_emit(self, message, data, level, **options):
         """
         this method will call `before_emit` method of all registered hooks.
 
         :param str message: the log message that must be emitted.
         :param dict | object data: data that is passed to logging method.
+        :param int level: log level.
         """
 
         for hook in self._get_hooks():
-            hook.before_emit(message, data, **options)
+            hook.before_emit(message, data, level, **options)
 
-    def after_emit(self, message, data, **options):
+    def after_emit(self, message, data, level, **options):
         """
         this method will call `after_emit` method of all registered hooks.
 
         :param str message: the log message that has been emitted.
         :param dict | object data: data that is passed to logging method.
+        :param int level: log level.
         """
 
         for hook in self._get_hooks():
-            hook.after_emit(message, data, **options)
+            hook.after_emit(message, data, level, **options)

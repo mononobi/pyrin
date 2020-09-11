@@ -78,9 +78,9 @@ class BaseLoggerAdapter(LoggerAdapter):
                 msg = string_utils.interpolate(msg, data)
 
             custom_message, custom_kwargs = self.process(msg, kwargs)
-            logging_services.before_emit(custom_message, data, **custom_kwargs)
+            logging_services.before_emit(custom_message, data, level, **custom_kwargs)
             self.logger.log(level, custom_message, *args, **custom_kwargs)
-            logging_services.after_emit(custom_message, data, **custom_kwargs)
+            logging_services.after_emit(custom_message, data, level, **custom_kwargs)
 
     def process(self, msg, kwargs):
         """
