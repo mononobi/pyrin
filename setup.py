@@ -49,6 +49,15 @@ MEMCACHED_PACKAGES = [
     'pymemcache>=3.3.0',
 ]
 
+SENTRY_PACKAGES = [
+    'sentry-sdk>=0.17.4',
+    'blinker>=1.4',
+]
+
+REDIS_PACKAGES = [
+    'redis>=3.5.3',
+]
+
 setup(
     name='pyrin',
     version=VERSION,
@@ -98,6 +107,8 @@ setup(
         'tests': TEST_PACKAGES,
         'docs': DOC_PACKAGES,
         'memcached': MEMCACHED_PACKAGES,
+        'sentry': SENTRY_PACKAGES,
+        'redis': REDIS_PACKAGES,
     },
     entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
 )
