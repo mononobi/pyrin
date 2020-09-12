@@ -11,9 +11,9 @@ import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
 
 from pyrin.core.globals import _
+from pyrin.caching.structs import CacheableDict
 from pyrin.core.structs import DTO, CoreImmutableMultiDict
 from pyrin.processor.request.wrappers.structs import RequestContext
-from pyrin.security.users.structs import UserDTO
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
@@ -75,6 +75,7 @@ class CoreRequest(Request):
         self._request_id = uuid_utils.generate_uuid4()
         self._request_date = datetime_services.now()
         self._user = None
+        self._cacheable_user = None
         self._component_custom_key = DEFAULT_COMPONENT_KEY
         self._client_ip = self._get_client_ip()
         self._safe_content_length = self._get_safe_content_length()
@@ -427,10 +428,24 @@ class CoreRequest(Request):
             raise RequestUserAlreadySetError('Request user for current request '
                                              'has been already set.')
 
-        if isinstance(user, dict):
-            user = UserDTO(user)
-
         self._user = user
+
+        if isinstance(user, dict):
+            self._cacheable_user = CacheableDict(user)
+        else:
+            self._cacheable_user = user
+
+    def cacheable_user(self):
+        """
+        gets the cacheable object of current user.
+
+        if the user object is not a dict, it returns the same object.
+        otherwise returns a `CacheableDict` object of user dict.
+
+        :rtype: object | CacheableDict
+        """
+
+        return self._cacheable_user
 
     @property
     def component_custom_key(self):

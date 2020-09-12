@@ -49,16 +49,16 @@ def register_serializer(instance, **options):
                                                                                **options)
 
 
-def get_serializer(accepted_type):
+def get_serializers(accepted_type):
     """
-    gets the registered serializer for given type.
+    gets the registered serializers for given type.
 
-    it returns None if no serializer found for given type.
+    it returns an empty list if no serializer found for given type.
 
-    :param type accepted_type: gets the serializer which is
+    :param type accepted_type: gets the serializers which are
                                registered for the accepted type.
 
-    :rtype: AbstractSerializerBase
+    :rtype: list[AbstractSerializerBase]
     """
 
-    return get_component(SerializerPackage.COMPONENT_NAME).get_serializer(accepted_type)
+    return get_component(SerializerPackage.COMPONENT_NAME).get_serializers(accepted_type)

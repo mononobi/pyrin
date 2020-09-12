@@ -48,9 +48,9 @@ class SerializerManager(Manager):
         if value is None:
             return value
 
-        serializer = self.get_serializer(type(value))
-        if serializer is not None:
-            serialized_value = serializer.serialize(value, **options)
+        serializers = self.get_serializers(type(value))
+        for item in serializers:
+            serialized_value = item.serialize(value, **options)
             if serialized_value is not NULL:
                 return serialized_value
 
@@ -83,7 +83,7 @@ class SerializerManager(Manager):
                                                      base=AbstractSerializerBase))
 
         if instance.accepted_type in self._serializers:
-            old_instance = self.get_serializer(instance.accepted_type)
+            old_instance = self._serializers.get(instance.accepted_type)
             replace = options.get('replace', False)
             if replace is not True:
                 raise DuplicatedSerializerError('There is another registered '
@@ -102,20 +102,24 @@ class SerializerManager(Manager):
 
         self._serializers[instance.accepted_type] = instance
 
-    def get_serializer(self, accepted_type):
+    def get_serializers(self, accepted_type):
         """
-        gets the registered serializer for given type.
+        gets the registered serializers for given type.
 
-        it returns None if no serializer found for given type.
+        it returns an empty list if no serializer found for given type.
 
-        :param type accepted_type: gets the serializer which is
+        :param type accepted_type: gets the serializers which are
                                    registered for the accepted type.
 
-        :rtype: AbstractSerializerBase
+        :rtype: list[AbstractSerializerBase]
         """
 
-        for key, instance in self._serializers.items():
-            if issubclass(accepted_type, key):
-                return instance
+        serializers = []
+        if accepted_type in self._serializers:
+            serializers.append(self._serializers.get(accepted_type))
 
-        return None
+        for key, instance in self._serializers.items():
+            if key is not accepted_type and issubclass(accepted_type, key):
+                serializers.append(instance)
+
+        return serializers

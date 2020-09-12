@@ -194,6 +194,17 @@ def get_safe_current_user():
     return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_user()
 
 
+def get_safe_cacheable_current_user():
+    """
+    gets cacheable current user in a safe manner.
+
+    meaning that if the request does not exist in current context, it will
+    return a None object instead of raising an error.
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_safe_cacheable_current_user()
+
+
 def is_request_context_available():
     """
     gets a value indicating that request context is available for usage.

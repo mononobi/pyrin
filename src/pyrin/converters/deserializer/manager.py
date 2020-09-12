@@ -157,8 +157,8 @@ class DeserializerManager(Manager):
         it only returns the first deserializer for each type, because
         all deserializers for a given type, are chained together.
 
-        :keyword type accepted_type: specifies to get deserializers which are registered for the
-                                     accepted type. if not provided, all deserializers
+        :keyword type accepted_type: specifies to get deserializers which are registered for
+                                     the accepted type. if not provided, all deserializers
                                      will be returned.
 
         :rtype: list[AbstractDeserializerBase]
