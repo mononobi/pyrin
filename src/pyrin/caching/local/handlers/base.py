@@ -655,12 +655,24 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         ratio = hit / (hit + miss)
         return ratio * 100
 
+    def _is_cleaning_queue(self):
+        """
+        gets a value indicating that a thread is busy cleaning old cached items.
+
+        :rtype: bool
+        """
+
+        return self._clearance_lock.locked() is True
+
     def _manage_queue(self):
         """
         manages this cache's queue and removes old items if required.
 
         the operation will be run in a new thread and does not block the current request.
         """
+
+        if self._is_cleaning_queue() is True:
+            return
 
         cleaner = Thread(target=self._remove_old_items)
         cleaner.start()
@@ -673,7 +685,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         considering the `caching` config store.
         """
 
-        if self._clearance_lock.locked() is True:
+        if self._is_cleaning_queue() is True:
             return
 
         with self._clearance_lock:
