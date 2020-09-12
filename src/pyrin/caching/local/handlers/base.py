@@ -6,6 +6,7 @@ caching local handlers base module.
 import pickle
 
 from abc import abstractmethod
+from threading import Thread
 
 import pyrin.database.bulk.services as bulk_services
 import pyrin.logging.services as logging_services
@@ -654,6 +655,16 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         ratio = hit / (hit + miss)
         return ratio * 100
 
+    def _manage_queue(self):
+        """
+        manages this cache's queue and removes old items if required.
+
+        the operation will be run in a new thread and does not block the current request.
+        """
+
+        cleaner = Thread(target=self._remove_old_items)
+        cleaner.start()
+
     def _remove_old_items(self):
         """
         removes old items from cache.
@@ -661,6 +672,9 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         the number of old items to be removed is calculated
         considering the `caching` config store.
         """
+
+        if self._clearance_lock.locked() is True:
+            return
 
         with self._clearance_lock:
             is_full, count = self.is_full
@@ -719,7 +733,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         is_full, count = self.is_full
         if is_full is True:
-            self._remove_old_items()
+            self._manage_queue()
 
         super().set(key, value, **options)
 
