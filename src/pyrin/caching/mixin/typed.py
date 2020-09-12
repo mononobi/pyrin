@@ -62,7 +62,7 @@ class ExtendedTypedCacheMixin(CacheMixinBase):
         consider_user = options.get('consider_user', True)
         current_user = None
         if consider_user is not False:
-            current_user = session_services.get_safe_current_user()
+            current_user = session_services.get_safe_cacheable_current_user()
 
         cacheable_inputs, parent = func_utils.get_inputs(func, inputs, kw_inputs,
                                                          CacheableDict)

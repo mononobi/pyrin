@@ -174,7 +174,7 @@ class ComplexKeyGeneratorMixin(SimpleKeyGeneratorMixin):
         consider_user = options.get('consider_user', self.consider_user)
         current_user = None
         if consider_user is not False:
-            current_user = session_services.get_safe_current_user()
+            current_user = session_services.get_safe_cacheable_current_user()
 
         component_key = session_services.get_safe_component_custom_key()
 
