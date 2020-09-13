@@ -54,6 +54,10 @@ SENTRY_PACKAGES = [
     'blinker>=1.4',
 ]
 
+CELERY_PACKAGES = [
+    'celery>=4.4.7',
+]
+
 REDIS_PACKAGES = [
     'redis>=3.5.3',
 ]
@@ -108,6 +112,7 @@ setup(
         'docs': DOC_PACKAGES,
         'memcached': MEMCACHED_PACKAGES,
         'sentry': SENTRY_PACKAGES,
+        'celery': CELERY_PACKAGES,
         'redis': REDIS_PACKAGES,
     },
     entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
