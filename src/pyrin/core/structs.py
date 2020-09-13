@@ -25,14 +25,11 @@ class SingletonMetaBase(type):
     _lock = Lock()
 
     def __call__(cls, *args, **kwargs):
-        try:
-            cls._lock.acquire()
-            if cls._has_instance() is False:
-                instance = super().__call__(*args, **kwargs)
-                cls._register_instance(instance)
-        finally:
-            if cls._lock.locked():
-                cls._lock.release()
+        if cls._has_instance() is False:
+            with cls._lock:
+                if cls._has_instance() is False:
+                    instance = super().__call__(*args, **kwargs)
+                    cls._register_instance(instance)
 
         return cls._get_instance()
 
