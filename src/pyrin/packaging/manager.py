@@ -8,6 +8,7 @@ import inspect
 
 from threading import Lock
 from importlib import import_module
+from time import time
 
 import pyrin.application.services as application_services
 import pyrin.configuration.services as config_services
@@ -234,15 +235,14 @@ class PackagingManager(Manager, HookMixin):
         :raises PackageExternalDependencyError: package external dependency error.
         """
 
-        try:
+        if self._is_loaded is True:
+            return
+
+        with self._lock:
             if self._is_loaded is True:
                 return
 
-            self._lock.acquire()
-
-            if self._is_loaded is True:
-                return
-
+            start_time = time()
             self._initialize()
 
             print_info('Loading application components...')
@@ -263,9 +263,10 @@ class PackagingManager(Manager, HookMixin):
 
             self._create_config_file()
             self._is_loaded = True
-        finally:
-            if self._lock.locked():
-                self._lock.release()
+            end_time = time()
+            duration = '{:0.1f}'.format((end_time - start_time) * 1000)
+            print_info('Application loaded in [{duration}] milliseconds.'
+                       .format(duration=duration))
 
     def _load_tests(self, **options):
         """
