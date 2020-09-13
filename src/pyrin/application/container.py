@@ -28,16 +28,15 @@ def _set_app(app):
 
     global __app__, __lock__
 
-    try:
-        __lock__.acquire()
-        if __app__ is not None:
-            raise ApplicationInstanceAlreadySetError('Application instance has been already '
-                                                     'set, it could not be overwritten.')
-        __app__ = app
+    message = 'Application instance has been already set, it could not be overwritten.'
+    if __app__ is not None:
+        raise ApplicationInstanceAlreadySetError(message)
 
-    finally:
-        if __lock__.locked():
-            __lock__.release()
+    with __lock__:
+        if __app__ is not None:
+            raise ApplicationInstanceAlreadySetError(message)
+
+        __app__ = app
 
 
 def _get_app():
