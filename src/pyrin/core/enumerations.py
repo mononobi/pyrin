@@ -8,7 +8,7 @@ from enum import EnumMeta, Enum
 
 class CoreEnumMeta(EnumMeta):
     """
-    base enum metaclass.
+    core enum metaclass.
     """
 
     def __contains__(cls, member):
@@ -42,7 +42,8 @@ class CoreEnumMeta(EnumMeta):
 
 class CoreEnum(Enum, metaclass=CoreEnumMeta):
     """
-    base enum class.
+    core enum class.
+
     all application enumerations must inherit from this class.
     """
 
