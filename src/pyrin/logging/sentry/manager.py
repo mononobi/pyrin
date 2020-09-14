@@ -63,8 +63,8 @@ class SentryManager(Manager, TypedCacheMixin):
         :rtype: bool
         """
 
-        default_integrations_enabled = config_services.get('sentry', 'general',
-                                                           'default_integrations')
+        default_integrations_enabled = config_services.get_active('sentry',
+                                                                  'default_integrations')
 
         logging_enabled = config_services.get('sentry', 'logging', 'enable')
         logging_event_level = config_services.get('sentry', 'logging', 'event_level')
@@ -127,7 +127,7 @@ class SentryManager(Manager, TypedCacheMixin):
         for name, instance in self._integrations.items():
             instance.configure(integrations)
 
-        configs = config_services.get_section('sentry', 'general')
+        configs = config_services.get_active_section('sentry')
         sentry_sdk.init(**configs, integrations=integrations)
 
     def try_report_exception(self, error, **options):
