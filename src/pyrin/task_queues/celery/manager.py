@@ -34,7 +34,7 @@ class CeleryManager(Manager):
         """
 
         app = Celery(application_services.get_application_name(),
-                     task_cls='pyrin.task_queues.celery.base:ExtendedTask')
+                     task_cls='pyrin.task_queues.celery.structs:ExtendedTask')
 
         configs = config_services.get_active_section('celery')
         configs.update(worker_hijack_root_logger=False)

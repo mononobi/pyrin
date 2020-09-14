@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-celery base module.
+celery structs module.
 """
 
 from celery import Task
