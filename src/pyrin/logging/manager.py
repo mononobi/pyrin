@@ -116,7 +116,7 @@ class LoggingManager(Manager, HookMixin):
         if not isinstance(logger, Logger):
             return False
 
-        unwrapped_loggers = config_services.get('logging', 'general', 'unwrapped_loggers')
+        unwrapped_loggers = config_services.get_active('logging', 'unwrapped_loggers')
         return all(item not in logger.name for item in unwrapped_loggers)
 
     def wrap_all_loggers(self):

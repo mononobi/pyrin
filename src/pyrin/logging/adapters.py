@@ -3,14 +3,14 @@
 logging adapters module.
 """
 
-from logging import LoggerAdapter
+from logging import Logger
 
 import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.utils.string as string_utils
 
 
-class BaseLoggerAdapter(LoggerAdapter):
+class BaseLoggerAdapter(Logger):
     """
     base logger adapter class.
 
@@ -24,38 +24,8 @@ class BaseLoggerAdapter(LoggerAdapter):
         :param Logger logger: logger instance to be wrapped.
         """
 
-        super().__init__(logger, dict())
-
-        # these attributes have been added for compatibility
-        # with loggers common api.
-        self.handlers = logger.handlers
-        self.level = logger.level
-        self.propagate = logger.propagate
-        self.parent = logger.parent
-
-    def addHandler(self, hdlr):
-        """
-        adds the specified handler to this logger.
-
-        this method has been added for compatibility
-        with loggers common api.
-
-        :param Handler hdlr: logger handler to be added.
-        """
-
-        self.logger.addHandler(hdlr)
-
-    def removeHandler(self, hdlr):
-        """
-        removes the specified handler from this logger.
-
-        this method has been added for compatibility
-        with loggers common api.
-
-        :param Handler hdlr: logger handler to be removed.
-        """
-
-        self.logger.removeHandler(hdlr)
+        super().__init__(logger.name, logger.level)
+        self.extra = {}
 
     def log(self, level, msg, *args, **kwargs):
         """
@@ -79,7 +49,7 @@ class BaseLoggerAdapter(LoggerAdapter):
 
             custom_message, custom_kwargs = self.process(msg, kwargs)
             logging_services.before_emit(custom_message, data, level, **custom_kwargs)
-            self.logger.log(level, custom_message, *args, **custom_kwargs)
+            super().log(level, custom_message, *args, **custom_kwargs)
             logging_services.after_emit(custom_message, data, level, **custom_kwargs)
 
     def process(self, msg, kwargs):
@@ -97,8 +67,8 @@ class BaseLoggerAdapter(LoggerAdapter):
         :rtype: tuple[str, dict]
         """
 
-        custom_message, custom_kwargs = self._process(msg, kwargs)
-        return super().process(custom_message, custom_kwargs)
+        kwargs["extra"] = self.extra
+        return self._process(msg, kwargs)
 
     def _process(self, msg, kwargs):
         """
