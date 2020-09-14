@@ -19,6 +19,7 @@ class CeleryManager(Manager):
     """
 
     package_class = CeleryPackage
+    task_class = ExtendedTask
 
     def __init__(self):
         """
@@ -34,7 +35,7 @@ class CeleryManager(Manager):
         configures celery.
         """
 
-        app = Celery(application_services.get_application_name(), task_cls=ExtendedTask)
+        app = Celery(application_services.get_application_name(), task_cls=self.task_class)
         configs = config_services.get_active_section('celery')
         configs.update(worker_hijack_root_logger=False)
         app.config_from_object(configs)
