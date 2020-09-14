@@ -10,6 +10,7 @@ import pyrin.application.services as application_services
 
 from pyrin.core.structs import Manager
 from pyrin.task_queues.celery import CeleryPackage
+from pyrin.task_queues.celery.structs import ExtendedTask
 
 
 class CeleryManager(Manager):
@@ -33,9 +34,7 @@ class CeleryManager(Manager):
         configures celery.
         """
 
-        app = Celery(application_services.get_application_name(),
-                     task_cls='pyrin.task_queues.celery.structs:ExtendedTask')
-
+        app = Celery(application_services.get_application_name(), task_cls=ExtendedTask)
         configs = config_services.get_active_section('celery')
         configs.update(worker_hijack_root_logger=False)
         app.config_from_object(configs)
