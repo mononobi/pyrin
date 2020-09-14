@@ -12,7 +12,7 @@ from werkzeug.datastructures import MultiDict, ImmutableMultiDict, ImmutableDict
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.exceptions import CoreAttributeError, ContextAttributeError, \
-    CoreNotImplementedError, PackageClassIsNotSetError
+    CoreNotImplementedError, PackageClassIsNotSetError, CoreKeyError
 
 
 class SingletonMetaBase(type):
@@ -172,7 +172,7 @@ class DTO(dict):
         if item in self:
             return self.get(item)
 
-        raise CoreAttributeError('Property [{name}] not found.'.format(name=item))
+        raise CoreKeyError('Key [{name}] not found.'.format(name=item))
 
     def __setattr__(self, name, value):
         self[name] = value
