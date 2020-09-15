@@ -10,7 +10,7 @@ import pyrin.configuration.services as config_services
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
 from pyrin.core.structs import Manager, Context
-from pyrin.logging.enumerations import LogLevelEnum
+from pyrin.logging.enumerations import LogLevelEnum, LogLevelIntEnum
 from pyrin.logging.sentry import SentryPackage
 from pyrin.logging.sentry.interface import AbstractSentryIntegration
 from pyrin.utils.custom_print import print_warning
@@ -73,7 +73,11 @@ class SentryManager(Manager, TypedCacheMixin):
                (logging_enabled is True and logging_event_level in (LogLevelEnum.ERROR,
                                                                     LogLevelEnum.WARNING,
                                                                     LogLevelEnum.INFO,
-                                                                    LogLevelEnum.DEBUG))
+                                                                    LogLevelEnum.DEBUG,
+                                                                    LogLevelIntEnum.ERROR,
+                                                                    LogLevelIntEnum.WARNING,
+                                                                    LogLevelIntEnum.INFO,
+                                                                    LogLevelIntEnum.DEBUG))
 
     def register_integration(self, instance, **options):
         """

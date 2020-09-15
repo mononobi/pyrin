@@ -9,6 +9,8 @@ import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.utils.string as string_utils
 
+from pyrin.logging.enumerations import LogLevelIntEnum
+
 
 class BaseLoggerAdapter(Logger):
     """
@@ -51,6 +53,66 @@ class BaseLoggerAdapter(Logger):
             logging_services.before_emit(custom_message, data, level, **custom_kwargs)
             super().log(level, custom_message, *args, **custom_kwargs)
             logging_services.after_emit(custom_message, data, level, **custom_kwargs)
+
+    def debug(self, msg, *args, **kwargs):
+        """
+        log message with `DEBUG` severity.
+
+        to pass exception information, use the keyword argument `exc_info` with
+        a true value.
+
+        :param str msg: log message.
+        """
+
+        self.log(LogLevelIntEnum.DEBUG, msg, *args, **kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        """
+        log message with `INFO` severity.
+
+        to pass exception information, use the keyword argument `exc_info` with
+        a true value.
+
+        :param str msg: log message.
+        """
+
+        self.log(LogLevelIntEnum.INFO, msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        """
+        log message with `WARNING` severity.
+
+        to pass exception information, use the keyword argument `exc_info` with
+        a true value.
+
+        :param str msg: log message.
+        """
+
+        self.log(LogLevelIntEnum.WARNING, msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        """
+        log message with `ERROR` severity.
+
+        to pass exception information, use the keyword argument `exc_info` with
+        a true value.
+
+        :param str msg: log message.
+        """
+
+        self.log(LogLevelIntEnum.ERROR, msg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        """
+        log message with `CRITICAL` severity.
+
+        to pass exception information, use the keyword argument `exc_info` with
+        a true value.
+
+        :param str msg: log message.
+        """
+
+        self.log(LogLevelIntEnum.CRITICAL, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):
         """
