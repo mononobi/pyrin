@@ -22,7 +22,7 @@ class ExtendedTask(Task):
         """
         executes `apply_async` method on task.
 
-        by default, it suppresses if an error occurred on connecting to broker.
+        it could suppress if any error occurred on connecting to broker.
         all extra keyword arguments of original `apply_async` method will be passed
         to underlying method.
 
@@ -41,12 +41,12 @@ class ExtendedTask(Task):
         :param str shadow: override task name used in logs/monitoring.
 
         :keyword bool suppress: suppress any error during execution of the task
-                                and silently logs it. defaults to True if not provided.
+                                and silently logs it. defaults to False if not provided.
 
         :returns: the `apply_async` result
         """
 
-        suppress = options.pop('suppress', True)
+        suppress = options.pop('suppress', False)
 
         try:
             return super().apply_async(args=args, kwargs=kwargs, task_id=task_id,
@@ -54,7 +54,7 @@ class ExtendedTask(Task):
                                        shadow=shadow, **options)
 
         except Exception as error:
-            if suppress is not False:
+            if suppress is True:
                 self.LOGGER.exception(str(error))
                 return None
 
@@ -64,7 +64,7 @@ class ExtendedTask(Task):
         """
         executes `delay` method on task.
 
-        by default, it suppresses if an error occurred on connecting to broker.
+        it could suppress if any error occurred on connecting to broker.
         all extra keyword arguments of original `delay` method will be passed to
         underlying method.
 
@@ -72,10 +72,10 @@ class ExtendedTask(Task):
         :param object kwargs: the keyword arguments to pass on to the task.
 
         :keyword bool suppress: suppress any error during execution of the task
-                                and silently logs it. defaults to True if not provided.
+                                and silently logs it. defaults to False if not provided.
 
         :returns: the `delay` result
         """
 
-        suppress = kwargs.pop('suppress', True)
+        suppress = kwargs.pop('suppress', False)
         return self.apply_async(args=args, kwargs=kwargs, suppress=suppress)
