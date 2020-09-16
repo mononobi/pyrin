@@ -17,12 +17,9 @@ def get_current_app():
     return get_component(CeleryPackage.COMPONENT_NAME).get_current_app()
 
 
-def start_workers(count=None, **options):
+def start_worker(**options):
     """
-    starts given number of celery workers.
-
-    :param int count: number of workers to be created.
-                      defaults to `celery` config store if not provided.
+    starts a celery worker.
     """
 
-    return get_component(CeleryPackage.COMPONENT_NAME).start_workers(count, **options)
+    return get_component(CeleryPackage.COMPONENT_NAME).start_worker(**options)
