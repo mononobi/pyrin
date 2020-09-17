@@ -128,7 +128,7 @@ def create_directory(target, ignore_existed=False):
 
     :param bool ignore_existed: specifies that if the directory is
                                 already existed, ignore it. otherwise
-                                raise an error.
+                                raise an error. defaults to False
 
     :raises InvalidPathError: invalid path error.
     :raises PathIsNotAbsoluteError: path is not absolute error.
