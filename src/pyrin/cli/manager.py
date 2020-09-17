@@ -35,9 +35,7 @@ class CLIManager(Manager):
         """
 
         try:
-            inputs, cli_instance = func_utils.get_inputs(func, func_args,
-                                                         func_kwargs)
-
+            inputs, cli_instance = func_utils.get_inputs(func, func_args, func_kwargs)
             if cli_instance is None:
                 raise InvalidCLIDecoratedMethodError('The "@cli" decorator must '
                                                      'be set on instance methods. '
@@ -64,9 +62,7 @@ class CLIManager(Manager):
         """
 
         try:
-            inputs, parent = func_utils.get_inputs(func, func_args,
-                                                   func_kwargs)
-
+            inputs, parent = func_utils.get_inputs(func, func_args, func_kwargs)
             if self._process_help(func, inputs) is False:
                 return func(*func_args, **func_kwargs)
 
