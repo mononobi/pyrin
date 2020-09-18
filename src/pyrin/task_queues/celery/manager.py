@@ -4,7 +4,6 @@ celery manager module.
 """
 
 from celery import Celery
-from celery.worker.worker import WorkController
 
 import pyrin.configuration.services as config_services
 import pyrin.application.services as application_services
@@ -40,17 +39,9 @@ class CeleryManager(Manager):
         configs = config_services.get_active_section('celery')
         configs.update(worker_hijack_root_logger=False)
         app.config_from_object(configs)
+        app.set_default()
 
         return app
-
-    def _create_worker(self, **options):
-        """
-        creates a celery worker.
-
-        :rtype: WorkController
-        """
-
-        return WorkController(self._app, **options)
 
     def get_current_app(self):
         """
@@ -60,11 +51,3 @@ class CeleryManager(Manager):
         """
 
         return self._app
-
-    def start_worker(self, **options):
-        """
-        starts a celery worker.
-        """
-
-        worker = self._create_worker(**options)
-        worker.start()

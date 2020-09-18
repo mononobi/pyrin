@@ -15,11 +15,3 @@ def get_current_app():
     """
 
     return get_component(CeleryPackage.COMPONENT_NAME).get_current_app()
-
-
-def start_worker(**options):
-    """
-    starts a celery worker.
-    """
-
-    return get_component(CeleryPackage.COMPONENT_NAME).start_worker(**options)
