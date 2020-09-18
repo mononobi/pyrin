@@ -32,7 +32,8 @@ class CLIMixin(CoreObject):
 
     def register_cli_handler(self, instance, **options):
         """
-        registers a new cli handler or replaces the existing one
+        registers a new cli handler or replaces the existing one.
+
         if `replace=True` is provided. otherwise, it raises an error
         on adding a cli handler which is already registered.
 
@@ -76,6 +77,7 @@ class CLIMixin(CoreObject):
     def _get_cli_handler(self, name):
         """
         gets a cli handler with the given name.
+
         if not available, it raises an error.
 
         :param str name: cli handler name to get its instance.
