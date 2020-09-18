@@ -51,6 +51,20 @@ class ArgumentBase(CoreObject, ABC):
 
         return '{base} [{param}]'.format(base=super().__str__(), param=self.param_name)
 
+    def _convert_result(self, value):
+        """
+        converts the given value to required type.
+
+        this method is intended to be overridden in subclasses if they
+        need the result to be of a specific type.
+
+        :param list[object] | object value: value to be converted.
+
+        :rtype: list[object] | object
+        """
+
+        return value
+
     def get_representation(self, value, is_default=False):
         """
         gets the representation of current cli option based on given input.
@@ -78,7 +92,7 @@ class ArgumentBase(CoreObject, ABC):
         if result is None and is_default is False:
             return self.get_representation(self._default, True)
 
-        return result
+        return self._convert_result(result)
 
     @property
     def default(self):
@@ -222,7 +236,7 @@ class PositionalArgument(ArgumentBase):
     name, for example: `command value1`
     """
 
-    def __init__(self, param_name, index, default=None):
+    def __init__(self, param_name, index, default=None, **options):
         """
         initializes an instance of PositionalArgument.
 
@@ -235,6 +249,13 @@ class PositionalArgument(ArgumentBase):
                                               be emitted at all.
                                               defaults to None if not provided.
 
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+
         :raises ArgumentParamNameIsRequiredError: argument param name is required error.
 
         :raises PositionalArgumentIndexError: positional argument index error.
@@ -246,6 +267,7 @@ class PositionalArgument(ArgumentBase):
             raise PositionalArgumentIndexError('Positional argument "index" '
                                                'could not be less than zero.')
         self._index = index
+        self._validate_index = options.get('validate_index', True)
 
     def _get_representation(self, value, is_default=False):
         """
@@ -276,6 +298,91 @@ class PositionalArgument(ArgumentBase):
         """
 
         return self._index
+
+    @property
+    def validate_index(self):
+        """
+        gets a value indicating that index of this argument must be validated.
+
+        :rtype: bool
+        """
+
+        return self._validate_index
+
+
+class CompositePositionalArgument(PositionalArgument):
+    """
+    composite positional argument class.
+
+    this class must be used for composite positional cli arguments.
+    composite positional arguments are those that will be emitted after
+    command name at specified index and without any argument name, and the
+    value could be a list.
+    for example: `command value1` or `command value1 value2 value3`
+    """
+
+    def __init__(self, param_name, index, default=None,
+                 separator=None, **options):
+        """
+        initializes an instance of CompositePositionalArgument.
+
+        :param str param_name: param name presented in method signature.
+        :param int index: zero based index of this param in cli command inputs.
+
+        :param list[object] | object default: default value to be emitted to
+                                              cli if this param is not available.
+                                              if set to None, this param will not
+                                              be emitted at all.
+                                              defaults to None if not provided.
+
+        :param str separator: separator to be used between values of list type.
+                              defaults to single space if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+
+        :raises ArgumentParamNameIsRequiredError: argument param name is required error.
+
+        :raises PositionalArgumentIndexError: positional argument index error.
+        """
+
+        super().__init__(param_name, index, default, **options)
+
+        if separator is None:
+            separator = ' '
+
+        self._separator = separator
+
+    def _get_representation(self, value, is_default=False):
+        """
+        gets the representation of current cli option based on given input.
+
+        it could be None if the value should not be emitted to cli.
+
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
+
+        :param bool is_default: specifies that input value is the default
+                                value of this argument. it might be needed
+                                for some subclasses to differentiate between
+                                default value and other values.
+                                defaults to False if not provided.
+
+        :rtype: str
+        """
+
+        if value is None:
+            return None
+
+        result = value
+        if isinstance(value, LIST_TYPES):
+            result = self._separator.join([str(item) for item in value])
+
+        return super()._get_representation(result, is_default)
 
 
 class MappingArgument(KeywordArgumentBase):
@@ -362,7 +469,7 @@ class MappingArgument(KeywordArgumentBase):
         """
 
         if is_default is False:
-            value = self._param_value_to_cli_map.get(value, None)
+            value = self._param_value_to_cli_map.get(value)
 
         return super()._get_representation(value, is_default)
 

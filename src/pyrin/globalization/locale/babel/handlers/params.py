@@ -667,7 +667,7 @@ class InputPathsParam(PositionalArgument, BabelCLIParamBase):
     input paths param class.
     """
 
-    def __init__(self, index=None, default=None):
+    def __init__(self, index=None, default=None, **options):
         """
         initializes an instance of InputPathsParam.
 
@@ -680,6 +680,13 @@ class InputPathsParam(PositionalArgument, BabelCLIParamBase):
                                be emitted at all.
                                defaults to both application and pyrin
                                main package paths if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
         """
 
         if index is None:
@@ -688,7 +695,7 @@ class InputPathsParam(PositionalArgument, BabelCLIParamBase):
         if default is None:
             default = self._get_paths(include_application=True, include_pyrin=True)
 
-        super().__init__('input_paths', index, default=default)
+        super().__init__('input_paths', index, default=default, **options)
 
     def _process_inputs(self, **options):
         """

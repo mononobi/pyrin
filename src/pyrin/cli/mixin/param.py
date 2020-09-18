@@ -61,7 +61,8 @@ class CLIParamMixin(CoreObject):
         """
 
         positionals = [item for item in self._params
-                       if isinstance(item, PositionalArgument)]
+                       if isinstance(item, PositionalArgument)
+                       and item.validate_index is not False]
 
         length = len(positionals)
         if length > 0:

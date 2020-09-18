@@ -124,12 +124,26 @@ class CLIHandlerBase(CLIParamMixin, AbstractCLIHandlerBase):
         :rtype: int
         """
 
-        commands = [self.get_name()]
+        commands = []
+        self._inject_command_name(commands)
         processed_inputs = self._process_inputs(**options)
         self._bind_cli_arguments(commands, **processed_inputs)
         common_options = self._get_common_cli_options()
         common_options.extend(commands)
         return self._execute_on_cli(common_options)
+
+    def _inject_command_name(self, commands):
+        """
+        injects the command name into given commands list.
+
+        this method could be overridden in subclasses if a
+        different behaviour is required.
+
+        :param list commands: a list of all commands to inject
+                              this command's name into it.
+        """
+
+        commands.insert(0, self.get_name())
 
     def _execute_on_cli(self, commands):
         """

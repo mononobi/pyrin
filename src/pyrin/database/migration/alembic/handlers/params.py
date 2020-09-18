@@ -52,7 +52,7 @@ class RevisionParam(PositionalArgument, AlembicCLIParamBase):
     revision param class.
     """
 
-    def __init__(self, index=None, default=None):
+    def __init__(self, index=None, default=None, **options):
         """
         initializes an instance of RevisionParam.
 
@@ -64,12 +64,19 @@ class RevisionParam(PositionalArgument, AlembicCLIParamBase):
                                if set to None, this param will not
                                be emitted at all.
                                defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
         """
 
         if index is None:
             index = 0
 
-        super().__init__('revision', index, default=default)
+        super().__init__('revision', index, default=default, **options)
 
 
 class ResolveDependenciesParam(BooleanArgument, AlembicCLIParamBase):
@@ -206,7 +213,7 @@ class RevisionsParam(PositionalArgument, AlembicCLIParamBase):
     revisions param class.
     """
 
-    def __init__(self, index=None, default=None):
+    def __init__(self, index=None, default=None, **options):
         """
         initializes an instance of RevisionsParam.
 
@@ -218,12 +225,19 @@ class RevisionsParam(PositionalArgument, AlembicCLIParamBase):
                                if set to None, this param will not
                                be emitted at all.
                                defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
         """
 
         if index is None:
             index = 0
 
-        super().__init__('revisions', index, default=default)
+        super().__init__('revisions', index, default=default, **options)
 
 
 class AutoGenerateParam(BooleanArgument, AlembicCLIParamBase):
