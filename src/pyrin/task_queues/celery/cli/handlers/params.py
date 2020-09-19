@@ -1491,3 +1491,35 @@ class GeventParam(BooleanArgument, CeleryCLIParamBase):
         """
 
         super().__init__('gevent', '--gevent', default=default)
+
+
+class TopicParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    topic param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of TopicParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('topic', index, default=default, **options)

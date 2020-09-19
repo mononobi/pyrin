@@ -249,6 +249,18 @@ class CeleryCLI(CLI):
         pass
 
     @cli
+    def list(self, topic, help=False):
+        """
+        get info from broker.
+
+        :param str topic: topic to get info about.
+                          for example: `bindings`.
+
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
     def status(self, help=False):
         """
         show list of worker nodes that are online.
