@@ -232,10 +232,34 @@ class CeleryCLI(CLI):
         pass
 
     @cli
+    def shell(self, python=True, ipython=None, bpython=None,
+              without_tasks=None, eventlet=None, gevent=None,
+              help=False):
+        """
+        start shell session with convenient access to celery symbols.
+
+        :keyword bool python: force default python shell.
+        :keyword bool ipython: force `ipython` implementation.
+        :keyword bool bpython: force `bpython` implementation.
+        :keyword bool without_tasks: don't add tasks to locals.
+        :keyword bool eventlet: use `eventlet` monkey patches.
+        :keyword bool gevent: use `gevent` monkey patches.
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
     def status(self, help=False):
         """
         show list of worker nodes that are online.
 
         :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def help(self):
+        """
+        show celery command line help.
         """
         pass

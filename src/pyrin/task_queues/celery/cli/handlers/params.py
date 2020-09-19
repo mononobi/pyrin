@@ -1383,3 +1383,111 @@ class MaxRateParam(KeywordArgument, CeleryCLIParamBase):
         """
 
         super().__init__('maxrate', '--maxrate', default=default)
+
+
+class IPythonParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    ipython param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of IPythonParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('ipython', '--ipython', default=default)
+
+
+class BPythonParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    bpython param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of BPythonParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('bpython', '--bpython', default=default)
+
+
+class PythonParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    python param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of PythonParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('python', '--python', default=default)
+
+
+class WithoutTasksParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    without tasks param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of WithoutTasksParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('without_tasks', '--without-tasks', default=default)
+
+
+class EventletParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    eventlet param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of EventletParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('eventlet', '--eventlet', default=default)
+
+
+class GeventParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    gevent param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of GeventParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('gevent', '--gevent', default=default)
