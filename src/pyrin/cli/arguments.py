@@ -5,6 +5,8 @@ cli arguments module.
 
 from abc import ABC, abstractmethod
 
+from flask import json as flask_json
+
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import CoreObject, DTO
@@ -640,5 +642,38 @@ class CompositeKeywordArgument(KeywordArgument):
         if isinstance(value, LIST_TYPES):
             value = self._separator.join([str(item) for item in value])
 
+        result.append(value)
+        return result
+
+
+class JSONKeywordArgument(KeywordArgument):
+    """
+    json keyword argument class.
+
+    it should be used for json keyword argument cli options.
+    json keyword arguments are those that have to emit an argument
+    name with an argument value, note that this type of arguments must
+    be emitted as a list or dict json string representation. for example:
+    `command --arg1 '[value1, value2]'` -> for list value.
+    `command --arg1 '{"key1": item1, "key2": item2}'` -> for a dict value.
+    """
+
+    def _merge_inputs(self, value):
+        """
+        merges the cli option name and given value to be emitted to cli.
+
+        :param list[object] | dict[object] value: value to be emitted to cli.
+
+        :rtype: list[object]
+        """
+
+        if value is None:
+            return None
+
+        if isinstance(value, (tuple, set)):
+            value = list(value)
+
+        result = [self._cli_option_name]
+        value = flask_json.dumps(value)
         result.append(value)
         return result
