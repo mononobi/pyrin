@@ -110,7 +110,107 @@ class CeleryCLI(CLI):
                                            this is only for `query_task` method.
 
         :keyword str | list[str] attributes: this is only for `registered` method.
-        :keyword str | list[str] destination: comma separated destination node names.
+        :keyword str | list[str] destination: list of destination node names.
+        :keyword float timeout: timeout in seconds waiting for reply.
+        :keyword bool json: use json as output format.
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def amqp(self, help=False):
+        """
+        amqp administration shell.
+
+        also works for non-amqp transports (but not ones that
+        store declarations in memory).
+
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def call(self, task, args=None, kwargs=None, eta=None, countdown=None,
+             expires=None, serializer=None, queue=None, exchange=None,
+             routing_key=None, help=False):
+        """
+        call a task by name.
+
+        :param str task: task name.
+
+        :keyword list args: task positional arguments.
+        :keyword dict kwargs: task keyword arguments.
+        :keyword str eta: scheduled time in `iso-8601` format.
+        :keyword float | int countdown: eta in seconds from now.
+        :keyword float | int | str expires: expiry time in seconds or an `iso-8601` date.
+        :keyword str serializer: specify serializer to use (default is json).
+        :keyword str queue: destination queue name.
+        :keyword str exchange: destination exchange name (defaults to the queue exchange).
+        :keyword str routing_key: destination routing key (defaults to the queue routing key).
+
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def control(self, method, queue=None, exchange=None, type=None,
+                routing_key=None, max_scale=None, min_scale=None,
+                resize=None, task=None, rate_limit=None, task_ids=None,
+                signal=None, soft_secs=None, hard_secs=None,
+                destination=None, timeout=None, json=None, help=False):
+        """
+        workers remote control.
+
+        :param str method: control method. it could be from these methods:
+                           `add_consumer`, `autoscale`, `cancel_consumer`,
+                           `disable_events`, `election`, `enable_events`,
+                           `heartbeat`, `pool_grow`, `pool_restart`,
+                           `pool_shrink`, `rate_limit`, `revoke`, `shutdown`,
+                           `terminate` and `time_limit`.
+
+        :keyword str queue: the queue name.
+                            this is only for `add_consumer`
+                            and `cancel_consumer` methods.
+
+        :keyword str exchange: exchange name.
+                               this is only for `add_consumer` method.
+
+        :keyword str type: exchange type.
+                           this is only for `add_consumer` method.
+
+        :keyword str routing_key: routing key.
+                                  this is only for `add_consumer` method.
+
+        :keyword int max_scale: max value for autoscaling.
+                                this is only for `autoscale` method.
+
+        :keyword int min_scale: min value for autoscaling.
+                                this is only for `autoscale` method.
+
+        :keyword int resize: pool grow or shrink resize value.
+                             this is only for `pool_grow` and `pool_shrink` methods.
+
+        :keyword str task: task name.
+                           this is only for `rate_limit` and `time_limit` methods.
+
+        :keyword str rate_limit: rate limit value.
+                                 for example: 5/s, 5/m or 5/h.
+                                 this is only for `rate_limit` method.
+
+        :keyword str | list[str] task_ids: list of task ids.
+                                           this is only for `revoke`
+                                           and `terminate` methods.
+
+        :keyword str signal: signal name to use for stopping tasks.
+                             this is only for `terminate` method.
+
+        :keyword int | float soft_secs: soft time limit for task.
+                                        this is only for `time_limit` method.
+
+        :keyword int | float hard_secs: hard time limit for task.
+                                        this is only for `time_limit` method.
+
+        :keyword str | list[str] destination: list of destination node names.
         :keyword float timeout: timeout in seconds waiting for reply.
         :keyword bool json: use json as output format.
         :keyword bool help: show help for this command.

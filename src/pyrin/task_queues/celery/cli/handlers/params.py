@@ -7,7 +7,8 @@ import pyrin.configuration.services as config_services
 
 from pyrin.task_queues.celery.cli.interface import CeleryCLIParamBase
 from pyrin.cli.arguments import KeywordArgument, BooleanArgument, \
-    PositionalArgument, CompositeKeywordArgument, CompositePositionalArgument
+    PositionalArgument, CompositeKeywordArgument, CompositePositionalArgument, \
+    JSONKeywordArgument
 
 
 class LogFileParam(KeywordArgument, CeleryCLIParamBase):
@@ -732,3 +733,581 @@ class AttributeListParam(CompositePositionalArgument, CeleryCLIParamBase):
 
         super().__init__('attributes', index, default=default,
                          separator=' ', **options)
+
+
+class TaskNamePositionalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    task name positional param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of TaskNamePositionalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('task', index, default=default, **options)
+
+
+class ArgsParam(JSONKeywordArgument, CeleryCLIParamBase):
+    """
+    args param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ArgsParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('args', '--args', default=default)
+
+
+class KwargsParam(JSONKeywordArgument, CeleryCLIParamBase):
+    """
+    kwargs param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of KwargsParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('kwargs', '--kwargs', default=default)
+
+
+class ETAParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    eta param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ETAParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('eta', '--eta', default=default)
+
+
+class CountdownParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    countdown param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of CountdownParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('countdown', '--countdown', default=default)
+
+
+class ExpiresParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    expires param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ExpiresParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('expires', '--expires', default=default)
+
+
+class SerializerParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    serializer param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of SerializerParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('serializer', '--serializer', default=default)
+
+
+class QueueParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    queue param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of QueueParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('queue', '--queue', default=default)
+
+
+class ExchangeParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    exchange param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ExchangeParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('exchange', '--exchange', default=default)
+
+
+class RoutingKeyParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    routing key param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of RoutingKeyParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('routing_key', '--routing-key', default=default)
+
+
+class ControlMethodParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    control method param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of ControlMethodParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('method', index, default=default, **options)
+
+
+class QueuePositionalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    queue positional param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of QueuePositionalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('queue', index, default=default, **options)
+
+
+class ExchangePositionalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    exchange positional param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of ExchangePositionalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('exchange', index, default=default, **options)
+
+
+class ExchangeTypePositionalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    exchange type positional param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of ExchangeTypePositionalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('type', index, default=default, **options)
+
+
+class RoutingKeyPositionalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    routing key positional param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of RoutingKeyPositionalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('routing_key', index, default=default, **options)
+
+
+class MaxScaleParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    max scale param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of MaxScaleParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('max_scale', index, default=default, **options)
+
+
+class MinScaleParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    min scale param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of MinScaleParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('min_scale', index, default=default, **options)
+
+
+class PoolResizeParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    pool resize param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of PoolResizeParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('resize', index, default=default, **options)
+
+
+class RateLimitParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    rate limit param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of RateLimitParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('rate_limit', index, default=default, **options)
+
+
+class SignalParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    signal param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of SignalParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('signal', index, default=default, **options)
+
+
+class SoftSecondsParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    soft seconds param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of SoftSecondsParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('soft_secs', index, default=default, **options)
+
+
+class HardSecondsParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    hard seconds param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of HardSecondsParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('hard_secs', index, default=default, **options)
