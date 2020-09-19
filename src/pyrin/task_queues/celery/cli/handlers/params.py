@@ -1311,3 +1311,75 @@ class HardSecondsParam(PositionalArgument, CeleryCLIParamBase):
             index = 0
 
         super().__init__('hard_secs', index, default=default, **options)
+
+
+class CameraParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    camera param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of CameraParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('camera', '--camera', default=default)
+
+
+class FrequencyParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    frequency param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of FrequencyParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('frequency', '--frequency', default=default)
+
+
+class DumpParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    dump param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of DumpParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('dump', '--dump', default=default)
+
+
+class MaxRateParam(KeywordArgument, CeleryCLIParamBase):
+    """
+    max rate param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of MaxRateParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('maxrate', '--maxrate', default=default)

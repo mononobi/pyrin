@@ -218,6 +218,20 @@ class CeleryCLI(CLI):
         pass
 
     @cli
+    def events(self, camera=None, frequency=None,
+               dump=None, maxrate=None, help=False):
+        """
+        event-stream utilities.
+
+        :keyword str camera: camera class fully qualified name.
+        :keyword float | int frequency: frequency value.
+        :keyword bool dump: dump events to stdout.
+        :keyword str maxrate: max event streaming rate.
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
     def status(self, help=False):
         """
         show list of worker nodes that are online.
