@@ -8,7 +8,7 @@ from pyrin.task_queues.celery.cli.enumerations import CeleryCLIHandlersEnum
 from pyrin.task_queues.celery.cli.interface import CeleryCLIHandlerBase
 from pyrin.task_queues.celery.cli.handlers.params import ConcurrencyParam, \
     PurgeParam, BeatParam, HostnameParam, AutoScaleParam, WorkerLogFileParam, \
-    WorkerPIDFileParam, WorkerLogLevelParam, QueuesParam, OptimizationParam
+    WorkerPIDFileParam, WorkerLogLevelParam, OptimizationParam, WorkerQueuesParam
 
 
 @celery_cli_handler()
@@ -33,7 +33,7 @@ class WorkerCLIHandler(CeleryCLIHandlerBase):
 
         params.extend([ConcurrencyParam(), PurgeParam(), BeatParam(),
                        HostnameParam(), AutoScaleParam(), WorkerLogFileParam(),
-                       WorkerPIDFileParam(), WorkerLogLevelParam(), QueuesParam(),
+                       WorkerPIDFileParam(), WorkerLogLevelParam(), WorkerQueuesParam(),
                        OptimizationParam()])
 
         return super()._inject_params(params)

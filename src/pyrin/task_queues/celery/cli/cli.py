@@ -35,7 +35,7 @@ class CeleryCLI(CLI):
                             please note that there must only be one instance of
                             this service.
 
-        :keyword str queues: list of queues to enable for this worker, separated by comma.
+        :keyword str | list[str] queues: list of queues to enable for this worker.
         :keyword bool purge: purges all waiting tasks before the daemon is started.
 
         :keyword str autoscale: enable autoscaling by providing
@@ -261,9 +261,43 @@ class CeleryCLI(CLI):
         pass
 
     @cli
+    def purge(self, force=None, queues=None, exclude_queues=None, help=False):
+        """
+        erase all messages from all known task queues.
+
+        :keyword bool force: don't prompt for verification before deleting messages.
+        :keyword str | list[str] queues: list of queue names to purge.
+        :keyword str | list[str] exclude_queues: list of queue names not to purge.
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def logtool(self, action, files=None, help=False):
+        """
+        the celery logtool command.
+
+        :param str action: action to be executed. it could be from:
+                           `stats`, `traces`, `errors`, `incomplete` and `debug`.
+
+        :keyword str | list[str] files: list of file paths.
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
     def status(self, help=False):
         """
         show list of worker nodes that are online.
+
+        :keyword bool help: show help for this command.
+        """
+        pass
+
+    @cli
+    def report(self, help=False):
+        """
+        shows information useful to include in bug-reports.
 
         :keyword bool help: show help for this command.
         """

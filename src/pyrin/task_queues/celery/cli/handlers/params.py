@@ -218,7 +218,7 @@ class AutoScaleParam(CompositeKeywordArgument, CeleryCLIParamBase):
         if default is None:
             default = config_services.get_active('celery', 'worker_autoscale')
 
-        super().__init__('autoscale', '--autoscale', default=default, separator=',')
+        super().__init__('autoscale', '--autoscale', separator=',', default=default)
 
 
 class QueuesParam(CompositeKeywordArgument, CeleryCLIParamBase):
@@ -238,10 +238,30 @@ class QueuesParam(CompositeKeywordArgument, CeleryCLIParamBase):
                                form `celery` config store if not provided.
         """
 
+        super().__init__('queues', '--queues', separator=',', default=default)
+
+
+class WorkerQueuesParam(QueuesParam):
+    """
+    worker queues param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of WorkerQueuesParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to `worker_queues` value
+                               form `celery` config store if not provided.
+        """
+
         if default is None:
             default = config_services.get_active('celery', 'worker_queues')
 
-        super().__init__('queues', '--queues', default=default, separator=',')
+        super().__init__(default=default)
 
 
 class PurgeParam(BooleanArgument, CeleryCLIParamBase):
@@ -488,7 +508,7 @@ class DestinationParam(CompositeKeywordArgument, CeleryCLIParamBase):
         """
 
         super().__init__('destination', '--destination',
-                         default=default, separator=',')
+                         separator=',', default=default)
 
 
 class JSONParam(BooleanArgument, CeleryCLIParamBase):
@@ -1523,3 +1543,106 @@ class TopicParam(PositionalArgument, CeleryCLIParamBase):
             index = 0
 
         super().__init__('topic', index, default=default, **options)
+
+
+class ForceParam(BooleanArgument, CeleryCLIParamBase):
+    """
+    force param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ForceParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+        """
+
+        super().__init__('force', '--force', default=default)
+
+
+class ExcludeQueuesParam(CompositeKeywordArgument, CeleryCLIParamBase):
+    """
+    exclude queues param class.
+    """
+
+    def __init__(self, default=None):
+        """
+        initializes an instance of ExcludeQueuesParam.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to `worker_queues` value
+                               form `celery` config store if not provided.
+        """
+
+        super().__init__('exclude_queues', '--exclude-queues',
+                         separator=',', default=default)
+
+
+class ActionParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    action param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of ActionParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('action', index, default=default, **options)
+
+
+class FilesParam(PositionalArgument, CeleryCLIParamBase):
+    """
+    files param class.
+    """
+
+    def __init__(self, index=None, default=None, **options):
+        """
+        initializes an instance of FilesParam.
+
+        :param int index: zero based index of this param in cli command inputs.
+                          defaults to 0 if not provided.
+
+        :param object default: default value to be emitted to
+                               cli if this param is not available.
+                               if set to None, this param will not
+                               be emitted at all.
+                               defaults to None if not provided.
+
+        :keyword bool validate_index: specifies that index of this argument
+                                      must be validated. it could be helpful
+                                      to set this to False when there are multiple
+                                      arguments with the same index that will appear
+                                      in different situations.
+                                      defaults to True if not provided.
+        """
+
+        if index is None:
+            index = 0
+
+        super().__init__('files', index, default=default, **options)

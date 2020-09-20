@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-celery cli handlers events module.
+celery cli handlers purge module.
 """
 
 from pyrin.task_queues.celery.cli.decorators import celery_cli_handler
 from pyrin.task_queues.celery.cli.enumerations import CeleryCLIHandlersEnum
 from pyrin.task_queues.celery.cli.interface import CeleryCLIHandlerBase
-from pyrin.task_queues.celery.cli.handlers.params import CameraParam, \
-    FrequencyParam, DumpParam, MaxRateParam, LogLevelParam, LogFileParam
+from pyrin.task_queues.celery.cli.handlers.params import ForceParam, ExcludeQueuesParam, \
+    QueuesParam
 
 
 @celery_cli_handler()
-class EventsCLIHandler(CeleryCLIHandlerBase):
+class PurgeCLIHandler(CeleryCLIHandlerBase):
     """
-    events cli handler class.
+    purge cli handler class.
     """
 
     def __init__(self):
         """
-        initializes an instance of EventsCLIHandler.
+        initializes an instance of PurgeCLIHandler.
         """
 
-        super().__init__(CeleryCLIHandlersEnum.EVENTS)
+        super().__init__(CeleryCLIHandlersEnum.PURGE)
 
     def _inject_params(self, params):
         """
@@ -30,8 +30,6 @@ class EventsCLIHandler(CeleryCLIHandlerBase):
         :param list[CLIParamBase] params: list of all params.
         """
 
-        params.extend([CameraParam(), FrequencyParam(),
-                       DumpParam(), MaxRateParam(),
-                       LogLevelParam(), LogFileParam()])
+        params.extend([ForceParam(), QueuesParam(), ExcludeQueuesParam()])
 
         return super()._inject_params(params)

@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-celery cli handlers events module.
+celery cli handlers logtool module.
 """
 
 from pyrin.task_queues.celery.cli.decorators import celery_cli_handler
 from pyrin.task_queues.celery.cli.enumerations import CeleryCLIHandlersEnum
 from pyrin.task_queues.celery.cli.interface import CeleryCLIHandlerBase
-from pyrin.task_queues.celery.cli.handlers.params import CameraParam, \
-    FrequencyParam, DumpParam, MaxRateParam, LogLevelParam, LogFileParam
+from pyrin.task_queues.celery.cli.handlers.params import ActionParam, FilesParam
 
 
 @celery_cli_handler()
-class EventsCLIHandler(CeleryCLIHandlerBase):
+class LogToolCLIHandler(CeleryCLIHandlerBase):
     """
-    events cli handler class.
+    logtool cli handler class.
     """
 
     def __init__(self):
         """
-        initializes an instance of EventsCLIHandler.
+        initializes an instance of LogToolCLIHandler.
         """
 
-        super().__init__(CeleryCLIHandlersEnum.EVENTS)
+        super().__init__(CeleryCLIHandlersEnum.LOGTOOL)
 
     def _inject_params(self, params):
         """
@@ -30,8 +29,6 @@ class EventsCLIHandler(CeleryCLIHandlerBase):
         :param list[CLIParamBase] params: list of all params.
         """
 
-        params.extend([CameraParam(), FrequencyParam(),
-                       DumpParam(), MaxRateParam(),
-                       LogLevelParam(), LogFileParam()])
+        params.extend([ActionParam(index=0), FilesParam(index=1)])
 
         return super()._inject_params(params)
