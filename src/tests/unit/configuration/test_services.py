@@ -31,12 +31,12 @@ def test_load_configuration():
     """
 
     try:
-        create_config_file('new_settings_load.config')
+        create_config_file('new_settings_load.ini')
         config_services.load_configuration('new_settings_load')
         sections = config_services.get_section_names('new_settings_load')
         assert sections is not None
     finally:
-        delete_config_file('new_settings_load.config')
+        delete_config_file('new_settings_load.ini')
 
 
 def test_load_configuration_already_loaded():
@@ -149,7 +149,7 @@ def test_load_configurations():
     stores = ['store1', 'store2', 'store3']
     try:
         for store in stores:
-            create_config_file('{store}.config'.format(store=store))
+            create_config_file('{store}.ini'.format(store=store))
 
         config_services.load_configurations(*stores)
 
@@ -157,7 +157,7 @@ def test_load_configurations():
             assert config_services.get_section_names(store) is not None
     finally:
         for store in stores:
-            delete_config_file('{store}.config'.format(store=store))
+            delete_config_file('{store}.ini'.format(store=store))
 
 
 def test_load_configurations_invalid_name():
@@ -172,12 +172,12 @@ def test_load_configurations_invalid_name():
         stores_extended.extend(stores)
         try:
             for store in stores:
-                create_config_file('{store}.config'.format(store=store))
+                create_config_file('{store}.ini'.format(store=store))
 
             config_services.load_configurations(*stores_extended)
         finally:
             for store in stores:
-                delete_config_file('{store}.config'.format(store=store))
+                delete_config_file('{store}.ini'.format(store=store))
 
 
 def test_load_configurations_invalid_name_with_silent():
@@ -191,7 +191,7 @@ def test_load_configurations_invalid_name_with_silent():
     stores_extended.extend(stores)
     try:
         for store in stores:
-            create_config_file('{store}.config'.format(store=store))
+            create_config_file('{store}.ini'.format(store=store))
 
         config_services.load_configurations(*stores_extended, silent=True)
 
@@ -199,7 +199,7 @@ def test_load_configurations_invalid_name_with_silent():
             assert config_services.get_section_names(store) is not None
     finally:
         for store in stores:
-            delete_config_file('{store}.config'.format(store=store))
+            delete_config_file('{store}.ini'.format(store=store))
 
 
 def test_load_configurations_already_loaded():
@@ -275,10 +275,10 @@ def test_reload_for_not_loaded_store():
 
     with pytest.raises(ConfigurationStoreNotFoundError):
         try:
-            create_config_file('new_settings_reload.config')
+            create_config_file('new_settings_reload.ini')
             config_services.reload('new_settings_reload')
         finally:
-            delete_config_file('new_settings_reload.config')
+            delete_config_file('new_settings_reload.ini')
 
 
 def test_reload_for_invalid_store():
@@ -298,7 +298,7 @@ def test_get_file_path_database():
 
     path = config_services.get_file_path('database')
     settings_path = application_services.get_settings_path()
-    database_path = os.path.abspath(os.path.join(settings_path, 'database.config'))
+    database_path = os.path.abspath(os.path.join(settings_path, 'database.ini'))
     assert path == database_path
 
 
@@ -309,7 +309,7 @@ def test_get_file_path_logging():
 
     path = config_services.get_file_path('logging')
     settings_path = application_services.get_settings_path()
-    logging_path = os.path.abspath(os.path.join(settings_path, 'logging.config'))
+    logging_path = os.path.abspath(os.path.join(settings_path, 'logging.ini'))
     assert path == logging_path
 
 
@@ -382,7 +382,7 @@ def test_get_file_name():
     """
 
     file_name = config_services.get_file_name('environment')
-    assert file_name == 'environment.config'
+    assert file_name == 'environment.ini'
 
 
 def test_get_file_name_not_existed():
@@ -410,7 +410,7 @@ def test_create_config_file():
     creates the requested config file from default pyrin configurations.
     """
 
-    name = 'api.config'
+    name = 'api.ini'
     delete_config_file(name)
     assert_config_file_not_existed(name)
     config_services.create_config_file('api')
@@ -427,7 +427,7 @@ def test_create_config_file_not_existed():
     with pytest.raises(ConfigurationFileNotFoundError):
         config_services.create_config_file('my_own_config')
 
-    assert_config_file_not_existed('my_own_config.config')
+    assert_config_file_not_existed('my_own_config.ini')
 
 
 def test_create_config_file_not_existed_with_silent():
@@ -438,7 +438,7 @@ def test_create_config_file_not_existed_with_silent():
     """
 
     config_services.create_config_file('my_own_config', silent=True)
-    assert_config_file_not_existed('my_own_config.config')
+    assert_config_file_not_existed('my_own_config.ini')
 
 
 def test_create_config_file_existed():
@@ -459,7 +459,7 @@ def test_create_config_file_existed_with_ignore():
     it should ignore the creation of a new file.
     """
 
-    assert_config_file_existed('api.config')
+    assert_config_file_existed('api.ini')
     config_services.create_config_file('api', ignore_on_existed=True)
 
 
@@ -470,7 +470,7 @@ def test_create_config_file_existed_with_replace():
     it should replace the existing config file.
     """
 
-    assert_config_file_existed('api.config')
+    assert_config_file_existed('api.ini')
     config_services.create_config_file('api', replace_existing=True)
 
 
@@ -479,7 +479,7 @@ def test_create_config_files():
     creates the requested config files from default pyrin configurations.
     """
 
-    names = ['api.config', 'babel.mappings.config']
+    names = ['api.ini', 'babel.mappings.ini']
     for file in names:
         delete_config_file(file)
         assert_config_file_not_existed(file)
