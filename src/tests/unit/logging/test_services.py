@@ -5,8 +5,6 @@ logging test_services module.
 
 import logging
 
-from logging import Logger
-
 import pyrin.logging.services as logging_services
 
 from pyrin.logging.adapters import RequestInfoLoggerAdapter
@@ -26,9 +24,10 @@ def test_get_all_loggers_initial():
     """
 
     loggers = logging_services.get_all_loggers()
-    assert all(name in loggers.keys() for name in ['batch', 'sqlalchemy.engine',
+    assert all(name in loggers.keys() for name in ['sqlalchemy.engine', 'database', 'celery',
                                                    'sqlalchemy.pool', 'sqlalchemy.dialects',
-                                                   'sqlalchemy.orm', 'werkzeug'])
+                                                   'sqlalchemy.orm', 'werkzeug', 'api',
+                                                   'caching.remote', 'caching.local'])
 
 
 def test_get_all_loggers_packages():
@@ -47,8 +46,10 @@ def test_wrap_all_loggers():
 
     loggers = logging_services.get_all_loggers()
 
-    assert not any(isinstance(logger, Logger) for logger in loggers.values()
-                   if logging_services.should_be_wrapped(logger) is True)
+    assert not any(not isinstance(logger, RequestInfoLoggerAdapter)
+                   for logger in loggers.values()
+                   if logging_services.should_be_wrapped(logger) is True
+                   and logger.name not in ['celery.bootsteps'])
 
     assert any(isinstance(logger, RequestInfoLoggerAdapter) for logger in loggers.values())
 
