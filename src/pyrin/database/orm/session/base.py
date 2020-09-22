@@ -57,7 +57,7 @@ class CoreSession(Session):
         :keyword kw: additional keyword arguments are sent to `session.get_bind()`
                      to allow extensibility of `bind` schemes.
 
-        :keyword str bind_name: database bind name from `database.binds.config`
+        :keyword str bind_name: database bind name from `database.binds.ini`
                                 file which given clause must be executed on.
                                 this keyword argument precedence over `mapper` and
                                 `clause` when locating a bind.

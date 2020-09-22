@@ -133,8 +133,8 @@ class PackagingManager(Manager, HookMixin):
 
         app_settings_directory = application_services.get_settings_path()
         pyrin_settings_directory = application_services.get_default_settings_path()
-        config_file_name = '{store}.config'.format(store=self.package_class.
-                                                   CONFIG_STORE_NAMES[0])
+        config_file_name = '{store}.ini'.format(store=self.package_class.
+                                                CONFIG_STORE_NAMES[0])
         config_path = path_utils.get_first_available_file(app_settings_directory,
                                                           pyrin_settings_directory,
                                                           file_name=config_file_name)

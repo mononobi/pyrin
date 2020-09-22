@@ -22,7 +22,7 @@ class ConfigurationManager(Manager):
     """
 
     # config extension to be used for config file names.
-    CONFIG_EXTENSION = '.config'
+    CONFIG_EXTENSION = '.ini'
 
     # class type to be used as config store.
     config_store_class = ConfigStore
@@ -249,7 +249,7 @@ class ConfigurationManager(Manager):
         """
         gets the configuration file name for given config store.
 
-        for example: `database.config`
+        for example: `database.ini`
 
         :param str store_name: config store name to get its file name.
 

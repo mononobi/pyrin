@@ -23,7 +23,7 @@ def memcached(*old_method, **options):
     to be able to use this decorator you must install memcached client dependency
     using `pip install pyrin[memcached]` and also remove
     `pyrin.caching.remote.handlers.memcached` from `ignored_modules` of
-    `packaging.config` file.
+    `packaging.ini` file.
 
     :param function | property old_method: the original decorated method or function.
 

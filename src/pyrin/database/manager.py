@@ -245,8 +245,8 @@ class DatabaseManager(Manager, HookMixin):
         keys that their names are exactly like prefixed ones but without `__` will
         be removed from result dict.
 
-        :param dict base_configs: base configs from `database.config` file.
-        :param dict bind_configs: bind configs from `database.binds.config`
+        :param dict base_configs: base configs from `database.ini` file.
+        :param dict bind_configs: bind configs from `database.binds.ini`
 
         :rtype: dict
         """
@@ -260,7 +260,7 @@ class DatabaseManager(Manager, HookMixin):
     def _get_bind_configs(self, bind_name):
         """
         gets all bind configs of given bind name for currently
-        active environment in 'database.config' from 'database.binds.config' file.
+        active environment in 'database.ini' from 'database.binds.ini' file.
 
         :param str bind_name: bind name to get its configs.
 
@@ -273,7 +273,7 @@ class DatabaseManager(Manager, HookMixin):
     def get_bind_config_section_name(self, bind_name):
         """
         gets the bind config section name for given bind name and currently
-        active environment in 'database.config' from 'database.binds.config' file.
+        active environment in 'database.ini' from 'database.binds.ini' file.
 
         :param str bind_name: bind name to get its section name.
 

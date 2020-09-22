@@ -28,11 +28,11 @@ LOGGER = logging_services.get_logger('alembic')
 
 # gather section names referring to different
 # databases. these are named according to bind names
-# in the alembic.config file. default database must
+# in the alembic.ini file. default database must
 # always be referenced by 'default' key.
 db_names = config_services.get('alembic', 'alembic', 'databases')
 
-# getting timezone from alembic.config to set in file names.
+# getting timezone from alembic.ini to set in file names.
 timezone = config_services.get('alembic', 'alembic', 'timezone')
 
 # keeps a collection of connection bind names and urls.

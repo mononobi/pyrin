@@ -30,7 +30,7 @@ class ModelManager(Manager):
         otherwise migrations will not work properly.
 
         but, if you don't want to use migrations at all, you could just put
-        `pyrin.database.migration` into `ignored_packages` list of `packaging.config`
+        `pyrin.database.migration` into `ignored_packages` list of `packaging.ini`
         file and leave this method unimplemented.
 
         :rtype: type[CoreEntity]

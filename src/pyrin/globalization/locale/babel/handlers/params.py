@@ -420,7 +420,7 @@ class MappingParam(KeywordArgument, BabelCLIParamBase):
                                if set to None, this param will not
                                be emitted at all.
                                if not provided, defaults to
-                               path to `babel.mappings.config`.
+                               path to `babel.mappings.ini`.
         """
 
         if default is None:

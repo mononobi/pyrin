@@ -124,7 +124,7 @@ def get_file_name(store_name, **options):
     """
     gets the configuration file name for given config store.
 
-    for example: `database.config`
+    for example: `database.ini`
 
     :param str store_name: config store name to get its file name.
 

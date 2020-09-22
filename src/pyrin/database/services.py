@@ -256,7 +256,7 @@ def get_entity_engine(entity):
 def get_bind_config_section_name(bind_name):
     """
     gets the bind config section name for given bind name and currently
-    active environment in 'database.config' from 'database.binds.config' file.
+    active environment in 'database.ini' from 'database.binds.ini' file.
 
     :param str bind_name: bind name to get its section name.
 
