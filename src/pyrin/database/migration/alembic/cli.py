@@ -5,13 +5,15 @@ alembic cli module.
 
 import pyrin.database.migration.alembic.services as alembic_services
 
-from pyrin.cli.decorators import cli, cli_invoke
+from pyrin.cli.decorators import cli, cli_invoke, cli_group
 from pyrin.core.structs import CLI
 
 
+@cli_group('alembic')
 class AlembicCLI(CLI):
     """
     alembic cli class.
+
     this class exposes all alembic cli commands.
     """
 

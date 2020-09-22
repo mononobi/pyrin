@@ -13,3 +13,4 @@ class TemplatePackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'template.component'
+    DEPENDS = ['pyrin.cli']

@@ -109,3 +109,24 @@ class InvalidCLIParamTypeError(CLIManagerException):
     invalid cli param type error.
     """
     pass
+
+
+class DuplicatedCLIGroupError(CLIManagerException):
+    """
+    duplicated cli group error.
+    """
+    pass
+
+
+class InvalidCLIGroupTypeError(CLIManagerException):
+    """
+    invalid cli group type error.
+    """
+    pass
+
+
+class CLIGroupNameIsRequiredError(CLIManagerException):
+    """
+    cli group name is required error.
+    """
+    pass

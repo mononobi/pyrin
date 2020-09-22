@@ -78,3 +78,36 @@ def cli_invoke(func):
             print_error(error, force=True)
 
     return update_wrapper(decorator, func)
+
+
+def cli_group(name):
+    """
+    decorator to register a cli group.
+
+    :param str name: cli group name.
+
+    :raises CLIGroupNameIsRequiredError: cli group name is required error.
+    :raises DuplicatedCLIGroupError: duplicated cli group error.
+    :raises InvalidCLIGroupTypeError: invalid cli group type error.
+
+    :returns: cli group class.
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given class and registers an instance
+        of it into available cli group.
+
+        :param type cls: cli group class.
+
+        :returns: cli group class.
+        :rtype: type
+        """
+
+        instance = cls()
+        cli_services.register_cli_group(name, instance)
+
+        return cls
+
+    return decorator

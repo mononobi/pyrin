@@ -5,14 +5,16 @@ template cli module.
 
 import pyrin.template.services as template_services
 
-from pyrin.cli.decorators import cli_invoke
+from pyrin.cli.decorators import cli_invoke, cli_group
 from pyrin.core.structs import CLI
 from pyrin.template.enumerations import TemplateCLIHandlersEnum
 
 
+@cli_group('template')
 class TemplateCLI(CLI):
     """
     template cli class.
+
     this class exposes all template cli commands.
     """
 

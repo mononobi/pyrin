@@ -7,6 +7,31 @@ from pyrin.application.services import get_component
 from pyrin.cli import CLIPackage
 
 
+def register_cli_group(name, instance):
+    """
+    registers a cli group.
+
+    :param str name: cli group name.
+    :param CLI instance: cli group instance.
+
+    :raises CLIGroupNameIsRequiredError: cli group name is required error.
+    :raises DuplicatedCLIGroupError: duplicated cli group error.
+    :raises InvalidCLIGroupTypeError: invalid cli group type error.
+    """
+
+    return get_component(CLIPackage.COMPONENT_NAME).register_cli_group(name, instance)
+
+
+def get_cli_groups():
+    """
+    gets all registered cli groups.
+
+    :rtype: CLIGroups
+    """
+
+    return get_component(CLIPackage.COMPONENT_NAME).get_cli_groups()
+
+
 def process_function(func, func_args, func_kwargs):
     """
     processes the given cli handler function with given inputs.

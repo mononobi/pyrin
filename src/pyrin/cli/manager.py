@@ -8,9 +8,11 @@ import colorama
 import pyrin.utils.function as func_utils
 
 from pyrin.cli import CLIPackage
-from pyrin.core.structs import Manager
+from pyrin.cli.structs import CLIGroups
+from pyrin.core.structs import Manager, CLI
 from pyrin.utils.custom_print import print_colorful, print_error
-from pyrin.cli.exceptions import InvalidCLIDecoratedMethodError
+from pyrin.cli.exceptions import InvalidCLIDecoratedMethodError, InvalidCLIGroupTypeError, \
+    CLIGroupNameIsRequiredError, DuplicatedCLIGroupError
 
 
 class CLIManager(Manager):
@@ -19,6 +21,54 @@ class CLIManager(Manager):
     """
 
     package_class = CLIPackage
+
+    def __init__(self):
+        """
+        initializes an instance of CLIManager.
+        """
+
+        super().__init__()
+
+        self.__groups = CLIGroups()
+
+    def register_cli_group(self, name, instance):
+        """
+        registers a cli group.
+
+        :param str name: cli group name.
+        :param CLI instance: cli group instance.
+
+        :raises CLIGroupNameIsRequiredError: cli group name is required error.
+        :raises DuplicatedCLIGroupError: duplicated cli group error.
+        :raises InvalidCLIGroupTypeError: invalid cli group type error.
+        """
+
+        if name in (None, '') or name.isspace():
+            raise CLIGroupNameIsRequiredError('CLI group name is required for '
+                                              'registering cli group [{instance}].'
+                                              .format(instance=instance))
+
+        if hasattr(self.__groups, name) is True:
+            raise DuplicatedCLIGroupError('There is another registered cli group with '
+                                          'name [{name}]. so cli group [{instance}] '
+                                          'could not be registered.'
+                                          .format(name=name, instance=instance))
+
+        if not isinstance(instance, CLI):
+            raise InvalidCLIGroupTypeError('CLI group [{instance}] is not '
+                                           'an instance of [{base}].'
+                                           .format(instance=instance, base=CLI))
+
+        setattr(self.__groups, name, instance)
+
+    def get_cli_groups(self):
+        """
+        gets all registered cli groups.
+
+        :rtype: CLIGroups
+        """
+
+        return self.__groups
 
     def process_function(self, func, func_args, func_kwargs):
         """

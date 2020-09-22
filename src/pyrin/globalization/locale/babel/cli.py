@@ -5,13 +5,15 @@ babel cli module.
 
 import pyrin.globalization.locale.babel.services as babel_services
 
-from pyrin.cli.decorators import cli, cli_invoke
+from pyrin.cli.decorators import cli, cli_invoke, cli_group
 from pyrin.core.structs import CLI
 
 
+@cli_group('babel')
 class BabelCLI(CLI):
     """
     babel cli class.
+
     this class exposes all babel cli commands.
     """
 

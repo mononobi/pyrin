@@ -12,6 +12,7 @@ class AlembicPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.configuration']
     COMPONENT_NAME = 'database.migration.alembic.component'
     CONFIG_STORE_NAMES = ['alembic']
+    DEPENDS = ['pyrin.configuration',
+               'pyrin.cli']
