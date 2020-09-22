@@ -165,7 +165,7 @@ def try_set(name, value, func, *extra_keys, **options):
                          this should only passed to extended and complex caches.
 
     :param dict kw_inputs: function keyword arguments.
-                           this should only passed to extended and complex caches.
+                           this should only passed to extended, complex and remote caches.
 
     :param object extra_keys: extra arguments to generate key from.
                               this could be used in custom caches.
@@ -211,7 +211,7 @@ def try_get(name, func, *extra_keys, default=None, **options):
                          this should only passed to extended and complex caches.
 
     :param dict kw_inputs: function keyword arguments.
-                           this should only passed to extended and complex caches.
+                           this should only passed to extended, complex and remote caches.
 
     :param object extra_keys: extra arguments to generate key from.
                               this could be used in custom caches.
@@ -247,7 +247,7 @@ def generate_key(name, func, *extra_keys, **options):
                          this should only passed to extended and complex caches.
 
     :param dict kw_inputs: function keyword arguments.
-                           this should only passed to extended and complex caches.
+                           this should only passed to extended, complex and remote caches.
 
     :param object extra_keys: extra arguments to generate key from.
                               this could be used in custom caches.

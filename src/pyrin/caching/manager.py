@@ -206,10 +206,10 @@ class CachingManager(Manager):
                                      this should only passed to simple permanent caches.
 
         :param tuple inputs: function positional arguments.
-                             this should only passed to extended and complex caches.
+                             this should only passed to extended, complex and remote caches.
 
         :param dict kw_inputs: function keyword arguments.
-                               this should only passed to extended and complex caches.
+                               this should only passed to extended, complex and remote caches.
 
         :param object extra_keys: extra arguments to generate key from.
                                   this could be used in custom caches.
@@ -251,10 +251,10 @@ class CachingManager(Manager):
                                      this should only passed to simple permanent caches.
 
         :param tuple inputs: function positional arguments.
-                             this should only passed to extended and complex caches.
+                             this should only passed to extended, complex and remote caches.
 
         :param dict kw_inputs: function keyword arguments.
-                               this should only passed to extended and complex caches.
+                               this should only passed to extended, complex and remote caches.
 
         :param object extra_keys: extra arguments to generate key from.
                                   this could be used in custom caches.
@@ -289,7 +289,7 @@ class CachingManager(Manager):
                              this should only passed to extended and complex caches.
 
         :param dict kw_inputs: function keyword arguments.
-                               this should only passed to extended and complex caches.
+                               this should only passed to extended, complex and remote caches.
 
         :param object extra_keys: extra arguments to generate key from.
                                   this could be used in custom caches.
