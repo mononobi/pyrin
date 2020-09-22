@@ -5,10 +5,11 @@ celery cli module.
 
 import pyrin.task_queues.celery.cli.services as celery_cli_services
 
-from pyrin.cli.decorators import cli
+from pyrin.cli.decorators import cli, cli_group
 from pyrin.core.structs import CLI
 
 
+@cli_group('celery')
 class CeleryCLI(CLI):
     """
     celery cli class.

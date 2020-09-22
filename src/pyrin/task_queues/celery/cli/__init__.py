@@ -13,3 +13,4 @@ class CeleryCLIPackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'task_queues.celery.cli.component'
+    DEPENDS = ['pyrin.cli']
