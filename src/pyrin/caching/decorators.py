@@ -34,6 +34,11 @@ def cache(*args, **kwargs):
                          if not provided, it will be get from `caching` config
                          store. this is only used in complex and remote caches.
 
+    :keyword bool refreshable: specifies that cached item's expire time must be
+                               extended on each hit. if not provided, will be get
+                               from `caching` config store. this is only used in
+                               complex caches.
+
     :keyword bool use_lifo: specifies that items of the cache must
                             be removed in lifo order. if not provided,
                             it will be get from `caching` config store.
@@ -271,6 +276,10 @@ def cached(*old_method, **options):
     :keyword int expire: expire time for given key in milliseconds.
                          if not provided, it will be get from `caching`
                          config store.
+
+    :keyword bool refreshable: specifies that cached item's expire time must be
+                               extended on each hit. if not provided, it will be
+                               get from `caching` config store.
 
     :returns: method or function result.
     """

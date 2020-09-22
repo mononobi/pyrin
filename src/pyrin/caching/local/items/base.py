@@ -20,9 +20,12 @@ class LocalCacheItemBase(CoreObject):
     all application cache items must be subclassed from this.
     """
 
-    def __init__(self, key, value, *args, **kwargs):
+    def __init__(self, key, value, *args, **options):
         """
         initializes an instance of LocalCacheItemBase.
+
+        :param object key: hashable object for cache key.
+        :param object value: value to be cached.
         """
 
         super().__init__()
@@ -101,15 +104,23 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
     all application complex cache items must be subclassed from this.
     """
 
-    def __init__(self, key, value, expire, **kwargs):
+    def __init__(self, key, value, expire, **options):
         """
         initializes an instance of ComplexLocalCacheItemBase.
+
+        :param object key: hashable object for cache key.
+        :param object value: value to be cached.
+
+        :keyword bool refreshable: specifies that this item's expire time must be
+                                   extended on each hit. defaults to False if not
+                                   provided.
         """
 
-        super().__init__(key, value, **kwargs)
+        super().__init__(key, value, **options)
 
         self._refreshed_on = self._created_on
         self._expire = expire
+        self._refreshable = options.get('refreshable', False)
 
     def _get_cacheable_value(self, value):
         """
@@ -121,6 +132,9 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
 
         :rtype: object
         """
+
+        if self._refreshable is True and self.is_expired is False:
+            self.refresh()
 
         return deepcopy(value)
 
@@ -144,7 +158,9 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
     @property
     def expire(self):
         """
-        gets the expire time value of this item.
+        gets the expire time value of this item in milliseconds.
+
+        :rtype: int
         """
 
         return self._expire

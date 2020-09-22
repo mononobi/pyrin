@@ -437,6 +437,19 @@ class AbstractComplexLocalCache(AbstractExtendedLocalCache):
 
     @property
     @abstractmethod
+    def refreshable(self):
+        """
+        gets a value indicating that cached item's expire time will be extended on each hit.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
     def hit_count(self):
         """
         gets the hit count for this cache.

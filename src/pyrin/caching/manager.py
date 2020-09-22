@@ -161,6 +161,11 @@ class CachingManager(Manager):
                              if not provided, will be get from `caching` config store.
                              this value is only used in complex and remote caches.
 
+        :keyword bool refreshable: specifies that cached item's expire time must be
+                                   extended on each hit. if not provided, will be get
+                                   from `caching` config store.
+                                   this value is only used in complex caches.
+
         :raises CacheNotFoundError: cache not found error.
         """
 
@@ -218,6 +223,11 @@ class CachingManager(Manager):
         :keyword int expire: expire time for given key in milliseconds.
                              if not provided, will be get from `caching` config store.
                              this value is only used in complex and remote caches.
+
+        :keyword bool refreshable: specifies that cached item's expire time must be
+                                   extended on each hit. if not provided, will be get
+                                   from `caching` config store.
+                                   this value is only used in complex caches.
 
         :raises CacheNotFoundError: cache not found error.
         """

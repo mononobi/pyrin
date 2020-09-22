@@ -540,6 +540,10 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                                  after each chunk, store will be flushed.
                                  if not provided, will be get from `caching` config store.
 
+        :keyword bool refreshable: specifies that cached item's expire time must be
+                                   extended on each hit. if not provided, will be get
+                                   from `caching` config store.
+
         :raises CacheNameIsRequiredError: cache name is required error.
         :raises InvalidCacheContainerTypeError: invalid cache container type error.
         :raises InvalidCacheItemTypeError: invalid cache item type error.
@@ -578,6 +582,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         clear_count = options.get('clear_count')
         persistent = options.get('persistent')
         chunk_size = options.get('chunk_size')
+        refreshable = options.get('refreshable')
 
         configs = self._get_configs()
         if limit is None:
@@ -597,6 +602,9 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         if chunk_size is None:
             chunk_size = configs['chunk_size']
+
+        if refreshable is None:
+            refreshable = configs['refreshable']
 
         if limit != NO_LIMIT and limit <= 0:
             raise InvalidCacheLimitError('Cache limit for cache [{name}] '
@@ -630,6 +638,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         self._clear_count = clear_count
         self._persistent = persistent
         self._chunk_size = chunk_size
+        self._refreshable = refreshable
 
     def _get_default_configs(self):
         """
@@ -737,11 +746,19 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         :keyword int expire: expire time for given key in milliseconds.
                              defaults to `expire` attribute if not provided.
+
+        :keyword bool refreshable: specifies that cached item's expire time must be
+                                   extended on each hit. defaults to `refreshable`
+                                   attribute if not provided.
         """
 
         expire = options.get('expire')
         if expire is None:
             options.update(expire=self.expire)
+
+        refreshable = options.get('refreshable')
+        if refreshable is None:
+            options.update(refreshable=self.refreshable)
 
         is_full, count = self.is_full
         if is_full is True:
@@ -773,7 +790,6 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
             return default
 
         self._hit_count = self._hit_count + 1
-        result.refresh()
         self._container.move_to_end(key_hash, not self._use_lifo)
         return result.value
 
@@ -949,6 +965,16 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         return self._clear_count
 
     @property
+    def refreshable(self):
+        """
+        gets a value indicating that cached item's expire time will be extended on each hit.
+
+        :rtype: bool
+        """
+
+        return self._refreshable
+
+    @property
     def stats(self):
         """
         get the statistic info about cached items.
@@ -962,6 +988,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                        str hit_ratio: hit ratio,
                        int limit: items count limit,
                        int expire: items default expire time,
+                       bool refreshable: items default refreshable value.
                        bool use_lifo: use lifo order,
                        int clear_count: clear count,
                        int chunk_size: chunk size)
@@ -976,6 +1003,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                      hit_ratio=hit_ratio,
                      limit=self.limit,
                      expire=self.expire,
+                     refreshable=self.refreshable,
                      use_lifo=self.use_lifo,
                      clear_count=self.clear_count,
                      chunk_size=self.chunk_size)
