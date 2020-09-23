@@ -13,4 +13,5 @@ class CachingLocalHandlersPackage(Package):
 
     NAME = __name__
     DEPENDS = ['pyrin.configuration',
+               'pyrin.globalization.datetime',
                'pyrin.logging']
