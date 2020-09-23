@@ -86,6 +86,7 @@ class CLIManager(Manager):
 
         try:
             inputs, cli_instance = func_utils.get_inputs(func, func_args, func_kwargs)
+            func_kwargs.pop('help', None)
             if cli_instance is None:
                 raise InvalidCLIDecoratedMethodError('The "@cli" decorator must '
                                                      'be set on instance methods. '
@@ -113,6 +114,7 @@ class CLIManager(Manager):
 
         try:
             inputs, parent = func_utils.get_inputs(func, func_args, func_kwargs)
+            func_kwargs.pop('help', None)
             if self._process_help(func, inputs) is False:
                 return func(*func_args, **func_kwargs)
 
@@ -148,7 +150,7 @@ class CLIManager(Manager):
         :param dict inputs: a dict of function inputs.
         """
 
-        if inputs.get('help', False) is True:
+        if inputs.pop('help', False) is True:
             self._print_function_doc(func)
             return True
 

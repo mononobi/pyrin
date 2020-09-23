@@ -73,6 +73,7 @@ class SecurityUtilsManager(Manager):
     def get_bytes(self, length=None, **options):
         """
         gets a secure random bytes with given length.
+
         the result value should not be decoded to string, because
         it's not a safe-string and may cause an error.
         if you want string representation, use `get_hex` or `get_url_safe` methods.

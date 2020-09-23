@@ -20,7 +20,7 @@ class AlembicCLI(CLI):
     _execute_service = alembic_services.execute
 
     @cli_invoke
-    def enable(self, help=False):
+    def enable(self, **options):
         """
         enable migrations for application.
 
@@ -31,7 +31,7 @@ class AlembicCLI(CLI):
         return alembic_services.enable()
 
     @cli
-    def branches(self, verbose=False, help=False):
+    def branches(self, **options):
         """
         show current branch points.
 
@@ -44,7 +44,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def current(self, verbose=False, help=False):
+    def current(self, **options):
         """
         display the current revision for a database.
 
@@ -57,7 +57,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def downgrade(self, revision, sql=False, tag=None, help=False):
+    def downgrade(self, revision, **options):
         """
         revert to a previous version.
         use `base` to revert all revisions.
@@ -77,7 +77,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def heads(self, resolve_dependencies=False, verbose=False, help=False):
+    def heads(self, **options):
         """
         show current available heads in the script directory.
 
@@ -93,10 +93,9 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def history(self, revision_range=None, indicate_current=False,
-                verbose=False, help=False):
+    def history(self, **options):
         """
-        list changeset scripts in chronological order.
+        list change-set scripts in chronological order.
 
         :keyword str revision_range: specify a revision range.
                                      format is [start]:[end]
@@ -113,8 +112,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def merge(self, revisions, message=None,
-              branch_label=None, revision_id=None, help=False):
+    def merge(self, revisions, **options):
         """
         merge two revisions together. creates a new migration file.
 
@@ -136,9 +134,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def revision(self, message=None, autogenerate=True, sql=False,
-                 head=None, splice=False, branch_label=None, version_path=None,
-                 revision_id=None, depends_on=None, help=False):
+    def revision(self, autogenerate=True, **options):
         """
         create a new revision file.
 
@@ -174,7 +170,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def show(self, revision, help=False):
+    def show(self, revision, **options):
         """
         show the revision(s) denoted by the given symbol.
 
@@ -188,7 +184,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def stamp(self, revisions, sql=False, tag=None, purge=False, help=False):
+    def stamp(self, revisions, **options):
         """
         stamp the revision table with the given revision(s).
         don't run any migrations.
@@ -212,7 +208,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def upgrade(self, revision, sql=False, tag=None, help=False):
+    def upgrade(self, revision, **options):
         """
         upgrade to a later version.
         use `head` to upgrade to latest revision.

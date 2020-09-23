@@ -20,24 +20,24 @@ class BabelCLI(CLI):
     _execute_service = babel_services.execute
 
     @cli_invoke
-    def enable(self, include_pyrin=True, include_app=True, help=False):
+    def enable(self, **options):
         """
         enables locale management for the application.
 
-        :param bool include_pyrin: specifies that it should extract pyrin localizable
-                                   messages. defaults to True if not provided.
+        :keyword bool include_pyrin: specifies that it should extract pyrin localizable
+                                     messages. defaults to True if not provided.
 
-        :param bool include_app: specifies that it should extract application
-                                 localizable messages. defaults to True if not provided.
+        :keyword bool include_app: specifies that it should extract application
+                                   localizable messages. defaults to True if not provided.
 
         :keyword bool help: show the help message for this command.
                             defaults to False if not provided.
         """
 
-        return babel_services.enable(include_pyrin, include_app)
+        return babel_services.enable(**options)
 
     @cli_invoke
-    def rebuild(self, include_pyrin=True, include_app=True, locale=None, help=False):
+    def rebuild(self, **options):
         """
         it will do the three complete steps needed to
         update and compile locales with new messages.
@@ -64,10 +64,10 @@ class BabelCLI(CLI):
                             defaults to False if not provided.
         """
 
-        return babel_services.rebuild(include_pyrin, include_app, locale)
+        return babel_services.rebuild(**options)
 
     @cli
-    def init(self, locale, help=False):
+    def init(self, locale, **options):
         """
         create new message catalogs from a `.pot` file.
 
@@ -81,7 +81,7 @@ class BabelCLI(CLI):
         return babel_services.check_init(locale)
 
     @cli
-    def update(self, locale=None, help=False):
+    def update(self, **options):
         """
         update existing message catalogs from a `.pot` file.
 
@@ -94,7 +94,7 @@ class BabelCLI(CLI):
         pass
 
     @cli
-    def extract(self, include_pyrin=True, include_app=True, help=False):
+    def extract(self, **options):
         """
         extract messages from source files and generate a `.pot` file.
 
@@ -110,7 +110,7 @@ class BabelCLI(CLI):
         pass
 
     @cli
-    def compile(self, locale=None, statistics=False, help=False):
+    def compile(self, **options):
         """
         compile message catalogs to `.mo` files.
 

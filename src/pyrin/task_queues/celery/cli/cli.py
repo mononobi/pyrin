@@ -20,9 +20,7 @@ class CeleryCLI(CLI):
     _execute_service = celery_cli_services.execute
 
     @cli
-    def worker(self, concurrency=None, hostname=None, beat=False, queues=None,
-               purge=False, autoscale=None, logfile=None, loglevel=None,
-               pidfile=None, optimization=None, help=False):
+    def worker(self, **options):
         """
         create a worker node.
 
@@ -59,7 +57,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def beat(self, logfile=None, loglevel=None, pidfile=None, help=False):
+    def beat(self, **options):
         """
         start the beat periodic task scheduler.
 
@@ -77,7 +75,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def result(self, task_id, task=None, traceback=False, help=False):
+    def result(self, task_id, **options):
         """
         gives the return value for a given task id.
 
@@ -90,10 +88,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def inspect(self, method, include_defaults=None, samples_count=None,
-                object_type=None, count=None, max_depth=None, task_ids=None,
-                attributes=None, destination=None, timeout=None, json=None,
-                help=False):
+    def inspect(self, method, **options):
         """
         inspect the worker at runtime.
 
@@ -119,7 +114,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def amqp(self, help=False):
+    def amqp(self, **options):
         """
         amqp administration shell.
 
@@ -131,9 +126,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def call(self, task, args=None, kwargs=None, eta=None, countdown=None,
-             expires=None, serializer=None, queue=None, exchange=None,
-             routing_key=None, help=False):
+    def call(self, task, **options):
         """
         call a task by name.
 
@@ -154,11 +147,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def control(self, method, queue=None, exchange=None, type=None,
-                routing_key=None, max_scale=None, min_scale=None,
-                resize=None, task=None, rate_limit=None, task_ids=None,
-                signal=None, soft_secs=None, hard_secs=None,
-                destination=None, timeout=None, json=None, help=False):
+    def control(self, method, **options):
         """
         workers remote control.
 
@@ -219,8 +208,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def events(self, camera=None, frequency=None,
-               dump=None, maxrate=None, help=False):
+    def events(self, **options):
         """
         event-stream utilities.
 
@@ -233,9 +221,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def shell(self, python=True, ipython=None, bpython=None,
-              without_tasks=None, eventlet=None, gevent=None,
-              help=False):
+    def shell(self, **options):
         """
         start shell session with convenient access to celery symbols.
 
@@ -250,7 +236,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def list(self, topic, help=False):
+    def list(self, topic, **options):
         """
         get info from broker.
 
@@ -262,7 +248,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def purge(self, force=None, queues=None, exclude_queues=None, help=False):
+    def purge(self, **options):
         """
         erase all messages from all known task queues.
 
@@ -274,7 +260,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def logtool(self, action, files=None, help=False):
+    def logtool(self, action, **options):
         """
         the celery logtool command.
 
@@ -287,7 +273,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def status(self, help=False):
+    def status(self, **options):
         """
         show list of worker nodes that are online.
 
@@ -296,7 +282,7 @@ class CeleryCLI(CLI):
         pass
 
     @cli
-    def report(self, help=False):
+    def report(self, **options):
         """
         shows information useful to include in bug-reports.
 
