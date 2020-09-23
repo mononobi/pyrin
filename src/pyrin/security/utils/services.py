@@ -12,6 +12,8 @@ def generate_rsa_key(length=None, **options):
     generates a pair of public/private rsa keys.
 
     :param int length: key length in bits.
+                       if not provided, `rsa_default_key_length`
+                       config will be used.
 
     :returns: tuple[str public_key, str private_key]
     :rtype: tuple[str, str]
