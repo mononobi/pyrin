@@ -32,8 +32,9 @@ class RevisionCLIHandler(AlembicCLIHandlerBase):
         """
 
         params.extend([MessageParam(), BranchLabelParam(),
-                       RevisionIDParam(), AutoGenerateParam(),
-                       SQLParam(), HeadParam(), SpliceParam(),
-                       VersionPathParam(), DependsOnParam()])
+                       RevisionIDParam(), SpliceParam(),
+                       AutoGenerateParam(default=True),
+                       HeadParam(), DependsOnParam(),
+                       VersionPathParam(), SQLParam()])
 
         return super()._inject_params(params)

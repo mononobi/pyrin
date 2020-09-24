@@ -470,7 +470,7 @@ class MappingArgument(KeywordArgumentBase):
         :rtype: list[object] | object
         """
 
-        if is_default is False:
+        if is_default is False and value is not None:
             value = self._param_value_to_cli_map.get(value)
 
         return super()._get_representation(value, is_default)
@@ -522,6 +522,30 @@ class BooleanArgument(MappingArgument):
         mapping[False] = false_value
 
         super().__init__(param_name, mapping, None, default)
+
+    def _get_representation(self, value, is_default=False):
+        """
+        gets the representation of current cli option based on given input.
+
+        it could be None if the value should not be emitted to cli.
+
+        :param list[object] | object value: value of method input that
+                                            should be represented in cli.
+
+        :param bool is_default: specifies that input value is the default
+                                value of this argument. it might be needed
+                                for some subclasses to differentiate between
+                                default value and other values.
+                                defaults to False if not provided.
+
+        :rtype: list[object] | object
+        """
+
+        if is_default is True and value is not None:
+            value = value is True
+            is_default = False
+
+        return super()._get_representation(value, is_default)
 
 
 class KeywordArgument(KeywordArgumentBase):

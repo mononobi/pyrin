@@ -134,7 +134,7 @@ class AlembicCLI(CLI):
         pass
 
     @cli
-    def revision(self, autogenerate=True, **options):
+    def revision(self, **options):
         """
         create a new revision file.
 

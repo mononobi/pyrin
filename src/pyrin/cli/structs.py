@@ -16,5 +16,6 @@ class CLIGroups:
     `python manage.py babel extract --arg value`
     `python manage.py template package`
     `python manage.py celery worker --arg value`
+    `python manage.py security token --arg value`
     """
     pass

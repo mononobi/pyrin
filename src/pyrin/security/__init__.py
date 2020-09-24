@@ -14,9 +14,10 @@ class SecurityPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.configuration']
     COMPONENT_NAME = 'security.component'
     CONFIG_STORE_NAMES = ['security']
+    DEPENDS = ['pyrin.configuration',
+               'pyrin.cli']
 
     def _load_configs(self, config_services):
         """

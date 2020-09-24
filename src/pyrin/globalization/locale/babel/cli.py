@@ -20,7 +20,7 @@ class BabelCLI(CLI):
     _execute_service = babel_services.execute
 
     @cli_invoke
-    def enable(self, **options):
+    def enable(self, include_pyrin=True, include_app=True, **options):
         """
         enables locale management for the application.
 
@@ -34,10 +34,10 @@ class BabelCLI(CLI):
                             defaults to False if not provided.
         """
 
-        return babel_services.enable(**options)
+        return babel_services.enable(include_pyrin, include_app)
 
     @cli_invoke
-    def rebuild(self, **options):
+    def rebuild(self, include_pyrin=True, include_app=True, **options):
         """
         it will do the three complete steps needed to
         update and compile locales with new messages.
@@ -64,7 +64,7 @@ class BabelCLI(CLI):
                             defaults to False if not provided.
         """
 
-        return babel_services.rebuild(**options)
+        return babel_services.rebuild(include_pyrin, include_app, **options)
 
     @cli
     def init(self, locale, **options):
@@ -94,7 +94,7 @@ class BabelCLI(CLI):
         pass
 
     @cli
-    def extract(self, **options):
+    def extract(self, include_pyrin=True, include_app=True, **options):
         """
         extract messages from source files and generate a `.pot` file.
 
