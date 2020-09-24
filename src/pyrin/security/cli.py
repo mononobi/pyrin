@@ -28,9 +28,9 @@ class SecurityCLI(CLI):
         the generated token is in the form of `header_hash.payload_hash.signature_hash`
         and each part is encoded using a signing key.
 
-        :param dict payload: a dictionary containing key/values as payload.
-                             note that for better performance, keep payload
-                             as small as possible.
+        :keyword dict payload: a dictionary containing key/values as payload.
+                               note that for better performance, keep payload
+                               as small as possible.
 
         :keyword str handler_name: name of token handler to be used.
                                    if not provided, default handler
