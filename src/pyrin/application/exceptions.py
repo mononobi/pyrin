@@ -109,3 +109,10 @@ class OverwritingEndpointIsNotAllowedError(ApplicationException):
     overwriting endpoint is not allowed error.
     """
     pass
+
+
+class InvalidStaticHostAndHostMatchingError(ApplicationException):
+    """
+    invalid static host and host matching error.
+    """
+    pass

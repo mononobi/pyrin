@@ -13,6 +13,7 @@ from flask import Flask, request as flask_request
 from flask.app import setupmethod
 from flask.ctx import has_request_context
 
+import pyrin
 import pyrin.converters.serializer.services as serializer_services
 import pyrin.packaging.services as packaging_services
 import pyrin.configuration.services as config_services
@@ -24,7 +25,6 @@ import pyrin.processor.response.services as response_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.function as function_utils
-import pyrin
 
 from pyrin.api.router.structs import CoreURLMap
 from pyrin.application.container import _set_app
@@ -54,7 +54,7 @@ from pyrin.application.exceptions import DuplicateContextKeyError, InvalidCompon
     InvalidRouteFactoryTypeError, InvalidApplicationStatusError, \
     ApplicationInScriptingModeError, ComponentAttributeError, \
     ApplicationIsNotSubclassedError, InvalidApplicationHookTypeError, \
-    OverwritingEndpointIsNotAllowedError
+    OverwritingEndpointIsNotAllowedError, InvalidStaticHostAndHostMatchingError
 
 
 class Application(Flask, HookMixin, SignalMixin,
@@ -136,7 +136,19 @@ class Application(Flask, HookMixin, SignalMixin,
                                   for example: `pyrin`.
                                   but if the main package name of application includes
                                   more that one package you should provide it manually.
-                                  for example: `tests.unit`
+                                  for example: `tests.unit`.
+
+        :keyword str static_url_path: can be used to specify a different path for the
+                                      static files on the web. defaults to the name
+                                      of the `static_folder` directory.
+
+        :keyword str static_folder: the folder with static files that is served at
+                                    `static_url_path`. relative to the application
+                                    `root_path` or an absolute path. defaults to `static'.
+
+        :keyword str static_host: the host to use when adding the static route.
+                                  defaults to None. required when using `host_matching=True`
+                                  with a `static_folder` configured.
 
         :keyword bool host_matching: set `url_map.host_matching` attribute.
                                      defaults to False.
@@ -184,6 +196,8 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :keyword str locale_directory: locale directory name.
                                        if not provided, defaults to `locale`.
+
+        :raises ApplicationIsNotSubclassedError: application is not subclassed error.
         """
 
         self._assert_is_subclassed()
@@ -199,8 +213,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         flask_kw = self._remove_flask_unrecognized_keywords(**options)
         # we should pass `static_folder=None` to prevent flask from
-        # adding static route on startup, then we register required static routes
-        # through a different mechanism later.
+        # adding static route on startup, then we register it after application is loaded.
         flask_kw.update(static_folder=None)
         super().__init__(self.get_application_name(), **flask_kw)
 
@@ -225,6 +238,35 @@ class Application(Flask, HookMixin, SignalMixin,
         # tests after application has been fully loaded. because if we call
         # application.run(), we could not continue execution of other codes.
         self._load(**options)
+
+        self.static_folder = options.get('static_folder', 'static')
+        self._add_static_route(options.get('static_host'), self.url_map.host_matching)
+
+    def _add_static_route(self, static_host, host_matching, **options):
+        """
+        adds static route if required.
+
+        :param str static_host: the host to use when adding the static route.
+                                defaults to None. required when using `host_matching=True`
+                                with a `static_folder` configured.
+
+        :param bool host_matching: set `url_map.host_matching` attribute.
+                                   defaults to False.
+
+        :raises InvalidStaticHostAndHostMatchingError: invalid static host and
+                                                       host matching error.
+        """
+
+        if self.has_static_folder:
+            if bool(static_host) != host_matching:
+                raise InvalidStaticHostAndHostMatchingError('Invalid static_host/'
+                                                            'host_matching combination.')
+
+            self.add_url_rule(self.static_url_path + '/<path:filename>',
+                              view_func=self.send_static_file,
+                              authenticated=False,
+                              endpoint='static',
+                              host=static_host)
 
     def _remove_flask_unrecognized_keywords(self, **options):
         """
@@ -976,8 +1018,10 @@ class Application(Flask, HookMixin, SignalMixin,
                                      environments) is not True:
             return
 
-        endpoint = self.generate_endpoint(view_func, **options)
-        options.update(endpoint=endpoint)
+        endpoint = options.get('endpoint')
+        if endpoint in (None, ''):
+            endpoint = self.generate_endpoint(view_func, **options)
+            options.update(endpoint=endpoint)
 
         methods = options.pop('methods', None)
         if methods is not None:
@@ -1017,7 +1061,7 @@ class Application(Flask, HookMixin, SignalMixin,
         route.provide_automatic_options = provide_automatic_options
         self._add_to_map(route, **options)
 
-        old_func = self.view_functions.get(endpoint, None)
+        old_func = self.view_functions.get(endpoint)
         if old_func is not None and old_func != view_func:
             old_name = function_utils.get_fully_qualified_name(old_func)
             new_name = function_utils.get_fully_qualified_name(view_func)
