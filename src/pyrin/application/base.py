@@ -241,7 +241,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self.static_folder = options.get('static_folder', 'static')
         self._register_static_route(options.get('static_host'), self.url_map.host_matching)
-    
+
     @setupmethod
     def _register_static_route(self, static_host, host_matching, **options):
         """
