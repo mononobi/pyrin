@@ -240,11 +240,12 @@ class Application(Flask, HookMixin, SignalMixin,
         self._load(**options)
 
         self.static_folder = options.get('static_folder', 'static')
-        self._add_static_route(options.get('static_host'), self.url_map.host_matching)
-
-    def _add_static_route(self, static_host, host_matching, **options):
+        self._register_static_route(options.get('static_host'), self.url_map.host_matching)
+    
+    @setupmethod
+    def _register_static_route(self, static_host, host_matching, **options):
         """
-        adds static route if required.
+        registers static route if required.
 
         :param str static_host: the host to use when adding the static route.
                                 defaults to None. required when using `host_matching=True`
