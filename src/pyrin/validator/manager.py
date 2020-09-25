@@ -145,13 +145,13 @@ class ValidatorManager(Manager):
 
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
-                                         this argument will only be considered in min,
-                                         max and range validators.
+                                         this argument will only be considered in min
+                                         and range validators.
 
         :keyword bool inclusive_maximum: determines that values equal to
                                          accepted maximum should be considered valid.
-                                         this argument will only be considered in min,
-                                         max and range validators.
+                                         this argument will only be considered in max
+                                         and range validators.
 
         :keyword bool allow_blank: determines that empty strings should be
                                    considered valid. this argument will only
