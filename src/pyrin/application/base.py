@@ -255,7 +255,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                    defaults to False.
 
         :raises InvalidStaticHostAndHostMatchingError: invalid static host and
-                                                       host matching error.
+                                                       host matching error
         """
 
         if self.has_static_folder:
