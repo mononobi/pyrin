@@ -4,7 +4,6 @@ validator handlers misc module.
 """
 
 from pyrin.core.globals import _, LIST_TYPES
-from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
     ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
@@ -19,8 +18,13 @@ class MinimumValidator(ValidatorBase):
     """
 
     minimum_value_error = ValueIsLowerThanMinimumError
-    minimum_value_message = _('The provided value for [{param_name}] is lower than '
-                              'the accepted minimum value, which is [{minimum}].')
+    minimum_value_message = _('The provided value for [{param_name}] must '
+                              'be greater than {or_equal}[{minimum}].')
+
+    inclusive_minimum_value_message = _('or equal to ')
+
+    default_accepted_minimum = None
+    default_inclusive_minimum = None
 
     def __init__(self, domain, name, **options):
         """
@@ -73,14 +77,20 @@ class MinimumValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        inclusive_minimum = options.get('inclusive_minimum', None)
+        inclusive_minimum = options.get('inclusive_minimum')
         if inclusive_minimum is None:
-            inclusive_minimum = True
+            if self.default_inclusive_minimum is not None:
+                inclusive_minimum = self.default_inclusive_minimum
+            else:
+                inclusive_minimum = True
 
-        accepted_minimum = options.get('accepted_minimum', None)
+        accepted_minimum = options.get('accepted_minimum')
         if accepted_minimum is None:
-            raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
-                                                          'could not be None.')
+            if self.default_accepted_minimum is not None:
+                accepted_minimum = self.default_accepted_minimum
+            else:
+                raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
+                                                              'could not be None.')
 
         self._accepted_minimum = accepted_minimum
         self._inclusive_minimum = inclusive_minimum
@@ -108,12 +118,20 @@ class MinimumValidator(ValidatorBase):
 
         super()._validate(value, **options)
 
-        inclusive_minimum = options.get('inclusive_minimum', None) or self.inclusive_minimum
+        inclusive_minimum = options.get('inclusive_minimum')
+        if inclusive_minimum is None:
+            inclusive_minimum = self.inclusive_minimum
+
         if value < self.accepted_minimum or \
-                (value == self.accepted_minimum and inclusive_minimum is not True):
+                (value == self.accepted_minimum and inclusive_minimum is False):
+            equality = ''
+            if inclusive_minimum is not False:
+                equality = self.inclusive_minimum_value_message
+
             raise self.minimum_value_error(
                 self.minimum_value_message.format(param_name=self.localized_name,
-                                                  minimum=self.accepted_minimum))
+                                                  minimum=self.accepted_minimum,
+                                                  or_equal=equality))
 
     @property
     def accepted_minimum(self):
@@ -142,8 +160,13 @@ class MaximumValidator(ValidatorBase):
     """
 
     maximum_value_error = ValueIsHigherThanMaximumError
-    maximum_value_message = _('The provided value for [{param_name}] is higher than '
-                              'the accepted maximum value, which is [{maximum}].')
+    maximum_value_message = _('The provided value for [{param_name}] must '
+                              'be lower than {or_equal}[{maximum}].')
+
+    inclusive_maximum_value_message = _('or equal to ')
+
+    default_inclusive_maximum = None
+    default_accepted_maximum = None
 
     def __init__(self, domain, name, **options):
         """
@@ -196,14 +219,20 @@ class MaximumValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        inclusive_maximum = options.get('inclusive_maximum', None)
+        inclusive_maximum = options.get('inclusive_maximum')
         if inclusive_maximum is None:
-            inclusive_maximum = True
+            if self.default_inclusive_maximum is not None:
+                inclusive_maximum = self.default_inclusive_maximum
+            else:
+                inclusive_maximum = True
 
-        accepted_maximum = options.get('accepted_maximum', None)
+        accepted_maximum = options.get('accepted_maximum')
         if accepted_maximum is None:
-            raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
-                                                          'could not be None.')
+            if self.default_accepted_maximum is not None:
+                accepted_maximum = self.default_accepted_maximum
+            else:
+                raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
+                                                              'could not be None.')
 
         self._accepted_maximum = accepted_maximum
         self._inclusive_maximum = inclusive_maximum
@@ -231,12 +260,20 @@ class MaximumValidator(ValidatorBase):
 
         super()._validate(value, **options)
 
-        inclusive_maximum = options.get('inclusive_maximum', None) or self.inclusive_maximum
+        inclusive_maximum = options.get('inclusive_maximum')
+        if inclusive_maximum is None:
+            inclusive_maximum = self.inclusive_maximum
+
         if value > self.accepted_maximum or \
-                (value == self.accepted_maximum and inclusive_maximum is not True):
+                (value == self.accepted_maximum and inclusive_maximum is False):
+            equality = ''
+            if inclusive_maximum is not False:
+                equality = self.inclusive_maximum_value_message
+
             raise self.maximum_value_error(
                 self.maximum_value_message.format(param_name=self.localized_name,
-                                                  maximum=self.accepted_maximum))
+                                                  maximum=self.accepted_maximum,
+                                                  or_equal=equality))
 
     @property
     def accepted_maximum(self):
@@ -266,7 +303,8 @@ class RangeValidator(MinimumValidator, MaximumValidator):
 
     range_value_error = ValueIsOutOfRangeError
     range_value_message = _('The provided value for [{param_name}] must '
-                            'be between [{lower}] and [{upper}].')
+                            'be greater than {or_equal_min}[{lower}] and '
+                            'lower than {or_equal_max}[{upper}].')
 
     def __init__(self, domain, name, **options):
         """
@@ -364,11 +402,28 @@ class RangeValidator(MinimumValidator, MaximumValidator):
 
         try:
             super()._validate(value, **options)
-        except ValidationError:
+        except (self.maximum_value_error, self.minimum_value_error):
+            equality_min = ''
+            equality_max = ''
+
+            inclusive_maximum = options.get('inclusive_maximum')
+            if inclusive_maximum is None:
+                inclusive_maximum = self.inclusive_maximum
+
+            inclusive_minimum = options.get('inclusive_minimum')
+            if inclusive_minimum is None:
+                inclusive_minimum = self.inclusive_minimum
+
+            if inclusive_minimum is not False:
+                equality_min = self.inclusive_minimum_value_message
+
+            if inclusive_maximum is not False:
+                equality_max = self.inclusive_maximum_value_message
+
             raise self.range_value_error(self.range_value_message.format(
                 param_name=self.localized_name,
-                lower=self.accepted_minimum,
-                upper=self.accepted_maximum))
+                lower=self.accepted_minimum, upper=self.accepted_maximum,
+                or_equal_min=equality_min, or_equal_max=equality_max))
 
 
 class InValidator(ValidatorBase):
@@ -424,7 +479,7 @@ class InValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        valid_values = options.get('valid_values', None)
+        valid_values = options.get('valid_values')
         if valid_values is None or not \
                 isinstance(valid_values, LIST_TYPES) or len(valid_values) <= 0:
             raise ValidValuesMustBeProvidedError('Valid values must be provided as iterable.')
@@ -516,7 +571,7 @@ class NotInValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        invalid_values = options.get('invalid_values', None)
+        invalid_values = options.get('invalid_values')
         if invalid_values is None or not \
                 isinstance(invalid_values, LIST_TYPES) or len(invalid_values) <= 0:
             raise InvalidValuesMustBeProvidedError('Invalid values must be '

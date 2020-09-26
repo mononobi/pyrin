@@ -60,7 +60,7 @@ class ValidatorManager(Manager):
 
         domain_validators = self.get_domain_validators(instance.domain)
         if domain_validators is not None:
-            old_instance = domain_validators.get(instance.name, None)
+            old_instance = domain_validators.get(instance.name)
             if old_instance is not None:
                 replace = options.get('replace', False)
                 if replace is not True:
@@ -101,7 +101,7 @@ class ValidatorManager(Manager):
         :rtype: dict[type[BaseEntity] | str, AbstractValidatorBase]
         """
 
-        return self._validators.get(domain, None)
+        return self._validators.get(domain)
 
     def get_validator(self, domain, name):
         """
@@ -120,7 +120,7 @@ class ValidatorManager(Manager):
 
         domain_validators = self.get_domain_validators(domain)
         if domain_validators is not None:
-            return domain_validators.get(name, None)
+            return domain_validators.get(name)
 
         return None
 
@@ -169,11 +169,11 @@ class ValidatorManager(Manager):
         """
 
         validator = self.get_validator(domain, name)
-        force = options.get('force', None)
+        force = options.get('force')
         if force is None:
             force = False
 
-        if force is not False and validator is None:
+        if force is True and validator is None:
             raise ValidatorNotFoundError('There is no validator with name '
                                          '[{name}] for domain [{domain}].'
                                          .format(name=name, domain=domain))
@@ -194,10 +194,6 @@ class ValidatorManager(Manager):
                                               subclass or a string name.
 
         :param dict data: dictionary to validate its values.
-
-        :keyword bool force: specifies that if there is no validator
-                             for any of key names, it should raise an error.
-                             defaults to False if not provided.
 
         :keyword bool lazy: specifies that all values must be validated first and
                             then a cumulative error must be raised containing a dict
@@ -227,27 +223,28 @@ class ValidatorManager(Manager):
         :raises InvalidDataForValidationError: invalid data for validation error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
-
-        :returns: a dict containing all key/values that
-                  no validator has been found for them.
-        :rtype: dict
         """
 
         if data is None:
-            raise InvalidDataForValidationError('Data for validation '
-                                                'could not be None.')
+            raise InvalidDataForValidationError(_('Data for validation '
+                                                  'could not be None.'))
 
-        no_validator = DTO()
         cumulative_errors = DTO()
-        lazy = options.get('lazy', None)
+        lazy = options.get('lazy')
         if lazy is None:
             lazy = False
 
-        for name, value in data.items():
+        available_data = set(data.keys())
+        validator_names = set()
+        available_validators = self.get_domain_validators(domain)
+        if available_validators is not None:
+            validator_names = set(available_validators.keys())
+
+        should_be_validated = validator_names.intersection(available_data)
+        for name in should_be_validated:
             try:
-                found = self.validate_field(domain, name, value, **options)
-                if not found:
-                    no_validator[name] = value
+                self.validate_field(domain, name, data.get(name), **options)
+
             except ValidationError as error:
                 if lazy is not True:
                     raise error
@@ -258,8 +255,6 @@ class ValidatorManager(Manager):
             raise ValidationError(_('Validation failed with following errors.'),
                                   data=cumulative_errors)
 
-        return no_validator
-
     def validate_entity(self, entity, **options):
         """
         validates available values of given entity.
@@ -267,10 +262,6 @@ class ValidatorManager(Manager):
         it uses the correct validator for each value based on its field name.
 
         :param BaseEntity entity: entity to validate its values.
-
-        :keyword bool force: specifies that if there is no validator
-                             for any of field names, it should raise an error.
-                             defaults to False if not provided.
 
         :keyword bool lazy: specifies that all fields must be validated first and
                             then a cumulative error must be raised containing a dict
@@ -300,14 +291,10 @@ class ValidatorManager(Manager):
         :raises InvalidEntityForValidationError: invalid entity for validation error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
-
-        :returns: a dict containing all field/values that
-                  no validator has been found for them.
-        :rtype: dict
         """
 
         if entity is None:
-            raise InvalidEntityForValidationError('Entity for validation '
-                                                  'could not be None.')
+            raise InvalidEntityForValidationError(_('Entity for validation '
+                                                    'could not be None.'))
 
-        return self.validate_dict(type(entity), entity.to_dict(), **options)
+        self.validate_dict(type(entity), entity.to_dict(), **options)

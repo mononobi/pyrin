@@ -10,7 +10,8 @@ from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import InvalidStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
     InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError, \
-    MinimumLengthHigherThanMaximumLengthError
+    MinimumLengthHigherThanMaximumLengthError, InvalidEmailError, InvalidIPv4Error, \
+    InvalidURLError, InvalidHTTPURLError, InvalidHTTPSURLError
 
 
 class StringValidator(ValidatorBase):
@@ -30,6 +31,11 @@ class StringValidator(ValidatorBase):
     whitespace_value_error = ValueCouldNotBeWhitespaceError
     whitespace_value_message = _('The provided value for [{param_name}] '
                                  'could not be whitespace.')
+
+    default_allow_blank = None
+    default_allow_whitespace = None
+    default_minimum_length = None
+    default_maximum_length = None
 
     def __init__(self, domain, name, **options):
         """
@@ -85,16 +91,28 @@ class StringValidator(ValidatorBase):
         options.update(accepted_type=str)
         super().__init__(domain, name, **options)
 
-        allow_blank = options.get('allow_blank', None)
+        allow_blank = options.get('allow_blank')
         if allow_blank is None:
-            allow_blank = True
+            if self.default_allow_blank is not None:
+                allow_blank = self.default_allow_blank
+            else:
+                allow_blank = True
 
-        allow_whitespace = options.get('allow_whitespace', None)
+        allow_whitespace = options.get('allow_whitespace')
         if allow_whitespace is None:
-            allow_whitespace = False
+            if self.default_allow_whitespace is not None:
+                allow_whitespace = self.default_allow_whitespace
+            else:
+                allow_whitespace = False
 
-        self._minimum_length = options.get('minimum_length', None)
-        self._maximum_length = options.get('maximum_length', None)
+        self._minimum_length = options.get('minimum_length')
+        if self._minimum_length is None:
+            self._minimum_length = self.default_minimum_length
+
+        self._maximum_length = options.get('maximum_length')
+        if self._maximum_length is None:
+            self._maximum_length = self.default_maximum_length
+
         if self._minimum_length is not None and self._maximum_length is not None \
                 and self._minimum_length > self._maximum_length:
             raise MinimumLengthHigherThanMaximumLengthError('Minimum length of string '
@@ -136,8 +154,14 @@ class StringValidator(ValidatorBase):
 
         super()._validate(value, **options)
 
-        allow_blank = options.get('allow_blank', None) or self.allow_blank
-        allow_whitespace = options.get('allow_whitespace', None) or self.allow_whitespace
+        allow_blank = options.get('allow_blank')
+        if allow_blank is None:
+            allow_blank = self.allow_blank
+
+        allow_whitespace = options.get('allow_whitespace')
+        if allow_whitespace is None:
+            allow_whitespace = self.allow_whitespace
+
         length = len(value)
         if self.maximum_length is not None and length > self.maximum_length:
             raise self.invalid_length_error(self.invalid_length_message.format(
@@ -232,6 +256,8 @@ class RegexValidator(StringValidator):
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'does not match the required pattern.')
 
+    default_flags = re.IGNORECASE | re.DOTALL
+
     def __init__(self, domain, name, **options):
         """
         initializes an instance of RegexValidator.
@@ -276,6 +302,7 @@ class RegexValidator(StringValidator):
         :keyword int flags: flags to be used for regular expression
                             compilation using `re.compile` method.
                             this will only be used if a string regex is provided.
+                            if no flags are provided, `default_flags` will be applied.
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
@@ -301,9 +328,9 @@ class RegexValidator(StringValidator):
                                                        'expression could not be blank.')
 
         if is_string:
-            flags = options.get('flags', None)
+            flags = options.get('flags')
             if flags is None:
-                flags = 0
+                flags = self.default_flags
             self._pattern = re.compile(self.regex, flags=flags)
         else:
             self._pattern = self.regex
@@ -322,9 +349,6 @@ class RegexValidator(StringValidator):
 
         :param str value: value to be validated.
 
-        :raises InvalidStringLengthError: invalid string length error.
-        :raises ValueCouldNotBeBlankError: value could not be blank error.
-        :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         :raises ValueDoesNotMatchPatternError: value does not match pattern error.
         """
 
@@ -343,3 +367,145 @@ class RegexValidator(StringValidator):
         """
 
         return self._pattern
+
+
+class EmailValidator(RegexValidator):
+    """
+    email validator class.
+    """
+
+    regex = r'^[a-z0-9]+([a-z0-9\.]*[a-z0-9]+)*[@]\w+[\.]\w{2,3}([\.]\w{2,3})?$'
+    pattern_not_match_error = InvalidEmailError
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid email address.')
+
+    default_minimum_length = 6
+
+    def _validate_extra(self, value, **options):
+        """
+        validates the given value.
+
+        this method is intended to be overridden by subclasses.
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate_extra()`
+        preferably at the beginning.
+
+        :param str value: value to be validated.
+
+        :raises InvalidEmailError: invalid email error.
+        """
+
+        super()._validate_extra(value, **options)
+
+        if '..' in value:
+            raise self.pattern_not_match_error(
+                self.pattern_not_match_message.format(param_name=self.localized_name))
+
+
+class IPv4Validator(RegexValidator):
+    """
+    ipv4 validator class.
+    """
+
+    regex = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+
+    pattern_not_match_error = InvalidIPv4Error
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid IPv4 address.')
+
+    default_maximum_length = 15
+    default_minimum_length = 7
+
+    def _validate_extra(self, value, **options):
+        """
+        validates the given value.
+
+        this method is intended to be overridden by subclasses.
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate_extra()`
+        preferably at the beginning.
+
+        :param str value: value to be validated.
+
+        :raises InvalidIPv4Error: invalid ipv4 error.
+        """
+
+        super()._validate_extra(value, **options)
+
+        parts = value.split('.')
+        for item in parts:
+            converted_item = int(item)
+            if converted_item < 0 or converted_item > 255:
+                raise self.pattern_not_match_error(
+                    self.pattern_not_match_message.format(param_name=self.localized_name))
+
+
+class URLValidator(RegexValidator):
+    """
+    url validator class.
+
+    this matches urls starting with `www`.
+    """
+
+    regex = r'^www\..+\.\w+$'
+
+    pattern_not_match_error = InvalidURLError
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid url.')
+
+    default_minimum_length = 7
+
+    def _validate_extra(self, value, **options):
+        """
+        validates the given value.
+
+        this method is intended to be overridden by subclasses.
+        it raises an error if validation fails.
+        the raised error must be an instance of ValidationError.
+        each overridden method must call `super()._validate_extra()`
+        preferably at the beginning.
+
+        :param str value: value to be validated.
+
+        :raises InvalidURLError: invalid url error.
+        """
+
+        super()._validate_extra(value, **options)
+
+        if ' ' in value or '..' in value:
+            raise self.pattern_not_match_error(
+                self.pattern_not_match_message.format(param_name=self.localized_name))
+
+
+class HTTPValidator(URLValidator):
+    """
+    http validator class.
+
+    this matches urls starting with `http://www`.
+    """
+
+    regex = r'^http://www\..+\.\w+$'
+
+    pattern_not_match_error = InvalidHTTPURLError
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid http url.')
+
+    default_minimum_length = 14
+
+
+class HTTPSValidator(URLValidator):
+    """
+    https validator class.
+
+    this matches urls starting with `https://www`.
+    """
+
+    regex = r'^https://www\..+\.\w+$'
+
+    pattern_not_match_error = InvalidHTTPSURLError
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid https url.')
+
+    default_minimum_length = 15

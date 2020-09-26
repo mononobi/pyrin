@@ -27,6 +27,9 @@ class ValidatorBase(AbstractValidatorBase):
     none_value_error = ValueCouldNotBeNoneError
     none_value_message = _('The provided value for [{param_name}] could not be None.')
 
+    default_nullable = None
+    default_localized_name = None
+
     def __init__(self, domain, name, **options):
         """
         initializes an instance of ValidatorBase.
@@ -75,11 +78,14 @@ class ValidatorBase(AbstractValidatorBase):
                                               'not an instance of [{entity}] or [{string}].'
                                               .format(name=name, entity=BaseEntity, string=str))
 
-        nullable = options.get('nullable', None)
+        nullable = options.get('nullable')
         if nullable is None:
-            nullable = True
+            if self.default_nullable is not None:
+                nullable = self.default_nullable
+            else:
+                nullable = True
 
-        accepted_type = options.get('accepted_type', None)
+        accepted_type = options.get('accepted_type')
         if accepted_type is not None and not isinstance(accepted_type, (type, tuple)):
             raise InvalidAcceptedTypeError('The provided accepted type '
                                            '[{accepted_type}] must be a type '
@@ -99,8 +105,8 @@ class ValidatorBase(AbstractValidatorBase):
                                                    '[{accepted_type}] must be a type'
                                                    .format(accepted_type=accepted_type))
 
-        localized_name = options.get('localized_name', None)
-        if localized_name in (None, ''):
+        localized_name = options.get('localized_name') or self.default_localized_name
+        if localized_name in (None, '') or localized_name.isspace():
             localized_name = _(name)
 
         self._validate_exception_type(self.invalid_type_error)
@@ -131,7 +137,9 @@ class ValidatorBase(AbstractValidatorBase):
         :raises ValidationError: validation error.
         """
 
-        nullable = options.pop('nullable', None) or self.nullable
+        nullable = options.pop('nullable', None)
+        if nullable is None:
+            nullable = self.nullable
 
         if value is not None:
             self._validate_type(value)

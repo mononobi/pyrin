@@ -124,10 +124,6 @@ def validate_dict(domain, data, **options):
 
     :param dict data: dictionary to validate its values.
 
-    :keyword bool force: specifies that if there is no validator
-                         for any of key names, it should raise an error.
-                         defaults to False if not provided.
-
     :keyword bool lazy: specifies that all values must be validated first and
                         then a cumulative error must be raised containing a dict
                         of all keys and their corresponding error messages.
@@ -156,10 +152,6 @@ def validate_dict(domain, data, **options):
     :raises InvalidDataForValidationError: invalid data for validation error.
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
-
-    :returns: a dict containing all key/values that
-              no validator has been found for them.
-    :rtype: dict
     """
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate_dict(domain, data,
@@ -173,10 +165,6 @@ def validate_entity(entity, **options):
     it uses the correct validator for each value based on its field name.
 
     :param BaseEntity entity: entity to validate its values.
-
-    :keyword bool force: specifies that if there is no validator
-                         for any of field names, it should raise an error.
-                         defaults to False if not provided.
 
     :keyword bool lazy: specifies that all fields must be validated first and
                         then a cumulative error must be raised containing a dict
@@ -206,10 +194,6 @@ def validate_entity(entity, **options):
     :raises InvalidEntityForValidationError: invalid entity for validation error.
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
-
-    :returns: a dict containing all field/values that
-              no validator has been found for them.
-    :rtype: dict
     """
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate_entity(entity, **options)

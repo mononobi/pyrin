@@ -240,3 +240,38 @@ class MinimumValueLargerThanMaximumValueError(ValidatorHandlersException):
     minimum value larger than maximum value error.
     """
     pass
+
+
+class InvalidEmailError(HandlersValidationException):
+    """
+    invalid email error.
+    """
+    pass
+
+
+class InvalidIPv4Error(HandlersValidationException):
+    """
+    invalid ipv4 error.
+    """
+    pass
+
+
+class InvalidURLError(HandlersValidationException):
+    """
+    invalid url error.
+    """
+    pass
+
+
+class InvalidHTTPURLError(InvalidURLError):
+    """
+    invalid http url error.
+    """
+    pass
+
+
+class InvalidHTTPSURLError(InvalidURLError):
+    """
+    invalid https url error.
+    """
+    pass
