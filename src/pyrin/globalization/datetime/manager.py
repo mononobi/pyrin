@@ -161,7 +161,8 @@ class DateTimeManager(Manager):
         replaces given value's timezone with server or client timezone.
 
         it returns a new object.
-        note that this method does not normalize the value, it just replaces the timezone.
+        note that this method does not normalize the value, it just replaces the
+        timezone and localizes the value.
 
         :param datetime value: value to replace its timezone.
         :param bool server: specifies that server or client timezone must used.
@@ -169,8 +170,8 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        timezone = self.get_current_timezone(server)
-        return value.replace(tzinfo=timezone)
+        value = value.replace(tzinfo=None)
+        return self.localize(value, server)
 
     def to_datetime_string(self, value, server):
         """

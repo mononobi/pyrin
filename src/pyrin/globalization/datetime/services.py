@@ -106,7 +106,8 @@ def replace_timezone(value, server):
     replaces given value's timezone with server or client timezone.
 
     it returns a new object.
-    note that this method does not normalize the value, it just replaces the timezone.
+    note that this method does not normalize the value, it just replaces the
+    timezone and localizes the value.
 
     :param datetime value: value to replace its timezone.
     :param bool server: specifies that server or client timezone must used.
