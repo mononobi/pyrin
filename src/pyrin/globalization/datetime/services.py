@@ -12,8 +12,7 @@ def now(timezone=None):
     gets the current datetime based on given timezone name.
 
     :param str timezone: timezone name to get current datetime based on it.
-                         if not provided, defaults to application
-                         current timezone.
+                         if not provided, defaults to server current timezone.
 
     :rtype: datetime
     """
@@ -21,65 +20,123 @@ def now(timezone=None):
     return get_component(DateTimePackage.COMPONENT_NAME).now(timezone)
 
 
-def get_current_timezone():
+def get_current_timezone(server):
     """
-    gets the application current timezone.
+    gets the current timezone for server or client.
+
+    :param bool server: if set to True, server timezone will be returned.
+                        if set to False, client timezone will be returned.
 
     :rtype: tzinfo
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).get_current_timezone()
+    return get_component(DateTimePackage.COMPONENT_NAME).get_current_timezone(server)
 
 
-def get_current_timezone_name():
+def get_timezone(timezone):
     """
-    gets the application current timezone name.
+    gets the timezone based on given timezone name.
+
+    :param str timezone: timezone name.
+
+    :rtype: tzinfo
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).get_timezone(timezone)
+
+
+def get_timezone_name(server):
+    """
+    gets the server or client timezone name.
+
+    :param bool server: if set to True, server timezone name will be returned.
+                        if set to False, client timezone name will be returned.
 
     :rtype: str
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).get_current_timezone_name()
+    return get_component(DateTimePackage.COMPONENT_NAME).get_timezone_name(server)
 
 
-def normalize(value):
+def as_timezone(value, server):
     """
-    normalizes input datetime value using application current timezone.
-    input value should already have a timezone info.
+    gets the result of `astimezone` on the given value.
 
     :param datetime value: value to get normalized.
 
+    :param bool server: if set to True, server timezone name will be used.
+                        if set to False, client timezone name will be used.
+
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).normalize(value)
+    return get_component(DateTimePackage.COMPONENT_NAME).as_timezone(value, server)
 
 
-def localize(value):
+def normalize(value, server):
     """
-    localizes input datetime with application current timezone.
+    normalizes input value using server or client current timezone and returns it.
+
+    input value should already have a timezone info.
+
+    :param datetime value: value to get normalized.
+    :param bool server: specifies that server or client timezone must used.
+
+    :rtype: datetime
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).normalize(value, server)
+
+
+def localize(value, server):
+    """
+    localizes input datetime with current timezone.
+
     input value should not have a timezone info.
 
     :param datetime value: value to be localized.
+    :param bool server: specifies that server or client timezone must used.
 
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).localize(value)
+    return get_component(DateTimePackage.COMPONENT_NAME).localize(value, server)
 
 
-def to_datetime_string(value):
+def replace_timezone(value, server):
+    """
+    replaces given value's timezone with server or client timezone.
+
+    it returns a new object.
+    note that this method does not normalize the value, it just replaces the timezone.
+
+    :param datetime value: value to replace its timezone.
+    :param bool server: specifies that server or client timezone must used.
+
+    :rtype: datetime
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).replace_timezone(value, server)
+
+
+def to_datetime_string(value, server):
     """
     gets the datetime string representation of input value.
-    if the value has no timezone info, it adds the application
-    current timezone info into it.
+
+    if the value has no timezone info, it adds the client or server
+    timezone info based on `server` value.
+
     example: `2015-12-24T22:40:15+01:00`
 
     :param datetime value: input object to be converted.
 
+    :param bool server: specifies that value must be normalized
+                        to server or client timezone.
+
     :rtype: str
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime_string(value)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime_string(value, server)
 
 
 def to_date_string(value):
@@ -96,32 +153,46 @@ def to_date_string(value):
     return get_component(DateTimePackage.COMPONENT_NAME).to_date_string(value)
 
 
-def to_time_string(value):
+def to_time_string(value, server):
     """
     gets the time string representation of input value.
 
-    if the value has no timezone info, it adds the application
-    current timezone info into it.
+    if the value is a datetime and has no timezone info, it adds
+    the client or server timezone info based on `server` value.
+
     example: `23:40:15`
 
     :param datetime | time value: input object to be converted.
 
+    :param bool server: specifies that value must be normalized
+                        to server or client timezone.
+
     :rtype: str
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_time_string(value)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_time_string(value, server)
 
 
-def to_datetime(value):
+def to_datetime(value, server, replace_server=None):
     """
     converts the input value to it's equivalent python datetime.
 
     :param str value: string representation of datetime to be converted.
 
+    :param bool server: specifies that value must be normalized
+                        to server or client timezone.
+
+    :param bool replace_server: specifies that it must replace the timezone
+                                of value with timezone of server before
+                                normalization. if set to False, it replaces
+                                it with client timezone.
+                                defaults to None and no replacement will be done.
+
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime(value)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime(value, server,
+                                                                     replace_server)
 
 
 def to_date(value):

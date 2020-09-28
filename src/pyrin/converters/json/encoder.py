@@ -30,11 +30,11 @@ class CoreJSONEncoder(JSONEncoder):
         """
 
         if isinstance(o, datetime):
-            return datetime_services.to_datetime_string(o)
+            return datetime_services.to_datetime_string(o, server=False)
         if isinstance(o, date):
             return datetime_services.to_date_string(o)
         if isinstance(o, time):
-            return datetime_services.to_time_string(o)
+            return datetime_services.to_time_string(o, server=False)
         if isinstance(o, bytes):
             return encoding.bytes_to_base64_string(o)
 

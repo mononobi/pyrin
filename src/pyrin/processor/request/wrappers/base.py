@@ -9,6 +9,7 @@ import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
+import pyrin.logging.services as logging_services
 
 from pyrin.core.globals import _
 from pyrin.caching.structs import CacheableDict
@@ -181,8 +182,17 @@ class CoreRequest(Request):
         extracts timezone name from request query params and puts it into request context.
         """
 
+        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
+        if timezone_name not in (None, ''):
+            try:
+                timezone = datetime_services.get_timezone(timezone_name)
+                self.add_context(self.TIMEZONE_CONTEXT_KEY, timezone)
+                return
+            except Exception as error:
+                logging_services.exception(str(error))
+
         self.add_context(self.TIMEZONE_CONTEXT_KEY,
-                         self.args.get(self.TIMEZONE_PARAM_NAME, None))
+                         datetime_services.get_current_timezone(server=False))
 
     def get_body(self, silent=False):
         """
@@ -514,7 +524,7 @@ class CoreRequest(Request):
 
         returns None if timezone is not set.
 
-        :rtype: str
+        :rtype: tzinfo
         """
 
         return self.get_context(self.TIMEZONE_CONTEXT_KEY, None)

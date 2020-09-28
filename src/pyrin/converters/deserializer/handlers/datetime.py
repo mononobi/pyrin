@@ -9,7 +9,8 @@ from pyrin.converters.deserializer.handlers.base import StringPatternDeserialize
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.core.globals import NULL
 from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, DEFAULT_DATE_ISO_REGEX, \
-    DEFAULT_TIME_ISO_REGEX, DEFAULT_TIME_NO_TIMEZONE_REGEX
+    DEFAULT_TIME_ISO_REGEX, DEFAULT_TIME_NO_TIMEZONE_REGEX, DEFAULT_UTC_ZULU_DATE_TIME_REGEX, \
+    DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX
 
 
 @deserializer()
@@ -38,6 +39,8 @@ class DateDeserializer(StringPatternDeserializerBase):
         returns `NULL` object if deserialization fails.
 
         :param str value: value to be deserialized.
+
+        :keyword Pattern matching_pattern: the pattern that has matched the value.
 
         :rtype: date
         """
@@ -90,6 +93,8 @@ class TimeDeserializer(StringPatternDeserializerBase):
 
         :param str value: value to be deserialized.
 
+        :keyword Pattern matching_pattern: the pattern that has matched the value.
+
         :rtype: time
         """
 
@@ -111,7 +116,7 @@ class TimeDeserializer(StringPatternDeserializerBase):
         :rtype: list[tuple[Pattern, int]]
         """
 
-        return [(DEFAULT_TIME_ISO_REGEX, 14),
+        return [(DEFAULT_TIME_ISO_REGEX, 21),
                 (DEFAULT_TIME_NO_TIMEZONE_REGEX, 8)]
 
 
@@ -142,11 +147,19 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
 
         :param str value: value to be deserialized.
 
+        :keyword Pattern matching_pattern: the pattern that has matched the value.
+
         :rtype: datetime
         """
 
         try:
-            converted_datetime = datetime_services.to_datetime(value)
+            matching_pattern = options.get('matching_pattern')
+            replace_server = None
+            if matching_pattern == DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX:
+                replace_server = False
+
+            converted_datetime = datetime_services.to_datetime(value, server=True,
+                                                               replace_server=replace_server)
             if converted_datetime is not None:
                 return converted_datetime
 
@@ -163,4 +176,6 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         :rtype: list[tuple[Pattern, int]]
         """
 
-        return [(DEFAULT_DATE_TIME_ISO_REGEX, 25)]
+        return [(DEFAULT_DATE_TIME_ISO_REGEX, 32),
+                (DEFAULT_UTC_ZULU_DATE_TIME_REGEX, 27),
+                (DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX, 19)]

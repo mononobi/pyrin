@@ -49,6 +49,8 @@ class PoolDeserializer(StringPatternDeserializerBase):
 
         :param str value: value to be deserialized.
 
+        :keyword Pattern matching_pattern: the pattern that has matched the value.
+
         :rtype: type[Pool]
         """
 
