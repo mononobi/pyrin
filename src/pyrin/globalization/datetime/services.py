@@ -77,8 +77,6 @@ def normalize(value, server):
     """
     normalizes input value using server or client current timezone and returns it.
 
-    input value should already have a timezone info.
-
     :param datetime value: value to get normalized.
     :param bool server: specifies that server or client timezone must used.
 
