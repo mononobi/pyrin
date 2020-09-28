@@ -77,11 +77,12 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringDictionaryDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
-                                                             and their length for dictionary
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  patterns and their min and
+                                                                  max length for dictionary
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -113,8 +114,8 @@ class StringDictionaryDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted patterns that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.DICT_REGEX, self.UNDEF_LENGTH)]
+        return [(self.DICT_REGEX, self.UNDEF_LENGTH, self.UNDEF_LENGTH)]

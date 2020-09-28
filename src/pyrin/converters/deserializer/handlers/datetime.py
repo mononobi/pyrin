@@ -23,11 +23,12 @@ class DateDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of DateDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for date
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for date
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -59,11 +60,11 @@ class DateDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(DEFAULT_DATE_ISO_REGEX, 10)]
+        return [(DEFAULT_DATE_ISO_REGEX, 10, 10)]
 
 
 @deserializer()
@@ -76,11 +77,12 @@ class TimeDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of TimeDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for time
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for time
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -112,12 +114,12 @@ class TimeDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(DEFAULT_TIME_ISO_REGEX, 21),
-                (DEFAULT_LOCAL_NAIVE_TIME_REGEX, 8)]
+        return [(DEFAULT_TIME_ISO_REGEX, 14, 21),
+                (DEFAULT_LOCAL_NAIVE_TIME_REGEX, 8, 15)]
 
 
 @deserializer()
@@ -130,11 +132,12 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of DateTimeDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for datetime
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for datetime
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -172,10 +175,10 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(DEFAULT_DATE_TIME_ISO_REGEX, 32),
-                (DEFAULT_UTC_ZULU_DATE_TIME_REGEX, 27),
-                (DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX, 19)]
+        return [(DEFAULT_DATE_TIME_ISO_REGEX, 25, 32),
+                (DEFAULT_UTC_ZULU_DATE_TIME_REGEX, 20, 27),
+                (DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX, 19, 26)]

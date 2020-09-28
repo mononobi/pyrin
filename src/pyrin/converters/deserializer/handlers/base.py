@@ -128,11 +128,12 @@ class StringDeserializerBase(DeserializerBase):
         """
         initializes an instance of StringDeserializerBase.
 
-        :keyword list[tuple[str, int]] accepted_formats: custom formats and their length
-                                                         that this deserializer can
-                                                         deserialize value from.
+        :keyword list[tuple[str, int, int]] accepted_formats: custom formats and their
+                                                              min and max length that
+                                                              this deserializer can
+                                                              deserialize value from.
 
-        :note accepted_formats: list[tuple[str format, int length]]
+        :note accepted_formats: list[tuple[str format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -188,8 +189,8 @@ class StringDeserializerBase(DeserializerBase):
         """
         gets the accepted string formats that this deserializer can deserialize value from.
 
-        :returns: list[tuple[str format, int length]]
-        :rtype: list[tuple[str, int]]
+        :returns: list[tuple[str format, int min_length, int max_length]]
+        :rtype: list[tuple[str, int, int]]
         """
 
         return self._accepted_formats
@@ -221,11 +222,21 @@ class StringDeserializerBase(DeserializerBase):
 
         # if there is any format with length=UNDEF_LENGTH,
         # we should not enforce length restriction on values.
+        min_length = None
+        max_length = None
         if self.UNDEF_LENGTH in [item[1] for item in self.accepted_formats]:
-            return self.DEFAULT_MIN, self.DEFAULT_MAX
+            min_length = self.DEFAULT_MIN
 
-        return min([item[1] for item in self.accepted_formats]), \
-            max([item[1] for item in self.accepted_formats])
+        if self.UNDEF_LENGTH in [item[2] for item in self.accepted_formats]:
+            max_length = self.DEFAULT_MAX
+
+        if min_length is None:
+            min_length = min([item[1] for item in self.accepted_formats])
+
+        if max_length is None:
+            max_length = max([item[2] for item in self.accepted_formats])
+
+        return min_length, max_length
 
     @property
     @abstractmethod
@@ -235,8 +246,8 @@ class StringDeserializerBase(DeserializerBase):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :returns: list[tuple[str format, int length]]
-        :rtype: list[tuple[str, int]]
+        :returns: list[tuple[str format, int min_length, int max_length]]
+        :rtype: list[tuple[str, int, int]]
         """
 
         raise CoreNotImplementedError()
@@ -253,11 +264,12 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         """
         initializes an instance of StringPatternDeserializerBase.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: custom patterns and their length
-                                                             that this deserializer can
-                                                             deserialize value from.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: custom patterns and their
+                                                                  min and max length that
+                                                                  this deserializer can
+                                                                  deserialize value from.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -315,7 +327,7 @@ class StringPatternDeserializerBase(StringDeserializerBase):
         :rtype: Pattern
         """
 
-        for pattern, length in self.accepted_formats:
+        for pattern, min_length, max_length in self.accepted_formats:
             if pattern.match(value):
                 return pattern
 

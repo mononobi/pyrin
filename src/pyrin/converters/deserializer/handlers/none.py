@@ -25,11 +25,12 @@ class NoneDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of NoneDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for None
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for None
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -52,9 +53,9 @@ class NoneDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.NONE_REGEX, 4),
-                (self.NULL_REGEX, 4)]
+        return [(self.NONE_REGEX, 4, 4),
+                (self.NULL_REGEX, 4, 4)]

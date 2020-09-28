@@ -16,7 +16,7 @@ class StringDeserializer(StringPatternDeserializerBase):
     """
 
     # default min for this deserializer is 2 because it should
-    # at least has two single or double quotes at both ends.
+    # at least have two single or double quotes at both ends.
     DEFAULT_MIN = 2
 
     # matches a string value, all of these values will be matched.
@@ -31,11 +31,12 @@ class StringDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of StringDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted patterns
-                                                             and their length for string
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  patterns and their min and
+                                                                  max length for string
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -60,9 +61,9 @@ class StringDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted patterns that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.DOUBLE_QUOTE_REGEX, self.UNDEF_LENGTH),
-                (self.SINGLE_QUOTE_REGEX, self.UNDEF_LENGTH)]
+        return [(self.DOUBLE_QUOTE_REGEX, self.UNDEF_LENGTH, self.UNDEF_LENGTH),
+                (self.SINGLE_QUOTE_REGEX, self.UNDEF_LENGTH, self.UNDEF_LENGTH)]

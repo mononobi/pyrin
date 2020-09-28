@@ -24,11 +24,12 @@ class IntegerDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of IntegerDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for integer
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for integer
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -51,11 +52,11 @@ class IntegerDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.INTEGER_REGEX, self.UNDEF_LENGTH)]
+        return [(self.INTEGER_REGEX, self.UNDEF_LENGTH, self.UNDEF_LENGTH)]
 
 
 @deserializer()
@@ -65,7 +66,7 @@ class FloatDeserializer(StringPatternDeserializerBase):
     """
 
     # default min for this deserializer is 3 because it
-    # should at least has two digits and a dot between them.
+    # should at least have two digits and a dot between them.
     DEFAULT_MIN = 3
 
     # matches the float inside string.
@@ -77,11 +78,12 @@ class FloatDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of FloatDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for float
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for float
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -102,8 +104,8 @@ class FloatDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.FLOAT_REGEX, self.UNDEF_LENGTH)]
+        return [(self.FLOAT_REGEX, self.UNDEF_LENGTH, self.UNDEF_LENGTH)]

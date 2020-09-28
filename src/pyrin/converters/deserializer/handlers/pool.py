@@ -32,11 +32,12 @@ class PoolDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of PoolDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for pool
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for pool
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -62,16 +63,16 @@ class PoolDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.POOL_REGEX, 4),
-                (self.NULL_POOL_REGEX, 8),
-                (self.ASSERTION_POOL_REGEX, 13),
-                (self.QUEUE_POOL_REGEX, 9),
-                (self.SINGLETON_THREAD_POOL_REGEX, 19),
-                (self.STATIC_POOL_REGEX, 10)]
+        return [(self.POOL_REGEX, 4, 4),
+                (self.NULL_POOL_REGEX, 8, 8),
+                (self.ASSERTION_POOL_REGEX, 13, 13),
+                (self.QUEUE_POOL_REGEX, 9, 9),
+                (self.SINGLETON_THREAD_POOL_REGEX, 19, 19),
+                (self.STATIC_POOL_REGEX, 10, 10)]
 
     def _get_converter_map(self):
         """

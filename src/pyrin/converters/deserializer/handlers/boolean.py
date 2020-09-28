@@ -25,11 +25,12 @@ class BooleanDeserializer(StringPatternDeserializerBase):
         """
         creates an instance of BooleanDeserializer.
 
-        :keyword list[tuple[Pattern, int]] accepted_formats: a list of custom accepted formats
-                                                             and their length for boolean
-                                                             deserialization.
+        :keyword list[tuple[Pattern, int, int]] accepted_formats: a list of custom accepted
+                                                                  formats and their min and
+                                                                  max length for boolean
+                                                                  deserialization.
 
-        :note accepted_formats: list[tuple[Pattern format, int length]]
+        :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
         super().__init__(**options)
@@ -55,12 +56,12 @@ class BooleanDeserializer(StringPatternDeserializerBase):
         """
         gets default accepted formats that this deserializer could deserialize value from.
 
-        :returns: list[tuple[Pattern format, int length]]
-        :rtype: list[tuple[Pattern, int]]
+        :returns: list[tuple[Pattern format, int min_length, int max_length]]
+        :rtype: list[tuple[Pattern, int, int]]
         """
 
-        return [(self.TRUE_REGEX, 4),
-                (self.FALSE_REGEX, 5)]
+        return [(self.TRUE_REGEX, 4, 4),
+                (self.FALSE_REGEX, 5, 5)]
 
     def _get_converter_map(self):
         """
