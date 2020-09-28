@@ -104,21 +104,12 @@ class LocaleManager(Manager):
         """
         gets the current timezone that should be used for current request.
 
-        it never raises an error and returns the default locale if anything goes wrong.
+        it never raises an error and returns the default timezone if anything goes wrong.
 
         :rtype: str
         """
 
-        current_timezone = None
-        current_request = session_services.get_safe_current_request()
-        if current_request is not None:
-            current_timezone = current_request.timezone
-
-        if datetime_services.timezone_exists(current_timezone) is not True:
-            current_timezone = config_services.get('globalization', 'locale',
-                                                   'babel_default_timezone')
-
-        return current_timezone
+        return datetime_services.get_timezone_name(server=False)
 
     def locale_exists(self, locale_name):
         """

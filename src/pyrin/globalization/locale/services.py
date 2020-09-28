@@ -40,6 +40,7 @@ def set_timezone_selector(func):
 def get_current_locale():
     """
     gets the current locale that should be used for current request.
+
     it never raises an error and returns the default locale if anything goes wrong.
 
     :rtype: str
@@ -51,7 +52,8 @@ def get_current_locale():
 def get_current_timezone():
     """
     gets the current timezone that should be used for current request.
-    it never raises an error and returns the default locale if anything goes wrong.
+
+    it never raises an error and returns the default timezone if anything goes wrong.
 
     :rtype: str
     """
