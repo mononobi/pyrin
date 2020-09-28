@@ -19,7 +19,7 @@ def test_now():
     current = datetime_services.now()
     assert current is not None
     assert current.tzinfo is not None
-    assert current.tzinfo.zone == datetime_services.get_current_timezone_name()
+    assert current.tzinfo.zone == datetime_services.get_timezone_name(server=True)
 
 
 def test_get_current_timezone(current_timezone):
@@ -27,7 +27,7 @@ def test_get_current_timezone(current_timezone):
     gets the application current timezone.
     """
 
-    assert current_timezone == datetime_services.get_current_timezone()
+    assert current_timezone == datetime_services.get_current_timezone(server=True)
 
 
 def test_get_current_timezone_name(current_timezone_name):
@@ -35,7 +35,7 @@ def test_get_current_timezone_name(current_timezone_name):
     gets the application current timezone name.
     """
 
-    assert current_timezone_name == datetime_services.get_current_timezone_name()
+    assert current_timezone_name == datetime_services.get_timezone_name(server=True)
 
 
 def test_normalize(berlin_datetime):
@@ -43,7 +43,7 @@ def test_normalize(berlin_datetime):
     normalizes input datetime value using application current timezone.
     """
 
-    datetime_default = datetime_services.normalize(berlin_datetime)
+    datetime_default = datetime_services.normalize(berlin_datetime, server=True)
 
     assert berlin_datetime == datetime_default
     assert berlin_datetime.tzinfo != datetime_default.tzinfo
@@ -53,12 +53,11 @@ def test_normalize_without_timezone_info():
     """
     normalizes input datetime which has no timezone info
     using application current timezone.
-    it should raise an error.
+    it should not raise an error.
     """
 
     value = datetime.now()
-    with pytest.raises(ValueError):
-        datetime_services.normalize(value)
+    datetime_services.normalize(value, server=True)
 
 
 def test_localize(current_timezone_name):
@@ -67,7 +66,7 @@ def test_localize(current_timezone_name):
     """
 
     datetime_naive = datetime(2019, 10, 2, 18, 0, 0)
-    datetime_localized = datetime_services.localize(datetime_naive)
+    datetime_localized = datetime_services.localize(datetime_naive, server=True)
 
     assert datetime_localized.tzinfo.zone == current_timezone_name
 
@@ -90,11 +89,11 @@ def test_to_datetime_string(berlin_datetime):
     gets the datetime string representation of input value.
     """
 
-    datetime_string = datetime_services.to_datetime_string(berlin_datetime)
+    datetime_string = datetime_services.to_datetime_string(berlin_datetime, server=True)
 
     # we check for UTC offset in both halves of the year to prevent
     # the test failure on different times of year.
-    assert datetime_string in ('2019-10-02T18:00:00+02:00', '2019-10-02T18:00:00+01:00')
+    assert datetime_string in ('2019-10-02T16:00:00+00:00', '2019-10-02T17:00:00+00:00')
 
 
 def test_to_date_string_with_datetime(berlin_datetime):
@@ -120,14 +119,14 @@ def test_to_date_string_with_date(berlin_datetime):
 def test_to_time_string_wih_datetime(berlin_datetime):
     """
     gets the time string representation of input datetime.
-    example: `23:40:15`
+    example: `23:40:15+00:00`
 
     :rtype: str
     """
 
-    time_berlin = datetime_services.to_time_string(berlin_datetime)
+    time_berlin = datetime_services.to_time_string(berlin_datetime, server=True)
 
-    assert time_berlin == '18:00:00'
+    assert time_berlin == '16:00:00+00:00'
 
 
 def test_to_time_string_wih_time(berlin_datetime):
@@ -138,7 +137,7 @@ def test_to_time_string_wih_time(berlin_datetime):
     :rtype: str
     """
 
-    time_berlin = datetime_services.to_time_string(berlin_datetime.timetz())
+    time_berlin = datetime_services.to_time_string(berlin_datetime.timetz(), server=True)
 
     assert time_berlin == '18:00:00'
 
@@ -149,12 +148,12 @@ def test_to_datetime_with_timezone():
     """
 
     datetime_string = '2019-10-02T18:00:00+02:00'
-    datetime_object = datetime_services.to_datetime(datetime_string)
+    datetime_object = datetime_services.to_datetime(datetime_string, server=True)
 
     assert datetime_object is not None
     assert datetime_object.tzinfo is not None
     assert datetime_object.year == 2019 and datetime_object.month == 10 and \
-        datetime_object.day == 2 and datetime_object.hour == 18
+        datetime_object.day == 2 and datetime_object.hour == 16
 
 
 def test_to_datetime_without_timezone(current_timezone_name):
@@ -164,7 +163,7 @@ def test_to_datetime_without_timezone(current_timezone_name):
     """
 
     datetime_string = '2019-10-02T18:00:00'
-    datetime_object = datetime_services.to_datetime(datetime_string)
+    datetime_object = datetime_services.to_datetime(datetime_string, server=True)
 
     assert datetime_object is not None
     assert datetime_object.tzinfo is not None
