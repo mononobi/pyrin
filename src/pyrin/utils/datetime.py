@@ -23,27 +23,27 @@ DEFAULT_DATE_TIME_ISO_REGEX = \
 # length is 10.
 DEFAULT_DATE_ISO_REGEX = re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\d$')
 
-# default iso time regular expression pattern with utc offset.
-# example: '23:40:15+03:30' or '23:40:15.889+03:30'
-# length is between 14 to 21.
-DEFAULT_TIME_ISO_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?[+-][0-1]\d:[0-5]\d$')
-
-# default iso time regular expression pattern without utc offset.
-# example: '23:40:15' or '23:40:15.565'
-# length is between 8 to 15.
-DEFAULT_TIME_NO_TIMEZONE_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?$')
-
 # default utc datetime regular expression pattern with zulu sign.
 # example: '2015-12-24T23:40:15.926Z' or '2015-12-24T23:40:15Z'
 # length is between 20 to 27.
 DEFAULT_UTC_ZULU_DATE_TIME_REGEX = \
     re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?Z$')
 
+# default iso time regular expression pattern with utc offset.
+# example: '23:40:15+03:30' or '23:40:15.889+03:30'
+# length is between 14 to 21.
+DEFAULT_TIME_ISO_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?[+-][0-1]\d:[0-5]\d$')
+
 # default local naive datetime regular expression pattern without utc offset.
 # example: '2015-12-24T23:40:15' or '2015-12-24T23:40:15.98'
 # length is between 19 to 26.
 DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX = \
     re.compile(r'^[1-2]\d{3}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?$')
+
+# default local naive time regular expression pattern without utc offset.
+# example: '23:40:15' or '23:40:15.565'
+# length is between 8 to 15.
+DEFAULT_LOCAL_NAIVE_TIME_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?$')
 
 
 def to_datetime_string(value):
