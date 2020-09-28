@@ -5,9 +5,12 @@ orm sql operators base module.
 
 from datetime import datetime
 
+from sqlalchemy.sql import Select
+from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.operators import ColumnOperators
 
 import pyrin.utils.datetime as datetime_utils
+import pyrin.utils.misc as misc_utils
 
 from pyrin.utils.sqlalchemy import like_prefix, like_exact_prefix, \
     like_suffix, like_exact_suffix
@@ -16,6 +19,7 @@ from pyrin.utils.sqlalchemy import like_prefix, like_exact_prefix, \
 class CoreColumnOperators(ColumnOperators):
     """
     core column operators class.
+
     this class provides some practical benefits
     to its subclasses for sql operations.
     """
@@ -69,6 +73,7 @@ class CoreColumnOperators(ColumnOperators):
     def _process_like_autoescape(self, value, escape, autoescape):
         """
         processes the value based on autoescape flag for like command.
+
         it may return an escaped string or the exact input string.
 
         :param str value: value to be escaped.
@@ -169,6 +174,7 @@ class CoreColumnOperators(ColumnOperators):
     def istartswith(self, other, **options):
         """
         implements the `startswith` operator.
+
         produces an `ilike` expression that tests against a match for the
         start of a string value. for example:
         column like <other> || `%` or column like <other> || `_`
@@ -202,6 +208,7 @@ class CoreColumnOperators(ColumnOperators):
     def iendswith(self, other, **options):
         """
         implements the `endswith` operator.
+
         produces an `ilike` expression that tests against a match for the
         end of a string value. for example:
         column like '%' || <other> or column like '_' || <other>
@@ -235,6 +242,7 @@ class CoreColumnOperators(ColumnOperators):
     def icontains(self, other, **options):
         """
         implements the 'contains' operator.
+
         produces an `ilike` expression that tests against a match for the
         middle of a string value. for example:
         column like `%` || <other> || `%` or column like `_` || <other> || `_`
@@ -268,3 +276,33 @@ class CoreColumnOperators(ColumnOperators):
         other = self._process_like_prefix(other, **options)
         other = self._process_like_suffix(other, **options)
         return self.ilike(other, escape)
+
+    def in_(self, other):
+        """
+        implements the `in` operator.
+
+        in a column context, produces the clause `column in other`.
+
+        the given parameter `other` may be:
+
+        * a list of literal values.
+        * a list of tuples may be provided if the comparison is against a
+          `.tuple_` containing multiple expressions.
+        * an empty list.
+        * a bound parameter, for example `.bindparam`, may be used if it
+          includes the `.bindparam.expanding` flag.
+        * a :func:`_expression.select` construct, which is usually a correlated
+          scalar select.
+        * a single literal value could also be set and it will be converted into iterable.
+
+        :param list | object | BindParameter | Select other: a list of literals, a
+                                                             `_expression.select` construct,
+                                                             or a `.bindparam` construct that
+                                                             includes the `.bindparam.expanding`
+                                                             flag set to True.
+        """
+
+        if not isinstance(other, (list, tuple, set, Select, BindParameter)):
+            other = misc_utils.make_iterable(other, list)
+
+        return super().in_(other)

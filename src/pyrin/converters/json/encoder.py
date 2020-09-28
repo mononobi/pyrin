@@ -14,8 +14,10 @@ from pyrin.utils import encoding
 
 class CoreJSONEncoder(JSONEncoder):
     """
-    the default application json encoder. it extends the default flask json encoder
-    to get the correct string representation for other complex types.
+    the default application json encoder.
+
+    it extends the default flask json encoder to get the
+    correct string representation for other complex types.
     """
 
     def default(self, o):

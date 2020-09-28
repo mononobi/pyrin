@@ -115,7 +115,7 @@ class CoreRequest(Request):
         """
         gets the endpoint if available.
 
-        otherwise return None.
+        otherwise returns None.
 
         :rtype: str
         """

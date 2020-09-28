@@ -21,9 +21,9 @@ def _set_app(app):
     of `pyrin.application` package. outside packages, instead should always
     access application functionality through `pyrin.application.services` module.
 
-    :raises ApplicationInstanceAlreadySetError: application instance already set error.
-
     :param Application app: application instance.
+
+    :raises ApplicationInstanceAlreadySetError: application instance already set error.
     """
 
     global __app__, __lock__

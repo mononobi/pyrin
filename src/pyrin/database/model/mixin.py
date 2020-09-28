@@ -1220,6 +1220,8 @@ class CRUDMixin(CoreObject):
     def save(self):
         """
         saves the current entity.
+
+        :rtype: BaseEntity
         """
 
         store = get_current_store()
@@ -1288,6 +1290,8 @@ class CRUDMixin(CoreObject):
                                                           provided.
 
         :raises ColumnNotExistedError: column not existed error.
+
+        :rtype: BaseEntity
         """
 
         self.from_dict(**kwargs)

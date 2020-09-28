@@ -33,8 +33,10 @@ def scanstring_extended(s, end, strict=True):
 
 class CoreJSONDecoder(JSONDecoder):
     """
-    the default application json decoder. it extends the default flask json decoder
-    to be able to convert complex strings to their equivalent python object.
+    the default application json decoder.
+
+    it extends the default flask json decoder to be able to
+    convert complex strings to their equivalent python object.
     """
 
     def __init__(self, *args, **kwargs):
