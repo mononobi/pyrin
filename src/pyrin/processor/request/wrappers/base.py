@@ -156,7 +156,7 @@ class CoreRequest(Request):
         removes all kwargs that should not be handed to the view function directly.
 
         for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
-        from query params because they will be stored in request context.
+        from query params because they will be stored in request object.
         this method removes extra kwargs from input dict directly and does
         not return anything.
 
