@@ -10,10 +10,10 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.globalization.locale.services as locale_services
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
-import pyrin.logging.services as logging_services
 
 from pyrin.core.globals import _
 from pyrin.caching.structs import CacheableDict
+from pyrin.caching.decorators import cached_property
 from pyrin.core.structs import DTO, CoreImmutableMultiDict
 from pyrin.processor.request.wrappers.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
@@ -54,11 +54,6 @@ class CoreRequest(Request):
     CLIENT_IP_ENVIRON_KEY_1 = 'HTTP_X_REAL_IP'
     CLIENT_IP_ENVIRON_KEY_2 = 'REMOTE_ADDR'
 
-    # these are the keys that application will use to store
-    # locale and timezone in them and put inside request context.
-    LOCALE_CONTEXT_KEY = 'locale'
-    TIMEZONE_CONTEXT_KEY = 'timezone'
-
     # application will store authorization header in request context with this key.
     AUTHORIZATION_CONTEXT_KEY = 'authorization'
 
@@ -83,13 +78,11 @@ class CoreRequest(Request):
         self._safe_content_length = self._get_safe_content_length()
         self._context = self.request_context_class()
 
-        # holds the inputs of request. this value will be
+        self._extract_authorization_header()
+
+        # this holds the inputs of request. this value will be
         # calculated once per each request and cached.
         self._inputs = None
-
-        self._extract_authorization_header()
-        self._extract_locale()
-        self._extract_timezone()
 
         # this holds any exception that might be raised on json decoding.
         # when silent is not passed to 'get_inputs' method, if this value
@@ -109,8 +102,8 @@ class CoreRequest(Request):
     def __str__(self):
         result = 'request id: "{request_id}", request date: "{request_date}", ' \
                  'user: "{user}", method: "{method}", route: "{route}", ' \
-                 'endpoint: "{endpoint}", client_ip: "{client_ip}", ' \
-                 'component_custom_key: "{component}"'
+                 'endpoint: "{endpoint}", client_ip: "{client_ip}", locale: "{locale}", ' \
+                 'timezone: "{timezone}", component_custom_key: "{component}"'
         return result.format(request_id=self.request_id,
                              request_date=self.request_date,
                              user=self.user,
@@ -118,6 +111,8 @@ class CoreRequest(Request):
                              route=self.path,
                              method=self.method,
                              endpoint=self._get_endpoint(),
+                             locale=self.locale,
+                             timezone=self.timezone.zone,
                              component=self.component_custom_key)
 
     def __hash__(self):
@@ -179,40 +174,6 @@ class CoreRequest(Request):
         """
 
         return self.content_length or 0
-
-    def _extract_locale(self):
-        """
-        extracts locale name from request query params and puts it into request context.
-        """
-
-        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
-        if locale not in (None, ''):
-            if locale_services.locale_exists(locale) is True:
-                self.add_context(self.LOCALE_CONTEXT_KEY, locale)
-                return
-            else:
-                logging_services.warning('Locale [{name}] does not exist.'
-                                         .format(name=locale))
-
-        self.add_context(self.LOCALE_CONTEXT_KEY, locale_services.get_default_locale())
-
-    def _extract_timezone(self):
-        """
-        extracts timezone name from request query params and puts it into request context.
-        """
-
-        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
-        if timezone_name not in (None, ''):
-            try:
-                timezone = datetime_services.get_timezone(timezone_name)
-                self.add_context(self.TIMEZONE_CONTEXT_KEY, timezone)
-                return
-            except Exception as error:
-                logging_services.warning('Timezone [{name}] does not exist.'
-                                         .format(name=str(error)))
-
-        self.add_context(self.TIMEZONE_CONTEXT_KEY,
-                         datetime_services.get_default_client_timezone())
 
     def _deserialize(self, value, silent=False):
         """
@@ -564,29 +525,36 @@ class CoreRequest(Request):
 
         return self._safe_content_length
 
-    @property
+    @cached_property
     def locale(self):
         """
         gets the locale of current request.
 
-        returns None if locale is not set.
-
         :rtype: str
         """
 
-        return self.get_context(self.LOCALE_CONTEXT_KEY, None)
+        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
+        if locale not in (None, '') and locale_services.locale_exists(locale) is True:
+            return locale
 
-    @property
+        return locale_services.get_default_locale()
+
+    @cached_property
     def timezone(self):
         """
         gets the timezone of current request.
 
-        returns None if timezone is not set.
-
         :rtype: tzinfo
         """
 
-        return self.get_context(self.TIMEZONE_CONTEXT_KEY, None)
+        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
+        if timezone_name not in (None, ''):
+            try:
+                return datetime_services.get_timezone(timezone_name)
+            except Exception:
+                pass
+
+        return datetime_services.get_default_client_timezone()
 
     @property
     def authorization(self):
