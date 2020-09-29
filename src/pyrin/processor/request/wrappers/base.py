@@ -7,6 +7,7 @@ from flask import Request
 
 import pyrin.utils.unique_id as uuid_utils
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.globalization.locale.services as locale_services
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
 import pyrin.logging.services as logging_services
@@ -20,7 +21,7 @@ from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
     RequestContextKeyIsAlreadyPresentError, BadRequestError, RequestDeserializationError, \
-    BothRequestBodyAndFormDataProvidedError, JSONBodyDecodingError, BodyDecodingError
+    JSONBodyDecodingError, BodyDecodingError
 
 
 class CoreRequest(Request):
@@ -90,15 +91,20 @@ class CoreRequest(Request):
         self._extract_locale()
         self._extract_timezone()
 
-        # this holds any exception that might be raised on body decoding.
+        # this holds any exception that might be raised on json decoding.
         # when silent is not passed to 'get_inputs' method, if this value
         # is not None, it will be raised.
-        self._body_decoding_error = None
+        self._json_decoding_error = None
 
         # this holds any exception that might be raised on query strings or
         # form data deserialization. when silent is not passed to 'get_inputs'
         # method, if this value is not None, it will be raised.
         self._deserialization_error = None
+
+        # this holds any exception that might be raised on custom body decoding.
+        # when silent is not passed to 'get_inputs' method, if this value
+        # is not None, it will be raised.
+        self._body_decoding_error = None
 
     def __str__(self):
         result = 'request id: "{request_id}", request date: "{request_date}", ' \
@@ -179,8 +185,16 @@ class CoreRequest(Request):
         extracts locale name from request query params and puts it into request context.
         """
 
-        self.add_context(self.LOCALE_CONTEXT_KEY,
-                         self.args.get(self.LOCALE_PARAM_NAME, None))
+        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
+        if locale not in (None, ''):
+            if locale_services.locale_exists(locale) is True:
+                self.add_context(self.LOCALE_CONTEXT_KEY, locale)
+                return
+            else:
+                logging_services.warning('Locale [{name}] does not exist.'
+                                         .format(name=locale))
+
+        self.add_context(self.LOCALE_CONTEXT_KEY, locale_services.get_default_locale())
 
     def _extract_timezone(self):
         """
@@ -194,10 +208,10 @@ class CoreRequest(Request):
                 self.add_context(self.TIMEZONE_CONTEXT_KEY, timezone)
                 return
             except Exception as error:
-                logging_services.exception(str(error))
+                logging_services.warning(str(error))
 
         self.add_context(self.TIMEZONE_CONTEXT_KEY,
-                         datetime_services.get_current_timezone(server=False))
+                         datetime_services.get_default_client_timezone())
 
     def _deserialize(self, value, silent=False):
         """
@@ -244,7 +258,7 @@ class CoreRequest(Request):
             except Exception as json_error:
                 if silent is not True:
                     raise
-                self._body_decoding_error = json_error
+                self._json_decoding_error = json_error
                 return {}
 
         try:
@@ -287,21 +301,22 @@ class CoreRequest(Request):
                             request body, it should not raise an error.
                             defaults to False.
 
-        :raises RequestDeserializationError: request deserialization error.
         :raises JSONBodyDecodingError: json body decoding error.
+        :raises RequestDeserializationError: request deserialization error.
         :raises BodyDecodingError: body decoding error.
-        :raises BothRequestBodyAndFormDataProvidedError: both request body and
-                                                         form data provided error.
 
         :rtype: dict
         """
 
         if silent is not True:
-            if self._body_decoding_error is not None:
-                raise self._body_decoding_error
+            if self._json_decoding_error is not None:
+                raise self._json_decoding_error
 
             if self._deserialization_error is not None:
-                raise self._deserialization_error
+                self.on_deserialization_failed(error=self._deserialization_error)
+
+            if self._body_decoding_error is not None:
+                self.on_body_loading_failed(error=self._body_decoding_error)
 
         if self._inputs is None:
             query_strings = self._deserialize(self.args.to_dict(flat=False, all_list=False),
@@ -311,14 +326,6 @@ class CoreRequest(Request):
                                           silent=silent)
 
             body = self.get_body(silent=silent)
-
-            if len(body) > 0 and len(form_data) > 0:
-                error = BothRequestBodyAndFormDataProvidedError(_('Request could not contain '
-                                                                  'both body and form data at '
-                                                                  'the same time.'))
-                if silent is not True:
-                    raise error
-                self._body_decoding_error = error
 
             self._remove_extra_query_params(query_strings)
             self._inputs = DTO(query_strings)

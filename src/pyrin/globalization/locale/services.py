@@ -37,6 +37,16 @@ def set_timezone_selector(func):
     get_component(LocalePackage.COMPONENT_NAME).set_timezone_selector(func)
 
 
+def get_default_locale():
+    """
+    gets the default locale of application from `globalization` config store.
+
+    :rtype: str
+    """
+
+    return get_component(LocalePackage.COMPONENT_NAME).get_default_locale()
+
+
 def get_current_locale():
     """
     gets the current locale that should be used for current request.

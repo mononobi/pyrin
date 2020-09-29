@@ -33,6 +33,8 @@ class LocaleManager(Manager):
         super().__init__()
 
         self._babel = Babel(get_current_app())
+        self._default_locale = config_services.get('globalization', 'locale',
+                                                   'babel_default_locale')
 
     def set_locale_selector(self, func):
         """
@@ -80,6 +82,15 @@ class LocaleManager(Manager):
 
         self._babel.timezone_selector_func = func
 
+    def get_default_locale(self):
+        """
+        gets the default locale of application from `globalization` config store.
+
+        :rtype: str
+        """
+
+        return self._default_locale
+
     def get_current_locale(self):
         """
         gets the current locale that should be used for current request.
@@ -89,16 +100,12 @@ class LocaleManager(Manager):
         :rtype: str
         """
 
-        current_locale = None
-        current_request = session_services.get_safe_current_request()
-        if current_request is not None:
-            current_locale = current_request.locale
+        request = session_services.get_safe_current_request()
+        locale = None
+        if request is not None:
+            locale = request.locale
 
-        if self.locale_exists(current_locale) is not True:
-            current_locale = config_services.get('globalization', 'locale',
-                                                 'babel_default_locale')
-
-        return current_locale
+        return locale or self._default_locale
 
     def get_current_timezone(self):
         """

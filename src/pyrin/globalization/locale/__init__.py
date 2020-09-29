@@ -13,3 +13,4 @@ class LocalePackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'globalization.locale.component'
+    DEPENDS = ['pyrin.configuration']

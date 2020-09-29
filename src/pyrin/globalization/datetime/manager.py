@@ -35,8 +35,8 @@ class DateTimeManager(Manager):
         client_timezone = config_services.get('globalization',
                                               'locale', 'client_timezone')
 
-        self.__server_timezone = pytz.timezone(server_timezone)
-        self.__client_timezone = pytz.timezone(client_timezone)
+        self._server_timezone = pytz.timezone(server_timezone)
+        self._client_timezone = pytz.timezone(client_timezone)
 
     def _add_timezone(self, value, server):
         """
@@ -71,6 +71,15 @@ class DateTimeManager(Manager):
 
         return datetime.now(timezone)
 
+    def get_default_client_timezone(self):
+        """
+        gets the default client timezone.
+
+        :rtype: tzinfo
+        """
+
+        return self._client_timezone
+
     def get_current_timezone(self, server):
         """
         gets the current timezone for server or client.
@@ -82,14 +91,14 @@ class DateTimeManager(Manager):
         """
 
         if server is True:
-            return self.__server_timezone
+            return self._server_timezone
         else:
             request = session_services.get_safe_current_request()
             timezone = None
             if request is not None:
                 timezone = request.timezone
 
-            return timezone or self.__client_timezone
+            return timezone or self._client_timezone
 
     def get_timezone(self, timezone):
         """

@@ -20,6 +20,16 @@ def now(timezone=None):
     return get_component(DateTimePackage.COMPONENT_NAME).now(timezone)
 
 
+def get_default_client_timezone():
+    """
+    gets the default client timezone.
+
+    :rtype: tzinfo
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).get_default_client_timezone()
+
+
 def get_current_timezone(server):
     """
     gets the current timezone for server or client.
