@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-manage unit module.
+cli unit module.
 
 to enable locale management for unit tests, execute:
-`python manage.py babel enable`
+`python cli.py babel enable`
 
 to enable migrations for unit tests, execute:
-`python manage.py alembic enable`
+`python cli.py alembic enable`
 
 to create a new package for unit tests, execute:
-`python manage.py template package`
+`python cli.py template package`
 
 usage example:
 
-`python manage.py alembic upgrade --arg value`
-`python manage.py babel extract --arg value`
-`python manage.py template package`
-`python manage.py celery worker --arg value`
-`python manage.py security token --arg value`
+`python cli.py alembic upgrade --arg value`
+`python cli.py babel extract --arg value`
+`python cli.py template package`
+`python cli.py celery worker --arg value`
+`python cli.py security token --arg value`
 """
 
 import fire
@@ -29,7 +29,6 @@ from tests.unit import PyrinUnitTestApplication
 
 app_instance = PyrinUnitTestApplication(import_name='tests.unit',
                                         scripting_mode=True)
-
 
 if __name__ == '__main__':
     fire.Fire(get_cli_groups())

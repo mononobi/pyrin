@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-start_unit module.
+start unit module.
 """
 
 import os
@@ -97,8 +97,6 @@ def start_tests(coverage=False):
     cleanup(coverage)
 
 
-# the if condition is to ensure that multiprocessing
-# on windows works as expected.
 if __name__ == '__main__':
     app = PyrinUnitTestApplication(import_name='tests.unit')
     start_tests(coverage=False)
