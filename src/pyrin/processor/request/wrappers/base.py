@@ -208,7 +208,8 @@ class CoreRequest(Request):
                 self.add_context(self.TIMEZONE_CONTEXT_KEY, timezone)
                 return
             except Exception as error:
-                logging_services.warning(str(error))
+                logging_services.warning('Timezone [{name}] does not exist.'
+                                         .format(name=str(error)))
 
         self.add_context(self.TIMEZONE_CONTEXT_KEY,
                          datetime_services.get_default_client_timezone())
