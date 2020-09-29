@@ -465,6 +465,7 @@ class CoreRequest(Request):
         else:
             self._cacheable_user = user
 
+    @property
     def cacheable_user(self):
         """
         gets the cacheable object of current user.
