@@ -32,7 +32,7 @@ class LocalCacheItemBase(CoreObject):
 
         self._created_on = time.time() * 1000
         self._key = key
-        self._value = self._get_cacheable_value(value)
+        self._value = self._prepare_cache(value)
 
     def __str__(self):
         """
@@ -60,9 +60,22 @@ class LocalCacheItemBase(CoreObject):
 
         return hash(self._key)
 
-    def _get_cacheable_value(self, value):
+    def _get_cached_value(self, value):
         """
-        gets cacheable version of value.
+        gets the cached value.
+
+        it is intended to be overridden in subclasses.
+
+        :param object value: value to be returned from cached.
+
+        :rtype: object
+        """
+
+        return value
+
+    def _prepare_cache(self, value):
+        """
+        prepares value to be cached.
 
         it is intended to be overridden in subclasses.
 
@@ -81,7 +94,7 @@ class LocalCacheItemBase(CoreObject):
         :rtype: object
         """
 
-        return self._get_cacheable_value(self._value)
+        return self._get_cached_value(self._value)
 
     @property
     def key(self):
@@ -122,19 +135,28 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
         self._expire = expire
         self._refreshable = options.get('refreshable', False)
 
-    def _get_cacheable_value(self, value):
+    def _get_cached_value(self, value):
         """
-        gets cacheable version of value.
+        gets the cached value.
 
-        it is intended to be overridden in subclasses.
-
-        :param object value: value to be cached.
+        :param object value: value to be returned from cached.
 
         :rtype: object
         """
 
         if self._refreshable is True and self.is_expired is False:
             self.refresh()
+
+        return deepcopy(value)
+
+    def _prepare_cache(self, value):
+        """
+        prepares value to be cached.
+
+        :param object value: value to be cached.
+
+        :rtype: object
+        """
 
         return deepcopy(value)
 
