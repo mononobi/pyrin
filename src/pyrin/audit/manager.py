@@ -11,6 +11,7 @@ import pyrin.packaging.services as packaging_services
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
+import pyrin.globalization.locale.services as locale_services
 
 from pyrin.audit.enumerations import InspectionStatusEnum
 from pyrin.audit.exceptions import InvalidAuditHookTypeError
@@ -149,8 +150,13 @@ class AuditManager(Manager, HookMixin):
 
         data = {}
         data.update(name=application_services.get_application_name(),
-                    datetime=datetime_services.now(),
-                    version=application_services.get_application_version())
+                    version=application_services.get_application_version(),
+                    server_datetime=datetime_services.now(),
+                    server_timezone=datetime_services.get_timezone_name(server=True),
+                    default_client_timezone=datetime_services.get_default_client_timezone().zone,
+                    current_request_timezone=datetime_services.get_timezone_name(server=False),
+                    default_locale=locale_services.get_default_locale(),
+                    current_request_locale=locale_services.get_current_locale())
         return data
 
     def get_framework_info(self, **options):
