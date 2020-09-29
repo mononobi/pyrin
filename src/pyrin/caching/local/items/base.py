@@ -111,7 +111,7 @@ class ComplexLocalCacheItemBase(LocalCacheItemBase):
     """
     complex local cache item base class.
 
-    this type of cache item supports expire.
+    this type of cache item supports expire time.
     it also keeps the deep copy of the value into the cache.
 
     all application complex cache items must be subclassed from this.
