@@ -299,7 +299,8 @@ def test_deserialize_dictionary_items():
 def test_deserialize_failure():
     """
     tests values that should not be deserialized.
-    it should return the same input value.
+    it should return the same input and should raise error
+    only on datetime value.
     """
 
     value = deserializer_services.deserialize('1 1')
@@ -308,8 +309,8 @@ def test_deserialize_failure():
     value = deserializer_services.deserialize('trues')
     assert value == 'trues'
 
-    value = deserializer_services.deserialize('2018-13-21T10:11:23-00:30')
-    assert value == '2018-13-21T10:11:23-00:30'
+    with pytest.raises(ValueError):
+        deserializer_services.deserialize('2018-13-21T10:11:23-00:30')
 
     value = deserializer_services.deserialize('[1, [2, 3], 5]')
     assert value == '[1, [2, 3], 5]'
