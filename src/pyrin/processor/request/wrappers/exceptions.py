@@ -71,3 +71,10 @@ class BodyDecodingError(BadRequestError):
     body decoding error.
     """
     pass
+
+
+class RequestDeserializationError(BadRequestError):
+    """
+    request deserialization error.
+    """
+    pass

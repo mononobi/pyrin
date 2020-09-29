@@ -19,7 +19,7 @@ from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError, \
     RequestComponentCustomKeyAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
-    RequestContextKeyIsAlreadyPresentError, BadRequestError, \
+    RequestContextKeyIsAlreadyPresentError, BadRequestError, RequestDeserializationError, \
     BothRequestBodyAndFormDataProvidedError, JSONBodyDecodingError, BodyDecodingError
 
 
@@ -94,6 +94,11 @@ class CoreRequest(Request):
         # when silent is not passed to 'get_inputs' method, if this value
         # is not None, it will be raised.
         self._body_decoding_error = None
+
+        # this holds any exception that might be raised on query strings or
+        # form data deserialization. when silent is not passed to 'get_inputs'
+        # method, if this value is not None, it will be raised.
+        self._deserialization_error = None
 
     def __str__(self):
         result = 'request id: "{request_id}", request date: "{request_date}", ' \
@@ -194,6 +199,29 @@ class CoreRequest(Request):
         self.add_context(self.TIMEZONE_CONTEXT_KEY,
                          datetime_services.get_current_timezone(server=False))
 
+    def _deserialize(self, value, silent=False):
+        """
+        deserializes the given dict and returns the result dict.
+
+        :param dict value: value to be deserialized.
+
+        :param bool silent: specifies that if an error occurred on processing
+                            the value, it should not raise an error.
+                            defaults to False.
+
+        :raises RequestDeserializationError: request deserialization error.
+
+        :rtype: dict
+        """
+
+        try:
+            return deserializer_services.deserialize(value)
+        except Exception as error:
+            if silent is not True:
+                self.on_deserialization_failed(error=error)
+            self._deserialization_error = error
+            return {}
+
     def get_body(self, silent=False):
         """
         gets data from request body.
@@ -259,6 +287,7 @@ class CoreRequest(Request):
                             request body, it should not raise an error.
                             defaults to False.
 
+        :raises RequestDeserializationError: request deserialization error.
         :raises JSONBodyDecodingError: json body decoding error.
         :raises BodyDecodingError: body decoding error.
         :raises BothRequestBodyAndFormDataProvidedError: both request body and
@@ -267,14 +296,20 @@ class CoreRequest(Request):
         :rtype: dict
         """
 
-        if silent is not True and self._body_decoding_error is not None:
-            raise self._body_decoding_error
+        if silent is not True:
+            if self._body_decoding_error is not None:
+                raise self._body_decoding_error
+
+            if self._deserialization_error is not None:
+                raise self._deserialization_error
 
         if self._inputs is None:
-            query_strings = deserializer_services.deserialize(self.args.to_dict(flat=False,
-                                                                                all_list=False))
-            form_data = deserializer_services.deserialize(self.form.to_dict(flat=False,
-                                                                            all_list=False))
+            query_strings = self._deserialize(self.args.to_dict(flat=False, all_list=False),
+                                              silent=silent)
+
+            form_data = self._deserialize(self.form.to_dict(flat=False, all_list=False),
+                                          silent=silent)
+
             body = self.get_body(silent=silent)
 
             if len(body) > 0 and len(form_data) > 0:
@@ -381,6 +416,22 @@ class CoreRequest(Request):
                                     'body: [{error}]'.format(error=error))
 
         self._on_bad_request_received(BodyDecodingError)
+
+    def on_deserialization_failed(self, error):
+        """
+        raises an error on query strings or form data deserialization failure.
+
+        :param Exception error: exception that occurred on deserialization.
+
+        :raises RequestDeserializationError: request deserialization error.
+        """
+
+        if config_services.get_active('environment', 'debug', default=False) is True:
+            raise RequestDeserializationError('Failed to deserialize request '
+                                              'query strings or form data: [{error}]'
+                                              .format(error=error))
+
+        self._on_bad_request_received(RequestDeserializationError)
 
     def _on_bad_request_received(self, error_class):
         """

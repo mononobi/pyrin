@@ -38,6 +38,7 @@ class DateDeserializer(StringPatternDeserializerBase):
         deserializes the given value.
 
         returns `NULL` object if deserialization fails.
+        but if any error occurs, it will be raised.
 
         :param str value: value to be deserialized.
 
@@ -46,14 +47,11 @@ class DateDeserializer(StringPatternDeserializerBase):
         :rtype: date
         """
 
-        try:
-            converted_date = datetime_services.to_date(value)
-            if converted_date is not None:
-                return converted_date
+        converted_date = datetime_services.to_date(value)
+        if converted_date is not None:
+            return converted_date
 
-            return NULL
-        except Exception:
-            return NULL
+        return NULL
 
     @property
     def default_formats(self):
@@ -92,6 +90,7 @@ class TimeDeserializer(StringPatternDeserializerBase):
         deserializes the given value.
 
         returns `NULL` object if deserialization fails.
+        but if any error occurs, it will be raised.
 
         :param str value: value to be deserialized.
 
@@ -100,14 +99,11 @@ class TimeDeserializer(StringPatternDeserializerBase):
         :rtype: time
         """
 
-        try:
-            converted_time = datetime_services.to_time(value)
-            if converted_time is not None:
-                return converted_time
+        converted_time = datetime_services.to_time(value)
+        if converted_time is not None:
+            return converted_time
 
-            return NULL
-        except Exception:
-            return NULL
+        return NULL
 
     @property
     def default_formats(self):
@@ -147,6 +143,7 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         deserializes the given value.
 
         returns `NULL` object if deserialization fails.
+        but if any error occurs, it will be raised.
 
         :param str value: value to be deserialized.
 
@@ -155,20 +152,17 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         :rtype: datetime
         """
 
-        try:
-            matching_pattern = options.get('matching_pattern')
-            replace_server = None
-            if matching_pattern == DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX:
-                replace_server = False
+        matching_pattern = options.get('matching_pattern')
+        replace_server = None
+        if matching_pattern == DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX:
+            replace_server = False
 
-            converted_datetime = datetime_services.to_datetime(value, server=True,
-                                                               replace_server=replace_server)
-            if converted_datetime is not None:
-                return converted_datetime
+        converted_datetime = datetime_services.to_datetime(value, server=True,
+                                                           replace_server=replace_server)
+        if converted_datetime is not None:
+            return converted_datetime
 
-            return NULL
-        except Exception:
-            return NULL
+        return NULL
 
     @property
     def default_formats(self):
