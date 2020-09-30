@@ -3,8 +3,10 @@
 wsgi module.
 """
 
-from start import app
+from {APPLICATION_PACKAGE} import {APPLICATION_CLASS}
 
+
+app = {APPLICATION_CLASS}()
 
 if __name__ == '__main__':
     app.run()
