@@ -25,8 +25,8 @@ from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
-    MissingRequiredViewFunctionParamsError, RequestLimitOrLifetimeRequiredError, \
-    InvalidRequestLimitError, InvalidLifetimeError, URLNotFoundError
+    ViewFunctionParamsError, RequestLimitOrLifetimeRequiredError, InvalidRequestLimitError, \
+    InvalidLifetimeError, URLNotFoundError
 
 
 class RouteBase(Rule):
@@ -323,8 +323,7 @@ class RouteBase(Rule):
         :param dict inputs: view function inputs.
 
         :raises LargeContentError: large content error.
-        :raises MissingRequiredViewFunctionParamsError: missing required view
-                                                        function params error.
+        :raises ViewFunctionParamsError: view function params error.
 
         :returns: view function's result.
         :rtype: object
@@ -496,8 +495,7 @@ class RouteBase(Rule):
 
         :param dict inputs: view function inputs.
 
-        :raises MissingRequiredViewFunctionParamsError: missing required view
-                                                        function params error.
+        :raises ViewFunctionParamsError: view function params error.
 
         :returns: view function's result.
         :rtype: object
@@ -507,10 +505,10 @@ class RouteBase(Rule):
             return self.view_function(**inputs)
         except TypeError as error:
             if config_services.get_active('environment', 'debug', default=False) is True:
-                raise MissingRequiredViewFunctionParamsError(error) from error
+                raise ViewFunctionParamsError(error) from error
 
-            raise MissingRequiredViewFunctionParamsError(_('All required parameters must be '
-                                                           'provided to access this resource.'))
+            raise ViewFunctionParamsError(_('The browser (or proxy) sent a request '
+                                            'that this server could not understand.'))
 
     @property
     def view_function(self):

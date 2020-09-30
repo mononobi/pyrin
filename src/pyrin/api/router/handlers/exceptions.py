@@ -97,10 +97,10 @@ class InvalidResponseStatusCodeError(RouterHandlerException):
     pass
 
 
-class MissingRequiredViewFunctionParamsError(BadRequestError,
-                                             RouterHandlerBusinessException):
+class ViewFunctionParamsError(BadRequestError,
+                              RouterHandlerBusinessException):
     """
-    missing required view function params error.
+    view function params error.
     """
     pass
 
