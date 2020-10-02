@@ -172,8 +172,21 @@ class RouterManager(Manager):
                                        route will unregister itself if any of
                                        these two conditions are met.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
         :raises InvalidCustomRouteTypeError: invalid custom route type error.
         :raises RouteAuthenticationMismatchError: route authentication mismatch error.
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -376,6 +389,19 @@ class RouterManager(Manager):
                                        route will unregister itself if any of
                                        these two conditions are met.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -573,8 +599,21 @@ class RouterManager(Manager):
                                        route will unregister itself if any of
                                        these two conditions are met.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.

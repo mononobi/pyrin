@@ -10,6 +10,7 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.globalization.locale.services as locale_services
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
+import pyrin.database.paging.services as paging_services
 
 from pyrin.core.globals import _
 from pyrin.caching.structs import CacheableDict
@@ -83,6 +84,8 @@ class CoreRequest(Request):
         # this holds the inputs of request. this value will be
         # calculated once per each request and cached.
         self._inputs = None
+        self._query_strings = None
+        self._paging_params = None
 
         # this holds any exception that might be raised on json decoding.
         # when silent is not passed to 'get_inputs' method, if this value
@@ -158,13 +161,15 @@ class CoreRequest(Request):
         for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
         from query params because they will be stored in request object.
         this method removes extra kwargs from input dict directly and does
-        not return anything.
+        not return anything. the paging parameters will also be removed and
+        stored in `_paging_params` dict attribute.
 
         :param dict params: a dict containing all query params.
         """
 
         params.pop(self.LOCALE_PARAM_NAME, None)
         params.pop(self.TIMEZONE_PARAM_NAME, None)
+        self._paging_params = paging_services.extract_paging_params(params)
 
     def _get_safe_content_length(self):
         """
@@ -281,16 +286,12 @@ class CoreRequest(Request):
                 self.on_body_loading_failed(error=self._body_decoding_error)
 
         if self._inputs is None:
-            query_strings = self._deserialize(self.args.to_dict(flat=False, all_list=False),
-                                              silent=silent)
-
             form_data = self._deserialize(self.form.to_dict(flat=False, all_list=False),
                                           silent=silent)
 
             body = self.get_body(silent=silent)
 
-            self._remove_extra_query_params(query_strings)
-            self._inputs = DTO(query_strings)
+            self._inputs = DTO(self.get_query_strings(silent=silent))
             self._inputs.update(body)
             self._inputs.update(form_data)
             self._inputs.update(self.view_args or {})
@@ -300,6 +301,41 @@ class CoreRequest(Request):
                                                                       all_list=False))
 
         return self._inputs
+
+    def get_query_strings(self, silent=False):
+        """
+        gets the dict of query strings of current request
+
+        :param bool silent: specifies that if an error occurred on processing
+                            request body, it should not raise an error.
+                            defaults to False.
+
+        :raises RequestDeserializationError: request deserialization error.
+
+        :rtype: dict
+        """
+
+        if self._query_strings is None:
+            query_strings = self._deserialize(self.args.to_dict(flat=False, all_list=False),
+                                              silent=silent)
+            self._remove_extra_query_params(query_strings)
+            self._query_strings = DTO(query_strings)
+
+        return self._query_strings
+
+    def get_paging_params(self):
+        """
+        gets the paging params of current request.
+
+        :returns: dict(int page: page number,
+                       int page_size: page size)
+        :rtype: dict
+        """
+
+        if self._paging_params is None:
+            self.get_query_strings(silent=True)
+
+        return self._paging_params
 
     def add_context(self, key, value, **options):
         """

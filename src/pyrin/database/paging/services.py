@@ -7,127 +7,79 @@ from pyrin.application.services import get_component
 from pyrin.database.paging import DatabasePagingPackage
 
 
-def get_default_limit():
+def extract_paging_params(values):
     """
-    gets default limit from database config store.
+    extracts paging parameters from given dict and returns them as a new dict.
 
-    :rtype: int
-    """
+    the values will be removed from input dict.
 
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).get_default_limit()
+    :param dict values: a dict to extract paging params from it.
 
-
-def is_auto_paging():
-    """
-    gets a value indicating that auto paging is enabled.
-
-    :rtype: bool
+    :returns: dict(int page: page number,
+                   int page_size: page size)
+    :rtype: dict
     """
 
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).is_auto_paging()
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).extract_paging_params(values)
 
 
-def enable_limit(options, limit=None):
+def get_paging_params(**options):
     """
-    enables limit with default or given limit parameter in given dict.
+    gets paging parameters from given inputs.
 
-    :param int limit: custom limit value to be injected into given dict.
-                      if not provided, defaults to limit value in
-                      database config store.
+    note that this method does not do any validation and just returns
+    keys as they are, even if their value is None.
 
-    :param dict options: options dict to inject limit in it.
-    """
+    :keyword int page: page number.
+    :keyword int page_size: page size.
 
-    get_component(DatabasePagingPackage.COMPONENT_NAME).enable_limit(options, limit)
-
-
-def disable_limit(options):
-    """
-    disables limit in given dict. it removes limit key from it.
-
-    :param dict options: options dict to disable limit in it.
+    :returns: tuple[int page, int page_size]
+    :rtype: tuple[int, int]
     """
 
-    get_component(DatabasePagingPackage.COMPONENT_NAME).disable_limit(options)
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).get_paging_params(**options)
 
 
-def extract_limit(options):
+def generate_paging_params(page, page_size):
     """
-    extracts and gets limit parameter from given dict.
-    it returns None if no limit is set in given dict.
+    generates paging parameters from given inputs.
 
-    :param dict options: options dict to get limit from it.
+    :param int page: page number.
+    :param int page_size: page size.
 
-    :rtype: int
-    """
-
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).extract_limit(options)
-
-
-def extract_offset(options):
-    """
-    extracts and gets offset parameter from given dict.
-    it returns None if no offset is set in given dict.
-
-    :param dict options: options dict to get offset from it.
-
-    :rtype: int
+    :returns: dict[int page, int page_size]
+    :rtype: dict[int, int]
     """
 
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).extract_offset(options)
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).generate_paging_params(page,
+                                                                                      page_size)
 
 
-def enable_paging(options, offset, limit=None):
+def inject_paging_keys(limit, offset, values):
     """
-    enables paging in given dict.
-    it adds a paging key in given dict and sets its value to
-    True. it also injects default limit and offset into it
+    injects paging keys into given dict.
 
-    :param dict options: options dict to enable paging in it.
-    :param int offset: offset value to be set in given dict.
-    :param int limit: limit value to be set in given dict.
-    """
-
-    get_component(DatabasePagingPackage.COMPONENT_NAME).enable_paging(options, offset, limit)
-
-
-def disable_paging(options):
-    """
-    disables paging in given dict.
-    it removes paging key in given dict and also
-    removes keys for limit and offset.
-
-    :param dict options: options dict to disable paging in it.
+    :param int limit: limit.
+    :param int offset: offset.
+    :param dict values: a dict to inject paging keys into it.
     """
 
-    get_component(DatabasePagingPackage.COMPONENT_NAME).disable_paging(options)
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).inject_paging_keys(
+        limit, offset, values)
 
 
-def extract_paging(options):
+def get_paging_keys(**options):
     """
-    extracts and gets limit and offset parameters from given dict.
-    if limit or offset key is not available in provided
-    dict, it gets the value from database config store
-    from `paging` section for the absent key.
+    gets paging keys from given inputs.
 
-    :param dict options: options dict to get limit and offset from it.
+    note that this method does not do any validation and just returns
+    keys as they are, even if their value is None.
+
+    :keyword int __limit__: limit value.
+    :keyword int _offset__: offset value.
 
     :returns: tuple[int limit, int offset]
     :rtype: tuple[int, int]
     """
 
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).extract_paging(options)
-
-
-def is_paging_required(options):
-    """
-    gets a value indicating that paging should be done.
-    it checks that paging key name is available in dict
-    and its value is set to True, otherwise returns False.
-
-    :param dict options: options dict to detect paging should be done from it.
-
-    :rtype: bool
-    """
-
-    return get_component(DatabasePagingPackage.COMPONENT_NAME).is_paging_required(options)
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).get_paging_keys(**options)

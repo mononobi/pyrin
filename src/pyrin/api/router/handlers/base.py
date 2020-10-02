@@ -18,6 +18,7 @@ import pyrin.utils.misc as misc_utils
 import pyrin.utils.headers as header_utils
 
 from pyrin.core.globals import _
+from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.processor.response.enumerations import ResponseHeaderEnum
@@ -162,6 +163,19 @@ class RouteBase(Rule):
                                 must have a `Cache-Control: no-cache` header. this header will
                                 be automatically added. defaults to False if not provided.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
@@ -189,6 +203,7 @@ class RouteBase(Rule):
                          websocket=options.get('websocket', False))
 
         self._view_function = options.get('view_function')
+        self._paginator = self._get_paginator(**options)
 
         global_limit = config_services.get('api', 'general', 'max_content_length')
         restricted_length = options.get('max_content_length',
@@ -334,11 +349,41 @@ class RouteBase(Rule):
         if self._result_schema is not None:
             self._inject_result_schema()
 
+        if self._paginator is not None:
+            self._inject_paginator(inputs, **options)
+
         self._handle(inputs, **options)
         result = self._call_view_function(inputs, **options)
         self._finished(result, **options)
 
         return self._prepare_response(result)
+
+    def _get_paginator(self, **options):
+        """
+        gets paginator for this route if required.
+
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
+        :raises PageSizeLimitError: page size limit error.
+
+        :rtype: PaginatorBase
+        """
+
+        paged = options.get('paged', False)
+        if paged is True:
+            return SimplePaginator(**options)
+
+        return None
 
     def _handle(self, inputs, **options):
         """
@@ -488,6 +533,19 @@ class RouteBase(Rule):
         """
 
         session_services.add_request_context('result_schema', self._result_schema)
+
+    def _inject_paginator(self, inputs, **options):
+        """
+        injects this route's paginator into current request context.
+
+        :param dict inputs: view function inputs.
+        """
+
+        paginator = self._paginator.copy()
+        request = session_services.get_current_request()
+        paging_params = request.get_paging_params()
+        paginator.inject_paging_keys(inputs, **paging_params)
+        session_services.add_request_context('paginator', paginator)
 
     def _call_view_function(self, inputs, **options):
         """
@@ -708,6 +766,19 @@ class TemporaryRouteBase(RouteBase):
                                 must have a `Cache-Control: no-cache` header. this header will
                                 be automatically added. defaults to False if not provided.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.

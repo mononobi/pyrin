@@ -101,7 +101,7 @@ class SessionManager(Manager):
         :param object default: a value to be returned if the provided
                                key is not present in request context.
 
-        :rtype: object
+        :returns: object
         """
 
         return self.get_current_request().get_context(key, default)

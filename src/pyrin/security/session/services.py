@@ -86,7 +86,7 @@ def get_request_context(key, default=None):
     :param object default: a value to be returned if the provided
                            key is not present in request context.
 
-    :rtype: object
+    :returns: object
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_request_context(key, default)

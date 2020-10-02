@@ -111,9 +111,10 @@ class Application(Flask, HookMixin, SignalMixin,
     # the founded mimetype could not be handled by pyrin itself.
     # this function should accept a single parameter as response body
     # and extra optional keyword arguments. the founded mimetype will be
-    # passed to this function as 'mimetype' keyword argument. the function
-    # must return a response object or an object which could be converted
-    # to response by flask.
+    # passed to this function as 'mimetype' keyword argument. metadata for
+    # pagination is also passed to this function using 'metadata' keyword.
+    # the function must return a response object or an object which could
+    # be converted to response by flask.
     default_response_converter = None
 
     headers_class = CoreHeaders
@@ -758,10 +759,13 @@ class Application(Flask, HookMixin, SignalMixin,
         if not isinstance(body, self.response_class):
             mimetype = mimetype_services.get_mimetype(body)
             if mimetype not in (MIMETypeEnum.HTML, MIMETypeEnum.JSON):
+                body, metadata = self._paginate_result(body)
                 if self._force_json_response is True:
-                    body = self._prepare_json(body)
+                    body = self._prepare_json(body, metadata=metadata)
                 elif self.default_response_converter is not None:
-                    body = self.default_response_converter(body, mimetype=mimetype)
+                    body = self.default_response_converter(body,
+                                                           metadate=metadata,
+                                                           mimetype=mimetype)
 
                 if body is None:
                     body = ''
@@ -771,11 +775,33 @@ class Application(Flask, HookMixin, SignalMixin,
         result.original_data = body
         return result
 
-    def _prepare_json(self, rv):
+    def _paginate_result(self, body, **options):
+        """
+        paginates response body if required.
+
+        it returns the paginated result and pagination metadata.
+        if pagination is not done, it returns the same input and None as metadata.
+
+        :param tuple | dict | str body: the return value from the view function.
+
+        :returns: tuple[list | tuple | dict | str  items, dict metadata]
+        :rtype: tuple[list | tuple | dict | str, dict]
+        """
+
+        paginator = session_services.get_request_context('paginator', None)
+        if paginator is not None:
+            return paginator.paginate(body)
+
+        return body, None
+
+    def _prepare_json(self, rv, metadata=None):
         """
         prepares the input value to be convertible to json.
 
         :param object rv: the return value from the view function.
+
+        :param dict metadata: metadata that should be injected into
+                              response for pagination.
 
         :rtype: dict
         """
@@ -788,8 +814,13 @@ class Application(Flask, HookMixin, SignalMixin,
         # we could not return a list as response, so we wrap
         # the result in a dict when we want to return a list.
         if isinstance(rv, list):
-            rv = DTO(items=rv,
-                     count=len(rv))
+            result = DTO()
+            if metadata is not None:
+                result.update(metadata)
+            else:
+                result.update(count=len(rv))
+            result.update(items=rv)
+            rv = result
 
         # we should wrap all single values into a
         # dict before returning it to client.
@@ -1005,8 +1036,21 @@ class Application(Flask, HookMixin, SignalMixin,
                                        route will unregister itself if any of
                                        these two conditions are met.
 
+        :keyword bool paged: specifies that this route should return paginated results.
+                             defaults to False if not provided.
+
+        :keyword int page_size: default page size for this route.
+                                defaults to `default_page_size` from
+                                `database` config store if not provided.
+
+        :keyword int max_page_size: maximum page size that client is allowed
+                                    to request for this route. defaults to
+                                    `max_page_size` from `database` configs store
+                                    if not provided.
+
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
+        :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
         :raises InvalidResultSchemaTypeError: invalid result schema type error.
