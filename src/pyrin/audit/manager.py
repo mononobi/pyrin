@@ -13,7 +13,6 @@ import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.locale.services as locale_services
 
-from pyrin.core.globals import _
 from pyrin.audit.enumerations import InspectionStatusEnum
 from pyrin.audit.hooks import AuditHookBase
 from pyrin.core.mixin import HookMixin
@@ -163,7 +162,7 @@ class AuditManager(Manager, HookMixin):
             return data, status_services.get_status_code()
         else:
             if succeeded is False:
-                raise AuditFailedError(_('Audit has been failed.'))
+                raise AuditFailedError('Audit has been failed.')
 
             return data, SuccessfulResponseCodeEnum.OK
 
