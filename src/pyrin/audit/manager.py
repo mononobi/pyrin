@@ -13,13 +13,15 @@ import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.locale.services as locale_services
 
+from pyrin.core.globals import _
 from pyrin.audit.enumerations import InspectionStatusEnum
-from pyrin.audit.exceptions import InvalidAuditHookTypeError
 from pyrin.audit.hooks import AuditHookBase
-from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.audit import AuditPackage
+from pyrin.utils.custom_print import print_info
+from pyrin.core.enumerations import ServerErrorResponseCodeEnum, SuccessfulResponseCodeEnum
+from pyrin.audit.exceptions import InvalidAuditHookTypeError, AuditFailedError
 
 
 class AuditManager(Manager, HookMixin):
@@ -50,9 +52,17 @@ class AuditManager(Manager, HookMixin):
                                  the traceback of errors.
                                  defaults to True if not provided.
 
+        :keyword bool raise_error: specifies that it must raise error
+                                   if any of registered audits failed
+                                   instead of returning a failure response.
+                                   defaults to False if not provided.
+
+        :raises AuditFailedError: audit failed error.
+
         :rtype: tuple[dict, bool]
         """
 
+        raise_error = options.get('raise_error', False)
         data = {}
         all_succeeded = True
         include_traceback = options.get('traceback', True)
@@ -65,6 +75,11 @@ class AuditManager(Manager, HookMixin):
                         all_succeeded = False
                     data[hook.audit_name] = result
             except Exception as error:
+                if raise_error is True:
+                    message = '[{name}] audit error: [{error}]'.format(name=hook.audit_name,
+                                                                       error=str(error))
+                    raise AuditFailedError(message) from error
+
                 all_succeeded = False
                 error_data = dict(status=InspectionStatusEnum.FAILED,
                                   error=str(error))
@@ -98,6 +113,13 @@ class AuditManager(Manager, HookMixin):
                                  the traceback of errors.
                                  defaults to True if not provided.
 
+        :keyword bool raise_error: specifies that it must raise error
+                                   if any of registered audits failed
+                                   instead of returning a failure response.
+                                   defaults to False if not provided.
+
+        :raises AuditFailedError: audit failed error.
+
         :returns: tuple[dict(dict application: application info,
                              dict packages: loaded packages info,
                              dict framework: framework info,
@@ -107,6 +129,7 @@ class AuditManager(Manager, HookMixin):
         :rtype: tuple[dict, int]
         """
 
+        raise_error = options.get('raise_error', False)
         application = options.get('application', True)
         packages = options.get('packages', True)
         framework = options.get('framework', True)
@@ -133,10 +156,35 @@ class AuditManager(Manager, HookMixin):
         if len(platform_info) > 0:
             data.update(platform=platform_info)
 
-        if succeeded is False:
-            return data, ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
+        if raise_error is not True:
+            if succeeded is False:
+                return data, ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
 
-        return data, status_services.get_status_code()
+            return data, status_services.get_status_code()
+        else:
+            if succeeded is False:
+                raise AuditFailedError(_('Audit has been failed.'))
+
+            return data, SuccessfulResponseCodeEnum.OK
+
+    def startup_inspect(self):
+        """
+        inspects all registered packages on application startup.
+
+        it raises an error if anything goes wrong.
+
+        :raises AuditFailedError: audit failed error.
+        """
+
+        disabled = self.get_audit_configurations().get('ignore_startup') or []
+        options = dict()
+        for item in disabled:
+            options[item] = False
+
+        options.update(raise_error=True)
+        print_info('Performing startup audit...')
+        self.inspect(**options)
+        print_info('Startup audit finished successfully.')
 
     def get_application_info(self, **options):
         """

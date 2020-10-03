@@ -19,6 +19,11 @@ def inspect(**options):
                              the traceback of errors.
                              defaults to True if not provided.
 
+    :keyword bool raise_error: specifies that it must raise error
+                               if any of registered audits failed
+                               instead of returning a failure response.
+                               defaults to False if not provided.
+
     :rtype: tuple[dict, bool]
     """
 

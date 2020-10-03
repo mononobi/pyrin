@@ -25,3 +25,10 @@ class InvalidAuditHookTypeError(AuditManagerException):
     invalid audit hook type error.
     """
     pass
+
+
+class AuditFailedError(AuditManagerException):
+    """
+    audit failed error.
+    """
+    pass

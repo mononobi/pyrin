@@ -43,6 +43,13 @@ def inspect(**options):
                              the traceback of errors.
                              defaults to True if not provided.
 
+    :keyword bool raise_error: specifies that it must raise error
+                               if any of registered audits failed
+                               instead of returning a failure response.
+                               defaults to False if not provided.
+
+    :raises AuditFailedError: audit failed error.
+
     :returns: tuple[dict(dict application: application info,
                          dict packages: loaded packages info,
                          dict framework: framework info,
@@ -53,6 +60,18 @@ def inspect(**options):
     """
 
     return get_component(AuditPackage.COMPONENT_NAME).inspect(**options)
+
+
+def startup_inspect():
+    """
+    inspects all registered packages on application startup.
+
+    it raises an error if anything goes wrong.
+
+    :raises AuditFailedError: audit failed error.
+    """
+
+    return get_component(AuditPackage.COMPONENT_NAME).startup_inspect()
 
 
 def get_application_info(**options):

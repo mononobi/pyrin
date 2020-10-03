@@ -3,6 +3,11 @@
 audit hooks module.
 """
 
+import pyrin.audit.services as audit_services
+import pyrin.configuration.services as config_services
+
+from pyrin.application.decorators import application_hook
+from pyrin.application.hooks import ApplicationHookBase
 from pyrin.core.structs import Hook
 
 
@@ -33,7 +38,33 @@ class AuditHookBase(Hook):
                                  the traceback of errors.
                                  defaults to True if not provided.
 
+        :keyword bool raise_error: specifies that it must raise error
+                                   if any of registered audits failed
+                                   instead of returning a failure response.
+                                   defaults to False if not provided.
+
         :rtype: tuple[dict, bool]
         """
 
         return {}, True
+
+
+@application_hook()
+class ApplicationHook(ApplicationHookBase):
+    """
+    application hook class.
+    """
+
+    def before_application_run(self):
+        """
+        this method will be get called just before application gets running.
+
+        note that this method will not get called when
+        application starts in scripting mode.
+
+        :raises AuditFailedError: audit failed error.
+        """
+
+        startup_audit = config_services.get_active('audit', 'startup_audit')
+        if startup_audit is True:
+            audit_services.startup_inspect()

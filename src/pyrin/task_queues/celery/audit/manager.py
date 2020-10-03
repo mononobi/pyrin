@@ -37,9 +37,15 @@ class CeleryAuditManager(Manager):
                                  the traceback of errors.
                                  defaults to True if not provided.
 
+        :keyword bool raise_error: specifies that it must raise error
+                                   if any of registered audits failed
+                                   instead of returning a failure response.
+                                   defaults to False if not provided.
+
         :rtype: tuple[dict, bool]
         """
 
+        raise_error = options.get('raise_error', False)
         include_traceback = options.get('traceback', True)
         data = {}
         succeeded = True
@@ -47,6 +53,9 @@ class CeleryAuditManager(Manager):
             audit_task.delay(suppress=False)
             data.update(status=InspectionStatusEnum.OK)
         except Exception as error:
+            if raise_error is True:
+                raise
+
             succeeded = False
             data.update(status=InspectionStatusEnum.FAILED,
                         error=str(error))
