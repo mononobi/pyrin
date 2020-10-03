@@ -5,6 +5,7 @@ database paging paginator module.
 
 from copy import deepcopy
 from abc import abstractmethod
+from collections import OrderedDict
 
 from flask import url_for
 
@@ -179,9 +180,9 @@ class SimplePaginator(PaginatorBase):
         """
 
         request = session_services.get_current_request()
-        options = dict()
-        options.update(request.get_query_strings())
+        options = OrderedDict()
         options.update(paging_services.generate_paging_params(page, page_size))
+        options.update(request.get_query_strings())
         return url_for(self._endpoint, **options)
 
     def next(self):
@@ -255,7 +256,7 @@ class SimplePaginator(PaginatorBase):
         :rtype: tuple[list, dict]
         """
 
-        metadata = dict()
+        metadata = OrderedDict()
         length = len(items)
         count = length
         result = items

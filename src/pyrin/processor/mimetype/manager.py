@@ -26,7 +26,7 @@ class MIMETypeManager(Manager):
         super().__init__()
 
         # a dictionary containing information of registered mimetype handlers.
-        # example: dic(type accepted_type: list[AbstractMIMETypeHandlerBase] instances)
+        # example: dict(type accepted_type: list[AbstractMIMETypeHandlerBase] instances)
         self._handlers = Context()
 
     def get_mimetype(self, value, **options):

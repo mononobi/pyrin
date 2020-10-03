@@ -3,8 +3,6 @@
 database paging manager module.
 """
 
-import pyrin.security.session.services as session_services
-
 from pyrin.core.structs import Manager
 from pyrin.database.paging import DatabasePagingPackage
 

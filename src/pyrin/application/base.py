@@ -5,6 +5,8 @@ application base module.
 
 import os
 
+from collections import OrderedDict
+
 from time import time
 
 import dotenv
@@ -814,7 +816,7 @@ class Application(Flask, HookMixin, SignalMixin,
         # we could not return a list as response, so we wrap
         # the result in a dict when we want to return a list.
         if isinstance(rv, list):
-            result = DTO()
+            result = OrderedDict()
             if metadata is not None:
                 result.update(metadata)
             else:
