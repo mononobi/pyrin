@@ -182,7 +182,7 @@ class SimplePaginator(PaginatorBase):
         request = session_services.get_current_request()
         options = OrderedDict()
         options.update(paging_services.generate_paging_params(page, page_size))
-        options.update(request.get_query_strings())
+        options.update(request.get_all_query_strings())
         return url_for(self._endpoint, **options)
 
     def next(self):

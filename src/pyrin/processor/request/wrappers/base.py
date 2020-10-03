@@ -3,6 +3,8 @@
 request wrappers base module.
 """
 
+from collections import OrderedDict
+
 from flask import Request
 
 import pyrin.utils.unique_id as uuid_utils
@@ -84,8 +86,18 @@ class CoreRequest(Request):
         # this holds the inputs of request. this value will be
         # calculated once per each request and cached.
         self._inputs = None
+
+        # this holds the query strings of request without paging and globalization params.
         self._query_strings = None
+
+        # this holds all query strings of request including globalization params.
+        self._all_query_strings = None
+
+        # this holds the paging query strings if they were provided.
         self._paging_params = None
+
+        # this hold the locale and timezone query strings if they were provided.
+        self._globalization_params = None
 
         # this holds any exception that might be raised on json decoding.
         # when silent is not passed to 'get_inputs' method, if this value
@@ -160,15 +172,23 @@ class CoreRequest(Request):
 
         for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
         from query params because they will be stored in request object.
-        this method removes extra kwargs from input dict directly and does
-        not return anything. the paging parameters will also be removed and
-        stored in `_paging_params` dict attribute.
+        the paging parameters will also be removed and stored in `_paging_params`
+        dict attribute. this method removes extra kwargs from input dict directly
+        and does not return anything.
 
         :param dict params: a dict containing all query params.
         """
 
-        params.pop(self.LOCALE_PARAM_NAME, None)
-        params.pop(self.TIMEZONE_PARAM_NAME, None)
+        locale = params.pop(self.LOCALE_PARAM_NAME, None)
+        timezone = params.pop(self.TIMEZONE_PARAM_NAME, None)
+        globalization = dict()
+        if locale not in (None, ''):
+            globalization[self.LOCALE_PARAM_NAME] = locale
+
+        if timezone not in (None, ''):
+            globalization[self.TIMEZONE_PARAM_NAME] = timezone
+
+        self._globalization_params = globalization
         self._paging_params = paging_services.extract_paging_params(params)
 
     def _get_safe_content_length(self):
@@ -265,7 +285,7 @@ class CoreRequest(Request):
         will raise an error in such scenario.
 
         :param bool silent: specifies that if an error occurred on processing
-                            request body, it should not raise an error.
+                            request, it should not raise an error.
                             defaults to False.
 
         :raises JSONBodyDecodingError: json body decoding error.
@@ -304,10 +324,12 @@ class CoreRequest(Request):
 
     def get_query_strings(self, silent=False):
         """
-        gets the dict of query strings of current request
+        gets the dict of query strings of current request.
+
+        the result does not include the globalization query strings.
 
         :param bool silent: specifies that if an error occurred on processing
-                            request body, it should not raise an error.
+                            request query strings, it should not raise an error.
                             defaults to False.
 
         :raises RequestDeserializationError: request deserialization error.
@@ -322,6 +344,31 @@ class CoreRequest(Request):
             self._query_strings = DTO(query_strings)
 
         return self._query_strings
+
+    def get_all_query_strings(self, silent=False):
+        """
+        gets the dict of all query strings of current request.
+
+        the result also includes the globalization query strings if they were provided.
+
+        :param bool silent: specifies that if an error occurred on processing
+                            request query strings, it should not raise an error.
+                            defaults to False.
+
+        :raises RequestDeserializationError: request deserialization error.
+
+        :rtype: dict
+        """
+
+        if self._all_query_strings is None:
+            self.get_query_strings(silent=silent)
+
+            result = OrderedDict()
+            result.update(self._globalization_params)
+            result.update(self._query_strings)
+            self._all_query_strings = result
+
+        return self._all_query_strings
 
     def get_paging_params(self):
         """
@@ -570,7 +617,10 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
+        if self._globalization_params is None:
+            self.get_query_strings(silent=True)
+
+        locale = self._globalization_params.get(self.LOCALE_PARAM_NAME, None)
         if locale not in (None, '') and locale_services.locale_exists(locale) is True:
             return locale
 
@@ -584,7 +634,10 @@ class CoreRequest(Request):
         :rtype: tzinfo
         """
 
-        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
+        if self._globalization_params is None:
+            self.get_query_strings(silent=True)
+
+        timezone_name = self._globalization_params.get(self.TIMEZONE_PARAM_NAME, None)
         if timezone_name not in (None, ''):
             try:
                 return datetime_services.get_timezone(timezone_name)
