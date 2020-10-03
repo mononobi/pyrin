@@ -12,5 +12,5 @@ class RouterPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
+    DEPENDS = ['pyrin.database.paging']
     COMPONENT_NAME = 'api.router.component'
