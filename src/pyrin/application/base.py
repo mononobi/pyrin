@@ -791,7 +791,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         paginator = session_services.get_request_context('paginator', None)
-        if paginator is not None:
+        if paginator is not None and isinstance(body, list):
             return paginator.paginate(body)
 
         return body, None
