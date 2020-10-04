@@ -82,23 +82,43 @@ class PaginatorBase(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def has_next(self):
+    @abstractmethod
+    def has_next(self, count, *args, **options):
         """
         gets a value indicating that there is a next page available.
 
-        :rtype: bool
+        it returns a tuple of two items. first item is a boolean indicating
+        that there is a next page and the second item is the number of excess
+        items that must be removed from end of items.
+
+        :param int count: count of current items.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: tuple[bool has_next, int excess]
+        :rtype: tuple[bool, int]
         """
 
-        return self.next() is not None
+        raise CoreNotImplementedError()
 
-    def has_previous(self):
+    @abstractmethod
+    def has_previous(self, count, *args, **options):
         """
         gets a value indicating that there is a previous page available.
 
-        :rtype: bool
+        it returns a tuple of two items. first item is a boolean indicating
+        that there is a previous page and the second item is the number of
+        excess items that must be removed from beginning of items.
+
+        :param int count: count of current items.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: tuple[bool has_previous, int excess]
+        :rtype: tuple[bool, int]
         """
 
-        return self.previous() is not None
+        raise CoreNotImplementedError()
 
     def copy(self):
         """
@@ -115,6 +135,9 @@ class SimplePaginator(PaginatorBase):
     simple paginator class.
 
     page numbers start from 1.
+    it does not emit any extra queries to database to fetch count or like that.
+    the only limitation is that it could not detect previous page from the
+    `last_page + 1` page.
     """
 
     def __init__(self, endpoint, **options):
@@ -168,6 +191,7 @@ class SimplePaginator(PaginatorBase):
         self._current_page = None
         self._current_page_size = None
         self._has_next = False
+        self._has_previous = False
 
     def _url_for(self, page, page_size):
         """
@@ -184,6 +208,56 @@ class SimplePaginator(PaginatorBase):
         options.update(paging_services.generate_paging_params(page, page_size))
         options.update(request.get_all_query_strings())
         return url_for(self._endpoint, **options)
+
+    def has_next(self, count, **options):
+        """
+        gets a value indicating that there is a next page available.
+
+        it returns a tuple of two items. first item is a boolean indicating
+        that there is a next page and the second item is the number of excess
+        items that must be removed from end of items.
+
+        :param int count: count of current items.
+
+        :returns: tuple[bool has_next, int excess]
+        :rtype: tuple[bool, int]
+        """
+
+        # the original limit is always 2 less than the current limit.
+        excess = count - (self._limit - 2)
+        if excess <= 0:
+            self._has_next = False
+            return self._has_next, 0
+
+        if self._current_page == 1:
+            self._has_next = excess > 0
+            return self._has_next, excess
+        else:
+            self._has_next = excess > 1
+            return self._has_next, excess - 1
+
+    def has_previous(self, count, **options):
+        """
+        gets a value indicating that there is a previous page available.
+
+        it returns a tuple of two items. first item is a boolean indicating
+        that there is a previous page and the second item is the number of
+        excess items that must be removed from beginning of items.
+
+        :param int count: count of current items.
+
+        :returns: tuple[bool has_previous, int excess]
+        :rtype: tuple[bool, int]
+        """
+
+        # at any page, if there is a count > 0, it means that there is a previous
+        # page available. because the first item is from the previous page.
+        if count <= 0 or self._current_page == 1:
+            self._has_previous = False
+            return self._has_previous, 0
+
+        self._has_previous = True
+        return self._has_previous, 1
 
     def next(self):
         """
@@ -208,10 +282,10 @@ class SimplePaginator(PaginatorBase):
         :rtype: int
         """
 
-        if self._current_page <= 1:
-            return None
-        else:
+        if self._has_previous is True:
             return self._url_for(self._current_page - 1, self._current_page_size)
+
+        return None
 
     def inject_paging_keys(self, values, **options):
         """
@@ -233,11 +307,17 @@ class SimplePaginator(PaginatorBase):
         elif page_size > self._max_page_size:
             page_size = self._max_page_size
 
-        # we increase limit by 1 to be able to detect if there is a next page.
-        # the extra item will not be returned to client.
-        self._limit = page_size + 1
+        # we increase limit by 2 to be able to detect if there is a next and previous page.
+        # the extra items will not be returned to client.
+        self._limit = page_size + 2
         offset = page - 1
-        self._offset = offset * page_size
+        extra_offset = offset * page_size
+        if extra_offset > 0:
+            # we decrease offset by 1 to be able to detect if there is a previous page.
+            # the extra item will not be returned to client.
+            extra_offset = extra_offset - 1
+
+        self._offset = extra_offset
         self._current_page = page
         self._current_page_size = page_size
         paging_services.inject_paging_keys(self._limit, self._offset, values)
@@ -257,14 +337,18 @@ class SimplePaginator(PaginatorBase):
         """
 
         metadata = OrderedDict()
-        length = len(items)
-        count = length
+        count = len(items)
         result = items
 
-        if length >= self._limit:
-            result = items[:-1]
-            count = count - 1
-            self._has_next = True
+        has_next, excess_end = self.has_next(count)
+        has_previous, excess_first = self.has_previous(count)
+        if has_next is True:
+            result = result[:-excess_end]
+            count = count - excess_end
+
+        if has_previous is True:
+            result = result[excess_first:]
+            count = count - excess_first
 
         next_url = self.next()
         previous_url = self.previous()
