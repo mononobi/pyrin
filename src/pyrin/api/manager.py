@@ -6,6 +6,7 @@ api manager module.
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.services as response_services
+import pyrin.security.session.services as session_services
 
 from pyrin.api import APIPackage
 from pyrin.api.exceptions import InvalidAPIHookTypeError
@@ -75,8 +76,10 @@ class APIManager(Manager, HookMixin):
         if config_services.get_active('environment', 'debug') is True:
             return response_services.make_exception_response(exception)
 
+        request_id = session_services.get_current_request_id()
         return response_services.make_error_response(self._get_generic_error_message(),
-                                                     code=exception.code)
+                                                     code=exception.code,
+                                                     request_id=request_id)
 
     def handle_server_unknown_error(self, exception):
         """
@@ -99,9 +102,11 @@ class APIManager(Manager, HookMixin):
                                                              code=ServerErrorResponseCodeEnum.
                                                              INTERNAL_SERVER_ERROR)
 
+        request_id = session_services.get_current_request_id()
         return response_services.make_error_response(self._get_generic_error_message(),
                                                      code=ServerErrorResponseCodeEnum.
-                                                     INTERNAL_SERVER_ERROR)
+                                                     INTERNAL_SERVER_ERROR,
+                                                     request_id=request_id)
 
     def _get_generic_error_message(self):
         """
