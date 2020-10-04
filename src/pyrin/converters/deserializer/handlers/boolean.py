@@ -17,7 +17,7 @@ class BooleanDeserializer(StringPatternDeserializerBase):
 
     # matches the bool inside string.
     # example: true, false
-    # matching are case-insensitive.
+    # matching is case-insensitive.
     TRUE_REGEX = re.compile(r'^true$', re.IGNORECASE)
     FALSE_REGEX = re.compile(r'^false$', re.IGNORECASE)
 
