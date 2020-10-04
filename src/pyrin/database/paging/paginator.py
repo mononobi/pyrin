@@ -195,7 +195,7 @@ class SimplePaginator(PaginatorBase):
 
     def _url_for(self, page, page_size):
         """
-        gets the url for give page number.
+        gets the url for given page number.
 
         :param int page: page number to generate its url.
         :param int page_size: page size.
