@@ -15,7 +15,7 @@ from pyrin.database.model.base import BaseEntity
 
 class CoreJSONEncoder(JSONEncoder):
     """
-    the default application json encoder.
+    the default pyrin json encoder.
 
     it extends the default flask json encoder to get the
     correct string representation for other complex types.
@@ -27,7 +27,10 @@ class CoreJSONEncoder(JSONEncoder):
         serializable object for `o`, or calls the base implementation (to
         raise a `TypeError`).
 
-        :rtype: str
+        this method is overridden to be able to serialize complex python
+        types to json string.
+
+        :returns: serializable object
         """
 
         if isinstance(o, datetime):

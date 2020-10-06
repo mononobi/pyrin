@@ -38,13 +38,17 @@ def scanstring_extended(s, end, strict=True):
 
 class CoreJSONDecoder(JSONDecoder):
     """
-    the default application json decoder.
+    the default pyrin json decoder.
 
     it extends the default flask json decoder to be able to
     convert complex strings to their equivalent python object.
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreJSONDecoder.
+        """
+
         super().__init__(*args, **kwargs)
         self.parse_string = scanstring_extended
         self.scan_once = py_make_scanner(self)
