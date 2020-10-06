@@ -597,7 +597,6 @@ class ConverterMixin(CoreObject):
                             in `ConverterMixin.MAX_DEPTH` class variable. providing higher
                             `depth` value than this limit, will cause an error.
 
-        :raises ColumnNotExistedError: column not existed error.
         :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :rtype: dict
@@ -622,13 +621,7 @@ class ConverterMixin(CoreObject):
         requested_relationships = []
         all_attributes = set(all_attributes)
         if len(requested_columns) > 0:
-            not_existed = requested_columns.difference(all_attributes)
-            if len(not_existed) > 0:
-                raise ColumnNotExistedError('Requested columns or relationship properties '
-                                            '{columns} are not available in entity [{entity}]. '
-                                            'it might be because of "exposed_only" '
-                                            'parameter value passed to this method.'
-                                            .format(columns=list(not_existed), entity=self))
+            requested_columns = requested_columns.intersection(all_attributes)
         else:
             requested_columns = all_attributes.difference(excluded_columns)
 

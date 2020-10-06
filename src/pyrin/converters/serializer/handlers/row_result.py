@@ -5,7 +5,7 @@ serializer handlers row_result module.
 
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
-from pyrin.converters.serializer.handlers.exceptions import ColumnNotExistedError
+from pyrin.database.model.base import BaseEntity
 from pyrin.core.globals import ROW_RESULT
 from pyrin.core.structs import DTO
 
@@ -45,8 +45,6 @@ class RowResultSerializer(SerializerBase):
                                     available in result, they will be
                                     ignored.
 
-        :raises ColumnNotExistedError: column not existed error.
-
         :rtype: dict
         """
 
@@ -55,22 +53,33 @@ class RowResultSerializer(SerializerBase):
 
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
         base_columns = value.keys()
+        entities = DTO()
+        to_remove_keys = []
+        for item in base_columns:
+            instance = getattr(value, item)
+            if isinstance(instance, BaseEntity):
+                serialized_entity = instance.to_dict(**options)
+                entities[item] = serialized_entity
+                to_remove_keys.append(item)
+                excluded_columns.append(item)
 
-        if len(requested_columns) <= 0 and len(rename) <= 0 and \
-                len(excluded_columns) <= 0:
+        if len(requested_columns) <= 0 and \
+                len(rename) <= 0 and len(excluded_columns) <= 0:
 
             return DTO(zip(base_columns, value))
 
+        for item in to_remove_keys:
+            base_columns.remove(item)
+
         if len(requested_columns) > 0:
-            difference = set(requested_columns).difference(set(base_columns))
-            if len(difference) > 0:
-                raise ColumnNotExistedError('Requested columns {columns} '
-                                            'are not available in result.'
-                                            .format(columns=list(difference)))
+            requested_columns = set(requested_columns).intersection(set(base_columns))
         else:
             requested_columns = base_columns
 
         result = DTO()
+        for key, entity in entities.items():
+            result.update(entity)
+
         for col in requested_columns:
             if col not in excluded_columns:
                 result[rename.get(col, col)] = getattr(value, col)

@@ -271,7 +271,6 @@ class ResultSchema(CoreObject):
 
         :param object item: item to be filtered.
 
-        :raises ColumnNotExistedError: column not existed error.
         :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :returns: filtered object
@@ -285,7 +284,6 @@ class ResultSchema(CoreObject):
 
         :param object item: item to be filtered.
 
-        :raises ColumnNotExistedError: column not existed error.
         :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :returns: filtered object

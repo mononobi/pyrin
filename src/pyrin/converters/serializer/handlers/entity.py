@@ -127,7 +127,6 @@ class BaseEntitySerializer(SerializerBase):
                             in `ConverterMixin.MAX_DEPTH` class variable. providing higher
                             `depth` value than this limit, will cause an error.
 
-        :raises ColumnNotExistedError: column not existed error.
         :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :rtype: dict

@@ -10,6 +10,7 @@ from flask.json import JSONEncoder
 import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.utils import encoding
+from pyrin.database.model.base import BaseEntity
 
 
 class CoreJSONEncoder(JSONEncoder):
@@ -37,5 +38,7 @@ class CoreJSONEncoder(JSONEncoder):
             return datetime_services.to_time_string(o, server=False)
         if isinstance(o, bytes):
             return encoding.bytes_to_base64_string(o)
+        if isinstance(o, BaseEntity):
+            return o.to_dict()
 
         return super().default(o)
