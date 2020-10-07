@@ -46,9 +46,9 @@ class CachingAuditManager(Manager):
 
         for name in all_caches:
             inspection_data, succeeded = self._test_cache(name, **options)
-            inspection_data.update(stats=caching_services.get_stats(name))
             if succeeded is False:
                 all_succeeded = False
+
             data[name] = inspection_data
 
         return data, all_succeeded
@@ -80,9 +80,10 @@ class CachingAuditManager(Manager):
         data = {}
         succeeded = True
         try:
+            data.update(stats=caching_services.get_stats(name))
             key = 'audit.test'
             value = [1, 2, 3]
-            caching_services.set(name, key, value)
+            caching_services.set(name, key, value, expire=5000)
             result = caching_services.get(name, key)
             caching_services.remove(name, key)
 
