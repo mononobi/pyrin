@@ -3,8 +3,6 @@
 caching remote handlers base module.
 """
 
-import math
-
 from abc import abstractmethod
 
 import pyrin.globalization.datetime.services as datetime_services
@@ -177,24 +175,6 @@ class RemoteCacheBase(ComplexKeyGeneratorMixin, AbstractRemoteCache):
         """
 
         return value
-
-    def _get_expire_seconds(self, expire):
-        """
-        gets the seconds equivalent of given milliseconds expire time.
-
-        note that this will always return seconds as integer, so if expire
-        is 1500 ms, the returned value would be 2 seconds.
-
-        :param int expire: expire time in milliseconds.
-
-        :returns: expire time in seconds.
-        :rtype: int
-        """
-
-        if expire is None:
-            expire = self.expire
-
-        return math.ceil(expire / 1000)
 
     def _get_configs(self):
         """

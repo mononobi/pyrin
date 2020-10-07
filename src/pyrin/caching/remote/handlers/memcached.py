@@ -38,7 +38,7 @@ class Memcached(RemoteCacheBase):
                             that this will remove limit only by client,
                             so memcached server default limit will be intact.
 
-        :keyword int expire: default expire time of cached items in milliseconds.
+        :keyword int expire: default expire time of cached items in seconds.
                              if not provided, it will be get from `caching` config
                              store.
 
@@ -84,23 +84,23 @@ class Memcached(RemoteCacheBase):
                                              could not be provided at the same time.
 
         :keyword int connect_timeout: milliseconds to wait for a connection to
-                                      the memcached server. defaults to "forever"
+                                      the memcached server. defaults to `forever`
                                       (uses the underlying default socket timeout,
                                       which can be very long).
 
         :keyword int timeout: milliseconds to wait for send or recv calls on
                               the socket connected to memcached. defaults to
-                              "forever" (uses the underlying default socket
+                              `forever` (uses the underlying default socket
                               timeout, which can be very long).
 
         :keyword bool no_delay: set the TCP_NODELAY flag, which may help with
                                 performance in some cases. defaults to False.
 
-        :keyword bool ignore_exc: True to cause the "get", "gets", "get_many" and
-                                  "gets_many" calls to treat any errors as cache
+        :keyword bool ignore_exc: True to cause the `get`, `gets`, `get_many` and
+                                  `gets_many` calls to treat any errors as cache
                                   misses. defaults to False.
 
-        :keyword bool default_noreply: the default value for 'noreply' as passed to
+        :keyword bool default_noreply: the default value for `noreply` as passed to
                                        store commands (except from cas, incr, and decr,
                                        which default to False).
 
@@ -194,7 +194,7 @@ class Memcached(RemoteCacheBase):
         :param object key: hashable key of the cache to be registered.
         :param object value: value to be cached.
 
-        :keyword int expire: expire time for this item in milliseconds.
+        :keyword int expire: expire time for this item in seconds.
                              if not provided, it will be get from `expire` attribute.
 
         :keyword bool noreply: True to not wait for the reply. if not
@@ -204,7 +204,8 @@ class Memcached(RemoteCacheBase):
         """
 
         expire = options.get('expire')
-        expire = self._get_expire_seconds(expire)
+        if expire is None:
+            expire = self.expire
 
         self.client.set(key, value, expire=expire,
                         noreply=options.get('noreply'),
@@ -366,7 +367,7 @@ class Memcached(RemoteCacheBase):
 
         :param object key: hashable key to extend its expire time.
 
-        :param int expire: expire time for this item in milliseconds.
+        :param int expire: expire time for this item in seconds.
                            if not provided, it will be get from `expire` attribute.
 
         :param bool noreply: True to not wait for the reply. if not
@@ -378,7 +379,10 @@ class Memcached(RemoteCacheBase):
 
         hashed_key = hash(key)
         hashed_key = self._prepare_key(hashed_key)
-        expire = self._get_expire_seconds(expire)
+
+        if expire is None:
+            expire = self.expire
+
         return self.client.touch(hashed_key, expire=expire, noreply=noreply)
 
     def add(self, key, value, expire=0, noreply=None, flags=None):
@@ -388,7 +392,7 @@ class Memcached(RemoteCacheBase):
         :param object key: hashable key of the cache to be registered.
         :param object value: value to be cached.
 
-        :param int expire: expire time for this item in milliseconds.
+        :param int expire: expire time for this item in seconds.
                            if not provided, it will be get from `expire` attribute.
 
         :param bool noreply: True to not wait for the reply. if not
@@ -402,7 +406,10 @@ class Memcached(RemoteCacheBase):
 
         hashed_key = hash(key)
         hashed_key = self._prepare_key(hashed_key)
-        expire = self._get_expire_seconds(expire)
+
+        if expire is None:
+            expire = self.expire
+
         return self.client.add(hashed_key, value, expire=expire, noreply=noreply, flags=flags)
 
     @property
