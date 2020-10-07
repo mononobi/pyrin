@@ -760,7 +760,8 @@ class Application(Flask, HookMixin, SignalMixin,
         body, status_code, headers = response_services.unpack_response(rv)
         if not isinstance(body, self.response_class):
             mimetype = mimetype_services.get_mimetype(body)
-            if mimetype not in (MIMETypeEnum.HTML, MIMETypeEnum.JSON):
+            if mimetype != MIMETypeEnum.HTML and (mimetype != MIMETypeEnum.JSON or
+                                                  not isinstance(body, str)):
                 body, metadata = self._paginate_result(body)
                 if self._force_json_response is True:
                     body = self._prepare_json(body, metadata=metadata)

@@ -1,38 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-serializer handlers list module.
+serializer handlers dictionary module.
 """
 
 import pyrin.converters.serializer.services as serializer_services
 
+from pyrin.core.structs import DTO
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
 
 
 @serializer()
-class ListSerializer(SerializerBase):
+class DictionarySerializer(SerializerBase):
     """
-    list serializer class.
+    dictionary serializer class.
     """
 
     def _serialize(self, value, **options):
         """
         serializes the given value.
 
-        returns serialized list on success or `NULL` object if serialization fails.
+        :param dict value: dict value to be serialized.
 
-        :param list[object] value: list value to be serialized.
-
-        :returns: serialized list of objects
-        :rtype: list[dict]
+        :rtype: dict
         """
 
-        if len(value) <= 0:
-            return []
-
-        result = []
-        for item in value:
-            result.append(serializer_services.serialize(item, **options))
+        result = DTO(value)
+        for key, item in result.items():
+            result[key] = serializer_services.serialize(item, **options)
 
         return result
 
@@ -43,7 +38,7 @@ class ListSerializer(SerializerBase):
 
         which could serialize values from this type.
 
-        :rtype: type[list]
+        :rtype: type[dict]
         """
 
-        return list
+        return dict
