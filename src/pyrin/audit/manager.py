@@ -9,7 +9,6 @@ import platform
 import pyrin.application.services as application_services
 import pyrin.packaging.services as packaging_services
 import pyrin.globalization.datetime.services as datetime_services
-import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.globalization.locale.services as locale_services
 
@@ -155,16 +154,13 @@ class AuditManager(Manager, HookMixin):
         if len(platform_info) > 0:
             data.update(platform=platform_info)
 
-        if raise_error is not True:
-            if succeeded is False:
+        if succeeded is False:
+            if raise_error is False:
                 return data, ServerErrorResponseCodeEnum.INTERNAL_SERVER_ERROR
 
-            return data, status_services.get_status_code()
-        else:
-            if succeeded is False:
-                raise AuditFailedError('Audit has been failed.')
+            raise AuditFailedError('Audit has been failed.')
 
-            return data, SuccessfulResponseCodeEnum.OK
+        return data, SuccessfulResponseCodeEnum.OK
 
     def startup_inspect(self):
         """
