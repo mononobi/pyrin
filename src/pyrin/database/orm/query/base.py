@@ -10,6 +10,7 @@ from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
+import pyrin.database.paging.services as paging_services
 
 from pyrin.core.globals import _
 from pyrin.database.model.base import BaseEntity
@@ -212,3 +213,16 @@ class CoreQuery(Query):
 
         store = get_current_store()
         return store.execute(statement).scalar()
+
+    def paginate(self, **options):
+        """
+        sets offset and limit for current query.
+
+        the offset and limit values will be extracted from given inputs.
+
+        :keyword int __limit__: limit value.
+        :keyword int __offset__: offset value.
+        """
+
+        limit, offset = paging_services.get_paging_keys(**options)
+        return self.limit(limit).offset(offset)
