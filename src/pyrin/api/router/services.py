@@ -109,6 +109,21 @@ def create_route(rule, **options):
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
 
+    :keyword bool indexed: specifies that list results must
+                           include an extra field as row index.
+                           the name of the index field and the initial value
+                           of index could be provided by `index_name` and
+                           `start_index` respectively. `indexed` keyword has
+                           only effect if the returning result contains a list
+                           of objects.
+
+    :keyword str index_name: name of the extra field to contain
+                             the row index of each result. if not provided
+                             defaults to `row_num` value.
+
+    :keyword int start_index: the initial value of row index. if not
+                              provided, starts from 1.
+
     :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                       which has `exposed=False` or its name
                                                       starts with underscore `_`, should not
@@ -320,6 +335,21 @@ def add_route(url, view_func=None,
                                            on all environments.
 
     :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+    :keyword bool indexed: specifies that list results must
+                           include an extra field as row index.
+                           the name of the index field and the initial value
+                           of index could be provided by `index_name` and
+                           `start_index` respectively. `indexed` keyword has
+                           only effect if the returning result contains a list
+                           of objects.
+
+    :keyword str index_name: name of the extra field to contain
+                             the row index of each result. if not provided
+                             defaults to `row_num` value.
+
+    :keyword int start_index: the initial value of row index. if not
+                              provided, starts from 1.
 
     :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                       which has `exposed=False` or its name

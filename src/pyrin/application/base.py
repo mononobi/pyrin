@@ -115,8 +115,9 @@ class Application(Flask, HookMixin, SignalMixin,
     # and extra optional keyword arguments. the founded mimetype will be
     # passed to this function as 'mimetype' keyword argument. metadata for
     # pagination is also passed to this function using 'metadata' keyword.
-    # the function must return a response object or an object which could
-    # be converted to response by flask.
+    # paginator instance will also passed to this function using 'paginator'
+    # keyword. the function must return a response object or an object which
+    # could be converted to response by flask.
     default_response_converter = None
 
     headers_class = CoreHeaders
@@ -762,13 +763,14 @@ class Application(Flask, HookMixin, SignalMixin,
             mimetype = mimetype_services.get_mimetype(body)
             if mimetype != MIMETypeEnum.HTML and (mimetype != MIMETypeEnum.JSON or
                                                   not isinstance(body, str)):
-                body, metadata = self._paginate_result(body)
+                body, metadata, paginator = self._paginate_result(body)
                 if self._force_json_response is True:
-                    body = self._prepare_json(body, metadata=metadata)
+                    body = self._prepare_json(body, metadata=metadata, paginator=paginator)
                 elif self.default_response_converter is not None:
                     body = self.default_response_converter(body,
                                                            metadate=metadata,
-                                                           mimetype=mimetype)
+                                                           mimetype=mimetype,
+                                                           paginator=paginator)
 
                 if body is None:
                     body = ''
@@ -782,22 +784,23 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         paginates response body if required.
 
-        it returns the paginated result and pagination metadata.
-        if pagination is not done, it returns the same input and None as metadata.
+        it returns the paginated result and pagination metadata and also the paginator itself.
+        if pagination is not done, it returns the same input and None as metadata and paginator.
 
         :param tuple | dict | str body: the return value from the view function.
 
-        :returns: tuple[list | tuple | dict | str  items, dict metadata]
-        :rtype: tuple[list | tuple | dict | str, dict]
+        :returns: tuple[list | tuple | dict | str  items, dict metadata, PaginatorBase paginator]
+        :rtype: tuple[list | tuple | dict | str, dict, PaginatorBase]
         """
 
         paginator = session_services.get_request_context('paginator', None)
         if paginator is not None and isinstance(body, list):
-            return paginator.paginate(body)
+            body, metadata = paginator.paginate(body)
+            return body, metadata, paginator
 
-        return body, None
+        return body, None, None
 
-    def _prepare_json(self, rv, metadata=None):
+    def _prepare_json(self, rv, metadata=None, paginator=None):
         """
         prepares the input value to be convertible to json.
 
@@ -806,13 +809,15 @@ class Application(Flask, HookMixin, SignalMixin,
         :param dict metadata: metadata that should be injected into
                               response for pagination.
 
+        :param PaginatorBase paginator: paginator that has been used.
+
         :rtype: dict
         """
 
         if rv is None:
             rv = DTO()
         else:
-            rv = self._serialize_result(rv)
+            rv = self._serialize_result(rv, paginator)
 
         # we could not return a list as response, so we wrap
         # the result in a dict when we want to return a list.
@@ -832,7 +837,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return rv
 
-    def _serialize_result(self, rv):
+    def _serialize_result(self, rv, paginator=None):
         """
         serializes the return value if needed.
 
@@ -841,13 +846,14 @@ class Application(Flask, HookMixin, SignalMixin,
         the same exact input if could not convert it.
 
         :param object rv: the return value from the view function.
+        :param PaginatorBase paginator: paginator that has been used.
 
         :rtype: dict | list[dict]
         """
 
         result_schema = session_services.get_request_context('result_schema', None)
         if result_schema is not None:
-            return result_schema.filter(rv)
+            return result_schema.filter(rv, paginator=paginator)
 
         return serializer_services.serialize(rv)
 
@@ -989,6 +995,21 @@ class Application(Flask, HookMixin, SignalMixin,
                                                on all environments.
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+        :keyword bool indexed: specifies that list results must
+                               include an extra field as row index.
+                               the name of the index field and the initial value
+                               of index could be provided by `index_name` and
+                               `start_index` respectively. `indexed` keyword has
+                               only effect if the returning result contains a list
+                               of objects.
+
+        :keyword str index_name: name of the extra field to contain
+                                 the row index of each result. if not provided
+                                 defaults to `row_num` value.
+
+        :keyword int start_index: the initial value of row index. if not
+                                  provided, starts from 1.
 
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name

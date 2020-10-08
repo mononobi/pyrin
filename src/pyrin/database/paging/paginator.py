@@ -129,6 +129,32 @@ class PaginatorBase(CoreObject):
 
         return deepcopy(self)
 
+    @property
+    @abstractmethod
+    def current_page(self):
+        """
+        gets current page number.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def current_page_size(self):
+        """
+        gets current page size.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
 
 class SimplePaginator(PaginatorBase):
     """
@@ -354,3 +380,23 @@ class SimplePaginator(PaginatorBase):
         previous_url = self.previous()
         metadata.update(count=count, next=next_url, previous=previous_url)
         return result, metadata
+
+    @property
+    def current_page(self):
+        """
+        gets current page number.
+
+        :rtype: int
+        """
+
+        return self._current_page
+
+    @property
+    def current_page_size(self):
+        """
+        gets current page size.
+
+        :rtype: int
+        """
+
+        return self._current_page_size

@@ -13,15 +13,15 @@ class SchemaException(CoreException):
     pass
 
 
-class SchemaAttributesRequiredError(SchemaException):
+class SecureBooleanIsRequiredError(SchemaException):
     """
-    schema attributes required error.
+    secure boolean is required error.
     """
     pass
 
 
-class SecureBooleanIsRequiredError(SchemaException):
+class InvalidStartIndexError(SchemaException):
     """
-    secure boolean is required error.
+    invalid start index error.
     """
     pass

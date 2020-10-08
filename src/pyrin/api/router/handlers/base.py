@@ -6,7 +6,6 @@ router handlers base module.
 import time
 
 from threading import Lock
-from copy import deepcopy
 
 from werkzeug.routing import Rule
 
@@ -126,6 +125,21 @@ class RouteBase(Rule):
                                      as processed. defaults to True if not provided.
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+        :keyword bool indexed: specifies that list results must
+                               include an extra field as row index.
+                               the name of the index field and the initial value
+                               of index could be provided by `index_name` and
+                               `start_index` respectively. `indexed` keyword has
+                               only effect if the returning result contains a list
+                               of objects.
+
+        :keyword str index_name: name of the extra field to contain
+                                 the row index of each result. if not provided
+                                 defaults to `row_num` value.
+
+        :keyword int start_index: the initial value of row index. if not
+                                  provided, starts from 1.
 
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name
@@ -426,6 +440,21 @@ class RouteBase(Rule):
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
 
+        :keyword bool indexed: specifies that list results must
+                               include an extra field as row index.
+                               the name of the index field and the initial value
+                               of index could be provided by `index_name` and
+                               `start_index` respectively. `indexed` keyword has
+                               only effect if the returning result contains a list
+                               of objects.
+
+        :keyword str index_name: name of the extra field to contain
+                                 the row index of each result. if not provided
+                                 defaults to `row_num` value.
+
+        :keyword int start_index: the initial value of row index. if not
+                                  provided, starts from 1.
+
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name
                                                           starts with underscore `_`, should not
@@ -458,25 +487,39 @@ class RouteBase(Rule):
         :rtype: ResultSchema
         """
 
-        result_schema = options.get('result_schema', None)
+        result_schema = options.get('result_schema')
         if result_schema is not None and not isinstance(result_schema, ResultSchema):
             raise InvalidResultSchemaTypeError('Input parameter [{instance}] '
                                                'is not an instance of [{base}].'
                                                .format(instance=result_schema,
                                                        base=ResultSchema))
 
-        exposed_only = options.get('exposed_only', None)
-        depth = options.get('depth', None)
+        exposed_only = options.get('exposed_only')
+        depth = options.get('depth')
+        indexed = options.get('indexed')
+        index_name = options.get('index_name')
+        start_index = options.get('start_index')
 
-        if result_schema is None and (exposed_only is not None or depth is not None):
-            return self.result_schema_class(exposed_only=exposed_only, depth=depth)
+        if result_schema is None and (exposed_only is not None or
+                                      depth is not None or indexed is True):
+            return self.result_schema_class(exposed_only=exposed_only, depth=depth,
+                                            indexed=indexed, index_name=index_name,
+                                            start_index=start_index)
 
-        elif result_schema is not None and (exposed_only is not None or depth is not None):
-            updated_schema = deepcopy(result_schema)
+        elif result_schema is not None and (exposed_only is not None or depth is not None or
+                                            indexed is not None or index_name is not None or
+                                            start_index is not None):
+            updated_schema = result_schema.copy()
             if exposed_only is not None:
                 updated_schema.exposed_only = exposed_only
             if depth is not None:
                 updated_schema.depth = depth
+            if indexed is not None:
+                updated_schema.indexed = indexed
+            if index_name is not None:
+                updated_schema.index_name = index_name
+            if start_index is not None:
+                updated_schema.start_index = start_index
 
             return updated_schema
 
@@ -729,6 +772,21 @@ class TemporaryRouteBase(RouteBase):
                                      as processed. defaults to True if not provided.
 
         :keyword ResultSchema result_schema: result schema to be used to filter results.
+
+        :keyword bool indexed: specifies that list results must
+                               include an extra field as row index.
+                               the name of the index field and the initial value
+                               of index could be provided by `index_name` and
+                               `start_index` respectively. `indexed` keyword has
+                               only effect if the returning result contains a list
+                               of objects.
+
+        :keyword str index_name: name of the extra field to contain
+                                 the row index of each result. if not provided
+                                 defaults to `row_num` value.
+
+        :keyword int start_index: the initial value of row index. if not
+                                  provided, starts from 1.
 
         :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
                                                           which has `exposed=False` or its name

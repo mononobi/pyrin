@@ -3,18 +3,22 @@
 schema result module.
 """
 
+from copy import deepcopy
+
 import pyrin.converters.serializer.services as serializer_services
 
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.core.structs import CoreObject
-from pyrin.api.schema.exceptions import SchemaAttributesRequiredError, \
-    SecureBooleanIsRequiredError
+from pyrin.api.schema.exceptions import SecureBooleanIsRequiredError, InvalidStartIndexError
 
 
 class ResultSchema(CoreObject):
     """
     result schema class.
     """
+
+    DEFAULT_INDEX_NAME = 'row_num'
+    DEFAULT_START_INDEX = 1
 
     def __init__(self, **options):
         """
@@ -132,31 +136,111 @@ class ResultSchema(CoreObject):
                             `depth` value than this limit, will cause an error.
                             it will be used only for entity conversion.
 
-        :raises SchemaAttributesRequiredError: schema attributes required error.
+        :keyword bool indexed: specifies that list results must
+                               include an extra field as row index.
+                               the name of the index field and the initial value
+                               of index could be provided by `index_name` and
+                               `start_index` respectively. `indexed` keyword has
+                               only effect if the returning result contains a list
+                               of objects.
+
+        :keyword str index_name: name of the extra field to contain
+                                 the row index of each result. if not provided
+                                 defaults to `row_num` value.
+
+        :keyword int start_index: the initial value of row index. if not
+                                  provided, starts from 1.
+
         :raises SecureBooleanIsRequiredError: secure boolean is required error.
+        :raises InvalidStartIndexError: invalid start index error.
         """
 
         super().__init__()
 
-        columns = options.get('columns', None)
-        rename = options.get('rename', None)
-        exclude = options.get('exclude', None)
-        depth = options.get('depth', None)
-        exposed_only = options.get('exposed_only', None)
-
-        if (columns is None or len(columns) <= 0) and \
-                (rename is None or len(rename) <= 0) and \
-                (exclude is None or len(exclude) <= 0) and \
-                depth is None and exposed_only is None:
-            raise SchemaAttributesRequiredError('At least one keyword argument of "{name}"'
-                                                'must be provided and have value.'
-                                                .format(name=self.get_class_name()))
+        columns = options.get('columns')
+        rename = options.get('rename')
+        exclude = options.get('exclude')
+        depth = options.get('depth')
+        exposed_only = options.get('exposed_only')
+        indexed = options.get('indexed')
+        index_name = options.get('index_name')
+        start_index = options.get('start_index')
 
         self._columns = columns
         self._rename = rename
         self._exclude = exclude
         self._depth = depth
-        self._exposed_only = exposed_only
+        self._exposed_only = None
+        self._indexed = indexed
+        self._index_name = None
+        self._start_index = None
+
+        # performing this through respective properties to get validations.
+        self.exposed_only = exposed_only
+        self.index_name = index_name
+        self.start_index = start_index
+
+    def copy(self):
+        """
+        returns a deep copy of this instance
+
+        :rtype: ResultSchema
+        """
+
+        return deepcopy(self)
+
+    def filter(self, item, **options):
+        """
+        filters the given item based on current schema.
+
+        :param object item: item to be filtered.
+
+        :keyword PaginatorBase paginator: paginator instance if any.
+                                          if provided, it will be used to
+                                          generate correct row indexes.
+
+        :raises InvalidDepthProvidedError: invalid depth provided error.
+
+        :returns: filtered object
+        """
+
+        return self._filter(item, **options)
+
+    def _filter(self, item, **options):
+        """
+        filters the given item based on current schema.
+
+        :param object item: item to be filtered.
+
+        :keyword PaginatorBase paginator: paginator instance if any.
+                                          if provided, it will be used to
+                                          generate correct row indexes.
+
+        :raises InvalidDepthProvidedError: invalid depth provided error.
+
+        :returns: filtered object
+        """
+
+        if item is None:
+            return item
+
+        start_index = self.start_index
+        paginator = options.get('paginator')
+        if paginator is not None:
+            start_index = (paginator.current_page
+                           * paginator.current_page_size) - (paginator.current_page_size +
+                                                             (-self.start_index))
+
+        options.update(columns=self.columns,
+                       rename=self.rename,
+                       exclude=self.exclude,
+                       depth=self.depth,
+                       exposed_only=self.exposed_only,
+                       indexed=self.indexed,
+                       index_name=self.index_name,
+                       start_index=start_index)
+
+        return serializer_services.serialize(item, **options)
 
     @property
     def columns(self):
@@ -265,35 +349,76 @@ class ResultSchema(CoreObject):
 
         self._exposed_only = value
 
-    def filter(self, item, **options):
+    @property
+    def indexed(self):
         """
-        filters the given item based on current schema.
+        gets the indexed attribute of this schema.
 
-        :param object item: item to be filtered.
-
-        :raises InvalidDepthProvidedError: invalid depth provided error.
-
-        :returns: filtered object
+        :rtype: bool
         """
 
-        return self._filter(item, **options)
+        return self._indexed
 
-    def _filter(self, item, **options):
+    @indexed.setter
+    def indexed(self, value):
         """
-        filters the given item based on current schema.
+        sets the indexed attribute of this schema.
 
-        :param object item: item to be filtered.
-
-        :raises InvalidDepthProvidedError: invalid depth provided error.
-
-        :returns: filtered object
+        :param bool value: specifies that this schema should return indexed results.
         """
 
-        if item is None:
-            return item
+        if value is None:
+            value = False
 
-        options.update(columns=self.columns, rename=self.rename,
-                       exclude=self.exclude, depth=self.depth,
-                       exposed_only=self.exposed_only)
+        self._indexed = value
 
-        return serializer_services.serialize(item, **options)
+    @property
+    def index_name(self):
+        """
+        gets the index name attribute of this schema.
+
+        :rtype: str
+        """
+
+        return self._index_name
+
+    @index_name.setter
+    def index_name(self, value):
+        """
+        sets the index name attribute of this schema.
+
+        :param str value: index field name.
+        """
+
+        if value is None:
+            value = self.DEFAULT_INDEX_NAME
+
+        self._index_name = value
+
+    @property
+    def start_index(self):
+        """
+        gets the start index attribute of this schema.
+
+        :rtype: int
+        """
+
+        return self._start_index
+
+    @start_index.setter
+    def start_index(self, value):
+        """
+        sets the start index attribute of this schema.
+
+        :param int value: start index.
+        """
+
+        if value is None:
+            value = self.DEFAULT_START_INDEX
+
+        if not isinstance(value, int):
+            raise InvalidStartIndexError('The "start_index" attribute of [{schema}] '
+                                         'must be set to an integer but it is currently '
+                                         'set to [{current}].'
+                                         .format(schema=self, current=value))
+        self._start_index = value
