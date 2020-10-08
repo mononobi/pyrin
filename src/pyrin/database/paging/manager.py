@@ -3,6 +3,8 @@
 database paging manager module.
 """
 
+import pyrin.configuration.services as config_services
+
 from pyrin.core.structs import Manager
 from pyrin.database.paging import DatabasePagingPackage
 
@@ -18,6 +20,7 @@ class DatabasePagingManager(Manager):
     OFFSET_KEY = '__offset__'
 
     # paging parameters that application expects in query strings of requests.
+    # these values could be customized in 'paging' section of database config store.
     PAGE_PARAM = 'page'
     PAGE_SIZE_PARAM = 'page_size'
 
@@ -29,6 +32,18 @@ class DatabasePagingManager(Manager):
         """
 
         super().__init__()
+
+        page_param = config_services.get('database', 'paging', 'page_param')
+        if page_param not in (None, '') and not page_param.isspace():
+            self._page_param = page_param
+        else:
+            self._page_param = self.PAGE_PARAM
+
+        page_size_param = config_services.get('database', 'paging', 'page_size_param')
+        if page_size_param not in (None, '') and not page_size_param.isspace():
+            self._page_size_param = page_size_param
+        else:
+            self._page_size_param = self.PAGE_SIZE_PARAM
 
     def extract_paging_params(self, values):
         """
@@ -43,8 +58,8 @@ class DatabasePagingManager(Manager):
         :rtype: dict
         """
 
-        page = values.pop(self.PAGE_PARAM, None)
-        page_size = values.pop(self.PAGE_SIZE_PARAM, None)
+        page = values.pop(self._page_param, None)
+        page_size = values.pop(self._page_size_param, None)
 
         if isinstance(page, list):
             if len(page) > 0:
@@ -59,8 +74,8 @@ class DatabasePagingManager(Manager):
                 page_size = None
 
         result = dict()
-        result[self.PAGE_PARAM] = page
-        result[self.PAGE_SIZE_PARAM] = page_size
+        result[self._page_param] = page
+        result[self._page_size_param] = page_size
         return result
 
     def get_paging_params(self, **options):
@@ -77,7 +92,7 @@ class DatabasePagingManager(Manager):
         :rtype: tuple[int, int]
         """
 
-        return options.get(self.PAGE_PARAM), options.get(self.PAGE_SIZE_PARAM)
+        return options.get(self._page_param), options.get(self._page_size_param)
 
     def generate_paging_params(self, page, page_size):
         """
@@ -91,8 +106,8 @@ class DatabasePagingManager(Manager):
         """
 
         params = dict()
-        params[self.PAGE_PARAM] = page
-        params[self.PAGE_SIZE_PARAM] = page_size
+        params[self._page_param] = page
+        params[self._page_size_param] = page_size
         return params
 
     def inject_paging_keys(self, limit, offset, values):
@@ -104,10 +119,8 @@ class DatabasePagingManager(Manager):
         :param dict values: a dict to inject paging keys into it.
         """
 
-        paging_keys = dict()
-        paging_keys[self.LIMIT_KEY] = limit
-        paging_keys[self.OFFSET_KEY] = offset
-        values.update(paging_keys)
+        values[self.LIMIT_KEY] = limit
+        values[self.OFFSET_KEY] = offset
 
     def get_paging_keys(self, **options):
         """
@@ -117,10 +130,19 @@ class DatabasePagingManager(Manager):
         keys as they are, even if their value is None.
 
         :keyword int __limit__: limit value.
-        :keyword int _offset__: offset value.
+        :keyword int __offset__: offset value.
 
         :returns: tuple[int limit, int offset]
         :rtype: tuple[int, int]
         """
 
         return options.get(self.LIMIT_KEY), options.get(self.OFFSET_KEY)
+
+    def disable_paging_keys(self, values):
+        """
+        disables paging keys in given dict.
+
+        :param dict values: a dict to disable paging keys in it.
+        """
+
+        self.inject_paging_keys(limit=None, offset=0, values=values)

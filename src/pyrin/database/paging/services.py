@@ -76,10 +76,20 @@ def get_paging_keys(**options):
     keys as they are, even if their value is None.
 
     :keyword int __limit__: limit value.
-    :keyword int _offset__: offset value.
+    :keyword int __offset__: offset value.
 
     :returns: tuple[int limit, int offset]
     :rtype: tuple[int, int]
     """
 
     return get_component(DatabasePagingPackage.COMPONENT_NAME).get_paging_keys(**options)
+
+
+def disable_paging_keys(values):
+    """
+    disables paging keys in given dict.
+
+    :param dict values: a dict to disable paging keys in it.
+    """
+
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).disable_paging_keys(values)
