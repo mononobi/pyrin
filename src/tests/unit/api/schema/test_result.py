@@ -5,14 +5,13 @@ schema test_result module.
 
 import pytest
 
-from pyrin.api.schema.exceptions import SchemaAttributesRequiredError
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.exceptions import ColumnNotExistedError, InvalidDepthProvidedError
 
 from tests.unit.common.generator import generate_row_results, generate_entity_results
-from tests.unit.common.models import RightChildEntity, SampleWithHiddenFieldEntity, ChildEntity, \
-    ParentEntity
+from tests.unit.common.models import RightChildEntity, SampleWithHiddenFieldEntity, \
+    ChildEntity, ParentEntity
 
 
 def test_create_schema():
@@ -53,36 +52,6 @@ def test_create_schema_with_some_input():
     assert schema.rename is None
     assert schema.exposed_only is None
     assert schema.depth == 3
-
-
-def test_create_schema_without_input():
-    """
-    creates a result schema without providing any inputs.
-    it should raise an error.
-    """
-
-    with(pytest.raises(SchemaAttributesRequiredError)):
-        schema = ResultSchema()
-
-
-def test_create_schema_with_none_input():
-    """
-    creates a result schema by providing None inputs.
-    it should raise an error.
-    """
-
-    with(pytest.raises(SchemaAttributesRequiredError)):
-        schema = ResultSchema(depth=None)
-
-
-def test_create_schema_with_empty_input():
-    """
-    creates a result schema by providing empty inputs.
-    it should raise an error.
-    """
-
-    with(pytest.raises(SchemaAttributesRequiredError)):
-        schema = ResultSchema(columns=dict())
 
 
 def test_filter_single_row():
