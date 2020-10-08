@@ -145,4 +145,4 @@ class DatabasePagingManager(Manager):
         :param dict values: a dict to disable paging keys in it.
         """
 
-        self.inject_paging_keys(limit=None, offset=0, values=values)
+        self.inject_paging_keys(limit=None, offset=None, values=values)
