@@ -39,6 +39,11 @@ class DeserializerManager(Manager):
 
         :param object value: value to be deserialized.
 
+        :keyword bool include_internal: specifies that any chained internal deserializer
+                                        must also be used for deserialization. if set to
+                                        False, only non-internal deserializers will be used.
+                                        defaults to True if not provided.
+
         :returns: deserialized object
         """
 

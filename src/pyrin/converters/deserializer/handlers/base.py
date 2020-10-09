@@ -20,10 +20,21 @@ class DeserializerBase(AbstractDeserializerBase):
     def __init__(self, **options):
         """
         initializes an instance of DeserializerBase.
+
+        :keyword bool internal: specifies that this deserializer is internal.
+                                internal deserializers will not be used for
+                                deserializing client inputs.
+                                defaults to False if not provided.
         """
 
         super().__init__()
         self._next_handler = None
+
+        internal = options.get('internal')
+        if internal is None:
+            internal = False
+
+        self._internal = internal
 
     def deserialize(self, value, **options):
         """
@@ -33,10 +44,19 @@ class DeserializerBase(AbstractDeserializerBase):
 
         :param object value: value to be deserialized.
 
+        :keyword bool include_internal: specifies that any chained internal deserializer
+                                        must also be used for deserialization. if set to
+                                        False, only non-internal deserializers will be used.
+                                        defaults to True if not provided.
+
         :returns: deserialized value.
         """
 
-        deserialized_value = self._deserialize_operation(value, **options)
+        deserialized_value = NULL
+        include_internal = options.get('include_internal', True)
+        if include_internal is not False or self.internal is False:
+            deserialized_value = self._deserialize_operation(value, **options)
+
         if deserialized_value is NULL:
             if self._next_handler is not None:
                 return self._next_handler.deserialize(value, **options)
@@ -112,6 +132,18 @@ class DeserializerBase(AbstractDeserializerBase):
 
         return isinstance(value, self.accepted_type)
 
+    @property
+    def internal(self):
+        """
+        gets a value indicating that this deserializer is internal.
+
+        internal deserializers will not be used for deserializing client inputs.
+
+        :rtype: bool
+        """
+
+        return self._internal
+
 
 class StringDeserializerBase(DeserializerBase):
     """
@@ -134,6 +166,11 @@ class StringDeserializerBase(DeserializerBase):
                                                               deserialize value from.
 
         :note accepted_formats: list[tuple[str format, int min_length, int max_length]]
+
+        :keyword bool internal: specifies that this deserializer is internal.
+                                internal deserializers will not be used for
+                                deserializing client inputs.
+                                defaults to False if not provided.
         """
 
         super().__init__(**options)
@@ -270,6 +307,11 @@ class StringPatternDeserializerBase(StringDeserializerBase):
                                                                   deserialize value from.
 
         :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
+
+        :keyword bool internal: specifies that this deserializer is internal.
+                                internal deserializers will not be used for
+                                deserializing client inputs.
+                                defaults to False if not provided.
         """
 
         super().__init__(**options)

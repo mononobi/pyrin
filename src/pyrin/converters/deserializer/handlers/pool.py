@@ -40,6 +40,7 @@ class PoolDeserializer(StringPatternDeserializerBase):
         :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
+        options.update(internal=True)
         super().__init__(**options)
 
         self._converter_map = self._get_converter_map()

@@ -38,6 +38,7 @@ class TimedeltaDeserializer(StringPatternDeserializerBase):
         :note accepted_formats: list[tuple[Pattern format, int min_length, int max_length]]
         """
 
+        options.update(internal=True)
         super().__init__(**options)
 
     def _deserialize(self, value, **options):

@@ -35,6 +35,11 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
 
         :param object value: value to be deserialized.
 
+        :keyword bool include_internal: specifies that any chained internal deserializer
+                                        must also be used for deserialization. if set to
+                                        False, only non-internal deserializers will be used.
+                                        defaults to True if not provided.
+
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: deserialized value.
@@ -68,6 +73,21 @@ class AbstractDeserializerBase(CoreObject, metaclass=DeserializerSingletonMeta):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: type
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def internal(self):
+        """
+        gets a value indicating that this deserializer is internal.
+
+        internal deserializers will not be used for deserializing client inputs.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
         """
 
         raise CoreNotImplementedError()
