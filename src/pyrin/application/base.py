@@ -768,7 +768,7 @@ class Application(Flask, HookMixin, SignalMixin,
                     body = self._prepare_json(body, metadata=metadata, paginator=paginator)
                 elif self.default_response_converter is not None:
                     body = self.default_response_converter(body,
-                                                           metadate=metadata,
+                                                           metadata=metadata,
                                                            mimetype=mimetype,
                                                            paginator=paginator)
 
