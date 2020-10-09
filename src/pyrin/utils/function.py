@@ -83,9 +83,7 @@ def get_inputs(func, args, kwargs, container=dict, **options):
 
     signature = inspect.signature(func)
     bounded_args = signature.bind_partial(*args, **kwargs)
-    inputs = dict(bounded_args.arguments, **bounded_args.kwargs)
+    parent = bounded_args.arguments.pop('self', None)
+    parent = bounded_args.arguments.pop('cls', parent)
 
-    parent = inputs.pop('self', None)
-    parent = inputs.pop('cls', parent)
-
-    return container(inputs), parent
+    return container(bounded_args.arguments), parent

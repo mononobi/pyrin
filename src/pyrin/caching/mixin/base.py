@@ -166,21 +166,31 @@ class ComplexKeyGeneratorMixin(SimpleKeyGeneratorMixin):
 
         :returns: tuple[type parent, str function_name,
                         dict inputs, object user,
-                        object component key]
+                        object component key,
+                        str timezone, str locale]
 
-        :rtype: tuple[type, str, dict, object, object]
+        :rtype: tuple[type, str, dict, object, object, str, str]
         """
 
-        consider_user = options.get('consider_user', self.consider_user)
+        current_request = session_services.get_safe_current_request()
+        timezone = None
+        locale = None
         current_user = None
-        if consider_user is not False:
-            current_user = session_services.get_safe_cacheable_current_user()
+        component_key = None
 
-        component_key = session_services.get_safe_component_custom_key()
+        if current_request is not None:
+            consider_user = options.get('consider_user', self.consider_user)
+            if consider_user is not False:
+                current_user = current_request.cacheable_user
 
-        cacheable_inputs, parent = func_utils.get_inputs(func, inputs, kw_inputs,
-                                                         CacheableDict)
+            component_key = current_request.component_custom_key
+            timezone = current_request.timezone.zone
+            locale = current_request.locale
+
+        cacheable_inputs, parent = func_utils.get_inputs(func, inputs,
+                                                         kw_inputs, CacheableDict)
 
         parent_type, name = super()._generate_key(func, parent, *args, **options)
 
-        return parent_type, name, cacheable_inputs, current_user, component_key
+        return parent_type, name, cacheable_inputs, \
+            current_user, component_key, timezone, locale
