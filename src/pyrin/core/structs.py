@@ -159,7 +159,6 @@ class DTO(dict):
     context class for storing objects in every layer.
 
     it's actually a dictionary with the capability to treat keys as instance attributes.
-    this class's objects are hashable and could be used as a dict key if needed.
     """
 
     def __getattr__(self, name):
@@ -176,33 +175,6 @@ class DTO(dict):
 
     def __setattr__(self, name, value):
         self[name] = value
-
-    def __hash__(self):
-        signature = None
-        try:
-            # try to sort by keys if all keys are same type.
-            signature = sorted(self.items())
-        except TypeError:
-            # fallback to unsorted keys when key types are incomparable.
-            signature = self.items()
-        return hash(tuple(signature))
-
-    def __eq__(self, other):
-        if not isinstance(other, DTO):
-            return False
-
-        self_len = len(self)
-        other_len = len(other)
-        if self_len != other_len:
-            return False
-
-        if self_len == 0:
-            return True
-
-        return hash(self) == hash(other)
-
-    def __ne__(self, other):
-        return not self == other
 
 
 class CoreObject(object):
