@@ -6,6 +6,7 @@ schema result module.
 from copy import deepcopy
 
 import pyrin.converters.serializer.services as serializer_services
+import pyrin.configuration.services as config_services
 
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.core.structs import CoreObject
@@ -16,9 +17,6 @@ class ResultSchema(CoreObject):
     """
     result schema class.
     """
-
-    DEFAULT_INDEX_NAME = 'row_num'
-    DEFAULT_START_INDEX = 1
 
     def __init__(self, **options):
         """
@@ -165,6 +163,9 @@ class ResultSchema(CoreObject):
         indexed = options.get('indexed')
         index_name = options.get('index_name')
         start_index = options.get('start_index')
+
+        self._default_index_name = config_services.get('api', 'schema', 'index_name')
+        self._default_start_index = config_services.get('api', 'schema', 'start_index')
 
         self._columns = columns
         self._rename = rename
@@ -391,7 +392,7 @@ class ResultSchema(CoreObject):
         """
 
         if value is None:
-            value = self.DEFAULT_INDEX_NAME
+            value = self._default_index_name
 
         self._index_name = value
 
@@ -414,7 +415,7 @@ class ResultSchema(CoreObject):
         """
 
         if value is None:
-            value = self.DEFAULT_START_INDEX
+            value = self._default_start_index
 
         if not isinstance(value, int):
             raise InvalidStartIndexError('The "start_index" attribute of [{schema}] '

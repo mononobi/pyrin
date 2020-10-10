@@ -12,3 +12,4 @@ class SchemaPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.configuration']

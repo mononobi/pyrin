@@ -4,8 +4,8 @@ serializer handlers list module.
 """
 
 import pyrin.converters.serializer.services as serializer_services
+import pyrin.configuration.services as config_services
 
-from pyrin.api.schema.result import ResultSchema
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
 
@@ -15,6 +15,18 @@ class ListSerializer(SerializerBase):
     """
     list serializer class.
     """
+
+    def __init__(self, *args, **options):
+        """
+        initializes an instance of ListSerializer.
+
+        :param object args: constructor arguments.
+        """
+
+        super().__init__(*args, **options)
+
+        self._default_index_name = config_services.get('api', 'schema', 'index_name')
+        self._default_start_index = config_services.get('api', 'schema', 'start_index')
 
     def _serialize(self, value, **options):
         """
@@ -43,8 +55,8 @@ class ListSerializer(SerializerBase):
             return []
 
         indexed = options.get('indexed', False)
-        index_name = options.get('index_name', ResultSchema.DEFAULT_INDEX_NAME)
-        start_index = options.get('start_index', ResultSchema.DEFAULT_START_INDEX)
+        index_name = options.get('index_name', self._default_index_name)
+        start_index = options.get('start_index', self._default_start_index)
         result = []
 
         # if indexing is requested, all items must be a dict after serialization.

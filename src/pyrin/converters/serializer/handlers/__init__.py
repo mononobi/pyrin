@@ -12,4 +12,5 @@ class SerializerHandlersPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
+    DEPENDS = ['pyrin.configuration',
+               'pyrin.api']
