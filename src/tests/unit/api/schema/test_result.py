@@ -7,7 +7,7 @@ import pytest
 
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
-from pyrin.database.model.exceptions import ColumnNotExistedError, InvalidDepthProvidedError
+from pyrin.database.model.exceptions import InvalidDepthProvidedError
 
 from tests.unit.common.generator import generate_row_results, generate_entity_results
 from tests.unit.common.models import RightChildEntity, SampleWithHiddenFieldEntity, \
@@ -235,7 +235,7 @@ def test_filter_rows_with_columns_exclude_rename():
 def test_filter_rows_with_invalid_columns():
     """
     filters row results using given schema which has
-    invalid columns attribute. it should raise an error.
+    invalid columns attribute. it should not raise an error.
     """
 
     columns = ['id', 'name', 'age', 'extra', 'fake_column', 'not_available']
@@ -245,8 +245,7 @@ def test_filter_rows_with_invalid_columns():
                                    ['id', 'name', 'extra', 'age'],
                                    [1, 'some_name', 'some_extra', 20])
 
-    with pytest.raises(ColumnNotExistedError):
-        filtered = schema.filter(results)
+    schema.filter(results)
 
 
 def test_filter_rows_with_columns_and_invalid_exclude_rename():
@@ -277,16 +276,16 @@ def test_filter_rows_with_columns_and_invalid_exclude_rename():
 
 def test_filter_invalid_items():
     """
-    filters the item which is not valid. it should return the same input value.
+    filters the item which is not valid. it should return a list equal to input list.
     """
 
     schema = ResultSchema(depth=5)
-    results = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+    results = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}]
     filtered = schema.filter(results)
 
     assert len(filtered) == len(results)
-    assert filtered is results
-    assert all(isinstance(item, tuple) for item in filtered)
+    assert filtered == results
+    assert all(isinstance(item, set) for item in filtered)
 
 
 def test_filter_none_item():
@@ -466,16 +465,14 @@ def test_filter_entities_with_columns_exclude_rename():
 def test_filter_entities_with_invalid_columns():
     """
     filters entity results using given schema which has
-    invalid columns attribute. it should raise an error.
+    invalid columns attribute. it should not raise an error.
     """
 
     columns = ['id', 'name', 'age', 'extra', 'fake_column', 'not_available']
     schema = ResultSchema(columns=columns)
     kwargs = dict(id=1, age=25, grade=5)
     results = generate_entity_results(RightChildEntity, 20, **kwargs, populate_all=SECURE_TRUE)
-
-    with pytest.raises(ColumnNotExistedError):
-        filtered = schema.filter(results)
+    schema.filter(results)
 
 
 def test_filter_entities_with_columns_and_invalid_exclude_rename():
