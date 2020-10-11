@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 import pytz
 import aniso8601
 
+import pyrin.security.session.services as session_services
+
 
 # default iso datetime regular expression pattern with utc offset.
 # example: '2015-12-24T23:40:15+03:30' or '2015-12-24T23:40:15.8965+03:30'
@@ -211,7 +213,20 @@ def trunc(value):
     :rtype: datetime
     """
 
-    return datetime(value.year, value.month, value.day)
+    tz = None
+    if isinstance(value, datetime) and value.tzinfo is not None:
+        tz = value.tzinfo
+
+    if tz is None:
+        current_request = session_services.get_safe_current_request()
+        if current_request is not None:
+            tz = current_request.timezone
+
+    result = datetime(value.year, value.month, value.day, tzinfo=None)
+    if tz is None:
+        return result
+
+    return tz.localize(result)
 
 
 def begin_of_day(value):

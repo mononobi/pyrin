@@ -7,7 +7,6 @@ from sqlalchemy.sql import Select
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.operators import ColumnOperators
 
-import pyrin.globalization.datetime.services as datetime_services
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.misc as misc_utils
 
@@ -157,12 +156,6 @@ class CoreColumnOperators(ColumnOperators):
 
         if consider_end_of_day is True:
             cright = datetime_utils.end_of_day(cright)
-
-        if consider_begin_of_day is True and cleft.tzinfo is None:
-            cleft = datetime_services.localize(cleft, server=False)
-
-        if consider_end_of_day is True and cright.tzinfo is None:
-            cright = datetime_services.localize(cright, server=False)
 
         # swapping values in case of user mistake.
         if type(cleft) is type(cright) and cleft > cright:
