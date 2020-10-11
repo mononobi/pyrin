@@ -172,7 +172,7 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         if matching_pattern == DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX:
             replace_server = False
 
-        converted_datetime = datetime_services.to_datetime(value, server=True,
+        converted_datetime = datetime_services.to_datetime(value, server=False,
                                                            replace_server=replace_server)
         if converted_datetime is not None:
             return converted_datetime
