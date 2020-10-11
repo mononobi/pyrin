@@ -3,20 +3,18 @@
 caching local containers dict module.
 """
 
+from collections import OrderedDict
+
 from pyrin.caching.local.containers.base import LocalCacheContainerBase
-from pyrin.core.compat import PythonOrderedDict
 
 
-class OrderedDictContainer(PythonOrderedDict, LocalCacheContainerBase):
+class OrderedDictContainer(OrderedDict, LocalCacheContainerBase):
     """
     ordered dict container class.
 
     it is actually a regular ordered dict.
     it is inherited from `OrderedDict` instead of `dict` to let efficiently
     remove items in `FIFO` or `LIFO` order when items count limit is reached.
-
-    note that as OrderedDict implementation is in C, we could not subclass
-    it normally. so we have to use the python implementation of OrderedDict.
     """
 
     def set(self, key, value, *args, **kwargs):

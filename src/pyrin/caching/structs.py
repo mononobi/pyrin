@@ -3,23 +3,18 @@
 caching structs module.
 """
 
-from pyrin.core.compat import PythonOrderedDict
+from collections import OrderedDict
+
 from pyrin.core.globals import LIST_TYPES
 from pyrin.caching.globals import NOT_HASHABLE_TYPES
-from pyrin.core.structs import CoreImmutableDict
 
 
-class CacheableDict(PythonOrderedDict, CoreImmutableDict):
+class CacheableDict(OrderedDict):
     """
     cacheable dict class.
 
     this class is a normal ordered dict but it is hashable and could
     be used as dict key.
-    note that this type is immutable. meaning that values or
-    keys of dict could not be changed after initialization.
-
-    note that as OrderedDict implementation is in C, we could not subclass
-    it normally. so we have to use the python implementation of OrderedDict.
     """
 
     def __init__(self, mapping=None, **kwargs):
