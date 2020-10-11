@@ -27,7 +27,7 @@ from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
     ViewFunctionParamsError, RequestLimitOrLifetimeRequiredError, InvalidRequestLimitError, \
-    InvalidLifetimeError, URLNotFoundError
+    InvalidLifetimeError, URLNotFoundError, ViewFunctionRequiredParamsError
 
 
 class RouteBase(Rule):
@@ -355,6 +355,7 @@ class RouteBase(Rule):
 
         :raises LargeContentError: large content error.
         :raises ViewFunctionParamsError: view function params error.
+        :raises ViewFunctionRequiredParamsError: view function required params error.
 
         :returns: view function's result.
         :rtype: object
@@ -599,6 +600,7 @@ class RouteBase(Rule):
         :param dict inputs: view function inputs.
 
         :raises ViewFunctionParamsError: view function params error.
+        :raises ViewFunctionRequiredParamsError: view function required params error.
 
         :returns: view function's result.
         :rtype: object
@@ -618,17 +620,14 @@ class RouteBase(Rule):
         """
         checks that all required arguments for this route are present in inputs.
 
-        :raises ViewFunctionParamsError: view function params error.
+        :raises ViewFunctionRequiredParamsError: view function required params error.
         """
 
-        not_present = []
-        for item in self._required_arguments:
-            if item not in inputs:
-                not_present.append(item)
+        not_present = self._required_arguments.difference(set(inputs.keys()))
 
         if len(not_present) > 0:
-            raise ViewFunctionParamsError(_('These parameters are required: {params}')
-                                          .format(params=not_present))
+            raise ViewFunctionRequiredParamsError(_('These values are required: {params}')
+                                                  .format(params=list(not_present)))
 
     @property
     def view_function(self):
@@ -645,7 +644,7 @@ class RouteBase(Rule):
         """
         gets this route's required arguments.
 
-        :rtype: tuple[str]
+        :rtype: set[str]
         """
 
         return self._required_arguments

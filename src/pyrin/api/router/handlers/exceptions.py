@@ -105,6 +105,13 @@ class ViewFunctionParamsError(BadRequestError,
     pass
 
 
+class ViewFunctionRequiredParamsError(ViewFunctionParamsError):
+    """
+    view function required params error.
+    """
+    pass
+
+
 class InvalidRequestLimitError(RouterHandlerException):
     """
     invalid request limit error.

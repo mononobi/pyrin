@@ -712,6 +712,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :raises AuthenticationFailedError: authentication failed error.
         :raises LargeContentError: large content error.
         :raises ViewFunctionParamsError: view function params error.
+        :raises ViewFunctionRequiredParamsError: view function required params error.
         """
 
         # we have to override whole `dispatch_request` method to be able to

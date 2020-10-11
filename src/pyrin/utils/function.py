@@ -93,11 +93,11 @@ def get_inputs(func, args, kwargs, container=dict, **options):
 
 def get_required_arguments(func):
     """
-    gets a tuple of all required arguments of given function.
+    gets all required arguments of given function.
 
     :param function func: function to get its required arguments names.
 
-    :rtype: tuple[str]
+    :rtype: set[str]
     """
 
     signature = inspect.signature(func)
@@ -110,4 +110,4 @@ def get_required_arguments(func):
             if item.default is Parameter.empty:
                 result.append(name)
 
-    return tuple(result)
+    return set(result)
