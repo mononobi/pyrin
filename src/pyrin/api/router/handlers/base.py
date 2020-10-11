@@ -15,6 +15,7 @@ import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.headers as header_utils
+import pyrin.utils.function as func_utils
 
 from pyrin.core.globals import _
 from pyrin.database.paging.paginator import SimplePaginator
@@ -242,6 +243,7 @@ class RouteBase(Rule):
                                                .format(function=full_name,
                                                        url=self.rule))
 
+        self._required_arguments = func_utils.get_required_arguments(self._view_function)
         self._result_schema = self._extract_schema(**options)
         self._no_cache = options.get('no_cache', False)
 
@@ -602,6 +604,7 @@ class RouteBase(Rule):
         :rtype: object
         """
 
+        self._check_required_arguments(inputs)
         try:
             return self.view_function(**inputs)
         except TypeError as error:
@@ -610,6 +613,22 @@ class RouteBase(Rule):
 
             raise ViewFunctionParamsError(_('The browser (or proxy) sent a request '
                                             'that this server could not understand.'))
+
+    def _check_required_arguments(self, inputs):
+        """
+        checks that all required arguments for this route are present in inputs.
+
+        :raises ViewFunctionParamsError: view function params error.
+        """
+
+        not_present = []
+        for item in self._required_arguments:
+            if item not in inputs:
+                not_present.append(item)
+
+        if len(not_present) > 0:
+            raise ViewFunctionParamsError(_('These parameters are required: {params}')
+                                          .format(params=not_present))
 
     @property
     def view_function(self):
@@ -620,6 +639,16 @@ class RouteBase(Rule):
         """
 
         return self._view_function
+
+    @property
+    def required_arguments(self):
+        """
+        gets this route's required arguments.
+
+        :rtype: tuple[str]
+        """
+
+        return self._required_arguments
 
     @property
     def max_content_length(self):

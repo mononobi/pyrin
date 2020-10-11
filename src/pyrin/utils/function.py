@@ -5,6 +5,8 @@ utils function module.
 
 import inspect
 
+from inspect import Parameter
+
 
 def get_doc(func, include_returns=True):
     """
@@ -87,3 +89,25 @@ def get_inputs(func, args, kwargs, container=dict, **options):
     parent = bounded_args.arguments.pop('cls', parent)
 
     return container(bounded_args.arguments), parent
+
+
+def get_required_arguments(func):
+    """
+    gets a tuple of all required arguments of given function.
+
+    :param function func: function to get its required arguments names.
+
+    :rtype: tuple[str]
+    """
+
+    signature = inspect.signature(func)
+    result = []
+    for name, item in signature.parameters.items():
+        if item.kind in (Parameter.POSITIONAL_ONLY,
+                         Parameter.POSITIONAL_OR_KEYWORD,
+                         Parameter.KEYWORD_ONLY):
+
+            if item.default is Parameter.empty:
+                result.append(name)
+
+    return tuple(result)
