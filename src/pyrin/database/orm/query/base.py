@@ -5,7 +5,7 @@ orm query base module.
 
 import inspect
 
-from sqlalchemy import inspection, log, func
+from sqlalchemy import inspection, log, func, literal
 from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
@@ -226,3 +226,16 @@ class CoreQuery(Query):
 
         limit, offset = paging_services.get_paging_keys(**options)
         return self.limit(limit).offset(offset)
+
+    def existed(self):
+        """
+        gets a value indicating that current query has any results.
+
+        this is a helper method to simplify the use of `.exists` method of sqlalchemy.
+
+        :rtype: bool
+        """
+
+        store = get_current_store()
+        result = store.query(literal(True)).filter(self.exists()).scalar()
+        return result is True
