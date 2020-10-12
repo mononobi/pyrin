@@ -27,6 +27,7 @@ import pyrin.globalization.datetime.services as datetime_services
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.function as func_utils
 
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
@@ -952,6 +953,17 @@ class MagicMethodMixin(CoreObject):
                                                   pk=self.primary_key()))
 
         return super().__hash__()
+
+    def __reduce__(self):
+        """
+        gets the reduced version of this entity for pickling.
+
+        :rtype: tuple[function, tuple[type[BaseEntity], tuple, dict]]
+        """
+
+        kwargs = self.to_dict(exposed_only=SECURE_FALSE)
+        kwargs.update(populate_all=SECURE_TRUE)
+        return func_utils.apply, (self.__class__, (), kwargs)
 
     def __repr__(self):
         """

@@ -111,3 +111,17 @@ def get_required_arguments(func):
                 result.append(name)
 
     return set(result)
+
+
+def apply(func, args, kwargs):
+    """
+    a helper method that applies args and kwargs to given function and gets the result.
+
+    :param function func: function to be used.
+    :param tuple args: function positional arguments.
+    :param dict kwargs: function keyword arguments.
+
+    :returns: function result
+    """
+
+    return func(*args, **kwargs)
