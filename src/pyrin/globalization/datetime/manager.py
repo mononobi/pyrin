@@ -54,18 +54,26 @@ class DateTimeManager(Manager):
 
         return localized_value
 
-    def now(self, server=False):
+    def now(self, server=True, timezone=None):
         """
-        gets the current datetime based on server or client timezone.
+        gets the current datetime based on requested timezone.
 
         :param bool server: if set to True, server timezone will be used.
                             if set to False, client timezone will be used.
-                            defaults to False.
+                            defaults to True.
+
+        :param str timezone: timezone name to get datetime based on it.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
 
         :rtype: datetime
         """
 
-        timezone = self.get_current_timezone(server=server)
+        if timezone not in (None, ''):
+            timezone = self.get_timezone(timezone)
+        else:
+            timezone = self.get_current_timezone(server=server)
+
         return datetime.now(timezone)
 
     def get_default_client_timezone(self):
@@ -296,17 +304,21 @@ class DateTimeManager(Manager):
         return timezone_name in pytz.all_timezones_set
 
     def get_current_timestamp(self, date_sep='-', main_sep=' ',
-                              time_sep=':', timezone=None):
+                              time_sep=':', server=True, timezone=None):
         """
-        gets the current timestamp with specified separators based on given timezone.
+        gets the current timestamp with specified separators based on requested timezone.
 
         :param str date_sep: a separator to put between date elements.
         :param str main_sep: a separator to put between date and time part.
         :param str time_sep: a separator to put between time elements.
 
-        :param str timezone: timezone name to get current timestamp
-                             based on it. if not provided, defaults
-                             to application current timezone.
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to True.
+
+        :param str timezone: timezone name to get datetime based on it.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
 
         :rtype: str
         """
@@ -318,7 +330,7 @@ class DateTimeManager(Manager):
         if time_sep is None:
             time_sep = ''
 
-        current = self.now(timezone)
+        current = self.now(server=server, timezone=timezone)
         return '{year}{date_sep}{month}{date_sep}{day}{main_sep}' \
                '{hour}{time_sep}{minute}{time_sep}{second}'.format(
                 year=str(current.year).zfill(4),

@@ -7,18 +7,22 @@ from pyrin.application.services import get_component
 from pyrin.globalization.datetime import DateTimePackage
 
 
-def now(server=False):
+def now(server=True, timezone=None):
     """
-    gets the current datetime based on server or client timezone.
+    gets the current datetime based on requested timezone.
 
     :param bool server: if set to True, server timezone will be used.
                         if set to False, client timezone will be used.
-                        defaults to False.
+                        defaults to True.
+
+    :param str timezone: timezone name to get datetime based on it.
+                         if provided, the value of `server` input
+                         will be ignored. defaults to None.
 
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).now(server)
+    return get_component(DateTimePackage.COMPONENT_NAME).now(server, timezone)
 
 
 def get_default_client_timezone():
@@ -242,17 +246,21 @@ def timezone_exists(timezone_name):
 
 
 def get_current_timestamp(date_sep='-', main_sep=' ',
-                          time_sep=':', timezone=None):
+                          time_sep=':', server=True, timezone=None):
     """
-    gets the current timestamp with specified separators based on given timezone.
+    gets the current timestamp with specified separators based on requested timezone.
 
     :param str date_sep: a separator to put between date elements.
     :param str main_sep: a separator to put between date and time part.
     :param str time_sep: a separator to put between time elements.
 
-    :param str timezone: timezone name to get current timestamp
-                         based on it. if not provided, defaults
-                         to application current timezone.
+    :param bool server: if set to True, server timezone will be used.
+                        if set to False, client timezone will be used.
+                        defaults to True.
+
+    :param str timezone: timezone name to get datetime based on it.
+                         if provided, the value of `server` input
+                         will be ignored. defaults to None.
 
     :rtype: str
     """
@@ -260,4 +268,5 @@ def get_current_timestamp(date_sep='-', main_sep=' ',
     return get_component(DateTimePackage.COMPONENT_NAME).get_current_timestamp(date_sep,
                                                                                main_sep,
                                                                                time_sep,
+                                                                               server,
                                                                                timezone)

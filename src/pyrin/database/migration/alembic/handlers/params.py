@@ -4,6 +4,7 @@ alembic handlers params module.
 """
 
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.configuration.services as config_services
 
 from pyrin.cli.arguments import BooleanArgument, KeywordArgument, PositionalArgument
 from pyrin.database.migration.alembic.interface import AlembicCLIParamBase
@@ -162,9 +163,11 @@ class MessageParam(KeywordArgument, AlembicCLIParamBase):
         """
 
         if options.get('message', None) is None:
+            timezone = config_services.get('alembic', 'alembic', 'timezone')
             message = datetime_services.get_current_timestamp(date_sep=None,
                                                               main_sep=None,
-                                                              time_sep=None)
+                                                              time_sep=None,
+                                                              timezone=timezone)
             options.update(message=message)
 
         return super()._process_inputs(**options)
