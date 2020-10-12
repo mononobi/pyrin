@@ -7,17 +7,18 @@ from pyrin.application.services import get_component
 from pyrin.globalization.datetime import DateTimePackage
 
 
-def now(timezone=None):
+def now(server=False):
     """
-    gets the current datetime based on given timezone name.
+    gets the current datetime based on server or client timezone.
 
-    :param str timezone: timezone name to get current datetime based on it.
-                         if not provided, defaults to server current timezone.
+    :param bool server: if set to True, server timezone will be used.
+                        if set to False, client timezone will be used.
+                        defaults to False.
 
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).now(timezone)
+    return get_component(DateTimePackage.COMPONENT_NAME).now(server)
 
 
 def get_default_client_timezone():

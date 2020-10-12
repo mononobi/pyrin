@@ -54,21 +54,18 @@ class DateTimeManager(Manager):
 
         return localized_value
 
-    def now(self, timezone=None):
+    def now(self, server=False):
         """
-        gets the current datetime based on given timezone name.
+        gets the current datetime based on server or client timezone.
 
-        :param str timezone: timezone name to get current datetime based on it.
-                             if not provided, defaults to server current timezone.
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to False.
 
         :rtype: datetime
         """
 
-        if timezone is None:
-            timezone = self.get_current_timezone(server=True)
-        else:
-            timezone = self.get_timezone(timezone)
-
+        timezone = self.get_current_timezone(server=server)
         return datetime.now(timezone)
 
     def get_default_client_timezone(self):
