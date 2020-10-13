@@ -201,6 +201,10 @@ class RouteBase(Rule):
         methods = misc_utils.make_iterable(methods, tuple)
         options.update(methods=methods)
 
+        self._namespace = config_services.get('api', 'general', 'namespace', default=None)
+        if self._namespace not in (None, '') and not self._namespace.isspace():
+            rule = '{namespace}{rule}'.format(namespace=self._namespace, rule=rule)
+
         # we should call super method with exact param names because it
         # does not have `**options` in it's signature and raises an error
         # if extra keywords passed to it.
