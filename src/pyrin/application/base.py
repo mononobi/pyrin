@@ -666,9 +666,9 @@ class Application(Flask, HookMixin, SignalMixin,
         runs the Application instance.
 
         :param str host: the hostname to listen on. set this to `0.0.0.0` to
-                         have the server available externally as well. defaults to
-                         `127.0.0.1` or the host in the `SERVER_NAME`
-                         config variable if present.
+                         have the server available externally as well. defaults
+                         to `127.0.0.1` or the host in the `SERVER_NAME` config
+                         variable if present.
 
         :param int port: the port of the webserver. defaults to `5000` or the
                          port defined in the `SERVER_NAME` config variable if present.
@@ -698,7 +698,27 @@ class Application(Flask, HookMixin, SignalMixin,
 
         self._before_application_run()
         self._set_status(ApplicationStatusEnum.RUNNING)
+        host, port = self._get_communication_configs(host, port)
         super().run(host, port, debug, load_dotenv, **options)
+
+    def _get_communication_configs(self, host, port):
+        """
+        gets the host and port to use for application.
+
+        :param str host: host name or ip address.
+        :param int port: port number.
+
+        :returns: tuple[str host, int port]
+        :rtype: tuple[str, int]
+        """
+
+        if host in (None, ''):
+            host = config_services.get_active('communication', 'server_host')
+
+        if port is None:
+            port = config_services.get_active('communication', 'server_port')
+
+        return host, port
 
     def dispatch_request(self):
         """
