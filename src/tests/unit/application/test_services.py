@@ -568,7 +568,7 @@ def test_all_configs_available():
 
     app_configs = application_services.get_configs()
     assert all(name in app_configs for name in ['TITLE', 'ENCODING', 'FLASK_LOG_LEVEL',
-                                                'SERVER_NAME', 'SERVER_IP', 'SERVER_PORT',
+                                                'SERVER_NAME', 'SERVER_HOST', 'SERVER_PORT',
                                                 'SERVER_PROTOCOL', 'ENV', 'DEBUG',
                                                 'TESTING', 'UNIT_TESTING'])
 
@@ -583,9 +583,9 @@ def test_all_configs_values():
     assert app_configs['TITLE'] == 'pyrin_unit_tests'
     assert app_configs['ENCODING'] == 'utf-8'
     assert app_configs['FLASK_LOG_LEVEL'] == 'DEBUG'
-    assert app_configs['SERVER_NAME'] == 'pyrin.server:9083'
-    assert app_configs['SERVER_IP'] == '127.0.0.1'
-    assert app_configs['SERVER_PORT'] == 9083
+    assert app_configs['SERVER_NAME'] is None
+    assert app_configs['SERVER_HOST'] == '127.0.0.1'
+    assert app_configs['SERVER_PORT'] == 5001
     assert app_configs['SERVER_PROTOCOL'] == 'ssl'
     assert app_configs['ENV'] == 'testing'
     assert app_configs['DEBUG'] is False
