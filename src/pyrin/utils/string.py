@@ -75,3 +75,18 @@ def interpolate(message, data):
         return message
 
     return message.format(**data)
+
+
+def sort_by_length(items, reverse=False):
+    """
+    sorts the given list of strings by length of items.
+
+    :param list[str] items: list of strings to be sorted.
+
+    :param bool reverse: sort by descending length.
+                         defaults to False if not provided.
+
+    :rtype: list[str]
+    """
+
+    return sorted(items, key=len, reverse=reverse)
