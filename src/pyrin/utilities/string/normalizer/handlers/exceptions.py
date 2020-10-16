@@ -18,10 +18,3 @@ class InvalidStringNormalizerNameError(StringNormalizersException):
     invalid string normalizer name error.
     """
     pass
-
-
-class FiltersRequiredError(StringNormalizersException):
-    """
-    filters required error.
-    """
-    pass

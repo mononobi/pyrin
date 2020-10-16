@@ -9,6 +9,34 @@ from pyrin.utilities.string.normalizer.handlers.base import StringNormalizerBase
 
 
 @string_normalizer()
+class SpaceNormalizer(StringNormalizerBase):
+    """
+    space normalizer class.
+
+    this normalizer removes all spaces.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of SpaceNormalizer.
+        """
+
+        super().__init__(NormalizerEnum.SPACE, **options)
+
+    def _normalize(self, value, **options):
+        """
+        normalizes the given value.
+
+        :param str value: value to be normalized.
+
+        :returns: normalized value.
+        :rtype: str
+        """
+
+        return value.replace(' ', '')
+
+
+@string_normalizer()
 class DuplicateSpaceNormalizer(StringNormalizerBase):
     """
     duplicate space normalizer class.
@@ -37,31 +65,3 @@ class DuplicateSpaceNormalizer(StringNormalizerBase):
             value = value.replace('  ', ' ')
 
         return value
-
-
-@string_normalizer()
-class SpaceNormalizer(StringNormalizerBase):
-    """
-    space normalizer class.
-
-    this normalizer removes all spaces.
-    """
-
-    def __init__(self, **options):
-        """
-        initializes an instance of SpaceNormalizer.
-        """
-
-        super().__init__(NormalizerEnum.SPACE, **options)
-
-    def _normalize(self, value, **options):
-        """
-        normalizes the given value.
-
-        :param str value: value to be normalized.
-
-        :returns: normalized value.
-        :rtype: str
-        """
-
-        return value.replace(' ', '')

@@ -9,34 +9,6 @@ from pyrin.utilities.string.normalizer.handlers.base import StringNormalizerBase
 
 
 @string_normalizer()
-class LowercaseNormalizer(StringNormalizerBase):
-    """
-    lowercase normalizer class.
-
-    this normalizer makes the string lowercase.
-    """
-
-    def __init__(self, **options):
-        """
-        initializes an instance of LowercaseNormalizer.
-        """
-
-        super().__init__(NormalizerEnum.LOWERCASE, **options)
-
-    def _normalize(self, value, **options):
-        """
-        normalizes the given value.
-
-        :param str value: value to be normalized.
-
-        :returns: normalized value.
-        :rtype: str
-        """
-
-        return value.lower()
-
-
-@string_normalizer()
 class UppercaseNormalizer(StringNormalizerBase):
     """
     uppercase normalizer class.
@@ -91,3 +63,31 @@ class TitleCaseNormalizer(StringNormalizerBase):
         """
 
         return value.title()
+
+
+@string_normalizer()
+class LowercaseNormalizer(StringNormalizerBase):
+    """
+    lowercase normalizer class.
+
+    this normalizer makes the string lowercase.
+    """
+
+    def __init__(self, **options):
+        """
+        initializes an instance of LowercaseNormalizer.
+        """
+
+        super().__init__(NormalizerEnum.LOWERCASE, **options)
+
+    def _normalize(self, value, **options):
+        """
+        normalizes the given value.
+
+        :param str value: value to be normalized.
+
+        :returns: normalized value.
+        :rtype: str
+        """
+
+        return value.lower()

@@ -123,7 +123,7 @@ class StringNormalizerManager(Manager):
         :rtype: AbstractStringNormalizerBase
         """
 
-        if name is self._normalizers:
+        if name in self._normalizers:
             return self._normalizers.get(name)
 
         raise StringNormalizerDoesNotExistError('String normalizer with name [{name}] '

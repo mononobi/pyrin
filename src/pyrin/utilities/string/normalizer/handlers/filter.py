@@ -9,7 +9,6 @@ import pyrin.utils.string as string_utils
 
 from pyrin.utilities.string.normalizer.decorators import string_normalizer
 from pyrin.utilities.string.normalizer.enumerations import NormalizerEnum
-from pyrin.utilities.string.normalizer.handlers.exceptions import FiltersRequiredError
 from pyrin.utilities.string.normalizer.handlers.base import StringNormalizerBase, \
     ReplaceNormalizerBase
 
@@ -39,21 +38,18 @@ class FilterNormalizer(StringNormalizerBase):
         :keyword bool ignore_case: filter matches in case-insensitive way.
                                    defaults to True if not provided.
 
-        :raises FiltersRequiredError: filters required error.
-
         :returns: normalized value.
         :rtype: str
         """
+
+        filters = options.get('filters')
+        if filters is None:
+            return value
 
         flags = re.IGNORECASE
         ignore_case = options.get('ignore_case', True)
         if ignore_case is False:
             flags = 0
-
-        filters = options.get('filters')
-        if filters is None:
-            raise FiltersRequiredError('"filters" must be provided for [{name}] normalizer.'
-                                       .format(name=self.get_name()))
 
         filters = string_utils.sort_by_length(filters, reverse=True)
         for item in filters:
