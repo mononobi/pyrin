@@ -21,7 +21,7 @@ class SpaceNormalizer(StringNormalizerBase):
         initializes an instance of SpaceNormalizer.
         """
 
-        super().__init__(NormalizerEnum.SPACE, **options)
+        super().__init__(NormalizerEnum.SPACE, 120, **options)
 
     def _normalize(self, value, **options):
         """
@@ -49,7 +49,7 @@ class DuplicateSpaceNormalizer(StringNormalizerBase):
         initializes an instance of DuplicateSpaceNormalizer.
         """
 
-        super().__init__(NormalizerEnum.DUPLICATE_SPACE, **options)
+        super().__init__(NormalizerEnum.DUPLICATE_SPACE, 110, **options)
 
     def _normalize(self, value, **options):
         """

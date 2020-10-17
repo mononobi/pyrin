@@ -2,6 +2,7 @@
 """
 utils dictionary module.
 """
+from operator import itemgetter
 
 import pyrin.utils.string as string_utils
 
@@ -100,3 +101,16 @@ def remove_keys(value, prefix):
         result.pop(key, None)
 
     return result
+
+
+def sort_by_value(value, reverse=False):
+    """
+    sorts a dictionary by its values.
+
+    :param dict value: dict to be sorted.
+
+    :param bool reverse: sort by descending value.
+                         defaults to False if not provided.
+    """
+
+    return sorted(value.items(), key=lambda x: x[1], reverse=reverse)

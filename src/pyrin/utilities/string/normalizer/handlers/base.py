@@ -7,7 +7,8 @@ from abc import abstractmethod
 
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.utilities.string.normalizer.interface import AbstractStringNormalizerBase
-from pyrin.utilities.string.normalizer.handlers.exceptions import InvalidStringNormalizerNameError
+from pyrin.utilities.string.normalizer.handlers.exceptions import \
+    InvalidStringNormalizerNameError, InvalidStringNormalizerPriorityError
 
 
 class StringNormalizerBase(AbstractStringNormalizerBase):
@@ -15,7 +16,7 @@ class StringNormalizerBase(AbstractStringNormalizerBase):
     string normalizer base class.
     """
 
-    def __init__(self, name, *args, **options):
+    def __init__(self, name, priority, *args, **options):
         """
         initializes an instance of StringNormalizerBase.
 
@@ -23,7 +24,11 @@ class StringNormalizerBase(AbstractStringNormalizerBase):
                          the normalizer will be registered by this name
                          into available normalizers. it must be unique.
 
+        :param int priority: priority of this normalizer.
+                             normalizers with higher priority will be executed sooner.
+
         :raises InvalidStringNormalizerNameError: invalid string normalizer name error.
+        :raises InvalidStringNormalizerPriorityError: invalid string normalizer priority error.
         """
 
         super().__init__()
@@ -33,7 +38,13 @@ class StringNormalizerBase(AbstractStringNormalizerBase):
                                                    'provided for [{normalizer}].'
                                                    .format(normalizer=self))
 
+        if not isinstance(priority, int):
+            raise InvalidStringNormalizerPriorityError('String normalizer [{normalizer}] '
+                                                       'priority must be an integer.'
+                                                       .format(normalizer=name))
+
         self._set_name(name)
+        self._priority = priority
 
     def normalize(self, value, **options):
         """
@@ -75,6 +86,16 @@ class StringNormalizerBase(AbstractStringNormalizerBase):
 
         raise CoreNotImplementedError()
 
+    @property
+    def priority(self):
+        """
+        gets the priority of this normalizer.
+
+        :rtype: int
+        """
+
+        return self._priority
+
 
 class ReplaceNormalizerBase(StringNormalizerBase):
     """
@@ -83,7 +104,7 @@ class ReplaceNormalizerBase(StringNormalizerBase):
     this normalizer replaces or removes provided values from string.
     """
 
-    def __init__(self, name, replace_map, **options):
+    def __init__(self, name, priority, replace_map, **options):
         """
         initializes an instance of ReplaceNormalizerBase.
 
@@ -91,13 +112,17 @@ class ReplaceNormalizerBase(StringNormalizerBase):
                          the normalizer will be registered by this name
                          into available normalizers. it must be unique.
 
+        :param int priority: priority of this normalizer.
+                             normalizers with higher priority will be executed sooner.
+
         :param dict replace_map: a dict of keys and values to
                                  be used for replacement or removal.
 
         :raises InvalidStringNormalizerNameError: invalid string normalizer name error.
+        :raises InvalidStringNormalizerPriorityError: invalid string normalizer priority error.
         """
 
-        super().__init__(name, **options)
+        super().__init__(name, priority, **options)
 
         self._map = replace_map
         self._translation_table = str.maketrans(replace_map)

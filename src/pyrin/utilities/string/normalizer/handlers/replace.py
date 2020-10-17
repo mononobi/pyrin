@@ -24,7 +24,7 @@ class PersianNumberNormalizer(ReplaceNormalizerBase):
         replace_map = {'۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
                        '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'}
 
-        super().__init__(NormalizerEnum.PERSIAN_NUMBER, replace_map, **options)
+        super().__init__(NormalizerEnum.PERSIAN_NUMBER, 310, replace_map, **options)
 
 
 @string_normalizer()
@@ -43,7 +43,7 @@ class ArabicNumberNormalizer(ReplaceNormalizerBase):
         replace_map = {'٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
                        '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'}
 
-        super().__init__(NormalizerEnum.ARABIC_NUMBER, replace_map, **options)
+        super().__init__(NormalizerEnum.ARABIC_NUMBER, 320, replace_map, **options)
 
 
 @string_normalizer()
@@ -62,7 +62,7 @@ class PersianLetterNormalizer(ReplaceNormalizerBase):
         replace_map = {'ي': 'ی', 'ك': 'ک', 'إ': 'ا', 'أ': 'ا',
                        'ؤ': 'و', 'ۀ': 'ه', 'ة': 'ه', 'آ': 'ا'}
 
-        super().__init__(NormalizerEnum.PERSIAN_LETTER, replace_map, **options)
+        super().__init__(NormalizerEnum.PERSIAN_LETTER, 330, replace_map, **options)
 
 
 @string_normalizer()
@@ -96,4 +96,4 @@ class LatinLetterNormalizer(ReplaceNormalizerBase):
                        'Š': 'S', 'ť': 't', 'Ť': 'T', 'ž': 'z', 'Ž': 'Z',
                        'đ': 'd', 'Đ': 'D'}
 
-        super().__init__(NormalizerEnum.LATIN_LETTER, replace_map, **options)
+        super().__init__(NormalizerEnum.LATIN_LETTER, 340, replace_map, **options)

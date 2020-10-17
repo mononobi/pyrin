@@ -26,7 +26,7 @@ class FilterNormalizer(StringNormalizerBase):
         initializes an instance of FilterNormalizer.
         """
 
-        super().__init__(NormalizerEnum.FILTER, **options)
+        super().__init__(NormalizerEnum.FILTER, 430, **options)
 
     def _normalize(self, value, **options):
         """
@@ -74,7 +74,7 @@ class PersianSignFilterNormalizer(ReplaceNormalizerBase):
         replace_map = {'،': None, '؛': None, 'ـ': None,
                        '٬': None, '٪': None, '؟': None}
 
-        super().__init__(NormalizerEnum.PERSIAN_SIGN, replace_map, **options)
+        super().__init__(NormalizerEnum.PERSIAN_SIGN, 420, replace_map, **options)
 
 
 @string_normalizer()
@@ -97,4 +97,4 @@ class LatinSignFilterNormalizer(ReplaceNormalizerBase):
                        '|': None, '~': None, '?': None, '!': None, '/': None,
                        '\\': None, '<': None, '>': None, '[': None, ']': None}
 
-        super().__init__(NormalizerEnum.LATIN_SIGN, replace_map, **options)
+        super().__init__(NormalizerEnum.LATIN_SIGN, 410, replace_map, **options)

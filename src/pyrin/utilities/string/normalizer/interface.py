@@ -43,3 +43,16 @@ class AbstractStringNormalizerBase(CoreObject, metaclass=StringNormalizerSinglet
         """
 
         raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def priority(self):
+        """
+        gets the priority of this normalizer.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()

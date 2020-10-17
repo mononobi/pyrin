@@ -15,11 +15,12 @@ def normalize(value, *normalizers, **options):
 
     :param str normalizers: normalizer names to be used.
                             they will be used in the order of their appearance.
-                            if not provided, all normalizers will be used.
+                            if not provided, all normalizers will be used with
+                            the order of their priority attribute.
 
     :keyword list[str] filters: list of items to be removed from string.
                                 defaults to None. it will only be used
-                                for `custom_filter` normalizer.
+                                for `filter` normalizer.
 
     :keyword bool ignore_case: remove `filters` from string in case-insensitive
                                way. defaults to True if not provided.

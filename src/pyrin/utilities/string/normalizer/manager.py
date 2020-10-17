@@ -3,6 +3,10 @@
 string normalizer manager module.
 """
 
+from collections import OrderedDict
+
+import pyrin.utils.dictionary as dict_utils
+
 from pyrin.core.structs import Context, Manager
 from pyrin.utilities.string.normalizer import StringNormalizerPackage
 from pyrin.utilities.string.normalizer.enumerations import NormalizerEnum
@@ -31,6 +35,11 @@ class StringNormalizerManager(Manager):
         # example: dict(str name: AbstractStringNormalizerBase instance)
         self._normalizers = Context()
 
+        # a dictionary containing name of normalizers and their priority.
+        # values are ordered from max to min priority.
+        # example: dict(str name: int priority)
+        self._priorities = OrderedDict()
+
     def normalize(self, value, *normalizers, **options):
         """
         normalizes the given value.
@@ -39,11 +48,12 @@ class StringNormalizerManager(Manager):
 
         :param str normalizers: normalizer names to be used.
                                 they will be used in the order of their appearance.
-                                if not provided, all normalizers will be used.
+                                if not provided, all normalizers will be used with
+                                the order of their priority attribute.
 
         :keyword list[str] filters: list of items to be removed from string.
                                     defaults to None. it will only be used
-                                    for `custom_filter` normalizer.
+                                    for `filter` normalizer.
 
         :keyword bool ignore_case: remove `filters` from string in case-insensitive
                                    way. defaults to True if not provided.
@@ -58,7 +68,7 @@ class StringNormalizerManager(Manager):
         """
 
         if normalizers is None or len(normalizers) <= 0:
-            normalizers = self._normalizers.keys()
+            normalizers = self._priorities.keys()
 
         for name in normalizers:
             normalizer = self.get_normalizer(name)
@@ -111,6 +121,9 @@ class StringNormalizerManager(Manager):
                                       new_instance=instance))
 
         self._normalizers[instance.get_name()] = instance
+        self._priorities[instance.get_name()] = instance.priority
+        self._priorities = OrderedDict(dict_utils.sort_by_value(self._priorities,
+                                                                reverse=True))
 
     def get_normalizer(self, name, **options):
         """

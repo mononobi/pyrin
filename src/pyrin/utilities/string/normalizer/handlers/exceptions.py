@@ -18,3 +18,10 @@ class InvalidStringNormalizerNameError(StringNormalizersException):
     invalid string normalizer name error.
     """
     pass
+
+
+class InvalidStringNormalizerPriorityError(StringNormalizersException):
+    """
+    invalid string normalizer priority error.
+    """
+    pass
