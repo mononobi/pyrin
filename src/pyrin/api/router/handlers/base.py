@@ -628,10 +628,16 @@ class RouteBase(Rule):
         """
 
         not_present = self._required_arguments.difference(set(inputs.keys()))
+        present = self._required_arguments.difference(not_present)
+        not_present = list(not_present)
+
+        for item in present:
+            if inputs.get(item) is None:
+                not_present.append(item)
 
         if len(not_present) > 0:
             raise ViewFunctionRequiredParamsError(_('These values are required: {params}')
-                                                  .format(params=list(not_present)))
+                                                  .format(params=not_present))
 
     @property
     def view_function(self):
