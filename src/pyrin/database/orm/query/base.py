@@ -239,3 +239,47 @@ class CoreQuery(Query):
         store = get_current_store()
         result = store.query(literal(True)).filter(self.exists()).scalar()
         return result is True
+
+    def delete(self, synchronize_session=False):
+        """
+        performs a bulk delete query.
+
+        this method is overridden to provide the most performant
+        `synchronize_session` value as default value.
+
+        :param str | bool synchronize_session: session synchronization strategy.
+                                               it could be set to False, `fetch`
+                                               or `evaluate`. defaults to False.
+
+        :returns: count of affected rows
+        :rtype: int
+        """
+
+        return super().delete(synchronize_session=synchronize_session)
+
+    def update(self, values, synchronize_session=False, update_args=None):
+        """
+        performs a bulk update query.
+
+        this method is overridden to provide the most performant
+        `synchronize_session` value as default value.
+
+        :param values: a dictionary with attributes names, or alternatively
+                       mapped attributes or sql expressions, as keys, and
+                       literal values or sql expressions as values.
+
+        :param str | bool synchronize_session: session synchronization strategy.
+                                               it could be set to False, `fetch`
+                                               or `evaluate`. defaults to False.
+
+        :param update_args: optional dictionary, if present will be passed
+                            to the underlying `_expression.update` construct
+                            as the `**kw` for the object.
+
+        :returns: count of affected rows
+        :rtype: int
+        """
+
+        return super().update(values,
+                              synchronize_session=synchronize_session,
+                              update_args=update_args)
