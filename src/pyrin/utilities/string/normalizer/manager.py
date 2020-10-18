@@ -104,21 +104,20 @@ class StringNormalizerManager(Manager):
 
         if instance.get_name() in self._normalizers:
             old_instance = self._normalizers.get(instance.get_name())
-            if old_instance is not None:
-                replace = options.get('replace', False)
-                if replace is not True:
-                    raise DuplicatedStringNormalizerError('There is another registered '
-                                                          'string normalizer with name [{name}] '
-                                                          'but "replace" option is not set, so '
-                                                          'normalizer [{instance}] could not '
-                                                          'be registered.'
-                                                          .format(name=instance.get_name(),
-                                                                  instance=instance))
+            replace = options.get('replace', False)
+            if replace is not True:
+                raise DuplicatedStringNormalizerError('There is another registered '
+                                                      'string normalizer with name [{name}] '
+                                                      'but "replace" option is not set, so '
+                                                      'normalizer [{instance}] could not '
+                                                      'be registered.'
+                                                      .format(name=instance.get_name(),
+                                                              instance=instance))
 
-                print_warning('String normalizer [{old_instance}] is going '
-                              'to be replaced by [{new_instance}].'
-                              .format(old_instance=old_instance,
-                                      new_instance=instance))
+            print_warning('String normalizer [{old_instance}] is going '
+                          'to be replaced by [{new_instance}].'
+                          .format(old_instance=old_instance,
+                                  new_instance=instance))
 
         self._normalizers[instance.get_name()] = instance
         self._priorities[instance.get_name()] = instance.priority
