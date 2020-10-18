@@ -10,8 +10,8 @@ from pyrin.database.model.base import BaseEntity
 from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorNameIsRequiredError, \
-    ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValueError, \
-    InvalidValidatorDomainError, InvalidAcceptedTypeError, InvalidValidationExceptionTypeError
+    ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
+    InvalidAcceptedTypeError, InvalidValidationExceptionTypeError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -132,7 +132,6 @@ class ValidatorBase(AbstractValidatorBase):
                                 instance attribute if provided.
 
         :raises InvalidValueTypeError: invalid value type error.
-        :raises InvalidValueError: invalid value error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
         """
@@ -143,14 +142,8 @@ class ValidatorBase(AbstractValidatorBase):
 
         if value is not None:
             self._validate_type(value)
-            try:
-                self._validate(value, **options)
-            except ValidationError as error:
-                raise error
-            except Exception:
-                raise InvalidValueError(_('The provided value for '
-                                          '[{param_name}] is invalid.').
-                                        format(param_name=self.localized_name))
+            self._validate(value, **options)
+
         elif nullable is True:
             return
         else:
@@ -213,6 +206,19 @@ class ValidatorBase(AbstractValidatorBase):
                                                       '[{base}].'
                                                       .format(exception=exception,
                                                               base=ValidationError))
+
+    def _get_representation(self, value):
+        """
+        gets the string representable version of input value.
+
+        this method is intended to be overridden in subclasses for complex types.
+
+        :param object value: value to get its string representation.
+
+        :returns: string representable value.
+        """
+
+        return value
 
     @property
     def name(self):

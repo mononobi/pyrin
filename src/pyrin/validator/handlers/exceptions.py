@@ -74,13 +74,6 @@ class InvalidValueTypeError(HandlersValidationException):
     pass
 
 
-class InvalidValueError(HandlersValidationException):
-    """
-    invalid value error.
-    """
-    pass
-
-
 class ValueDoesNotMatchPatternError(HandlersValidationException):
     """
     value does not match pattern error.

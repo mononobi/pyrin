@@ -130,7 +130,8 @@ class MinimumValidator(ValidatorBase):
 
             raise self.minimum_value_error(
                 self.minimum_value_message.format(param_name=self.localized_name,
-                                                  minimum=self.accepted_minimum,
+                                                  minimum=
+                                                  self._get_representation(self.accepted_minimum),
                                                   or_equal=equality))
 
     @property
@@ -272,7 +273,8 @@ class MaximumValidator(ValidatorBase):
 
             raise self.maximum_value_error(
                 self.maximum_value_message.format(param_name=self.localized_name,
-                                                  maximum=self.accepted_maximum,
+                                                  maximum=
+                                                  self._get_representation(self.accepted_maximum),
                                                   or_equal=equality))
 
     @property
@@ -422,7 +424,8 @@ class RangeValidator(MinimumValidator, MaximumValidator):
 
             raise self.range_value_error(self.range_value_message.format(
                 param_name=self.localized_name,
-                lower=self.accepted_minimum, upper=self.accepted_maximum,
+                lower=self._get_representation(self.accepted_minimum),
+                upper=self._get_representation(self.accepted_maximum),
                 or_equal_min=equality_min, or_equal_max=equality_max))
 
 
@@ -505,7 +508,8 @@ class InValidator(ValidatorBase):
 
         if value not in self.valid_values:
             raise self.not_in_value_error(self.not_in_value_message.format(
-                param_name=self.localized_name, values=self.valid_values))
+                param_name=self.localized_name,
+                values=self._get_representation(self.valid_values)))
 
     @property
     def valid_values(self):
@@ -598,7 +602,8 @@ class NotInValidator(ValidatorBase):
 
         if value in self.invalid_values:
             raise self.in_value_error(self.in_value_message.format(
-                param_name=self.localized_name, values=self.invalid_values))
+                param_name=self.localized_name,
+                values=self._get_representation(self.invalid_values)))
 
     @property
     def invalid_values(self):
