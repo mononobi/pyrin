@@ -137,9 +137,16 @@ class InvalidValuesMustBeProvidedError(ValidatorHandlersException):
     pass
 
 
-class InvalidStringLengthError(HandlersValidationException):
+class LongStringLengthError(HandlersValidationException):
     """
-    invalid string length error.
+    long string length error.
+    """
+    pass
+
+
+class ShortStringLengthError(HandlersValidationException):
+    """
+    short string length error.
     """
     pass
 

@@ -7,7 +7,7 @@ import re
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.validator.handlers.exceptions import InvalidStringLengthError, \
+from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
     InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError, \
     MinimumLengthHigherThanMaximumLengthError, InvalidEmailError, InvalidIPv4Error, \
@@ -22,9 +22,12 @@ class StringValidator(ValidatorBase):
     invalid_type_error = ValueIsNotStringError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a string.')
-    invalid_length_error = InvalidStringLengthError
-    invalid_length_message = _('The provided value for [{param_name}] '
-                               'has an invalid length.')
+    long_length_error = LongStringLengthError
+    long_length_message = _('The provided value for [{param_name}] '
+                            'should have at most [{count}] characters.')
+    short_length_error = ShortStringLengthError
+    short_length_message = _('The provided value for [{param_name}] '
+                             'should have at least [{count}] characters.')
     blank_value_error = ValueCouldNotBeBlankError
     blank_value_message = _('The provided value for [{param_name}] '
                             'could not be blank.')
@@ -81,7 +84,8 @@ class StringValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
-        :raises InvalidStringLengthError: invalid string length error.
+        :raises LongStringLengthError: long string length error.
+        :raises ShortStringLengthError: short string length error.
         :raises ValueCouldNotBeBlankError: value could not be blank error.
         :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         :raises MinimumLengthHigherThanMaximumLengthError: minimum length higher than
@@ -122,7 +126,8 @@ class StringValidator(ValidatorBase):
         self._allow_blank = allow_blank
         self._allow_whitespace = allow_whitespace
 
-        self._validate_exception_type(self.invalid_length_error)
+        self._validate_exception_type(self.long_length_error)
+        self._validate_exception_type(self.short_length_error)
         self._validate_exception_type(self.blank_value_error)
         self._validate_exception_type(self.whitespace_value_error)
 
@@ -147,7 +152,8 @@ class StringValidator(ValidatorBase):
                                         over `allow_whitespace` instance attribute
                                         if provided.
 
-        :raises InvalidStringLengthError: invalid string length error.
+        :raises LongStringLengthError: long string length error.
+        :raises ShortStringLengthError: short string length error.
         :raises ValueCouldNotBeBlankError: value could not be blank error.
         :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         """
@@ -164,12 +170,12 @@ class StringValidator(ValidatorBase):
 
         length = len(value)
         if self.maximum_length is not None and length > self.maximum_length:
-            raise self.invalid_length_error(self.invalid_length_message.format(
-                param_name=self.localized_name))
+            raise self.long_length_error(self.long_length_message.format(
+                param_name=self.localized_name, count=self.maximum_length))
 
         if self.minimum_length is not None and length < self.minimum_length:
-            raise self.invalid_length_error(self.invalid_length_message.format(
-                param_name=self.localized_name))
+            raise self.short_length_error(self.short_length_message.format(
+                param_name=self.localized_name, count=self.minimum_length))
 
         if allow_blank is not True and length == 0:
             raise self.blank_value_error(self.blank_value_message.format(
@@ -307,7 +313,8 @@ class RegexValidator(StringValidator):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
-        :raises InvalidStringLengthError: invalid string length error.
+        :raises LongStringLengthError: long string length error.
+        :raises ShortStringLengthError: short string length error.
         :raises ValueCouldNotBeBlankError: value could not be blank error.
         :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         :raises InvalidRegularExpressionError: invalid regular expression error.
