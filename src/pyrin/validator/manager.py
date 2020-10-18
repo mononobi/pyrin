@@ -10,7 +10,7 @@ from pyrin.validator import ValidatorPackage
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.exceptions import InvalidValidatorTypeError, DuplicatedValidatorError, \
     ValidatorNotFoundError, ValidationError, InvalidEntityForValidationError, \
-    InvalidDataForValidationError
+    InvalidDataForValidationError, ValidatorDomainNotFoundError
 
 
 class ValidatorManager(Manager):
@@ -58,7 +58,7 @@ class ValidatorManager(Manager):
                                             .format(instance=instance,
                                                     base=AbstractValidatorBase))
 
-        domain_validators = self.get_domain_validators(instance.domain)
+        domain_validators = self._validators.get(instance.domain)
         if domain_validators is not None:
             old_instance = domain_validators.get(instance.name)
             if old_instance is not None:
@@ -92,14 +92,20 @@ class ValidatorManager(Manager):
         """
         gets all registered validators for given domain.
 
-        it returns None if no validator found for given domain.
+        it raises an error if domain does not exist.
 
         :param type[BaseEntity] | str domain: the domain to get its validators.
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+
         :rtype: dict[type[BaseEntity] | str, AbstractValidatorBase]
         """
+
+        if domain not in self._validators:
+            raise ValidatorDomainNotFoundError('Validator domain [{name}] does not exist.'
+                                               .format(name=domain))
 
         return self._validators.get(domain)
 
@@ -115,14 +121,13 @@ class ValidatorManager(Manager):
 
         :param str name: validator name to get.
 
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+
         :rtype: AbstractValidatorBase
         """
 
         domain_validators = self.get_domain_validators(domain)
-        if domain_validators is not None:
-            return domain_validators.get(name)
-
-        return None
+        return domain_validators.get(name)
 
     def validate_field(self, domain, name, value, **options):
         """
@@ -161,6 +166,7 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
 
@@ -198,7 +204,7 @@ class ValidatorManager(Manager):
         :keyword bool lazy: specifies that all values must be validated first and
                             then a cumulative error must be raised containing a dict
                             of all keys and their corresponding error messages.
-                            defaults to False if not provided.
+                            defaults to True if not provided.
 
         :keyword bool nullable: determines that provided values could be None.
 
@@ -221,18 +227,16 @@ class ValidatorManager(Manager):
                                         be considered in string validators.
 
         :raises InvalidDataForValidationError: invalid data for validation error.
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
         """
 
         if data is None:
-            raise InvalidDataForValidationError(_('Data for validation '
-                                                  'could not be None.'))
+            raise InvalidDataForValidationError(_('Data for validation could not be None.'))
 
         cumulative_errors = DTO()
-        lazy = options.get('lazy')
-        if lazy is None:
-            lazy = False
+        lazy = options.get('lazy', True)
 
         available_data = set(data.keys())
         validator_names = set()
@@ -246,13 +250,13 @@ class ValidatorManager(Manager):
                 self.validate_field(domain, name, data.get(name), **options)
 
             except ValidationError as error:
-                if lazy is not True:
+                if lazy is False:
                     raise error
                 else:
                     cumulative_errors[name] = error.description
 
         if len(cumulative_errors) > 0:
-            raise ValidationError(_('Validation failed with following errors.'),
+            raise ValidationError(_('Validation failed with some errors.'),
                                   data=cumulative_errors)
 
     def validate_entity(self, entity, **options):
@@ -266,7 +270,7 @@ class ValidatorManager(Manager):
         :keyword bool lazy: specifies that all fields must be validated first and
                             then a cumulative error must be raised containing a dict
                             of all field names and their corresponding error messages.
-                            defaults to False if not provided.
+                            defaults to True if not provided.
 
         :keyword bool nullable: determines that provided values could be None.
 
@@ -289,12 +293,12 @@ class ValidatorManager(Manager):
                                         be considered in string validators.
 
         :raises InvalidEntityForValidationError: invalid entity for validation error.
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
         """
 
         if entity is None:
-            raise InvalidEntityForValidationError(_('Entity for validation '
-                                                    'could not be None.'))
+            raise InvalidEntityForValidationError(_('Entity for validation could not be None.'))
 
         self.validate_dict(type(entity), entity.to_dict(), **options)

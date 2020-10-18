@@ -61,3 +61,10 @@ class InvalidEntityForValidationError(ValidationError):
     invalid entity for validation error.
     """
     pass
+
+
+class ValidatorDomainNotFoundError(ValidatorManagerException):
+    """
+    validator domain not found error.
+    """
+    pass

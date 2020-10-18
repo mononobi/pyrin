@@ -34,11 +34,13 @@ def get_domain_validators(domain):
     """
     gets all registered validators for given domain.
 
-    it returns None if no validator found for given domain.
+    it raises an error if domain does not exist.
 
     :param type[BaseEntity] | str domain: the domain to get its validators.
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
+
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
 
     :rtype: dict[type[BaseEntity] | str, AbstractValidatorBase]
     """
@@ -57,6 +59,8 @@ def get_validator(domain, name):
                                           subclass or a string name.
 
     :param str name: validator name to get.
+
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
 
     :rtype: AbstractValidatorBase
     """
@@ -101,6 +105,7 @@ def validate_field(domain, name, value, **options):
                                     considered valid. this argument will only
                                     be considered in string validators.
 
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
 
@@ -127,7 +132,7 @@ def validate_dict(domain, data, **options):
     :keyword bool lazy: specifies that all values must be validated first and
                         then a cumulative error must be raised containing a dict
                         of all keys and their corresponding error messages.
-                        defaults to False if not provided.
+                        defaults to True if not provided.
 
     :keyword bool nullable: determines that provided values could be None.
 
@@ -150,6 +155,7 @@ def validate_dict(domain, data, **options):
                                     be considered in string validators.
 
     :raises InvalidDataForValidationError: invalid data for validation error.
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
     """
@@ -169,7 +175,7 @@ def validate_entity(entity, **options):
     :keyword bool lazy: specifies that all fields must be validated first and
                         then a cumulative error must be raised containing a dict
                         of all field names and their corresponding error messages.
-                        defaults to False if not provided.
+                        defaults to True if not provided.
 
     :keyword bool nullable: determines that provided values could be None.
 
@@ -192,6 +198,7 @@ def validate_entity(entity, **options):
                                     be considered in string validators.
 
     :raises InvalidEntityForValidationError: invalid entity for validation error.
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
     """

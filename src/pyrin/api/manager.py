@@ -57,7 +57,8 @@ class APIManager(Manager, HookMixin):
 
         self._log_exception(exception)
         return response_services.make_exception_response(exception,
-                                                         request_id=self._get_request_id())
+                                                         request_id=self._get_request_id(),
+                                                         data=exception.data)
 
     def handle_server_error(self, exception):
         """
@@ -77,7 +78,8 @@ class APIManager(Manager, HookMixin):
         self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
             return response_services.make_exception_response(exception,
-                                                             request_id=self._get_request_id())
+                                                             request_id=self._get_request_id(),
+                                                             data=exception.data)
 
         return response_services.make_error_response(self._get_generic_error_message(),
                                                      code=exception.code,
