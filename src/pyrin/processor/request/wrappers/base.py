@@ -617,10 +617,7 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        if self._globalization_params is None:
-            self.get_query_strings(silent=True)
-
-        locale = self._globalization_params.get(self.LOCALE_PARAM_NAME, None)
+        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
         if locale not in (None, '') and locale_services.locale_exists(locale) is True:
             return locale
 
@@ -634,10 +631,7 @@ class CoreRequest(Request):
         :rtype: tzinfo
         """
 
-        if self._globalization_params is None:
-            self.get_query_strings(silent=True)
-
-        timezone_name = self._globalization_params.get(self.TIMEZONE_PARAM_NAME, None)
+        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
         if timezone_name not in (None, ''):
             try:
                 return datetime_services.get_timezone(timezone_name)
