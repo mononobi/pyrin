@@ -86,6 +86,7 @@ def validate_field(domain, name, value, **options):
                          raise an error. defaults to False if not provided.
 
     :keyword bool nullable: determines that provided value could be None.
+    :keyword bool is_list: specifies that the value must be a list of items.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -135,6 +136,7 @@ def validate_dict(domain, data, **options):
                         defaults to True if not provided.
 
     :keyword bool nullable: determines that provided values could be None.
+    :keyword bool is_list: specifies that the value must be a list of items.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -178,6 +180,7 @@ def validate_entity(entity, **options):
                         defaults to True if not provided.
 
     :keyword bool nullable: determines that provided values could be None.
+    :keyword bool is_list: specifies that the value must be a list of items.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.

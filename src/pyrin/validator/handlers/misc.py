@@ -61,6 +61,9 @@ class MinimumValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
                                          this value has precedence over `inclusive_minimum`
@@ -201,6 +204,9 @@ class MaximumValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :keyword bool inclusive_maximum: determines that values equal to
                                          accepted maximum should be considered valid.
                                          this value has precedence over `inclusive_maximum`
@@ -340,6 +346,9 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                      it must be passed using `_` method
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
+
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
 
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
@@ -484,6 +493,9 @@ class InValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
@@ -579,6 +591,9 @@ class NotInValidator(ValidatorBase):
                                      it must be passed using `_` method
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
+
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.

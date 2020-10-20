@@ -46,6 +46,13 @@ class ValueCouldNotBeNoneError(HandlersValidationException):
     pass
 
 
+class ValueIsNotListError(HandlersValidationException):
+    """
+    value is not list error.
+    """
+    pass
+
+
 class ValueIsLowerThanMinimumError(HandlersValidationException):
     """
     value is lower than minimum error.

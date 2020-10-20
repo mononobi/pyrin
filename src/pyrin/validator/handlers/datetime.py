@@ -51,6 +51,9 @@ class DateTimeValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -110,6 +113,9 @@ class DateValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -168,6 +174,9 @@ class TimeValidator(ValidatorBase):
                                      it must be passed using `_` method
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
+
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.

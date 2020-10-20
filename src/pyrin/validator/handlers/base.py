@@ -11,7 +11,7 @@ from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorNameIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
-    InvalidAcceptedTypeError, InvalidValidationExceptionTypeError
+    InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -26,9 +26,12 @@ class ValidatorBase(AbstractValidatorBase):
                              'is not an instance of {type}.')
     none_value_error = ValueCouldNotBeNoneError
     none_value_message = _('The provided value for [{param_name}] could not be None.')
+    not_list_error = ValueIsNotListError
+    not_list_message = _('The provided value for [{param_name}] must be a list of items.')
 
     default_nullable = None
     default_localized_name = None
+    default_is_list = False
 
     def __init__(self, domain, name, **options):
         """
@@ -63,6 +66,9 @@ class ValidatorBase(AbstractValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
@@ -87,6 +93,13 @@ class ValidatorBase(AbstractValidatorBase):
                 nullable = self.default_nullable
             else:
                 nullable = True
+
+        is_list = options.get('is_list')
+        if is_list is None:
+            if self.default_is_list is not None:
+                is_list = self.default_is_list
+            else:
+                is_list = False
 
         accepted_type = options.get('accepted_type')
         if accepted_type is not None and not isinstance(accepted_type, (type, tuple)):
@@ -114,6 +127,7 @@ class ValidatorBase(AbstractValidatorBase):
 
         self._validate_exception_type(self.invalid_type_error)
         self._validate_exception_type(self.none_value_error)
+        self._validate_exception_type(self.not_list_error)
 
         super().__init__()
         self._set_name(name)
@@ -121,6 +135,7 @@ class ValidatorBase(AbstractValidatorBase):
         self._nullable = nullable
         self._accepted_type = accepted_type
         self._localized_name = localized_name
+        self._is_list = is_list
 
     def validate(self, value, **options):
         """
@@ -134,6 +149,11 @@ class ValidatorBase(AbstractValidatorBase):
                                 this value has precedence over `nullable`
                                 instance attribute if provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               this value has precedence over `is_list`
+                               instance attribute if provided.
+
+        :raises ValueIsNotListError: value is not list error.
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
@@ -143,15 +163,27 @@ class ValidatorBase(AbstractValidatorBase):
         if nullable is None:
             nullable = self.nullable
 
-        if value is not None:
-            self._validate_type(value)
-            self._validate(value, **options)
+        is_list = options.pop('is_list', None)
+        if is_list is None:
+            is_list = self.is_list
 
-        elif nullable is True:
-            return
-        else:
-            raise self.none_value_error(
-                self.none_value_message.format(param_name=self.localized_name))
+        if is_list is True and not isinstance(value, list):
+            raise self.not_list_error(
+                self.not_list_message.format(param_name=self.localized_name))
+
+        if is_list is False:
+            value = [value]
+
+        for item in value:
+            if item is not None:
+                self._validate_type(item)
+                self._validate(item, **options)
+
+            elif nullable is True:
+                continue
+            else:
+                raise self.none_value_error(
+                    self.none_value_message.format(param_name=self.localized_name))
 
     def _validate(self, value, **options):
         """
@@ -332,3 +364,13 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._localized_name
+
+    @property
+    def is_list(self):
+        """
+        gets a value indicating that values must be a list of items.
+
+        :rtype: bool
+        """
+
+        return self._is_list

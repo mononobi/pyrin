@@ -69,6 +69,9 @@ class StringValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.
 
@@ -292,6 +295,9 @@ class RegexValidator(StringValidator):
                                      it must be passed using `_` method
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
+
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.
