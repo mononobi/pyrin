@@ -76,6 +76,18 @@ class DateTimeManager(Manager):
 
         return datetime.now(timezone)
 
+    def client_now(self):
+        """
+        gets the current datetime based on client timezone.
+
+        this is a helper method to let get the client datetime
+        without providing value to `now` method.
+
+        :rtype: datetime
+        """
+
+        return self.now(server=False)
+
     def get_default_client_timezone(self):
         """
         gets the default client timezone.

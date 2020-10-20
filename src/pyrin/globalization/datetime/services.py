@@ -25,6 +25,19 @@ def now(server=True, timezone=None):
     return get_component(DateTimePackage.COMPONENT_NAME).now(server, timezone)
 
 
+def client_now():
+    """
+    gets the current datetime based on client timezone.
+
+    this is a helper method to let get the client datetime
+    without providing value to `now` method.
+
+    :rtype: datetime
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).client_now()
+
+
 def get_default_client_timezone():
     """
     gets the default client timezone.
