@@ -59,7 +59,7 @@ class DateTimeValidator(ValidatorBase):
         options.update(accepted_type=datetime)
         super().__init__(domain, name, **options)
 
-    def _get_representation(self, value):
+    def _get_safe_representation(self, value):
         """
         gets the string representable version of input value.
 
@@ -118,7 +118,7 @@ class DateValidator(ValidatorBase):
         options.update(accepted_type=date)
         super().__init__(domain, name, **options)
 
-    def _get_representation(self, value):
+    def _get_safe_representation(self, value):
         """
         gets the string representable version of input value.
 
@@ -177,7 +177,7 @@ class TimeValidator(ValidatorBase):
         options.update(accepted_type=time)
         super().__init__(domain, name, **options)
 
-    def _get_representation(self, value):
+    def _get_safe_representation(self, value):
         """
         gets the string representable version of input value.
 

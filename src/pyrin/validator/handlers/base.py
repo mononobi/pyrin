@@ -5,7 +5,7 @@ validator handlers base module.
 
 import inspect
 
-from pyrin.core.globals import _
+from pyrin.core.globals import _, LIST_TYPES
 from pyrin.database.model.base import BaseEntity
 from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.interface import AbstractValidatorBase
@@ -70,13 +70,16 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         if name in (None, '') or name.isspace():
-            raise ValidatorNameIsRequiredError('Validator name must be provided.')
+            raise ValidatorNameIsRequiredError('Validator name must be provided for validator '
+                                               '[{instance}].'.format(instance=self))
 
         if (not inspect.isclass(domain) or not issubclass(domain, BaseEntity)) and \
                 (not isinstance(domain, str) or domain.isspace()):
-            raise InvalidValidatorDomainError('The provided domain for validator [{name}] is '
-                                              'not an instance of [{entity}] or [{string}].'
-                                              .format(name=name, entity=BaseEntity, string=str))
+            raise InvalidValidatorDomainError('The provided domain for validator [{instance}] '
+                                              'with name [{name}] is not a subclass of '
+                                              '[{entity}] or a string value.'
+                                              .format(instance=self, name=name,
+                                                      entity=BaseEntity))
 
         nullable = options.get('nullable')
         if nullable is None:
@@ -211,12 +214,65 @@ class ValidatorBase(AbstractValidatorBase):
         """
         gets the string representable version of input value.
 
+        :param object value: value to get its string representation.
+
+        :returns: string representable value.
+        """
+
+        if not isinstance(value, self.accepted_type):
+            return value
+
+        return self._get_safe_representation(value)
+
+    def _get_safe_representation(self, value):
+        """
+        gets the string representable version of input value.
+
         this method is intended to be overridden in subclasses for complex types.
+        the type of value is guaranteed to be what subclasses are expecting.
 
         :param object value: value to get its string representation.
 
         :returns: string representable value.
         """
+
+        return value
+
+    def _get_list_representation(self, value):
+        """
+        gets the string representable version of input list.
+
+        :param list value: value to get its string representation.
+
+        :returns: string representable value.
+        :rtype: list
+        """
+
+        if not isinstance(value, LIST_TYPES):
+            return self._get_representation(value)
+
+        result = []
+        for item in value:
+            result.append(self._get_representation(item))
+
+        return result
+
+    @classmethod
+    def _get_value(cls, value):
+        """
+        gets the value of given input.
+
+        it is a helper method which could call the input if
+        it is a callable or get the same input.
+
+        :param object | callable value: value to get its original value.
+                                        it could be an object or a callable.
+
+        :returns: original value.
+        """
+
+        if callable(value):
+            return value()
 
         return value
 

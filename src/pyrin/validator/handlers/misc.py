@@ -4,6 +4,7 @@ validator handlers misc module.
 """
 
 from pyrin.core.globals import _, LIST_TYPES
+from pyrin.core.decorators import class_property
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
     ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
@@ -23,6 +24,7 @@ class MinimumValidator(ValidatorBase):
 
     inclusive_minimum_value_message = _('or equal to ')
 
+    # accepted minimum value, it could also be a callable.
     default_accepted_minimum = None
     default_inclusive_minimum = None
 
@@ -59,9 +61,6 @@ class MinimumValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
-        :keyword object accepted_minimum: the lower bound of values that
-                                          this validator considers valid.
-
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
                                          this value has precedence over `inclusive_minimum`
@@ -84,15 +83,10 @@ class MinimumValidator(ValidatorBase):
             else:
                 inclusive_minimum = True
 
-        accepted_minimum = options.get('accepted_minimum')
-        if accepted_minimum is None:
-            if self.default_accepted_minimum is not None:
-                accepted_minimum = self.default_accepted_minimum
-            else:
-                raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
-                                                              'could not be None.')
+        if self.default_accepted_minimum is None:
+            raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
+                                                          'could not be None.')
 
-        self._accepted_minimum = accepted_minimum
         self._inclusive_minimum = inclusive_minimum
 
         self._validate_exception_type(self.minimum_value_error)
@@ -122,8 +116,12 @@ class MinimumValidator(ValidatorBase):
         if inclusive_minimum is None:
             inclusive_minimum = self.inclusive_minimum
 
-        if value < self.accepted_minimum or \
-                (value == self.accepted_minimum and inclusive_minimum is False):
+        current_min = self.accepted_minimum
+        current_values = options.get(RangeValidator.CURRENT_VALUE_KEY)
+        if current_values is not None:
+            current_values[RangeValidator.CURRENT_MIN_KEY] = current_min
+
+        if value < current_min or (value == current_min and inclusive_minimum is False):
             equality = ''
             if inclusive_minimum is not False:
                 equality = self.inclusive_minimum_value_message
@@ -131,18 +129,18 @@ class MinimumValidator(ValidatorBase):
             raise self.minimum_value_error(
                 self.minimum_value_message.format(param_name=self.localized_name,
                                                   minimum=
-                                                  self._get_representation(self.accepted_minimum),
+                                                  self._get_representation(current_min),
                                                   or_equal=equality))
 
-    @property
-    def accepted_minimum(self):
+    @class_property
+    def accepted_minimum(cls):
         """
         gets the lower bound of values that this validator considers valid.
 
         :rtype: object
         """
 
-        return self._accepted_minimum
+        return cls._get_value(cls.default_accepted_minimum)
 
     @property
     def inclusive_minimum(self):
@@ -166,8 +164,9 @@ class MaximumValidator(ValidatorBase):
 
     inclusive_maximum_value_message = _('or equal to ')
 
-    default_inclusive_maximum = None
+    # accepted maximum value, it could also be a callable.
     default_accepted_maximum = None
+    default_inclusive_maximum = None
 
     def __init__(self, domain, name, **options):
         """
@@ -202,9 +201,6 @@ class MaximumValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
-        :keyword object accepted_maximum: the upper bound of values that
-                                          this validator considers valid.
-
         :keyword bool inclusive_maximum: determines that values equal to
                                          accepted maximum should be considered valid.
                                          this value has precedence over `inclusive_maximum`
@@ -227,15 +223,10 @@ class MaximumValidator(ValidatorBase):
             else:
                 inclusive_maximum = True
 
-        accepted_maximum = options.get('accepted_maximum')
-        if accepted_maximum is None:
-            if self.default_accepted_maximum is not None:
-                accepted_maximum = self.default_accepted_maximum
-            else:
-                raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
-                                                              'could not be None.')
+        if self.default_accepted_maximum is None:
+            raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
+                                                          'could not be None.')
 
-        self._accepted_maximum = accepted_maximum
         self._inclusive_maximum = inclusive_maximum
 
         self._validate_exception_type(self.maximum_value_error)
@@ -265,8 +256,12 @@ class MaximumValidator(ValidatorBase):
         if inclusive_maximum is None:
             inclusive_maximum = self.inclusive_maximum
 
-        if value > self.accepted_maximum or \
-                (value == self.accepted_maximum and inclusive_maximum is False):
+        current_max = self.accepted_maximum
+        current_values = options.get(RangeValidator.CURRENT_VALUE_KEY)
+        if current_values is not None:
+            current_values[RangeValidator.CURRENT_MAX_KEY] = current_max
+
+        if value > current_max or (value == current_max and inclusive_maximum is False):
             equality = ''
             if inclusive_maximum is not False:
                 equality = self.inclusive_maximum_value_message
@@ -274,18 +269,18 @@ class MaximumValidator(ValidatorBase):
             raise self.maximum_value_error(
                 self.maximum_value_message.format(param_name=self.localized_name,
                                                   maximum=
-                                                  self._get_representation(self.accepted_maximum),
+                                                  self._get_representation(current_max),
                                                   or_equal=equality))
 
-    @property
-    def accepted_maximum(self):
+    @class_property
+    def accepted_maximum(cls):
         """
         gets the upper bound of values that this validator considers valid.
 
         :rtype: object
         """
 
-        return self._accepted_maximum
+        return cls._get_value(cls.default_accepted_maximum)
 
     @property
     def inclusive_maximum(self):
@@ -302,6 +297,11 @@ class RangeValidator(MinimumValidator, MaximumValidator):
     """
     range validator class.
     """
+
+    # these values are used inside minimum, maximum and range validators.
+    CURRENT_VALUE_KEY = '__current__'
+    CURRENT_MAX_KEY = 'max'
+    CURRENT_MIN_KEY = 'min'
 
     range_value_error = ValueIsOutOfRangeError
     range_value_message = _('The provided value for [{param_name}] must '
@@ -341,16 +341,10 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
-        :keyword object accepted_minimum: the lower bound of values that
-                                          this validator considers valid.
-
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
                                          this value has precedence over `inclusive_minimum`
                                          instance attribute if provided.
-
-        :keyword object accepted_maximum: the upper bound of values that
-                                          this validator considers valid.
 
         :keyword bool inclusive_maximum: determines that values equal to
                                          accepted maximum should be considered valid.
@@ -371,7 +365,9 @@ class RangeValidator(MinimumValidator, MaximumValidator):
 
         super().__init__(domain, name, **options)
 
-        if self.accepted_minimum is not None and self.accepted_maximum is not None \
+        if not callable(self.default_accepted_minimum) and \
+                not callable(self.default_accepted_maximum) and \
+                self.accepted_minimum is not None and self.accepted_maximum is not None \
                 and self.accepted_minimum > self.accepted_maximum:
             raise MinimumValueLargerThanMaximumValueError('Accepted minimum value could not be '
                                                           'larger than accepted maximum value.')
@@ -402,6 +398,12 @@ class RangeValidator(MinimumValidator, MaximumValidator):
         :raises ValueIsOutOfRangeError: value is out of range error.
         """
 
+        # this is a workaround to get the correct values of accepted min and max in
+        # case they are callable and producing different results on each call.
+        current_values = dict()
+        current_values[self.CURRENT_MAX_KEY] = None
+        current_values[self.CURRENT_MIN_KEY] = None
+        options[self.CURRENT_VALUE_KEY] = current_values
         try:
             super()._validate(value, **options)
         except (self.maximum_value_error, self.minimum_value_error):
@@ -422,10 +424,18 @@ class RangeValidator(MinimumValidator, MaximumValidator):
             if inclusive_maximum is not False:
                 equality_max = self.inclusive_maximum_value_message
 
+            current_min = current_values.get(self.CURRENT_MIN_KEY)
+            if current_min is None:
+                current_min = self.accepted_minimum
+
+            current_max = current_values.get(self.CURRENT_MAX_KEY)
+            if current_max is None:
+                current_max = self.accepted_maximum
+
             raise self.range_value_error(self.range_value_message.format(
                 param_name=self.localized_name,
-                lower=self._get_representation(self.accepted_minimum),
-                upper=self._get_representation(self.accepted_maximum),
+                lower=self._get_representation(current_min),
+                upper=self._get_representation(current_max),
                 or_equal_min=equality_min, or_equal_max=equality_max))
 
 
@@ -436,7 +446,10 @@ class InValidator(ValidatorBase):
 
     not_in_value_error = ValueIsOutOfRangeError
     not_in_value_message = _('The provided value for [{param_name}] '
-                             'must be from [{values}].')
+                             'must be one of {values}.')
+
+    # valid values, it must be an iterable or a callable.
+    default_valid_values = None
 
     def __init__(self, domain, name, **options):
         """
@@ -471,8 +484,6 @@ class InValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
-        :keyword list[object] valid_values: a list of valid values.
-
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
@@ -482,12 +493,13 @@ class InValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        valid_values = options.get('valid_values')
-        if valid_values is None or not \
-                isinstance(valid_values, LIST_TYPES) or len(valid_values) <= 0:
-            raise ValidValuesMustBeProvidedError('Valid values must be provided as iterable.')
+        if not callable(self.default_valid_values) and \
+                (self.default_valid_values is None or
+                 not isinstance(self.default_valid_values, LIST_TYPES) or
+                 len(self.default_valid_values) <= 0):
+            raise ValidValuesMustBeProvidedError('Valid values must be provided '
+                                                 'as iterable or callable.')
 
-        self._valid_values = valid_values
         self._validate_exception_type(self.not_in_value_error)
 
     def _validate(self, value, **options):
@@ -506,20 +518,21 @@ class InValidator(ValidatorBase):
 
         super()._validate(value, **options)
 
-        if value not in self.valid_values:
+        current_valid = self.valid_values
+        if value not in current_valid:
             raise self.not_in_value_error(self.not_in_value_message.format(
                 param_name=self.localized_name,
-                values=self._get_representation(self.valid_values)))
+                values=self._get_list_representation(current_valid)))
 
-    @property
-    def valid_values(self):
+    @class_property
+    def valid_values(cls):
         """
         gets a list of valid values for this validator.
 
         :rtype: list[object]
         """
 
-        return self._valid_values
+        return cls._get_value(cls.default_valid_values)
 
 
 class NotInValidator(ValidatorBase):
@@ -529,7 +542,10 @@ class NotInValidator(ValidatorBase):
 
     in_value_error = ValueIsOutOfRangeError
     in_value_message = _('The provided value for [{param_name}] '
-                         'could not be from [{values}].')
+                         'could not be one of {values}.')
+
+    # invalid values, it must be an iterable or a callable.
+    default_invalid_values = None
 
     def __init__(self, domain, name, **options):
         """
@@ -564,8 +580,6 @@ class NotInValidator(ValidatorBase):
                                      from `pyrin.core.globals`.
                                      defaults to `name` if not provided.
 
-        :keyword list[object] invalid_values: a list of invalid values.
-
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
@@ -575,13 +589,13 @@ class NotInValidator(ValidatorBase):
 
         super().__init__(domain, name, **options)
 
-        invalid_values = options.get('invalid_values')
-        if invalid_values is None or not \
-                isinstance(invalid_values, LIST_TYPES) or len(invalid_values) <= 0:
+        if not callable(self.default_invalid_values) and \
+                (self.default_invalid_values is None or
+                 not isinstance(self.default_invalid_values, LIST_TYPES) or
+                 len(self.default_invalid_values) <= 0):
             raise InvalidValuesMustBeProvidedError('Invalid values must be '
-                                                   'provided as iterable.')
+                                                   'provided as iterable or callable.')
 
-        self._invalid_values = invalid_values
         self._validate_exception_type(self.in_value_error)
 
     def _validate(self, value, **options):
@@ -600,17 +614,18 @@ class NotInValidator(ValidatorBase):
 
         super()._validate(value, **options)
 
-        if value in self.invalid_values:
+        current_invalid = self.invalid_values
+        if value in current_invalid:
             raise self.in_value_error(self.in_value_message.format(
                 param_name=self.localized_name,
-                values=self._get_representation(self.invalid_values)))
+                values=self._get_list_representation(current_invalid)))
 
-    @property
-    def invalid_values(self):
+    @class_property
+    def invalid_values(cls):
         """
         gets a list of invalid values for this validator.
 
         :rtype: list[object]
         """
 
-        return self._invalid_values
+        return cls._get_value(cls.default_invalid_values)
