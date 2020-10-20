@@ -171,19 +171,35 @@ class ValidatorBase(AbstractValidatorBase):
             raise self.not_list_error(
                 self.not_list_message.format(param_name=self.localized_name))
 
-        if is_list is False:
-            value = [value]
+        if is_list is not True:
+            self._perform_validation(value, nullable, **options)
+        else:
+            for item in value:
+                self._perform_validation(item, nullable, **options)
 
-        for item in value:
-            if item is not None:
-                self._validate_type(item)
-                self._validate(item, **options)
+    def _perform_validation(self, value, nullable, **options):
+        """
+        performs validation on given value.
 
-            elif nullable is True:
-                continue
-            else:
-                raise self.none_value_error(
-                    self.none_value_message.format(param_name=self.localized_name))
+        it raises an error if validation fails.
+
+        :param object value: value to be validated.
+        :param bool nullable: determines that provided value could be None.
+
+        :raises InvalidValueTypeError: invalid value type error.
+        :raises ValueCouldNotBeNoneError: value could not be none error.
+        :raises ValidationError: validation error.
+        """
+
+        if value is None:
+            if nullable is True:
+                return
+
+            raise self.none_value_error(
+                self.none_value_message.format(param_name=self.localized_name))
+
+        self._validate_type(value)
+        self._validate(value, **options)
 
     def _validate(self, value, **options):
         """
