@@ -50,6 +50,10 @@ class NumberValidator(ValidatorBase):
         :keyword bool is_list: specifies that the value must be a list of items.
                                defaults to False if not provided.
 
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+                                  defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -100,6 +104,10 @@ class IntegerValidator(ValidatorBase):
         :keyword bool is_list: specifies that the value must be a list of items.
                                defaults to False if not provided.
 
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+                                  defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -149,6 +157,10 @@ class FloatValidator(ValidatorBase):
 
         :keyword bool is_list: specifies that the value must be a list of items.
                                defaults to False if not provided.
+
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+                                  defaults to False if not provided.
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.

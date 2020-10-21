@@ -72,6 +72,10 @@ class StringValidator(ValidatorBase):
         :keyword bool is_list: specifies that the value must be a list of items.
                                defaults to False if not provided.
 
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+                                  defaults to False if not provided.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.
 
@@ -298,6 +302,10 @@ class RegexValidator(StringValidator):
 
         :keyword bool is_list: specifies that the value must be a list of items.
                                defaults to False if not provided.
+
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+                                  defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.
