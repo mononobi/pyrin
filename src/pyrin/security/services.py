@@ -3,7 +3,10 @@
 security services module.
 """
 
+import pyrin.configuration.services as config_services
+
 from pyrin.application.services import get_component
+from pyrin.caching.decorators import custom_cached
 from pyrin.security import SecurityPackage
 
 
@@ -38,15 +41,32 @@ def encrypt(text, **options):
     return get_component(SecurityPackage.COMPONENT_NAME).encrypt(text, **options)
 
 
-def has_permission(user, permissions, **options):
-    """
-    gets a value indicating that given user has the specified permissions.
+cache_name = config_services.get('security', 'permission', 'cache_name')
+cache_expire = config_services.get('security', 'permission', 'cache_expire')
+if cache_name is not None:
+    @custom_cached(cache_name, expire=cache_expire, consider_user=True, refreshable=False)
+    def has_permission(user, permissions, **options):
+        """
+        gets a value indicating that given user has the specified permissions.
 
-    :param user: user identity to check its permissions.
-    :param list[PermissionBase] permissions: permissions to check for user.
+        :param user: user identity to check its permissions.
+        :param list[PermissionBase] permissions: permissions to check for user.
 
-    :rtype: bool
-    """
+        :rtype: bool
+        """
 
-    return get_component(SecurityPackage.COMPONENT_NAME).has_permission(user, permissions,
-                                                                        **options)
+        return get_component(SecurityPackage.COMPONENT_NAME).has_permission(user, permissions,
+                                                                            **options)
+else:
+    def has_permission(user, permissions, **options):
+        """
+        gets a value indicating that given user has the specified permissions.
+
+        :param user: user identity to check its permissions.
+        :param list[PermissionBase] permissions: permissions to check for user.
+
+        :rtype: bool
+        """
+
+        return get_component(SecurityPackage.COMPONENT_NAME).has_permission(user, permissions,
+                                                                            **options)
