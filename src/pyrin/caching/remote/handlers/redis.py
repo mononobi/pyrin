@@ -211,24 +211,18 @@ class Redis(RemoteCacheBase):
         :rtype: bytes
         """
 
-        if isinstance(value, (int, str, float)):
-            return value
-
         return pickle.dumps(value)
 
     def _prepare_for_get(self, value):
         """
         prepares the value that must be returned from cache.
 
-        :param object value: value to be returned.
+        :param bytes value: value to be returned.
 
         :returns: prepared value.
         """
 
-        if isinstance(value, bytes):
-            return pickle.loads(value)
-
-        return value
+        return pickle.loads(value)
 
     def increment(self, key, value):
         """
