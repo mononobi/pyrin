@@ -1910,14 +1910,20 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         gets application version.
 
-        this method must be overridden in subclasses.
-
-        :raises CoreNotImplementedError: core not implemented error.
+        it looks for a `__version__` attribute in main package of application.
+        this method could be overridden in subclasses to change behavior.
 
         :rtype: str
         """
 
-        raise CoreNotImplementedError()
+        package_name = path_utils.get_main_package_name(self.__module__)
+        package = packaging_services.load(package_name)
+        version = getattr(package, '__version__', None)
+
+        if version is None:
+            version = 'Not Provided'
+
+        return version
 
     def get_pyrin_version(self):
         """
