@@ -37,7 +37,6 @@ from pyrin.application.mixin import SignalMixin
 from pyrin.converters.json.decoder import CoreJSONDecoder
 from pyrin.converters.json.encoder import CoreJSONEncoder
 from pyrin.core.enumerations import HTTPMethodEnum
-from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.structs import DTO, Manager, CoreHeaders
 from pyrin.core.mixin import HookMixin
 from pyrin.database.transaction.contexts import atomic_context
@@ -209,6 +208,7 @@ class Application(Flask, HookMixin, SignalMixin,
         self.__status = ApplicationStatusEnum.INITIALIZING
         self._scripting_mode = options.get('scripting_mode', False)
         self._force_json_response = options.get('force_json_response', True)
+        self._version = 'Not Provided'
 
         self._import_name = options.get('import_name', None)
         if self._import_name is not None and (self._import_name == '' or
@@ -594,8 +594,8 @@ class Application(Flask, HookMixin, SignalMixin,
         self._set_status(ApplicationStatusEnum.LOADING)
         self._resolve_required_paths(**options)
         self._load_environment_variables()
-
         packaging_services.load_components(**options)
+        self._load_version()
 
         # calling `after_application_loaded` method of all registered hooks.
         self._after_application_loaded()
@@ -615,6 +615,21 @@ class Application(Flask, HookMixin, SignalMixin,
         self._resolve_settings_path(**options)
         self._resolve_migrations_path(**options)
         self._resolve_locale_path(**options)
+
+    def _load_version(self):
+        """
+        loads application version.
+
+        it looks for a `__version__` attribute in main package of application.
+        this method could be overridden in subclasses to change behavior.
+        """
+
+        package_name = path_utils.get_main_package_name(self.__module__)
+        package = packaging_services.load(package_name)
+        version = getattr(package, '__version__', None)
+
+        if version is not None:
+            self._version = version
 
     def _load_configs(self, **options):
         """
@@ -1910,20 +1925,10 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         gets application version.
 
-        it looks for a `__version__` attribute in main package of application.
-        this method could be overridden in subclasses to change behavior.
-
         :rtype: str
         """
 
-        package_name = path_utils.get_main_package_name(self.__module__)
-        package = packaging_services.load(package_name)
-        version = getattr(package, '__version__', None)
-
-        if version is None:
-            version = 'Not Provided'
-
-        return version
+        return self._version
 
     def get_pyrin_version(self):
         """
