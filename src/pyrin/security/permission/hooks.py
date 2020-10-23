@@ -4,6 +4,7 @@ permission hooks module.
 """
 
 import pyrin.security.permission.services as permission_services
+import pyrin.configuration.services as configs_services
 
 from pyrin.application.decorators import application_hook
 from pyrin.application.hooks import ApplicationHookBase
@@ -26,5 +27,7 @@ class ApplicationHook(ApplicationHookBase):
         note that this method will not get called when application starts in scripting mode.
         """
 
-        # we should synchronize all application permissions with database.
-        permission_services.synchronize_all()
+        synchronize = configs_services.get('security', 'permission', 'synchronize')
+        if synchronize is True:
+            # we should synchronize all application permissions with database.
+            permission_services.synchronize_all()
