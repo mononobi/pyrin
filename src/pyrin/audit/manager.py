@@ -179,7 +179,6 @@ class AuditManager(Manager, HookMixin):
         options.update(raise_error=True)
         print_info('Performing audit...')
         self.inspect(**options)
-        print_info('Audit finished successfully.')
 
     def get_application_info(self, **options):
         """

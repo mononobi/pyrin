@@ -8,6 +8,7 @@ import pyrin.configuration.services as configs_services
 
 from pyrin.application.decorators import application_hook
 from pyrin.application.hooks import ApplicationHookBase
+from pyrin.utils.custom_print import print_info
 
 
 @application_hook()
@@ -29,5 +30,5 @@ class ApplicationHook(ApplicationHookBase):
 
         synchronize = configs_services.get('security', 'permission', 'synchronize')
         if synchronize is True:
-            # we should synchronize all application permissions with database.
+            print_info('Synchronizing permissions...')
             permission_services.synchronize_all()
