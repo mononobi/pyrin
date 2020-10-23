@@ -104,7 +104,7 @@ def permanent(*old_method):
     a key in the cache. so if used on instance or class methods, all instances
     of the same class type will have access to the same shared cache. if you want
     to use a cache per each instance of a class type, you could use `cached_property`
-    or `cached_method` decorators.
+    decorator.
 
     note that this decorator should only be used on instance or class methods or
     properties. otherwise the result would be inconsistent.
