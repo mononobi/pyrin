@@ -6,9 +6,10 @@ audit hooks module.
 import pyrin.audit.services as audit_services
 import pyrin.configuration.services as config_services
 
+from pyrin.core.structs import Hook
+from pyrin.utils.custom_print import print_info
 from pyrin.application.decorators import application_hook
 from pyrin.application.hooks import ApplicationHookBase
-from pyrin.core.structs import Hook
 
 
 class AuditHookBase(Hook):
@@ -67,4 +68,5 @@ class ApplicationHook(ApplicationHookBase):
 
         startup_audit = config_services.get_active('audit', 'startup_audit')
         if startup_audit is True:
+            print_info('Performing audit...')
             audit_services.startup_inspect()

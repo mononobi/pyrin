@@ -17,7 +17,6 @@ from pyrin.audit.hooks import AuditHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.audit import AuditPackage
-from pyrin.utils.custom_print import print_info
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum, SuccessfulResponseCodeEnum
 from pyrin.audit.exceptions import InvalidAuditHookTypeError, AuditFailedError
 
@@ -177,7 +176,6 @@ class AuditManager(Manager, HookMixin):
             options[item] = False
 
         options.update(raise_error=True)
-        print_info('Performing audit...')
         self.inspect(**options)
 
     def get_application_info(self, **options):
