@@ -3,21 +3,21 @@
 cli unit module.
 
 to enable locale management for unit tests, execute:
-`python cli.py babel enable`
+`python cli_unit.py babel enable`
 
 to enable migrations for unit tests, execute:
-`python cli.py alembic enable`
+`python cli_unit.py alembic enable`
 
 to create a new package for unit tests, execute:
-`python cli.py template package`
+`python cli_unit.py template package`
 
 usage example:
 
-`python cli.py alembic upgrade --arg value`
-`python cli.py babel extract --arg value`
-`python cli.py template package`
-`python cli.py celery worker --arg value`
-`python cli.py security token --arg value`
+`python cli_unit.py alembic upgrade --arg value`
+`python cli_unit.py babel extract --arg value`
+`python cli_unit.py template package`
+`python cli_unit.py celery worker --arg value`
+`python cli_unit.py security token --arg value`
 """
 
 import fire
