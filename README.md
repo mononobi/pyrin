@@ -36,13 +36,7 @@ To be able to run tests:
    
    **`pip install pyrin[tests]`**
 
-2. An entry with **`pyrin.server`** value should also be created in your os's hosts file.
-
-   - Linux:    **`/etc/hosts`**
-   - Windows:  **`C:\Windows\System32\Drivers\etc\hosts`**
-   - Mac:      **`/etc/hosts`**
-
-3. Now you could execute **`python3 start_unit.py`** to start all unit tests.
+2. Now you could execute **`python3 start_unit.py`** to start all unit tests.
 
 # Demo Application
 
@@ -162,6 +156,6 @@ Now you could start application by executing this command in your terminal:
 
 **`python3 start.py`**
 
-Application will be available at **`127.0.0.1:9081`** by default.
+Application will be available at **`127.0.0.1:5000`** by default.
 
 Pyrin on default configurations, will use an **`in-memory sqlite`** database.
