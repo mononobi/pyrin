@@ -375,7 +375,7 @@ class RegexValidator(StringValidator):
 
         super()._validate_extra(value, **options)
 
-        if not self.regex.match(value):
+        if not self.pattern.match(value):
             raise self.pattern_not_match_error(
                 self.pattern_not_match_message.format(param_name=self.localized_name))
 
