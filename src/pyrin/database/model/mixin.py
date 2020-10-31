@@ -347,6 +347,8 @@ class ForeignKeyMixin(CoreObject):
         gets all foreign key column names of this entity.
 
         column names will be calculated once and cached.
+        note that those foreign keys which are also a primary key, will not
+        be included in this list.
 
         :rtype: tuple[str]
         """
@@ -362,6 +364,8 @@ class ForeignKeyMixin(CoreObject):
         which are those that have `exposed=True` in their definition
         and their name does not start with underscore `_`.
         column names will be calculated once and cached.
+        note that those foreign keys which are also a primary key, will not
+        be included in this list.
 
         :rtype: tuple[str]
         """
@@ -369,6 +373,7 @@ class ForeignKeyMixin(CoreObject):
         info = sqla_inspect(type(self))
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].primary_key is False
                    and self.is_exposed(attr.key) is True
                    and attr.columns[0].exposed is True)
 
@@ -383,13 +388,16 @@ class ForeignKeyMixin(CoreObject):
         which are those that have `exposed=False` in their definition
         or their name starts with underscore `_`.
         column names will be calculated once and cached.
+        note that those foreign keys which are also a primary key, will not
+        be included in this list.
 
         :rtype: tuple[str]
         """
 
         info = sqla_inspect(type(self))
         fk = tuple(attr.key for attr in info.column_attrs
-                   if attr.columns[0].is_foreign_key is True and
+                   if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].primary_key is False and
                    (self.is_exposed(attr.key) is False or
                     attr.columns[0].exposed is False))
 
