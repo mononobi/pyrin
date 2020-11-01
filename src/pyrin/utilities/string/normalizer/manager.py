@@ -77,6 +77,9 @@ class StringNormalizerManager(Manager):
             normalizer = self.get_normalizer(name)
             value = normalizer.normalize(value, **options)
 
+            if value == '':
+                break
+
         return value
 
     def register_normalizer(self, instance, **options):
