@@ -67,6 +67,9 @@ class StringNormalizerManager(Manager):
         :rtype: str
         """
 
+        if value in (None, ''):
+            return ''
+
         if normalizers is None or len(normalizers) <= 0:
             normalizers = self._priorities.keys()
 
