@@ -42,6 +42,7 @@ class RouteBase(Rule):
                                HTTPMethodEnum.OPTIONS]
 
     result_schema_class = ResultSchema
+    paginator_class = SimplePaginator
 
     def __init__(self, rule, **options):
         """
@@ -402,7 +403,7 @@ class RouteBase(Rule):
 
         paged = options.get('paged', False)
         if paged is True:
-            return SimplePaginator(**options)
+            return self.paginator_class(**options)
 
         return None
 
