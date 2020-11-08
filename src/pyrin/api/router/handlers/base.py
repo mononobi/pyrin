@@ -206,6 +206,10 @@ class RouteBase(Rule):
         if self._namespace not in (None, '') and not self._namespace.isspace():
             rule = '{namespace}{rule}'.format(namespace=self._namespace, rule=rule)
 
+        append_slash = config_services.get('api', 'general', 'append_slash', default=True)
+        if not rule.endswith('/') and append_slash is True:
+            rule = '{rule}/'.format(rule=rule)
+
         # we should call super method with exact param names because it
         # does not have `**options` in it's signature and raises an error
         # if extra keywords passed to it.
