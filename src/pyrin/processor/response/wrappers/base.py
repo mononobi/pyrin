@@ -4,15 +4,16 @@ response wrappers base module.
 """
 
 from flask import Response
+from werkzeug.test import run_wsgi_app
 
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.processor.mimetype.services as mimetype_services
 
 from pyrin.processor.mimetype.enumerations import MIMETypeEnum
-from pyrin.processor.response.wrappers.exceptions import InvalidResponseContextKeyNameError, \
-    ResponseContextKeyIsAlreadyPresentError
 from pyrin.processor.response.wrappers.structs import ResponseContext
 from pyrin.settings.static import DEFAULT_STATUS_CODE, APPLICATION_ENCODING
+from pyrin.processor.response.wrappers.exceptions import InvalidResponseContextKeyNameError, \
+    ResponseContextKeyIsAlreadyPresentError, ResponseEnvironRequiredError
 from pyrin.processor.exceptions import RequestIDAlreadySetError, \
     RequestDateAlreadySetError, RequestUserAlreadySetError
 
@@ -168,6 +169,40 @@ class CoreResponse(Response):
         """
 
         self._context.pop(key, None)
+
+    @classmethod
+    def force_type(cls, response, environ=None):
+        """
+        enforces that the wsgi response is a response object of the current type.
+
+        this method can enforce a given response type, and it will also
+        convert arbitrary wsgi callables into response objects if an environ
+        is provided.
+
+        this is especially useful if you want to post-process responses in
+        the main dispatcher and use functionality provided by your subclass.
+
+        keep in mind that this will modify response objects in place if
+        possible.
+
+        :param object response: a response object or wsgi application.
+        :param dict environ: a wsgi environment object.
+
+        :raises ResponseEnvironRequiredError: response environ required error.
+
+        :returns: a response object.
+        :rtype: CoreResponse
+        """
+
+        if not isinstance(response, CoreResponse):
+            if environ is None:
+                raise ResponseEnvironRequiredError('Cannot convert WSGI application into '
+                                                   'response object without an environ.')
+
+            response = CoreResponse(*run_wsgi_app(response, environ))
+
+        response.__class__ = cls
+        return response
 
     @property
     def safe_content_length(self):

@@ -795,7 +795,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         body, status_code, headers = response_services.unpack_response(rv)
-        if not isinstance(body, self.response_class):
+        if not isinstance(body, self.response_class) and not callable(body):
             mimetype = mimetype_services.get_mimetype(body)
             if mimetype != MIMETypeEnum.HTML and (mimetype != MIMETypeEnum.JSON or
                                                   not isinstance(body, str)):

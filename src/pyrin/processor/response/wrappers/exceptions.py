@@ -25,3 +25,10 @@ class ResponseContextKeyIsAlreadyPresentError(ResponseWrappersException):
     response context key is already present error.
     """
     pass
+
+
+class ResponseEnvironRequiredError(ResponseWrappersException):
+    """
+    response environ required error.
+    """
+    pass
