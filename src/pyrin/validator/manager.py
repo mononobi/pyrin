@@ -314,3 +314,150 @@ class ValidatorManager(Manager):
             raise InvalidEntityForValidationError(_('Entity for validation could not be None.'))
 
         self.validate_dict(type(entity), entity.to_dict(), **options)
+
+    def is_valid_field(self, domain, name, value, **options):
+        """
+        gets a value indicating that given field is valid.
+
+        :param type[BaseEntity] | str domain: the domain to validate the value for.
+                                              it could be a type of a BaseEntity
+                                              subclass or a string name.
+
+        :param str name: validator name to be used for validation.
+        :param object value: value to be validated.
+
+        :keyword bool force: specifies that if there is no validator
+                             with specified domain and name, it should
+                             raise an error. defaults to False if not provided.
+
+        :keyword bool nullable: determines that provided value could be None.
+        :keyword bool is_list: specifies that the value must be a list of items.
+
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this argument will only be considered in min
+                                         and range validators.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this argument will only be considered in max
+                                         and range validators.
+
+        :keyword bool allow_blank: determines that empty strings should be
+                                   considered valid. this argument will only
+                                   be considered in string validators.
+
+        :keyword bool allow_whitespace: determines that whitespace strings should be
+                                        considered valid. this argument will only
+                                        be considered in string validators.
+
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+        :raises ValidatorNotFoundError: validator not found error.
+
+        :rtype: bool
+        """
+
+        try:
+            self.validate_field(domain, name, value, **options)
+            return True
+        except ValidationError:
+            return False
+
+    def is_valid_dict(self, domain, data, **options):
+        """
+        gets a value indicating that given dict has valid values.
+
+        it uses the correct validator for each value based on its key name.
+
+        :param type[BaseEntity] | str domain: the domain to validate the values for.
+                                              it could be a type of a BaseEntity
+                                              subclass or a string name.
+
+        :param dict data: dictionary to validate its values.
+
+        :keyword bool nullable: determines that provided values could be None.
+        :keyword bool is_list: specifies that the value must be a list of items.
+
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this argument will only be considered in min,
+                                         max and range validators.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this argument will only be considered in min,
+                                         max and range validators.
+
+        :keyword bool allow_blank: determines that empty strings should be
+                                   considered valid. this argument will only
+                                   be considered in string validators.
+
+        :keyword bool allow_whitespace: determines that whitespace strings should be
+                                        considered valid. this argument will only
+                                        be considered in string validators.
+
+        :raises InvalidDataForValidationError: invalid data for validation error.
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+        :raises ValidatorNotFoundError: validator not found error.
+
+        :rtype: bool
+        """
+
+        try:
+            options.update(lazy=False)
+            self.validate_dict(domain, data, **options)
+            return True
+        except ValidationError:
+            return False
+
+    def is_valid_entity(self, entity, **options):
+        """
+        gets a value indicating that given entity has valid values.
+
+        it uses the correct validator for each value based on its field name.
+
+        :param BaseEntity entity: entity to validate its values.
+
+        :keyword bool nullable: determines that provided values could be None.
+        :keyword bool is_list: specifies that the value must be a list of items.
+
+        :keyword bool null_items: specifies that list items could be None.
+                                  it is only used if `is_list=True` is provided.
+
+        :keyword bool inclusive_minimum: determines that values equal to
+                                         accepted minimum should be considered valid.
+                                         this argument will only be considered in min,
+                                         max and range validators.
+
+        :keyword bool inclusive_maximum: determines that values equal to
+                                         accepted maximum should be considered valid.
+                                         this argument will only be considered in min,
+                                         max and range validators.
+
+        :keyword bool allow_blank: determines that empty strings should be
+                                   considered valid. this argument will only
+                                   be considered in string validators.
+
+        :keyword bool allow_whitespace: determines that whitespace strings should be
+                                        considered valid. this argument will only
+                                        be considered in string validators.
+
+        :raises InvalidEntityForValidationError: invalid entity for validation error.
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+        :raises ValidatorNotFoundError: validator not found error.
+
+        :rtype: bool
+        """
+
+        try:
+            options.update(lazy=False)
+            self.validate_entity(entity, **options)
+            return True
+        except ValidationError:
+            return False
