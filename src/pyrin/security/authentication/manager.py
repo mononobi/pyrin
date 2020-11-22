@@ -41,7 +41,7 @@ class AuthenticationManager(Manager):
         """
 
         token = self._extract_token(client_request)
-        if token is None:
+        if token in (None, ''):
             return
 
         self._authenticate(token, **options)

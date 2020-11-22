@@ -35,7 +35,10 @@ class CeleryManager(Manager):
         configures celery.
         """
 
-        app = Celery(application_services.get_application_name(), task_cls=self.task_class)
+        app = Celery(application_services.get_application_name(),
+                     task_cls=self.task_class,
+                     set_as_current=True)
+
         configs = config_services.get_active_section('celery')
         configs.update(worker_hijack_root_logger=False)
         app.config_from_object(configs)
