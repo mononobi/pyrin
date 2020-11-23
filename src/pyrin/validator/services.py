@@ -186,6 +186,12 @@ def validate_entity(entity, **options):
 
     :param BaseEntity entity: entity to validate its values.
 
+    :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
+                                                      which has `exposed=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in validation. defaults to
+                                                      `SECURE_TRUE` if not provided.
+
     :keyword bool lazy: specifies that all fields must be validated first and
                         then a cumulative error must be raised containing a dict
                         of all field names and their corresponding error messages.
@@ -339,6 +345,12 @@ def is_valid_entity(entity, **options):
     it uses the correct validator for each value based on its field name.
 
     :param BaseEntity entity: entity to validate its values.
+
+    :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
+                                                      which has `exposed=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in validation. defaults to
+                                                      `SECURE_TRUE` if not provided.
 
     :keyword bool all_validators: specifies that all validators of given domain must
                                   be used for validation even if the related value is
