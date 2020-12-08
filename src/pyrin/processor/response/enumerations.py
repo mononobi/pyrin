@@ -209,16 +209,3 @@ class NonStandardResponseHeaderEnum(CoreEnum):
     # now replaced by the 'Content-Security-Policy' header, used in older browsers
     # to stop pages load when an XSS attack is detected.
     X_XSS_PROTECTION = 'X-XSS-Protection'
-
-
-class CORSHeaderEnum(CoreEnum):
-    """
-    cors header enum.
-    """
-
-    ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin'
-    ACCESS_CONTROL_ALLOW_CREDENTIALS = 'Access-Control-Allow-Credentials'
-    ACCESS_CONTROL_EXPOSE_HEADERS = 'Access-Control-Expose-Headers'
-    ACCESS_CONTROL_MAX_AGE = 'Access-Control-Max-Age'
-    ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods'
-    ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers'
