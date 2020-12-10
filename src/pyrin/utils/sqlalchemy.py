@@ -7,6 +7,7 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
+import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
@@ -353,30 +354,18 @@ def check_constraint(column, values, **options):
         raise CheckConstraintValuesRequiredError('Values for generating a check '
                                                  'constraint must be provided.')
 
-    convertor = str
+    converter = str
     is_string = isinstance(values[0], str)
     if is_string:
-        convertor = quote
+        converter = string_utils.quote
     use_in = options.pop('use_in', True)
     condition = 'in'
     if use_in is False:
         condition = 'not in'
 
-    string_values = ','.join(convertor(item) for item in values)
+    string_values = ','.join(converter(item) for item in values)
     sql_text = '{column} {condition} ({values})'.format(column=column,
                                                         condition=condition,
                                                         values=string_values)
     options.update(sqltext=sql_text)
     return CheckConstraint(**options)
-
-
-def quote(value):
-    """
-    quotes the given string value.
-
-    :param str value: value to be quoted.
-
-    :rtype: str
-    """
-
-    return "'{value}'".format(value=str(value))
