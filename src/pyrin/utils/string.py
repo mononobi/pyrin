@@ -90,3 +90,77 @@ def sort_by_length(items, reverse=False):
     """
 
     return sorted(items, key=len, reverse=reverse)
+
+
+def quote(value, sign="'"):
+    """
+    quotes the given string value.
+
+    :param str value: value to be quoted.
+    :param str sign: quotation sign to be used.
+                     defaults to single quotation if not provided.
+
+    :rtype: str
+    """
+
+    return "{sign}{value}{sign}".format(sign=sign, value=str(value))
+
+
+def union(first, second, **options):
+    """
+    gets the list of strings which are in both lists.
+
+    note that it returns the value from the first list.
+    by default comparison is case-insensitive.
+    so if `A` is in the first list and `a` is in the second list, the
+    result list will contain `A` from the first list.
+
+    :param list[str] | set[str] | tuple[str] first: first list of strings.
+    :param list[str] | set[str] | tuple[str] second: second list of strings.
+
+    :keyword function converter: a callable to be used for case conversion of
+                                 strings. it must take a single input string and
+                                 return the converted value. if you want case-sensitive
+                                 comparison, you could pass `str` function as converter.
+                                 defaults to `lower` which results in case-insensitive
+                                 comparison.
+
+    :keyword type collection: collection type to be used for result.
+                              defaults to `list` if not provided.
+
+    :rtype: list[str] | set[str] | tuple[str]
+    """
+
+    collection = options.get('collection', list)
+    converter = options.get('converter', lower)
+    result = []
+    second = [converter(item) for item in second]
+    for item in first:
+        if converter(item) in second:
+            result.append(item)
+
+    return collection(result)
+
+
+def is_match(item, values, **options):
+    """
+    gets a value indicating that given item exists in the given list of values.
+
+    by default comparison is case-insensitive.
+    so if item is `A` and `a` is in the values list, it returns True.
+
+    :param str item: value to be checked for matching.
+    :param list[str] | set[str] | tuple[str] values: list of string values.
+
+    :keyword function converter: a callable to be used for case conversion of
+                                 strings. it must take a single input string and
+                                 return the converted value. if you want case-sensitive
+                                 comparison, you could pass `str` function as converter.
+                                 defaults to `lower` which results in case-insensitive
+                                 comparison.
+
+    :rtype: bool
+    """
+
+    result = union([item], values, **options)
+    return len(result) > 0
