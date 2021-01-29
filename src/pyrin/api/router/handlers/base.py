@@ -412,16 +412,6 @@ class RouteBase(Rule):
 
         return self._prepare_response(result)
 
-    @property
-    def cors(self):
-        """
-        gets cors attribute of this route.
-
-        :rtype: CORS
-        """
-
-        return self._cors
-
     def _get_paginator(self, **options):
         """
         gets paginator for this route if required.
@@ -778,6 +768,16 @@ class RouteBase(Rule):
         """
 
         return self._status_code
+
+    @property
+    def cors(self):
+        """
+        gets cors attribute of this route.
+
+        :rtype: CORS
+        """
+
+        return self._cors
 
 
 class TemporaryRouteBase(RouteBase):
