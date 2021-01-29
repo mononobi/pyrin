@@ -145,6 +145,31 @@ def api(url, methods=None, authenticated=True, permissions=None, **options):
                                 `max_page_size` from `database` configs store
                                 if not provided.
 
+    :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                if not provided, it will be get from cors config store.
+
+    :keyword bool cors_always_send: specifies that cors headers must be included in
+                                    response even if the request does not have origin header.
+                                    if not provided, it will be get from cors config store.
+
+    :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                             in conjunction with default allowed ones.
+
+    :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                             with default ones.
+
+    :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                             with default ones.
+
+    :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                          response headers to front-end javascript code
+                                          if the route is authenticated.
+                                          if not provided, it will be get from cors config
+                                          store.
+
+    :keyword int cors_max_age: maximum number of seconds to cache results.
+                               if not provided, it will be get from cors config store.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the

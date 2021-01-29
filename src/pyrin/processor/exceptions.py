@@ -32,10 +32,3 @@ class RequestUserAlreadySetError(ProcessorException):
     request user already set error.
     """
     pass
-
-
-class RequestComponentCustomKeyAlreadySetError(ProcessorException):
-    """
-    request component custom key already set error.
-    """
-    pass

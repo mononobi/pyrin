@@ -9,6 +9,7 @@ import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
+from pyrin.processor.request.enumerations import RequestHeaderEnum
 from pyrin.security.permission.base import PermissionBase
 from pyrin.api.router.handlers.exceptions import FreshAuthenticationRequiredError, \
     PermissionTypeError
@@ -168,6 +169,31 @@ class ProtectedRoute(RouteBase):
                                     `max_page_size` from `database` configs store
                                     if not provided.
 
+        :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                    defaults to False if not provided.
+
+        :keyword bool cors_always_send: specifies that cors headers must be included in
+                                        response even if the request does not have origin header.
+                                        if not provided, it will be get from cors config store.
+
+        :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                                 in conjunction with default allowed ones.
+
+        :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                                 with default ones.
+
+        :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                                 with default ones.
+
+        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                              response headers to front-end javascript code
+                                              if the route is authenticated.
+                                              if not provided, it will be get from cors config
+                                              store.
+
+        :keyword int cors_max_age: maximum number of seconds to cache results.
+                                   if not provided, it will be get from cors config store.
+
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
 
@@ -180,6 +206,9 @@ class ProtectedRoute(RouteBase):
         """
 
         super().__init__(rule, **options)
+
+        if self._cors is not None:
+            self._cors.add_allowed_headers(RequestHeaderEnum.AUTHORIZATION)
 
         self._permissions = options.get('permissions', None)
         self._permissions = misc_utils.make_iterable(self._permissions, tuple)

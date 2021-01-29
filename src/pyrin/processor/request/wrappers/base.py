@@ -16,15 +16,15 @@ import pyrin.database.paging.services as paging_services
 
 from pyrin.core.globals import _
 from pyrin.caching.structs import CacheableDict
+from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.caching.decorators import cached_property
 from pyrin.core.structs import DTO, CoreImmutableMultiDict
 from pyrin.processor.request.wrappers.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
-from pyrin.processor.exceptions import RequestUserAlreadySetError, \
-    RequestComponentCustomKeyAlreadySetError
+from pyrin.processor.exceptions import RequestUserAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
     RequestContextKeyIsAlreadyPresentError, BadRequestError, RequestDeserializationError, \
-    JSONBodyDecodingError, BodyDecodingError
+    JSONBodyDecodingError, BodyDecodingError, RequestComponentCustomKeyAlreadySetError
 
 
 class CoreRequest(Request):
@@ -651,3 +651,36 @@ class CoreRequest(Request):
         """
 
         return self.get_context(self.AUTHORIZATION_CONTEXT_KEY, None)
+
+    @property
+    def is_preflight(self):
+        """
+        gets a value indicating that this is a preflight request.
+
+        it returns True if request method is `OPTIONS` and two required
+        preflight headers are present. which are `Access-Control-Request-Method`
+        and `Origin`. otherwise returns False.
+
+        :rtype: bool
+        """
+
+        if self.method != HTTPMethodEnum.OPTIONS or self.origin in (None, ''):
+            return False
+
+        if self.access_control_request_method in (None, ''):
+            return False
+
+        return True
+
+    @property
+    def is_cors(self):
+        """
+        gets a value indicating that this is a cors request.
+
+        it returns True if request method is not `OPTIONS` and `Origin`
+        header is present, otherwise returns False.
+
+        :rtype: bool
+        """
+
+        return self.origin not in (None, '') and self.method != HTTPMethodEnum.OPTIONS

@@ -18,11 +18,12 @@ import pyrin.utils.headers as header_utils
 import pyrin.utils.function as func_utils
 
 from pyrin.core.globals import _
-from pyrin.database.paging.paginator import SimplePaginator
+from pyrin.processor.cors.structs import CORS
 from pyrin.api.schema.result import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
-from pyrin.processor.response.enumerations import ResponseHeaderEnum
+from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.processor.response.wrappers.base import CoreResponse
+from pyrin.processor.response.enumerations import ResponseHeaderEnum
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
@@ -43,6 +44,7 @@ class RouteBase(Rule):
 
     result_schema_class = ResultSchema
     paginator_class = SimplePaginator
+    cors_class = CORS
 
     def __init__(self, rule, **options):
         """
@@ -191,6 +193,31 @@ class RouteBase(Rule):
                                     `max_page_size` from `database` configs store
                                     if not provided.
 
+        :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                    if not provided, it will be get from cors config store.
+
+        :keyword bool cors_always_send: specifies that cors headers must be included in
+                                        response even if the request does not have origin header.
+                                        if not provided, it will be get from cors config store.
+
+        :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                                 in conjunction with default allowed ones.
+
+        :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                                 with default ones.
+
+        :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                                 with default ones.
+
+        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                              response headers to front-end javascript code
+                                              if the route is authenticated.
+                                              if not provided, it will be get from cors config
+                                              store.
+
+        :keyword int cors_max_age: maximum number of seconds to cache results.
+                                   if not provided, it will be get from cors config store.
+
         :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
@@ -228,6 +255,8 @@ class RouteBase(Rule):
 
         self._view_function = options.get('view_function')
         self._paginator = self._get_paginator(**options)
+        self._result_schema = self._extract_schema(**options)
+        self._cors = self._get_cors_configs(**options)
 
         global_limit = config_services.get('api', 'general', 'max_content_length')
         restricted_length = options.get('max_content_length',
@@ -253,7 +282,6 @@ class RouteBase(Rule):
                                                        url=self.rule))
 
         self._required_arguments = func_utils.get_required_arguments(self._view_function)
-        self._result_schema = self._extract_schema(**options)
         self._no_cache = options.get('no_cache', False)
 
         status_code = options.pop('status_code', None)
@@ -261,7 +289,7 @@ class RouteBase(Rule):
                 status_services.is_processed(status_code, **options) is not True:
             raise InvalidResponseStatusCodeError('The provided status code [{status}] for '
                                                  'route [{route}] on view function [{function}] '
-                                                 'must be from information or success or '
+                                                 'must be from information, success or '
                                                  'redirection codes. and if you want to return '
                                                  'a status code for errors, you should raise '
                                                  'an exception with relevant code as status '
@@ -283,7 +311,7 @@ class RouteBase(Rule):
         2. both routes have the same exact url rule.
         3. both routes have the same exact http methods.
 
-        this has some difference with how flask compares routes.
+        this has some differences with how flask compares routes.
         and this is required because pyrin handles routes on its own and assures
         that there should not be multiple routes with the same url and http methods.
 
@@ -384,6 +412,16 @@ class RouteBase(Rule):
 
         return self._prepare_response(result)
 
+    @property
+    def cors(self):
+        """
+        gets cors attribute of this route.
+
+        :rtype: CORS
+        """
+
+        return self._cors
+
     def _get_paginator(self, **options):
         """
         gets paginator for this route if required.
@@ -410,6 +448,38 @@ class RouteBase(Rule):
             return self.paginator_class(**options)
 
         return None
+
+    def _get_cors_configs(self, **options):
+        """
+        gets cors configs for this route if enabled.
+
+        :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                    defaults to False if not provided.
+
+        :keyword bool cors_always_send: specifies that cors headers must be included in
+                                        response even if the request does not have origin header.
+                                        if not provided, it will be get from cors config store.
+
+        :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                                 in conjunction with default allowed ones.
+
+        :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                                 with default ones.
+
+        :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                                 with default ones.
+
+        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                              response headers to front-end javascript code
+                                              if the route is authenticated.
+                                              if not provided, it will be get from cors config
+                                              store.
+
+        :keyword int cors_max_age: maximum number of seconds to cache results.
+                                   if not provided, it will be get from cors config store.
+        """
+
+        return self.cors_class(**options)
 
     def _handle(self, inputs, **options):
         """
@@ -879,6 +949,31 @@ class TemporaryRouteBase(RouteBase):
                                     `max_page_size` from `database` configs store
                                     if not provided.
 
+        :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                    if not provided, it will be get from cors config store.
+
+        :keyword bool cors_always_send: specifies that cors headers must be included in
+                                        response even if the request does not have origin header.
+                                        if not provided, it will be get from cors config store.
+
+        :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                                 in conjunction with default allowed ones.
+
+        :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                                 with default ones.
+
+        :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                                 with default ones.
+
+        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                              response headers to front-end javascript code
+                                              if the route is authenticated.
+                                              if not provided, it will be get from cors config
+                                              store.
+
+        :keyword int cors_max_age: maximum number of seconds to cache results.
+                                   if not provided, it will be get from cors config store.
+
         :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
@@ -967,7 +1062,7 @@ class TemporaryRouteBase(RouteBase):
 
         if self._should_unregister() is True:
             self._unregister()
-            raise URLNotFoundError(_('The requested URL was not found on the server. if you '
+            raise URLNotFoundError(_('The requested URL was not found on the server. If you '
                                      'entered the URL manually please check your spelling and '
                                      'try again.'))
 

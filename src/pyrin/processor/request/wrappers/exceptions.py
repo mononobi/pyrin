@@ -71,3 +71,10 @@ class RequestDeserializationError(BadRequestError):
     request deserialization error.
     """
     pass
+
+
+class RequestComponentCustomKeyAlreadySetError(RequestWrappersException):
+    """
+    request component custom key already set error.
+    """
+    pass

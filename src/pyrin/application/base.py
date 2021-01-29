@@ -11,9 +11,10 @@ from time import time
 
 import dotenv
 
-from flask import Flask, request as flask_request
 from flask.app import setupmethod
 from flask.ctx import has_request_context
+from flask import Flask, request as flask_request, _request_ctx_stack as request_stack
+from werkzeug.exceptions import HTTPException
 
 import pyrin
 import pyrin.converters.serializer.services as serializer_services
@@ -24,6 +25,7 @@ import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.processor.mimetype.services as mimetype_services
 import pyrin.processor.response.services as response_services
+import pyrin.processor.cors.services as cors_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.function as function_utils
@@ -780,6 +782,17 @@ class Application(Flask, HookMixin, SignalMixin,
 
         authentication_services.authenticate(client_request)
 
+    def get_current_url_adapter(self):
+        """
+        gets url adapter of current request.
+
+        if request context is not present, this method raises an error.
+
+        :rtype: MapAdapter
+        """
+
+        return request_stack.top.url_adapter
+
     def make_response(self, rv):
         """
         converts the return value from a view function to an instance of `CoreResponse`.
@@ -892,6 +905,65 @@ class Application(Flask, HookMixin, SignalMixin,
             return result_schema.filter(rv, paginator=paginator)
 
         return serializer_services.serialize(rv)
+
+    def _get_cors_headers(self):
+        """
+        gets cors headers for current request if required.
+
+        if cors conditions are not met, it returns None.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        if request.url_rule is not None:
+            inputs = cors_services.process_inputs(request.url_rule.cors)
+            return cors_services.get_cors_headers(**inputs)
+
+        return None
+
+    def _get_preflight_headers(self):
+        """
+        gets preflight headers for current request if required.
+
+        if any errors occurs or cors conditions are not met, it returns None.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        adapter = self.get_current_url_adapter()
+        headers = None
+        try:
+            rule, arguments = adapter.match(method=request.access_control_request_method,
+                                            return_rule=True)
+
+            inputs = cors_services.process_inputs(rule.cors)
+            headers = cors_services.get_preflight_headers(
+                request.access_control_request_method, **inputs)
+
+        except HTTPException:
+            pass
+
+        return headers
+
+    def _get_required_cors_headers(self):
+        """
+        gets all required cors or preflight headers.
+
+        it may return None if cors conditions are not met.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        if request.is_preflight is True:
+            return self._get_preflight_headers()
+
+        elif request.is_cors is True:
+            return self._get_cors_headers()
+
+        return None
 
     @setupmethod
     def add_url_rule(self, rule, view_func,
@@ -1107,6 +1179,31 @@ class Application(Flask, HookMixin, SignalMixin,
                                     to request for this route. defaults to
                                     `max_page_size` from `database` configs store
                                     if not provided.
+
+        :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                    if not provided, it will be get from cors config store.
+
+        :keyword bool cors_always_send: specifies that cors headers must be included in
+                                        response even if the request does not have origin header.
+                                        if not provided, it will be get from cors config store.
+
+        :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                                 in conjunction with default allowed ones.
+
+        :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                                 with default ones.
+
+        :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                                 with default ones.
+
+        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                              response headers to front-end javascript code
+                                              if the route is authenticated.
+                                              if not provided, it will be get from cors config
+                                              store.
+
+        :keyword int cors_max_age: maximum number of seconds to cache results.
+                                   if not provided, it will be get from cors config store.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
@@ -1687,6 +1784,8 @@ class Application(Flask, HookMixin, SignalMixin,
                                        url=client_request.path,
                                        user=client_request.user)
         extra_headers.extend(headers or {})
+        cors_headers = self._get_required_cors_headers()
+        extra_headers.extend(cors_headers or {})
         response = response_services.pack_response(body, status_code, extra_headers)
 
         return super().finalize_request(response, from_error_handler=from_error_handler)

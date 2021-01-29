@@ -353,6 +353,31 @@ def add_url_rule(rule, view_func,
                                 `max_page_size` from `database` configs store
                                 if not provided.
 
+    :keyword bool cors_enabled: specifies that cross origin resource sharing is enabled.
+                                if not provided, it will be get from cors config store.
+
+    :keyword bool cors_always_send: specifies that cors headers must be included in
+                                    response even if the request does not have origin header.
+                                    if not provided, it will be get from cors config store.
+
+    :keyword list[str] cors_allowed_origins: a list of extra allowed origins to be used
+                                             in conjunction with default allowed ones.
+
+    :keyword list[str] cors_exposed_headers: extra exposed headers to be combined
+                                             with default ones.
+
+    :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
+                                             with default ones.
+
+    :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
+                                          response headers to front-end javascript code
+                                          if the route is authenticated.
+                                          if not provided, it will be get from cors config
+                                          store.
+
+    :keyword int cors_max_age: maximum number of seconds to cache results.
+                               if not provided, it will be get from cors config store.
+
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
     :raises PageSizeLimitError: page size limit error.
@@ -620,3 +645,13 @@ def get_pyrin_version():
     """
 
     return get_current_app().get_pyrin_version()
+
+
+def got_first_request():
+    """
+    gets a value indicating that application has been served at least one request.
+
+    :rtype: bool
+    """
+
+    return get_current_app().got_first_request
