@@ -95,3 +95,39 @@ def process_inputs(cors, **options):
     """
 
     return get_component(CORSPackage.COMPONENT_NAME).process_inputs(cors, **options)
+
+
+def get_required_cors_headers():
+    """
+    gets cors headers for current request if required.
+
+    if cors conditions are not met, it returns None.
+
+    :rtype: CoreHeaders
+    """
+
+    return get_component(CORSPackage.COMPONENT_NAME).get_required_cors_headers()
+
+
+def get_required_preflight_headers():
+    """
+    gets preflight headers for current request if required.
+
+    if any errors occurs or cors conditions are not met, it returns None.
+
+    :rtype: CoreHeaders
+    """
+
+    return get_component(CORSPackage.COMPONENT_NAME).get_required_preflight_headers()
+
+
+def get_current_cors_headers():
+    """
+    gets all required cors or preflight headers.
+
+    it may return None if cors conditions are not met.
+
+    :rtype: CoreHeaders
+    """
+
+    return get_component(CORSPackage.COMPONENT_NAME).get_current_cors_headers()

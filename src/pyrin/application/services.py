@@ -655,3 +655,15 @@ def got_first_request():
     """
 
     return get_current_app().got_first_request
+
+
+def get_current_url_adapter():
+    """
+    gets url adapter of current request.
+
+    if request context is not present, this method raises an error.
+
+    :rtype: MapAdapter
+    """
+
+    return get_current_app().get_current_url_adapter()

@@ -3,6 +3,9 @@
 cors manager module.
 """
 
+from werkzeug.exceptions import HTTPException
+
+import pyrin.application.services as application_services
 import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.string as string_utils
@@ -451,3 +454,62 @@ class CORSManager(Manager):
                     exposed_headers=exposed_headers,
                     allow_credentials=allow_credentials,
                     max_age=max_age)
+
+    def get_required_cors_headers(self):
+        """
+        gets cors headers for current request if required.
+
+        if cors conditions are not met, it returns None.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        if request.url_rule is not None:
+            inputs = self.process_inputs(request.url_rule.cors)
+            return self.get_cors_headers(**inputs)
+
+        return None
+
+    def get_required_preflight_headers(self):
+        """
+        gets preflight headers for current request if required.
+
+        if any errors occurs or cors conditions are not met, it returns None.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        adapter = application_services.get_current_url_adapter()
+        headers = None
+        try:
+            rule, arguments = adapter.match(method=request.access_control_request_method,
+                                            return_rule=True)
+
+            inputs = self.process_inputs(rule.cors)
+            headers = self.get_preflight_headers(request.access_control_request_method,
+                                                 **inputs)
+
+        except HTTPException:
+            pass
+
+        return headers
+
+    def get_current_cors_headers(self):
+        """
+        gets all required cors or preflight headers.
+
+        it may return None if cors conditions are not met.
+
+        :rtype: CoreHeaders
+        """
+
+        request = session_services.get_current_request()
+        if request.is_preflight is True:
+            return self.get_required_preflight_headers()
+
+        elif request.is_cors is True:
+            return self.get_required_cors_headers()
+
+        return None

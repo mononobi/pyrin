@@ -14,7 +14,6 @@ import dotenv
 from flask.app import setupmethod
 from flask.ctx import has_request_context
 from flask import Flask, request as flask_request, _request_ctx_stack as request_stack
-from werkzeug.exceptions import HTTPException
 
 import pyrin
 import pyrin.converters.serializer.services as serializer_services
@@ -25,7 +24,6 @@ import pyrin.security.session.services as session_services
 import pyrin.logging.services as logging_services
 import pyrin.processor.mimetype.services as mimetype_services
 import pyrin.processor.response.services as response_services
-import pyrin.processor.cors.services as cors_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.path as path_utils
 import pyrin.utils.function as function_utils
@@ -906,65 +904,6 @@ class Application(Flask, HookMixin, SignalMixin,
 
         return serializer_services.serialize(rv)
 
-    def _get_cors_headers(self):
-        """
-        gets cors headers for current request if required.
-
-        if cors conditions are not met, it returns None.
-
-        :rtype: CoreHeaders
-        """
-
-        request = session_services.get_current_request()
-        if request.url_rule is not None:
-            inputs = cors_services.process_inputs(request.url_rule.cors)
-            return cors_services.get_cors_headers(**inputs)
-
-        return None
-
-    def _get_preflight_headers(self):
-        """
-        gets preflight headers for current request if required.
-
-        if any errors occurs or cors conditions are not met, it returns None.
-
-        :rtype: CoreHeaders
-        """
-
-        request = session_services.get_current_request()
-        adapter = self.get_current_url_adapter()
-        headers = None
-        try:
-            rule, arguments = adapter.match(method=request.access_control_request_method,
-                                            return_rule=True)
-
-            inputs = cors_services.process_inputs(rule.cors)
-            headers = cors_services.get_preflight_headers(
-                request.access_control_request_method, **inputs)
-
-        except HTTPException:
-            pass
-
-        return headers
-
-    def _get_required_cors_headers(self):
-        """
-        gets all required cors or preflight headers.
-
-        it may return None if cors conditions are not met.
-
-        :rtype: CoreHeaders
-        """
-
-        request = session_services.get_current_request()
-        if request.is_preflight is True:
-            return self._get_preflight_headers()
-
-        elif request.is_cors is True:
-            return self._get_cors_headers()
-
-        return None
-
     @setupmethod
     def add_url_rule(self, rule, view_func,
                      provide_automatic_options=None, **options):
@@ -1784,8 +1723,6 @@ class Application(Flask, HookMixin, SignalMixin,
                                        url=client_request.path,
                                        user=client_request.user)
         extra_headers.extend(headers or {})
-        cors_headers = self._get_required_cors_headers()
-        extra_headers.extend(cors_headers or {})
         response = response_services.pack_response(body, status_code, extra_headers)
 
         return super().finalize_request(response, from_error_handler=from_error_handler)
