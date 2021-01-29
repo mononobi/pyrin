@@ -243,6 +243,9 @@ class CORSManager(Manager):
 
         allowed_headers = self._get_allowed_headers(**options)
         matching_headers = string_utils.union(headers, allowed_headers, collection=set)
+        if self.WILDCARD in allowed_headers:
+            matching_headers.add(self.WILDCARD)
+
         return sorted(matching_headers)
 
     def _get_common_headers(self, **options):
