@@ -9,6 +9,8 @@ from werkzeug.utils import cached_property as cached_property_base
 
 import pyrin.caching.services as caching_services
 
+from pyrin.core.decorators import class_property
+
 
 def cache(*args, **kwargs):
     """
@@ -404,3 +406,50 @@ class cached_property(cached_property_base):
         return True
     """
     pass
+
+
+class cached_class_property(class_property):
+    """
+    a decorator to convert a class property into a cached class property.
+
+    the result of the class property will be calculated once and cached.
+    the cached value is per type not per instance.
+
+    usage example:
+
+    @cached_class_property
+    def is_valid(cls):
+        return True
+    """
+
+    def _get_cache_key(self):
+        """
+        gets the cache key name for current method.
+
+        :rtype: str
+        """
+
+        return '__CACHED__{method}'.format(method=self.fget.__name__.upper())
+
+    def __get__(self, instance, cls=None):
+        """
+        gets the result of decorated method.
+
+        if the result is available in the cache, it will be get from there.
+        otherwise the method will be called to produce result.
+
+        :param instance: instance of parent class.
+        :param type cls: class type.
+
+        :returns: decorated method result.
+        """
+
+        if cls is None:
+            cls = type(instance)
+
+        try:
+            return cls.__dict__[self._get_cache_key()]
+        except KeyError:
+            result = super().__get__(instance, cls)
+            cls.__dict__[self._get_cache_key()] = result
+            return result

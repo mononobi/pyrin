@@ -30,11 +30,14 @@ class class_property(object):
         """
         gets the result of decorated method.
 
-        :param instance: ignored input for signature compatibility.
+        :param instance: instance of parent class.
         :param type cls: class type.
 
         :returns: decorated method result.
         """
+
+        if cls is None:
+            cls = type(instance)
 
         return self.fget(cls)
 
