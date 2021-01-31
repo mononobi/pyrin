@@ -24,11 +24,12 @@ class EnumMember:
         UNKNOWN = 3
 
     animal_1 = Animal.RABBIT --> this returns the value of rabbit which is 1.
-    animal_1_name = Animal.str(Animal.RABBIT) --> this returns the name of rabbit
+    animal_1_name = Animal(Animal.RABBIT) --> this returns the name of rabbit
     which is `Rabbit`.
     animal_2 = Animal.UNKNOWN --> this returns the value of unknown which is 3.
-    animal_2_name = Animal.str(Animal.UNKNOWN) --> this returns the name of unknown
-    which is `UNKNOWN`.
+    animal_2_name = Animal(3) --> this returns the name of unknown which is `UNKNOWN`.
+    animal_5 = Animal(5, silent=True) --> this returns None.
+    animal_6 = Animal(6) --> this raises an attribute error.
 
     as you could see, you could also define enum values with primitive types if needed.
     but they won't have localizable names.
@@ -411,15 +412,41 @@ class CoreEnum(metaclass=CoreEnumMeta):
     """
 
     @staticmethod
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, value, silent=False):
         """
-        this method is overridden to prevent instantiating the enum classes.
+        gets the name of given value in enumeration.
 
-        :raises TypeError: type error.
+        note that if the value is not an `EnumMember` instance, it does not have
+        a name and the name of it's attribute will be returned instead.
+        if the value does not exist in enumeration, it raises an error.
+
+        example usage:
+
+        class CarEnum(CoreEnum):
+            MERCEDES = EnumMember(1, 'Mercedes')
+            BMW = 2
+
+        name1 = CarEnum(1) --> `Mercedes`
+        name2 = CarEnum(CarEnum.MERCEDES) --> `Mercedes`
+        name3 = CarEnum(2000, silent=True) --> None
+        name4 = CarEnum(2000) --> raises AttributeError
+        name5 = CarEnum(2) --> `BMW`
+
+        :param EnumMember | object value: value to get its name.
+
+        :param bool silent: specifies that if value does not exist in
+                            enumeration, does not raise an error and
+                            return None instead. defaults to False.
+
+        :raises AttributeError: attribute error.
+
+        :rtype: str
         """
 
-        raise TypeError('[{name}] is an enumeration class and could not be instantiated.'
-                        .format(name=cls.__name__))
+        if silent is True:
+            return cls.try_str(value)
+
+        return cls.str(value)
 
     @classmethod
     def contains(cls, value):
