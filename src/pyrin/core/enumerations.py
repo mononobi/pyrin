@@ -384,6 +384,7 @@ class CoreEnumMeta(type):
 
         note that if the value is not an `EnumMember` instance, it does not have
         a name and the name of it's attribute will be returned instead.
+        if the value does not exist in enumeration, it raises an error.
 
         :param EnumMember | object value: value to get its name.
 
@@ -421,6 +422,25 @@ class CoreEnum(metaclass=CoreEnumMeta):
 
         value = cls.get_pure_value(value)
         return value in cls.values()
+
+    @classmethod
+    def try_str(cls, value):
+        """
+        gets the name of given value in enumeration.
+
+        note that if the value is not an `EnumMember` instance, it does not have
+        a name and the name of it's attribute will be returned instead.
+        if the value does not exist in enumeration, it returns None.
+
+        :param EnumMember | object value: value to get its name.
+
+        :rtype: str
+        """
+
+        try:
+            return cls.str(value)
+        except AttributeError:
+            return None
 
 
 class HTTPMethodEnum(CoreEnum):
