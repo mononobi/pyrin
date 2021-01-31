@@ -388,7 +388,7 @@ class CoreEnumMeta(type):
 
         :param EnumMember | object value: value to get its name.
 
-        :raise AttributeError: attribute error.
+        :raises AttributeError: attribute error.
 
         :rtype: str
         """
@@ -409,6 +409,17 @@ class CoreEnum(metaclass=CoreEnumMeta):
 
     all application enumerations must inherit from this class.
     """
+
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        """
+        this method is overridden to prevent instantiating the enum classes.
+
+        :raises TypeError: type error.
+        """
+
+        raise TypeError('[{name}] is an enumeration class and could not be instantiated.'
+                        .format(name=cls.__name__))
 
     @classmethod
     def contains(cls, value):
