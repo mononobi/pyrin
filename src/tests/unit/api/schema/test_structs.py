@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-schema test_result module.
+schema test_structs module.
 """
 
 import pytest
 
-from pyrin.api.schema.result import ResultSchema
+from pyrin.api.schema.structs import ResultSchema
 from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.exceptions import InvalidDepthProvidedError
 

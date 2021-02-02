@@ -10,7 +10,7 @@ import pyrin.api.router.services as router_services
 from pyrin.api.router.exceptions import RouteAuthenticationMismatchError
 from pyrin.api.router.handlers.protected import FreshProtectedRoute, ProtectedRoute
 from pyrin.api.router.handlers.public import PublicRoute
-from pyrin.api.schema.result import ResultSchema
+from pyrin.api.schema.structs import ResultSchema
 from pyrin.application.exceptions import DuplicateRouteURLError
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.core.globals import SECURE_FALSE, SECURE_TRUE
