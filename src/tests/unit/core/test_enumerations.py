@@ -17,7 +17,7 @@ def test_values():
     enum_values = HTTPMethodEnum.values()
 
     assert len(values) == len(enum_values)
-    assert values == enum_values
+    assert values == set(enum_values)
 
 
 def test_contains():
