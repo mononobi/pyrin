@@ -3,6 +3,8 @@
 serializer handlers base module.
 """
 
+from abc import abstractmethod
+
 from pyrin.converters.serializer.interface import AbstractSerializerBase
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.core.globals import NULL
@@ -32,6 +34,10 @@ class SerializerBase(AbstractSerializerBase):
 
         :param object value: value to be serialized.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :returns: serialized object
         :rtype: dict | list[dict]
         """
@@ -41,6 +47,7 @@ class SerializerBase(AbstractSerializerBase):
 
         return self._serialize(value, **options)
 
+    @abstractmethod
     def _serialize(self, value, **options):
         """
         serializes the given value.
@@ -48,6 +55,10 @@ class SerializerBase(AbstractSerializerBase):
         this method must be implemented by subclasses.
 
         :param object value: value to be serialized.
+
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
 
         :raises CoreNotImplementedError: core not implemented error.
 

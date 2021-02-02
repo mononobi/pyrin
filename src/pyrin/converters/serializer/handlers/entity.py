@@ -3,6 +3,8 @@
 serializer handlers entity module.
 """
 
+import pyrin.api.schema.services as schema_services
+
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
 from pyrin.database.model.base import BaseEntity
@@ -41,8 +43,8 @@ class BaseEntitySerializer(SerializerBase):
                                                                          PersonEntity=
                                                                          ['id', 'age'])`
                                                            if provided column names are not
-                                                           available in result, an error will
-                                                           be raised.
+                                                           available in result, they will be
+                                                           ignored.
 
         :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
 
@@ -127,12 +129,19 @@ class BaseEntitySerializer(SerializerBase):
                             in `ConverterMixin.MAX_DEPTH` class variable. providing higher
                             `depth` value than this limit, will cause an error.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :raises InvalidDepthProvidedError: invalid depth provided error.
 
         :rtype: dict
         """
 
-        return value.to_dict(**options)
+        computed_columns = schema_services.get_computed_entity_columns(value, **options)
+        result = value.to_dict(**options)
+        result.update(computed_columns)
+        return result
 
     @property
     def accepted_type(self):

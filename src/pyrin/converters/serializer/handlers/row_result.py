@@ -3,11 +3,13 @@
 serializer handlers row_result module.
 """
 
+import pyrin.api.schema.services as schema_services
+
+from pyrin.core.structs import DTO
+from pyrin.core.globals import ROW_RESULT
+from pyrin.database.model.base import BaseEntity
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
-from pyrin.database.model.base import BaseEntity
-from pyrin.core.globals import ROW_RESULT
-from pyrin.core.structs import DTO
 
 
 @serializer()
@@ -26,8 +28,7 @@ class RowResultSerializer(SerializerBase):
                                     for example:
                                     `columns=['id', 'name', 'age']`
                                     if provided column names are not
-                                    available in result, an error will
-                                    be raised.
+                                    available in result, they will be ignored.
 
         :keyword dict[str, str] rename: column names that must be renamed in the result.
                                         it must be a dict with keys as original column
@@ -45,6 +46,10 @@ class RowResultSerializer(SerializerBase):
                                     available in result, they will be
                                     ignored.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :rtype: dict
         """
 
@@ -58,15 +63,22 @@ class RowResultSerializer(SerializerBase):
         for item in base_columns:
             instance = getattr(value, item)
             if isinstance(instance, BaseEntity):
+                computed_entity_columns = schema_services.get_computed_entity_columns(instance,
+                                                                                      **options)
                 serialized_entity = instance.to_dict(**options)
+                serialized_entity.update(computed_entity_columns)
                 entities[item] = serialized_entity
                 to_remove_keys.append(item)
                 excluded_columns.append(item)
 
+        computed_row_columns = schema_services.get_computed_row_columns(value, **options)
+
         if len(requested_columns) <= 0 and \
                 len(rename) <= 0 and len(excluded_columns) <= 0:
 
-            return DTO(zip(base_columns, value))
+            result = DTO(zip(base_columns, value))
+            result.update(computed_row_columns)
+            return result
 
         for item in to_remove_keys:
             base_columns.remove(item)
@@ -84,6 +96,7 @@ class RowResultSerializer(SerializerBase):
             if col not in excluded_columns:
                 result[rename.get(col, col)] = getattr(value, col)
 
+        result.update(computed_row_columns)
         return result
 
     @property
@@ -108,8 +121,7 @@ class RowResultSerializer(SerializerBase):
                                     for example:
                                     `columns=['id', 'name', 'age']`
                                     if provided column names are not
-                                    available in result, an error will
-                                    be raised.
+                                    available in result, they will be ignored.
 
         :keyword dict[str, str] rename: column names that must be renamed in the result.
                                         it must be a dict with keys as original column

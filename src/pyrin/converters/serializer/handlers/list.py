@@ -47,6 +47,10 @@ class ListSerializer(SerializerBase):
 
         :keyword int start_index: the initial value of row index.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :returns: serialized list of objects
         :rtype: list[dict]
         """

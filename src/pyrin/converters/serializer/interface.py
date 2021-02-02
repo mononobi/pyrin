@@ -35,6 +35,10 @@ class AbstractSerializerBase(CoreObject, metaclass=SerializerSingletonMeta):
 
         :param object value: value to be serialized.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: serialized object

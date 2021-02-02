@@ -19,7 +19,7 @@ import pyrin.utils.function as func_utils
 
 from pyrin.core.globals import _
 from pyrin.processor.cors.structs import CORS
-from pyrin.api.schema.result import ResultSchema
+from pyrin.api.schema.structs import ResultSchema
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.processor.response.wrappers.base import CoreResponse

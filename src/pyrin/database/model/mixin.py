@@ -519,8 +519,8 @@ class ConverterMixin(CoreObject):
                                                                          PersonEntity=
                                                                          ['id', 'age'])`
                                                            if provided column names are not
-                                                           available in result, an error will
-                                                           be raised.
+                                                           available in result, they will
+                                                           be ignored.
 
         :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
 
@@ -802,8 +802,8 @@ class ConverterMixin(CoreObject):
                                                                          PersonEntity=
                                                                          ['id', 'age'])`
                                                            if provided column names are not
-                                                           available in result, an error will
-                                                           be raised.
+                                                           available in result, they will
+                                                           be ignored.
 
         :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
 

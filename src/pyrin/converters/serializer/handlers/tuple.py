@@ -24,6 +24,10 @@ class TupleSerializer(SerializerBase):
 
         :param tuple[object] value: tuple value to be serialized.
 
+        :keyword ResultSchema result_schema: result schema instance to be
+                                             used to create computed columns.
+                                             defaults to None if not provided.
+
         :returns: serialized tuple of objects
         :rtype: tuple[dict]
         """

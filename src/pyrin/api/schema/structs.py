@@ -18,6 +18,17 @@ class ResultSchema(CoreObject):
     result schema class.
     """
 
+    # these values could be set if you do not want to set them through '__init__' method.
+    # read the '__init__' method's docstring for details.
+    default_columns = None
+    default_rename = None
+    default_exclude = None
+    default_depth = None
+    default_exposed_only = None
+    default_indexed = None
+    default_index_name = None
+    default_start_index = None
+
     def __init__(self, **options):
         """
         initializes an instance of ResultSchema.
@@ -47,8 +58,8 @@ class ResultSchema(CoreObject):
                                                                          PersonEntity=
                                                                          ['id', 'age'])`
                                                            if provided column names are not
-                                                           available in result, an error will
-                                                           be raised.
+                                                           available in result, they will be
+                                                           ignored.
 
         :note columns: dict[str entity_class_name, list[str column_name]] | list[str column_name]
 
@@ -155,14 +166,23 @@ class ResultSchema(CoreObject):
 
         super().__init__()
 
-        columns = options.get('columns')
-        rename = options.get('rename')
-        exclude = options.get('exclude')
+        columns = options.get('columns') or self.default_columns
+        rename = options.get('rename') or self.default_rename
+        exclude = options.get('exclude') or self.default_exclude
         depth = options.get('depth')
-        exposed_only = options.get('exposed_only')
+        exposed_only = options.get('exposed_only') or self.default_exposed_only
         indexed = options.get('indexed')
-        index_name = options.get('index_name')
+        index_name = options.get('index_name') or self.default_index_name
         start_index = options.get('start_index')
+
+        if depth is None:
+            depth = self.default_depth
+
+        if indexed is None:
+            indexed = self.default_indexed
+
+        if start_index is None:
+            start_index = self.default_start_index
 
         self._default_index_name = config_services.get('api', 'schema', 'index_name')
         self._default_start_index = config_services.get('api', 'schema', 'start_index')
@@ -171,8 +191,10 @@ class ResultSchema(CoreObject):
         self._rename = rename
         self._exclude = exclude
         self._depth = depth
-        self._exposed_only = None
         self._indexed = indexed
+
+        # set these to None to populate them using respective properties.
+        self._exposed_only = None
         self._index_name = None
         self._start_index = None
 
@@ -180,32 +202,6 @@ class ResultSchema(CoreObject):
         self.exposed_only = exposed_only
         self.index_name = index_name
         self.start_index = start_index
-
-    def copy(self):
-        """
-        returns a deep copy of this instance
-
-        :rtype: ResultSchema
-        """
-
-        return deepcopy(self)
-
-    def filter(self, item, **options):
-        """
-        filters the given item based on current schema.
-
-        :param object item: item to be filtered.
-
-        :keyword PaginatorBase paginator: paginator instance if any.
-                                          if provided, it will be used to
-                                          generate correct row indexes.
-
-        :raises InvalidDepthProvidedError: invalid depth provided error.
-
-        :returns: filtered object
-        """
-
-        return self._filter(item, **options)
 
     def _filter(self, item, **options):
         """
@@ -239,9 +235,66 @@ class ResultSchema(CoreObject):
                        exposed_only=self.exposed_only,
                        indexed=self.indexed,
                        index_name=self.index_name,
-                       start_index=start_index)
+                       start_index=start_index,
+                       result_schema=self)
 
         return serializer_services.serialize(item, **options)
+
+    def get_computed_row_columns(self, row, **options):
+        """
+        gets a dict containing all computed columns to be added to the result.
+
+        this method is intended to be overridden in subclasses.
+        note that the result dict should not contain any `BaseEntity` or
+        `ROW_RESULT` values, otherwise a max recursion error may occur.
+
+        :param ROW_RESULT row: the actual row result to be processed.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def get_computed_entity_columns(self, entity, **options):
+        """
+        gets a dict containing all computed columns to be added to the result.
+
+        this method is intended to be overridden in subclasses.
+        note that the result dict should not contain any `BaseEntity` or
+        `ROW_RESULT` values, otherwise a max recursion error may occur.
+
+        :param BaseEntity entity: the actual entity to be processed.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def copy(self):
+        """
+        returns a deep copy of this instance
+
+        :rtype: ResultSchema
+        """
+
+        return deepcopy(self)
+
+    def filter(self, item, **options):
+        """
+        filters the given item based on current schema.
+
+        :param object item: item to be filtered.
+
+        :keyword PaginatorBase paginator: paginator instance if any.
+                                          if provided, it will be used to
+                                          generate correct row indexes.
+
+        :raises InvalidDepthProvidedError: invalid depth provided error.
+
+        :returns: filtered object
+        """
+
+        return self._filter(item, **options)
 
     @property
     def columns(self):
