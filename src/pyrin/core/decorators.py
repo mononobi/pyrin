@@ -9,6 +9,7 @@ class class_property(object):
     a decorator to define a class property.
 
     it is similar to a property but works at class level.
+    it only supports get.
 
     usage example:
 

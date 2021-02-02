@@ -8,6 +8,7 @@ from functools import update_wrapper
 from werkzeug.utils import cached_property as cached_property_base
 
 import pyrin.caching.services as caching_services
+import pyrin.utils.function as function_utils
 
 from pyrin.core.decorators import class_property
 
@@ -414,6 +415,7 @@ class cached_class_property(class_property):
 
     the result of the class property will be calculated once and cached.
     the cached value is per type not per instance.
+    it only supports get.
 
     usage example:
 
@@ -422,14 +424,15 @@ class cached_class_property(class_property):
         return True
     """
 
-    def _get_cache_key(self):
+    def __init__(self, method=None):
         """
-        gets the cache key name for current method.
+        initializes an instance of cached_class_property.
 
-        :rtype: str
+        :param function method: decorated method.
         """
 
-        return '__CACHED__{method}'.format(method=self.fget.__name__.upper())
+        super().__init__(method)
+        self.__cache_name__ = self._get_cache_key()
 
     def __get__(self, instance, cls=None):
         """
@@ -448,8 +451,18 @@ class cached_class_property(class_property):
             cls = type(instance)
 
         try:
-            return cls.__dict__[self._get_cache_key()]
+            return vars(cls)[self.__cache_name__]
         except KeyError:
             result = super().__get__(instance, cls)
-            cls.__dict__[self._get_cache_key()] = result
+            setattr(cls, self.__cache_name__, result)
             return result
+
+    def _get_cache_key(self):
+        """
+        gets the cache key name for current method.
+
+        :rtype: str
+        """
+
+        return '__CACHED__{method}__'.format(
+            method=function_utils.get_fully_qualified_name(self.fget).upper())
