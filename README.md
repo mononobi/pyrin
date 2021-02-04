@@ -101,7 +101,7 @@ class GuestEntity(CoreEntity):
 
     _table = 'guest'
 
-    id = CoreColumn(name='id', type_=GUID, primary_key=True, exposed=False)
+    id = CoreColumn(name='id', type_=GUID, primary_key=True, allow_write=False)
     name = CoreColumn(name='name', type_=Unicode(100))
     age = CoreColumn(name='age', type_=SmallInteger)
 ```
@@ -123,7 +123,7 @@ def introduce(name, **options):
     id = generate_uuid4()
     guest = GuestEntity(id=id, name=name)
     store.add(guest)
-    return 'Hello dear {name}, you have been added to our app.'.format(name=name)
+    return 'Hello dear {name}, you have been added into our database.'.format(name=name)
 
 
 @api('/guests', authenticated=False)
