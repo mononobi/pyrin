@@ -22,19 +22,19 @@ def test_create_schema():
     columns = ['id', 'name']
     exclude = ['age']
     rename = dict(name='new_name')
-    exposed_only = SECURE_FALSE
+    readable = SECURE_FALSE
     depth = 2
 
     schema = ResultSchema(columns=columns,
                           exclude=exclude,
                           rename=rename,
-                          exposed_only=exposed_only,
+                          readable=readable,
                           depth=depth)
 
     assert schema.columns == columns
     assert schema.exclude == exclude
     assert schema.rename == rename
-    assert schema.exposed_only is exposed_only
+    assert schema.readable is readable
     assert schema.depth == depth
 
 
@@ -50,7 +50,7 @@ def test_create_schema_with_some_input():
     assert schema.columns == columns
     assert schema.exclude is None
     assert schema.rename is None
-    assert schema.exposed_only is None
+    assert schema.readable is None
     assert schema.depth == 3
 
 
@@ -148,7 +148,7 @@ def test_filter_rows_with_columns_rename():
 
     columns = ['id', 'name']
     rename = dict(name='new_name')
-    schema = ResultSchema(columns=columns, rename=rename, exposed_only=SECURE_FALSE)
+    schema = ResultSchema(columns=columns, rename=rename, readable=SECURE_FALSE)
 
     results = generate_row_results(20,
                                    ['id', 'name', 'extra', 'age'],
@@ -293,7 +293,7 @@ def test_filter_none_item():
     filters the item which is None. it should return the same input value.
     """
 
-    schema = ResultSchema(exposed_only=SECURE_TRUE)
+    schema = ResultSchema(readable=SECURE_TRUE)
     filtered = schema.filter(None)
 
     assert filtered is None
@@ -385,7 +385,7 @@ def test_filter_entities_with_columns_rename():
 
     columns = ['id', 'grade']
     rename = dict(grade='new_grade')
-    schema = ResultSchema(columns=columns, rename=rename, exposed_only=SECURE_FALSE)
+    schema = ResultSchema(columns=columns, rename=rename, readable=SECURE_FALSE)
 
     kwargs = dict(id=1, age=25, grade=5)
     results = generate_entity_results(RightChildEntity, 20, **kwargs,
@@ -498,9 +498,9 @@ def test_filter_entities_with_columns_and_invalid_exclude_rename():
                sorted(['new_id', 'age']) for item in filtered)
 
 
-def test_filter_entities_with_exposed_only_true():
+def test_filter_entities_with_readable_true():
     """
-    filters entity results using given schema which have `exposed_only=SECURE_TRUE` attribute.
+    filters entity results using given schema which have `readable=SECURE_TRUE` attribute.
     """
 
     rename = dict(id='new_id', fake='new_fake', not_present='not_present')
@@ -519,13 +519,13 @@ def test_filter_entities_with_exposed_only_true():
                sorted(['new_id', 'sub_id', 'age', 'name']) for item in filtered)
 
 
-def test_filter_entities_with_exposed_only_false():
+def test_filter_entities_with_readable_false():
     """
-    filters entity results using given schema which have `exposed_only=SECURE_FALSE` attribute.
+    filters entity results using given schema which have `readable=SECURE_FALSE` attribute.
     """
 
     rename = dict(id='new_id', fake='new_fake', not_present='not_present')
-    schema = ResultSchema(rename=rename, exposed_only=SECURE_FALSE)
+    schema = ResultSchema(rename=rename, readable=SECURE_FALSE)
 
     kwargs = dict(id=1, sub_id='sub_1', age=25, name='some_name', hidden_field='some_secret')
     results = generate_entity_results(SampleWithHiddenFieldEntity, 20,

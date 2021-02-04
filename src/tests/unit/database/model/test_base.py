@@ -81,31 +81,31 @@ def test_all_columns():
     assert set(fields4) == set(entity4.all_columns)
 
 
-def test_exposed_columns():
+def test_readable_columns():
     """
-    gets exposed column names of entity.
-    exposed columns are those that have `exposed=True`
+    gets readable column names of entity.
+    readable columns are those that have `allow_read=True`
     """
 
     entity1 = SampleWithHiddenFieldEntity()
     fields1 = ['age', 'name']
 
-    assert set(fields1) == set(entity1.exposed_columns)
+    assert set(fields1) == set(entity1.readable_columns)
 
     entity2 = BaseEntity()
     fields2 = []
 
-    assert set(fields2) == set(entity2.exposed_columns)
+    assert set(fields2) == set(entity2.readable_columns)
 
     entity3 = SubBaseEntity()
     fields3 = ['age']
 
-    assert set(fields3) == set(entity3.exposed_columns)
+    assert set(fields3) == set(entity3.readable_columns)
 
     entity4 = RightChildEntity()
     fields4 = ['age', 'grade']
 
-    assert set(fields4) == set(entity4.exposed_columns)
+    assert set(fields4) == set(entity4.readable_columns)
 
 
 def test_to_dict():
@@ -134,9 +134,9 @@ def test_to_dict():
 def test_to_dict_with_hidden_column():
     """
     converts the entity into a dict and returns it.
-    the result dict only contains the exposed columns of
-    the entity which are those that their `hidden` attribute
-    is set to False.
+    the result dict only contains the readable columns of
+    the entity which are those that their `allow_read` attribute
+    is set to True.
     """
 
     id = 1000

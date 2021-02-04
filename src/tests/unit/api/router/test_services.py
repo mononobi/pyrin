@@ -172,17 +172,17 @@ def test_create_route_with_schema_attributes():
     creates the appropriate route with provided schema attributes.
     """
 
-    route = router_services.create_route('/api/router/public_with_depth_and_exposed',
+    route = router_services.create_route('/api/router/public_with_depth_and_readable',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
                                          authenticated=False,
                                          depth=3,
-                                         exposed_only=SECURE_FALSE)
+                                         readable=SECURE_FALSE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema.depth == 3
-    assert route.result_schema.exposed_only is SECURE_FALSE
+    assert route.result_schema.readable is SECURE_FALSE
 
 
 def test_create_route_with_schema():
@@ -193,7 +193,7 @@ def test_create_route_with_schema():
     schema = ResultSchema(columns=['id', 'name', 'age'],
                           rename=dict(id='new_id', name='new_name'),
                           exclude=['extra'],
-                          exposed_only=SECURE_FALSE,
+                          readable=SECURE_FALSE,
                           depth=5)
 
     route = router_services.create_route('/api/router/public_with_schema',
@@ -215,7 +215,7 @@ def test_create_route_with_schema_with_overridden_attributes():
     schema = ResultSchema(columns=['id', 'name', 'age'],
                           rename=dict(id='new_id', name='new_name'),
                           exclude=['extra'],
-                          exposed_only=SECURE_FALSE,
+                          readable=SECURE_FALSE,
                           depth=0)
 
     route = router_services.create_route('/api/router/public_with_schema_overridden',
@@ -224,18 +224,18 @@ def test_create_route_with_schema_with_overridden_attributes():
                                          authenticated=False,
                                          result_schema=schema,
                                          depth=4,
-                                         exposed_only=SECURE_TRUE)
+                                         readable=SECURE_TRUE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema is not schema
     assert route.result_schema.depth == 4
-    assert route.result_schema.exposed_only is SECURE_TRUE
+    assert route.result_schema.readable is SECURE_TRUE
     assert route.result_schema.columns == schema.columns
     assert route.result_schema.exclude == schema.exclude
     assert route.result_schema.rename == schema.rename
 
-    assert schema.exposed_only is SECURE_FALSE
+    assert schema.readable is SECURE_FALSE
     assert schema.depth == 0
 
 
@@ -253,24 +253,24 @@ def test_create_route_with_depth():
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema.depth == 8
-    assert route.result_schema.exposed_only is None
+    assert route.result_schema.readable is None
 
 
-def test_create_route_with_exposed_only():
+def test_create_route_with_readable():
     """
-    creates the appropriate route with provided exposed_only.
+    creates the appropriate route with provided readable.
     """
 
-    route = router_services.create_route('/api/router/public_with_exposed_only',
+    route = router_services.create_route('/api/router/public_with_readable',
                                          methods=HTTPMethodEnum.POST,
                                          view_function=mock_view_function,
                                          authenticated=False,
-                                         exposed_only=SECURE_FALSE)
+                                         readable=SECURE_FALSE)
 
     assert route is not None
     assert route.result_schema is not None
     assert route.result_schema.depth is None
-    assert route.result_schema.exposed_only is SECURE_FALSE
+    assert route.result_schema.readable is SECURE_FALSE
 
 
 def test_add_route():

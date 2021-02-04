@@ -112,10 +112,10 @@ def test_serialize_entity():
     assert result.get('age', None) == 10
 
 
-def test_serialize_entity_exposed_only():
+def test_serialize_entity_readable():
     """
     serializes the given entity into dict.
-    it only serializes the exposed columns.
+    it only serializes the readable columns.
     """
 
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
@@ -141,7 +141,7 @@ def test_serialize_entity_all():
     entity = SampleWithHiddenFieldEntity(id=1, sub_id='my_sub_id', name='my_name',
                                          age=10, hidden_field='some_secret',
                                          populate_all=SECURE_TRUE)
-    result = serializer_services.serialize(entity, exposed_only=SECURE_FALSE)
+    result = serializer_services.serialize(entity, readable=SECURE_FALSE)
 
     assert isinstance(result, dict)
     assert len(result) == 5
@@ -189,10 +189,10 @@ def test_serialize_entity_list():
     assert third.get('age', None) == 30
 
 
-def test_serialize_entity_list_exposed_only():
+def test_serialize_entity_list_readable():
     """
     serializes the given entity list into dict list.
-    it only serializes exposed columns.
+    it only serializes readable columns.
     """
 
     entity1 = SampleWithHiddenFieldEntity(id=1, sub_id='1', name='my_name1',
@@ -256,7 +256,7 @@ def test_serialize_entity_list_all():
                                           age=30, hidden_field='some_secret3',
                                           populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
-    results = serializer_services.serialize(values, exposed_only=SECURE_FALSE)
+    results = serializer_services.serialize(values, readable=SECURE_FALSE)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -304,7 +304,7 @@ def test_serialize_entity_list_mixed_none():
                                           age=30, hidden_field='some_secret3',
                                           populate_all=SECURE_TRUE)
     values = [entity1, entity2, entity3]
-    results = serializer_services.serialize(values, exposed_only=SECURE_TRUE)
+    results = serializer_services.serialize(values, readable=SECURE_TRUE)
 
     assert isinstance(results, list)
     assert len(results) == 3
