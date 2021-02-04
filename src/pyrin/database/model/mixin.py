@@ -56,18 +56,23 @@ class ColumnMixin(CoreObject):
         note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
 
+        note:
+        as a column is either readable or not readable, so readable columns and
+        not readable columns equal to all columns, as is for writable and
+        not writable columns.
+
         :rtype: tuple[str]
         """
 
-        return self.exposed_columns + self.not_exposed_columns
+        return self.readable_columns + self.not_readable_columns
 
     @property
     @fast_cache
-    def exposed_columns(self):
+    def readable_columns(self):
         """
-        gets exposed column names of this entity.
+        gets readable column names of this entity.
 
-        which are those that have `exposed=True` in their definition
+        which are those that have `allow_read=True` in their definition
         and their name does not start with underscore `_`.
         note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
@@ -77,20 +82,20 @@ class ColumnMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         columns = tuple(attr.key for attr in info.column_attrs
-                        if self.is_exposed(attr.key) is True and
+                        if self.is_public(attr.key) is True and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False and
-                        attr.columns[0].exposed is True)
+                        attr.columns[0].allow_read is True)
 
         return columns
 
     @property
     @fast_cache
-    def not_exposed_columns(self):
+    def not_readable_columns(self):
         """
-        gets not exposed column names of this entity.
+        gets not readable column names of this entity.
 
-        which are those that have `exposed=False` in their definition
+        which are those that have `allow_read=False` in their definition
         or their name starts with underscore `_`.
         note that primary and foreign keys are not included in columns.
         column names will be calculated once and cached.
@@ -100,8 +105,54 @@ class ColumnMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         columns = tuple(attr.key for attr in info.column_attrs
-                        if (self.is_exposed(attr.key) is False or
-                            attr.columns[0].exposed is False) and
+                        if (self.is_public(attr.key) is False or
+                            attr.columns[0].allow_read is False) and
+                        attr.columns[0].is_foreign_key is False and
+                        attr.columns[0].primary_key is False)
+
+        return columns
+
+    @property
+    @fast_cache
+    def writable_columns(self):
+        """
+        gets writable column names of this entity.
+
+        which are those that have `allow_write=True` in their definition
+        and their name does not start with underscore `_`.
+        note that primary and foreign keys are not included in columns.
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        columns = tuple(attr.key for attr in info.column_attrs
+                        if self.is_public(attr.key) is True and
+                        attr.columns[0].is_foreign_key is False and
+                        attr.columns[0].primary_key is False and
+                        attr.columns[0].allow_write is True)
+
+        return columns
+
+    @property
+    @fast_cache
+    def not_writable_columns(self):
+        """
+        gets not writable column names of this entity.
+
+        which are those that have `allow_write=False` in their definition
+        or their name starts with underscore `_`.
+        note that primary and foreign keys are not included in columns.
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        columns = tuple(attr.key for attr in info.column_attrs
+                        if (self.is_public(attr.key) is False or
+                            attr.columns[0].allow_write is False) and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False)
 
@@ -142,7 +193,7 @@ class RelationshipMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         relationships = tuple(attr.key for attr in info.relationships
-                              if self.is_exposed(attr.key) is True)
+                              if self.is_public(attr.key) is True)
         return relationships
 
     @property
@@ -159,7 +210,7 @@ class RelationshipMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         relationships = tuple(attr.key for attr in info.relationships
-                              if self.is_exposed(attr.key) is False)
+                              if self.is_public(attr.key) is False)
         return relationships
 
 
@@ -181,15 +232,15 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.exposed_hybrid_properties + self.not_exposed_hybrid_properties
+        return self.readable_hybrid_properties + self.not_readable_hybrid_properties
 
     @property
     @fast_cache
-    def exposed_hybrid_properties(self):
+    def readable_hybrid_properties(self):
         """
-        gets exposed hybrid property names of this entity.
+        gets readable hybrid property names of this entity.
 
-        exposed hybrid properties are those that their name does
+        readable hybrid properties are those that their name does
         not start with underscore `_`.
         property names will be calculated once and cached.
 
@@ -199,17 +250,17 @@ class HybridPropertyMixin(CoreObject):
         info = sqla_inspect(type(self))
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
-                                  and self.is_exposed(item.__name__) is True)
+                                  and self.is_public(item.__name__) is True)
 
         return hybrid_properties
 
     @property
     @fast_cache
-    def not_exposed_hybrid_properties(self):
+    def not_readable_hybrid_properties(self):
         """
-        gets not exposed hybrid property names of this entity.
+        gets not readable hybrid property names of this entity.
 
-        not exposed hybrid properties are those that their
+        not readable hybrid properties are those that their
         name starts with underscore `_`.
         property names will be calculated once and cached.
 
@@ -219,7 +270,7 @@ class HybridPropertyMixin(CoreObject):
         info = sqla_inspect(type(self))
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
-                                  and self.is_exposed(item.__name__) is False)
+                                  and self.is_public(item.__name__) is False)
 
         return hybrid_properties
 
@@ -287,18 +338,23 @@ class PrimaryKeyMixin(CoreObject):
 
         column names will be calculated once and cached.
 
+        note:
+        as a column is either readable or not readable, so readable columns and
+        not readable columns equal to all columns, as is for writable and
+        not writable columns.
+
         :rtype: tuple[str]
         """
 
-        return self.exposed_primary_key_columns + self.not_exposed_primary_key_columns
+        return self.readable_primary_key_columns + self.not_readable_primary_key_columns
 
     @property
     @fast_cache
-    def exposed_primary_key_columns(self):
+    def readable_primary_key_columns(self):
         """
-        gets the exposed primary key column names of this entity.
+        gets the readable primary key column names of this entity.
 
-        which are those that have `exposed=True` in their definition
+        which are those that have `allow_read=True` in their definition
         and their name does not start with underscore `_`.
         column names will be calculated once and cached.
 
@@ -307,18 +363,18 @@ class PrimaryKeyMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_exposed(info.get_property_by_column(col).key) is True
-                   and col.exposed is True)
+                   if self.is_public(info.get_property_by_column(col).key) is True
+                   and col.allow_read is True)
 
         return pk
 
     @property
     @fast_cache
-    def not_exposed_primary_key_columns(self):
+    def not_readable_primary_key_columns(self):
         """
-        gets not exposed primary key column names of this entity.
+        gets not readable primary key column names of this entity.
 
-        which are those that have `exposed=False` in their definition
+        which are those that have `allow_read=False` in their definition
         or their name starts with underscore `_`.
         column names will be calculated once and cached.
 
@@ -327,8 +383,48 @@ class PrimaryKeyMixin(CoreObject):
 
         info = sqla_inspect(type(self))
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_exposed(info.get_property_by_column(col).key) is False
-                   or col.exposed is False)
+                   if self.is_public(info.get_property_by_column(col).key) is False
+                   or col.allow_read is False)
+
+        return pk
+
+    @property
+    @fast_cache
+    def writable_primary_key_columns(self):
+        """
+        gets the writable primary key column names of this entity.
+
+        which are those that have `allow_write=True` in their definition
+        and their name does not start with underscore `_`.
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
+                   if self.is_public(info.get_property_by_column(col).key) is True
+                   and col.allow_write is True)
+
+        return pk
+
+    @property
+    @fast_cache
+    def not_writable_primary_key_columns(self):
+        """
+        gets not writable primary key column names of this entity.
+
+        which are those that have `allow_write=False` in their definition
+        or their name starts with underscore `_`.
+        column names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
+                   if self.is_public(info.get_property_by_column(col).key) is False
+                   or col.allow_write is False)
 
         return pk
 
@@ -350,18 +446,23 @@ class ForeignKeyMixin(CoreObject):
         note that those foreign keys which are also a primary key, will not
         be included in this list.
 
+        note:
+        as a column is either readable or not readable, so readable columns and
+        not readable columns equal to all columns, as is for writable and
+        not writable columns.
+
         :rtype: tuple[str]
         """
 
-        return self.exposed_foreign_key_columns + self.not_exposed_foreign_key_columns
+        return self.readable_foreign_key_columns + self.not_readable_foreign_key_columns
 
     @property
     @fast_cache
-    def exposed_foreign_key_columns(self):
+    def readable_foreign_key_columns(self):
         """
-        gets the exposed foreign key column names of this entity.
+        gets the readable foreign key column names of this entity.
 
-        which are those that have `exposed=True` in their definition
+        which are those that have `allow_read=True` in their definition
         and their name does not start with underscore `_`.
         column names will be calculated once and cached.
         note that those foreign keys which are also a primary key, will not
@@ -374,18 +475,18 @@ class ForeignKeyMixin(CoreObject):
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False
-                   and self.is_exposed(attr.key) is True
-                   and attr.columns[0].exposed is True)
+                   and self.is_public(attr.key) is True
+                   and attr.columns[0].allow_read is True)
 
         return fk
 
     @property
     @fast_cache
-    def not_exposed_foreign_key_columns(self):
+    def not_readable_foreign_key_columns(self):
         """
-        gets not exposed foreign key column names of this entity.
+        gets not readable foreign key column names of this entity.
 
-        which are those that have `exposed=False` in their definition
+        which are those that have `allow_read=False` in their definition
         or their name starts with underscore `_`.
         column names will be calculated once and cached.
         note that those foreign keys which are also a primary key, will not
@@ -398,8 +499,56 @@ class ForeignKeyMixin(CoreObject):
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False and
-                   (self.is_exposed(attr.key) is False or
-                    attr.columns[0].exposed is False))
+                   (self.is_public(attr.key) is False or
+                    attr.columns[0].allow_read is False))
+
+        return fk
+
+    @property
+    @fast_cache
+    def writable_foreign_key_columns(self):
+        """
+        gets the writable foreign key column names of this entity.
+
+        which are those that have `allow_write=True` in their definition
+        and their name does not start with underscore `_`.
+        column names will be calculated once and cached.
+        note that those foreign keys which are also a primary key, will not
+        be included in this list.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        fk = tuple(attr.key for attr in info.column_attrs
+                   if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].primary_key is False
+                   and self.is_public(attr.key) is True
+                   and attr.columns[0].allow_write is True)
+
+        return fk
+
+    @property
+    @fast_cache
+    def not_writable_foreign_key_columns(self):
+        """
+        gets not writable foreign key column names of this entity.
+
+        which are those that have `allow_write=False` in their definition
+        or their name starts with underscore `_`.
+        column names will be calculated once and cached.
+        note that those foreign keys which are also a primary key, will not
+        be included in this list.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        fk = tuple(attr.key for attr in info.column_attrs
+                   if attr.columns[0].is_foreign_key is True
+                   and attr.columns[0].primary_key is False and
+                   (self.is_public(attr.key) is False or
+                    attr.columns[0].allow_write is False))
 
         return fk
 
@@ -423,47 +572,80 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.all_exposed_attributes + self.all_not_exposed_attributes
+        return self.all_readable_attributes + self.all_not_readable_attributes
 
     @property
     @fast_cache
-    def all_exposed_attributes(self):
+    def all_readable_attributes(self):
         """
-        gets all exposed attribute names of current entity.
+        gets all readable attribute names of current entity.
 
-        which are those that have `exposed=True` (only for columns) in
+        which are those that have `allow_read=True` (only for columns) in
         their definition and their name does not start with underscore `_`.
         attribute names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        return self.exposed_primary_key_columns + self.exposed_foreign_key_columns + \
-            self.exposed_columns + self.exposed_relationships + self.exposed_hybrid_properties
+        return self.readable_primary_key_columns + self.readable_foreign_key_columns + \
+            self.readable_columns + self.exposed_relationships + self.readable_hybrid_properties
 
     @property
     @fast_cache
-    def all_not_exposed_attributes(self):
+    def all_not_readable_attributes(self):
         """
-        gets all not exposed attribute names of current entity.
+        gets all not readable attribute names of current entity.
 
-        which are those that have `exposed=False` (only for columns) in
+        which are those that have `allow_read=False` (only for columns) in
         their definition or their name starts with underscore `_`.
         attribute names will be calculated once and cached.
 
         :rtype: tuple[str]
         """
 
-        return self.not_exposed_primary_key_columns + self.not_exposed_foreign_key_columns + \
-            self.not_exposed_columns + self.not_exposed_relationships + \
-            self.not_exposed_hybrid_properties
+        return self.not_readable_primary_key_columns + self.not_readable_foreign_key_columns + \
+            self.not_readable_columns + self.not_exposed_relationships + \
+            self.not_readable_hybrid_properties
 
-    def is_exposed(self, name):
+    @property
+    @fast_cache
+    def all_writable_attributes(self):
         """
-        gets a value indicating that an attribute with given name is exposed.
+        gets all writable attribute names of current entity.
+
+        which are those that have `allow_write=True` (only for columns) in
+        their definition and their name does not start with underscore `_`.
+        attribute names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.writable_primary_key_columns + self.writable_foreign_key_columns + \
+            self.writable_columns + self.exposed_relationships + self.writable_hybrid_properties
+
+    @property
+    @fast_cache
+    def all_not_writable_attributes(self):
+        """
+        gets all not writable attribute names of current entity.
+
+        which are those that have `allow_write=False` (only for columns) in
+        their definition or their name starts with underscore `_`.
+        attribute names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.not_writable_primary_key_columns + self.not_writable_foreign_key_columns + \
+            self.not_writable_columns + self.not_exposed_relationships + \
+            self.not_writable_hybrid_properties
+
+    def is_public(self, name):
+        """
+        gets a value indicating that an attribute with given name is public.
 
         it simply checks that the given name starts with an underscore `_`.
-        if so, it is considered as not exposed.
+        if so, it is considered as not public.
 
         :param str name: attribute name.
 
@@ -494,15 +676,15 @@ class ConverterMixin(CoreObject):
 
         it could convert primary keys, foreign keys, other columns, hybrid
         properties and also relationship properties if `depth` is provided.
-        the result dict by default only contains the exposed attributes of the
-        entity which are those that have `exposed=True` (only for columns) and
+        the result dict by default only contains the readable attributes of the
+        entity which are those that have `allow_read=True` (only for columns) and
         their name does not start with underscore `_`.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults to
-                                                          `SECURE_TRUE` if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults to
+                                                      `SECURE_TRUE` if not provided.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -613,17 +795,17 @@ class ConverterMixin(CoreObject):
         all_attributes = None
         relations = None
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
-        exposed_only = options.get('exposed_only', SECURE_TRUE)
+        readable = options.get('readable', SECURE_TRUE)
 
         depth = options.get('depth', None)
         if depth is None:
             depth = config_services.get('database', 'conversion', 'default_depth')
 
-        if exposed_only is SECURE_FALSE:
+        if readable is SECURE_FALSE:
             all_attributes = self.all_attributes
             relations = self.relationships
         else:
-            all_attributes = self.all_exposed_attributes
+            all_attributes = self.all_readable_attributes
             relations = self.exposed_relationships
 
         requested_relationships = []
@@ -673,17 +855,17 @@ class ConverterMixin(CoreObject):
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
-                                                          `exposed=False` or its name starts
-                                                          with underscore `_`, should not be
-                                                          populated from given values. this
-                                                          is useful if you want to fill an
-                                                          entity with keyword arguments passed
-                                                          from client and then doing the
-                                                          validation. but do not want to expose
-                                                          a security risk. especially in update
-                                                          operations. defaults to `SECURE_TRUE`
-                                                          if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE writable: specifies that any column which has
+                                                      `allow_write=False` or its name starts
+                                                      with underscore `_`, should not be
+                                                      populated from given values. this
+                                                      is useful if you want to fill an
+                                                      entity with keyword arguments passed
+                                                      from client and then doing the
+                                                      validation. but do not want to expose
+                                                      a security risk. especially in update
+                                                      operations. defaults to `SECURE_TRUE`
+                                                      if not provided.
 
         :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
                                                                    not available in entity
@@ -730,37 +912,37 @@ class ConverterMixin(CoreObject):
         ignore_invalid = kwargs.pop('ignore_invalid_column', SECURE_TRUE)
         populate_all = kwargs.pop('populate_all', SECURE_FALSE)
         if populate_all is SECURE_TRUE:
-            exposed_only = SECURE_FALSE
+            writable = SECURE_FALSE
             ignore_pk = SECURE_FALSE
             ignore_fk = SECURE_FALSE
             ignore_relationships = SECURE_FALSE
         else:
-            exposed_only = kwargs.pop('exposed_only', SECURE_TRUE)
+            writable = kwargs.pop('writable', SECURE_TRUE)
             ignore_pk = kwargs.pop('ignore_pk', SECURE_TRUE)
             ignore_fk = kwargs.pop('ignore_fk', SECURE_FALSE)
             ignore_relationships = kwargs.pop('ignore_relationships', SECURE_TRUE)
 
-        accessible_columns = self.exposed_columns
-        if exposed_only is SECURE_FALSE:
-            accessible_columns = accessible_columns + self.not_exposed_columns
+        accessible_columns = self.writable_columns
+        if writable is SECURE_FALSE:
+            accessible_columns = accessible_columns + self.not_writable_columns
 
         accessible_pk = ()
         if ignore_pk is SECURE_FALSE:
-            if exposed_only is SECURE_FALSE:
+            if writable is SECURE_FALSE:
                 accessible_pk = self.primary_key_columns
             else:
-                accessible_pk = self.exposed_primary_key_columns
+                accessible_pk = self.writable_primary_key_columns
 
         accessible_fk = ()
         if ignore_fk is not SECURE_TRUE:
-            if exposed_only is SECURE_FALSE:
+            if writable is SECURE_FALSE:
                 accessible_fk = self.foreign_key_columns
             else:
-                accessible_fk = self.exposed_foreign_key_columns
+                accessible_fk = self.writable_foreign_key_columns
 
         accessible_relationships = ()
         if ignore_relationships is SECURE_FALSE:
-            if exposed_only is SECURE_FALSE:
+            if writable is SECURE_FALSE:
                 accessible_relationships = self.relationships
             else:
                 accessible_relationships = self.exposed_relationships
@@ -1253,17 +1435,17 @@ class CRUDMixin(CoreObject):
                            this would be helpful if you need to get
                            the autogenerated values by database such as sequences.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
-                                                          `exposed=False` or its name starts
-                                                          with underscore `_`, should not be
-                                                          populated from given values. this
-                                                          is useful if you want to fill an
-                                                          entity with keyword arguments passed
-                                                          from client and then doing the
-                                                          validation. but do not want to expose
-                                                          a security risk. especially in update
-                                                          operations. defaults to `SECURE_TRUE`
-                                                          if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE writable: specifies that any column which has
+                                                      `allow_write=False` or its name starts
+                                                      with underscore `_`, should not be
+                                                      populated from given values. this
+                                                      is useful if you want to fill an
+                                                      entity with keyword arguments passed
+                                                      from client and then doing the
+                                                      validation. but do not want to expose
+                                                      a security risk. especially in update
+                                                      operations. defaults to `SECURE_TRUE`
+                                                      if not provided.
 
         :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
                                                                    not available in entity

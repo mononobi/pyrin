@@ -24,7 +24,7 @@ class ResultSchema(CoreObject):
     default_rename = None
     default_exclude = None
     default_depth = None
-    default_exposed_only = None
+    default_readable = None
     default_indexed = None
     default_index_name = None
     default_start_index = None
@@ -35,13 +35,13 @@ class ResultSchema(CoreObject):
 
         note that at least one of keyword arguments must be provided.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults to
-                                                          `SECURE_TRUE` if not provided.
-                                                          it will be used only for entity
-                                                          conversion.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults to
+                                                      `SECURE_TRUE` if not provided.
+                                                      it will be used only for entity
+                                                      conversion.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -170,7 +170,7 @@ class ResultSchema(CoreObject):
         rename = options.get('rename') or self.default_rename
         exclude = options.get('exclude') or self.default_exclude
         depth = options.get('depth')
-        exposed_only = options.get('exposed_only') or self.default_exposed_only
+        readable = options.get('readable') or self.default_readable
         indexed = options.get('indexed')
         index_name = options.get('index_name') or self.default_index_name
         start_index = options.get('start_index')
@@ -194,12 +194,12 @@ class ResultSchema(CoreObject):
         self._indexed = indexed
 
         # set these to None to populate them using respective properties.
-        self._exposed_only = None
+        self._readable = None
         self._index_name = None
         self._start_index = None
 
         # performing this through respective properties to get validations.
-        self.exposed_only = exposed_only
+        self.readable = readable
         self.index_name = index_name
         self.start_index = start_index
 
@@ -232,7 +232,7 @@ class ResultSchema(CoreObject):
                        rename=self.rename,
                        exclude=self.exclude,
                        depth=self.depth,
-                       exposed_only=self.exposed_only,
+                       readable=self.readable,
                        indexed=self.indexed,
                        index_name=self.index_name,
                        start_index=start_index,
@@ -366,42 +366,42 @@ class ResultSchema(CoreObject):
         self._depth = value
 
     @property
-    def exposed_only(self):
+    def readable(self):
         """
-        gets the exposed_only attribute of this schema.
+        gets the readable attribute of this schema.
 
-        it specifies that just exposed attributes of an entity must be
-        included in result. which are those that have `exposed=True`
+        it specifies that just readable attributes of an entity must be
+        included in result. which are those that have `allow_read=True`
         and their name does not start with underscore `_`.
         it will be used only for entity conversion.
 
         :rtype: SECURE_TRUE | SECURE_FALSE
         """
 
-        return self._exposed_only
+        return self._readable
 
-    @exposed_only.setter
-    def exposed_only(self, value):
+    @readable.setter
+    def readable(self, value):
         """
-        sets the exposed_only attribute of this schema.
+        sets the readable attribute of this schema.
 
-        it specifies that just exposed attributes of an entity must be
-        included in result. which are those that have `exposed=True`
+        it specifies that just readable attributes of an entity must be
+        included in result. which are those that have `allow_read=True`
         and their name does not start with underscore `_`.
         it will be used only for entity conversion.
 
-        :param SECURE_TRUE | SECURE_FALSE value: exposed only value to be set.
+        :param SECURE_TRUE | SECURE_FALSE value: readable value to be set.
 
         :raises SecureBooleanIsRequiredError: secure boolean is required error.
         """
 
         if value not in (None, SECURE_TRUE, SECURE_FALSE):
-            raise SecureBooleanIsRequiredError('The "exposed_only" attribute of [{schema}] must '
+            raise SecureBooleanIsRequiredError('The "readable" attribute of [{schema}] must '
                                                'be set to "SECURE_TRUE" or "SECURE_FALSE" but '
                                                'it is currently set to [{current}].'
                                                .format(schema=self, current=value))
 
-        self._exposed_only = value
+        self._readable = value
 
     @property
     def indexed(self):

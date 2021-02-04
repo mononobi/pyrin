@@ -32,11 +32,11 @@ class DatabaseBulkManager(Manager):
                                  if not provided, all values will be inserted
                                  in a single call and no flush will occur.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults to
-                                                          `SECURE_TRUE` if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults to
+                                                      `SECURE_TRUE` if not provided.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.
@@ -173,11 +173,11 @@ class DatabaseBulkManager(Manager):
                                  if not provided, all values will be updated
                                  in a single call and no flush will occur.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults to
-                                                          `SECURE_TRUE` if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults to
+                                                      `SECURE_TRUE` if not provided.
 
         :keyword dict[str, list[str]] | list[str] columns: column names to be included in result.
                                                            it could be a list of column names.

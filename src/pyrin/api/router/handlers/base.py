@@ -145,15 +145,15 @@ class RouteBase(Rule):
         :keyword int start_index: the initial value of row index. if not
                                   provided, starts from 1.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults
-                                                          to `SECURE_TRUE` if not provided. it
-                                                          will be used only for entity conversion.
-                                                          this value will override the
-                                                          corresponding value of `result_schema`
-                                                          if provided.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults
+                                                      to `SECURE_TRUE` if not provided. it
+                                                      will be used only for entity conversion.
+                                                      this value will override the
+                                                      corresponding value of `result_schema`
+                                                      if provided.
 
         :keyword int depth: a value indicating the depth for conversion.
                             for example if entity A has a relationship with
@@ -527,12 +527,12 @@ class RouteBase(Rule):
         :keyword int start_index: the initial value of row index. if not
                                   provided, starts from 1.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults to
-                                                          `SECURE_TRUE` if not provided. it will
-                                                          be used only for entity conversion.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults to
+                                                      `SECURE_TRUE` if not provided. it will
+                                                      be used only for entity conversion.
 
         :keyword int depth: a value indicating the depth for conversion.
                             for example if entity A has a relationship with
@@ -566,24 +566,24 @@ class RouteBase(Rule):
                                                .format(instance=result_schema,
                                                        base=ResultSchema))
 
-        exposed_only = options.get('exposed_only')
+        readable = options.get('readable')
         depth = options.get('depth')
         indexed = options.get('indexed')
         index_name = options.get('index_name')
         start_index = options.get('start_index')
 
-        if result_schema is None and (exposed_only is not None or
+        if result_schema is None and (readable is not None or
                                       depth is not None or indexed is True):
-            return self.result_schema_class(exposed_only=exposed_only, depth=depth,
+            return self.result_schema_class(readable=readable, depth=depth,
                                             indexed=indexed, index_name=index_name,
                                             start_index=start_index)
 
-        elif result_schema is not None and (exposed_only is not None or depth is not None or
+        elif result_schema is not None and (readable is not None or depth is not None or
                                             indexed is not None or index_name is not None or
                                             start_index is not None):
             updated_schema = result_schema.copy()
-            if exposed_only is not None:
-                updated_schema.exposed_only = exposed_only
+            if readable is not None:
+                updated_schema.readable = readable
             if depth is not None:
                 updated_schema.depth = depth
             if indexed is not None:
@@ -901,15 +901,15 @@ class TemporaryRouteBase(RouteBase):
         :keyword int start_index: the initial value of row index. if not
                                   provided, starts from 1.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column or attribute
-                                                          which has `exposed=False` or its name
-                                                          starts with underscore `_`, should not
-                                                          be included in result dict. defaults
-                                                          to `SECURE_TRUE` if not provided. it
-                                                          will be used only for entity conversion.
-                                                          this value will override the
-                                                          corresponding value of `result_schema`
-                                                          if provided.
+        :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                      which has `allow_read=False` or its name
+                                                      starts with underscore `_`, should not
+                                                      be included in result dict. defaults
+                                                      to `SECURE_TRUE` if not provided. it
+                                                      will be used only for entity conversion.
+                                                      this value will override the
+                                                      corresponding value of `result_schema`
+                                                      if provided.
 
         :keyword int depth: a value indicating the depth for conversion.
                             for example if entity A has a relationship with

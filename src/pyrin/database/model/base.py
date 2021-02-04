@@ -45,17 +45,17 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
-        :keyword SECURE_TRUE | SECURE_FALSE exposed_only: specifies that any column which has
-                                                          `exposed=False` or its name starts
-                                                          with underscore `_`, should not be
-                                                          populated from given values. this
-                                                          is useful if you want to fill an
-                                                          entity with keyword arguments passed
-                                                          from client and then doing the
-                                                          validation. but do not want to expose
-                                                          a security risk. especially in update
-                                                          operations. defaults to `SECURE_TRUE`
-                                                          if not provided.
+        :keyword SECURE_TRUE | SECURE_FALSE writable: specifies that any column which has
+                                                      `allow_write=False` or its name starts
+                                                      with underscore `_`, should not be
+                                                      populated from given values. this
+                                                      is useful if you want to fill an
+                                                      entity with keyword arguments passed
+                                                      from client and then doing the
+                                                      validation. but do not want to expose
+                                                      a security risk. especially in update
+                                                      operations. defaults to `SECURE_TRUE`
+                                                      if not provided.
 
         :keyword SECURE_TRUE | SECURE_FALSE ignore_invalid_column: specifies that if a key is
                                                                    not available in entity

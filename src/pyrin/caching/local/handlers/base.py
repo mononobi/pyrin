@@ -828,7 +828,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
             size = len(caches)
             if size > 0:
-                bulk_services.insert(*caches, exposed_only=SECURE_FALSE,
+                bulk_services.insert(*caches, readable=SECURE_FALSE,
                                      chunk_size=self.chunk_size)
 
                 self.LOGGER.debug('Cache [{name}] persisted into database. '

@@ -79,9 +79,9 @@ class PermissionManager(Manager):
         needs_insert = list(set(entities).difference(set(needs_update)))
 
         if needs_insert:
-            bulk_services.insert(*needs_insert, exposed_only=SECURE_FALSE)
+            bulk_services.insert(*needs_insert, readable=SECURE_FALSE)
         if needs_update:
-            bulk_services.update(*needs_update, exposed_only=SECURE_FALSE)
+            bulk_services.update(*needs_update, readable=SECURE_FALSE)
 
     @abstractmethod
     def _exists(self, *primary_key):

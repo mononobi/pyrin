@@ -5,6 +5,7 @@ orm sql schema module.
 
 from sqlalchemy import Column
 
+from pyrin.caching.decorators import cached_property
 from pyrin.database.orm.sql.operators.base import CoreColumnOperators
 
 
@@ -97,15 +98,21 @@ class CoreColumn(Column, CoreColumnOperators):
         :param str comment: optional string that will render an sql comment
                             on table creation.
 
-        :keyword bool exposed: specifies that the column should be
-                               exposed on entity to dict conversion.
-                               defaults to True if not provided.
+        :keyword bool allow_read: specifies that the column should be
+                                  included in entity to dict conversion.
+                                  defaults to True if not provided.
+
+        :keyword bool allow_write: specifies that the column should be
+                                   populated on conversion from dict.
+                                   defaults to True if not provided.
         """
 
-        self.exposed = kwargs.pop('exposed', True)
+        self.allow_read = kwargs.pop('allow_read', True)
+        self.allow_write = kwargs.pop('allow_write', True)
+
         super().__init__(*args, **kwargs)
 
-    @property
+    @cached_property
     def fullname(self):
         """
         gets the column's fullname.
