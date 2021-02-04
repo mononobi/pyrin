@@ -5,6 +5,8 @@ configuration store module.
 
 import os
 
+from copy import deepcopy
+
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.utils.configuration as config_utils
 
@@ -189,7 +191,7 @@ class ConfigStore(CoreObject):
                                                          .format(section=section,
                                                                  name=self._name))
 
-        result = DTO(self._configs.get(section))
+        result = deepcopy(self._configs.get(section))
         return self._change_key_case(result, **options)
 
     def get_section_keys(self, section, **options):
@@ -510,4 +512,4 @@ class ConfigStore(CoreObject):
         :rtype: dict
         """
 
-        return DTO(self._configs)
+        return deepcopy(self._configs)
