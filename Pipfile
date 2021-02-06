@@ -4,19 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pytest = "*"
-pytest-cov = "*"
-pygments = "*"
-setuptools = "*"
-psycopg2-binary = "*"
-twine = "*"
-pymemcache = "*"
-sentry-sdk = "*"
-blinker = "*"
-redis = "*"
-celery = "*"
 
 [packages]
+
+# these packages are required for applications
+
 aniso8601 = "*"
 bcrypt = "*"
 pytz = "*"
@@ -31,6 +23,20 @@ babel = "*"
 alembic = "*"
 fire = "*"
 sqlparse = "*"
+
+# these packages are optional for applications
+
+twine = "*"
+pymemcache = "*"
+sentry-sdk = "*"
+blinker = "*"
+redis = "*"
+celery = "*"
+psycopg2 = "*"
+pytest = "*"
+pytest-cov = "*"
+pygments = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.8"
