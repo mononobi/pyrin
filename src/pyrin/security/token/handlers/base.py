@@ -154,11 +154,10 @@ class TokenBase(AbstractTokenBase):
         default_options = self._get_default_options()
         verify = options.get('verify', True)
         if verify is False:
-            default_options = None
+            default_options = dict(verify_signature=False)
 
         return jwt.decode(token,
                           self._get_decoding_key(),
-                          verify,
                           self._get_algorithm(**options),
                           default_options)
 
