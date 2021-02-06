@@ -119,7 +119,7 @@ class TokenBase(AbstractTokenBase):
         return jwt.encode(updated_payload,
                           self._get_encoding_key(),
                           self._get_algorithm(),
-                          custom_headers).decode(self._encoding)
+                          custom_headers)
 
     def get_payload(self, token, **options):
         """
