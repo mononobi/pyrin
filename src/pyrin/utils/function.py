@@ -83,10 +83,21 @@ def get_inputs(func, args, kwargs, container=dict, **options):
     if len(args) == 0 and len(kwargs) == 0:
         return container(), None
 
+    kwargs_name = None
     signature = inspect.signature(func)
+    for name, param in signature.parameters.items():
+        if param.kind == Parameter.VAR_KEYWORD:
+            kwargs_name = name
+            break
+
     bounded_args = signature.bind_partial(*args, **kwargs)
     parent = bounded_args.arguments.pop('self', None)
     parent = bounded_args.arguments.pop('cls', parent)
+
+    if kwargs_name is not None:
+        keywords = bounded_args.arguments.pop(kwargs_name, None)
+        if keywords is not None:
+            bounded_args.arguments.update(keywords)
 
     return container(bounded_args.arguments), parent
 
