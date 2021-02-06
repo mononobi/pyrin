@@ -3,8 +3,6 @@
 celery cli interface module.
 """
 
-import pyrin.task_queues.celery.cli.services as celery_cli_services
-
 from pyrin.cli.base import CLIHandlerBase
 from pyrin.cli.params import CLIParamBase
 from pyrin.core.globals import LIST_TYPES
@@ -70,28 +68,4 @@ class CeleryCLIHandlerBase(CLIHandlerBase):
         :rtype: list
         """
 
-        return ['celery']
-
-    def _inject_command_name(self, commands):
-        """
-        injects the command name into given commands list.
-
-        this method is overridden to prevent adding the command name into commands list.
-
-        :param list commands: a list of all commands to inject
-                              this command's name into it.
-        """
-        pass
-
-    def _execute_on_cli(self, commands):
-        """
-        executes the current cli command with given inputs.
-
-        :param list commands: a list of all commands and their
-                              values to be sent to cli command.
-
-        :rtype: int
-        """
-
-        result = celery_cli_services.execute_on_celery(self.get_name(), commands)
-        return self._process_return_value(result)
+        return ['celery', '-A', 'cli:celery_app']

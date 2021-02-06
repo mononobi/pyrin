@@ -42,19 +42,6 @@ def execute(handler_name, **options):
     return get_component(CeleryCLIPackage.COMPONENT_NAME).execute(handler_name, **options)
 
 
-def execute_on_celery(name, arguments=None):
-    """
-    executes the given celery command.
-
-    :param str name: celery command name to be executed.
-    :param list arguments: all command line arguments.
-
-    :returns: result of celery command execution.
-    """
-
-    return get_component(CeleryCLIPackage.COMPONENT_NAME).execute_on_celery(name, arguments)
-
-
 def get_package_class():
     """
     gets the package class of celery cli manager.

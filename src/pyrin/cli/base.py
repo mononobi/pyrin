@@ -171,7 +171,7 @@ class CLIHandlerBase(CLIParamMixin, AbstractCLIHandlerBase):
 
         :param int result: result value returned from cli command.
 
-        :rtype: None
+        :rtype: object
         """
 
         return None
