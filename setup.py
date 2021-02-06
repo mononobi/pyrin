@@ -21,7 +21,7 @@ PACKAGES = [
     'bcrypt>=3.1.7',
     'pytz>=2019.3',
     'Flask>=1.1.1',
-    'PyJWT>=1.7.1, <1.7.2',
+    'PyJWT>=2.0.1',
     'SQLAlchemy>=1.3.13, <1.4',
     'colorama>=0.4.3',
     'python-dotenv>=0.10.5',
@@ -55,7 +55,7 @@ SENTRY_PACKAGES = [
 ]
 
 CELERY_PACKAGES = [
-    'celery>=4.4.7, <4.4.8',
+    'celery>=4.4.7',
 ]
 
 REDIS_PACKAGES = [
