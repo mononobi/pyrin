@@ -1508,3 +1508,13 @@ class PackagingManager(Manager, HookMixin):
 
         return list(self._loaded_packages)
 
+    def is_package_loaded(self, name):
+        """
+        gets a value indicating that given package is loaded.
+
+        :param str name: package fully qualified name.
+
+        :rtype: bool
+        """
+
+        return name in self._loaded_packages

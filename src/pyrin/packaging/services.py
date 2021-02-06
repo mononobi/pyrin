@@ -78,3 +78,15 @@ def get_loaded_packages():
     """
 
     return get_component(PackagingPackage.COMPONENT_NAME).get_loaded_packages()
+
+
+def is_package_loaded(name):
+    """
+    gets a value indicating that given package is loaded.
+
+    :param str name: package fully qualified name.
+
+    :rtype: bool
+    """
+
+    return get_component(PackagingPackage.COMPONENT_NAME).is_package_loaded(name)
