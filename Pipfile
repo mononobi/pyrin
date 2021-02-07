@@ -7,8 +7,6 @@ verify_ssl = true
 
 [packages]
 
-# these packages are required for applications
-
 aniso8601 = "*"
 bcrypt = "*"
 pytz = "*"
@@ -23,9 +21,6 @@ babel = "*"
 alembic = "*"
 fire = "*"
 sqlparse = "*"
-
-# these packages are optional for applications
-
 twine = "*"
 pymemcache = "*"
 sentry-sdk = "*"
