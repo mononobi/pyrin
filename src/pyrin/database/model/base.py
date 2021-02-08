@@ -40,8 +40,8 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         that results returned by orm from database will not call `__init__`
         of each entity.
 
-        it could fill primary keys, foreign keys, other columns and also
-        relationship properties provided in keyword arguments.
+        it could fill primary keys, foreign keys, other columns, hybrid properties
+        and also relationship properties provided in keyword arguments.
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
