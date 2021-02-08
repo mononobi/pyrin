@@ -223,9 +223,9 @@ class HybridPropertyMixin(CoreObject):
 
     @property
     @fast_cache
-    def all_hybrid_properties(self):
+    def all_getter_hybrid_properties(self):
         """
-        gets all hybrid property names of this entity.
+        gets all getter hybrid property names of this entity.
 
         property names will be calculated once and cached.
 
@@ -233,6 +233,19 @@ class HybridPropertyMixin(CoreObject):
         """
 
         return self.readable_hybrid_properties + self.not_readable_hybrid_properties
+
+    @property
+    @fast_cache
+    def all_setter_hybrid_properties(self):
+        """
+        gets all setter hybrid property names of this entity.
+
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        return self.writable_hybrid_properties + self.not_writable_hybrid_properties
 
     @property
     @fast_cache
@@ -968,7 +981,11 @@ class ConverterMixin(CoreObject):
 
         accessible_columns = self.writable_columns
         if writable is SECURE_FALSE:
-            accessible_columns = accessible_columns + self.not_writable_columns
+            accessible_columns = self.all_columns
+
+        accessible_hybrid_properties = self.writable_hybrid_properties
+        if writable is SECURE_FALSE:
+            accessible_hybrid_properties = self.all_setter_hybrid_properties
 
         accessible_pk = ()
         if ignore_pk is SECURE_FALSE:
@@ -992,7 +1009,7 @@ class ConverterMixin(CoreObject):
                 accessible_relationships = self.exposed_relationships
 
         all_accessible_columns = accessible_pk + accessible_fk + \
-            accessible_columns + accessible_relationships
+            accessible_columns + accessible_relationships + accessible_hybrid_properties
 
         provided_columns = set(kwargs.keys())
         result_columns = set(all_accessible_columns).intersection(provided_columns)
