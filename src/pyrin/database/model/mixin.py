@@ -1016,7 +1016,7 @@ class ConverterMixin(CoreObject):
         if ignore_invalid is SECURE_FALSE:
             not_existed = provided_columns.difference(result_columns)
             if len(not_existed) > 0:
-                raise ColumnNotExistedError('Provided columns or relationship properties '
+                raise ColumnNotExistedError('Provided columns, relationships or properties '
                                             '{columns} are not available in entity [{entity}].'
                                             .format(entity=self,
                                                     columns=list(not_existed)))
