@@ -1486,8 +1486,8 @@ class CRUDMixin(CoreObject):
         updates the column values of this entity with values in keyword arguments.
 
         then persists changes into database.
-        it could fill primary keys, foreign keys, other columns and also
-        relationship properties provided in keyword arguments.
+        it could fill primary keys, foreign keys, other columns, hybrid properties
+        and also relationship properties provided in keyword arguments.
         note that relationship values must be entities. this method could
         not convert relationships which are dict, into entities.
 
