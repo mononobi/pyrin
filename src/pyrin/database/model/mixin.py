@@ -250,6 +250,7 @@ class HybridPropertyMixin(CoreObject):
         info = sqla_inspect(type(self))
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
+                                  and item.fget is not None
                                   and self.is_public(item.__name__) is True)
 
         return hybrid_properties
@@ -270,6 +271,49 @@ class HybridPropertyMixin(CoreObject):
         info = sqla_inspect(type(self))
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
+                                  and item.fget is not None
+                                  and self.is_public(item.__name__) is False)
+
+        return hybrid_properties
+
+    @property
+    @fast_cache
+    def writable_hybrid_properties(self):
+        """
+        gets writable hybrid property names of this entity.
+
+        writable hybrid properties are those that their name does
+        not start with underscore `_`.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
+                                  if isinstance(item, hybrid_property)
+                                  and item.fset is not None
+                                  and self.is_public(item.__name__) is True)
+
+        return hybrid_properties
+
+    @property
+    @fast_cache
+    def not_writable_hybrid_properties(self):
+        """
+        gets not writable hybrid property names of this entity.
+
+        not writable hybrid properties are those that their
+        name starts with underscore `_`.
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(type(self))
+        hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
+                                  if isinstance(item, hybrid_property)
+                                  and item.fset is not None
                                   and self.is_public(item.__name__) is False)
 
         return hybrid_properties
