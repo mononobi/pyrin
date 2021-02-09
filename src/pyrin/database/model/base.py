@@ -7,7 +7,8 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
-    HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin, ModelCacheMixin
+    HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin, \
+    ModelCacheMixin, DefaultPrefetchMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
@@ -15,7 +16,8 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  RelationshipMixin, HybridPropertyMixin,
                  AttributeMixin, CRUDMixin,
                  QueryMixin, ConverterMixin,
-                 MetadataMixin, ModelCacheMixin):
+                 MetadataMixin, ModelCacheMixin,
+                 DefaultPrefetchMixin):
     """
     base entity class.
 
@@ -96,6 +98,28 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                                                           defaults to `SECURE_FALSE` if not
                                                           provided.
 
+        :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
+                                                                       that have default values
+                                                                       for insert must fetch their
+                                                                       default value if no value
+                                                                       is provided for them in
+                                                                       `kwargs`.
+                                                                       note that scalar default
+                                                                       values will always be
+                                                                       fetched and this option is
+                                                                       only for sequence or
+                                                                       callable default values.
+                                                                       defaults to `SECURE_TRUE`
+                                                                       if not provided.
+
+        :note prefetch_complex_defaults: for callable defaults we have to pass
+                                         `ExecutionContext` as None because there is no
+                                         such context in prefetch time. so if your callable
+                                         default actually needs a valid context, you can not
+                                         prefetch its value and must disable prefetching by
+                                         passing `prefetch_complex_defaults=SECURE_FALSE`.
+                                         otherwise unexpected behavior may occur.
+
         :raises ColumnNotExistedError: column not existed error.
         """
 
@@ -103,6 +127,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
 
         self._set_name(self.__class__.__name__)
         self.from_dict(**kwargs)
+        self.prefetch_insert_defaults(**kwargs)
 
     @property
     def _base_entity_class(self):
@@ -117,7 +142,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         call `__init__()` method of entities for populating database results, so
         `__init__()` call is not guaranteed and will only take place on user code.
         so we have to define this method to get `BaseEntity` type here.
-        and this is more beautiful then importing `BaseEntity` inside a method
+        and this is more beautiful than importing `BaseEntity` inside a method
         of `MagicMethodMixin` class.
 
         :rtype: type[BaseEntity]

@@ -1547,12 +1547,35 @@ class CRUDMixin(CoreObject):
                                                           defaults to `SECURE_FALSE` if not
                                                           provided.
 
+        :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
+                                                                       that have default values
+                                                                       for update must fetch their
+                                                                       default value if no value
+                                                                       is provided for them in
+                                                                       `kwargs`.
+                                                                       note that scalar default
+                                                                       values will always be
+                                                                       fetched and this option is
+                                                                       only for sequence or
+                                                                       callable default values.
+                                                                       defaults to `SECURE_TRUE`
+                                                                       if not provided.
+
+        :note prefetch_complex_defaults: for callable defaults we have to pass
+                                         `ExecutionContext` as None because there is no
+                                         such context in prefetch time. so if your callable
+                                         default actually needs a valid context, you can not
+                                         prefetch its value and must disable prefetching by
+                                         passing `prefetch_complex_defaults=SECURE_FALSE`.
+                                         otherwise unexpected behavior may occur.
+
         :raises ColumnNotExistedError: column not existed error.
 
         :rtype: BaseEntity
         """
 
         self.from_dict(**kwargs)
+        self.prefetch_update_defaults(**kwargs)
         return self.save(flush=flush)
 
     def delete(self, flush=False):
@@ -1740,6 +1763,286 @@ class ModelCacheMixin(TypedCacheMixin):
     """
 
     _container = {}
+
+
+class DefaultPrefetchMixin(CoreObject):
+    """
+    default prefetch mixin class.
+
+    this class adds support to prefetch columns with default or onupdate
+    values without flush or commit.
+    """
+
+    def _get_column_attribute(self, name):
+        """
+        gets column attribute with given name.
+
+        :param str name: column name.
+
+        :rtype: CoreColumn
+        """
+
+        return getattr(self.__table__.c, name)
+
+    def _get_insert_default_value(self, column):
+        """
+        gets the insert default value for given column.
+
+        :param str column: column name.
+
+        :returns: object
+        """
+
+        attribute = self._get_column_attribute(column)
+        return self._fetch_default_value(attribute.default)
+
+    def _get_update_default_value(self, column):
+        """
+        gets the update default value for given column.
+
+        :param str column: column name.
+
+        :returns: object
+        """
+
+        attribute = self._get_column_attribute(column)
+        return self._fetch_default_value(attribute.onupdate)
+
+    def _set_insert_default(self, column):
+        """
+        sets the insert default value to the given column.
+
+        :param str column: column name.
+        """
+
+        value = self._get_insert_default_value(column)
+        setattr(self, column, value)
+
+    def _set_update_default(self, column):
+        """
+        sets the update default value to the given column.
+
+        :param str column: column name.
+        """
+
+        value = self._get_update_default_value(column)
+        setattr(self, column, value)
+
+    def _fetch_default_value(self, default):
+        """
+        fetches the value from given default clause.
+
+        note that for callable defaults we have to pass `ExecutionContext` as None
+        because there is no such context in prefetch time. so if your callable default
+        actually needs a valid context, you can not prefetch its value and must disable
+        prefetching by passing `prefetch_complex_defaults=False` in corresponding method.
+        otherwise unexpected behavior may occur.
+
+        :param ColumnDefault default: column default instance.
+
+        :returns: object
+        """
+
+        # the order of if conditions must be exactly this way. because
+        # 'Sequence' object does not have the other attributes.
+        if default.is_sequence:
+            store = get_current_store()
+            return store.execute(default)
+        elif default.is_scalar:
+            return default.arg
+        elif default.is_callable:
+            return default.arg(None)
+
+        return self._fetch_default_value_extended(default)
+
+    @abstractmethod
+    def _fetch_default_value_extended(self, default):
+        """
+        fetches the value from given default clause.
+
+        this method is intended to be overridden in subclasses to modify or extend
+        prefetching default values. for example to support `ClauseElement` defaults.
+
+        :param ColumnDefault default: column default instance.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: object
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @fast_cache
+    def columns_with_scalar_insert_default(self):
+        """
+        gets column names that have scalar default values for insert.
+
+        :rtype: tuple[str]
+        """
+
+        all_columns = self.primary_key_columns + self.all_columns + self.foreign_key_columns
+        result = []
+        for name in all_columns:
+            attribute = self._get_column_attribute(name)
+            if attribute.default is not None and \
+                    not attribute.default.is_sequence and attribute.default.is_scalar:
+                result.append(name)
+
+        return tuple(result)
+
+    @property
+    @fast_cache
+    def columns_with_complex_insert_default(self):
+        """
+        gets column names that have callable or sequence default values for insert.
+
+        :rtype: tuple[str]
+        """
+
+        all_columns = self.primary_key_columns + self.all_columns + self.foreign_key_columns
+        result = []
+        for name in all_columns:
+            attribute = self._get_column_attribute(name)
+            if attribute.default is not None and (attribute.default.is_sequence or
+                                                  attribute.default.is_callable):
+                result.append(name)
+
+        return tuple(result)
+
+    @property
+    @fast_cache
+    def columns_with_scalar_update_default(self):
+        """
+        gets column names that have scalar default values for update.
+
+        :rtype: tuple[str]
+        """
+
+        all_columns = self.all_columns + self.foreign_key_columns
+        result = []
+        for name in all_columns:
+            attribute = self._get_column_attribute(name)
+            if attribute.onupdate is not None and \
+                    not attribute.onupdate.is_sequence and attribute.onupdate.is_scalar:
+                result.append(name)
+
+        return tuple(result)
+
+    @property
+    @fast_cache
+    def columns_with_complex_update_default(self):
+        """
+        gets column names that have callable or sequence default values for update.
+
+        :rtype: tuple[str]
+        """
+
+        all_columns = self.all_columns + self.foreign_key_columns
+        result = []
+        for name in all_columns:
+            attribute = self._get_column_attribute(name)
+            if attribute.onupdate is not None and (attribute.onupdate.is_sequence or
+                                                   attribute.onupdate.is_callable):
+                result.append(name)
+
+        return tuple(result)
+
+    def prefetch_insert_defaults(self, **kwargs):
+        """
+        prefetches all columns that have default values for insert.
+
+        and their name is not in provided inputs.
+
+        :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
+                                                                       that have default values
+                                                                       for insert must fetch their
+                                                                       default value if no value
+                                                                       is provided for them in
+                                                                       `kwargs`.
+                                                                       note that scalar default
+                                                                       values will always be
+                                                                       fetched and this option is
+                                                                       only for sequence or
+                                                                       callable default values.
+                                                                       defaults to `SECURE_TRUE`
+                                                                       if not provided.
+
+        :note prefetch_complex_defaults: for callable defaults we have to pass
+                                         `ExecutionContext` as None because there is no
+                                         such context in prefetch time. so if your callable
+                                         default actually needs a valid context, you can not
+                                         prefetch its value and must disable prefetching by
+                                         passing `prefetch_complex_defaults=SECURE_FALSE`.
+                                         otherwise unexpected behavior may occur.
+        """
+
+        fetch_complex_defaults = kwargs.pop('prefetch_complex_defaults', SECURE_TRUE)
+        self._prefetch_insert_defaults(self.columns_with_scalar_insert_default, **kwargs)
+
+        if fetch_complex_defaults is SECURE_TRUE:
+            self._prefetch_insert_defaults(self.columns_with_complex_insert_default, **kwargs)
+
+    def _prefetch_insert_defaults(self, columns, **kwargs):
+        """
+        prefetches all columns that have default values for insert.
+
+        and their name is not in provided inputs.
+
+        :param tuple[str] columns: column names that have insert default values.
+        """
+
+        required = set(columns).difference(set(kwargs.keys()))
+        for column in required:
+            self._set_insert_default(column)
+
+    def prefetch_update_defaults(self, **kwargs):
+        """
+        prefetches all columns that have default values for update.
+
+        and their name is not in provided inputs.
+
+        :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
+                                                                       that have default values
+                                                                       for update must fetch their
+                                                                       default value if no value
+                                                                       is provided for them in
+                                                                       `kwargs`.
+                                                                       note that scalar default
+                                                                       values will always be
+                                                                       fetched and this option is
+                                                                       only for sequence or
+                                                                       callable default values.
+                                                                       defaults to `SECURE_TRUE`
+                                                                       if not provided.
+
+        :note prefetch_complex_defaults: for callable defaults we have to pass
+                                         `ExecutionContext` as None because there is no
+                                         such context in prefetch time. so if your callable
+                                         default actually needs a valid context, you can not
+                                         prefetch its value and must disable prefetching by
+                                         passing `prefetch_complex_defaults=SECURE_FALSE`.
+                                         otherwise unexpected behavior may occur.
+        """
+
+        fetch_complex_defaults = kwargs.pop('prefetch_complex_defaults', SECURE_TRUE)
+        self._prefetch_update_defaults(self.columns_with_scalar_update_default, **kwargs)
+
+        if fetch_complex_defaults is SECURE_TRUE:
+            self._prefetch_update_defaults(self.columns_with_complex_update_default, **kwargs)
+
+    def _prefetch_update_defaults(self, columns, **kwargs):
+        """
+        prefetches all columns that have default values for update.
+
+        and their name is not in provided inputs.
+
+        :param tuple[str] columns: column names that have update default values.
+        """
+
+        required = set(columns).difference(set(kwargs.keys()))
+        for column in required:
+            self._set_update_default(column)
 
 
 class HistoryMixin(CoreObject):
