@@ -55,9 +55,9 @@ class GUID(CoreCustomType):
             return str(value)
         else:
             if not isinstance(value, uuid.UUID):
-                return "%.32x" % uuid.UUID(value).int
+                return '%.32x' % uuid.UUID(value).int
             else:
-                return "%.32x" % value.int
+                return '%.32x' % value.int
 
     def process_result_value(self, value, dialect):
         """
