@@ -35,7 +35,7 @@ from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
-from pyrin.core.structs import CoreObject, DTO
+from pyrin.core.structs import CoreObject, DTO, CoreImmutableDict
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 
@@ -1773,6 +1773,25 @@ class DefaultPrefetchMixin(CoreObject):
     values without flush or commit.
     """
 
+    @property
+    @fast_cache
+    def _all_column_attributes(self):
+        """
+        gets an immutable dict of all column attributes of this entity.
+
+        the result will be calculated once and cached per entity type.
+
+        :returns: CoreImmutableDict(str name, CoreColumn column)
+        :rtype: CoreImmutableDict
+        """
+
+        result = dict()
+        info = sqla_inspect(type(self))
+        for attr in info.column_attrs:
+            result[attr.key] = attr.columns[0]
+
+        return CoreImmutableDict(result)
+
     def _get_column_attribute(self, name):
         """
         gets column attribute with given name.
@@ -1782,7 +1801,7 @@ class DefaultPrefetchMixin(CoreObject):
         :rtype: CoreColumn
         """
 
-        return getattr(self.__table__.c, name)
+        return self._all_column_attributes.get(name)
 
     def _get_insert_default_value(self, column):
         """
