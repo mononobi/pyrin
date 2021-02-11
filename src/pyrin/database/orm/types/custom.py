@@ -18,7 +18,7 @@ class GUID(CoreCustomType):
 
     it's a platform-independent guid type.
     uses postgresql's UUID type or mssql's UNIQUEIDENTIFIER
-    type, otherwise uses CHAR(32), storing as stringified hex values.
+    type, otherwise uses CHAR(36), storing as stringified hex values.
     """
 
     impl = CHAR
@@ -37,7 +37,7 @@ class GUID(CoreCustomType):
         elif dialect.name == 'mssql':
             return dialect.type_descriptor(UNIQUEIDENTIFIER())
         else:
-            return dialect.type_descriptor(CHAR(32))
+            return dialect.type_descriptor(CHAR(36))
 
     def process_bind_param(self, value, dialect):
         """
@@ -55,9 +55,9 @@ class GUID(CoreCustomType):
             return str(value)
         else:
             if not isinstance(value, uuid.UUID):
-                return '%.32x' % uuid.UUID(value).int
+                return str(uuid.UUID(value))
             else:
-                return '%.32x' % value.int
+                return str(value)
 
     def process_result_value(self, value, dialect):
         """
