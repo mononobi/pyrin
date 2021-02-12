@@ -15,7 +15,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.database.paging.exceptions import PageSizeLimitError
+from pyrin.database.paging.exceptions import PageSizeLimitError, TotalCountIsAlreadySetError
 
 
 class PaginatorBase(CoreObject):
@@ -155,6 +155,32 @@ class PaginatorBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @property
+    @abstractmethod
+    def total_count(self):
+        """
+        gets the total count of items in all pages.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: int
+        """
+
+        raise CoreNotImplementedError()
+
+    @total_count.setter
+    @abstractmethod
+    def total_count(self, value):
+        """
+        sets the total count of items in all pages.
+
+        :param int value: total count to be set.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
 
 class SimplePaginator(PaginatorBase):
     """
@@ -218,6 +244,7 @@ class SimplePaginator(PaginatorBase):
         self._current_page_size = None
         self._has_next = False
         self._has_previous = False
+        self._total_count = None
 
     def _url_for(self, page, page_size):
         """
@@ -378,6 +405,10 @@ class SimplePaginator(PaginatorBase):
 
         next_url = self.next()
         previous_url = self.previous()
+
+        if self.total_count is not None:
+            metadata.update(count_total=self.total_count)
+
         metadata.update(count=count, next=next_url, previous=previous_url)
         return result, metadata
 
@@ -400,3 +431,30 @@ class SimplePaginator(PaginatorBase):
         """
 
         return self._current_page_size
+
+    @property
+    def total_count(self):
+        """
+        gets the total count of items in all pages.
+
+        :rtype: int
+        """
+
+        return self._total_count
+
+    @total_count.setter
+    def total_count(self, value):
+        """
+        sets the total count of items in all pages.
+
+        :param int value: total count to be set.
+
+        :raises TotalCountIsAlreadySetError: total count is already set error.
+        """
+
+        if self._total_count is not None:
+            raise TotalCountIsAlreadySetError('Total count for paginator is already '
+                                              'set and could not be overwritten in '
+                                              'current request.')
+
+        self._total_count = value

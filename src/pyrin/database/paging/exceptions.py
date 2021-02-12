@@ -25,3 +25,10 @@ class PageSizeLimitError(DatabasePagingException):
     page size limit error.
     """
     pass
+
+
+class TotalCountIsAlreadySetError(DatabasePagingException):
+    """
+    total count is already set error.
+    """
+    pass

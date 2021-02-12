@@ -874,7 +874,7 @@ class Application(Flask, HookMixin, SignalMixin,
                 result.update(metadata)
             else:
                 result.update(count=len(rv))
-            result.update(items=rv)
+            result.update(results=rv)
             rv = result
 
         # we should wrap all single values into a

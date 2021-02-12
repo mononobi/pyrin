@@ -11,13 +11,14 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
 import pyrin.database.paging.services as paging_services
+import pyrin.security.session.services as session_services
 
-from pyrin.core.globals import _
+from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    UnsupportedQueryStyleError
+    UnsupportedQueryStyleError, InjectTotalCountError
 
 
 @inspection._self_inspects
@@ -149,12 +150,14 @@ class CoreQuery(Query):
                                 failed to execute, it should be executed using
                                 the original sqlalchemy count which produces
                                 a subquery, instead of raising an error.
-                                defaults to False if not provided.
+                                defaults to True if not provided.
+
+        :raises UnsupportedQueryStyleError: unsupported query style error.
 
         :rtype: int
         """
 
-        fallback = options.get('fallback', False)
+        fallback = options.get('fallback', True)
         needs_fallback = False
         columns = []
         # if there is group by clause, a subquery
@@ -214,15 +217,37 @@ class CoreQuery(Query):
         store = get_current_store()
         return store.execute(statement).scalar()
 
-    def paginate(self, **options):
+    def paginate(self, inject_total=SECURE_FALSE, **options):
         """
         sets offset and limit for current query.
 
         the offset and limit values will be extracted from given inputs.
+        note that if `inject_total=SECURE_TRUE` is given, `.paginate` must
+        be called after all other query attributes has been called. otherwise
+        unexpected behaviour may occur.
+
+        :param SECURE_TRUE | SECURE_FALSE inject_total: inject total count into
+                                                        current request.
+                                                        if no request is available
+                                                        and `inject_total` is set to
+                                                        `SECURE_TRUE` it raises an error.
+                                                        defaults to `SECURE_FALSE` if not
+                                                        provided.
 
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
+
+        :raises InjectTotalCountError: inject total count error.
         """
+
+        if inject_total is SECURE_TRUE:
+            if session_services.is_request_context_available() is False:
+                raise InjectTotalCountError('"inject_total=SECURE_TRUE" is only allowed '
+                                            'when request context is available.')
+
+            paginator = session_services.get_request_context('paginator', None)
+            if paginator is not None:
+                paginator.total_count = self.order_by(None).count()
 
         limit, offset = paging_services.get_paging_keys(**options)
         return self.limit(limit).offset(offset)

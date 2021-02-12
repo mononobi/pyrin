@@ -32,3 +32,10 @@ class UnsupportedQueryStyleError(ORMQueryException):
     unsupported query style error.
     """
     pass
+
+
+class InjectTotalCountError(ORMQueryException):
+    """
+    inject total count error.
+    """
+    pass
