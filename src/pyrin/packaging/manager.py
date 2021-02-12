@@ -268,6 +268,9 @@ class PackagingManager(Manager, HookMixin):
             print_info('Application loaded in [{duration}] milliseconds.'
                        .format(duration=duration))
 
+            pyrin_version = application_services.get_pyrin_version()
+            print_info('Pyrin version: [{version}].'.format(version=pyrin_version))
+
     def _load_tests(self, **options):
         """
         loads test packages if needed.
