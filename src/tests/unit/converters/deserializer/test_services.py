@@ -132,7 +132,7 @@ def test_deserialize_float_from_string():
     assert value == -2032.221
 
     value = deserializer_services.deserialize('00.02')
-    assert value == 0.02
+    assert value == '00.02'
 
 
 def test_deserialize_pool_from_string():
@@ -207,12 +207,12 @@ def test_deserialize_dictionary_from_string():
     assert converted_values.get('invalid_date_value') == '2008-08-1'
     assert converted_values.get('list_value') == [1, False]
     assert converted_values.get('list_string') == [1, -2.3, '0.01.1', None]
-    assert converted_values.get('tuple_string') == (3, False, 0)
+    assert converted_values.get('tuple_string') == (3, False, '-0')
     assert converted_values.get('none_value') is None
     assert converted_values.get('int_value') == 1001
     assert converted_values.get('float_value') == 2.4
     assert converted_values.get('invalid_int') == '1 2'
-    assert converted_values.get('positive_float') == 405.0023
+    assert converted_values.get('positive_float') == ' +405.0023'
     assert converted_values.get('single_string') == '14'
     assert issubclass(converted_values.get('pool_class'), AssertionPool)
 
@@ -277,12 +277,12 @@ def test_deserialize_dictionary_items():
     assert converted_values.get('list_value') == [1, False]
     assert converted_values.get('list_string') == [1, -2.3, '0.01.1', None]
     assert converted_values.get('tuple_value') == (23, None, -78)
-    assert converted_values.get('tuple_string') == (3, False, 0)
+    assert converted_values.get('tuple_string') == (3, False, '-0')
     assert converted_values.get('none_value') is None
     assert converted_values.get('int_value') == 1001
     assert converted_values.get('float_value') == 2.4
     assert converted_values.get('invalid_int') == '1 2'
-    assert converted_values.get('positive_float') == 405.0023
+    assert converted_values.get('positive_float') == ' +405.0023'
     assert converted_values.get('force_double_string') == '123'
     assert converted_values.get('force_single_string') == 'true'
     assert issubclass(converted_values.get('pool_class'), AssertionPool)
