@@ -5,9 +5,9 @@ deserializer handlers datetime module.
 
 import pyrin.globalization.datetime.services as datetime_services
 
+from pyrin.core.globals import NULL
 from pyrin.converters.deserializer.handlers.base import StringPatternDeserializerBase
 from pyrin.converters.deserializer.decorators import deserializer
-from pyrin.core.globals import NULL
 from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, DEFAULT_DATE_ISO_REGEX, \
     DEFAULT_TIME_ISO_REGEX, DEFAULT_LOCAL_NAIVE_TIME_REGEX, DEFAULT_UTC_ZULU_DATE_TIME_REGEX, \
     DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX

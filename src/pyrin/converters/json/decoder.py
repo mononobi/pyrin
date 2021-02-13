@@ -9,7 +9,9 @@ from json.scanner import py_make_scanner
 from flask.json import JSONDecoder
 
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.utils.unique_id as uuid_utils
 
+from pyrin.utils.unique_id import UUID_REGEX
 from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, \
     DEFAULT_DATE_ISO_REGEX, DEFAULT_TIME_ISO_REGEX, DEFAULT_LOCAL_NAIVE_TIME_REGEX, \
     DEFAULT_UTC_ZULU_DATE_TIME_REGEX, DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX
@@ -17,7 +19,7 @@ from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, \
 
 def scanstring_extended(s, end, strict=True):
     """
-    extended scan string method to be able to parse datetime strings.
+    extended scan string method to be able to parse complex strings.
     """
 
     s, end = scanstring(s, end, strict)
@@ -32,6 +34,8 @@ def scanstring_extended(s, end, strict=True):
         return datetime_services.to_datetime(s, server=False), end
     elif DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX.match(s):
         return datetime_services.to_datetime(s, server=False, replace_server=False), end
+    elif UUID_REGEX.match(s):
+        return uuid_utils.try_get_uuid_or_value(s), end
     else:
         return s, end
 
