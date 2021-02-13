@@ -24,7 +24,8 @@ from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError
 from pyrin.processor.request.wrappers.exceptions import InvalidRequestContextKeyNameError, \
     RequestContextKeyIsAlreadyPresentError, BadRequestError, RequestDeserializationError, \
-    JSONBodyDecodingError, BodyDecodingError, RequestComponentCustomKeyAlreadySetError
+    JSONBodyDecodingError, BodyDecodingError, RequestComponentCustomKeyAlreadySetError, \
+    LargeContentError
 
 
 class CoreRequest(Request):
@@ -83,9 +84,13 @@ class CoreRequest(Request):
 
         self._extract_authorization_header()
 
+        # when an attempt is done to parse inputs, this will be set to True
+        # to prevent retrying.
+        self.__inputs_parsed = False
+
         # this holds the inputs of request. this value will be
         # calculated once per each request and cached.
-        self._inputs = None
+        self._inputs = DTO()
 
         # this holds the query strings of request without paging and globalization params.
         self._query_strings = None
@@ -287,13 +292,26 @@ class CoreRequest(Request):
         :param bool silent: specifies that if an error occurred on processing
                             request, it should not raise an error.
                             defaults to False.
+                            note that if content length is above the limit, and
+                            `silent=True` is given, inputs will not be parsed and
+                            this method returns an empty dict.
 
+        :raises LargeContentError: large content error.
         :raises JSONBodyDecodingError: json body decoding error.
         :raises RequestDeserializationError: request deserialization error.
         :raises BodyDecodingError: body decoding error.
 
         :rtype: dict
         """
+
+        if self.url_rule is None:
+            return DTO()
+
+        if self.safe_content_length > self.url_rule.max_content_length:
+            if silent is not True:
+                raise LargeContentError(_('Request content is too large.'))
+
+            return DTO()
 
         if silent is not True:
             if self._json_decoding_error is not None:
@@ -305,7 +323,8 @@ class CoreRequest(Request):
             if self._body_decoding_error is not None:
                 self.on_body_loading_failed(error=self._body_decoding_error)
 
-        if self._inputs is None:
+        if self.__inputs_parsed is False:
+            self.__inputs_parsed = True
             form_data = self._deserialize(self.form.to_dict(flat=False, all_list=False),
                                           silent=silent)
 

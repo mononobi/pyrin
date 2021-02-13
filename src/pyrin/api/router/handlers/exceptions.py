@@ -46,22 +46,6 @@ class FreshAuthenticationRequiredError(AuthenticationFailedError,
     pass
 
 
-class LargeContentError(RouterHandlerBusinessException):
-    """
-    large content error.
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-        initializes an instance of LargeContentError.
-
-        :keyword dict data: extra data for exception.
-        """
-
-        super().__init__(*args, **kwargs)
-        self._code = ClientErrorResponseCodeEnum.PAYLOAD_TOO_LARGE
-
-
 class PermissionTypeError(RouterHandlerException):
     """
     permission type error.

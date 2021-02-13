@@ -25,7 +25,7 @@ from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.processor.response.enumerations import ResponseHeaderEnum
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
-    MaxContentLengthLimitMismatchError, LargeContentError, InvalidResultSchemaTypeError, \
+    MaxContentLengthLimitMismatchError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
     ViewFunctionParamsError, RequestLimitOrLifetimeRequiredError, InvalidRequestLimitError, \
     InvalidLifetimeError, URLNotFoundError, ViewFunctionRequiredParamsError
@@ -390,15 +390,12 @@ class RouteBase(Rule):
 
         :param dict inputs: view function inputs.
 
-        :raises LargeContentError: large content error.
         :raises ViewFunctionParamsError: view function params error.
         :raises ViewFunctionRequiredParamsError: view function required params error.
 
         :returns: view function's result.
         :rtype: object
         """
-
-        self._validate_content_length()
 
         if self._result_schema is not None:
             self._inject_result_schema()
@@ -492,17 +489,6 @@ class RouteBase(Rule):
         :param object result: view function execution result.
         """
         pass
-
-    def _validate_content_length(self):
-        """
-        validates content length for this route.
-
-        :raises LargeContentError: large content error.
-        """
-
-        client_request = session_services.get_current_request()
-        if client_request.safe_content_length > self.max_content_length:
-            raise LargeContentError(_('Request content is too large.'))
 
     def _extract_schema(self, **options):
         """
@@ -727,7 +713,7 @@ class RouteBase(Rule):
     @property
     def max_content_length(self):
         """
-        gets this route's max content bytes length.
+        gets this route's max content length in bytes.
 
         :rtype: int
         """

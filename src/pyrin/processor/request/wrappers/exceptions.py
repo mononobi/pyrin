@@ -78,3 +78,19 @@ class RequestComponentCustomKeyAlreadySetError(RequestWrappersException):
     request component custom key already set error.
     """
     pass
+
+
+class LargeContentError(RequestWrappersBusinessException):
+    """
+    large content error.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of LargeContentError.
+
+        :keyword dict data: extra data for exception.
+        """
+
+        super().__init__(*args, **kwargs)
+        self._code = ClientErrorResponseCodeEnum.PAYLOAD_TOO_LARGE
