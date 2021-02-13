@@ -16,9 +16,10 @@ class IntegerDeserializer(StringPatternDeserializerBase):
     """
 
     # matches the integer inside string.
-    # example: 12, 232, 10, 0, -5, +7
+    # example: 12, 232, 10, 0, -5, 70, -909
     # all of these values will be matched.
-    INTEGER_REGEX = re.compile(r'^[+|\-]?([0-9])+$')
+    # values that starting with '0' or '+' are not considered as integer.
+    INTEGER_REGEX = re.compile(r'^(0|([-]?[1-9]([0-9])*))$')
 
     def __init__(self, **options):
         """
@@ -75,9 +76,11 @@ class FloatDeserializer(StringPatternDeserializerBase):
     DEFAULT_MIN = 3
 
     # matches the float inside string.
-    # example: 0.12, 2.32, 1.0, 0.0, -1.6, +5.06
+    # example: 0.12, 2.32, 1.0, 0.0, -1.6, 5.06, 101.003, -20.01, 0.000
     # all of these values will be matched.
-    FLOAT_REGEX = re.compile(r'^[+|\-]?([0-9])+[.]([0-9])+$')
+    # left side of decimal point could not start with '0' if it has more than one digit.
+    # values that starting with '+' are not considered as float.
+    FLOAT_REGEX = re.compile(r'^[-]?(0|([1-9]([0-9])*))[.]([0-9])+$')
 
     def __init__(self, **options):
         """
