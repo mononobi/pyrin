@@ -8,6 +8,7 @@ from sqlalchemy import BigInteger, Unicode, LargeBinary
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.mixin import HistoryMixin
 from pyrin.database.orm.sql.schema.base import CoreColumn
+from pyrin.database.orm.sql.schema.columns import AutoPKColumn
 
 
 class CacheItemBaseEntity(CoreEntity):
@@ -17,7 +18,7 @@ class CacheItemBaseEntity(CoreEntity):
 
     _table = 'cache_item'
 
-    id = CoreColumn(name='id', type_=BigInteger, primary_key=True, autoincrement=True)
+    id = AutoPKColumn(name='id')
 
 
 class CacheItemEntity(CacheItemBaseEntity, HistoryMixin):

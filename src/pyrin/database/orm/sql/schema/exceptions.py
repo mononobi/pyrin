@@ -13,8 +13,15 @@ class ORMSQLSchemaException(CoreException):
     pass
 
 
-class SequenceColumnTypeIsInvalidError(ORMSQLSchemaException):
+class SequencePKColumnTypeIsInvalidError(ORMSQLSchemaException):
     """
-    sequence column type is invalid error.
+    sequence pk column type is invalid error.
+    """
+    pass
+
+
+class AutoPKColumnTypeIsInvalidError(ORMSQLSchemaException):
+    """
+    auto pk column type is invalid error.
     """
     pass
