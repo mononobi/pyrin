@@ -200,26 +200,26 @@ your application, you must install dependencies of that integration.
 
 **`pip install pyrin[celery]`**
 
-**To enable celery after installing its dependencies, open `settings/packaging.ini` file**
-**and remove `pyrin.task_queues.celery` from the `ignore_packages` list.**
+To enable celery after installing its dependencies, open `settings/packaging.ini` file
+and remove `pyrin.task_queues.celery` from the `ignore_packages` list.
 
 **Sentry:**
 
 **`pip install pyrin[sentry]`**
 
-**To enable sentry after installing its dependencies, open `settings/packaging.ini` file**
-**and remove `pyrin.logging.sentry` from the `ignore_packages` list.**
+To enable sentry after installing its dependencies, open `settings/packaging.ini` file
+and remove `pyrin.logging.sentry` from the `ignore_packages` list.
 
 **Redis:**
 
 **`pip install pyrin[redis]`**
 
-**To enable redis after installing its dependencies, open `settings/packaging.ini` file**
-**and remove `pyrin.caching.remote.handlers.redis` from the `ignore_modules` list.**
+To enable redis after installing its dependencies, open `settings/packaging.ini` file
+and remove `pyrin.caching.remote.handlers.redis` from the `ignore_modules` list.
 
 **Memcached:**
 
 **`pip install pyrin[memcached]`**
 
-**To enable memcached after installing its dependencies, open `settings/packaging.ini` file**
-**and remove `pyrin.caching.remote.handlers.memcached` from the `ignore_modules` list.**
+To enable memcached after installing its dependencies, open `settings/packaging.ini` file
+and remove `pyrin.caching.remote.handlers.memcached` from the `ignore_modules` list.
