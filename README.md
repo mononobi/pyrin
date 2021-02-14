@@ -34,7 +34,7 @@ To be able to run tests:
 1. Pyrin tests are developed using pytest, you should first 
    install pyrin tests dependencies using pip:
    
-   **`pip install pyrin[tests]`**
+**`pip install pyrin[tests]`**
 
 2. Now you could execute **`python3 start_unit.py`** to start all unit tests.
 
@@ -160,3 +160,66 @@ Now you could start application by executing this command in your terminal:
 Application will be available at **`127.0.0.1:5000`** by default.
 
 Pyrin on default configurations, will use an **`in-memory sqlite`** database.
+
+# Creating a New Pyrin Project
+
+Pyrin has a command line tool that can be used to create a new project.
+to use the command line interface of Pyrin, install Pyrin and then open a terminal and write:
+
+```shell
+pyrin project
+```
+
+after hitting enter, a couple of questions will be asked to create your project, answer
+questions accordingly, and your project will be created without a hassle.
+
+# Using Project's Extended Command Line Tool
+
+After creating a new project using **`pyrin project`** command, a cli.py file will be generated
+in the root of your new project directory. there are a couple of command groups that can b
+used to perform different actions. execute each command with **`--help`** option to see
+all available commands of each group.
+
+- **Builtin Commands:**
+
+  - **`python cli.py alembic`**
+  - **`python cli.py babel`**
+  - **`python cli.py template`**
+  - **`python cli.py security`**
+    
+
+- **Integration Commands:**
+  - **`python cli.py celery`**
+
+# Integrations
+
+Pyrin has builtin integrations for different services. to use each one of integrations inside
+your application, you must install dependencies of that integration.
+
+**Celery:**
+
+**`pip install pyrin[celery]`**
+
+**To enable celery after installing its dependencies, open `settings/packaging.ini` file**
+**and remove `pyrin.task_queues.celery` from the `ignore_packages` list.**
+
+**Sentry:**
+
+**`pip install pyrin[sentry]`**
+
+**To enable sentry after installing its dependencies, open `settings/packaging.ini` file**
+**and remove `pyrin.logging.sentry` from the `ignore_packages` list.**
+
+**Redis:**
+
+**`pip install pyrin[redis]`**
+
+**To enable redis after installing its dependencies, open `settings/packaging.ini` file**
+**and remove `pyrin.caching.remote.handlers.redis` from the `ignore_modules` list.**
+
+**Memcached:**
+
+**`pip install pyrin[memcached]`**
+
+**To enable memcached after installing its dependencies, open `settings/packaging.ini` file**
+**and remove `pyrin.caching.remote.handlers.memcached` from the `ignore_modules` list.**
