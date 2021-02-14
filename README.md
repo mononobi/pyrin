@@ -54,7 +54,8 @@ Then you could start developing Pyrin.
 # Thanks To JetBrains
 ![](./resources/images/jetbrains.png)
 
-We develop pyrin using [JetBrains](https://www.jetbrains.com/?from=pyrin) products with the awesome open source license provided by JetBrains.
+We develop pyrin using [JetBrains](https://www.jetbrains.com/?from=pyrin) products with the 
+awesome open source license provided by JetBrains.
 
 # Extremely Simple Usage Example
 
