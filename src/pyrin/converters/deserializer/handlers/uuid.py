@@ -3,8 +3,6 @@
 deserializer handlers uuid module.
 """
 
-import uuid
-
 import pyrin.utils.unique_id as uuid_utils
 
 from pyrin.core.globals import NULL

@@ -235,6 +235,20 @@ class ValueIsNotBooleanError(InvalidValueTypeError):
     pass
 
 
+class ValueIsNotUUIDError(InvalidValueTypeError):
+    """
+    value is not uuid error.
+    """
+    pass
+
+
+class ValueIsNotUUIDV4Error(InvalidValueTypeError):
+    """
+    value is not uuid v4 error.
+    """
+    pass
+
+
 class MinimumLengthHigherThanMaximumLengthError(ValidatorHandlersException):
     """
     minimum length higher than maximum length error.
