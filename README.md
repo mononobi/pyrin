@@ -175,10 +175,10 @@ questions accordingly, and your project will be created without a hassle.
 
 # Using Project's Extended Command Line Tool
 
-After creating a new project using **`pyrin project`** command, a cli.py file will be generated
-in the root of your new project directory. there are a couple of command groups that can b
-used to perform different actions. execute each command with **`--help`** option to see
-all available commands of each group.
+After creating a new project using **`pyrin project`** command, a **`cli.py`** file will 
+be generated in the root of your new project directory. there are a couple of command 
+groups that can be used to perform different actions. 
+execute each command with **`--help`** option to see all available commands of each group.
 
 - **Builtin Commands:**
 
