@@ -5,14 +5,14 @@ orm sql schema columns module.
 
 import inspect
 
-from sqlalchemy import BigInteger, Integer, Sequence
+from sqlalchemy import BigInteger, Integer, Sequence, ForeignKey
 
 import pyrin.utils.unique_id as uuid_utils
 
 from pyrin.database.orm.types.custom import GUID
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.exceptions import SequencePKColumnTypeIsInvalidError, \
-    AutoPKColumnTypeIsInvalidError
+    AutoPKColumnTypeIsInvalidError, InvalidFKColumnReferenceTypeError
 
 
 class PKColumn(CoreColumn):
@@ -340,3 +340,139 @@ class SequencePKColumn(PKColumn):
         kwargs.pop('server_default', None)
 
         super().__init__(*args, **kwargs)
+
+
+class FKColumn(CoreColumn):
+    """
+    fk column class.
+
+    this is a helper class for defining fk columns.
+    """
+
+    def __init__(self, reference=None, on_update=None,
+                 on_delete=None, *args, **kwargs):
+        """
+        initializes an instance of FKColumn.
+
+        :param str | CoreColumn reference: reference column name or instance.
+                                           this parameter is required but to
+                                           prevent errors on migrations it
+                                           has to have a default None value.
+
+        :param str on_update: optional string. if set, emit ON UPDATE <value> when
+                              issuing DDL for this constraint. typical values include
+                              CASCADE, DELETE and RESTRICT.
+
+        :param str on_delete: optional string. if set, emit ON DELETE <value> when
+                              issuing DDL for this constraint. typical values include
+                              CASCADE, DELETE and RESTRICT.
+
+        :param str name: the name of this column as represented in the database.
+                         this argument may be the fourth positional argument, or
+                         specified via keyword.
+
+        :param TypeEngine type_: the column's type, indicated using an instance which
+                                 if no arguments are required for the type, the class of
+                                 the type can be sent as well.
+                                 this argument may be the fifth positional argument, or
+                                 specified via keyword.
+
+        :param object *args: additional positional arguments include various
+                             `SchemaItem` derived constructs which will be applied
+                             as options to the column.
+
+        :keyword bool autoincrement: set up `auto increment` semantics for an
+                                     integer primary key column.
+
+        :keyword callable | object default: a scalar, python callable or `ColumnElement`
+                                            expression representing the default value
+                                            for this column, which will be invoked upon
+                                            insert if this column is otherwise not
+                                            specified in the values clause of the insert.
+
+        :keyword str doc: optional string that can be used by the ORM or similar
+                          to document attributes on the python side.
+
+        :keyword str key: an optional string identifier which will identify this
+                          `Column` object on the `Table`.
+
+        :keyword bool index: when `True`, indicates that the column is indexed.
+                             defaults to True if not provided.
+
+        :keyword dict info: optional data dictionary which will be populated into the
+                            `SchemaItem.info` attribute of this object.
+
+        :keyword bool nullable: when set to `False`, will cause the `Not NULL`
+                                phrase to be added when generating ddl for the column.
+                                default to False if not provided.
+
+        :keyword callable | object onupdate: a scalar, python callable, or
+                                             `ClauseElement` representing a default
+                                             value to be applied to the column within update
+                                             statements, which will be invoked upon update
+                                             if this column is not present in the set
+                                             clause of the update.
+
+        :keyword bool primary_key: if `True`, marks this column as a primary key
+                                   column. multiple columns can have this flag set to
+                                   specify composite primary keys.
+
+        :keyword object server_default: a `FetchedValue` instance, str, unicode
+                                        or `text` construct representing the ddl
+                                        default value for the column.
+
+        :keyword FetchedValue server_onupdate: a `FetchedValue` instance representing a
+                                               database-side default generation function,
+                                               such as a trigger. this indicates to sqlalchemy
+                                               that a newly generated value will be available
+                                               after updates. this construct does not actually
+                                               implement any kind of generation function within
+                                               the database, which instead must be specified
+                                               separately.
+
+        :keyword bool quote: force quoting of this column's name on or off,
+                             corresponding to `True` or `False`. when left at its default
+                             of `None`, the column identifier will be quoted according to
+                             whether the name is case sensitive (identifiers with at least one
+                             upper case character are treated as case sensitive), or if it's a
+                             reserved word.
+
+        :keyword bool unique: when `True`, indicates that this column contains a
+                              unique constraint, or if `index` is `True` as well, indicates
+                              that the `index` should be created with the unique flag.
+
+        :keyword bool system: when `True`, indicates this is a system column,
+                              that is a column which is automatically made available by the
+                              database, and should not be included in the columns list for a
+                              `create table` statement.
+
+        :keyword str comment: optional string that will render an sql comment
+                              on table creation.
+
+        :keyword bool allow_read: specifies that the column should be
+                                  included in entity to dict conversion.
+                                  defaults to True if not provided.
+
+        :keyword bool allow_write: specifies that the column should be
+                                   populated on conversion from dict.
+                                   defaults to True if not provided.
+
+        :raises InvalidFKColumnReferenceTypeError: invalid fk column reference type error.
+        """
+
+        if reference is not None and not isinstance(reference, (str, CoreColumn)):
+            raise InvalidFKColumnReferenceTypeError('Reference column must be a string '
+                                                    'or an instance of [{column}].'
+                                                    .format(column=CoreColumn))
+
+        # this is to prevent migration errors.
+        # because metadata uses uninitialized entities.
+        if reference is None:
+            reference = ''
+
+        kwargs.setdefault('index', True)
+        kwargs.setdefault('nullable', False)
+
+        super().__init__(ForeignKey(reference,
+                                    onupdate=on_update,
+                                    ondelete=on_delete), *args, **kwargs)

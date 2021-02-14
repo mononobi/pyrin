@@ -25,3 +25,10 @@ class AutoPKColumnTypeIsInvalidError(ORMSQLSchemaException):
     auto pk column type is invalid error.
     """
     pass
+
+
+class InvalidFKColumnReferenceTypeError(ORMSQLSchemaException):
+    """
+    invalid fk column reference type error.
+    """
+    pass
