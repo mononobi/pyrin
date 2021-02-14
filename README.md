@@ -21,13 +21,13 @@ of multiple developers be able to work on the same repository without facing con
 and there. Also reducing the chances of annoying bugs due to forgetting to register
 something in somewhere.
 
-# Installing
+## Installing
 
 **Install using pip**:
 
 **`pip install pyrin`**
 
-# Running Tests
+## Running Tests
 
 To be able to run tests:
 
@@ -38,12 +38,12 @@ To be able to run tests:
 
 2. Now you could execute **`python3 start_unit.py`** to start all unit tests.
 
-# Demo Application
+## Demo Application
 
 A demo application developed using Pyrin framework is available at: 
 [Pyrin-Demo](https://github.com/mononobi/pyrin_demo)
 
-# Contribute In Pyrin Development
+## Contribute In Pyrin Development
 
 We highly appreciate any kind of contributions to Pyrin development.
 Fork Pyrin and implement a new feature and make a pull request, we'll let
@@ -51,13 +51,13 @@ you know when your work becomes a part of Pyrin.
 So, open the project in your IDE and create your pipenv environment.
 Then you could start developing Pyrin.
 
-# Thanks To JetBrains
+## Thanks To JetBrains
 ![](./resources/images/jetbrains.png)
 
 We develop pyrin using [JetBrains](https://www.jetbrains.com/?from=pyrin) products with the 
 awesome open source license provided by JetBrains.
 
-# Extremely Simple Usage Example
+## Extremely Simple Usage Example
 
 The sample code below, is just a rapid showcase on how to develop using Pyrin. 
 for a real world application, it is best fit to use the concept of dependency injection 
@@ -161,7 +161,7 @@ Application will be available at **`127.0.0.1:5000`** by default.
 
 Pyrin on default configurations, will use an **`in-memory sqlite`** database.
 
-# Creating a New Pyrin Project
+## Creating a New Pyrin Project
 
 Pyrin has a command line tool that can be used to create a new project.
 to use the command line interface of Pyrin, install Pyrin and then open a terminal and write:
@@ -173,7 +173,7 @@ pyrin project
 after hitting enter, a couple of questions will be asked to create your project, answer
 questions accordingly, and your project will be created without a hassle.
 
-# Using Project's Extended Command Line Tool
+## Using Project's Extended Command Line Tool
 
 After creating a new project using **`pyrin project`** command, a **`cli.py`** file will 
 be generated in the root of your new project directory. there are a couple of command 
@@ -191,7 +191,7 @@ execute each command with **`--help`** option to see all available commands of e
 - **Integration Commands:**
   - **`python cli.py celery`**
 
-# Integrations
+## Integrations
 
 Pyrin has builtin integrations for different services. to use each one of integrations inside
 your application, you must install dependencies of that integration.
