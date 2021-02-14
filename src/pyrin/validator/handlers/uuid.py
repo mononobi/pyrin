@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.validator.handlers.exceptions import ValueIsNotUUIDError, ValueIsNotUUIDV4Error
+from pyrin.validator.handlers.exceptions import ValueIsNotUUIDError, ValueIsNotUUID4Error
 
 
 class UUIDValidator(ValidatorBase):
@@ -64,14 +64,14 @@ class UUIDValidator(ValidatorBase):
         super().__init__(domain, name, **options)
 
 
-class UUIDV4Validator(UUIDValidator):
+class UUID4Validator(UUIDValidator):
     """
-    uuid v4 validator class.
+    uuid4 validator class.
     """
 
-    invalid_type_error = ValueIsNotUUIDV4Error
+    invalid_type_error = ValueIsNotUUID4Error
     invalid_type_message = _('The provided value for [{param_name}] '
-                             'must be of uuid version 4 type.')
+                             'must be of uuid4 type.')
 
     def _validate(self, value, **options):
         """

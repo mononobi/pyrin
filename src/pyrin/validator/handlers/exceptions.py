@@ -242,9 +242,9 @@ class ValueIsNotUUIDError(InvalidValueTypeError):
     pass
 
 
-class ValueIsNotUUIDV4Error(InvalidValueTypeError):
+class ValueIsNotUUID4Error(InvalidValueTypeError):
     """
-    value is not uuid v4 error.
+    value is not uuid4 error.
     """
     pass
 
