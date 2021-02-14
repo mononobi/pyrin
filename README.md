@@ -45,8 +45,10 @@ A demo application developed using Pyrin framework is available at:
 
 # Contribute In Pyrin Development
 
-You must execute **`scripts/setup/install-dependencies.sh`** first.
-Then open the project in your IDE and create your pipenv environment.
+We highly appreciate any kind of contributions to Pyrin development.
+Fork Pyrin and implement a new feature and make a pull request, we'll let
+you know when your work becomes a part of Pyrin.
+So, open the project in your IDE and create your pipenv environment.
 Then you could start developing Pyrin.
 
 # Thanks To JetBrains
@@ -92,16 +94,16 @@ class DemoApplication(Application):
 ```python
 from sqlalchemy import Unicode, SmallInteger
 
-from pyrin.database.orm.types.custom import GUID
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
+from pyrin.database.orm.sql.schema.columns import GUIDPKColumn
 
 
 class GuestEntity(CoreEntity):
 
     _table = 'guest'
 
-    id = CoreColumn(name='id', type_=GUID, primary_key=True, allow_write=False)
+    id = GUIDPKColumn(name='id')
     name = CoreColumn(name='name', type_=Unicode(100))
     age = CoreColumn(name='age', type_=SmallInteger)
 ```
@@ -112,7 +114,6 @@ class GuestEntity(CoreEntity):
 from pyrin.api.router.decorators import api
 from pyrin.core.structs import DTO
 from pyrin.database.services import get_current_store
-from pyrin.utils.unique_id import generate_uuid4
 
 from demo.models import GuestEntity
 
@@ -120,8 +121,7 @@ from demo.models import GuestEntity
 @api('/introduce/<name>', authenticated=False)
 def introduce(name, **options):
     store = get_current_store()
-    id = generate_uuid4()
-    guest = GuestEntity(id=id, name=name)
+    guest = GuestEntity(name=name)
     store.add(guest)
     return 'Hello dear {name}, you have been added into our database.'.format(name=name)
 
