@@ -385,7 +385,8 @@ class ConfigStore(CoreObject):
         """
         synchronizes all keys with None value of this config store.
 
-        with environment variables with the same name if available.
+        with environment variables if available. it searches for environment
+        variables with name `STORE_SECTION_KEY`. for example `API_GENERAL_NAMESPACE`.
         it also updates all keys that their values start with `ENV_PLACE_HOLDER`
         from environment variables.
 
@@ -415,12 +416,31 @@ class ConfigStore(CoreObject):
                 if self._should_try_env(value) is True:
                     env_value = None
                     if value is None:
-                        env_value = self._get_from_env(key, **options)
+                        key_name = self._get_env_key_name(self._name, section_name, key)
+                        env_value = self._get_from_env(key_name, **options)
                     else:
                         env_key = self._extract_env_key(section_name, key, value)
                         env_value = self._get_from_env(env_key, silent=False)
                     converted_value = deserializer_services.deserialize(env_value)
                     self._configs[section_name][key] = converted_value
+
+    def _get_env_key_name(self, store, section, key):
+        """
+        gets key name for given inputs to get it from environment variables.
+
+        it generates key name in this format: `STORE_SECTION_KEY`.
+        for example: `API_GENERAL_NAMESPACE`.
+
+        :param str store: config store name.
+        :param str section: config store section name.
+        :param str key: section key name.
+
+        :rtype: str
+        """
+
+        return '{store}_{section}_{key}'.format(store=store.upper(),
+                                                section=section.upper(),
+                                                key=key.upper())
 
     def _extract_env_key(self, section, key, value):
         """
