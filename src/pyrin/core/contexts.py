@@ -20,7 +20,7 @@ class ContextManagerBase(AbstractContextManager):
         considering the exception type that has been occurred inside context.
 
         :param Exception internal_error: exception instance that has been occurred
-                                         inside the context manger itself.
+                                         inside the context manager itself.
 
         :param type[Exception] context_exception_type: the exception type that has been
                                                        occurred inside the context but
