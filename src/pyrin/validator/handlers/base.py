@@ -302,7 +302,7 @@ class ValidatorBase(AbstractValidatorBase):
         :returns: string representable value.
         """
 
-        if not isinstance(value, self.accepted_type):
+        if self.accepted_type is None or not isinstance(value, self.accepted_type):
             return value
 
         return self._get_safe_representation(value)
