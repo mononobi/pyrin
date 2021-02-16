@@ -91,8 +91,13 @@ class CoreSession(Session):
                                                .format(bind_name=bind_name))
 
         transient = kw.pop('transient', False)
-        if transient is True and isinstance(clause, str):
-            raw_sql = clause.lower()
+        if transient is True and isinstance(clause, (str, TextClause)):
+            raw_sql = None
+            if isinstance(clause, TextClause):
+                raw_sql = clause.text.lower()
+            else:
+                raw_sql = clause.lower()
+
             for item in self.NON_TRANSIENT_KEYWORDS:
                 if item in raw_sql:
                     raise TransientSQLExpressionRequiredError(_('Transient sql expressions '
@@ -160,7 +165,7 @@ class CoreSession(Session):
         :rtype: Engine
         """
 
-        if mapper is None and isinstance(clause, (TextClause, str)):
+        if mapper is None and isinstance(clause, (str, TextClause)):
             tables = extractor_services.find_table_names(clause)
             if len(tables) > 0:
                 return database_services.get_table_engine(tables[0])
