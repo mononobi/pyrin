@@ -9,7 +9,9 @@ from sqlalchemy.sql.elements import TextClause
 import pyrin.database.services as database_services
 import pyrin.database.orm.sql.extractor.services as extractor_services
 
+from pyrin.core.globals import _
 from pyrin.database.exceptions import InvalidDatabaseBindError
+from pyrin.database.orm.session.exceptions import TransientSQLExpressionRequiredError
 
 
 class CoreSession(Session):
@@ -18,6 +20,10 @@ class CoreSession(Session):
 
     all application sessions must be an instance this.
     """
+
+    # these keywords are forbidden when 'execute' method is called
+    # with 'transient=True' and a raw sql is given.
+    NON_TRANSIENT_KEYWORDS = ['commit', 'flush', 'rollback']
 
     def execute(self, clause, params=None, mapper=None, bind=None, **kw):
         """
@@ -58,11 +64,18 @@ class CoreSession(Session):
                      to allow extensibility of `bind` schemes.
 
         :keyword str bind_name: database bind name from `database.binds.ini`
-                                file which given clause must be executed on.
+                                file on which given clause must be executed.
                                 this keyword argument precedence over `mapper` and
                                 `clause` when locating a bind.
 
+        :keyword bool transient: specifies that raw sql expressions must not affect
+                                 the database. if set to True and a raw sql is
+                                 given, it could not contain `commit`, `rollback`
+                                 or `flush` keywords. defaults to False if not
+                                 provided.
+
         :raises InvalidDatabaseBindError: invalid database bind error.
+        :raises TransientSQLExpressionRequiredError: transient sql expression required error.
 
         :returns: results of the statement execution.
         :rtype: ResultProxy
@@ -76,6 +89,15 @@ class CoreSession(Session):
                                                'is not available in database.binds '
                                                'config store.'
                                                .format(bind_name=bind_name))
+
+        transient = kw.pop('transient', False)
+        if transient is True and isinstance(clause, str):
+            raw_sql = clause.lower()
+            for item in self.NON_TRANSIENT_KEYWORDS:
+                if item in raw_sql:
+                    raise TransientSQLExpressionRequiredError(_('Transient sql expressions '
+                                                                'should not contain [{keyword}] '
+                                                                'keyword.').format(keyword=item))
 
         return super().execute(clause, params, mapper, bind, **kw)
 
