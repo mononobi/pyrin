@@ -138,11 +138,11 @@ def validate_dict(domain, data, **options):
                         of all keys and their corresponding error messages.
                         defaults to True if not provided.
 
-    :keyword bool all_validators: specifies that all validators of given domain must
-                                  be used for validation even if the related value is
-                                  not present in data. it is useful for changing
-                                  the validation behavior on insert or update
-                                  operations. defaults to True if not provided.
+    :keyword bool for_update: specifies that only fields that are present in data
+                              must be validated. even if there are validators for
+                              other fields. it is useful for changing the validation
+                              behavior on insert or update operations. defaults to
+                              False if not provided and all validators will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -197,11 +197,11 @@ def validate_entity(entity, **options):
                         of all field names and their corresponding error messages.
                         defaults to True if not provided.
 
-    :keyword bool all_validators: specifies that all validators of given domain must
-                                  be used for validation even if the related value is
-                                  not present in data. it is useful for changing
-                                  the validation behavior on insert or update
-                                  operations. defaults to True if not provided.
+    :keyword bool for_update: specifies that only fields that are present in data
+                              must be validated. even if there are validators for
+                              other fields. it is useful for changing the validation
+                              behavior on insert or update operations. defaults to
+                              False if not provided and all validators will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -297,11 +297,11 @@ def is_valid_dict(domain, data, **options):
 
     :param dict data: dictionary to validate its values.
 
-    :keyword bool all_validators: specifies that all validators of given domain must
-                                  be used for validation even if the related value is
-                                  not present in data. it is useful for changing
-                                  the validation behavior on insert or update
-                                  operations. defaults to True if not provided.
+    :keyword bool for_update: specifies that only fields that are present in data
+                              must be validated. even if there are validators for
+                              other fields. it is useful for changing the validation
+                              behavior on insert or update operations. defaults to
+                              False if not provided and all validators will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -352,11 +352,11 @@ def is_valid_entity(entity, **options):
                                                   be included in validation. defaults to
                                                   `SECURE_TRUE` if not provided.
 
-    :keyword bool all_validators: specifies that all validators of given domain must
-                                  be used for validation even if the related value is
-                                  not present in data. it is useful for changing
-                                  the validation behavior on insert or update
-                                  operations. defaults to True if not provided.
+    :keyword bool for_update: specifies that only fields that are present in data
+                              must be validated. even if there are validators for
+                              other fields. it is useful for changing the validation
+                              behavior on insert or update operations. defaults to
+                              False if not provided and all validators will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.

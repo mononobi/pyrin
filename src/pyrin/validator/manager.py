@@ -210,11 +210,11 @@ class ValidatorManager(Manager):
                             of all keys and their corresponding error messages.
                             defaults to True if not provided.
 
-        :keyword bool all_validators: specifies that all validators of given domain must
-                                      be used for validation even if the related value is
-                                      not present in data. it is useful for changing
-                                      the validation behavior on insert or update
-                                      operations. defaults to True if not provided.
+        :keyword bool for_update: specifies that only fields that are present in data
+                                  must be validated. even if there are validators for
+                                  other fields. it is useful for changing the validation
+                                  behavior on insert or update operations. defaults to
+                                  False if not provided and all validators will be used.
 
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
@@ -251,7 +251,7 @@ class ValidatorManager(Manager):
 
         cumulative_errors = DTO()
         lazy = options.get('lazy', True)
-        all_validators = options.get('all_validators', True)
+        for_update = options.get('for_update', False)
 
         available_data = set(data.keys())
         validator_names = set()
@@ -260,7 +260,7 @@ class ValidatorManager(Manager):
             validator_names = set(available_validators.keys())
 
         should_be_validated = validator_names
-        if all_validators is False:
+        if for_update is True:
             should_be_validated = validator_names.intersection(available_data)
 
         for name in should_be_validated:
@@ -295,11 +295,11 @@ class ValidatorManager(Manager):
                             of all field names and their corresponding error messages.
                             defaults to True if not provided.
 
-        :keyword bool all_validators: specifies that all validators of given domain must
-                                      be used for validation even if the related value is
-                                      not present in data. it is useful for changing
-                                      the validation behavior on insert or update
-                                      operations. defaults to True if not provided.
+        :keyword bool for_update: specifies that only fields that are present in data
+                                  must be validated. even if there are validators for
+                                  other fields. it is useful for changing the validation
+                                  behavior on insert or update operations. defaults to
+                                  False if not provided and all validators will be used.
 
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
@@ -399,11 +399,11 @@ class ValidatorManager(Manager):
 
         :param dict data: dictionary to validate its values.
 
-        :keyword bool all_validators: specifies that all validators of given domain must
-                                      be used for validation even if the related value is
-                                      not present in data. it is useful for changing
-                                      the validation behavior on insert or update
-                                      operations. defaults to True if not provided.
+        :keyword bool for_update: specifies that only fields that are present in data
+                                  must be validated. even if there are validators for
+                                  other fields. it is useful for changing the validation
+                                  behavior on insert or update operations. defaults to
+                                  False if not provided and all validators will be used.
 
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
@@ -457,11 +457,11 @@ class ValidatorManager(Manager):
                                                       be included in validation. defaults to
                                                       `SECURE_TRUE` if not provided.
 
-        :keyword bool all_validators: specifies that all validators of given domain must
-                                      be used for validation even if the related value is
-                                      not present in data. it is useful for changing
-                                      the validation behavior on insert or update
-                                      operations. defaults to True if not provided.
+        :keyword bool for_update: specifies that only fields that are present in data
+                                  must be validated. even if there are validators for
+                                  other fields. it is useful for changing the validation
+                                  behavior on insert or update operations. defaults to
+                                  False if not provided and all validators will be used.
 
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
