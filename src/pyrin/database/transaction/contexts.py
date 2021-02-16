@@ -267,3 +267,81 @@ class subtransaction_context(TransactionalContextManagerBase):
         """
 
         return None
+
+
+class transient_context(atomic_context):
+    """
+    transient context manager to make a code block execution transient.
+
+    meaning that before starting the execution of the code block, a new session with a
+    new transaction will be started, and after the completion of that code, the
+    new transaction will be rolled back without the consideration or affecting the
+    parent transaction which by default is scoped to request. the corresponding new
+    session will also be removed after code execution.
+
+    note that you *should not* commit or rollback anything inside a transient block,
+    the transient context manager will handle rollback operation when needed.
+    otherwise, unexpected behaviors may occur.
+
+    also note that you *should not* remove the corresponding session from session factory
+    when using transient context manager. the removal operation will be handled by decorator
+    itself and if you remove session manually, it will cause broken chain of sessions
+    and unexpected behaviour.
+
+    this context manager also supports multiple `transient_context` usage in a single
+    call hierarchy.
+
+    for example:
+
+    def service_root():
+        store = get_current_store()
+        value = EntityRoot()
+        store.add(value)
+        service_a()
+
+    def service_a():
+        with atomic_context() as store:
+            value = EntityA()
+            store.add(value)
+            service_b()
+
+    def service_b():
+        with transient_context() as store:
+            value = EntityB()
+            store.add(value)
+            service_c()
+
+    def service_c():
+        with transient_context():
+            value = EntityC()
+            value.save()
+
+    in the above example, if the call hierarchy starts with `service_root()`, at
+    the end, the data of `service_root` and `service_a` will be persisted into database.
+    but the data of `service_b` and `service_c` will not be persisted because
+    they are marked as transient.
+    """
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        does the finalizing of transient transaction.
+
+        it rollbacks the transaction at the end.
+
+        :param type[Exception] exc_type: the exception type that has been
+                                         occurred during current context.
+
+        :param Exception exc_value: exception instance that has been
+                                    occurred during current context.
+
+        :param traceback traceback: traceback of occurred exception.
+        """
+
+        try:
+            try:
+                self._store.rollback()
+            finally:
+                self._remove_session()
+        except Exception as error:
+            if self._should_be_raised(error, exc_type) is True:
+                raise error

@@ -184,3 +184,82 @@ def subtransaction(func):
             raise ex
 
     return update_wrapper(decorator, func)
+
+
+def transient(func):
+    """
+    decorator to make a function execution transient.
+
+    meaning that before starting the execution of the function, a new session with a
+    new transaction will be started, and after the completion of that function, the
+    new transaction will be rolled back without the consideration or affecting the
+    parent transaction which by default is scoped to request. the corresponding new
+    session will also be removed after function execution.
+
+    note that you *should not* commit or rollback anything inside a transient function,
+    the `@transient` decorator will handle rollback operation when needed.
+    otherwise, unexpected behaviors may occur.
+
+    also note that you *should not* remove the corresponding session from session factory
+    when using `@transient` decorator. the removal operation will be handled by decorator
+    itself and if you remove session manually, it will cause broken chain of sessions
+    and unexpected behaviour.
+
+    this decorator also supports multiple `@transient` usage in a single call hierarchy.
+    for example:
+
+    def service_root():
+        store = get_current_store()
+        value = EntityRoot()
+        store.add(value)
+        service_a()
+
+    @atomic
+    def service_a():
+        store = get_current_store()
+        value = EntityA()
+        store.add(value)
+        service_b()
+
+    @transient
+    def service_b():
+        store = get_current_store()
+        value = EntityB()
+        store.add(value)
+        service_c()
+
+    @transient
+    def service_c():
+        value = EntityC()
+        value.save()
+
+    in the above example, if the call hierarchy starts with `service_root()`, at
+    the end, the data of `service_root` and `service_a` will be persisted into database.
+    but the data of `service_b` and `service_c` will not be persisted because they are
+    decorated as transient.
+
+    :param function func: function.
+
+    :returns: function result.
+    """
+
+    def decorator(*args, **kwargs):
+        """
+        decorates the given function and makes its execution transient.
+
+        :param object args: function arguments.
+        :param object kwargs: function keyword arguments.
+
+        :returns: function result.
+        """
+
+        store = database_services.get_atomic_store()
+        try:
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            store.rollback()
+            factory = database_services.get_current_session_factory()
+            factory.remove(atomic=True)
+
+    return update_wrapper(decorator, func)
