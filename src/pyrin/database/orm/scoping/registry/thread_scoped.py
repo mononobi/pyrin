@@ -51,7 +51,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         if value is not None:
             return value
 
-        return super().__call__()
+        return self.inject_atomic(super().__call__(), atomic)
 
     def has(self, atomic=False):
         """
