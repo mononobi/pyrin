@@ -19,8 +19,8 @@ def atomic(func):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after function execution.
 
-    note that you *should not* commit or rollback anything inside an atomic
-    function, the `@atomic` decorator will handle commit or rollback operations
+    note that you *should not* commit, flush or rollback anything inside an atomic
+    function, the `@atomic` decorator will handle commit, flush or rollback operations
     when needed. otherwise, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory
@@ -107,8 +107,8 @@ def nested(func):
     transaction from parent that could commit its own changes on its own, use `@atomic`
     decorator.
 
-    note that you *should not* commit or rollback anything inside a nested
-    function, the `@nested` decorator will handle commit or rollback operations
+    note that you *should not* commit, flush or rollback anything inside a nested
+    function, the `@nested` decorator will handle commit, flush or rollback operations
     when needed. otherwise, unexpected behaviors may occur.
 
     :param function func: function.
@@ -154,9 +154,9 @@ def subtransaction(func):
     transaction from parent that could commit its own changes on its own, use `@atomic`
     decorator.
 
-    note that you *should not* commit or rollback anything inside a subtransaction
-    function, the `@subtransaction` decorator will handle commit or rollback operations
-    when needed. otherwise, unexpected behaviors may occur.
+    note that you *should not* commit, flush or rollback anything inside a subtransaction
+    function, the `@subtransaction` decorator will handle commit, flush or rollback
+    operations when needed. otherwise, unexpected behaviors may occur.
 
     :param function func: function.
 
@@ -196,8 +196,8 @@ def transient(func):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after function execution.
 
-    note that you *should not* commit or rollback anything inside a transient function,
-    the `@transient` decorator will handle rollback operation when needed.
+    note that you *should not* commit, flush or rollback anything inside a transient
+    function, the `@transient` decorator will handle rollback operation when needed.
     otherwise, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory

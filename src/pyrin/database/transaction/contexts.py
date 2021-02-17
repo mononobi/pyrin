@@ -28,9 +28,9 @@ class TransactionalContextManagerBase(ContextManagerBase):
         """
         begins the current context and returns the related session for current context.
 
-        note that you *should not* commit or rollback the transaction inside the current
-        context. the context manager itself will do it automatically. if you do commit
-        or rollback manually, unexpected behaviors may occur.
+        note that you *should not* commit, flush or rollback the transaction inside
+        the current context. the context manager itself will do it automatically.
+        if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
         :rtype: CoreSession
         """
@@ -77,9 +77,9 @@ class atomic_context(TransactionalContextManagerBase):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after code execution.
 
-    note that you *should not* commit or rollback the transaction inside the current
-    context. the context manager itself will do it automatically. if you do commit
-    or rollback manually, unexpected behaviors may occur.
+    note that you *should not* commit, flush or rollback the transaction inside
+    the current context. the context manager itself will do it automatically.
+    if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory
     when using `atomic_context`. the removal operation will be handled by context manager
@@ -175,9 +175,9 @@ class nested_context(TransactionalContextManagerBase):
     does not persist anything, it just releases the savepoint. if you want an independent
     transaction from parent that could commit its own changes on its own, use `atomic_context`.
 
-    note that you *should not* commit or rollback the transaction inside the current
-    context. the context manager itself will do it automatically. if you do commit
-    or rollback manually, unexpected behaviors may occur.
+    note that you *should not* commit, flush or rollback the transaction inside
+    the current context. the context manager itself will do it automatically.
+    if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
     this context manager also supports multiple `nested_context` usage in a single
     call hierarchy.
@@ -201,9 +201,9 @@ class nested_context(TransactionalContextManagerBase):
         """
         begins the current context.
 
-        note that you *should not* commit or rollback the transaction inside the current
-        context. the context manager itself will do it automatically. if you do commit
-        or rollback manually, unexpected behaviors may occur.
+        note that you *should not* commit, flush or rollback the transaction inside
+        the current context. the context manager itself will do it automatically.
+        if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
         also note that by beginning the context, it does not return any session
         object. so you should not use `with nested_context() as store` code style.
@@ -229,9 +229,9 @@ class subtransaction_context(TransactionalContextManagerBase):
     not persist anything, it just ends the subtransaction's scope. if you want an independent
     transaction from parent that could commit its own changes on its own, use `atomic_context`.
 
-    note that you *should not* commit or rollback the transaction inside the current
-    context. the context manager itself will do it automatically. if you do commit
-    or rollback manually, unexpected behaviors may occur.
+    note that you *should not* commit, flush or rollback the transaction inside
+    the current context. the context manager itself will do it automatically.
+    if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
     this context manager also supports multiple `subtransaction_context` usage in a single
     call hierarchy.
@@ -255,9 +255,9 @@ class subtransaction_context(TransactionalContextManagerBase):
         """
         begins the current context.
 
-        note that you *should not* commit or rollback the transaction inside the current
-        context. the context manager itself will do it automatically. if you do commit
-        or rollback manually, unexpected behaviors may occur.
+        note that you *should not* commit, flush or rollback the transaction inside
+        the current context. the context manager itself will do it automatically.
+        if you do commit, flush or rollback manually, unexpected behaviors may occur.
 
         also note that by beginning the context, it does not return any session
         object. so you should not use `with subtransaction_context() as store` code
@@ -279,8 +279,8 @@ class transient_context(atomic_context):
     parent transaction which by default is scoped to request. the corresponding new
     session will also be removed after code execution.
 
-    note that you *should not* commit or rollback anything inside a transient block,
-    the transient context manager will handle rollback operation when needed.
+    note that you *should not* commit, flush or rollback anything inside a transient
+    block, the transient context manager will handle rollback operation when needed.
     otherwise, unexpected behaviors may occur.
 
     also note that you *should not* remove the corresponding session from session factory
