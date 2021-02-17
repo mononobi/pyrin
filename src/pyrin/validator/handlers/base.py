@@ -14,7 +14,7 @@ from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorNameIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
     InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
-    ValidatorFixerMustBeCallable
+    ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -31,13 +31,31 @@ class ValidatorBase(AbstractValidatorBase):
     none_value_message = _('The provided value for [{param_name}] could not be None.')
     not_list_error = ValueIsNotListError
     not_list_message = _('The provided value for [{param_name}] must be a list of items.')
+    empty_list_error = ValueCouldNotBeAnEmptyListError
+    empty_list_message = _('The provided value for [{param_name}] could not be an empty list.')
 
+    # specifies that the value could be None.
     default_nullable = None
+
+    # localized name of parameter that this validator will validate.
     default_localized_name = None
+
+    # specifies that value must be a list of items.
     default_is_list = False
+
+    # specifies that list validator should also accept single, non list values.
+    # it only has effect if 'default_is_list=True' is set.
+    default_allow_single = False
+
+    # specifies that list items could also be None.
+    # it only has effect if 'default_is_list=True' is set.
     default_null_items = False
 
-    # a callable that accepts a single value and returns the fixed value.
+    # specifies that list values could be an empty list.
+    # it only has effect if 'default_is_list=True' is set.
+    default_allow_empty_list = False
+
+    # a callable that accepts a single value and returns the fixed or the same value.
     default_fixer = None
 
     def __init__(self, domain, name, **options):
@@ -80,6 +98,16 @@ class ValidatorBase(AbstractValidatorBase):
                                   it is only used if `is_list=True` is provided.
                                   defaults to False if not provided.
 
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
@@ -119,6 +147,20 @@ class ValidatorBase(AbstractValidatorBase):
                 null_items = self.default_null_items
             else:
                 null_items = False
+
+        allow_single = options.get('allow_single')
+        if allow_single is None:
+            if self.default_allow_single is not None:
+                allow_single = self.default_allow_single
+            else:
+                allow_single = False
+
+        allow_empty_list = options.get('allow_empty_list')
+        if allow_empty_list is None:
+            if self.default_allow_empty_list is not None:
+                allow_empty_list = self.default_allow_empty_list
+            else:
+                allow_empty_list = False
 
         accepted_type = options.get('accepted_type')
         if accepted_type is not None and not isinstance(accepted_type, (type, tuple)):
@@ -161,6 +203,8 @@ class ValidatorBase(AbstractValidatorBase):
         self._localized_name = localized_name
         self._is_list = is_list
         self._null_items = null_items
+        self._allow_single = allow_single
+        self._allow_empty_list = allow_empty_list
 
     def validate(self, value, **options):
         """
@@ -169,7 +213,7 @@ class ValidatorBase(AbstractValidatorBase):
         it raises an error if validation fails.
         it returns the same or fixed value.
 
-        :param object value: value to be validated.
+        :param object | list[object] value: value to be validated.
 
         :keyword bool nullable: determines that provided value could be None.
                                 this value has precedence over `nullable`
@@ -183,6 +227,16 @@ class ValidatorBase(AbstractValidatorBase):
                                   it is only used if `is_list=True` is provided.
                                   this value has precedence over `null_items`
                                   instance attribute if provided.
+
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
 
         :raises ValueIsNotListError: value is not list error.
         :raises InvalidValueTypeError: invalid value type error.
@@ -204,22 +258,36 @@ class ValidatorBase(AbstractValidatorBase):
         if null_items is None:
             null_items = self.null_items
 
+        allow_single = options.pop('allow_single', None)
+        if allow_single is None:
+            allow_single = self.allow_single
+
+        allow_empty_list = options.pop('allow_empty_list', None)
+        if allow_empty_list is None:
+            allow_empty_list = self.allow_empty_list
+
         if value is None:
             self._validate_nullable(value, nullable)
             return value
 
-        if is_list is True and (not isinstance(value, list) or len(value) <= 0):
+        is_really_list = isinstance(value, list)
+        if is_list is True and is_really_list is True \
+                and len(value) <= 0 and allow_empty_list is False:
+            raise self.empty_list_error(
+                self.empty_list_message.format(param_name=self.localized_name))
+
+        if is_list is True and allow_single is False and is_really_list is False:
             raise self.not_list_error(
                 self.not_list_message.format(param_name=self.localized_name))
 
-        if is_list is not True:
+        if is_list is False or (is_list is True and is_really_list is False):
             return self._perform_validation(value, nullable, **options)
         else:
-            fixed_values = []
-            for item in value:
-                fixed_values.append(self._perform_validation(item, null_items, **options))
+            temp_values = list(value)
+            for index, item in enumerate(temp_values):
+                value[index] = self._perform_validation(item, null_items, **options)
 
-            return fixed_values
+            return value
 
     def _perform_validation(self, value, nullable, **options):
         """
@@ -487,3 +555,23 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._null_items
+
+    @property
+    def allow_single(self):
+        """
+        gets a value indicating that list validator should also accept single, non list values.
+
+        :rtype: bool
+        """
+
+        return self._allow_single
+
+    @property
+    def allow_empty_list(self):
+        """
+        gets a value indicating that list validator should also accept empty lists.
+
+        :rtype: bool
+        """
+
+        return self._allow_empty_list

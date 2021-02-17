@@ -182,6 +182,9 @@ def get_string(value, *accepted_types):
     :returns: string or the same value.
     """
 
+    if bool not in accepted_types and isinstance(value, bool):
+        return value
+
     if accepted_types is None or len(accepted_types) <= 0:
         accepted_types = (int, float)
 

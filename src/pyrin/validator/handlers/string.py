@@ -79,6 +79,16 @@ class StringValidator(ValidatorBase):
                                   it is only used if `is_list=True` is provided.
                                   defaults to False if not provided.
 
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.
 
@@ -310,6 +320,16 @@ class RegexValidator(StringValidator):
         :keyword bool null_items: specifies that list items could be None.
                                   it is only used if `is_list=True` is provided.
                                   defaults to False if not provided.
+
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to True if not provided.

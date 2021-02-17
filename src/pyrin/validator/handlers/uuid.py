@@ -55,6 +55,16 @@ class UUIDValidator(ValidatorBase):
                                   it is only used if `is_list=True` is provided.
                                   defaults to False if not provided.
 
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
+
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.

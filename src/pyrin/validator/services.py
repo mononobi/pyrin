@@ -79,7 +79,7 @@ def validate_field(domain, name, value, **options):
                                           subclass or a string name.
 
     :param str name: validator name to be used for validation.
-    :param object value: value to be validated.
+    :param object | list[object] value: value to be validated.
 
     :keyword bool force: specifies that if there is no validator
                          with specified domain and name, it should
@@ -90,6 +90,16 @@ def validate_field(domain, name, value, **options):
 
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
+
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -148,6 +158,16 @@ def validate_dict(domain, data, **options):
 
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
+
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -213,6 +233,16 @@ def validate_entity(entity, **options):
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
 
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
                                      this argument will only be considered in min,
@@ -249,7 +279,7 @@ def is_valid_field(domain, name, value, **options):
                                           subclass or a string name.
 
     :param str name: validator name to be used for validation.
-    :param object value: value to be validated.
+    :param object | list[object] value: value to be validated.
 
     :keyword bool force: specifies that if there is no validator
                          with specified domain and name, it should
@@ -260,6 +290,16 @@ def is_valid_field(domain, name, value, **options):
 
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
+
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -312,6 +352,16 @@ def is_valid_dict(domain, data, **options):
 
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
+
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
@@ -367,6 +417,16 @@ def is_valid_entity(entity, **options):
 
     :keyword bool null_items: specifies that list items could be None.
                               it is only used if `is_list=True` is provided.
+
+    :keyword bool allow_single: specifies that list validator should also
+                                accept single, non list values.
+                                it is only used if `is_list=True` is provided.
+                                defaults to False if not provided.
+
+    :keyword bool allow_empty_list: specifies that list validators should also
+                                    accept empty lists.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
 
     :keyword bool inclusive_minimum: determines that values equal to
                                      accepted minimum should be considered valid.
