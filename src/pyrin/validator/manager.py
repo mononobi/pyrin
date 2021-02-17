@@ -133,7 +133,7 @@ class ValidatorManager(Manager):
         """
         validates the given value with given validator.
 
-        it returns a value indicating that validator has been found.
+        it returns the same value or fixed one.
 
         :param type[BaseEntity] | str domain: the domain to validate the value for.
                                               it could be a type of a BaseEntity
@@ -174,8 +174,7 @@ class ValidatorManager(Manager):
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
 
-        :returns: a value indicating that validator has been found.
-        :rtype: bool
+        :returns: same value or fixed one.
         """
 
         validator = self.get_validator(domain, name)
@@ -189,9 +188,9 @@ class ValidatorManager(Manager):
                                          .format(name=name, domain=domain))
 
         if validator is not None:
-            validator.validate(value, **options)
+            return validator.validate(value, **options)
 
-        return validator is not None
+        return value
 
     def validate_dict(self, domain, data, **options):
         """
@@ -240,6 +239,11 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :keyword BaseEntity entity: an entity instance that the provided data
+                                    is the result dict of it.
+                                    it will be used to populate fixed values
+                                    in the entity.
+
         :raises InvalidDataForValidationError: invalid data for validation error.
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
@@ -252,6 +256,7 @@ class ValidatorManager(Manager):
         cumulative_errors = DTO()
         lazy = options.get('lazy', True)
         for_update = options.get('for_update', False)
+        entity = options.get('entity')
 
         available_data = set(data.keys())
         validator_names = set()
@@ -265,7 +270,12 @@ class ValidatorManager(Manager):
 
         for name in should_be_validated:
             try:
-                self.validate_field(domain, name, data.get(name), **options)
+                fixed_value = self.validate_field(domain, name, data.get(name), **options)
+                if fixed_value is not None:
+                    data[name] = fixed_value
+                    if entity is not None:
+                        entity.set_attribute(name, fixed_value, silent=True)
+
             except ValidationError as error:
                 if lazy is False:
                     raise error
@@ -334,6 +344,7 @@ class ValidatorManager(Manager):
         if entity is None:
             raise InvalidEntityForValidationError(_('Entity for validation could not be None.'))
 
+        options.update(entity=entity)
         self.validate_dict(type(entity), entity.to_dict(**options), **options)
 
     def is_valid_field(self, domain, name, value, **options):
@@ -382,8 +393,8 @@ class ValidatorManager(Manager):
         """
 
         try:
-            self.validate_field(domain, name, value, **options)
-            return True
+            fixed_value = self.validate_field(domain, name, value, **options)
+            return value == fixed_value
         except ValidationError:
             return False
 

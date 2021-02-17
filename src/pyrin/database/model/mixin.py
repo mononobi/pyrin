@@ -1024,6 +1024,37 @@ class ConverterMixin(CoreObject):
         for column in result_columns:
             setattr(self, column, kwargs.get(column))
 
+    def set_attribute(self, name, value, silent=True):
+        """
+        sets the provided value for attribute with given name.
+
+        it only could set value for writable attributes, which are those that
+        have `allow_write=True` in their definition (only for columns) and
+        their name does not start with underscore `_`.
+
+        this method is implemented to be used in validator package.
+        it is not recommended to be used in application code.
+        use `from_dict` method instead.
+
+        :param str name: attribute name.
+        :param object value: value to be set for attribute.
+
+        :param bool silent: specifies that if there is no attribute
+                            with given name, ignore it instead of error.
+                            defaults to True.
+
+        :raises ColumnNotExistedError: column not existed error.
+        """
+
+        if name in self.all_writable_attributes:
+            setattr(self, name, value)
+            return
+
+        if silent is False:
+            raise ColumnNotExistedError('Provided column, relationship or property '
+                                        '[{column}] is not available in entity [{entity}].'
+                                        .format(entity=self, column=name))
+
     def _extract_conditions(self, **options):
         """
         extracts all conditions available in given options.

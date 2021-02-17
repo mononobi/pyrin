@@ -102,6 +102,13 @@ class InvalidAcceptedTypeError(ValidatorHandlersException):
     pass
 
 
+class ValidatorFixerMustBeCallable(ValidatorHandlersException):
+    """
+    validator fixer must be callable.
+    """
+    pass
+
+
 class InvalidValidationExceptionTypeError(ValidatorHandlersException):
     """
     invalid validation exception type error.

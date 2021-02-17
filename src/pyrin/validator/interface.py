@@ -22,11 +22,14 @@ class AbstractValidatorBase(CoreObject):
         validates the given value.
 
         it raises an error if validation fails.
+        it returns the same or fixed value.
 
         :param object value: value to be validated.
 
         :raises CoreNotImplementedError: core not implemented error.
         :raises ValidationError: validation error.
+
+        :returns: object | list[object]
         """
 
         raise CoreNotImplementedError()

@@ -5,6 +5,8 @@ validator handlers string module.
 
 import re
 
+import pyrin.utils.string as string_utils
+
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStringLengthError, \
@@ -39,6 +41,7 @@ class StringValidator(ValidatorBase):
     default_allow_whitespace = None
     default_minimum_length = None
     default_maximum_length = None
+    default_fixer = string_utils.get_string
 
     def __init__(self, domain, name, **options):
         """
@@ -90,6 +93,7 @@ class StringValidator(ValidatorBase):
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises LongStringLengthError: long string length error.
         :raises ShortStringLengthError: short string length error.
@@ -326,6 +330,7 @@ class RegexValidator(StringValidator):
 
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises LongStringLengthError: long string length error.
         :raises ShortStringLengthError: short string length error.

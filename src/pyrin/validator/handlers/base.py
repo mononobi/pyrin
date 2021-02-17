@@ -13,7 +13,8 @@ from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorNameIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
-    InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError
+    InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
+    ValidatorFixerMustBeCallable
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -35,6 +36,9 @@ class ValidatorBase(AbstractValidatorBase):
     default_localized_name = None
     default_is_list = False
     default_null_items = False
+
+    # a callable that accepts a single value and returns the fixed value.
+    default_fixer = None
 
     def __init__(self, domain, name, **options):
         """
@@ -79,6 +83,7 @@ class ValidatorBase(AbstractValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
@@ -135,6 +140,11 @@ class ValidatorBase(AbstractValidatorBase):
                                                    '[{accepted_type}] must be a type'
                                                    .format(accepted_type=accepted_type))
 
+        if self.default_fixer is not None and not callable(self.default_fixer):
+            raise ValidatorFixerMustBeCallable('Validator [{name}] fixer must be a '
+                                               'callable with single argument.'
+                                               .format(name=name))
+
         localized_name = options.get('localized_name') or self.default_localized_name
         if localized_name in (None, '') or localized_name.isspace():
             localized_name = _(name)
@@ -157,6 +167,7 @@ class ValidatorBase(AbstractValidatorBase):
         validates the given value.
 
         it raises an error if validation fails.
+        it returns the same or fixed value.
 
         :param object value: value to be validated.
 
@@ -177,6 +188,8 @@ class ValidatorBase(AbstractValidatorBase):
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
+
+        :returns: object | list[object]
         """
 
         nullable = options.pop('nullable', None)
@@ -192,23 +205,28 @@ class ValidatorBase(AbstractValidatorBase):
             null_items = self.null_items
 
         if value is None:
-            return self._validate_nullable(value, nullable)
+            self._validate_nullable(value, nullable)
+            return value
 
         if is_list is True and (not isinstance(value, list) or len(value) <= 0):
             raise self.not_list_error(
                 self.not_list_message.format(param_name=self.localized_name))
 
         if is_list is not True:
-            self._perform_validation(value, nullable, **options)
+            return self._perform_validation(value, nullable, **options)
         else:
+            fixed_values = []
             for item in value:
-                self._perform_validation(item, null_items, **options)
+                fixed_values.append(self._perform_validation(item, null_items, **options))
+
+            return fixed_values
 
     def _perform_validation(self, value, nullable, **options):
         """
         performs validation on given value.
 
         it raises an error if validation fails.
+        it returns the same or fixed value.
 
         :param object value: value to be validated.
         :param bool nullable: determines that provided value could be None.
@@ -216,13 +234,17 @@ class ValidatorBase(AbstractValidatorBase):
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
+
+        :returns: object
         """
 
         if value is None:
-            return self._validate_nullable(value, nullable)
+            self._validate_nullable(value, nullable)
+            return value
 
-        self._validate_type(value)
+        value = self._validate_type(value)
         self._validate(value, **options)
+        return value
 
     def _validate_nullable(self, value, nullable):
         """
@@ -262,20 +284,36 @@ class ValidatorBase(AbstractValidatorBase):
         validates the type of given value.
 
         if no accepted type is set for this validator, this method does nothing.
+        if the value type is not the same as accepted type but this validator
+        has a fixer set for it, it fixes the type using that fixer.
+        it returns the same input or fixed one.
 
         :param object value: value to be validated.
 
         :raises InvalidValueTypeError: invalid value type error.
+
+        :returns: object
         """
 
         if self.accepted_type is None:
-            return
+            if self.default_fixer is not None:
+                return self._fix_value(value)
 
-        if not isinstance(value, self.accepted_type):
-            preview_type = misc_utils.make_iterable(self.accepted_type, list)
+            return value
 
-            raise self.invalid_type_error(self.invalid_type_message.format(
-                param_name=self.localized_name, type=preview_type))
+        is_accepted = isinstance(value, self.accepted_type)
+        if not is_accepted:
+            if self.default_fixer is not None:
+                value = self._fix_value(value)
+                is_accepted = isinstance(value, self.accepted_type)
+
+            if not is_accepted:
+                preview_type = misc_utils.make_iterable(self.accepted_type, list)
+
+                raise self.invalid_type_error(self.invalid_type_message.format(
+                    param_name=self.localized_name, type=preview_type))
+
+        return value
 
     def _validate_exception_type(self, exception):
         """
@@ -341,7 +379,19 @@ class ValidatorBase(AbstractValidatorBase):
         return result
 
     @classmethod
-    def _get_value(cls, value):
+    def _fix_value(cls, value):
+        """
+        fixes the given value using this validator's fixer.
+
+        :param object value: value to be fixed.
+
+        :returns: fixed value.
+        """
+
+        return cls._get_value(cls.default_fixer, value)
+
+    @classmethod
+    def _get_value(cls, value, *args):
         """
         gets the value of given input.
 
@@ -351,11 +401,13 @@ class ValidatorBase(AbstractValidatorBase):
         :param object | callable value: value to get its original value.
                                         it could be an object or a callable.
 
-        :returns: original value.
+        :param object args: the inputs that given callable requires.
+
+        :returns: result of callable input or the same input.
         """
 
         if callable(value):
-            return value()
+            return value(*args)
 
         return value
 

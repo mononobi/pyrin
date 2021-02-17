@@ -72,7 +72,7 @@ def validate_field(domain, name, value, **options):
     """
     validates the given value with given validator.
 
-    it returns a value indicating that validator has been found.
+    it returns the same value or fixed one.
 
     :param type[BaseEntity] | str domain: the domain to validate the value for.
                                           it could be a type of a BaseEntity
@@ -113,8 +113,7 @@ def validate_field(domain, name, value, **options):
     :raises ValidatorNotFoundError: validator not found error.
     :raises ValidationError: validation error.
 
-    :returns: a value indicating that validator has been found.
-    :rtype: bool
+    :returns: same value or fixed one.
     """
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate_field(domain, name,
@@ -167,6 +166,11 @@ def validate_dict(domain, data, **options):
     :keyword bool allow_whitespace: determines that whitespace strings should be
                                     considered valid. this argument will only
                                     be considered in string validators.
+
+    :keyword BaseEntity entity: an entity instance that the provided data
+                                is the result dict of it.
+                                it will be used to populate fixed values
+                                in the entity.
 
     :raises InvalidDataForValidationError: invalid data for validation error.
     :raises ValidatorDomainNotFoundError: validator domain not found error.

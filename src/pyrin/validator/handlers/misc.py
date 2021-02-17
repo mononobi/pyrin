@@ -76,6 +76,7 @@ class MinimumValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
                                                          must be provided error.
@@ -223,6 +224,7 @@ class MaximumValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMaximumValueMustBeProvidedError: accepted maximum value
                                                          must be provided error.
@@ -375,6 +377,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
                                                          must be provided error.
@@ -515,6 +518,7 @@ class InValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises ValidValuesMustBeProvidedError: valid values must be provided error.
         """
@@ -618,6 +622,7 @@ class NotInValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises InvalidValuesMustBeProvidedError: invalid values must be provided error.
         """

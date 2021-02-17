@@ -164,3 +164,28 @@ def is_match(item, values, **options):
 
     result = union([item], values, **options)
     return len(result) > 0
+
+
+def get_string(value, *accepted_types):
+    """
+    gets the string representation of given value.
+
+    it only converts value to string if it is of provided types.
+    if no type is given, it only converts integers and floats.
+    otherwise returns the same value.
+
+    :param object value: value to be converted.
+
+    :param type accepted_types: accepted types for conversion to string.
+                                if not provided, defaults to (int, float) types.
+
+    :returns: string or the same value.
+    """
+
+    if accepted_types is None or len(accepted_types) <= 0:
+        accepted_types = (int, float)
+
+    if isinstance(value, accepted_types):
+        return str(value)
+
+    return value
