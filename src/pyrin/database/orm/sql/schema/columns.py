@@ -109,19 +109,21 @@ class AutoPKColumn(PKColumn):
 
     DEFAULT_TYPE = BigInteger
 
-    def __init__(self, type_=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         initializes an instance of AutoPKColumn.
+
+        :param str name: the name of this column as represented in the database.
+                         this argument may be the first positional argument, or
+                         specified via keyword.
 
         :param TypeEngine type_: the column's type, indicated using an instance which
                                  if no arguments are required for the type, the class of
                                  the type can be sent as well.
                                  it must be an instance or subclass of `Integer` type.
                                  defaults to `DEFAULT_TYPE` if not provided.
-
-        :param str name: the name of this column as represented in the database.
-                         this argument may be the second positional argument, or
-                         specified via keyword.
+                                 this argument may be the second positional argument, or
+                                 specified via keyword.
 
         :param object *args: additional positional arguments include various
                              `SchemaItem` derived constructs which will be applied
@@ -165,6 +167,8 @@ class AutoPKColumn(PKColumn):
         :raises AutoPKColumnTypeIsInvalidError: auto pk column type is invalid error.
         """
 
+        args = list(args)
+        name, type_ = self._extract_name_and_type(args, kwargs)
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
@@ -174,7 +178,7 @@ class AutoPKColumn(PKColumn):
                                                  'instance or subclass of [{integer}].'
                                                  .format(integer=Integer))
 
-        kwargs.update(type_=type_, autoincrement=True)
+        kwargs.update(name=name, type_=type_, autoincrement=True)
         kwargs.pop('default', None)
         kwargs.pop('server_default', None)
 
@@ -237,7 +241,10 @@ class GUIDPKColumn(PKColumn):
                                    defaults to False if not provided.
         """
 
-        kwargs.update(type_=GUID, default=uuid_utils.generate_uuid4, autoincrement=False)
+        args = list(args)
+        name, type_ = self._extract_name_and_type(args, kwargs)
+        kwargs.update(name=name, type_=GUID, autoincrement=False,
+                      default=uuid_utils.generate_uuid4)
         kwargs.pop('server_default', None)
 
         super().__init__(*args, **kwargs)
@@ -256,27 +263,29 @@ class SequencePKColumn(PKColumn):
     DEFAULT_CACHE = 200
     DEFAULT_TYPE = BigInteger
 
-    def __init__(self, sequence_name=None, type_=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         initializes an instance of SequencePKColumn.
 
-        :param str sequence_name: sequence name to be generated for this column.
-                                  this value is required, but have to set a default
-                                  value for it to prevent errors on migrations.
+        :param str name: the name of this column as represented in the database.
+                         this argument may be the first positional argument, or
+                         specified via keyword.
 
         :param TypeEngine type_: the column's type, indicated using an instance which
                                  if no arguments are required for the type, the class of
                                  the type can be sent as well.
                                  it must be an instance or subclass of `Integer` type.
                                  defaults to `DEFAULT_TYPE` if not provided.
-
-        :param str name: the name of this column as represented in the database.
-                         this argument may be the third positional argument, or
-                         specified via keyword.
+                                 this argument may be the second positional argument, or
+                                 specified via keyword.
 
         :param object *args: additional positional arguments include various
                              `SchemaItem` derived constructs which will be applied
                              as options to the column.
+
+        :keyword str sequence: sequence name to be generated for this column.
+                               this value is required, but has to be set as
+                               keyword to prevent errors.
 
         :keyword str doc: optional string that can be used by the ORM or similar
                           to document attributes on the python side.
@@ -320,6 +329,8 @@ class SequencePKColumn(PKColumn):
         :raises SequencePKColumnTypeIsInvalidError: sequence pk column type is invalid error.
         """
 
+        args = list(args)
+        name, type_ = self._extract_name_and_type(args, kwargs)
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
@@ -330,12 +341,13 @@ class SequencePKColumn(PKColumn):
                                                      .format(integer=Integer))
 
         cache = kwargs.pop('cache', self.DEFAULT_CACHE)
+        sequence = kwargs.pop('sequence', None)
         sequence_kwargs = dict()
         if cache is not None and cache > 0:
             sequence_kwargs.update(cache=cache)
 
-        kwargs.update(type_=type_, autoincrement=False,
-                      default=Sequence(sequence_name, **sequence_kwargs))
+        kwargs.update(name=name, type_=type_, autoincrement=False,
+                      default=Sequence(sequence, **sequence_kwargs))
 
         kwargs.pop('server_default', None)
 
@@ -349,37 +361,35 @@ class FKColumn(CoreColumn):
     this is a helper class for defining fk columns.
     """
 
-    def __init__(self, reference=None, on_update=None,
-                 on_delete=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         initializes an instance of FKColumn.
 
-        :param str | CoreColumn reference: reference column name or instance.
-                                           this parameter is required but to
-                                           prevent errors on migrations it
-                                           has to have a default None value.
-
-        :param str on_update: optional string. if set, emit ON UPDATE <value> when
-                              issuing DDL for this constraint. typical values include
-                              CASCADE, DELETE and RESTRICT.
-
-        :param str on_delete: optional string. if set, emit ON DELETE <value> when
-                              issuing DDL for this constraint. typical values include
-                              CASCADE, DELETE and RESTRICT.
-
         :param str name: the name of this column as represented in the database.
-                         this argument may be the fourth positional argument, or
+                         this argument may be the first positional argument, or
                          specified via keyword.
 
         :param TypeEngine type_: the column's type, indicated using an instance which
                                  if no arguments are required for the type, the class of
                                  the type can be sent as well.
-                                 this argument may be the fifth positional argument, or
+                                 this argument may be the second positional argument, or
                                  specified via keyword.
 
         :param object *args: additional positional arguments include various
                              `SchemaItem` derived constructs which will be applied
                              as options to the column.
+
+        :keyword str | CoreColumn fk: reference column name or instance.
+                                      this parameter is required but to
+                                      prevent errors it has to be set as keyword.
+
+        :keyword str fk_on_update: optional string. if set, emit ON UPDATE <value> when
+                                   issuing DDL for this constraint. typical values include
+                                   CASCADE, DELETE and RESTRICT.
+
+        :keyword str fk_on_delete: optional string. if set, emit ON DELETE <value> when
+                                   issuing DDL for this constraint. typical values include
+                                   CASCADE, DELETE and RESTRICT.
 
         :keyword bool autoincrement: set up `auto increment` semantics for an
                                      integer primary key column.
@@ -460,22 +470,28 @@ class FKColumn(CoreColumn):
         :raises InvalidFKColumnReferenceTypeError: invalid fk column reference type error.
         """
 
-        if reference is not None and not isinstance(reference, (str, CoreColumn)):
+        args = list(args)
+        name, type_ = self._extract_name_and_type(args, kwargs)
+        fk = kwargs.pop('fk', None)
+        fk_on_update = kwargs.pop('fk_on_update', None)
+        fk_on_delete = kwargs.pop('fk_on_delete', None)
+
+        if fk is not None and not isinstance(fk, (str, CoreColumn)):
             raise InvalidFKColumnReferenceTypeError('Reference column must be a string '
                                                     'or an instance of [{column}].'
                                                     .format(column=CoreColumn))
 
-        # this is to prevent migration errors.
+        # this is to prevent sqlalchemy errors.
         # because metadata uses uninitialized entities.
-        if reference is None:
-            reference = ''
+        if fk is None:
+            fk = ''
 
+        kwargs.update(name=name, type_=type_)
         kwargs.setdefault('index', True)
         kwargs.setdefault('nullable', False)
 
-        super().__init__(ForeignKey(reference,
-                                    onupdate=on_update,
-                                    ondelete=on_delete), *args, **kwargs)
+        super().__init__(ForeignKey(fk, onupdate=fk_on_update, ondelete=fk_on_delete),
+                         *args, **kwargs)
 
 
 class HiddenColumn(CoreColumn):

@@ -3,7 +3,8 @@
 orm sql schema base module.
 """
 
-from sqlalchemy import Column
+from sqlalchemy import Column, util
+from sqlalchemy.exc import ArgumentError
 
 from pyrin.caching.decorators import cached_property
 from pyrin.database.orm.sql.operators.base import CoreColumnOperators
@@ -153,3 +154,36 @@ class CoreColumn(Column, CoreColumnOperators):
 
         for column in self.base_columns:
             return column.name
+
+    def _extract_name_and_type(self, args, kwargs):
+        """
+        extracts name and type parameters from given inputs and removes them from inputs.
+
+        it returns None as each parameter that is not given.
+        it is implemented to be used by custom column subclasses.
+
+        :param list args: column positional arguments.
+        :param dict kwargs: column keyword arguments.
+
+        :raises ArgumentError: argument error.
+
+        :returns: tuple[str name, CoreColumn type]
+        :rtype: tuple[str, CoreColumn]
+        """
+
+        name = kwargs.pop('name', None)
+        type_ = kwargs.pop('type_', None)
+        if len(args) > 0:
+            if isinstance(args[0], util.string_types):
+                if name is not None:
+                    raise ArgumentError('May not pass name positionally and as a keyword.')
+                name = args.pop(0)
+
+        if len(args) > 0:
+            column_type = args[0]
+            if hasattr(column_type, "_sqla_type"):
+                if type_ is not None:
+                    raise ArgumentError('May not pass type_ positionally and as a keyword.')
+                type_ = args.pop(0)
+
+        return name, type_
