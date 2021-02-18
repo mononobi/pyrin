@@ -351,8 +351,10 @@ class SequencePKColumn(PKColumn):
         if sequence is not None:
             args.append(sequence_instance)
 
-        kwargs.update(name=name, type_=type_, autoincrement=False, default=sequence_instance)
-        kwargs.pop('server_default', None)
+        kwargs.update(name=name, type_=type_,
+                      autoincrement=False,
+                      default=sequence_instance,
+                      server_default=sequence_instance.next_value())
 
         super().__init__(*args, **kwargs)
 
