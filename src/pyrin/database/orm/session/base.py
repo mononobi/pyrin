@@ -23,7 +23,7 @@ class CoreSession(Session):
 
     # these keywords are forbidden when 'execute' method is called
     # with 'transient=True' and a raw sql is given.
-    NON_TRANSIENT_KEYWORDS = ['commit', 'flush', 'rollback']
+    NON_TRANSIENT_KEYWORDS = ['commit', 'flush', 'rollback', 'alter ', 'create ', 'drop ']
 
     def execute(self, clause, params=None, mapper=None, bind=None, **kw):
         """
@@ -70,9 +70,8 @@ class CoreSession(Session):
 
         :keyword bool transient: specifies that raw sql expressions must not affect
                                  the database. if set to True and a raw sql is
-                                 given, it could not contain `commit`, `rollback`
-                                 or `flush` keywords. defaults to False if not
-                                 provided.
+                                 given, it could not contain `NON_TRANSIENT_KEYWORDS`.
+                                 defaults to False if not provided.
 
         :raises InvalidDatabaseBindError: invalid database bind error.
         :raises TransientSQLExpressionRequiredError: transient sql expression required error.
@@ -102,7 +101,8 @@ class CoreSession(Session):
                 if item in raw_sql:
                     raise TransientSQLExpressionRequiredError(_('Transient sql expressions '
                                                                 'should not contain [{keyword}] '
-                                                                'keyword.').format(keyword=item))
+                                                                'keyword.')
+                                                              .format(keyword=item.strip()))
 
         return super().execute(clause, params, mapper, bind, **kw)
 
