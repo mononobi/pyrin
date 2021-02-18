@@ -1897,7 +1897,7 @@ class DefaultPrefetchMixin(CoreObject):
         # 'Sequence' object does not have the other attributes.
         if default.is_sequence:
             store = get_current_store()
-            return store.execute(default)
+            return store.execute(default.next_value())
         elif default.is_scalar:
             return default.arg
         elif default.is_callable:

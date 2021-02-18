@@ -346,9 +346,12 @@ class SequencePKColumn(PKColumn):
         if cache is not None and cache > 0:
             sequence_kwargs.update(cache=cache)
 
-        kwargs.update(name=name, type_=type_, autoincrement=False,
-                      default=Sequence(sequence, **sequence_kwargs))
+        sequence_instance = Sequence(sequence, **sequence_kwargs)
+        # this is to prevent sqlalchemy errors.
+        if sequence is not None:
+            args.append(sequence_instance)
 
+        kwargs.update(name=name, type_=type_, autoincrement=False, default=sequence_instance)
         kwargs.pop('server_default', None)
 
         super().__init__(*args, **kwargs)
