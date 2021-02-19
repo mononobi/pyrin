@@ -734,8 +734,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
         store = get_current_store()
         store.query(CacheItemEntity).filter_by(cache_name=self.get_name(),
                                                version=version,
-                                               shard_name=shard_name) \
-            .delete(synchronize_session=False)
+                                               shard_name=shard_name).delete()
 
     def set(self, key, value, **options):
         """
