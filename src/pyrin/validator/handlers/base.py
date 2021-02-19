@@ -5,13 +5,15 @@ validator handlers base module.
 
 import inspect
 
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _, LIST_TYPES
 from pyrin.database.model.base import BaseEntity
 from pyrin.validator.exceptions import ValidationError
 from pyrin.validator.interface import AbstractValidatorBase
-from pyrin.validator.handlers.exceptions import ValidatorNameIsRequiredError, \
+from pyrin.validator.handlers.exceptions import ValidatorFieldIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
     InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
     ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError
@@ -49,7 +51,7 @@ class ValidatorBase(AbstractValidatorBase):
 
     # specifies that list items could also be None.
     # it only has effect if 'default_is_list=True' is set.
-    default_null_items = False
+    default_null_items = None
 
     # specifies that list values could be an empty list.
     # it only has effect if 'default_is_list=True' is set.
@@ -58,7 +60,7 @@ class ValidatorBase(AbstractValidatorBase):
     # a callable that accepts a single value and returns the fixed or the same value.
     default_fixer = None
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of ValidatorBase.
 
@@ -71,12 +73,19 @@ class ValidatorBase(AbstractValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -108,16 +117,25 @@ class ValidatorBase(AbstractValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
-        if name in (None, '') or name.isspace():
-            raise ValidatorNameIsRequiredError('Validator name must be provided for validator '
-                                               '[{instance}].'.format(instance=self))
+        is_column = isinstance(field, InstrumentedAttribute)
+        is_str = isinstance(field, str)
+        name = field
+        if is_column:
+            name = field.key
+
+        if (not is_column and not is_str) or (is_str and (field.isspace() or field == '')):
+            raise ValidatorFieldIsRequiredError('Validator field must be provided for '
+                                                'validator [{instance}]. it could be '
+                                                'a string or a [{base}] type.'
+                                                .format(instance=self,
+                                                        base=InstrumentedAttribute))
 
         if (not inspect.isclass(domain) or not issubclass(domain, BaseEntity)) and \
                 (not isinstance(domain, str) or domain.isspace()):
@@ -131,6 +149,8 @@ class ValidatorBase(AbstractValidatorBase):
         if nullable is None:
             if self.default_nullable is not None:
                 nullable = self.default_nullable
+            elif is_column:
+                nullable = field.nullable
             else:
                 nullable = True
 
@@ -145,6 +165,8 @@ class ValidatorBase(AbstractValidatorBase):
         if null_items is None:
             if self.default_null_items is not None:
                 null_items = self.default_null_items
+            elif is_column:
+                null_items = field.nullable
             else:
                 null_items = False
 
@@ -196,6 +218,11 @@ class ValidatorBase(AbstractValidatorBase):
         self._validate_exception_type(self.not_list_error)
 
         super().__init__()
+
+        self._field = None
+        if is_column:
+            self._field = field
+
         self._set_name(name)
         self._domain = domain
         self._nullable = nullable
@@ -575,3 +602,15 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._allow_empty_list
+
+    @property
+    def field(self):
+        """
+        gets the field that this validator will validate.
+
+        it could be None if the provided field for this validator was a string.
+
+        :rtype: InstrumentedAttribute
+        """
+
+        return self._field

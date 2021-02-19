@@ -43,7 +43,7 @@ class StringValidator(ValidatorBase):
     default_maximum_length = None
     default_fixer = string_utils.get_string
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of StringValidator.
 
@@ -56,12 +56,19 @@ class StringValidator(ValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
@@ -101,7 +108,7 @@ class StringValidator(ValidatorBase):
         :keyword int maximum_length: specifies the maximum valid length for string value.
                                      no max length checking will be done if not provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -114,7 +121,7 @@ class StringValidator(ValidatorBase):
         """
 
         options.update(accepted_type=str)
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         allow_blank = options.get('allow_blank')
         if allow_blank is None:
@@ -285,7 +292,7 @@ class RegexValidator(StringValidator):
 
     default_flags = re.IGNORECASE | re.DOTALL
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of RegexValidator.
 
@@ -298,12 +305,19 @@ class RegexValidator(StringValidator):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
@@ -348,7 +362,7 @@ class RegexValidator(StringValidator):
                             this will only be used if a string regex is provided.
                             if no flags are provided, `default_flags` will be applied.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -360,7 +374,7 @@ class RegexValidator(StringValidator):
         :raises RegularExpressionMustBeProvidedError: regular expression must be provided error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         is_string = isinstance(self.regex, str)
         if not isinstance(self.regex, re.Pattern) and not is_string:

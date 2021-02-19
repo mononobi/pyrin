@@ -28,7 +28,7 @@ class MinimumValidator(ValidatorBase):
     default_accepted_minimum = None
     default_inclusive_minimum = None
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of MinimumValidator.
 
@@ -41,12 +41,19 @@ class MinimumValidator(ValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -83,7 +90,7 @@ class MinimumValidator(ValidatorBase):
                                          this value has precedence over `inclusive_minimum`
                                          instance attribute if provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -92,7 +99,7 @@ class MinimumValidator(ValidatorBase):
                                                          must be provided error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         inclusive_minimum = options.get('inclusive_minimum')
         if inclusive_minimum is None:
@@ -186,7 +193,7 @@ class MaximumValidator(ValidatorBase):
     default_accepted_maximum = None
     default_inclusive_maximum = None
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of MaximumValidator.
 
@@ -199,12 +206,19 @@ class MaximumValidator(ValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -241,7 +255,7 @@ class MaximumValidator(ValidatorBase):
                                          this value has precedence over `inclusive_maximum`
                                          instance attribute if provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -250,7 +264,7 @@ class MaximumValidator(ValidatorBase):
                                                          must be provided error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         inclusive_maximum = options.get('inclusive_maximum')
         if inclusive_maximum is None:
@@ -344,7 +358,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                             'be greater than {or_equal_min}[{lower}] and '
                             'lower than {or_equal_max}[{upper}].')
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of RangeValidator.
 
@@ -357,12 +371,19 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -404,7 +425,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                          this value has precedence over `inclusive_maximum`
                                          instance attribute if provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -417,7 +438,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                                          than maximum value error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         if not callable(self.default_accepted_minimum) and \
                 not callable(self.default_accepted_maximum) and \
@@ -505,7 +526,7 @@ class InValidator(ValidatorBase):
     # valid values, it must be an iterable or a callable.
     default_valid_values = None
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of InValidator.
 
@@ -518,12 +539,19 @@ class InValidator(ValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -555,7 +583,7 @@ class InValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -563,7 +591,7 @@ class InValidator(ValidatorBase):
         :raises ValidValuesMustBeProvidedError: valid values must be provided error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         if not callable(self.default_valid_values) and \
                 (self.default_valid_values is None or
@@ -619,7 +647,7 @@ class NotInValidator(ValidatorBase):
     # invalid values, it must be an iterable or a callable.
     default_invalid_values = None
 
-    def __init__(self, domain, name, **options):
+    def __init__(self, domain, field, **options):
         """
         initializes an instance of NotInValidator.
 
@@ -632,12 +660,19 @@ class NotInValidator(ValidatorBase):
                                               note that the provided string name must be
                                               unique at application level.
 
-        :param str name: validator name.
-                         each validator will be registered with its name
-                         in corresponding domain.
-                         to enable automatic validations, the provided
-                         name must be the exact name of the parameter
-                         which this validator will validate.
+        :param InstrumentedAttribute | str field: validator field name. it could be a
+                                                  string or a column. each validator will
+                                                  be registered with its field name in
+                                                  corresponding domain. to enable automatic
+                                                  validations, the provided field name must
+                                                  be the exact name of the parameter which
+                                                  this validator will validate. if you pass
+                                                  a column attribute, some constraints
+                                                  such as `nullable`, `min_length`, `max_length`,
+                                                  `min_value`, `max_value`, `allow_blank` and
+                                                  `allow_whitespace` could be extracted
+                                                  automatically from that column if not provided
+                                                  in inputs.
 
         :keyword type | tuple[type] accepted_type: accepted type for value.
                                                    no type checking will be
@@ -669,7 +704,7 @@ class NotInValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
-        :raises ValidatorNameIsRequiredError: validator name is required error.
+        :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -677,7 +712,7 @@ class NotInValidator(ValidatorBase):
         :raises InvalidValuesMustBeProvidedError: invalid values must be provided error.
         """
 
-        super().__init__(domain, name, **options)
+        super().__init__(domain, field, **options)
 
         if not callable(self.default_invalid_values) and \
                 (self.default_invalid_values is None or

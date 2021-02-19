@@ -32,9 +32,9 @@ class HandlersValidationException(ValidationError,
     pass
 
 
-class ValidatorNameIsRequiredError(ValidatorHandlersException):
+class ValidatorFieldIsRequiredError(ValidatorHandlersException):
     """
-    validator name is required error.
+    validator field is required error.
     """
     pass
 
