@@ -145,8 +145,8 @@ class CoreColumn(Column, CoreColumnOperators):
         self.min_length = kwargs.pop('min_length', 1)
         self.allow_blank = kwargs.pop('allow_blank', False)
         self.allow_whitespace = kwargs.pop('allow_whitespace', False)
-        self._min_value = kwargs.pop('min_value', None)
-        self._max_value = kwargs.pop('max_value', None)
+        self.min_value = kwargs.pop('min_value', None)
+        self.max_value = kwargs.pop('max_value', None)
 
         super().__init__(*args, **kwargs)
 
@@ -222,29 +222,3 @@ class CoreColumn(Column, CoreColumnOperators):
         """
 
         return len(self.foreign_keys) > 0
-
-    @property
-    def min_value(self):
-        """
-        gets the min value for this column.
-
-        :rtype: object
-        """
-
-        if callable(self._min_value):
-            return self._min_value()
-
-        return self._min_value
-
-    @property
-    def max_value(self):
-        """
-        gets the max value for this column.
-
-        :rtype: object
-        """
-
-        if callable(self._max_value):
-            return self._max_value()
-
-        return self._max_value
