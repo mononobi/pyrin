@@ -87,6 +87,33 @@ class PKColumn(CoreColumn):
         :keyword bool allow_write: specifies that the column should be
                                    populated on conversion from dict.
                                    defaults to False if not provided.
+
+        :keyword int min_length: minimum length of value for this column.
+                                 this is only used in validators for columns
+                                 that have string values.
+                                 defaults to `1` if not provided.
+
+        :keyword bool allow_blank: specifies that this column could have blank string
+                                   value. this is only used in validators for columns
+                                   that have string values.
+                                   defaults to False if not provided.
+
+        :keyword bool allow_whitespace: specifies that this column could have whitespace
+                                        string value. this is only used in validators for
+                                        columns that have string values.
+                                        defaults to False if not provided.
+
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
         """
 
         kwargs.update(nullable=False, primary_key=True)
@@ -164,6 +191,18 @@ class AutoPKColumn(PKColumn):
                                    populated on conversion from dict.
                                    defaults to False if not provided.
 
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to `1` if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
         :raises AutoPKColumnTypeIsInvalidError: auto pk column type is invalid error.
         """
 
@@ -178,7 +217,7 @@ class AutoPKColumn(PKColumn):
                                                  'instance or subclass of [{integer}].'
                                                  .format(integer=Integer))
 
-        kwargs.update(name=name, type_=type_, autoincrement=True)
+        kwargs.update(name=name, type_=type_, autoincrement=True, min_value=1)
         kwargs.pop('default', None)
         kwargs.pop('server_default', None)
 
@@ -244,7 +283,7 @@ class GUIDPKColumn(PKColumn):
         args = list(args)
         name, type_ = self._extract_name_and_type(args, kwargs)
         kwargs.update(name=name, type_=GUID, autoincrement=False,
-                      default=uuid_utils.generate_uuid4)
+                      default=uuid_utils.generate_uuid4, min_length=36)
         kwargs.pop('server_default', None)
 
         super().__init__(*args, **kwargs)
@@ -322,6 +361,18 @@ class SequencePKColumn(PKColumn):
                                    populated on conversion from dict.
                                    defaults to False if not provided.
 
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to `1` if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
         :keyword int cache: cache size for sequence.
                             defaults to `DEFAULT_CACHE`, if not provided.
                             to disable cache, you can pass it as None or `0`.
@@ -352,7 +403,7 @@ class SequencePKColumn(PKColumn):
             args.append(sequence_instance)
 
         kwargs.update(name=name, type_=type_,
-                      autoincrement=False,
+                      autoincrement=False, min_value=1,
                       default=sequence_instance,
                       server_default=sequence_instance.next_value())
 
@@ -471,6 +522,33 @@ class FKColumn(CoreColumn):
         :keyword bool allow_write: specifies that the column should be
                                    populated on conversion from dict.
                                    defaults to True if not provided.
+
+        :keyword int min_length: minimum length of value for this column.
+                                 this is only used in validators for columns
+                                 that have string values.
+                                 defaults to `1` if not provided.
+
+        :keyword bool allow_blank: specifies that this column could have blank string
+                                   value. this is only used in validators for columns
+                                   that have string values.
+                                   defaults to False if not provided.
+
+        :keyword bool allow_whitespace: specifies that this column could have whitespace
+                                        string value. this is only used in validators for
+                                        columns that have string values.
+                                        defaults to False if not provided.
+
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
 
         :raises InvalidFKColumnReferenceTypeError: invalid fk column reference type error.
         """
@@ -591,6 +669,33 @@ class HiddenColumn(CoreColumn):
 
         :keyword str comment: optional string that will render an sql comment
                               on table creation.
+
+        :keyword int min_length: minimum length of value for this column.
+                                 this is only used in validators for columns
+                                 that have string values.
+                                 defaults to `1` if not provided.
+
+        :keyword bool allow_blank: specifies that this column could have blank string
+                                   value. this is only used in validators for columns
+                                   that have string values.
+                                   defaults to False if not provided.
+
+        :keyword bool allow_whitespace: specifies that this column could have whitespace
+                                        string value. this is only used in validators for
+                                        columns that have string values.
+                                        defaults to False if not provided.
+
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
         """
 
         kwargs.update(allow_read=False)

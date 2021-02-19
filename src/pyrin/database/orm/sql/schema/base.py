@@ -108,42 +108,47 @@ class CoreColumn(Column, CoreColumnOperators):
         :keyword bool allow_write: specifies that the column should be
                                    populated on conversion from dict.
                                    defaults to True if not provided.
+
+        :keyword int min_length: minimum length of value for this column.
+                                 this is only used in validators for columns
+                                 that have string values.
+                                 defaults to `1` if not provided.
+
+        :keyword bool allow_blank: specifies that this column could have blank string
+                                   value. this is only used in validators for columns
+                                   that have string values.
+                                   defaults to False if not provided.
+
+        :keyword bool allow_whitespace: specifies that this column could have whitespace
+                                        string value. this is only used in validators for
+                                        columns that have string values.
+                                        defaults to False if not provided.
+
+        :keyword object | callable min_value: minimum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have min value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
+
+        :keyword object | callable max_value: maximum value that this column could have.
+                                              this is only used in validators for columns
+                                              that have max value.
+                                              it could also be a callable without any inputs.
+                                              defaults to None if not provided.
         """
 
         self.allow_read = kwargs.pop('allow_read', True)
         self.allow_write = kwargs.pop('allow_write', True)
 
+        # these values are used in validators for automatic configuration.
+        # we have to set them in column, not to have subclass all types.
+        self.min_length = kwargs.pop('min_length', 1)
+        self.allow_blank = kwargs.pop('allow_blank', False)
+        self.allow_whitespace = kwargs.pop('allow_whitespace', False)
+        self._min_value = kwargs.pop('min_value', None)
+        self._max_value = kwargs.pop('max_value', None)
+
         super().__init__(*args, **kwargs)
-
-    @cached_property
-    def fullname(self):
-        """
-        gets the column's fullname.
-
-        fullname is made up of `table_fullname.column_name`.
-        if the column has no table, it only returns the `column_name`.
-
-        :rtype: str
-        """
-
-        if self.table is None:
-            return self._real_name()
-
-        for single_column in self.table.columns:
-            if single_column.name == self.name:
-                for base_column in single_column.base_columns:
-                    return '{table}.{column}'.format(table=base_column.table.fullname,
-                                                     column=self._real_name())
-
-    @property
-    def is_foreign_key(self):
-        """
-        gets a value indicating that this column is a foreign key.
-
-        :rtype: bool
-        """
-
-        return len(self.foreign_keys) > 0
 
     def _real_name(self):
         """
@@ -187,3 +192,59 @@ class CoreColumn(Column, CoreColumnOperators):
                 type_ = args.pop(0)
 
         return name, type_
+
+    @cached_property
+    def fullname(self):
+        """
+        gets the column's fullname.
+
+        fullname is made up of `table_fullname.column_name`.
+        if the column has no table, it only returns the `column_name`.
+
+        :rtype: str
+        """
+
+        if self.table is None:
+            return self._real_name()
+
+        for single_column in self.table.columns:
+            if single_column.name == self.name:
+                for base_column in single_column.base_columns:
+                    return '{table}.{column}'.format(table=base_column.table.fullname,
+                                                     column=self._real_name())
+
+    @property
+    def is_foreign_key(self):
+        """
+        gets a value indicating that this column is a foreign key.
+
+        :rtype: bool
+        """
+
+        return len(self.foreign_keys) > 0
+
+    @property
+    def min_value(self):
+        """
+        gets the min value for this column.
+
+        :rtype: object
+        """
+
+        if callable(self._min_value):
+            return self._min_value()
+
+        return self._min_value
+
+    @property
+    def max_value(self):
+        """
+        gets the max value for this column.
+
+        :rtype: object
+        """
+
+        if callable(self._max_value):
+            return self._max_value()
+
+        return self._max_value
