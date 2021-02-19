@@ -5,6 +5,8 @@ validator handlers string module.
 
 import re
 
+from sqlalchemy import String
+
 import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import _
@@ -97,7 +99,7 @@ class StringValidator(ValidatorBase):
                                         defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
-                                   as valid. defaults to True if not provided.
+                                   as valid. defaults to False if not provided.
 
         :keyword bool allow_whitespace: specifies that whitespace strings should be accepted
                                         as valid. defaults to False if not provided.
@@ -127,23 +129,34 @@ class StringValidator(ValidatorBase):
         if allow_blank is None:
             if self.default_allow_blank is not None:
                 allow_blank = self.default_allow_blank
+            elif self.field is not None and self.field.allow_blank is not None:
+                allow_blank = self.field.allow_blank
             else:
-                allow_blank = True
+                allow_blank = False
 
         allow_whitespace = options.get('allow_whitespace')
         if allow_whitespace is None:
             if self.default_allow_whitespace is not None:
                 allow_whitespace = self.default_allow_whitespace
+            elif self.field is not None and self.field.allow_whitespace is not None:
+                allow_whitespace = self.field.allow_whitespace
             else:
                 allow_whitespace = False
 
         self._minimum_length = options.get('minimum_length')
         if self._minimum_length is None:
-            self._minimum_length = self.default_minimum_length
+            if self.default_minimum_length is not None:
+                self._minimum_length = self.default_minimum_length
+            elif self.field is not None and self.field.min_length is not None:
+                self._minimum_length = self.field.min_length
 
         self._maximum_length = options.get('maximum_length')
         if self._maximum_length is None:
-            self._maximum_length = self.default_maximum_length
+            if self.default_maximum_length is not None:
+                self._maximum_length = self.default_maximum_length
+            elif self.field is not None and isinstance(self.field.type, String) \
+                    and self.field.type.length is not None:
+                self._maximum_length = self.field.type.length
 
         if self._minimum_length is not None and self._maximum_length is not None \
                 and self._minimum_length > self._maximum_length:
@@ -346,7 +359,7 @@ class RegexValidator(StringValidator):
                                         defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
-                                   as valid. defaults to True if not provided.
+                                   as valid. defaults to False if not provided.
 
         :keyword bool allow_whitespace: specifies that whitespace strings should be accepted
                                         as valid. defaults to False if not provided.

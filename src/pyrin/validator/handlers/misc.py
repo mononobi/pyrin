@@ -24,7 +24,7 @@ class MinimumValidator(ValidatorBase):
 
     inclusive_minimum_value_message = _('or equal to ')
 
-    # accepted minimum value, it could also be a callable.
+    # accepted minimum value, it could also be a callable without any inputs.
     default_accepted_minimum = None
     default_inclusive_minimum = None
 
@@ -108,9 +108,15 @@ class MinimumValidator(ValidatorBase):
             else:
                 inclusive_minimum = True
 
-        if self.default_accepted_minimum is None:
+        if self.default_accepted_minimum is None and \
+                (self.field is None or self.field.min_value is None):
             raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
                                                           'could not be None.')
+
+        if self.default_accepted_minimum is None:
+            self.default_accepted_minimum = self.field.min_value
+        else:
+            self.default_accepted_minimum = self.default_accepted_minimum
 
         self._inclusive_minimum = inclusive_minimum
 
@@ -157,15 +163,15 @@ class MinimumValidator(ValidatorBase):
                                                   self._get_representation(current_min),
                                                   or_equal=equality))
 
-    @class_property
-    def accepted_minimum(cls):
+    @property
+    def accepted_minimum(self):
         """
         gets the lower bound of values that this validator considers valid.
 
         :rtype: object
         """
 
-        return cls._get_value(cls.default_accepted_minimum)
+        return self._get_value(self.default_accepted_minimum)
 
     @property
     def inclusive_minimum(self):
@@ -189,7 +195,7 @@ class MaximumValidator(ValidatorBase):
 
     inclusive_maximum_value_message = _('or equal to ')
 
-    # accepted maximum value, it could also be a callable.
+    # accepted maximum value, it could also be a callable without any inputs.
     default_accepted_maximum = None
     default_inclusive_maximum = None
 
@@ -273,9 +279,15 @@ class MaximumValidator(ValidatorBase):
             else:
                 inclusive_maximum = True
 
-        if self.default_accepted_maximum is None:
+        if self.default_accepted_maximum is None and \
+                (self.field is None or self.field.max_value is None):
             raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
                                                           'could not be None.')
+
+        if self.default_accepted_maximum is None:
+            self.default_accepted_maximum = self.field.max_value
+        else:
+            self.default_accepted_maximum = self.default_accepted_maximum
 
         self._inclusive_maximum = inclusive_maximum
 
@@ -322,15 +334,15 @@ class MaximumValidator(ValidatorBase):
                                                   self._get_representation(current_max),
                                                   or_equal=equality))
 
-    @class_property
-    def accepted_maximum(cls):
+    @property
+    def accepted_maximum(self):
         """
         gets the upper bound of values that this validator considers valid.
 
         :rtype: object
         """
 
-        return cls._get_value(cls.default_accepted_maximum)
+        return self._get_value(self.default_accepted_maximum)
 
     @property
     def inclusive_maximum(self):
