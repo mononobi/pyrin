@@ -283,7 +283,7 @@ class GUIDPKColumn(PKColumn):
         args = list(args)
         name, type_ = self._extract_name_and_type(args, kwargs)
         kwargs.update(name=name, type_=GUID, autoincrement=False,
-                      default=uuid_utils.generate_uuid4, min_length=36)
+                      default=uuid_utils.generate_uuid4)
         kwargs.pop('server_default', None)
 
         super().__init__(*args, **kwargs)
