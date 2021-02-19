@@ -6,9 +6,32 @@ validator decorators module.
 import pyrin.validator.services as validator_services
 
 
-def validator(*args, **kwargs):
+def validator(domain, field, *args, **kwargs):
     """
     decorator to register a validator.
+
+    :param type[BaseEntity] | str domain: the domain in which this validator
+                                          must be registered. it could be a
+                                          type of a BaseEntity subclass.
+                                          if a validator must be registered
+                                          independent from any BaseEntity subclass,
+                                          the domain could be a unique string name.
+                                          note that the provided string name must be
+                                          unique at application level.
+
+    :param InstrumentedAttribute | str field: validator field name. it could be a
+                                              string or a column. each validator will
+                                              be registered with its field name in
+                                              corresponding domain. to enable automatic
+                                              validations, the provided field name must
+                                              be the exact name of the parameter which
+                                              this validator will validate. if you pass
+                                              a column attribute, some constraints
+                                              such as `nullable`, `min_length`, `max_length`,
+                                              `min_value`, `max_value`, `allow_blank` and
+                                              `allow_whitespace` could be extracted
+                                              automatically from that column if not provided
+                                              in inputs.
 
     :param object args: validator class constructor arguments.
     :param object kwargs: validator class constructor keyword arguments.
@@ -36,7 +59,7 @@ def validator(*args, **kwargs):
         :rtype: type
         """
 
-        instance = cls(*args, **kwargs)
+        instance = cls(domain, field, *args, **kwargs)
         validator_services.register_validator(instance, **kwargs)
 
         return cls
