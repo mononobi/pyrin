@@ -36,6 +36,10 @@ class AbstractStringNormalizerBase(CoreObject, metaclass=StringNormalizerSinglet
         :keyword bool strip: strip spaces from both ends of value.
                              defaults to True if not provided.
 
+        :keyword bool normalize_none: specifies that if given value is None,
+                                      return empty string instead of None.
+                                      defaults to False if not provided.
+
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: normalized value.

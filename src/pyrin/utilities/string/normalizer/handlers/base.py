@@ -55,12 +55,20 @@ class StringNormalizerBase(AbstractStringNormalizerBase):
         :keyword bool strip: strip spaces from both ends of value.
                              defaults to True if not provided.
 
+        :keyword bool normalize_none: specifies that if given value is None,
+                                      return empty string instead of None.
+                                      defaults to False if not provided.
+
         :returns: normalized value.
         :rtype: str
         """
 
+        normalize_none = options.get('normalize_none', False)
+        if value is None and normalize_none is True:
+            value = ''
+
         if value in (None, ''):
-            return ''
+            return value
 
         value = self._normalize(value, **options)
         strip = options.get('strip', True)

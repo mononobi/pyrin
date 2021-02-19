@@ -28,6 +28,10 @@ def normalize(value, *normalizers, **options):
     :keyword bool strip: strip spaces from both ends of string on each
                          normalization step. defaults to True if not provided.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :raises StringNormalizerDoesNotExistError: string normalizer does not exist error.
 
     :returns: normalized value.
@@ -83,6 +87,10 @@ def space(value, **options):
 
     :param str value: value to be normalized.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -94,6 +102,10 @@ def duplicate_space(value, **options):
     replace all duplicate spaces with a single one.
 
     :param str value: value to be normalized.
+
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
 
     :rtype: str
     """
@@ -108,6 +120,10 @@ def lowercase(value, **options):
 
     :param str value: value to be lower-cased.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -120,6 +136,10 @@ def uppercase(value, **options):
 
     :param str value: value to be upper-cased.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -131,6 +151,10 @@ def title_case(value, **options):
     title case the string.
 
     :param str value: value to be title-cased.
+
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
 
     :rtype: str
     """
@@ -149,6 +173,10 @@ def filter(value, **options):
     :keyword bool ignore_case: remove `filters` from string in case-insensitive
                                way. defaults to True if not provided.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -160,6 +188,10 @@ def persian_sign(value, **options):
     remove common persian signs from the string.
 
     :param str value: value to be normalized.
+
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
 
     :rtype: str
     """
@@ -173,6 +205,10 @@ def latin_sign(value, **options):
 
     :param str value: value to be normalized.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -184,6 +220,10 @@ def persian_number(value, **options):
     replace persian numbers with latin numbers.
 
     :param str value: value to be normalized.
+
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
 
     :rtype: str
     """
@@ -197,6 +237,10 @@ def arabic_number(value, **options):
 
     :param str value: value to be normalized.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -209,6 +253,10 @@ def persian_letter(value, **options):
 
     :param str value: value to be normalized.
 
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -220,6 +268,10 @@ def latin_letter(value, **options):
     normalize latin letters.
 
     :param str value: value to be normalized.
+
+    :keyword bool normalize_none: specifies that if given value is None,
+                                  return empty string instead of None.
+                                  defaults to False if not provided.
 
     :rtype: str
     """
