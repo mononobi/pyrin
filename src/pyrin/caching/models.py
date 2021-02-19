@@ -6,7 +6,7 @@ caching models module.
 from sqlalchemy import BigInteger, Unicode, LargeBinary
 
 from pyrin.database.model.base import CoreEntity
-from pyrin.database.model.mixin import HistoryMixin
+from pyrin.database.model.mixin import CreateHistoryMixin
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.columns import AutoPKColumn
 
@@ -21,7 +21,7 @@ class CacheItemBaseEntity(CoreEntity):
     id = AutoPKColumn(name='id')
 
 
-class CacheItemEntity(CacheItemBaseEntity, HistoryMixin):
+class CacheItemEntity(CacheItemBaseEntity, CreateHistoryMixin):
     """
     cache item entity class.
     """

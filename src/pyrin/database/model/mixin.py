@@ -2095,15 +2095,34 @@ class DefaultPrefetchMixin(CoreObject):
             self._set_update_default(column)
 
 
-class HistoryMixin(CoreObject):
+class CreateHistoryMixin(CoreObject):
+    """
+    create history mixin class.
+
+    this class adds `created_on` column into its subclasses.
+    """
+
+    created_on = CoreColumn(name='created_on', type_=TIMESTAMP(timezone=True),
+                            nullable=False, default=datetime_services.now,
+                            allow_write=False)
+
+
+class UpdateHistoryMixin(CoreObject):
+    """
+    update history mixin class.
+
+    this class adds `modified_on` column into its subclasses.
+    """
+
+    modified_on = CoreColumn(name='modified_on', type_=TIMESTAMP(timezone=True),
+                             nullable=True, onupdate=datetime_services.now,
+                             allow_write=False)
+
+
+class HistoryMixin(CreateHistoryMixin, UpdateHistoryMixin):
     """
     history mixin class.
 
     this class adds `created_on` and `modified_on` columns into its subclasses.
     """
-
-    created_on = CoreColumn(name='created_on', type_=TIMESTAMP(timezone=True),
-                            nullable=False, default=datetime_services.now)
-
-    modified_on = CoreColumn(name='modified_on', type_=TIMESTAMP(timezone=True),
-                             nullable=True, onupdate=datetime_services.now)
+    pass
