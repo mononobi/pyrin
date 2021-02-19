@@ -51,7 +51,7 @@ class ValidatorBase(AbstractValidatorBase):
 
     # specifies that list items could also be None.
     # it only has effect if 'default_is_list=True' is set.
-    default_null_items = None
+    default_null_items = False
 
     # specifies that list values could be an empty list.
     # it only has effect if 'default_is_list=True' is set.
