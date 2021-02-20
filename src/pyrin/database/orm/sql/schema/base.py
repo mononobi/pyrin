@@ -6,8 +6,12 @@ orm sql schema base module.
 from sqlalchemy import Column, util
 from sqlalchemy.exc import ArgumentError
 
+from pyrin.core.globals import LIST_TYPES
+from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
 from pyrin.caching.decorators import cached_property
 from pyrin.database.orm.sql.operators.base import CoreColumnOperators
+from pyrin.database.orm.sql.schema.exceptions import InvalidCheckConstraintError, \
+    CheckConstraintConflictError
 
 
 class CoreColumn(Column, CoreColumnOperators):
@@ -109,46 +113,120 @@ class CoreColumn(Column, CoreColumnOperators):
                                    populated on conversion from dict.
                                    defaults to True if not provided.
 
-        :keyword int min_length: minimum length of value for this column.
-                                 this is only used in validators for columns
-                                 that have string values.
-                                 defaults to `1` if not provided.
-
-        :keyword bool allow_blank: specifies that this column could have blank string
-                                   value. this is only used in validators for columns
-                                   that have string values.
-                                   defaults to False if not provided.
-
-        :keyword bool allow_whitespace: specifies that this column could have whitespace
-                                        string value. this is only used in validators for
-                                        columns that have string values.
-                                        defaults to False if not provided.
-
         :keyword object | callable min_value: minimum value that this column could have.
-                                              this is only used in validators for columns
-                                              that have min value.
                                               it could also be a callable without any inputs.
+                                              if a non-callable is provided and the column is
+                                              not a primary key and also column name is provided,
+                                              it will result in check constraint generation on
+                                              database. otherwise it will be ignored and could
+                                              be used in validators.
                                               defaults to None if not provided.
 
         :keyword object | callable max_value: maximum value that this column could have.
-                                              this is only used in validators for columns
-                                              that have max value.
                                               it could also be a callable without any inputs.
+                                              if a non-callable is provided and the column is
+                                              not a primary key and also column name is provided,
+                                              it will result in check constraint generation on
+                                              database. otherwise it will be ignored and could
+                                              be used in validators.
                                               defaults to None if not provided.
+
+        :keyword list check_in: a list of items to produce check in constraint for this
+                                column. note that it requires the column name, if column
+                                name is not provided or the column is a primary key,
+                                it will be ignored. defaults to None if not provided.
+
+        :keyword list check_not_in: a list of items to produce check not in constraint for
+                                    this column. note that it requires the column name, if
+                                    column name is not provided or the column is a primary key,
+                                    it will be ignored. defaults to None if not provided.
+
+        :note check_in, check_not_in: only one of these options could be provided.
+                                      otherwise it raises an error.
         """
 
         self.allow_read = kwargs.pop('allow_read', True)
         self.allow_write = kwargs.pop('allow_write', True)
-
-        # these values are used in validators for automatic configuration.
-        # we have to set them in column, not to have subclass all types.
-        self.min_length = kwargs.pop('min_length', 1)
-        self.allow_blank = kwargs.pop('allow_blank', False)
-        self.allow_whitespace = kwargs.pop('allow_whitespace', False)
         self.min_value = kwargs.pop('min_value', None)
         self.max_value = kwargs.pop('max_value', None)
+        self.check_in = kwargs.pop('check_in', None)
+        self.check_not_in = kwargs.pop('check_not_in', None)
 
         super().__init__(*args, **kwargs)
+
+    def _get_schema_items(self):
+        """
+        gets required schema items for this column.
+
+        it will generate required check constraints, sequences and ...
+
+        :raises CheckConstraintConflictError: check constraint conflict error.
+        :raises InvalidCheckConstraintError: invalid check constraint error.
+
+        :rtype: list
+        """
+
+        custom_items = self._get_custom_schema_items()
+        if self.name in (None, '') or self.type is None:
+            return custom_items
+
+        if self.primary_key is not True:
+            minimum = None
+            maximum = None
+            if self.min_value is not None and not callable(self.min_value):
+                minimum = self.min_value
+
+            if self.max_value is not None and not callable(self.max_value):
+                maximum = self.max_value
+
+            if minimum is not None or maximum is not None:
+                range_constraint = range_check_constraint(self.name,
+                                                          min_value=minimum,
+                                                          max_value=maximum)
+                custom_items.append(range_constraint)
+
+            if self.check_in is not None and self.check_not_in is not None:
+                raise CheckConstraintConflictError('Both "check_in" and "check_not_in" could '
+                                                   'not be provided at the same time.')
+
+            if self.check_in is not None and not (isinstance(self.check_in, LIST_TYPES) and
+                                                  len(self.check_in) > 0):
+                raise InvalidCheckConstraintError('Provided value for "check_in" '
+                                                  'must be an iterable with at least 1 item.')
+
+            if self.check_not_in is not None and not (isinstance(self.check_not_in, LIST_TYPES) and
+                                                      len(self.check_not_in) > 0):
+                raise InvalidCheckConstraintError('Provided value for "check_not_in" '
+                                                  'must be an iterable with at least 1 item.')
+
+            if self.check_in is not None or self.check_not_in is not None:
+                values = self.check_in or self.check_not_in
+                constraint = check_constraint(self.name, values)
+                custom_items.append(constraint)
+
+        return custom_items
+
+    def _get_custom_schema_items(self):
+        """
+        gets custom schema items for this column.
+
+        it will generate required check constraints, sequences and ...
+        this method is intended to be overridden in subclasses.
+
+        :rtype: list
+        """
+
+        return []
+
+    def _init_items(self, *args):
+        """
+        initializes the list of required items for this column.
+        """
+
+        custom_items = self._get_schema_items()
+        args = list(args)
+        args.extend(custom_items)
+        super()._init_items(*args)
 
     def _real_name(self):
         """

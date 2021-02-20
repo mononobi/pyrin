@@ -4,6 +4,7 @@ utils sqlalchemy module.
 """
 
 from sqlalchemy import CheckConstraint
+from sqlalchemy.sql import quoted_name
 from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
@@ -363,9 +364,53 @@ def check_constraint(column, values, **options):
     if use_in is False:
         condition = 'not in'
 
-    string_values = ','.join(converter(item) for item in values)
-    sql_text = '{column} {condition} ({values})'.format(column=column,
+    string_values = ', '.join(converter(item) for item in values)
+    sql_text = '{column} {condition} ({values})'.format(column=quoted_name(column, True),
                                                         condition=condition,
                                                         values=string_values)
+    options.update(sqltext=sql_text)
+    return CheckConstraint(**options)
+
+
+def range_check_constraint(column, min_value=None, max_value=None, **options):
+    """
+    generates a range check constraint for given column and values.
+
+    if the values are string, they will be quoted.
+    if only one value is provided, a max or min constraint will be generated.
+
+    :param str column: column name to be used in check constraint.
+    :param object min_value: min value to be used in check constraint.
+    :param object max_value: max value to be used in check constraint.
+
+    :keyword **options: all other keyword arguments will be passed to
+                        underlying `CheckConstraint` constructor.
+
+    :raises CheckConstraintValuesRequiredError: check constraint values required error.
+
+    :rtype: CheckConstraint
+    """
+
+    if min_value is None and max_value is None:
+        raise CheckConstraintValuesRequiredError('Values for generating a range check '
+                                                 'constraint must be provided.')
+
+    sql_text = None
+    if min_value is not None and max_value is not None:
+        sql_text = '{column} >= {min} and {column} <= {max}'
+    elif min_value is not None:
+        sql_text = '{column} >= {min}'
+    else:
+        sql_text = '{column} <= {max}'
+
+    if isinstance(min_value, str):
+        min_value = string_utils.quote(min_value)
+
+    if isinstance(max_value, str):
+        max_value = string_utils.quote(max_value)
+
+    sql_text = sql_text.format(column=quoted_name(column, True),
+                               min=min_value, max=max_value)
+
     options.update(sqltext=sql_text)
     return CheckConstraint(**options)

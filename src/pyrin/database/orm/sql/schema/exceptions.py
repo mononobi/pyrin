@@ -32,3 +32,24 @@ class InvalidFKColumnReferenceTypeError(ORMSQLSchemaException):
     invalid fk column reference type error.
     """
     pass
+
+
+class CheckConstraintConflictError(ORMSQLSchemaException):
+    """
+    check constraint conflict error.
+    """
+    pass
+
+
+class InvalidCheckConstraintError(ORMSQLSchemaException):
+    """
+    invalid check constraint error.
+    """
+    pass
+
+
+class StringColumnTypeIsInvalidError(ORMSQLSchemaException):
+    """
+    string column type is invalid error.
+    """
+    pass
