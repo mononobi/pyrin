@@ -143,6 +143,10 @@ class CoreColumn(Column, CoreColumnOperators):
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
+
+        :keyword bool validated: specifies that an automatic validator for this column
+                                 must be registered, that is usable through validator
+                                 services. defaults to False if not provided.
         """
 
         self.allow_read = kwargs.pop('allow_read', True)
@@ -151,6 +155,7 @@ class CoreColumn(Column, CoreColumnOperators):
         self.max_value = kwargs.pop('max_value', None)
         self.check_in = kwargs.pop('check_in', None)
         self.check_not_in = kwargs.pop('check_not_in', None)
+        self.validated = kwargs.pop('validated', False)
 
         super().__init__(*args, **kwargs)
 
