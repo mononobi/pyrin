@@ -202,19 +202,32 @@ class CoreColumn(Column, CoreColumnOperators):
                 raise CheckConstraintConflictError('Both "check_in" and "check_not_in" could '
                                                    'not be provided at the same time.')
 
-            if self.check_in is not None and not (isinstance(self.check_in, LIST_TYPES) and
-                                                  len(self.check_in) > 0):
+            is_check_in_callable = callable(self.check_in)
+            is_check_not_in_callable = callable(self.check_not_in)
+            if self.check_in is not None and not is_check_in_callable \
+                    and not (isinstance(self.check_in, LIST_TYPES)
+                             and len(self.check_in) > 0):
                 raise InvalidCheckConstraintError('Provided value for "check_in" '
                                                   'must be an iterable with at least 1 item.')
 
-            if self.check_not_in is not None and not (isinstance(self.check_not_in, LIST_TYPES) and
-                                                      len(self.check_not_in) > 0):
+            if self.check_not_in is not None and not is_check_not_in_callable \
+                    and not (isinstance(self.check_not_in, LIST_TYPES)
+                             and len(self.check_not_in) > 0):
                 raise InvalidCheckConstraintError('Provided value for "check_not_in" '
                                                   'must be an iterable with at least 1 item.')
 
-            if self.check_in is not None or self.check_not_in is not None:
-                values = self.check_in or self.check_not_in
-                constraint = check_constraint(self.name, values)
+            valid_list = None
+            invalid_list = None
+            if self.check_in is not None and not is_check_in_callable:
+                valid_list = self.check_in
+            elif self.check_not_in is not None and not is_check_not_in_callable:
+                invalid_list = self.check_not_in
+
+            if valid_list is not None:
+                constraint = check_constraint(self.name, valid_list)
+                custom_items.append(constraint)
+            elif invalid_list is not None:
+                constraint = check_constraint(self.name, invalid_list, use_in=False)
                 custom_items.append(constraint)
 
         return custom_items
