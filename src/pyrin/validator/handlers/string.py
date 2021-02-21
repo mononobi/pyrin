@@ -10,6 +10,7 @@ from sqlalchemy import String
 import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import _
+from pyrin.database.orm.sql.schema.columns import StringColumn
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
@@ -129,7 +130,7 @@ class StringValidator(ValidatorBase):
         if allow_blank is None:
             if self.default_allow_blank is not None:
                 allow_blank = self.default_allow_blank
-            elif self.field is not None and self.field.allow_blank is not None:
+            elif self.is_string_column and self.field.allow_blank is not None:
                 allow_blank = self.field.allow_blank
             else:
                 allow_blank = False
@@ -138,7 +139,7 @@ class StringValidator(ValidatorBase):
         if allow_whitespace is None:
             if self.default_allow_whitespace is not None:
                 allow_whitespace = self.default_allow_whitespace
-            elif self.field is not None and self.field.allow_whitespace is not None:
+            elif self.is_string_column and self.field.allow_whitespace is not None:
                 allow_whitespace = self.field.allow_whitespace
             else:
                 allow_whitespace = False
@@ -147,16 +148,17 @@ class StringValidator(ValidatorBase):
         if self._minimum_length is None:
             if self.default_minimum_length is not None:
                 self._minimum_length = self.default_minimum_length
-            elif self.field is not None and self.field.min_length is not None:
+            elif self.is_string_column and self.field.min_length is not None:
                 self._minimum_length = self.field.min_length
 
         self._maximum_length = options.get('maximum_length')
         if self._maximum_length is None:
             if self.default_maximum_length is not None:
                 self._maximum_length = self.default_maximum_length
-            elif self.field is not None and isinstance(self.field.type, String) \
-                    and self.field.type.length is not None:
+            elif self.is_string_type and self.field.type.length is not None:
                 self._maximum_length = self.field.type.length
+            elif self.is_string_column and self.field.max_length is not None:
+                self._maximum_length = self.field.max_length
 
         if self._minimum_length is not None and self._maximum_length is not None \
                 and self._minimum_length > self._maximum_length:
@@ -288,6 +290,30 @@ class StringValidator(ValidatorBase):
         """
 
         return self._allow_whitespace
+
+    @property
+    def is_string_type(self):
+        """
+        gets a value indicating that the field type of this validator is sqlalchemy `String`.
+
+        :rtype: bool
+        """
+
+        return self.field is not None and isinstance(self.field.type, String)
+
+    @property
+    def is_string_column(self):
+        """
+        gets a value indicating that the field column type of this validator is `StringColumn`.
+
+        :rtype: bool
+        """
+
+        if not self.is_string_type:
+            return False
+
+        has_columns = len(self.field.property.columns) > 0
+        return has_columns and isinstance(self.field.property.columns[0], StringColumn)
 
 
 class RegexValidator(StringValidator):
