@@ -131,15 +131,23 @@ class CoreColumn(Column, CoreColumnOperators):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list check_in: a list of items to produce check in constraint for this
-                                column. note that it requires the column name, if column
-                                name is not provided or the column is a primary key,
-                                it will be ignored. defaults to None if not provided.
+        :keyword list | callable check_in: list of valid values for this column.
+                                           it could also be a callable without any inputs.
+                                           if a non-callable is provided and the column is
+                                           not a primary key and also column name is provided,
+                                           it will result in check constraint generation on
+                                           database. otherwise it will be ignored and could
+                                           be used in validators.
+                                           defaults to None if not provided.
 
-        :keyword list check_not_in: a list of items to produce check not in constraint for
-                                    this column. note that it requires the column name, if
-                                    column name is not provided or the column is a primary key,
-                                    it will be ignored. defaults to None if not provided.
+        :keyword list | callable check_not_in: list of invalid values for this column.
+                                               it could also be a callable without any inputs.
+                                               if a non-callable is provided and the column is
+                                               not a primary key and also column name is provided,
+                                               it will result in check constraint generation on
+                                               database. otherwise it will be ignored and could
+                                               be used in validators.
+                                               defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
