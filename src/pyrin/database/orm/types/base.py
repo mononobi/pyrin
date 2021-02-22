@@ -13,6 +13,7 @@ from pyrin.core.exceptions import CoreNotImplementedError
 class CoreCustomType(TypeDecorator):
     """
     core custom type class.
+
     all application custom types must be subclassed from this type.
     """
 
@@ -74,6 +75,19 @@ class CoreCustomType(TypeDecorator):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def python_type(self):
+        """
+        gets the python type object expected to be returned by instances of this type.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: type
         """
 
         raise CoreNotImplementedError()

@@ -3,8 +3,14 @@
 orm sql schema base module.
 """
 
-from sqlalchemy import Column, util
+from uuid import UUID
+
+import sqlalchemy.dialects.mssql as mssql_types
+import sqlalchemy.dialects.postgresql as pg_types
+import sqlalchemy.dialects.sybase.base as sybase_types
+
 from sqlalchemy.exc import ArgumentError
+from sqlalchemy import Column, util, ARRAY
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
@@ -296,6 +302,43 @@ class CoreColumn(Column, CoreColumnOperators):
                 type_ = args.pop(0)
 
         return name, type_
+
+    def get_python_type(self, type_=None):
+        """
+        gets the python equivalent type of this column's type or given type.
+
+        the returned value is a tuple of two items. first item is the type
+        of this column, and the second item is always None, unless the type
+        of this column is a 1 dimension `Array`. if so, the second item is the
+        type of array elements. it returns (None, None) if type could not be determined.
+
+        this method is only used on server startup for registering auto validators.
+
+        :param TypeEngine type_: sqlalchemy type instance to get its equivalent python
+                                 type. if not provided, the column's type will be used.
+
+        :rtype: tuple[type, type]
+        """
+
+        if type_ is None:
+            type_ = self.type
+
+        found_type = None
+        inner_type = None
+        try:
+            found_type = type_.python_type
+        except (NotImplementedError, AttributeError):
+            if isinstance(type_, (mssql_types.BIT, sybase_types.BIT)):
+                return bool, None
+            if isinstance(type_, (pg_types.UUID,
+                                  mssql_types.UNIQUEIDENTIFIER,
+                                  sybase_types.UNIQUEIDENTIFIER)):
+                return UUID, None
+
+        if isinstance(found_type, ARRAY) and found_type.dimensions == 1:
+            inner_type, __ = self.get_python_type(found_type.item_type)
+
+        return found_type, inner_type
 
     @cached_property
     def fullname(self):

@@ -95,3 +95,13 @@ class GUID(CoreCustomType):
             return isinstance(conn_type, UNIQUEIDENTIFIER)
         else:
             return isinstance(conn_type, CHAR)
+
+    @property
+    def python_type(self):
+        """
+        gets the python type object expected to be returned by instances of this type.
+
+        :rtype: type[uuid.UUID]
+        """
+
+        return uuid.UUID
