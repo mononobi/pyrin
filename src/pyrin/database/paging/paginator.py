@@ -188,8 +188,7 @@ class SimplePaginator(PaginatorBase):
 
     page numbers start from 1.
     it does not emit any extra queries to database to fetch count or like that.
-    the only limitation is that it could not detect previous page from the
-    `last_page + 1` page.
+    the only limitation is that it could not detect previous page in `last_page + 1` page.
     """
 
     def __init__(self, endpoint, **options):
