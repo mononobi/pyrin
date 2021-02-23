@@ -214,6 +214,13 @@ class ValueIsNotFloatError(InvalidValueTypeError):
     pass
 
 
+class ValueIsNotDecimalError(InvalidValueTypeError):
+    """
+    value is not decimal error.
+    """
+    pass
+
+
 class ValueIsNotStringError(InvalidValueTypeError):
     """
     value is not string error.
@@ -252,6 +259,13 @@ class ValueIsNotBooleanError(InvalidValueTypeError):
 class ValueIsNotUUIDError(InvalidValueTypeError):
     """
     value is not uuid error.
+    """
+    pass
+
+
+class ValueIsNotDictError(InvalidValueTypeError):
+    """
+    value is not dict error.
     """
     pass
 
