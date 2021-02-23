@@ -25,7 +25,28 @@ def get_declarative_base():
     `pyrin.database.migration` into `ignored_packages` list of `packaging.ini`
     file and leave this method unimplemented.
 
-    :rtype: type[CoreEntity]
+    :rtype: type[BaseEntity]
     """
 
     return get_component(ModelPackage.COMPONENT_NAME).get_declarative_base()
+
+
+def get_metadata():
+    """
+    gets metadata of current declarative base.
+
+    :rtype: MetaData
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).get_metadata()
+
+
+def get_tables():
+    """
+    gets all tables defined in metadata of current declarative base.
+
+    :returns: dict(str name, Table table)
+    :rtype: dict
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).get_tables()

@@ -33,7 +33,26 @@ class ModelManager(Manager):
         `pyrin.database.migration` into `ignored_packages` list of `packaging.ini`
         file and leave this method unimplemented.
 
-        :rtype: type[CoreEntity]
+        :rtype: type[BaseEntity]
         """
 
         return CoreEntity
+
+    def get_metadata(self):
+        """
+        gets metadata of current declarative base.
+
+        :rtype: MetaData
+        """
+
+        return self.get_declarative_base().metadata
+
+    def get_tables(self):
+        """
+        gets all tables defined in metadata of current declarative base.
+
+        :returns: dict(str name, Table table)
+        :rtype: dict
+        """
+
+        return self.get_metadata().tables

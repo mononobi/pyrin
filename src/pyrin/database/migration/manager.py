@@ -39,7 +39,7 @@ class DatabaseMigrationManager(Manager):
         # a dictionary containing bind name to metadata map. note that each metadata
         # only contains tables that should be created on relevant bounded engine.
         # the default engine is added with 'default' key.
-        # in the form of: {str bind_name: MataDataAdapter metadata}
+        # in the form of: {str bind_name: MetaData metadata}
         self._bind_name_to_metadata_map = DTO()
 
     def create_all(self):
@@ -49,7 +49,7 @@ class DatabaseMigrationManager(Manager):
 
         for engine, tables in self._engine_to_table_map.items():
             if tables is not None and len(tables) > 0:
-                model_services.get_declarative_base().metadata.create_all(engine, tables)
+                model_services.get_metadata().create_all(engine, tables)
 
     def drop_all(self):
         """
@@ -58,14 +58,14 @@ class DatabaseMigrationManager(Manager):
 
         for engine, tables in self._engine_to_table_map.items():
             if tables is not None and len(tables) > 0:
-                model_services.get_declarative_base().metadata.drop_all(engine, tables)
+                model_services.get_metadata().drop_all(engine, tables)
 
     def _map_engine_to_table(self):
         """
         maps all engines to relevant tables.
         """
 
-        all_tables = DTO(**model_services.get_declarative_base().metadata.tables)
+        all_tables = DTO(**model_services.get_tables())
         for entity, engine in database_services.get_entity_to_engine_map().items():
             if engine not in self._engine_to_table_map:
                 self._engine_to_table_map[engine] = []

@@ -307,38 +307,43 @@ class CoreColumn(Column, CoreColumnOperators):
         """
         gets the python equivalent type of this column's type or given type.
 
-        the returned value is a tuple of two items. first item is the type
-        of this column, and the second item is always None, unless the type
-        of this column is a 1 dimension `Array`. if so, the second item is the
-        type of array elements. it returns (None, None) if type could not be determined.
+        the returned value is a tuple of two items. first item is the collection
+        type if the type is a collection, otherwise its None. the second item is
+        the type of values of this column.
 
+        it may return (None, None) if type could not be determined.
         this method is only used on server startup for registering auto validators.
 
         :param TypeEngine type_: sqlalchemy type instance to get its equivalent python
                                  type. if not provided, the column's type will be used.
 
+        :returns: tuple[type collection_type, type python_type]
         :rtype: tuple[type, type]
         """
 
         if type_ is None:
             type_ = self.type
 
-        found_type = None
-        inner_type = None
+        python_type = None
+        collection_type = None
         try:
-            found_type = type_.python_type
+            python_type = type_.python_type
         except (NotImplementedError, AttributeError):
             if isinstance(type_, (mssql_types.BIT, sybase_types.BIT)):
-                return bool, None
+                return None, bool
             if isinstance(type_, (pg_types.UUID,
                                   mssql_types.UNIQUEIDENTIFIER,
                                   sybase_types.UNIQUEIDENTIFIER)):
-                return UUID, None
+                return None, UUID
 
-        if isinstance(found_type, ARRAY) and found_type.dimensions == 1:
-            inner_type, __ = self.get_python_type(found_type.item_type)
+        if python_type is list:
+            collection_type = python_type
+            python_type = None
 
-        return found_type, inner_type
+        if isinstance(type_, ARRAY) and type_.dimensions == 1:
+            __, python_type = self.get_python_type(type_.item_type)
+
+        return collection_type, python_type
 
     @cached_property
     def fullname(self):
