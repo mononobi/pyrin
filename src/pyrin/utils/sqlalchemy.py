@@ -506,7 +506,7 @@ def get_class_by_table(base, table, **options):
     :keyword bool raise_multi: specifies that if multiple classes found and
                                also provided data could not help, raise an error.
                                otherwise return None.
-                               defaults to False if not provided.
+                               defaults to True if not provided.
 
     :note: this code is taken from sqlalchemy-utils project.
     https://github.com/kvesteri/sqlalchemy-utils
@@ -550,7 +550,7 @@ def get_class_by_table(base, table, **options):
     """
 
     data = options.get('data')
-    raise_multi = options.get('raise_multi', False)
+    raise_multi = options.get('raise_multi', True)
     found_classes = set(
         c for c in base._decl_class_registry.values()
         if hasattr(c, '__table__') and c.__table__ is table
