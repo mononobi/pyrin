@@ -109,3 +109,24 @@ class CheckConstraintValuesRequiredError(UtilsException):
     check constraint values required error.
     """
     pass
+
+
+class MultipleMappersFoundError(UtilsException):
+    """
+    multiple mappers found error.
+    """
+    pass
+
+
+class MapperNotFoundError(UtilsException):
+    """
+    mapper not found error.
+    """
+    pass
+
+
+class MultipleDeclarativeClassesFoundError(UtilsException):
+    """
+    multiple declarative classes found error.
+    """
+    pass

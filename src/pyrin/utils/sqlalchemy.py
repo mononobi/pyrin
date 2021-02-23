@@ -3,8 +3,15 @@
 utils sqlalchemy module.
 """
 
-from sqlalchemy import CheckConstraint
-from sqlalchemy.sql import quoted_name
+from inspect import isclass
+
+from sqlalchemy import inspect as sqla_inspect, Table
+from sqlalchemy import CheckConstraint, Column
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm.query import _MapperEntity, _ColumnEntity
+from sqlalchemy.orm.util import AliasedInsp, AliasedClass
+from sqlalchemy.sql import quoted_name, Alias
+from sqlalchemy.orm import mapperlib, Mapper
 from sqlalchemy.util import lightweight_named_tuple
 
 import pyrin.utils.datetime as datetime_utils
@@ -12,8 +19,8 @@ import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
-    FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError
-
+    FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError, \
+    MultipleMappersFoundError, MapperNotFoundError, MultipleDeclarativeClassesFoundError
 
 LIKE_CHAR_COUNT_LIMIT = 20
 
@@ -414,3 +421,164 @@ def range_check_constraint(column, min_value=None, max_value=None, **options):
 
     options.update(sqltext=sql_text)
     return CheckConstraint(**options)
+
+
+def get_mapper(value):
+    """
+    gets related sqlalchemy mapper for given sqlalchemy object.
+
+    :param Table | Alias | Mapper | declarative value: sqlalchemy object.
+
+    :note: this code is taken from sqlalchemy-utils project.
+    https://github.com/kvesteri/sqlalchemy-utils
+
+    for example:
+
+    get_mapper(User)
+    get_mapper(User())
+    get_mapper(User.__table__)
+    get_mapper(User.__mapper__)
+    get_mapper(sa.orm.aliased(User))
+    get_mapper(sa.orm.aliased(User.__table__))
+
+    :raises MultipleMappersFoundError: multiple mappers found error.
+    :raises MapperNotFoundError: mapper not found error.
+
+    :rtype: Mapper
+    """
+
+    if isinstance(value, _MapperEntity):
+        value = value.expr
+    elif isinstance(value, Column):
+        value = value.table
+    elif isinstance(value, _ColumnEntity):
+        value = value.expr
+
+    if isinstance(value, Mapper):
+        return value
+
+    if isinstance(value, AliasedClass):
+        return sqla_inspect(value).mapper
+
+    if isinstance(value, Alias):
+        value = value.element
+
+    if isinstance(value, AliasedInsp):
+        return value.mapper
+
+    if isinstance(value, InstrumentedAttribute):
+        value = value.class_
+
+    if isinstance(value, Table):
+        mappers = [
+            mapper for mapper in mapperlib._mapper_registry
+            if value in mapper.tables
+        ]
+
+        if len(mappers) > 1:
+            raise MultipleMappersFoundError('Multiple mappers found for table '
+                                            '[{table}].'.format(table=value.name))
+        elif not mappers:
+            raise MapperNotFoundError('Could not get mapper for table '
+                                      '[{table}].'.format(table=value.name))
+        else:
+            return mappers[0]
+
+    if not isclass(value):
+        value = type(value)
+
+    return sqla_inspect(value)
+
+
+def get_class_by_table(base, table, **options):
+    """
+    gets declarative class associated with given table.
+
+    if no class is found this function returns `None`.
+    if multiple classes were found (polymorphic cases) additional `data` parameter
+    can be given to hint which class to return.
+
+    :param type[BaseEntity] base: declarative base model.
+    :param Table table: sqlalchemy table object.
+
+    :keyword dict data: data row to determine the class in polymorphic scenarios.
+
+    :keyword bool raise_multi: specifies that if multiple classes found and
+                               also provided data could not help, raise an error.
+                               otherwise return None.
+                               defaults to False if not provided.
+
+    :note: this code is taken from sqlalchemy-utils project.
+    https://github.com/kvesteri/sqlalchemy-utils
+
+    for example:
+
+    class User(CoreEntity):
+        _table = 'entity'
+        id = AutoPKColumn()
+        name = StringColumn()
+
+    get_class_by_table(CoreEntity, User.__table__) -> User class
+
+    this function also supports models using single table inheritance.
+    additional data parameter should be provided in these cases.
+
+    for example:
+
+    class Entity(CoreEntity):
+        _table = 'entity'
+        id = AutoPKColumn()
+        name = StringColumn()
+        type = StringColumn()
+        __mapper_args__ = {
+            'polymorphic_on': type,
+            'polymorphic_identity': 'entity'
+        }
+
+    class User(Entity):
+        __mapper_args__ = {
+            'polymorphic_identity': 'user'
+        }
+
+    get_class_by_table(CoreEntity, Entity.__table__, {'type': 'entity'}) -> Entity class
+    get_class_by_table(CoreEntity, Entity.__table__, {'type': 'user'}) -> User class
+
+    :raises MultipleDeclarativeClassesFoundError: multiple declarative classes found error.
+
+    :returns: declarative class or None.
+    :rtype: type[BaseEntity]
+    """
+
+    data = options.get('data')
+    raise_multi = options.get('raise_multi', False)
+    found_classes = set(
+        c for c in base._decl_class_registry.values()
+        if hasattr(c, '__table__') and c.__table__ is table
+    )
+
+    if len(found_classes) > 1:
+        if not data:
+            if raise_multi is True:
+                raise MultipleDeclarativeClassesFoundError('Multiple declarative classes found '
+                                                           'for table [{table}]. please provide '
+                                                           'data parameter for this function to '
+                                                           'be able to determine polymorphic '
+                                                           'scenarios.'.format(table=table.name))
+        else:
+            for cls in found_classes:
+                mapper = sqla_inspect(cls)
+                polymorphic_on = mapper.polymorphic_on.name
+                if polymorphic_on in data:
+                    if data[polymorphic_on] == mapper.polymorphic_identity:
+                        return cls
+
+            if raise_multi is True:
+                raise MultipleDeclarativeClassesFoundError('Multiple declarative classes found '
+                                                           'for table [{table}]. given data row '
+                                                           'does not match any polymorphic '
+                                                           'identity of the found classes.'
+                                                           .format(table=table.name))
+    elif found_classes:
+        return found_classes.pop()
+
+    return None
