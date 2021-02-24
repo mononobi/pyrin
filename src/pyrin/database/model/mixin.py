@@ -621,6 +621,52 @@ class AttributeMixin(CoreObject):
 
     @class_property
     @fast_cache
+    def all_column_attributes(cls):
+        """
+        gets an immutable dict of all column attributes of this entity.
+
+        the result will be calculated once and cached per entity type.
+
+        :returns: CoreImmutableDict(str name, CoreColumn column)
+        :rtype: CoreImmutableDict
+        """
+
+        result = dict()
+        info = sqla_inspect(cls)
+        for attr in info.column_attrs:
+            result[attr.key] = attr.columns[0]
+
+        return CoreImmutableDict(result)
+
+    @class_property
+    @fast_cache
+    def all_instrumented_attributes(cls):
+        """
+        gets a tuple of all instrumented attributes of this entity.
+
+        instrumented attributes are the attributes that are returned
+        by sqlalchemy when you get a column of a model at class level.
+
+        for example:
+
+        CarEntity.name -> InstrumentedAttribute
+        HumanEntity.age -> InstrumentedAttribute
+
+        the result will be calculated once and cached per entity type.
+
+        :rtype: tuple
+        """
+
+        all_columns = cls.primary_key_columns + cls.foreign_key_columns + cls.all_columns
+        result = []
+        for name in all_columns:
+            attribute = getattr(cls, name)
+            result.append(attribute)
+
+        return tuple(result)
+
+    @class_property
+    @fast_cache
     def all_attributes(cls):
         """
         gets all attribute names of current entity.
@@ -1818,25 +1864,6 @@ class DefaultPrefetchMixin(CoreObject):
     this class adds support to prefetch columns with default or onupdate
     values without flush or commit.
     """
-
-    @class_property
-    @fast_cache
-    def all_column_attributes(cls):
-        """
-        gets an immutable dict of all column attributes of this entity.
-
-        the result will be calculated once and cached per entity type.
-
-        :returns: CoreImmutableDict(str name, CoreColumn column)
-        :rtype: CoreImmutableDict
-        """
-
-        result = dict()
-        info = sqla_inspect(cls)
-        for attr in info.column_attrs:
-            result[attr.key] = attr.columns[0]
-
-        return CoreImmutableDict(result)
 
     @classmethod
     def _get_column_attribute(cls, name):
