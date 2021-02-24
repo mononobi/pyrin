@@ -3,17 +3,43 @@
 model manager module.
 """
 
+import pyrin.utils.sqlalchemy as sqlalchemy_utils
+
+from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.database.model import ModelPackage
 from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.hooks import ModelHookBase
+from pyrin.database.model.exceptions import EntitiesAreNotCollectedError, \
+    InvalidModelHookTypeError
 
 
-class ModelManager(Manager):
+class ModelManager(Manager, HookMixin):
     """
     model manager class.
     """
 
+    hook_type = ModelHookBase
+    invalid_hook_type_error = InvalidModelHookTypeError
     package_class = ModelPackage
+
+    def __init__(self):
+        """
+        initializes an instance of ModelManager.
+        """
+
+        super().__init__()
+
+        # a tuple containing all application entity classes.
+        self._entities = None
+
+    def _after_entities_collected(self):
+        """
+        this will call `after_entities_collected` method of registered hooks.
+        """
+
+        for hook in self._get_hooks():
+            hook.after_entities_collected()
 
     def get_declarative_base(self):
         """
@@ -56,3 +82,37 @@ class ModelManager(Manager):
         """
 
         return self.get_metadata().tables
+
+    def collect_entities(self):
+        """
+        collects all entity classes of application.
+
+        it returns the count of collected entities.
+
+        :rtype: int
+        """
+
+        base = self.get_declarative_base()
+        result = []
+        for table in self.get_tables().values():
+            entity = sqlalchemy_utils.get_class_by_table(base, table, raise_multi=False)
+            if entity is not None:
+                result.append(entity)
+
+        self._entities = tuple(result)
+        self._after_entities_collected()
+        return len(result)
+
+    def get_entities(self):
+        """
+        gets a tuple of all application collected entities.
+
+        :raises EntitiesAreNotCollectedError: entities are not collected error.
+
+        :rtype: tuple[BaseEntity]
+        """
+
+        if self._entities is None:
+            raise EntitiesAreNotCollectedError('Application entities are not collected yet.')
+
+        return self._entities

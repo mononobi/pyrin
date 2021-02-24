@@ -50,3 +50,39 @@ def get_tables():
     """
 
     return get_component(ModelPackage.COMPONENT_NAME).get_tables()
+
+
+def collect_entities():
+    """
+    collects all entity classes of application.
+
+    it returns the count of collected entities.
+
+    :rtype: int
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).collect_entities()
+
+
+def get_entities():
+    """
+    gets a tuple of all application collected entities.
+
+    :raises EntitiesAreNotCollectedError: entities are not collected error.
+
+    :rtype: tuple[BaseEntity]
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).get_entities()
+
+
+def register_hook(instance):
+    """
+    registers the given instance into model hooks.
+
+    :param ModelHookBase instance: model hook instance to be registered.
+
+    :raises InvalidModelHookTypeError: invalid model hook type error.
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).register_hook(instance)

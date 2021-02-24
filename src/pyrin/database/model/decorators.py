@@ -4,6 +4,7 @@ model decorators module.
 """
 
 import pyrin.database.services as database_services
+import pyrin.database.model.services as model_services
 
 
 def bind(name, **options):
@@ -29,6 +30,35 @@ def bind(name, **options):
         """
 
         database_services.register_bind(cls, name, **options)
+
+        return cls
+
+    return decorator
+
+
+def model_hook():
+    """
+    decorator to register a model hook.
+
+    :raises InvalidModelHookTypeError: invalid model hook type error.
+
+    :returns: model hook class.
+    :rtype: type
+    """
+
+    def decorator(cls):
+        """
+        decorates the given class and registers an instance
+        of it into available model hooks.
+
+        :param type cls: model hook class.
+
+        :returns: model hook class.
+        :rtype: type
+        """
+
+        instance = cls()
+        model_services.register_hook(instance)
 
         return cls
 

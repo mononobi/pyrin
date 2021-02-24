@@ -32,3 +32,17 @@ class InvalidDepthProvidedError(DatabaseModelException):
     invalid depth provided error.
     """
     pass
+
+
+class EntitiesAreNotCollectedError(DatabaseModelException):
+    """
+    entities are not collected error.
+    """
+    pass
+
+
+class InvalidModelHookTypeError(DatabaseModelException):
+    """
+    invalid model hook type error.
+    """
+    pass
