@@ -28,6 +28,7 @@ import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.misc as misc_utils
 
+from pyrin.core.decorators import class_property
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
@@ -47,9 +48,9 @@ class ColumnMixin(CoreObject):
     this class adds functionalities about columns (other than pk and fk) to its subclasses.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def all_columns(self):
+    def all_columns(cls):
         """
         gets all column names of this entity.
 
@@ -64,11 +65,11 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.readable_columns + self.not_readable_columns
+        return cls.readable_columns + cls.not_readable_columns
 
-    @property
+    @class_property
     @fast_cache
-    def readable_columns(self):
+    def readable_columns(cls):
         """
         gets readable column names of this entity.
 
@@ -80,18 +81,18 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         columns = tuple(attr.key for attr in info.column_attrs
-                        if self.is_public(attr.key) is True and
+                        if cls.is_public(attr.key) is True and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False and
                         attr.columns[0].allow_read is True)
 
         return columns
 
-    @property
+    @class_property
     @fast_cache
-    def not_readable_columns(self):
+    def not_readable_columns(cls):
         """
         gets not readable column names of this entity.
 
@@ -103,18 +104,18 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         columns = tuple(attr.key for attr in info.column_attrs
-                        if (self.is_public(attr.key) is False or
+                        if (cls.is_public(attr.key) is False or
                             attr.columns[0].allow_read is False) and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False)
 
         return columns
 
-    @property
+    @class_property
     @fast_cache
-    def writable_columns(self):
+    def writable_columns(cls):
         """
         gets writable column names of this entity.
 
@@ -126,18 +127,18 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         columns = tuple(attr.key for attr in info.column_attrs
-                        if self.is_public(attr.key) is True and
+                        if cls.is_public(attr.key) is True and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False and
                         attr.columns[0].allow_write is True)
 
         return columns
 
-    @property
+    @class_property
     @fast_cache
-    def not_writable_columns(self):
+    def not_writable_columns(cls):
         """
         gets not writable column names of this entity.
 
@@ -149,9 +150,9 @@ class ColumnMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         columns = tuple(attr.key for attr in info.column_attrs
-                        if (self.is_public(attr.key) is False or
+                        if (cls.is_public(attr.key) is False or
                             attr.columns[0].allow_write is False) and
                         attr.columns[0].is_foreign_key is False and
                         attr.columns[0].primary_key is False)
@@ -166,9 +167,9 @@ class RelationshipMixin(CoreObject):
     this class adds functionalities about relationship properties to its subclasses.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def relationships(self):
+    def relationships(cls):
         """
         gets all relationship property names of this entity.
 
@@ -177,11 +178,11 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.exposed_relationships + self.not_exposed_relationships
+        return cls.exposed_relationships + cls.not_exposed_relationships
 
-    @property
+    @class_property
     @fast_cache
-    def exposed_relationships(self):
+    def exposed_relationships(cls):
         """
         gets exposed relationship property names of this entity.
 
@@ -191,14 +192,14 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         relationships = tuple(attr.key for attr in info.relationships
-                              if self.is_public(attr.key) is True)
+                              if cls.is_public(attr.key) is True)
         return relationships
 
-    @property
+    @class_property
     @fast_cache
-    def not_exposed_relationships(self):
+    def not_exposed_relationships(cls):
         """
         gets not exposed relationship property names of this entity.
 
@@ -208,9 +209,9 @@ class RelationshipMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         relationships = tuple(attr.key for attr in info.relationships
-                              if self.is_public(attr.key) is False)
+                              if cls.is_public(attr.key) is False)
         return relationships
 
 
@@ -221,9 +222,9 @@ class HybridPropertyMixin(CoreObject):
     this class adds functionalities about all hybrid properties to its subclasses.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def all_getter_hybrid_properties(self):
+    def all_getter_hybrid_properties(cls):
         """
         gets all getter hybrid property names of this entity.
 
@@ -232,11 +233,11 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.readable_hybrid_properties + self.not_readable_hybrid_properties
+        return cls.readable_hybrid_properties + cls.not_readable_hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def all_setter_hybrid_properties(self):
+    def all_setter_hybrid_properties(cls):
         """
         gets all setter hybrid property names of this entity.
 
@@ -245,11 +246,11 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.writable_hybrid_properties + self.not_writable_hybrid_properties
+        return cls.writable_hybrid_properties + cls.not_writable_hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def readable_hybrid_properties(self):
+    def readable_hybrid_properties(cls):
         """
         gets readable hybrid property names of this entity.
 
@@ -260,17 +261,17 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
                                   and item.fget is not None
-                                  and self.is_public(item.__name__) is True)
+                                  and cls.is_public(item.__name__) is True)
 
         return hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def not_readable_hybrid_properties(self):
+    def not_readable_hybrid_properties(cls):
         """
         gets not readable hybrid property names of this entity.
 
@@ -281,17 +282,17 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
                                   and item.fget is not None
-                                  and self.is_public(item.__name__) is False)
+                                  and cls.is_public(item.__name__) is False)
 
         return hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def writable_hybrid_properties(self):
+    def writable_hybrid_properties(cls):
         """
         gets writable hybrid property names of this entity.
 
@@ -302,17 +303,17 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
                                   and item.fset is not None
-                                  and self.is_public(item.__name__) is True)
+                                  and cls.is_public(item.__name__) is True)
 
         return hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def not_writable_hybrid_properties(self):
+    def not_writable_hybrid_properties(cls):
         """
         gets not writable hybrid property names of this entity.
 
@@ -323,11 +324,11 @@ class HybridPropertyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
                                   if isinstance(item, hybrid_property)
                                   and item.fset is not None
-                                  and self.is_public(item.__name__) is False)
+                                  and cls.is_public(item.__name__) is False)
 
         return hybrid_properties
 
@@ -387,9 +388,9 @@ class PrimaryKeyMixin(CoreObject):
         else:
             return tuple(getattr(self, col) for col in columns)
 
-    @property
+    @class_property
     @fast_cache
-    def primary_key_columns(self):
+    def primary_key_columns(cls):
         """
         gets all primary key column names of this entity.
 
@@ -403,11 +404,11 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.readable_primary_key_columns + self.not_readable_primary_key_columns
+        return cls.readable_primary_key_columns + cls.not_readable_primary_key_columns
 
-    @property
+    @class_property
     @fast_cache
-    def readable_primary_key_columns(self):
+    def readable_primary_key_columns(cls):
         """
         gets the readable primary key column names of this entity.
 
@@ -418,16 +419,16 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_public(info.get_property_by_column(col).key) is True
+                   if cls.is_public(info.get_property_by_column(col).key) is True
                    and col.allow_read is True)
 
         return pk
 
-    @property
+    @class_property
     @fast_cache
-    def not_readable_primary_key_columns(self):
+    def not_readable_primary_key_columns(cls):
         """
         gets not readable primary key column names of this entity.
 
@@ -438,16 +439,16 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_public(info.get_property_by_column(col).key) is False
+                   if cls.is_public(info.get_property_by_column(col).key) is False
                    or col.allow_read is False)
 
         return pk
 
-    @property
+    @class_property
     @fast_cache
-    def writable_primary_key_columns(self):
+    def writable_primary_key_columns(cls):
         """
         gets the writable primary key column names of this entity.
 
@@ -458,16 +459,16 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_public(info.get_property_by_column(col).key) is True
+                   if cls.is_public(info.get_property_by_column(col).key) is True
                    and col.allow_write is True)
 
         return pk
 
-    @property
+    @class_property
     @fast_cache
-    def not_writable_primary_key_columns(self):
+    def not_writable_primary_key_columns(cls):
         """
         gets not writable primary key column names of this entity.
 
@@ -478,9 +479,9 @@ class PrimaryKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         pk = tuple(info.get_property_by_column(col).key for col in info.primary_key
-                   if self.is_public(info.get_property_by_column(col).key) is False
+                   if cls.is_public(info.get_property_by_column(col).key) is False
                    or col.allow_write is False)
 
         return pk
@@ -493,9 +494,9 @@ class ForeignKeyMixin(CoreObject):
     this class adds functionalities about foreign keys to its subclasses.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def foreign_key_columns(self):
+    def foreign_key_columns(cls):
         """
         gets all foreign key column names of this entity.
 
@@ -511,11 +512,11 @@ class ForeignKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.readable_foreign_key_columns + self.not_readable_foreign_key_columns
+        return cls.readable_foreign_key_columns + cls.not_readable_foreign_key_columns
 
-    @property
+    @class_property
     @fast_cache
-    def readable_foreign_key_columns(self):
+    def readable_foreign_key_columns(cls):
         """
         gets the readable foreign key column names of this entity.
 
@@ -528,18 +529,18 @@ class ForeignKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False
-                   and self.is_public(attr.key) is True
+                   and cls.is_public(attr.key) is True
                    and attr.columns[0].allow_read is True)
 
         return fk
 
-    @property
+    @class_property
     @fast_cache
-    def not_readable_foreign_key_columns(self):
+    def not_readable_foreign_key_columns(cls):
         """
         gets not readable foreign key column names of this entity.
 
@@ -552,18 +553,18 @@ class ForeignKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False and
-                   (self.is_public(attr.key) is False or
+                   (cls.is_public(attr.key) is False or
                     attr.columns[0].allow_read is False))
 
         return fk
 
-    @property
+    @class_property
     @fast_cache
-    def writable_foreign_key_columns(self):
+    def writable_foreign_key_columns(cls):
         """
         gets the writable foreign key column names of this entity.
 
@@ -576,18 +577,18 @@ class ForeignKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False
-                   and self.is_public(attr.key) is True
+                   and cls.is_public(attr.key) is True
                    and attr.columns[0].allow_write is True)
 
         return fk
 
-    @property
+    @class_property
     @fast_cache
-    def not_writable_foreign_key_columns(self):
+    def not_writable_foreign_key_columns(cls):
         """
         gets not writable foreign key column names of this entity.
 
@@ -600,11 +601,11 @@ class ForeignKeyMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         fk = tuple(attr.key for attr in info.column_attrs
                    if attr.columns[0].is_foreign_key is True
                    and attr.columns[0].primary_key is False and
-                   (self.is_public(attr.key) is False or
+                   (cls.is_public(attr.key) is False or
                     attr.columns[0].allow_write is False))
 
         return fk
@@ -618,9 +619,9 @@ class AttributeMixin(CoreObject):
     attributes includes pk, fk, columns, relationships and hybrid properties.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def all_attributes(self):
+    def all_attributes(cls):
         """
         gets all attribute names of current entity.
 
@@ -629,11 +630,11 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.all_readable_attributes + self.all_not_readable_attributes
+        return cls.all_readable_attributes + cls.all_not_readable_attributes
 
-    @property
+    @class_property
     @fast_cache
-    def all_readable_attributes(self):
+    def all_readable_attributes(cls):
         """
         gets all readable attribute names of current entity.
 
@@ -644,12 +645,12 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.readable_primary_key_columns + self.readable_foreign_key_columns + \
-            self.readable_columns + self.exposed_relationships + self.readable_hybrid_properties
+        return cls.readable_primary_key_columns + cls.readable_foreign_key_columns + \
+            cls.readable_columns + cls.exposed_relationships + cls.readable_hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def all_not_readable_attributes(self):
+    def all_not_readable_attributes(cls):
         """
         gets all not readable attribute names of current entity.
 
@@ -660,13 +661,13 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.not_readable_primary_key_columns + self.not_readable_foreign_key_columns + \
-            self.not_readable_columns + self.not_exposed_relationships + \
-            self.not_readable_hybrid_properties
+        return cls.not_readable_primary_key_columns + cls.not_readable_foreign_key_columns + \
+            cls.not_readable_columns + cls.not_exposed_relationships + \
+            cls.not_readable_hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def all_writable_attributes(self):
+    def all_writable_attributes(cls):
         """
         gets all writable attribute names of current entity.
 
@@ -677,12 +678,12 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.writable_primary_key_columns + self.writable_foreign_key_columns + \
-            self.writable_columns + self.exposed_relationships + self.writable_hybrid_properties
+        return cls.writable_primary_key_columns + cls.writable_foreign_key_columns + \
+            cls.writable_columns + cls.exposed_relationships + cls.writable_hybrid_properties
 
-    @property
+    @class_property
     @fast_cache
-    def all_not_writable_attributes(self):
+    def all_not_writable_attributes(cls):
         """
         gets all not writable attribute names of current entity.
 
@@ -693,11 +694,12 @@ class AttributeMixin(CoreObject):
         :rtype: tuple[str]
         """
 
-        return self.not_writable_primary_key_columns + self.not_writable_foreign_key_columns + \
-            self.not_writable_columns + self.not_exposed_relationships + \
-            self.not_writable_hybrid_properties
+        return cls.not_writable_primary_key_columns + cls.not_writable_foreign_key_columns + \
+            cls.not_writable_columns + cls.not_exposed_relationships + \
+            cls.not_writable_hybrid_properties
 
-    def is_public(self, name):
+    @classmethod
+    def is_public(cls, name):
         """
         gets a value indicating that an attribute with given name is public.
 
@@ -1744,7 +1746,7 @@ class MetadataMixin(CoreObject):
         """
         pass
 
-    @classmethod
+    @class_property
     def table_name(cls):
         """
         gets the table name that this entity represents in database.
@@ -1754,7 +1756,7 @@ class MetadataMixin(CoreObject):
 
         return cls._table
 
-    @classmethod
+    @class_property
     def table_schema(cls):
         """
         gets the table schema that this entity represents in database.
@@ -1766,7 +1768,7 @@ class MetadataMixin(CoreObject):
 
         return cls._schema
 
-    @classmethod
+    @class_property
     def table_fullname(cls):
         """
         gets the table fullname that this entity represents in database.
@@ -1777,13 +1779,20 @@ class MetadataMixin(CoreObject):
         :rtype: str
         """
 
-        schema = cls.table_schema()
-        name = cls.table_name()
-
-        if schema is not None:
-            return '{schema}.{name}'.format(schema=schema, name=name)
+        if cls.table_schema is not None:
+            return '{schema}.{name}'.format(schema=cls.table_schema, name=cls.table_name)
         else:
-            return name
+            return cls.table_name
+
+    @class_property
+    def extend_existing(cls):
+        """
+        gets a value indicating that this entity extends another entity.
+
+        :rtype: bool
+        """
+
+        return cls._extend_existing
 
 
 class ModelCacheMixin(TypedCacheMixin):
@@ -1804,9 +1813,9 @@ class DefaultPrefetchMixin(CoreObject):
     values without flush or commit.
     """
 
-    @property
+    @class_property
     @fast_cache
-    def _all_column_attributes(self):
+    def all_column_attributes(cls):
         """
         gets an immutable dict of all column attributes of this entity.
 
@@ -1817,13 +1826,14 @@ class DefaultPrefetchMixin(CoreObject):
         """
 
         result = dict()
-        info = sqla_inspect(type(self))
+        info = sqla_inspect(cls)
         for attr in info.column_attrs:
             result[attr.key] = attr.columns[0]
 
         return CoreImmutableDict(result)
 
-    def _get_column_attribute(self, name):
+    @classmethod
+    def _get_column_attribute(cls, name):
         """
         gets column attribute with given name.
 
@@ -1832,7 +1842,7 @@ class DefaultPrefetchMixin(CoreObject):
         :rtype: CoreColumn
         """
 
-        return self._all_column_attributes.get(name)
+        return cls.all_column_attributes.get(name)
 
     def _get_insert_default_value(self, column):
         """
@@ -1878,7 +1888,8 @@ class DefaultPrefetchMixin(CoreObject):
         value = self._get_update_default_value(column)
         setattr(self, column, value)
 
-    def _fetch_default_value(self, default):
+    @classmethod
+    def _fetch_default_value(cls, default):
         """
         fetches the value from given default clause.
 
@@ -1903,10 +1914,11 @@ class DefaultPrefetchMixin(CoreObject):
         elif default.is_callable:
             return default.arg(None)
 
-        return self._fetch_default_value_extended(default)
+        return cls._fetch_default_value_extended(default)
 
+    @classmethod
     @abstractmethod
-    def _fetch_default_value_extended(self, default):
+    def _fetch_default_value_extended(cls, default):
         """
         fetches the value from given default clause.
 
@@ -1922,76 +1934,76 @@ class DefaultPrefetchMixin(CoreObject):
 
         raise CoreNotImplementedError()
 
-    @property
+    @class_property
     @fast_cache
-    def columns_with_scalar_insert_default(self):
+    def columns_with_scalar_insert_default(cls):
         """
         gets column names that have scalar default values for insert.
 
         :rtype: tuple[str]
         """
 
-        all_columns = self.primary_key_columns + self.all_columns + self.foreign_key_columns
+        all_columns = cls.primary_key_columns + cls.all_columns + cls.foreign_key_columns
         result = []
         for name in all_columns:
-            attribute = self._get_column_attribute(name)
+            attribute = cls._get_column_attribute(name)
             if attribute.default is not None and \
                     not attribute.default.is_sequence and attribute.default.is_scalar:
                 result.append(name)
 
         return tuple(result)
 
-    @property
+    @class_property
     @fast_cache
-    def columns_with_complex_insert_default(self):
+    def columns_with_complex_insert_default(cls):
         """
         gets column names that have callable or sequence default values for insert.
 
         :rtype: tuple[str]
         """
 
-        all_columns = self.primary_key_columns + self.all_columns + self.foreign_key_columns
+        all_columns = cls.primary_key_columns + cls.all_columns + cls.foreign_key_columns
         result = []
         for name in all_columns:
-            attribute = self._get_column_attribute(name)
+            attribute = cls._get_column_attribute(name)
             if attribute.default is not None and (attribute.default.is_sequence or
                                                   attribute.default.is_callable):
                 result.append(name)
 
         return tuple(result)
 
-    @property
+    @class_property
     @fast_cache
-    def columns_with_scalar_update_default(self):
+    def columns_with_scalar_update_default(cls):
         """
         gets column names that have scalar default values for update.
 
         :rtype: tuple[str]
         """
 
-        all_columns = self.all_columns + self.foreign_key_columns
+        all_columns = cls.all_columns + cls.foreign_key_columns
         result = []
         for name in all_columns:
-            attribute = self._get_column_attribute(name)
+            attribute = cls._get_column_attribute(name)
             if attribute.onupdate is not None and \
                     not attribute.onupdate.is_sequence and attribute.onupdate.is_scalar:
                 result.append(name)
 
         return tuple(result)
 
-    @property
+    @class_property
     @fast_cache
-    def columns_with_complex_update_default(self):
+    def columns_with_complex_update_default(cls):
         """
         gets column names that have callable or sequence default values for update.
 
         :rtype: tuple[str]
         """
 
-        all_columns = self.all_columns + self.foreign_key_columns
+        all_columns = cls.all_columns + cls.foreign_key_columns
         result = []
         for name in all_columns:
-            attribute = self._get_column_attribute(name)
+            attribute = cls._get_column_attribute(name)
             if attribute.onupdate is not None and (attribute.onupdate.is_sequence or
                                                    attribute.onupdate.is_callable):
                 result.append(name)
