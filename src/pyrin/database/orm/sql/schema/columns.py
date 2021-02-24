@@ -186,9 +186,9 @@ class StringColumn(CoreColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        is_subclass = issubclass(type_, String)
+        is_subclass = inspect.isclass(type_) and issubclass(type_, String)
         is_instance = isinstance(type_, String)
-        if (inspect.isclass(type_) and not is_subclass) and not is_instance:
+        if not is_subclass and not is_instance:
             raise StringColumnTypeIsInvalidError('The string column type must be '
                                                  'an instance or subclass of [{string}].'
                                                  .format(string=String))
@@ -358,8 +358,8 @@ class AutoPKColumn(PKColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        if (inspect.isclass(type_) and not issubclass(type_, Integer)) \
-                and not isinstance(type_, Integer):
+        is_subclass = inspect.isclass(type_) and issubclass(type_, Integer)
+        if not is_subclass and not isinstance(type_, Integer):
             raise AutoPKColumnTypeIsInvalidError('The auto pk column type must be an '
                                                  'instance or subclass of [{integer}].'
                                                  .format(integer=Integer))
@@ -520,8 +520,8 @@ class SequencePKColumn(PKColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        if (inspect.isclass(type_) and not issubclass(type_, Integer)) \
-                and not isinstance(type_, Integer):
+        is_subclass = inspect.isclass(type_) and issubclass(type_, Integer)
+        if not is_subclass and not isinstance(type_, Integer):
             raise SequencePKColumnTypeIsInvalidError('The sequence pk column type must be an '
                                                      'instance or subclass of [{integer}].'
                                                      .format(integer=Integer))
