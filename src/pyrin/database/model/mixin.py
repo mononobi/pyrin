@@ -1248,7 +1248,8 @@ class MagicMethodMixin(CoreObject):
                                                name=self.get_name(),
                                                pk=self.primary_key())
 
-    def _set_root_base_class(self, root_base_class):
+    @classmethod
+    def _set_root_base_class(cls, root_base_class):
         """
         sets root base class of this entity.
 
@@ -1273,7 +1274,8 @@ class MagicMethodMixin(CoreObject):
 
         setattr(root_base_class, '_root_base_class', root_base_class)
 
-    def _get_root_base_class(self):
+    @classmethod
+    def _get_root_base_class(cls):
         """
         gets root base class of this entity and caches it.
 
@@ -1298,10 +1300,10 @@ class MagicMethodMixin(CoreObject):
         :rtype: type
         """
 
-        return getattr(self, '_root_base_class', None)
+        return getattr(cls, '_root_base_class', None)
 
-    @property
-    def root_base_class(self):
+    @class_property
+    def root_base_class(cls):
         """
         gets root base class of this entity.
 
@@ -1310,34 +1312,35 @@ class MagicMethodMixin(CoreObject):
         :rtype: type
         """
 
-        base = self._get_root_base_class()
+        base = cls._get_root_base_class()
         if base is None:
-            bases = inspect.getmro(type(self))
-            root_base_entity_index = bases.index(self.declarative_base_class) - 1
+            bases = inspect.getmro(cls)
+            root_base_entity_index = bases.index(cls.declarative_base_class) - 1
             base = bases[root_base_entity_index]
-            self._set_root_base_class(base)
+            cls._set_root_base_class(base)
 
         return base
 
-    @property
-    def declarative_base_class(self):
+    @class_property
+    def declarative_base_class(cls):
         """
         gets declarative base class of application.
 
         :rtype: type
         """
 
-        base = self._get_declarative_base_class()
+        base = cls._get_declarative_base_class()
         if base is None:
-            bases = inspect.getmro(type(self))
-            base_entity_index = bases.index(self._base_entity_class)
+            bases = inspect.getmro(cls)
+            base_entity_index = bases.index(cls._base_entity_class)
             potential_declarative_bases = bases[0:base_entity_index]
-            base = self._extract_declarative_base(potential_declarative_bases)
-            self._set_declarative_base_class(base)
+            base = cls._extract_declarative_base(potential_declarative_bases)
+            cls._set_declarative_base_class(base)
 
         return base
 
-    def _extract_declarative_base(self, types):
+    @classmethod
+    def _extract_declarative_base(cls, types):
         """
         extracts the first declarative base found from given types.
 
@@ -1356,7 +1359,8 @@ class MagicMethodMixin(CoreObject):
 
         return None
 
-    def _set_declarative_base_class(self, declarative_base_class):
+    @classmethod
+    def _set_declarative_base_class(cls, declarative_base_class):
         """
         sets declarative base class of application.
 
@@ -1367,10 +1371,11 @@ class MagicMethodMixin(CoreObject):
                                             by default, it would be `CoreEntity` class.
         """
 
-        self._validate_declarative_base_class(declarative_base_class)
+        cls._validate_declarative_base_class(declarative_base_class)
         MagicMethodMixin._declarative_base_class = declarative_base_class
 
-    def _get_declarative_base_class(self):
+    @classmethod
+    def _get_declarative_base_class(cls):
         """
         gets declarative base class of application.
 
@@ -1381,9 +1386,9 @@ class MagicMethodMixin(CoreObject):
 
         return getattr(MagicMethodMixin, '_declarative_base_class', None)
 
-    @property
+    @class_property
     @abstractmethod
-    def _base_entity_class(self):
+    def _base_entity_class(cls):
         """
         gets base entity class of application.
 
@@ -1406,7 +1411,8 @@ class MagicMethodMixin(CoreObject):
 
         raise CoreNotImplementedError()
 
-    def _validate_declarative_base_class(self, declarative_base_class):
+    @classmethod
+    def _validate_declarative_base_class(cls, declarative_base_class):
         """
         validates the given declarative base class.
 
@@ -1421,11 +1427,11 @@ class MagicMethodMixin(CoreObject):
                                                   'is not a class.'
                                                   .format(declarative=declarative_base_class))
 
-        if not issubclass(declarative_base_class, self._base_entity_class):
+        if not issubclass(declarative_base_class, cls._base_entity_class):
             raise InvalidDeclarativeBaseTypeError('Input parameter [{declarative}] '
                                                   'in not a subclass of [{base}].'
                                                   .format(declarative=declarative_base_class,
-                                                          base=self._base_entity_class))
+                                                          base=cls._base_entity_class))
 
         if declarative_base_class is not model_services.get_declarative_base():
             print_warning('You have implemented a new declarative base type [{new}] '
