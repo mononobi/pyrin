@@ -432,9 +432,9 @@ class DatabaseManager(Manager, HookMixin):
                                                        entity_name=entity))
 
             self._entity_to_engine_map[entity] = self.get_bounded_engines()[bind_name]
-            self._table_name_to_engine_map[entity.table_name().lower()] = \
+            self._table_name_to_engine_map[entity.table_name.lower()] = \
                 self.get_bounded_engines()[bind_name]
-            self._table_name_to_engine_map[entity.table_fullname().lower()] = \
+            self._table_name_to_engine_map[entity.table_fullname.lower()] = \
                 self.get_bounded_engines()[bind_name]
 
     def configure_session_factories(self):
