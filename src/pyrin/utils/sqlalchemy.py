@@ -22,6 +22,7 @@ from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError, \
     MultipleMappersFoundError, MapperNotFoundError, MultipleDeclarativeClassesFoundError
 
+
 LIKE_CHAR_COUNT_LIMIT = 20
 
 
@@ -543,6 +544,25 @@ def get_class_by_table(base, table, **options):
     get_class_by_table(CoreEntity, Entity.__table__, {'type': 'entity'}) -> Entity class
     get_class_by_table(CoreEntity, Entity.__table__, {'type': 'user'}) -> User class
 
+    it also supports extended entities with unlimited depth, it returns the correct child
+    entity.
+
+    for example:
+
+    class EntityBase(CoreEntity):
+        _table = 'entity'
+        id = AutoPKColumn()
+
+    class Entity2(EntityBase):
+        _extend_existing = True
+        name = StringColumn()
+
+    class Entity3(Entity2):
+        _extend_existing = True
+        age = CoreColumn(Integer)
+
+    get_class_by_table(CoreEntity, EntityBase.__table__) -> Entity3 class
+
     :raises MultipleDeclarativeClassesFoundError: multiple declarative classes found error.
 
     :returns: declarative class or None.
@@ -551,18 +571,40 @@ def get_class_by_table(base, table, **options):
 
     data = options.get('data')
     raise_multi = options.get('raise_multi', True)
-    found_classes = set(
-        c for c in base._decl_class_registry.values()
-        if hasattr(c, '__table__') and c.__table__ is table
-    )
+    found_classes = []
+    for item in base._decl_class_registry.values():
+        if hasattr(item, '__table__') and item.__table__ is table:
+            found_classes.append(item)
 
+    current_count = len(found_classes)
+    temp = list(found_classes)
+    if current_count > 1:
+        for item in found_classes:
+            if item.extend_existing is not True:
+                temp.remove(item)
+
+    if current_count > len(temp) > 0:
+        found_classes = temp
+        if len(found_classes) > 1:
+            hierarchies = []
+            for item in found_classes:
+                hierarchies.append(set(item.__mro__))
+
+            result = set.symmetric_difference(*hierarchies)
+            if len(result) == 1:
+                return result.pop()
+
+        elif len(found_classes) == 1:
+            return found_classes[0]
+
+    found_classes = set(found_classes)
     if len(found_classes) > 1:
         if not data:
             if raise_multi is True:
                 raise MultipleDeclarativeClassesFoundError('Multiple declarative classes found '
                                                            'for table [{table}]. please provide '
-                                                           'data parameter for this function to '
-                                                           'be able to determine polymorphic '
+                                                           '"data" parameter for this function '
+                                                           'to be able to determine polymorphic '
                                                            'scenarios.'.format(table=table.name))
         else:
             for cls in found_classes:
