@@ -5,6 +5,7 @@ model base module.
 
 from sqlalchemy.ext.declarative import as_declarative
 
+from pyrin.core.decorators import class_property
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
     HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin, \
@@ -129,8 +130,8 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         self.from_dict(**kwargs)
         self.prefetch_insert_defaults(**kwargs)
 
-    @property
-    def _base_entity_class(self):
+    @class_property
+    def _base_entity_class(cls):
         """
         gets base entity class of application.
 
