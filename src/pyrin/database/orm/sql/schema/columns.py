@@ -3,11 +3,10 @@
 orm sql schema columns module.
 """
 
-import inspect
-
 from sqlalchemy import BigInteger, Integer, Sequence, ForeignKey, String, Unicode
 
 import pyrin.utils.unique_id as uuid_utils
+import pyrin.utils.misc as misc_utils
 
 from pyrin.database.orm.types.custom import GUID
 from pyrin.database.orm.sql.schema.base import CoreColumn
@@ -186,14 +185,12 @@ class StringColumn(CoreColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        is_subclass = inspect.isclass(type_) and issubclass(type_, String)
-        is_instance = isinstance(type_, String)
-        if not is_subclass and not is_instance:
+        if not misc_utils.is_subclass_or_instance(type_, String):
             raise StringColumnTypeIsInvalidError('The string column type must be '
                                                  'an instance or subclass of [{string}].'
                                                  .format(string=String))
 
-        if is_subclass and self.max_length is not None:
+        if isinstance(type_, type) and self.max_length is not None:
             type_ = type_(length=self.max_length)
 
         kwargs.update(name=name, type_=type_)
@@ -358,8 +355,7 @@ class AutoPKColumn(PKColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        is_subclass = inspect.isclass(type_) and issubclass(type_, Integer)
-        if not is_subclass and not isinstance(type_, Integer):
+        if not misc_utils.is_subclass_or_instance(type_, Integer):
             raise AutoPKColumnTypeIsInvalidError('The auto pk column type must be an '
                                                  'instance or subclass of [{integer}].'
                                                  .format(integer=Integer))
@@ -520,8 +516,7 @@ class SequencePKColumn(PKColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        is_subclass = inspect.isclass(type_) and issubclass(type_, Integer)
-        if not is_subclass and not isinstance(type_, Integer):
+        if not misc_utils.is_subclass_or_instance(type_, Integer):
             raise SequencePKColumnTypeIsInvalidError('The sequence pk column type must be an '
                                                      'instance or subclass of [{integer}].'
                                                      .format(integer=Integer))

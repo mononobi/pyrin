@@ -3,6 +3,8 @@
 utils misc module.
 """
 
+import inspect
+
 from pyrin.core.globals import LIST_TYPES
 from pyrin.core.exceptions import CoreAttributeError
 
@@ -131,3 +133,17 @@ def iterate_items(collection, *args, **kwargs):
     """
 
     return iter(collection.items(*args, **kwargs))
+
+
+def is_subclass_or_instance(value, type_):
+    """
+    gets a value indicating that given value is an instance or subclass of given type.
+
+    :param object | type value: value to be checked.
+    :param type type_: type to be used.
+
+    :rtype: bool
+    """
+
+    is_subclass = inspect.isclass(value) and issubclass(value, type_)
+    return is_subclass or isinstance(value, type_)
