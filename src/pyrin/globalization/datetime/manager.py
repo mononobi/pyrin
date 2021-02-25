@@ -88,6 +88,37 @@ class DateTimeManager(Manager):
 
         return self.now(server=False)
 
+    def current_year(self, server=True, timezone=None):
+        """
+        gets the current year based on requested timezone.
+
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to True.
+
+        :param str timezone: timezone name to get year based on it.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
+
+        :rtype: int
+        """
+
+        now = self.now(server=server, timezone=timezone)
+        return now.year
+
+    def current_client_year(self):
+        """
+        gets the current year based on client timezone.
+
+        this is a helper method to let get the client year
+        without providing value to `current_year` method.
+
+        :rtype: int
+        """
+
+        client_now = self.client_now()
+        return client_now.year
+
     def get_default_client_timezone(self):
         """
         gets the default client timezone.

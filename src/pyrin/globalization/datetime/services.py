@@ -38,6 +38,37 @@ def client_now():
     return get_component(DateTimePackage.COMPONENT_NAME).client_now()
 
 
+def current_year(server=True, timezone=None):
+    """
+    gets the current year based on requested timezone.
+
+    :param bool server: if set to True, server timezone will be used.
+                        if set to False, client timezone will be used.
+                        defaults to True.
+
+    :param str timezone: timezone name to get year based on it.
+                         if provided, the value of `server` input
+                         will be ignored. defaults to None.
+
+    :rtype: int
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).current_year(server, timezone)
+
+
+def current_client_year():
+    """
+    gets the current year based on client timezone.
+
+    this is a helper method to let get the client year
+    without providing value to `current_year` method.
+
+    :rtype: int
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).current_client_year()
+
+
 def get_default_client_timezone():
     """
     gets the default client timezone.
