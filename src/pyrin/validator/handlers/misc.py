@@ -50,8 +50,9 @@ class MinimumValidator(ValidatorBase):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
@@ -221,8 +222,9 @@ class MaximumValidator(ValidatorBase):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
@@ -392,8 +394,9 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
@@ -560,8 +563,9 @@ class InValidator(ValidatorBase):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
@@ -604,6 +608,10 @@ class InValidator(ValidatorBase):
         """
 
         super().__init__(domain, field, **options)
+
+        if self.default_valid_values is None \
+                and self.field is not None and self.field.check_in is not None:
+            self.default_valid_values = self.field.check_in
 
         if not callable(self.default_valid_values) and \
                 (self.default_valid_values is None or
@@ -681,8 +689,9 @@ class NotInValidator(ValidatorBase):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
@@ -725,6 +734,10 @@ class NotInValidator(ValidatorBase):
         """
 
         super().__init__(domain, field, **options)
+
+        if self.default_invalid_values is None \
+                and self.field is not None and self.field.check_not_in is not None:
+            self.default_invalid_values = self.field.check_not_in
 
         if not callable(self.default_invalid_values) and \
                 (self.default_invalid_values is None or

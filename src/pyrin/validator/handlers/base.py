@@ -82,8 +82,9 @@ class ValidatorBase(AbstractValidatorBase):
                                                   this validator will validate. if you pass
                                                   a column attribute, some constraints
                                                   such as `nullable`, `min_length`, `max_length`,
-                                                  `min_value`, `max_value`, `allow_blank` and
-                                                  `allow_whitespace` could be extracted
+                                                  `min_value`, `max_value`, `allow_blank`,
+                                                  `allow_whitespace`, `check_in` and
+                                                  `check_not_in` could be extracted
                                                   automatically from that column if not provided
                                                   in inputs.
 
