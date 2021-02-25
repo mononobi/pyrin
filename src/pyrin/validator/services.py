@@ -68,6 +68,24 @@ def get_validator(domain, name):
     return get_component(ValidatorPackage.COMPONENT_NAME).get_validator(domain, name)
 
 
+def try_get_validator(domain, name):
+    """
+    gets the registered validator for given domain and name.
+
+    it returns None if no validator found for given name or if domain does not exist.
+
+    :param type[BaseEntity] | str domain: the domain to get validator from.
+                                          it could be a type of a BaseEntity
+                                          subclass or a string name.
+
+    :param str name: validator name to get.
+
+    :rtype: AbstractValidatorBase
+    """
+
+    return get_component(ValidatorPackage.COMPONENT_NAME).try_get_validator(domain, name)
+
+
 def validate_field(domain, name, value, **options):
     """
     validates the given value with given validator.

@@ -159,9 +159,14 @@ class ValidatorAutoManager(Manager):
         type_validator = self._get_type_validator(domain, field, **options)
         range_validator = self._get_range_validator(domain, field, **options)
         in_validator = self._get_in_validator(domain, field, **options)
+        custom_validator = validator_services.try_get_validator(domain, field.key)
+        if custom_validator is not None:
+            options.update(replace=True)
+
         options.update(type_validator=type_validator,
                        range_validator=range_validator,
-                       in_validator=in_validator)
+                       in_validator=in_validator,
+                       custom_validator=custom_validator)
 
         auto_validator = AutoValidator(domain, field, **options)
         validator_services.register_validator(auto_validator, **options)

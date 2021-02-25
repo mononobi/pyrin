@@ -32,6 +32,9 @@ class AutoValidator(AbstractValidatorBase):
         :keyword AbstractValidatorBase in_validator: the in validator instance.
                                                      it is either an in validator,
                                                      not in validator or None.
+
+        :keyword AbstractValidatorBase custom_validator: a custom validator to extend
+                                                         auto validator behavior.
         """
 
         super().__init__()
@@ -41,6 +44,7 @@ class AutoValidator(AbstractValidatorBase):
         self._type_validator = options.get('type_validator')
         self._range_validator = options.get('range_validator')
         self._in_validator = options.get('in_validator')
+        self._custom_validator = options.get('custom_validator')
 
     def validate(self, value, **options):
         """
@@ -65,6 +69,9 @@ class AutoValidator(AbstractValidatorBase):
 
         if self._in_validator is not None:
             fixed_value = self._in_validator.validate(fixed_value, **options)
+
+        if self._custom_validator is not None:
+            fixed_value = self._custom_validator.validate(fixed_value, **options)
 
         return fixed_value
 

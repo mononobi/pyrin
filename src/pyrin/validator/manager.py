@@ -5,6 +5,7 @@ validator manager module.
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager, Context, DTO
+from pyrin.logging.contexts import suppress
 from pyrin.utils.custom_print import print_warning
 from pyrin.validator import ValidatorPackage
 from pyrin.validator.interface import AbstractValidatorBase
@@ -128,6 +129,26 @@ class ValidatorManager(Manager):
 
         domain_validators = self.get_domain_validators(domain)
         return domain_validators.get(name)
+
+    def try_get_validator(self, domain, name):
+        """
+        gets the registered validator for given domain and name.
+
+        it returns None if no validator found for given name or if domain does not exist.
+
+        :param type[BaseEntity] | str domain: the domain to get validator from.
+                                              it could be a type of a BaseEntity
+                                              subclass or a string name.
+
+        :param str name: validator name to get.
+
+        :rtype: AbstractValidatorBase
+        """
+
+        with suppress(ValidatorDomainNotFoundError, log=False):
+            return self.get_validator(domain, name)
+
+        return None
 
     def validate_field(self, domain, name, value, **options):
         """
