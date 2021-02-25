@@ -325,12 +325,6 @@ class ValidatorManager(Manager):
                             of all field names and their corresponding error messages.
                             defaults to True if not provided.
 
-        :keyword bool for_update: specifies that only fields that are present in data
-                                  must be validated. even if there are validators for
-                                  other fields. it is useful for changing the validation
-                                  behavior on insert or update operations. defaults to
-                                  False if not provided and all validators will be used.
-
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
 
@@ -517,12 +511,6 @@ class ValidatorManager(Manager):
                                                       starts with underscore `_`, should not
                                                       be included in validation. defaults to
                                                       `SECURE_TRUE` if not provided.
-
-        :keyword bool for_update: specifies that only fields that are present in data
-                                  must be validated. even if there are validators for
-                                  other fields. it is useful for changing the validation
-                                  behavior on insert or update operations. defaults to
-                                  False if not provided and all validators will be used.
 
         :keyword bool nullable: determines that provided values could be None.
         :keyword bool is_list: specifies that the value must be a list of items.
