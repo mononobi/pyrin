@@ -151,6 +151,8 @@ class StringValidator(ValidatorBase):
                 self._minimum_length = self.default_minimum_length
             elif self.is_string_column and self.field.min_length is not None:
                 self._minimum_length = self.field.min_length
+            elif allow_blank is False:
+                self._minimum_length = 1
 
         self._maximum_length = options.get('maximum_length')
         if self._maximum_length is None:

@@ -121,7 +121,7 @@ class StringColumn(CoreColumn):
                                    defaults to True if not provided.
 
         :keyword int min_length: minimum length of value for this column.
-                                 defaults to `1` if not provided.
+                                 defaults to None if not provided.
 
         :keyword int max_length: maximum length of value for this column.
                                  if provided, and the type of this column is a
@@ -176,7 +176,7 @@ class StringColumn(CoreColumn):
         :raises StringColumnTypeIsInvalidError: string column type is invalid error.
         """
 
-        self.min_length = kwargs.pop('min_length', 1)
+        self.min_length = kwargs.pop('min_length', None)
         self.max_length = kwargs.pop('max_length', None)
         self.allow_blank = kwargs.pop('allow_blank', False)
         self.allow_whitespace = kwargs.pop('allow_whitespace', False)
