@@ -3,10 +3,11 @@
 orm sql schema columns module.
 """
 
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import BigInteger, Integer, Sequence, ForeignKey, String, Unicode
 
-import pyrin.utils.unique_id as uuid_utils
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.unique_id as uuid_utils
 
 from pyrin.database.orm.types.custom import GUID
 from pyrin.database.orm.sql.schema.base import CoreColumn
@@ -706,17 +707,18 @@ class FKColumn(CoreColumn):
         """
         gets custom schema items for this column.
 
-        it will generate required check fk constraint.
+        it will generate required fk constraint.
 
         :raises InvalidFKColumnReferenceTypeError: invalid fk column reference type error.
 
         :rtype: list
         """
 
-        if self._fk is not None and not isinstance(self._fk, (str, CoreColumn)):
-            raise InvalidFKColumnReferenceTypeError('Reference column must be a string '
-                                                    'or an instance of [{column}].'
-                                                    .format(column=CoreColumn))
+        if self._fk is not None and not isinstance(self._fk, (str,
+                                                              InstrumentedAttribute,
+                                                              CoreColumn)):
+            raise InvalidFKColumnReferenceTypeError('Foreign key reference column '
+                                                    'must be a string or a column.')
 
         # this is to prevent sqlalchemy errors.
         # because metadata uses uninitialized entities.
