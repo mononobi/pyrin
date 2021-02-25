@@ -4,7 +4,6 @@ validator handlers misc module.
 """
 
 from pyrin.core.globals import _, LIST_TYPES
-from pyrin.core.decorators import class_property
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
     ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
@@ -644,15 +643,15 @@ class InValidator(ValidatorBase):
                 param_name=self.localized_name,
                 values=self._get_list_representation(current_valid)))
 
-    @class_property
-    def valid_values(cls):
+    @property
+    def valid_values(self):
         """
         gets a list of valid values for this validator.
 
         :rtype: list[object]
         """
 
-        return cls._get_value(cls.default_valid_values)
+        return self._get_value(self.default_valid_values)
 
 
 class NotInValidator(ValidatorBase):
@@ -770,12 +769,12 @@ class NotInValidator(ValidatorBase):
                 param_name=self.localized_name,
                 values=self._get_list_representation(current_invalid)))
 
-    @class_property
-    def invalid_values(cls):
+    @property
+    def invalid_values(self):
         """
         gets a list of invalid values for this validator.
 
         :rtype: list[object]
         """
 
-        return cls._get_value(cls.default_invalid_values)
+        return self._get_value(self.default_invalid_values)
