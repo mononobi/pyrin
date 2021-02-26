@@ -718,7 +718,7 @@ class FKColumn(CoreColumn):
                                                               InstrumentedAttribute,
                                                               CoreColumn)):
             raise InvalidFKColumnReferenceTypeError('Foreign key reference column '
-                                                    'must be a string or a column.')
+                                                    'must be a string or a column instance.')
 
         # this is to prevent sqlalchemy errors.
         # because metadata uses uninitialized entities.
