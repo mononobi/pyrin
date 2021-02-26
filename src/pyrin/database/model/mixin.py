@@ -18,7 +18,7 @@ import inspect
 
 from abc import abstractmethod
 
-from sqlalchemy import inspect as sqla_inspect, TIMESTAMP
+from sqlalchemy import inspect as sqla_inspect, TIMESTAMP, UniqueConstraint
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -1694,10 +1694,45 @@ class MetadataMixin(CoreObject):
     _schema = None
     _extend_existing = None
 
+    # it could be column names or instances.
+    # for example:
+    # _unique_on = name -> single column.
+    # _unique_on = name, age -> multiple columns in one constraint.
+    # _unique_on = identity, (name, age), username -> multiple columns in multiple constraints.
+    _unique_on = None
+
     # mapper args
     _polymorphic_on = None
     _polymorphic_identity = None
     _concrete = None
+
+    @classmethod
+    def _get_unique_constraints(cls):
+        """
+        gets required unique constraints for this entity.
+
+        :rtype: tuple[UniqueConstraint]
+        """
+
+        if cls._unique_on is None:
+            return tuple()
+
+        uniques = misc_utils.make_iterable(cls._unique_on, tuple)
+        is_multiple = False
+        for item in uniques:
+            if isinstance(item, LIST_TYPES):
+                is_multiple = True
+                break
+
+        constraints = []
+        if is_multiple is False:
+            constraints.append(UniqueConstraint(*uniques))
+        else:
+            for item in uniques:
+                iterable_item = misc_utils.make_iterable(item, tuple)
+                constraints.append(UniqueConstraint(*iterable_item))
+
+        return tuple(constraints)
 
     @declared_attr
     def __tablename__(cls):
@@ -1732,15 +1767,18 @@ class MetadataMixin(CoreObject):
         if cls._extend_existing is not None:
             table_args.update(extend_existing=cls._extend_existing)
 
+        unique_constraints = cls._get_unique_constraints()
         extra_args = cls._customize_table_args(table_args)
-        if extra_args is None:
+        if extra_args is not None:
+            extra_args = misc_utils.make_iterable(extra_args, tuple)
+        else:
+            extra_args = tuple()
+
+        all_args = unique_constraints + extra_args
+        if len(all_args) <= 0:
             return table_args
 
-        extra_args = misc_utils.make_iterable(extra_args, tuple)
-        if len(extra_args) <= 0:
-            return table_args
-
-        return extra_args + (table_args,)
+        return all_args + (table_args,)
 
     @declared_attr
     @fast_cache
