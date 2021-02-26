@@ -590,7 +590,11 @@ def get_class_by_table(base, table, **options):
             for item in found_classes:
                 hierarchies.append(set(item.__mro__))
 
-            result = set.symmetric_difference(*hierarchies)
+            hierarchies = sorted(hierarchies, key=len, reverse=True)
+            last = hierarchies[0]
+            others = hierarchies[1:]
+            union = set().union(*others)
+            result = union.symmetric_difference(last)
             if len(result) == 1:
                 return result.pop()
 
