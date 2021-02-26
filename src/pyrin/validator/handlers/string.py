@@ -44,7 +44,7 @@ class StringValidator(ValidatorBase):
     default_allow_whitespace = None
     default_minimum_length = None
     default_maximum_length = None
-    default_fixer = string_utils.get_string
+    default_fixer = string_utils.coerce_to_string
 
     def __init__(self, domain, field, **options):
         """

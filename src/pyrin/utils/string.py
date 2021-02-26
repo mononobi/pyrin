@@ -3,6 +3,8 @@
 utils string module.
 """
 
+from decimal import Decimal
+
 
 def upper(value):
     """
@@ -166,18 +168,18 @@ def is_match(item, values, **options):
     return len(result) > 0
 
 
-def get_string(value, *accepted_types):
+def coerce_to_string(value, *accepted_types):
     """
     gets the string representation of given value.
 
     it only converts value to string if it is of provided types.
-    if no type is given, it only converts integers and floats.
+    if no type is given, it only converts integers, floats and decimals.
     otherwise returns the same value.
 
     :param object value: value to be converted.
 
     :param type accepted_types: accepted types for conversion to string.
-                                if not provided, defaults to (int, float) types.
+                                if not provided, defaults to (int, float, Decimal) types.
 
     :returns: string or the same value.
     """
@@ -186,7 +188,7 @@ def get_string(value, *accepted_types):
         return value
 
     if accepted_types is None or len(accepted_types) <= 0:
-        accepted_types = (int, float)
+        accepted_types = (int, float, Decimal)
 
     if isinstance(value, accepted_types):
         return str(value)
