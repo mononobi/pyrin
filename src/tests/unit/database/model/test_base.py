@@ -227,8 +227,8 @@ def test_table_name():
 
     entity = SampleWithHiddenFieldEntity()
 
-    assert entity.table_name() == 'sample_with_hidden_field_table'
-    assert entity.table_name() == SampleWithHiddenFieldEntity.table_name()
+    assert entity.table_name == 'sample_with_hidden_field_table'
+    assert entity.table_name == SampleWithHiddenFieldEntity.table_name
 
 
 def test_entity_equal():
@@ -396,9 +396,9 @@ def test_entity_with_schema_table_fullname():
 
     entity = SampleWithSchemaEntity(id=10, sub_id='sub_10', populate_all=SECURE_TRUE)
 
-    assert entity.table_fullname() == 'my_schema.sample_with_schema_table'
-    assert entity.table_name() == 'sample_with_schema_table'
-    assert entity.table_schema() == 'my_schema'
+    assert entity.table_fullname == 'my_schema.sample_with_schema_table'
+    assert entity.table_name == 'sample_with_schema_table'
+    assert entity.table_schema == 'my_schema'
 
 
 def test_entity_without_schema_table_fullname():
@@ -408,5 +408,5 @@ def test_entity_without_schema_table_fullname():
 
     entity = BaseEntity(id=10)
 
-    assert entity.table_fullname() == entity.table_name()
-    assert entity.table_schema() is None
+    assert entity.table_fullname == entity.table_name
+    assert entity.table_schema is None
