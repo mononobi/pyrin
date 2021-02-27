@@ -443,7 +443,7 @@ class SequencePKColumn(PKColumn):
     multiple sequence columns which is impossible for auto increment columns.
     """
 
-    DEFAULT_CACHE = 200
+    DEFAULT_CACHE = 100
     DEFAULT_TYPE = BigInteger
 
     def __init__(self, *args, **kwargs):
@@ -508,6 +508,11 @@ class SequencePKColumn(PKColumn):
         :keyword int cache: cache size for sequence.
                             defaults to `DEFAULT_CACHE`, if not provided.
                             to disable cache, you can pass it as None or `0`.
+                            note that cache is per session, so if you stop the
+                            connection to database and start it again, the new
+                            session will get its own cache. but it's good for
+                            performance to have cache on sequences, gaps are not
+                            bad at all.
 
         :raises SequencePKColumnTypeIsInvalidError: sequence pk column type is invalid error.
         """

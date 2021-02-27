@@ -55,6 +55,10 @@ class AutoValidator(AbstractValidatorBase):
 
         :param object | list[object] value: value to be validated.
 
+        :keyword bool for_update: specifies that this field is being
+                                  validated for update operation.
+                                  defaults to False if not provided.
+
         :raises ValidationError: validation error.
 
         :returns: object | list[object]

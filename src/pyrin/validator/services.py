@@ -103,6 +103,10 @@ def validate_field(domain, name, value, **options):
                          with specified domain and name, it should
                          raise an error. defaults to False if not provided.
 
+    :keyword bool for_update: specifies that this field is being
+                              validated for update operation.
+                              defaults to False if not provided.
+
     :keyword bool nullable: determines that provided value could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
 
@@ -296,6 +300,10 @@ def is_valid_field(domain, name, value, **options):
     :keyword bool force: specifies that if there is no validator
                          with specified domain and name, it should
                          raise an error. defaults to False if not provided.
+
+    :keyword bool for_update: specifies that this field is being
+                              validated for update operation.
+                              defaults to False if not provided.
 
     :keyword bool nullable: determines that provided value could be None.
     :keyword bool is_list: specifies that the value must be a list of items.

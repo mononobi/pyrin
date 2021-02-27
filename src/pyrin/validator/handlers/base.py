@@ -243,6 +243,10 @@ class ValidatorBase(AbstractValidatorBase):
 
         :param object | list[object] value: value to be validated.
 
+        :keyword bool for_update: specifies that this field is being
+                                  validated for update operation.
+                                  defaults to False if not provided.
+
         :keyword bool nullable: determines that provided value could be None.
                                 this value has precedence over `nullable`
                                 instance attribute if provided.
@@ -295,7 +299,7 @@ class ValidatorBase(AbstractValidatorBase):
             allow_empty_list = self.allow_empty_list
 
         if value is None:
-            self._validate_nullable(value, nullable)
+            self._validate_nullable(value, nullable, **options)
             return value
 
         is_really_list = isinstance(value, list)
@@ -327,6 +331,10 @@ class ValidatorBase(AbstractValidatorBase):
         :param object value: value to be validated.
         :param bool nullable: determines that provided value could be None.
 
+        :keyword bool for_update: specifies that this field is being
+                                  validated for update operation.
+                                  defaults to False if not provided.
+
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
@@ -335,14 +343,14 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         if value is None:
-            self._validate_nullable(value, nullable)
+            self._validate_nullable(value, nullable, **options)
             return value
 
         value = self._validate_type(value)
         self._validate(value, **options)
         return value
 
-    def _validate_nullable(self, value, nullable):
+    def _validate_nullable(self, value, nullable, **options):
         """
         validates value for nullability.
 
@@ -351,10 +359,24 @@ class ValidatorBase(AbstractValidatorBase):
         :param object value: value to be validated.
         :param bool nullable: determines that provided value could be None.
 
+        :keyword bool for_update: specifies that this field is being
+                                  validated for update operation.
+                                  defaults to False if not provided.
+
         :raises ValueCouldNotBeNoneError: value could not be none error.
         """
 
-        if nullable is False and value is None:
+        for_update = options.get('for_update', False)
+        has_default = False
+        if self.field is not None:
+            if for_update is True:
+                has_default = self.field.onupdate is not None or \
+                              self.field.server_onupdate is not None
+            else:
+                has_default = self.field.default is not None or \
+                              self.field.server_default is not None
+
+        if nullable is False and value is None and has_default is False:
             raise self.none_value_error(self.none_value_message.format(
                 param_name=self.localized_name))
 

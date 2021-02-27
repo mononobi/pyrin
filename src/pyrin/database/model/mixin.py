@@ -1979,7 +1979,7 @@ class DefaultPrefetchMixin(CoreObject):
         # 'Sequence' object does not have the other attributes.
         if default.is_sequence:
             store = get_current_store()
-            return store.execute(default.next_value())
+            return store.execute(default.next_value()).scalar()
         elif default.is_scalar:
             return default.arg
         elif default.is_callable:
@@ -2085,7 +2085,7 @@ class DefaultPrefetchMixin(CoreObject):
         """
         prefetches all columns that have default values for insert.
 
-        and their name is not in provided inputs.
+        and their name is not in provided inputs or their value is None.
 
         :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
                                                                        that have default values
@@ -2120,20 +2120,21 @@ class DefaultPrefetchMixin(CoreObject):
         """
         prefetches all columns that have default values for insert.
 
-        and their name is not in provided inputs.
+        and their name is not in provided inputs or their value is None.
 
         :param tuple[str] columns: column names that have insert default values.
         """
 
-        required = set(columns).difference(set(kwargs.keys()))
-        for column in required:
-            self._set_insert_default(column)
+        for item in columns:
+            provided = kwargs.get(item)
+            if provided is None:
+                self._set_insert_default(item)
 
     def prefetch_update_defaults(self, **kwargs):
         """
         prefetches all columns that have default values for update.
 
-        and their name is not in provided inputs.
+        and their name is not in provided inputs or their value is None.
 
         :keyword SECURE_TRUE | SECURE_FALSE prefetch_complex_defaults: specifies that all columns
                                                                        that have default values
@@ -2168,14 +2169,15 @@ class DefaultPrefetchMixin(CoreObject):
         """
         prefetches all columns that have default values for update.
 
-        and their name is not in provided inputs.
+        and their name is not in provided inputs or their value is None.
 
         :param tuple[str] columns: column names that have update default values.
         """
 
-        required = set(columns).difference(set(kwargs.keys()))
-        for column in required:
-            self._set_update_default(column)
+        for item in columns:
+            provided = kwargs.get(item)
+            if provided is None:
+                self._set_update_default(item)
 
 
 class CreateHistoryMixin(CoreObject):

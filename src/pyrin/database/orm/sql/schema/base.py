@@ -339,9 +339,8 @@ class CoreColumn(Column, CoreColumnOperators):
         if python_type is list:
             collection_type = python_type
             python_type = None
-
-        if isinstance(type_, ARRAY) and type_.dimensions == 1:
-            __, python_type = self.get_python_type(type_.item_type)
+            if isinstance(type_, ARRAY) and type_.dimensions == 1:
+                __, python_type = self.get_python_type(type_.item_type)
 
         return collection_type, python_type
 
