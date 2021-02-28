@@ -354,7 +354,6 @@ def test_get_all_components():
                   'configuration.component',
                   'database.component',
                   'database.migration.component',
-                  'database.sequence.component',
                   'globalization.locale.component',
                   'globalization.datetime.component',
                   'logging.component',
