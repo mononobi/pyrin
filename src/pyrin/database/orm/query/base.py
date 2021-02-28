@@ -217,22 +217,22 @@ class CoreQuery(Query):
         store = get_current_store()
         return store.execute(statement).scalar()
 
-    def paginate(self, inject_total=SECURE_FALSE, **options):
+    def paginate(self, **options):
         """
         sets offset and limit for current query.
 
         the offset and limit values will be extracted from given inputs.
         note that if `inject_total=SECURE_TRUE` is given, `.paginate` must
-        be called after all other query attributes has been called. otherwise
+        be called after all other query attributes have been called. otherwise
         unexpected behaviour may occur.
 
-        :param SECURE_TRUE | SECURE_FALSE inject_total: inject total count into
-                                                        current request.
-                                                        if no request is available
-                                                        and `inject_total` is set to
-                                                        `SECURE_TRUE` it raises an error.
-                                                        defaults to `SECURE_FALSE` if not
-                                                        provided.
+        :keyword SECURE_TRUE | SECURE_FALSE inject_total: inject total count into
+                                                          current request.
+                                                          if no request is available
+                                                          and `inject_total` is set to
+                                                          `SECURE_TRUE` it raises an error.
+                                                          defaults to `SECURE_FALSE` if not
+                                                          provided.
 
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
@@ -240,6 +240,7 @@ class CoreQuery(Query):
         :raises InjectTotalCountError: inject total count error.
         """
 
+        inject_total = options.get('inject_total', SECURE_FALSE)
         if inject_total is SECURE_TRUE:
             if session_services.is_request_context_available() is False:
                 raise InjectTotalCountError('"inject_total=SECURE_TRUE" is only allowed '
