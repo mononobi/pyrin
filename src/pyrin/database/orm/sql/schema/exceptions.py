@@ -13,9 +13,9 @@ class ORMSQLSchemaException(CoreException):
     pass
 
 
-class SequencePKColumnTypeIsInvalidError(ORMSQLSchemaException):
+class SequenceColumnTypeIsInvalidError(ORMSQLSchemaException):
     """
-    sequence pk column type is invalid error.
+    sequence column type is invalid error.
     """
     pass
 
