@@ -93,11 +93,11 @@ class DemoApplication(Application):
 **`models.py:`**
 
 ```python
-from sqlalchemy import Unicode, SmallInteger
+from sqlalchemy import SmallInteger
 
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
-from pyrin.database.orm.sql.schema.columns import GUIDPKColumn
+from pyrin.database.orm.sql.schema.columns import GUIDPKColumn, StringColumn
 
 
 class GuestEntity(CoreEntity):
@@ -105,8 +105,8 @@ class GuestEntity(CoreEntity):
     _table = 'guest'
 
     id = GUIDPKColumn(name='id')
-    name = CoreColumn(name='name', type_=Unicode(100))
-    age = CoreColumn(name='age', type_=SmallInteger)
+    name = StringColumn(name='name', max_length=100, validated=True)
+    age = CoreColumn(name='age', type_=SmallInteger, min_value=1, validated=True)
 ```
 
 **`api.py:`**
