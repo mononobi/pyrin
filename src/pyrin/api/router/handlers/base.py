@@ -128,7 +128,10 @@ class RouteBase(Rule):
                                      `REDIRECTION_CODE_MAX` will be considered
                                      as processed. defaults to True if not provided.
 
-        :keyword ResultSchema result_schema: result schema to be used to filter results.
+        :keyword ResultSchema | type[ResultSchema] result_schema: result schema to be used
+                                                                  to filter results. it could
+                                                                  be an instance or a type
+                                                                  of `ResultSchema` class.
 
         :keyword bool indexed: specifies that list results must
                                include an extra field as row index.
@@ -496,7 +499,10 @@ class RouteBase(Rule):
 
         if no schema related item is provided, it returns None.
 
-        :keyword ResultSchema result_schema: result schema to be used to filter results.
+        :keyword ResultSchema | type[ResultSchema] result_schema: result schema to be used
+                                                                  to filter results. it could
+                                                                  be an instance or a type
+                                                                  of `ResultSchema` class.
 
         :keyword bool indexed: specifies that list results must
                                include an extra field as row index.
@@ -542,13 +548,17 @@ class RouteBase(Rule):
                             this value will override the corresponding value of
                             `result_schema` if provided.
 
+        :raises InvalidResultSchemaTypeError: invalid result schema type error.
+
         :rtype: ResultSchema
         """
 
         result_schema = options.get('result_schema')
-        if result_schema is not None and not isinstance(result_schema, ResultSchema):
-            raise InvalidResultSchemaTypeError('Input parameter [{instance}] '
-                                               'is not an instance of [{base}].'
+        is_subclass = isinstance(result_schema, type) and issubclass(result_schema, ResultSchema)
+        is_instance = isinstance(result_schema, ResultSchema)
+        if result_schema is not None and not is_instance and not is_subclass:
+            raise InvalidResultSchemaTypeError('Input parameter [{instance}] is not '
+                                               'an instance or subclass of [{base}].'
                                                .format(instance=result_schema,
                                                        base=ResultSchema))
 
@@ -557,6 +567,9 @@ class RouteBase(Rule):
         indexed = options.get('indexed')
         index_name = options.get('index_name')
         start_index = options.get('start_index')
+
+        if result_schema is not None and is_subclass:
+            result_schema = result_schema()
 
         if result_schema is None and (readable is not None or
                                       depth is not None or indexed is True):
@@ -870,7 +883,10 @@ class TemporaryRouteBase(RouteBase):
                                      `REDIRECTION_CODE_MAX` will be considered
                                      as processed. defaults to True if not provided.
 
-        :keyword ResultSchema result_schema: result schema to be used to filter results.
+        :keyword ResultSchema | type[ResultSchema] result_schema: result schema to be used
+                                                                  to filter results. it could
+                                                                  be an instance or a type
+                                                                  of `ResultSchema` class.
 
         :keyword bool indexed: specifies that list results must
                                include an extra field as row index.

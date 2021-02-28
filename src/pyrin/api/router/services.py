@@ -107,7 +107,10 @@ def create_route(rule, **options):
                                  `REDIRECTION_CODE_MAX` will be considered
                                  as processed. defaults to True if not provided.
 
-    :keyword ResultSchema result_schema: result schema to be used to filter results.
+    :keyword ResultSchema | type[ResultSchema] result_schema: result schema to be used
+                                                              to filter results. it could
+                                                              be an instance or a type
+                                                              of `ResultSchema` class.
 
     :keyword bool indexed: specifies that list results must
                            include an extra field as row index.
@@ -359,7 +362,10 @@ def add_route(url, view_func=None,
                                            if not provided, the route will be exposed
                                            on all environments.
 
-    :keyword ResultSchema result_schema: result schema to be used to filter results.
+    :keyword ResultSchema | type[ResultSchema] result_schema: result schema to be used
+                                                              to filter results. it could
+                                                              be an instance or a type
+                                                              of `ResultSchema` class.
 
     :keyword bool indexed: specifies that list results must
                            include an extra field as row index.
