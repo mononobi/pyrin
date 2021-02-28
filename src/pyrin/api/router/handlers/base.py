@@ -27,7 +27,7 @@ from pyrin.processor.response.enumerations import ResponseHeaderEnum
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
-    ViewFunctionParamsError, RequestLimitOrLifetimeRequiredError, InvalidRequestLimitError, \
+    RequestLimitOrLifetimeRequiredError, InvalidRequestLimitError, \
     InvalidLifetimeError, URLNotFoundError, ViewFunctionRequiredParamsError
 
 
@@ -393,7 +393,6 @@ class RouteBase(Rule):
 
         :param dict inputs: view function inputs.
 
-        :raises ViewFunctionParamsError: view function params error.
         :raises ViewFunctionRequiredParamsError: view function required params error.
 
         :returns: view function's result.
@@ -667,7 +666,6 @@ class RouteBase(Rule):
 
         :param dict inputs: view function inputs.
 
-        :raises ViewFunctionParamsError: view function params error.
         :raises ViewFunctionRequiredParamsError: view function required params error.
 
         :returns: view function's result.
@@ -675,14 +673,7 @@ class RouteBase(Rule):
         """
 
         self._check_required_arguments(inputs)
-        try:
-            return self.view_function(**inputs)
-        except TypeError as error:
-            if config_services.get_active('environment', 'debug', default=False) is True:
-                raise ViewFunctionParamsError(error) from error
-
-            raise ViewFunctionParamsError(_('The browser (or proxy) sent a request '
-                                            'that this server could not understand.'))
+        return self.view_function(**inputs)
 
     def _check_required_arguments(self, inputs):
         """

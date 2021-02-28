@@ -745,7 +745,6 @@ class Application(Flask, HookMixin, SignalMixin,
         call `make_response` function.
 
         :raises AuthenticationFailedError: authentication failed error.
-        :raises ViewFunctionParamsError: view function params error.
         :raises ViewFunctionRequiredParamsError: view function required params error.
         """
 

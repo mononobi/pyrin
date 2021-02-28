@@ -81,15 +81,8 @@ class InvalidResponseStatusCodeError(RouterHandlerException):
     pass
 
 
-class ViewFunctionParamsError(BadRequestError,
-                              RouterHandlerBusinessException):
-    """
-    view function params error.
-    """
-    pass
-
-
-class ViewFunctionRequiredParamsError(ViewFunctionParamsError):
+class ViewFunctionRequiredParamsError(BadRequestError,
+                                      RouterHandlerBusinessException):
     """
     view function required params error.
     """
