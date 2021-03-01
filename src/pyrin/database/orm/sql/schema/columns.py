@@ -7,11 +7,9 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import BigInteger, Integer, ForeignKey, String, Unicode
 
 import pyrin.utils.misc as misc_utils
-import pyrin.utils.unique_id as uuid_utils
 
-from pyrin.database.orm.types.custom import GUID
 from pyrin.database.orm.sql.schema.base import CoreColumn
-from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin
+from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin, GUIDColumnMixin
 from pyrin.database.orm.sql.schema.exceptions import AutoPKColumnTypeIsInvalidError, \
     InvalidFKColumnReferenceTypeError, StringColumnTypeIsInvalidError
 
@@ -368,69 +366,14 @@ class AutoPKColumn(PKColumn):
         super().__init__(*args, **kwargs)
 
 
-class GUIDPKColumn(PKColumn):
+class GUIDPKColumn(GUIDColumnMixin, PKColumn):
     """
     guid pk column class.
 
     this is a helper class for defining pk columns that their value is a guid.
     this type of pk column's value is available to python side without commit or flush.
     """
-
-    def __init__(self, *args, **kwargs):
-        """
-        initializes an instance of GUIDPKColumn.
-
-        :param str name: the name of this column as represented in the database.
-                         this argument may be the first positional argument, or
-                         specified via keyword.
-
-        :param object *args: additional positional arguments include various
-                             `SchemaItem` derived constructs which will be applied
-                             as options to the column.
-
-        :keyword str doc: optional string that can be used by the ORM or similar
-                          to document attributes on the python side.
-
-        :keyword str key: an optional string identifier which will identify this
-                          `Column` object on the `Table`.
-
-        :keyword bool index: when `True`, indicates that the column is indexed.
-                             defaults to True if not provided.
-
-        :keyword dict info: optional data dictionary which will be populated into the
-                            `SchemaItem.info` attribute of this object.
-
-        :keyword bool quote: force quoting of this column's name on or off,
-                             corresponding to `True` or `False`. when left at its default
-                             of `None`, the column identifier will be quoted according to
-                             whether the name is case sensitive (identifiers with at least one
-                             upper case character are treated as case sensitive), or if it's a
-                             reserved word.
-
-        :keyword bool system: when `True`, indicates this is a system column,
-                              that is a column which is automatically made available by the
-                              database, and should not be included in the columns list for a
-                              `create table` statement.
-
-        :keyword str comment: optional string that will render an sql comment
-                              on table creation.
-
-        :keyword bool allow_read: specifies that the column should be
-                                  included in entity to dict conversion.
-                                  defaults to True if not provided.
-
-        :keyword bool allow_write: specifies that the column should be
-                                   populated on conversion from dict.
-                                   defaults to False if not provided.
-        """
-
-        args = list(args)
-        name, type_ = self._extract_name_and_type(args, kwargs)
-        kwargs.update(name=name, type_=GUID, autoincrement=False,
-                      default=uuid_utils.generate_uuid4)
-        kwargs.pop('server_default', None)
-
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class SequencePKColumn(SequenceColumnMixin, PKColumn):
@@ -864,6 +807,82 @@ class SequenceColumn(SequenceColumnMixin, CoreColumn):
                             bad at all.
 
         :raises SequenceColumnTypeIsInvalidError: sequence column type is invalid error.
+        """
+
+        kwargs.setdefault('unique', True)
+
+        super().__init__(*args, **kwargs)
+
+
+class GUIDColumn(GUIDColumnMixin, CoreColumn):
+    """
+    guid column class.
+
+    this is a helper class for defining columns which their value is a guid.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of GUIDColumn.
+
+        :param str name: the name of this column as represented in the database.
+                         this argument may be the first positional argument, or
+                         specified via keyword.
+
+        :param object *args: additional positional arguments include various
+                             `SchemaItem` derived constructs which will be applied
+                             as options to the column.
+
+        :keyword str doc: optional string that can be used by the ORM or similar
+                          to document attributes on the python side.
+
+        :keyword str key: an optional string identifier which will identify this
+                          `Column` object on the `Table`.
+
+        :keyword bool index: when `True`, indicates that the column is indexed.
+
+        :keyword dict info: optional data dictionary which will be populated into the
+                            `SchemaItem.info` attribute of this object.
+
+        :keyword bool nullable: when set to `False`, will cause the `Not NULL`
+                                phrase to be added when generating ddl for the column.
+                                defaults to False if not provided.
+
+        :keyword bool primary_key: if `True`, marks this column as a primary key
+                                   column. multiple columns can have this flag set to
+                                   specify composite primary keys.
+
+        :keyword bool quote: force quoting of this column's name on or off,
+                             corresponding to `True` or `False`. when left at its default
+                             of `None`, the column identifier will be quoted according to
+                             whether the name is case sensitive (identifiers with at least one
+                             upper case character are treated as case sensitive), or if it's a
+                             reserved word.
+
+        :keyword bool unique: when `True`, indicates that this column contains a
+                              unique constraint, or if `index` is `True` as well, indicates
+                              that the `index` should be created with the unique flag.
+                              defaults to True if not provided.
+
+        :keyword bool system: when `True`, indicates this is a system column,
+                              that is a column which is automatically made available by the
+                              database, and should not be included in the columns list for a
+                              `create table` statement.
+
+        :keyword str comment: optional string that will render an sql comment
+                              on table creation.
+
+        :keyword bool allow_read: specifies that the column should be
+                                  included in entity to dict conversion.
+                                  defaults to True if not provided.
+
+        :keyword bool allow_write: specifies that the column should be
+                                   populated on conversion from dict.
+                                   defaults to False if not provided.
+
+        :keyword bool validated: specifies that an automatic validator for this column
+                                 must be registered, that is usable through validator
+                                 services. defaults to False if not provided.
         """
 
         kwargs.setdefault('unique', True)
