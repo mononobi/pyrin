@@ -53,3 +53,10 @@ class StringColumnTypeIsInvalidError(ORMSQLSchemaException):
     string column type is invalid error.
     """
     pass
+
+
+class TextColumnTypeIsInvalidError(ORMSQLSchemaException):
+    """
+    text column type is invalid error.
+    """
+    pass
