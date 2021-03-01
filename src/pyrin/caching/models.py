@@ -3,12 +3,12 @@
 caching models module.
 """
 
-from sqlalchemy import BigInteger, Unicode, LargeBinary
+from sqlalchemy import LargeBinary
 
 from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.mixin import CreateHistoryMixin
 from pyrin.database.orm.sql.schema.base import CoreColumn
-from pyrin.database.orm.sql.schema.columns import AutoPKColumn
+from pyrin.database.orm.sql.schema.columns import AutoPKColumn, StringColumn, BigIntegerColumn
 
 
 class CacheItemBaseEntity(CoreEntity):
@@ -28,8 +28,8 @@ class CacheItemEntity(CacheItemBaseEntity, CreateHistoryMixin):
 
     _extend_existing = True
 
-    cache_name = CoreColumn(name='cache_name', type_=Unicode(length=25), nullable=False)
-    shard_name = CoreColumn(name='shard_name', type_=Unicode(25), nullable=True)
-    version = CoreColumn(name='version', type_=Unicode(length=20), nullable=False)
-    key = CoreColumn(name='key', type_=BigInteger, nullable=False)
+    cache_name = StringColumn(name='cache_name', max_length=30, nullable=False)
+    shard_name = StringColumn(name='shard_name', max_length=30, nullable=True)
+    version = StringColumn(name='version', max_length=20, nullable=False)
+    key = BigIntegerColumn(name='key', nullable=False)
     item = CoreColumn(name='item', type_=LargeBinary, nullable=False)

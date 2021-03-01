@@ -18,7 +18,7 @@ import inspect
 
 from abc import abstractmethod
 
-from sqlalchemy import inspect as sqla_inspect, TIMESTAMP, UniqueConstraint
+from sqlalchemy import inspect as sqla_inspect, UniqueConstraint
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -32,7 +32,7 @@ from pyrin.core.decorators import class_property
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
-from pyrin.database.orm.sql.schema.base import CoreColumn
+from pyrin.database.orm.sql.schema.columns import TimeStampColumn
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
@@ -2187,9 +2187,8 @@ class CreateHistoryMixin(CoreObject):
     this class adds `created_on` column into its subclasses.
     """
 
-    created_on = CoreColumn(name='created_on', type_=TIMESTAMP(timezone=True),
-                            nullable=False, default=datetime_services.now,
-                            allow_write=False)
+    created_on = TimeStampColumn(name='created_on', nullable=False,
+                                 default=datetime_services.now, allow_write=False)
 
 
 class UpdateHistoryMixin(CoreObject):
@@ -2199,9 +2198,8 @@ class UpdateHistoryMixin(CoreObject):
     this class adds `modified_on` column into its subclasses.
     """
 
-    modified_on = CoreColumn(name='modified_on', type_=TIMESTAMP(timezone=True),
-                             nullable=True, onupdate=datetime_services.now,
-                             allow_write=False)
+    modified_on = TimeStampColumn(name='modified_on', nullable=True,
+                                  onupdate=datetime_services.now, allow_write=False)
 
 
 class HistoryMixin(CreateHistoryMixin, UpdateHistoryMixin):
