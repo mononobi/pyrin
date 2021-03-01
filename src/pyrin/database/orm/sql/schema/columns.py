@@ -909,9 +909,6 @@ class BooleanColumn(CoreColumn):
                              `SchemaItem` derived constructs which will be applied
                              as options to the column.
 
-        :keyword bool autoincrement: set up `auto increment` semantics for an
-                                     integer primary key column.
-
         :keyword callable | object default: a scalar, python callable or `ColumnElement`
                                             expression representing the default value
                                             for this column, which will be invoked upon
