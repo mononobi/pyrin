@@ -3,12 +3,19 @@
 utils exceptions module.
 """
 
-from pyrin.core.exceptions import CoreException
+from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
 class UtilsException(CoreException):
     """
     utils exception.
+    """
+    pass
+
+
+class UtilsBusinessException(CoreBusinessException, UtilsException):
+    """
+    utils business exception.
     """
     pass
 
@@ -128,5 +135,12 @@ class MapperNotFoundError(UtilsException):
 class MultipleDeclarativeClassesFoundError(UtilsException):
     """
     multiple declarative classes found error.
+    """
+    pass
+
+
+class InvalidOrderingColumnError(UtilsBusinessException):
+    """
+    invalid ordering column error.
     """
     pass

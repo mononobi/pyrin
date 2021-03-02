@@ -26,8 +26,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
+import pyrin.utils.sqlalchemy as sqlalchemy_utils
 import pyrin.utils.misc as misc_utils
 
+from pyrin.core.globals import _
 from pyrin.core.decorators import class_property
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
@@ -37,6 +39,7 @@ from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
 from pyrin.core.structs import CoreObject, DTO, CoreImmutableDict
+from pyrin.utils.exceptions import InvalidOrderingColumnError
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 
@@ -2178,6 +2181,51 @@ class DefaultPrefetchMixin(CoreObject):
             provided = kwargs.get(item)
             if provided is None:
                 self._set_update_default(item)
+
+
+class OrderingMixin(CoreObject):
+    """
+    ordering mixin class.
+
+    this class adds functionalities about ordering to its subclasses.
+    """
+
+    @classmethod
+    def get_ordering_criterion(cls, *columns, ignore_invalid=True):
+        """
+        gets required ordering criterion for given column names.
+
+        default ordering is ascending, but it could be changed to descending
+        by prefixing `-` to column names.
+
+        for example:
+
+        name, +age -> ordering for name and age columns both ascending.
+        name, -age -> ordering for name ascending and age descending.
+
+        :param str columns: column names to get their ordering criterion.
+
+        :param bool ignore_invalid: specifies that if provided columns are
+                                    not valid, ignore them instead of raising
+                                    an error. defaults to True.
+
+        :raises InvalidOrderingColumnError: invalid ordering column error.
+
+        :rtype: tuple[UnaryExpression]
+        """
+
+        result = []
+        for item in columns:
+            if sqlalchemy_utils.is_valid_column_name(item):
+                name, order_type = sqlalchemy_utils.get_ordering_info(item)
+                attribute = cls._get_column_attribute(name)
+                if attribute is None and ignore_invalid is False:
+                    raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
+                                                       'for ordering.').format(name=name))
+                elif attribute is not None:
+                    result.append(order_type(attribute))
+
+        return tuple(result)
 
 
 class CreateHistoryMixin(CoreObject):

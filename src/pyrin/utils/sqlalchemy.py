@@ -5,7 +5,7 @@ utils sqlalchemy module.
 
 from inspect import isclass
 
-from sqlalchemy import inspect as sqla_inspect, Table
+from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc
 from sqlalchemy import CheckConstraint, Column
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.query import _MapperEntity, _ColumnEntity
@@ -17,10 +17,12 @@ from sqlalchemy.util import lightweight_named_tuple
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
 
+from pyrin.core.globals import _
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError, \
-    MultipleMappersFoundError, MapperNotFoundError, MultipleDeclarativeClassesFoundError
+    MultipleMappersFoundError, MapperNotFoundError, MultipleDeclarativeClassesFoundError, \
+    InvalidOrderingColumnError
 
 
 LIKE_CHAR_COUNT_LIMIT = 20
@@ -628,3 +630,92 @@ def get_class_by_table(base, table, **options):
         return found_classes.pop()
 
     return None
+
+
+def is_valid_column_name(column):
+    """
+    gets a value indicating that given column name is valid.
+
+    :param str column: column name.
+
+    :rtype: bool
+    """
+
+    if not isinstance(column, str) or len(column) <= 0:
+        return False
+
+    column = column.replace('+', '').replace('-', '').strip()
+    return len(column) > 0 and ' ' not in column
+
+
+def get_ordering_info(column):
+    """
+    gets a tuple containing ordering info for given column name.
+
+    it returns a tuple of two item, first item is column name and
+    second item is ordering type which is an `UnaryExpression` from `asc` or `desc`.
+
+    default ordering is ascending, but it could be changed to descending
+    by prefixing `-` to column name.
+
+    for example:
+
+    age -> ordering for age column ascending.
+    -age -> ordering for age column descending.
+
+    :param str column: column name to get its ordering info.
+
+    :rtype: tuple[str, UnaryExpression]
+    """
+
+    order_type = asc
+    if column.startswith(('-', '+')):
+        if column[0] == '-':
+            order_type = desc
+        column = column[1:]
+
+    return column, order_type
+
+
+def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
+    """
+    gets required criterion for given columns ordering.
+
+    default ordering is ascending, but it could be changed to descending
+    by prefixing `-` to column names.
+
+    this method always ignores empty strings and None values.
+
+    for example:
+
+    name, +age -> ordering for name and age columns both ascending.
+    name, -age -> ordering for name ascending and age descending.
+
+    :param str columns: column names to get their ordering criterion.
+
+    :param list[str] valid_columns: valid column names for ordering.
+                                    defaults to None if not provided.
+
+    :param bool ignore_invalid: specifies that if provided columns are
+                                not in valid column names, ignore them
+                                instead of raising an error. note that
+                                this only has effect if `valid_columns`
+                                is provided. defaults to True.
+
+    :raises InvalidOrderingColumnError: invalid ordering column error.
+
+    :rtype: tuple[UnaryExpression]
+    """
+
+    result = []
+    for item in columns:
+        if is_valid_column_name(item):
+            name, order_type = get_ordering_info(item)
+            if valid_columns is None or name in valid_columns:
+                result.append(order_type(text(name)))
+            elif valid_columns is not None and name not in valid_columns:
+                if ignore_invalid is False:
+                    raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
+                                                       'for ordering.').format(name=name))
+
+    return tuple(result)

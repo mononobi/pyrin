@@ -9,7 +9,7 @@ from pyrin.core.decorators import class_property
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
     ForeignKeyMixin, ColumnMixin, PrimaryKeyMixin, RelationshipMixin, \
     HybridPropertyMixin, ConverterMixin, AttributeMixin, MetadataMixin, \
-    ModelCacheMixin, DefaultPrefetchMixin
+    ModelCacheMixin, DefaultPrefetchMixin, OrderingMixin
 
 
 class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
@@ -18,7 +18,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
                  AttributeMixin, CRUDMixin,
                  QueryMixin, ConverterMixin,
                  MetadataMixin, ModelCacheMixin,
-                 DefaultPrefetchMixin):
+                 DefaultPrefetchMixin, OrderingMixin):
     """
     base entity class.
 

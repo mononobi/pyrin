@@ -309,3 +309,34 @@ class CoreQuery(Query):
         return super().update(values,
                               synchronize_session=synchronize_session,
                               update_args=update_args)
+
+    def safe_order_by(self, entity, *columns):
+        """
+        apply one or more `ORDER BY` criterion to the query and return new `CoreQuery`.
+
+        this method only accepts column names, not instances.
+        it is implemented to be used for ordering by client inputs.
+
+        default ordering is ascending, but it could be changed to descending
+        by prefixing `-` to column names.
+
+        for example:
+
+        name, +age -> ordering for name and age columns both ascending.
+        name, -age -> ordering for name ascending and age descending.
+
+        if column names are not valid, this method ignores them and does not produce
+        invalid order by expression. if you do not want to ignore invalid columns,
+        use `order_by` method instead.
+
+        :param type[BaseEntity] entity: entity class to use its columns in order by.
+
+        :param str columns: column names of the provided entity to be used in order by.
+                            note that they must be the attribute names of entity not
+                            table column names.
+
+        :rtype: CoreQuery
+        """
+
+        criterion = entity.get_ordering_criterion(*columns, ignore_invalid=True)
+        return self.order_by(*criterion)
