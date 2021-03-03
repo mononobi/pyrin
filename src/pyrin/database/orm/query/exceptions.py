@@ -39,3 +39,10 @@ class InjectTotalCountError(ORMQueryException):
     inject total count error.
     """
     pass
+
+
+class InvalidOrderByScopeError(ORMQueryException):
+    """
+    invalid order by scope error.
+    """
+    pass

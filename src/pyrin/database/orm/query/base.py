@@ -10,6 +10,7 @@ from sqlalchemy.orm import Query, lazyload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.sqlalchemy as sqlalchemy_utils
 import pyrin.database.paging.services as paging_services
 import pyrin.security.session.services as session_services
 
@@ -18,7 +19,7 @@ from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    UnsupportedQueryStyleError, InjectTotalCountError
+    UnsupportedQueryStyleError, InjectTotalCountError, InvalidOrderByScopeError
 
 
 @inspection._self_inspects
@@ -310,7 +311,7 @@ class CoreQuery(Query):
                               synchronize_session=synchronize_session,
                               update_args=update_args)
 
-    def safe_order_by(self, entity, *columns):
+    def safe_order_by(self, scope, *columns):
         """
         apply one or more `ORDER BY` criterion to the query and return new `CoreQuery`.
 
@@ -329,14 +330,32 @@ class CoreQuery(Query):
         invalid order by expression. if you do not want to ignore invalid columns,
         use `order_by` method instead.
 
-        :param type[BaseEntity] entity: entity class to use its columns in order by.
+        :param type[BaseEntity] | list[str] scope: entity class or a list of column names
+                                                   to pick order by columns from it.
+                                                   note that if a list is provided, column
+                                                   names must be the name of actual table
+                                                   columns.
 
-        :param str columns: column names of the provided entity to be used in order by.
-                            note that they must be the attribute names of entity not
-                            table column names.
+        :param str columns: column names to be used in order by.
+                            note that they must be the attribute names
+                            of entity if scope is an entity class, otherwise
+                            they must be the actual table column names.
+
+        :raises InvalidOrderByScopeError: invalid order by scope error.
 
         :rtype: CoreQuery
         """
 
-        criterion = entity.get_ordering_criterion(*columns, ignore_invalid=True)
+        criterion = None
+        if isinstance(scope, type) and issubclass(scope, BaseEntity):
+            criterion = scope.get_ordering_criterion(*columns, ignore_invalid=True)
+
+        elif isinstance(scope, list):
+            criterion = sqlalchemy_utils.get_ordering_criterion(*columns,
+                                                                valid_columns=scope,
+                                                                ignore_invalid=True)
+        else:
+            raise InvalidOrderByScopeError('Order by "scope" must be an entity '
+                                           'class or a list of column names.')
+
         return self.order_by(*criterion)

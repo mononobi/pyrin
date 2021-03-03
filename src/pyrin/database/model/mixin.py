@@ -2204,6 +2204,8 @@ class OrderingMixin(CoreObject):
         name, -age -> ordering for name ascending and age descending.
 
         :param str columns: column names to get their ordering criterion.
+                            they must be the column attribute names of
+                            this entity.
 
         :param bool ignore_invalid: specifies that if provided columns are
                                     not valid, ignore them instead of raising

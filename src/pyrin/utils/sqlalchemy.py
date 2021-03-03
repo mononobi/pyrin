@@ -692,9 +692,12 @@ def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
     name, -age -> ordering for name ascending and age descending.
 
     :param str columns: column names to get their ordering criterion.
+                        they must be the actual table column names.
 
     :param list[str] valid_columns: valid column names for ordering.
                                     defaults to None if not provided.
+                                    they must be the actual table column
+                                    names.
 
     :param bool ignore_invalid: specifies that if provided columns are
                                 not in valid column names, ignore them
