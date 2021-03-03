@@ -311,12 +311,15 @@ class CoreQuery(Query):
                               synchronize_session=synchronize_session,
                               update_args=update_args)
 
-    def safe_order_by(self, scope, *columns):
+    def safe_order_by(self, scope, *force_order, **options):
         """
         apply one or more `ORDER BY` criterion to the query and return new `CoreQuery`.
 
         this method only accepts column names, not instances.
         it is implemented to be used for ordering by client inputs.
+
+        this method will automatically fetch order by columns from `order_by`
+        keyword if it is provided in options.
 
         default ordering is ascending, but it could be changed to descending
         by prefixing `-` to column names.
@@ -336,10 +339,23 @@ class CoreQuery(Query):
                                                    names must be the name of actual table
                                                    columns.
 
-        :param str columns: column names to be used in order by.
-                            note that they must be the attribute names
-                            of entity if scope is an entity class, otherwise
-                            they must be the actual table column names.
+        :param str force_order: column names to be appended to `order_by` columns.
+                                note that they must be the attribute names
+                                of entity if scope is an entity class, otherwise
+                                they must be the actual table column names.
+
+        :keyword list[str] | str order_by: column names to be used in order by criterion.
+                                           this value is defined to let clients directly
+                                           provide order by columns to services through
+                                           options. if `order_by` is provided, and
+                                           `force_order` is also provided, `force_order`
+                                           will be appended to `order_by` values.
+                                           it is useful if you want to assure that always
+                                           a valid order by will be generated even if
+                                           client does not provide any column names.
+                                           note that column names must be the attribute names
+                                           of entity if scope is an entity class, otherwise
+                                           they must be the actual table column names.
 
         :raises InvalidOrderByScopeError: invalid order by scope error.
 
@@ -347,6 +363,10 @@ class CoreQuery(Query):
         """
 
         criterion = None
+        columns = options.get('order_by')
+        columns = misc_utils.make_iterable(columns, list)
+        columns.extend(force_order)
+
         if isinstance(scope, type) and issubclass(scope, BaseEntity):
             criterion = scope.get_ordering_criterion(*columns, ignore_invalid=True)
 
