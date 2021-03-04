@@ -27,8 +27,7 @@ def scanstring_extended(s, end, strict=True):
         return datetime_services.to_datetime(s, server=False), end
     elif DEFAULT_DATE_ISO_REGEX.match(s):
         return datetime_services.to_date(s), end
-    elif DEFAULT_TIME_ISO_REGEX.match(s) or \
-            DEFAULT_LOCAL_NAIVE_TIME_REGEX.match(s):
+    elif DEFAULT_TIME_ISO_REGEX.match(s) or DEFAULT_LOCAL_NAIVE_TIME_REGEX.match(s):
         return datetime_services.to_time(s), end
     elif DEFAULT_UTC_ZULU_DATE_TIME_REGEX.match(s):
         return datetime_services.to_datetime(s, server=False), end
