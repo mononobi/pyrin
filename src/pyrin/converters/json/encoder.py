@@ -34,11 +34,11 @@ class CoreJSONEncoder(JSONEncoder):
         """
 
         if isinstance(o, datetime):
-            return datetime_services.to_datetime_string(o, server=False)
+            return datetime_services.to_datetime_string(o, to_server=False, from_server=True)
         if isinstance(o, date):
             return datetime_services.to_date_string(o)
         if isinstance(o, time):
-            return datetime_services.to_time_string(o, server=False)
+            return datetime_services.to_time_string(o, to_server=False, from_server=True)
         if isinstance(o, bytes):
             return encoding.bytes_to_base64_string(o)
         if isinstance(o, BaseEntity):

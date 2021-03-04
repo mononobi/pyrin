@@ -177,24 +177,32 @@ def replace_timezone(value, server):
     return get_component(DateTimePackage.COMPONENT_NAME).replace_timezone(value, server)
 
 
-def to_datetime_string(value, server):
+def to_datetime_string(value, to_server, from_server=None):
     """
     gets the datetime string representation of input value.
 
     if the value has no timezone info, it adds the client or server
-    timezone info based on `server` value.
+    timezone info based on `from_server` value.
 
     example: `2015-12-24T22:40:15+01:00`
 
     :param datetime value: input object to be converted.
 
-    :param bool server: specifies that value must be normalized
-                        to server or client timezone.
+    :param bool to_server: specifies that value must be normalized
+                           to server timezone. if set to False, it
+                           will be normalized to client timezone.
+
+    :param bool from_server: specifies that value must be normalized
+                             from server timezone. if set to False, it
+                             will be normalized from client timezone.
+                             if not provided, it will be set to opposite
+                             of `to_server` value.
 
     :rtype: str
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime_string(value, server)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime_string(
+        value, to_server, from_server=from_server)
 
 
 def to_date_string(value):
@@ -211,46 +219,58 @@ def to_date_string(value):
     return get_component(DateTimePackage.COMPONENT_NAME).to_date_string(value)
 
 
-def to_time_string(value, server):
+def to_time_string(value, to_server, from_server=None):
     """
     gets the time string representation of input value.
 
     if the value is a datetime and has no timezone info, it adds
-    the client or server timezone info based on `server` value.
+    the client or server timezone info based on `from_server` value.
 
     example: `23:40:15`
 
     :param datetime | time value: input object to be converted.
 
-    :param bool server: specifies that value must be normalized
-                        to server or client timezone.
+    :param bool to_server: specifies that value must be normalized
+                           to server timezone. if set to False, it
+                           will be normalized to client timezone.
+
+    :param bool from_server: specifies that value must be normalized
+                             from server timezone. if set to False, it
+                             will be normalized from client timezone.
+                             if not provided, it will be set to opposite
+                             of `to_server` value.
 
     :rtype: str
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_time_string(value, server)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_time_string(value, to_server,
+                                                                        from_server=from_server)
 
 
-def to_datetime(value, server, replace_server=None):
+def to_datetime(value, to_server, from_server=None):
     """
     converts the input value to it's equivalent python datetime.
 
+    if the value has no timezone info, it adds the client or server
+    timezone info based on `from_server` value.
+
     :param str value: string representation of datetime to be converted.
 
-    :param bool server: specifies that value must be normalized
-                        to server or client timezone.
+    :param bool to_server: specifies that value must be normalized
+                           to server timezone. if set to False, it
+                           will be normalized to client timezone.
 
-    :param bool replace_server: specifies that it must replace the timezone
-                                of value with timezone of server before
-                                normalization. if set to False, it replaces
-                                it with client timezone.
-                                defaults to None and no replacement will be done.
+    :param bool from_server: specifies that value must be normalized
+                             from server timezone. if set to False, it
+                             will be normalized from client timezone.
+                             if not provided, it will be set to opposite
+                             of `to_server` value.
 
     :rtype: datetime
     """
 
-    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime(value, server,
-                                                                     replace_server)
+    return get_component(DateTimePackage.COMPONENT_NAME).to_datetime(value, to_server,
+                                                                     from_server=from_server)
 
 
 def to_date(value):

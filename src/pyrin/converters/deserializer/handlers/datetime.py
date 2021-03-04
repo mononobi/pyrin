@@ -167,13 +167,9 @@ class DateTimeDeserializer(StringPatternDeserializerBase):
         :rtype: datetime
         """
 
-        matching_pattern = options.get('matching_pattern')
-        replace_server = None
-        if matching_pattern == DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX:
-            replace_server = False
-
-        converted_datetime = datetime_services.to_datetime(value, server=False,
-                                                           replace_server=replace_server)
+        converted_datetime = datetime_services.to_datetime(value,
+                                                           to_server=False,
+                                                           from_server=False)
         if converted_datetime is not None:
             return converted_datetime
 

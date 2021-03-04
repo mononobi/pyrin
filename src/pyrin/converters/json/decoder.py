@@ -24,15 +24,15 @@ def scanstring_extended(s, end, strict=True):
 
     s, end = scanstring(s, end, strict)
     if DEFAULT_DATE_TIME_ISO_REGEX.match(s):
-        return datetime_services.to_datetime(s, server=False), end
+        return datetime_services.to_datetime(s, to_server=False, from_server=False), end
     elif DEFAULT_DATE_ISO_REGEX.match(s):
         return datetime_services.to_date(s), end
     elif DEFAULT_TIME_ISO_REGEX.match(s) or DEFAULT_LOCAL_NAIVE_TIME_REGEX.match(s):
         return datetime_services.to_time(s), end
     elif DEFAULT_UTC_ZULU_DATE_TIME_REGEX.match(s):
-        return datetime_services.to_datetime(s, server=False), end
+        return datetime_services.to_datetime(s, to_server=False, from_server=False), end
     elif DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX.match(s):
-        return datetime_services.to_datetime(s, server=False, replace_server=False), end
+        return datetime_services.to_datetime(s, to_server=False, from_server=False), end
     elif UUID_REGEX.match(s):
         return uuid_utils.try_get_uuid_or_value(s), end
     else:
