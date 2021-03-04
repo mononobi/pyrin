@@ -3,6 +3,8 @@
 orm sql operators base module.
 """
 
+from datetime import datetime
+
 from sqlalchemy.sql import Select
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.operators import ColumnOperators
@@ -80,7 +82,7 @@ class CoreColumnOperators(ColumnOperators):
         exact_start = options.get('exact_start', True)
         if exact_start is False:
             begin_wrapper = like_prefix
-            inputs = (value, )
+            inputs = (value,)
             begin_count = options.get('start_count', None)
             if begin_count is not None:
                 begin_wrapper = like_exact_prefix
@@ -131,8 +133,8 @@ class CoreColumnOperators(ColumnOperators):
         object, given the lower and upper datetime range. this method is
         implemented to be able to handle datetime values more practical.
 
-        :param object cleft: lower bound of datetime clause.
-        :param object cright: upper bound of datetime clause.
+        :param datetime | date cleft: lower bound of datetime clause.
+        :param datetime | date cright: upper bound of datetime clause.
 
         :param bool symmetric: specifies to emmit `between symmetric` to database.
                                note that not all databases support symmetric.
@@ -141,20 +143,24 @@ class CoreColumnOperators(ColumnOperators):
 
         :keyword bool consider_begin_of_day: specifies that consider begin
                                              of day for lower datetime.
-                                             defaults to True if not provided.
+                                             defaults to False if not provided.
+                                             note that for `date` values, this
+                                             flag will be always considered as True.
 
         :keyword bool consider_end_of_day: specifies that consider end
                                            of day for upper datetime.
-                                           defaults to True if not provided.
+                                           defaults to False if not provided.
+                                           note that for `date` values, this
+                                           flag will be always considered as True.
         """
 
-        consider_begin_of_day = options.get('consider_begin_of_day', True)
-        consider_end_of_day = options.get('consider_end_of_day', True)
+        consider_begin_of_day = options.get('consider_begin_of_day', False)
+        consider_end_of_day = options.get('consider_end_of_day', False)
 
-        if consider_begin_of_day is True:
+        if consider_begin_of_day is True or not isinstance(cleft, datetime):
             cleft = datetime_utils.begin_of_day(cleft)
 
-        if consider_end_of_day is True:
+        if consider_end_of_day is True or not isinstance(cright, datetime):
             cright = datetime_utils.end_of_day(cright)
 
         # swapping values in case of user mistake.

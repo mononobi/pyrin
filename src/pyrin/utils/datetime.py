@@ -235,7 +235,7 @@ def begin_of_day(value):
 
     it is actually a datetime with time info set to 00:00:00.
 
-    :param datetime value: value to get its begin of day.
+    :param datetime | date value: value to get its begin of day.
 
     :rtype: datetime
     """
@@ -249,7 +249,7 @@ def end_of_day(value):
 
     it is actually a datetime with time info set to 23:59:59.999999
 
-    :param datetime value: value to get its end of day.
+    :param datetime | date value: value to get its end of day.
 
     :rtype: datetime
     """
@@ -279,32 +279,38 @@ def normalize_datetime_range(value_lower, value_upper, **options):
     it returns a tuple of two datetime values
     normalized according to given options.
 
-    :param datetime value_lower: lower bound of datetime range.
-    :param datetime value_upper: upper bound of datetime range.
+    :param datetime | date value_lower: lower bound of datetime range.
+    :param datetime | date value_upper: upper bound of datetime range.
 
     :keyword bool consider_begin_of_day: specifies that consider begin
                                          of day for lower datetime.
-                                         defaults to True if not provided.
+                                         defaults to False if not provided.
+                                         note that for `date` values, this
+                                         flag will be always considered as True.
 
     :keyword bool consider_end_of_day: specifies that consider end
                                        of day for upper datetime.
-                                       defaults to True if not provided.
+                                       defaults to False if not provided.
+                                       note that for `date` values, this
+                                       flag will be always considered as True.
 
     :returns: tuple[datetime value_lower: datetime value_upper]
     :rtype: tuple[datetime, datetime]
     """
 
-    consider_begin_of_day = options.get('consider_begin_of_day', True)
-    consider_end_of_day = options.get('consider_end_of_day', True)
+    consider_begin_of_day = options.get('consider_begin_of_day', False)
+    consider_end_of_day = options.get('consider_end_of_day', False)
 
     # swapping values in case of user mistake.
     if value_upper is not None and value_lower is not None and value_lower > value_upper:
         value_lower, value_upper = value_upper, value_lower
 
-    if value_lower is not None and consider_begin_of_day is True:
+    if value_lower is not None and (consider_begin_of_day is True or
+                                    not isinstance(value_lower, datetime)):
         value_lower = begin_of_day(value_lower)
 
-    if value_upper is not None and consider_end_of_day is True:
+    if value_upper is not None and (consider_end_of_day is True or
+                                    not isinstance(value_upper, datetime)):
         value_upper = end_of_day(value_upper)
 
     return value_lower, value_upper
