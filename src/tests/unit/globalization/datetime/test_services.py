@@ -89,7 +89,7 @@ def test_to_datetime_string(berlin_datetime):
     gets the datetime string representation of input value.
     """
 
-    datetime_string = datetime_services.to_datetime_string(berlin_datetime, server=True)
+    datetime_string = datetime_services.to_datetime_string(berlin_datetime, to_server=True)
 
     # we check for UTC offset in both halves of the year to prevent
     # the test failure on different times of year.
@@ -124,7 +124,7 @@ def test_to_time_string_wih_datetime(berlin_datetime):
     :rtype: str
     """
 
-    time_berlin = datetime_services.to_time_string(berlin_datetime, server=True)
+    time_berlin = datetime_services.to_time_string(berlin_datetime, to_server=True)
 
     assert time_berlin == '16:00:00+00:00'
 
@@ -137,7 +137,7 @@ def test_to_time_string_wih_time(berlin_datetime):
     :rtype: str
     """
 
-    time_berlin = datetime_services.to_time_string(berlin_datetime.timetz(), server=True)
+    time_berlin = datetime_services.to_time_string(berlin_datetime.timetz(), to_server=True)
 
     assert time_berlin == '18:00:00'
 
@@ -148,7 +148,7 @@ def test_to_datetime_with_timezone():
     """
 
     datetime_string = '2019-10-02T18:00:00+02:00'
-    datetime_object = datetime_services.to_datetime(datetime_string, server=True)
+    datetime_object = datetime_services.to_datetime(datetime_string, to_server=True)
 
     assert datetime_object is not None
     assert datetime_object.tzinfo is not None
@@ -163,7 +163,8 @@ def test_to_datetime_without_timezone(current_timezone_name):
     """
 
     datetime_string = '2019-10-02T18:00:00'
-    datetime_object = datetime_services.to_datetime(datetime_string, server=True)
+    datetime_object = datetime_services.to_datetime(datetime_string,
+                                                    to_server=True, from_server=True)
 
     assert datetime_object is not None
     assert datetime_object.tzinfo is not None
