@@ -284,7 +284,7 @@ class CoreColumnOperators(ColumnOperators):
         * an empty list.
         * a bound parameter, for example `.bindparam`, may be used if it
           includes the `.bindparam.expanding` flag.
-        * a :func:`_expression.select` construct, which is usually a correlated
+        * an `_expression.select` construct, which is usually a correlated
           scalar select.
         * a single literal value could also be set and it will be converted into iterable.
 
