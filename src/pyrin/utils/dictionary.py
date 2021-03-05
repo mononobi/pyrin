@@ -109,7 +109,7 @@ def sort_by_value(value, reverse=False):
 
     :param dict value: dict to be sorted.
 
-    :param bool reverse: sort by descending value.
+    :param bool reverse: sort by descending order.
                          defaults to False if not provided.
     """
 
