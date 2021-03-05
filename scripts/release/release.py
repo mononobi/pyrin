@@ -21,6 +21,8 @@ class ReleaseManager:
     PIPFILE = '../../Pipfile'
     PYTHON_VERSION = 'python{version}'
     PYPI_PACKAGE_NAME = 'pyrin'
+    MAX_MINOR = 40
+    MAX_PATCH = 40
 
     def __init__(self):
         """
@@ -99,7 +101,7 @@ class ReleaseManager:
 
         major, minor, patch, beta = current_version
         fail_message = 'Change type [{change}] is unknown. ' \
-                       'change type must be major or minor or patch.' \
+                       'change type must be major, minor or patch.' \
                        .format(change=change)
 
         if not isinstance(change, str):
@@ -129,11 +131,11 @@ class ReleaseManager:
         """
         normalizes given version to be under correct range.
 
-        maximum minor and patch number is 30, if they go upper
-        than that, the previous version part will be increased by 1,
+        maximum minor and patch number is `MAX_MINOR` and `MAX_PATCH`, if they
+        go upper than that, the previous version part will be increased by 1,
         and the value itself will be set to zero.
-        for example if the current version number is `1.30.29` and we
-        generate a new 'minor' version, the new version will be `1.31.0`.
+        for example if the current version number is `1.40.39` and we
+        generate a new 'minor' version, the new version will be `1.41.0`.
         then the normalize function will change it into `2.0.0`.
 
         :param int major: major version number.
@@ -145,11 +147,11 @@ class ReleaseManager:
         :rtype: tuple
         """
 
-        if patch > 30:
+        if patch > self.MAX_PATCH:
             minor = minor + 1
             patch = 0
 
-        if minor > 30:
+        if minor > self.MAX_MINOR:
             major = major + 1
             minor = 0
             patch = 0
