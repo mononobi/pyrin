@@ -154,20 +154,7 @@ class CoreColumnOperators(ColumnOperators):
                                            flag will be always considered as True.
         """
 
-        consider_begin_of_day = options.get('consider_begin_of_day', False)
-        consider_end_of_day = options.get('consider_end_of_day', False)
-
-        if consider_begin_of_day is True or not isinstance(cleft, datetime):
-            cleft = datetime_utils.begin_of_day(cleft)
-
-        if consider_end_of_day is True or not isinstance(cright, datetime):
-            cright = datetime_utils.end_of_day(cright)
-
-        # swapping values in case of user mistake.
-        if type(cleft) is type(cright) and cleft > cright:
-            cleft, cright = cright, cleft
-            symmetric = False
-
+        cleft, cright = datetime_utils.normalize_datetime_range(cleft, cright, **options)
         return self.between(cleft, cright, symmetric=symmetric)
 
     def istartswith(self, other, **options):
