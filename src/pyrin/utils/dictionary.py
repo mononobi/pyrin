@@ -2,7 +2,6 @@
 """
 utils dictionary module.
 """
-from operator import itemgetter
 
 import pyrin.utils.string as string_utils
 
@@ -111,6 +110,8 @@ def sort_by_value(value, reverse=False):
 
     :param bool reverse: sort by descending order.
                          defaults to False if not provided.
+
+    :rtype: list[tuple]
     """
 
     return sorted(value.items(), key=lambda x: x[1], reverse=reverse)
