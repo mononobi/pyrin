@@ -65,6 +65,9 @@ class DateTimeMixin(CoreCustomType):
         :rtype: str
         """
 
+        if dialect.name == DialectEnum.SQLITE:
+            return datetime_services.get_timestamp(value, microsecond=True)
+
         return value
 
     @property
