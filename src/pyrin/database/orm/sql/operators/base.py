@@ -129,8 +129,9 @@ class CoreColumnOperators(ColumnOperators):
 
     def between_datetime(self, cleft, cright, symmetric=False, **options):
         """
-        produces an `expression.between` clause against the parent
-        object, given the lower and upper datetime range. this method is
+        produces an `expression.between` clause against the parent object.
+
+        given the lower and upper datetime range. this method is
         implemented to be able to handle datetime values more practical.
 
         if the inputs are date objects, they will be converted to datetime with client
