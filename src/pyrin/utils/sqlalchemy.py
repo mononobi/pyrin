@@ -221,13 +221,6 @@ def add_range_clause(clauses, column, value_lower, value_upper,
     if value_lower is None and value_upper is None:
         return
 
-    # swapping values in case of user mistake.
-    if value_lower is not None and value_upper is not None \
-            and type(value_lower) is type(value_upper) \
-            and value_lower > value_upper:
-
-        value_lower, value_upper = value_upper, value_lower
-
     if value_lower is not None and value_lower == value_upper:
         clauses.append(column == value_lower)
     else:

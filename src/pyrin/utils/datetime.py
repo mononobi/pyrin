@@ -324,7 +324,10 @@ def normalize_datetime_range(value_lower, value_upper, **options):
         value_upper = to_datetime_from_date(value_upper)
 
     # swapping values in case of user mistake.
-    if value_lower is not None and value_upper is not None and value_lower > value_upper:
+    if value_lower is not None and value_upper is not None \
+            and value_lower.tzinfo is not None \
+            and value_upper.tzinfo is not None and value_lower > value_upper:
+
         value_lower, value_upper = value_upper, value_lower
 
     if value_lower is not None and consider_begin_of_day is True:
