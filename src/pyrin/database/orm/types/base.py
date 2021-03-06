@@ -113,6 +113,9 @@ class CoreCustomType(TypeDecorator):
         :rtype: str
         """
 
+        if value is None:
+            return value
+
         result = self._to_database(value, dialect)
         if result is None or isinstance(result, str):
             return result
@@ -129,6 +132,9 @@ class CoreCustomType(TypeDecorator):
         :rtype: object
         """
 
+        if value is None:
+            return value
+
         return self._to_database(value, dialect)
 
     def process_result_value(self, value, dialect):
@@ -140,6 +146,9 @@ class CoreCustomType(TypeDecorator):
 
         :rtype: object
         """
+
+        if value is None:
+            return value
 
         return self._from_database(value, dialect)
 

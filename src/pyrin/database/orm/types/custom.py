@@ -36,9 +36,6 @@ class GUID(CoreCustomType):
         :rtype: str
         """
 
-        if value is None:
-            return value
-
         if dialect.name in (DialectEnum.POSTGRESQL, DialectEnum.SQLSERVER):
             return str(value)
         else:
@@ -56,9 +53,6 @@ class GUID(CoreCustomType):
 
         :rtype: uuid.UUID
         """
-
-        if value is None:
-            return value
 
         if not isinstance(value, uuid.UUID):
             value = uuid.UUID(value)

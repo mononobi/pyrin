@@ -30,9 +30,6 @@ class DateTimeMixin(CoreCustomType):
         :rtype: datetime
         """
 
-        if value is None:
-            return value
-
         if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
             return datetime_services.convert(value, to_server=True, from_server=True)
 
@@ -48,9 +45,6 @@ class DateTimeMixin(CoreCustomType):
 
         :rtype: datetime
         """
-
-        if value is None:
-            return value
 
         if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
             return datetime_services.convert(value, to_server=True, from_server=True)
