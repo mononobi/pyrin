@@ -79,18 +79,24 @@ class CoreColumn(Column, CoreColumnOperators):
                                    column. multiple columns can have this flag set to
                                    specify composite primary keys.
 
-        :keyword object server_default: a `FetchedValue` instance, str, unicode
-                                        or `text` construct representing the ddl
-                                        default value for the column.
+        :keyword str | ClauseElement | TextClause server_default: a `FetchedValue` instance,
+                                                                  str, unicode or `text`
+                                                                  construct representing the ddl
+                                                                  default value for the column.
 
-        :keyword FetchedValue server_onupdate: a `FetchedValue` instance representing a
-                                               database-side default generation function,
-                                               such as a trigger. this indicates to sqlalchemy
-                                               that a newly generated value will be available
-                                               after updates. this construct does not actually
-                                               implement any kind of generation function within
-                                               the database, which instead must be specified
-                                               separately.
+        :keyword str | ClauseElement | TextClause server_onupdate: a `FetchedValue` instance
+                                                                   representing a database-side
+                                                                   default generation function,
+                                                                   such as a trigger. this
+                                                                   indicates to sqlalchemy
+                                                                   that a newly generated value
+                                                                   will be available after
+                                                                   updates. this construct
+                                                                   does not actually implement
+                                                                   any kind of generation
+                                                                   function within the database,
+                                                                   which instead must be specified
+                                                                   separately.
 
         :keyword bool quote: force quoting of this column's name on or off,
                              corresponding to `True` or `False`. when left at its default

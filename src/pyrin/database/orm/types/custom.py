@@ -65,6 +65,18 @@ class GUID(CoreCustomType):
 
         return value
 
+    def _coerce_to_string(self, value, dialect):
+        """
+        coerces the given value to string before sending to database.
+
+        :param object value: value to be processed.
+        :param Dialect dialect: the dialect in use.
+
+        :rtype: str
+        """
+
+        return value
+
     def load_dialect_impl(self, dialect):
         """
         returns a `TypeEngine` object corresponding to a dialect.

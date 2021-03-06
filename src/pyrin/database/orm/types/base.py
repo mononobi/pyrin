@@ -53,6 +53,23 @@ class CoreCustomType(TypeDecorator):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def _coerce_to_string(self, value, dialect):
+        """
+        coerces the given value to string before sending to database.
+
+        subclasses must override this method if they want to use literal params.
+
+        :param object value: value to be processed.
+        :param Dialect dialect: the dialect in use.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
     def load_dialect_impl(self, dialect):
         """
         returns a `TypeEngine` object corresponding to a dialect.
@@ -96,7 +113,11 @@ class CoreCustomType(TypeDecorator):
         :rtype: str
         """
 
-        return self._to_database(value, dialect)
+        result = self._to_database(value, dialect)
+        if result is None or isinstance(result, str):
+            return result
+
+        return self._coerce_to_string(result, dialect)
 
     def process_bind_param(self, value, dialect):
         """

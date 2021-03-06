@@ -57,6 +57,18 @@ class DateTimeMixin(CoreCustomType):
 
         return value
 
+    def _coerce_to_string(self, value, dialect):
+        """
+        coerces the given value to string before sending to database.
+
+        :param datetime value: value to be processed.
+        :param Dialect dialect: the dialect in use.
+
+        :rtype: str
+        """
+
+        return value
+
     @property
     def python_type(self):
         """
