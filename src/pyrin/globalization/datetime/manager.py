@@ -412,22 +412,26 @@ class DateTimeManager(Manager):
 
         return timezone_name in pytz.all_timezones_set
 
-    def get_current_timestamp(self, date_sep='-', main_sep=' ',
-                              time_sep=':', server=True, timezone=None):
+    def get_timestamp(self, value, date_sep='-', main_sep=' ',
+                      time_sep=':', microsecond=False):
         """
-        gets the current timestamp with specified separators based on requested timezone.
+        gets the timestamp with specified separators for given datetime.
+
+        default format is `YYYY-MM-DD HH:mm:SS`.
+
+        :param datetime value: datetime value to get its timestamp.
 
         :param str date_sep: a separator to put between date elements.
+                             if set to None, no separator will be used.
+
         :param str main_sep: a separator to put between date and time part.
+                             if set to None, no separator will be used.
+
         :param str time_sep: a separator to put between time elements.
+                             if set to None, no separator will be used.
 
-        :param bool server: if set to True, server timezone will be used.
-                            if set to False, client timezone will be used.
-                            defaults to True.
-
-        :param str timezone: timezone name to get datetime based on it.
-                             if provided, the value of `server` input
-                             will be ignored. defaults to None.
+        :param bool microsecond: specifies that timestamp must include microseconds.
+                                 defaults to False if not provided.
 
         :rtype: str
         """
@@ -439,15 +443,54 @@ class DateTimeManager(Manager):
         if time_sep is None:
             time_sep = ''
 
+        place_holder = '{year}{date_sep}{month}{date_sep}{day}{main_sep}' \
+                       '{hour}{time_sep}{minute}{time_sep}{second}'
+
+        if microsecond is True:
+            place_holder = place_holder + '.{microsecond}'
+
+        return place_holder.format(year=str(value.year).zfill(4),
+                                   month=str(value.month).zfill(2),
+                                   day=str(value.day).zfill(2),
+                                   hour=str(value.hour).zfill(2),
+                                   minute=str(value.minute).zfill(2),
+                                   second=str(value.second).zfill(2),
+                                   date_sep=date_sep,
+                                   main_sep=main_sep,
+                                   time_sep=time_sep,
+                                   microsecond=value.microsecond)
+
+    def get_current_timestamp(self, date_sep='-', main_sep=' ',
+                              time_sep=':', server=True,
+                              timezone=None, microsecond=False):
+        """
+        gets the current timestamp with specified separators based on requested timezone.
+
+        default format is `YYYY-MM-DD HH:mm:SS`.
+
+        :param str date_sep: a separator to put between date elements.
+                             if set to None, no separator will be used.
+
+        :param str main_sep: a separator to put between date and time part.
+                             if set to None, no separator will be used.
+
+        :param str time_sep: a separator to put between time elements.
+                             if set to None, no separator will be used.
+
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to True.
+
+        :param str timezone: timezone name to get datetime based on it.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
+
+        :param bool microsecond: specifies that timestamp must include microseconds.
+                                 defaults to False if not provided.
+
+        :rtype: str
+        """
+
         current = self.now(server=server, timezone=timezone)
-        return '{year}{date_sep}{month}{date_sep}{day}{main_sep}' \
-               '{hour}{time_sep}{minute}{time_sep}{second}'.format(
-                year=str(current.year).zfill(4),
-                month=str(current.month).zfill(2),
-                day=str(current.day).zfill(2),
-                hour=str(current.hour).zfill(2),
-                minute=str(current.minute).zfill(2),
-                second=str(current.second).zfill(2),
-                date_sep=date_sep,
-                main_sep=main_sep,
-                time_sep=time_sep)
+        return self.get_timestamp(current, date_sep=date_sep, main_sep=main_sep,
+                                  time_sep=time_sep, microsecond=microsecond)

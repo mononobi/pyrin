@@ -362,14 +362,51 @@ def timezone_exists(timezone_name):
     return get_component(DateTimePackage.COMPONENT_NAME).timezone_exists(timezone_name)
 
 
+def get_timestamp(value, date_sep='-', main_sep=' ',
+                  time_sep=':', microsecond=False):
+    """
+    gets the timestamp with specified separators for given datetime.
+
+    default format is `YYYY-MM-DD HH:mm:SS`.
+
+    :param datetime value: datetime value to get its timestamp.
+
+    :param str date_sep: a separator to put between date elements.
+                         if set to None, no separator will be used.
+
+    :param str main_sep: a separator to put between date and time part.
+                         if set to None, no separator will be used.
+
+    :param str time_sep: a separator to put between time elements.
+                         if set to None, no separator will be used.
+
+    :param bool microsecond: specifies that timestamp must include microseconds.
+                             defaults to False if not provided.
+
+    :rtype: str
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).get_timestamp(value, date_sep,
+                                                                       main_sep, time_sep,
+                                                                       microsecond)
+
+
 def get_current_timestamp(date_sep='-', main_sep=' ',
-                          time_sep=':', server=True, timezone=None):
+                          time_sep=':', server=True,
+                          timezone=None, microsecond=False):
     """
     gets the current timestamp with specified separators based on requested timezone.
 
+    default format is `YYYY-MM-DD HH:mm:SS`.
+
     :param str date_sep: a separator to put between date elements.
+                         if set to None, no separator will be used.
+
     :param str main_sep: a separator to put between date and time part.
+                         if set to None, no separator will be used.
+
     :param str time_sep: a separator to put between time elements.
+                         if set to None, no separator will be used.
 
     :param bool server: if set to True, server timezone will be used.
                         if set to False, client timezone will be used.
@@ -379,6 +416,9 @@ def get_current_timestamp(date_sep='-', main_sep=' ',
                          if provided, the value of `server` input
                          will be ignored. defaults to None.
 
+    :param bool microsecond: specifies that timestamp must include microseconds.
+                             defaults to False if not provided.
+
     :rtype: str
     """
 
@@ -386,4 +426,5 @@ def get_current_timestamp(date_sep='-', main_sep=' ',
                                                                                main_sep,
                                                                                time_sep,
                                                                                server,
-                                                                               timezone)
+                                                                               timezone,
+                                                                               microsecond)
