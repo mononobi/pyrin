@@ -189,6 +189,20 @@ def utc_now():
     return utc.localize(dt_now)
 
 
+def to_datetime_from_date(value):
+    """
+    converts the input date to it's equivalent python datetime.
+
+    the time info will be set to `00:00:00`.
+
+    :param date value: date value to be converted.
+
+    :rtype: datetime
+    """
+
+    return datetime(year=value.year, month=value.month, day=value.day)
+
+
 def normalized_utc(value):
     """
     normalizes input datetime value as utc datetime with zero offset and returns it.
@@ -279,22 +293,20 @@ def normalize_datetime_range(value_lower, value_upper, **options):
     it returns a tuple of two datetime values
     normalized according to given options.
 
+    if the inputs are date objects, they will be converted to datetime with client
+    timezone and `consider_begin_of_day` and `consider_end_of_day` will also
+    considered as True.
+
     :param datetime | date value_lower: lower bound of datetime range.
     :param datetime | date value_upper: upper bound of datetime range.
 
     :keyword bool consider_begin_of_day: specifies that consider begin
                                          of day for lower datetime.
                                          defaults to False if not provided.
-                                         note that this flag is only for
-                                         datetime values and will be ignored
-                                         for date values.
 
     :keyword bool consider_end_of_day: specifies that consider end
                                        of day for upper datetime.
                                        defaults to False if not provided.
-                                       note that for `date` values, this
-                                       flag will be always considered as
-                                       True to prevent missing values.
 
     :returns: tuple[datetime value_lower: datetime value_upper]
     :rtype: tuple[datetime, datetime]
@@ -303,20 +315,22 @@ def normalize_datetime_range(value_lower, value_upper, **options):
     consider_begin_of_day = options.get('consider_begin_of_day', False)
     consider_end_of_day = options.get('consider_end_of_day', False)
 
-    # swapping values in case of user mistake.
-    if value_lower is not None and value_upper is not None \
-            and type(value_lower) is type(value_upper) \
-            and value_lower > value_upper:
+    if value_lower is not None and not isinstance(value_lower, datetime):
+        consider_begin_of_day = True
+        value_lower = to_datetime_from_date(value_lower)
 
+    if value_upper is not None and not isinstance(value_upper, datetime):
+        consider_end_of_day = True
+        value_upper = to_datetime_from_date(value_upper)
+
+    # swapping values in case of user mistake.
+    if value_lower is not None and value_upper is not None and value_lower > value_upper:
         value_lower, value_upper = value_upper, value_lower
 
-    if value_lower is not None and \
-            consider_begin_of_day is True and isinstance(value_lower, datetime):
-
+    if value_lower is not None and consider_begin_of_day is True:
         value_lower = begin_of_day(value_lower)
 
-    if value_upper is not None and (consider_end_of_day is True or
-                                    not isinstance(value_upper, datetime)):
+    if value_upper is not None and consider_end_of_day is True:
         value_upper = end_of_day(value_upper)
 
     return value_lower, value_upper

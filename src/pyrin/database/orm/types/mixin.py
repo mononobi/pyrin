@@ -24,7 +24,7 @@ class DateTimeMixin(CoreCustomType):
         """
         converts given value to be emitted to database.
 
-        :param datetime value: value to be processed.
+        :param datetime | date value: value to be processed.
         :param Dialect dialect: the dialect in use.
 
         :rtype: datetime
@@ -33,7 +33,7 @@ class DateTimeMixin(CoreCustomType):
         if value is None:
             return value
 
-        if dialect.name == DialectEnum.SQLITE:
+        if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
             return datetime_services.convert(value, to_server=True, from_server=True)
 
         return value
@@ -42,7 +42,7 @@ class DateTimeMixin(CoreCustomType):
         """
         converts given value to python type after fetching it from database.
 
-        :param datetime value: value to be processed.
+        :param datetime | date value: value to be processed.
         :param Dialect dialect: the dialect in use.
 
 
@@ -52,7 +52,7 @@ class DateTimeMixin(CoreCustomType):
         if value is None:
             return value
 
-        if dialect.name == DialectEnum.SQLITE:
+        if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
             return datetime_services.convert(value, to_server=True, from_server=True)
 
         return value
@@ -61,7 +61,7 @@ class DateTimeMixin(CoreCustomType):
         """
         coerces the given value to string before sending to database.
 
-        :param datetime value: value to be processed.
+        :param datetime | date value: value to be processed.
         :param Dialect dialect: the dialect in use.
 
         :rtype: str
