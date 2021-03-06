@@ -6,11 +6,12 @@ orm sql schema columns module.
 from sqlalchemy.sql.type_api import Variant
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import BigInteger, Integer, ForeignKey, String, Unicode, Boolean, \
-    SmallInteger, Float, DateTime, Date, Time, TIMESTAMP, Text, UnicodeText, DECIMAL
+    SmallInteger, Float, Date, Time, Text, UnicodeText, DECIMAL
 
 import pyrin.utils.misc as misc_utils
 
 from pyrin.database.enumerations import DialectEnum
+from pyrin.database.orm.types.custom import CoreDateTime, CoreTimeStamp
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin, GUIDColumnMixin, TypeMixin
 from pyrin.database.orm.sql.schema.exceptions import AutoPKColumnTypeIsInvalidError, \
@@ -1062,7 +1063,7 @@ class DateTimeColumn(TypeMixin, CoreColumn):
         """
 
         timezone = kwargs.pop('timezone', True)
-        self._column_type = DateTime(timezone=timezone)
+        self._column_type = CoreDateTime(timezone=timezone)
 
         super().__init__(*args, **kwargs)
 
@@ -1280,7 +1281,7 @@ class TimeStampColumn(TypeMixin, CoreColumn):
         """
 
         timezone = kwargs.pop('timezone', True)
-        self._column_type = TIMESTAMP(timezone=timezone)
+        self._column_type = CoreTimeStamp(timezone=timezone)
 
         super().__init__(*args, **kwargs)
 

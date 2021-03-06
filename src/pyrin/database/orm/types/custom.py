@@ -26,6 +26,45 @@ class GUID(CoreCustomType):
 
     impl = CHAR
 
+    def _to_database(self, value, dialect):
+        """
+        converts given value to be emitted to database.
+
+        :param object value: value to be processed.
+        :param Dialect dialect: the dialect in use.
+
+        :rtype: str
+        """
+
+        if value is None:
+            return value
+
+        if dialect.name in (DialectEnum.POSTGRESQL, DialectEnum.SQLSERVER):
+            return str(value)
+        else:
+            if not isinstance(value, uuid.UUID):
+                return str(uuid.UUID(value))
+            else:
+                return str(value)
+
+    def _from_database(self, value, dialect):
+        """
+        converts given value to python type after fetching it from database.
+
+        :param object value: value to be processed.
+        :param Dialect dialect: the dialect in use.
+
+        :rtype: uuid.UUID
+        """
+
+        if value is None:
+            return value
+
+        if not isinstance(value, uuid.UUID):
+            value = uuid.UUID(value)
+
+        return value
+
     def load_dialect_impl(self, dialect):
         """
         returns a `TypeEngine` object corresponding to a dialect.
@@ -42,46 +81,10 @@ class GUID(CoreCustomType):
         else:
             return dialect.type_descriptor(CHAR(36))
 
-    def process_bind_param(self, value, dialect):
-        """
-        receive a bound parameter value to be converted.
-
-        :param TypeEngine value: data to operate upon. it could be `None`.
-        :param Dialect dialect: the dialect in use.
-
-        :rtype: str
-        """
-
-        if value is None:
-            return value
-        elif dialect.name in (DialectEnum.POSTGRESQL, DialectEnum.SQLSERVER):
-            return str(value)
-        else:
-            if not isinstance(value, uuid.UUID):
-                return str(uuid.UUID(value))
-            else:
-                return str(value)
-
-    def process_result_value(self, value, dialect):
-        """
-        receive a result-row column value to be converted.
-
-        :param str value: data to operate upon. it could be `None`.
-        :param Dialect dialect: the dialect in use.
-
-        :rtype: uuid.UUID
-        """
-
-        if value is None:
-            return value
-        else:
-            if not isinstance(value, uuid.UUID):
-                value = uuid.UUID(value)
-            return value
-
     def compare_against_backend(self, dialect, conn_type):
         """
-        returns True if this type is the same as the given database type,
+        returns True if this type is the same as the given database type.
+
         or None to allow the default implementation to compare these
         types. a return value of False means the given type does not
         match this type.
@@ -110,21 +113,23 @@ class GUID(CoreCustomType):
         return uuid.UUID
 
 
-class CoreTimeStamp(DateTimeMixin, TIMESTAMP):
+class CoreTimeStamp(DateTimeMixin):
     """
     core timestamp class.
 
     this is a helper type that will handle datetime values correctly on sqlite backend.
     it works as default on other backends.
     """
-    pass
+
+    impl = TIMESTAMP
 
 
-class CoreDateTime(DateTimeMixin, DateTime):
+class CoreDateTime(DateTimeMixin):
     """
     core datetime class.
 
     this is a helper type that will handle datetime values correctly on sqlite backend.
     it works as default on other backends.
     """
-    pass
+
+    impl = DateTime
