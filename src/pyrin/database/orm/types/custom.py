@@ -6,10 +6,13 @@ orm types custom module.
 import uuid
 
 from sqlalchemy.types import CHAR
-from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy import TIMESTAMP, DateTime
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 
+from pyrin.database.enumerations import DialectEnum
 from pyrin.database.orm.types.base import CoreCustomType
+from pyrin.database.orm.types.mixin import DateTimeMixin
 
 
 class GUID(CoreCustomType):
@@ -32,9 +35,9 @@ class GUID(CoreCustomType):
         :rtype: TypeEngine
         """
 
-        if dialect.name == 'postgresql':
+        if dialect.name == DialectEnum.POSTGRESQL:
             return dialect.type_descriptor(UUID())
-        elif dialect.name == 'mssql':
+        elif dialect.name == DialectEnum.SQLSERVER:
             return dialect.type_descriptor(UNIQUEIDENTIFIER())
         else:
             return dialect.type_descriptor(CHAR(36))
@@ -51,7 +54,7 @@ class GUID(CoreCustomType):
 
         if value is None:
             return value
-        elif dialect.name in ('postgresql', 'mssql'):
+        elif dialect.name in (DialectEnum.POSTGRESQL, DialectEnum.SQLSERVER):
             return str(value)
         else:
             if not isinstance(value, uuid.UUID):
@@ -89,9 +92,9 @@ class GUID(CoreCustomType):
         :rtype: bool
         """
 
-        if dialect.name == 'postgresql':
+        if dialect.name == DialectEnum.POSTGRESQL:
             return isinstance(conn_type, UUID)
-        elif dialect.name == 'mssql':
+        elif dialect.name == DialectEnum.SQLSERVER:
             return isinstance(conn_type, UNIQUEIDENTIFIER)
         else:
             return isinstance(conn_type, CHAR)
@@ -105,3 +108,23 @@ class GUID(CoreCustomType):
         """
 
         return uuid.UUID
+
+
+class CoreTimeStamp(DateTimeMixin, TIMESTAMP):
+    """
+    core timestamp class.
+
+    this is a helper type that will handle datetime values correctly on sqlite backend.
+    it works as default on other backends.
+    """
+    pass
+
+
+class CoreDateTime(DateTimeMixin, DateTime):
+    """
+    core datetime class.
+
+    this is a helper type that will handle datetime values correctly on sqlite backend.
+    it works as default on other backends.
+    """
+    pass

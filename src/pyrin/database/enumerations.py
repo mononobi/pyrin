@@ -14,3 +14,16 @@ class FKRestrictionEnum(CoreEnum):
     CASCADE = 'CASCADE'
     DELETE = 'DELETE'
     RESTRICT = 'RESTRICT'
+
+
+class DialectEnum(CoreEnum):
+    """
+    dialect enum.
+    """
+
+    SQLITE = 'sqlite'
+    POSTGRESQL = 'postgresql'
+    SQLSERVER = 'mssql'
+    ORACLE = 'oracle'
+    MYSQL = 'mysql'
+    SYBASE = 'sybase'

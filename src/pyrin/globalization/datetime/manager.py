@@ -171,6 +171,30 @@ class DateTimeManager(Manager):
 
         return self.get_current_timezone(server).zone
 
+    def convert(self, value, to_server, from_server=None):
+        """
+        converts the given datetime between server and client timezones.
+
+        :param datetime value: value to be converted.
+
+        :param bool to_server: specifies that value must be normalized
+                               to server timezone. if set to False, it
+                               will be normalized to client timezone.
+
+        :param bool from_server: specifies that value must be normalized
+                                 from server timezone. if set to False, it
+                                 will be normalized from client timezone.
+                                 if not provided, it will be set to opposite
+                                 of `to_server` value.
+        :rtype: datetime
+        """
+
+        if from_server is None:
+            from_server = not to_server
+
+        localized_value = self._add_timezone(value, server=from_server)
+        return self.normalize(localized_value, server=to_server)
+
     def as_timezone(self, value, server):
         """
         gets the result of `astimezone` on the given value.
@@ -254,11 +278,7 @@ class DateTimeManager(Manager):
         :rtype: str
         """
 
-        if from_server is None:
-            from_server = not to_server
-
-        localized_value = self._add_timezone(value, server=from_server)
-        localized_value = self.normalize(localized_value, server=to_server)
+        localized_value = self.convert(value, to_server, from_server=from_server)
         return datetime_utils.to_datetime_string(localized_value)
 
     def to_date_string(self, value):
@@ -298,13 +318,9 @@ class DateTimeManager(Manager):
         :rtype: str
         """
 
-        if from_server is None:
-            from_server = not to_server
-
         localized_value = value
         if isinstance(value, datetime):
-            localized_value = self._add_timezone(value, server=from_server)
-            localized_value = self.normalize(localized_value, server=to_server)
+            localized_value = self.convert(value, to_server, from_server=from_server)
 
         return datetime_utils.to_time_string(localized_value)
 
@@ -330,12 +346,8 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        if from_server is None:
-            from_server = not to_server
-
         converted_datetime = datetime_utils.to_datetime(value)
-        converted_datetime = self._add_timezone(converted_datetime, server=from_server)
-        return self.normalize(converted_datetime, server=to_server)
+        return self.convert(converted_datetime, to_server, from_server=from_server)
 
     def to_date(self, value):
         """

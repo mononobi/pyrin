@@ -117,6 +117,28 @@ def get_timezone_name(server):
     return get_component(DateTimePackage.COMPONENT_NAME).get_timezone_name(server)
 
 
+def convert(value, to_server, from_server=None):
+    """
+    converts the given datetime between server and client timezones.
+
+    :param datetime value: value to be converted.
+
+    :param bool to_server: specifies that value must be normalized
+                           to server timezone. if set to False, it
+                           will be normalized to client timezone.
+
+    :param bool from_server: specifies that value must be normalized
+                             from server timezone. if set to False, it
+                             will be normalized from client timezone.
+                             if not provided, it will be set to opposite
+                             of `to_server` value.
+    :rtype: datetime
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).convert(value, to_server,
+                                                                 from_server=from_server)
+
+
 def as_timezone(value, server):
     """
     gets the result of `astimezone` on the given value.

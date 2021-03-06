@@ -3,12 +3,14 @@
 orm sql schema columns module.
 """
 
+from sqlalchemy.sql.type_api import Variant
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import BigInteger, Integer, ForeignKey, String, Unicode, Boolean, \
     SmallInteger, Float, DateTime, Date, Time, TIMESTAMP, Text, UnicodeText, DECIMAL
 
 import pyrin.utils.misc as misc_utils
 
+from pyrin.database.enumerations import DialectEnum
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin, GUIDColumnMixin, TypeMixin
 from pyrin.database.orm.sql.schema.exceptions import AutoPKColumnTypeIsInvalidError, \
@@ -286,6 +288,7 @@ class AutoPKColumn(PKColumn):
 
     this is a helper class for defining pk columns with auto increment value.
     this type of pk column's value is not available to python side without commit or flush.
+    this type of columns handle autoincrement correctly also on sqlite backend.
     """
 
     DEFAULT_TYPE = BigInteger
@@ -353,10 +356,21 @@ class AutoPKColumn(PKColumn):
         if type_ is None:
             type_ = self.DEFAULT_TYPE
 
-        if not misc_utils.is_subclass_or_instance(type_, Integer):
+        is_variant = isinstance(type_, Variant)
+        if not misc_utils.is_subclass_or_instance(type_, Integer) and \
+                not (is_variant and misc_utils.is_subclass_or_instance(type_.impl, Integer)):
+
             raise AutoPKColumnTypeIsInvalidError('The auto pk column type must be an '
                                                  'instance or subclass of [{integer}].'
                                                  .format(integer=Integer))
+
+        if not is_variant and isinstance(type_, type):
+            type_ = type_()
+
+        # this is for sqlite to handle autoincrement correctly also on other
+        # variants of Integer. such as BigInteger and SmallInteger.
+        if not is_variant:
+            type_ = type_.with_variant(Integer, DialectEnum.SQLITE)
 
         kwargs.update(name=name, type_=type_, autoincrement=True, min_value=1)
         kwargs.pop('default', None)
