@@ -6,6 +6,7 @@ orm types mixin module.
 from datetime import datetime
 
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.utils.datetime as datetime_utils
 
 from pyrin.database.enumerations import DialectEnum
 from pyrin.database.orm.types.base import CoreCustomType
@@ -30,7 +31,10 @@ class DateTimeMixin(CoreCustomType):
         :rtype: datetime
         """
 
-        if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
+        if dialect.name == DialectEnum.SQLITE:
+            if not isinstance(value, datetime):
+                value = datetime_utils.to_datetime_from_date(value)
+
             return datetime_services.convert(value, to_server=True, from_server=True)
 
         return value
@@ -46,7 +50,7 @@ class DateTimeMixin(CoreCustomType):
         :rtype: datetime
         """
 
-        if dialect.name == DialectEnum.SQLITE and isinstance(value, datetime):
+        if dialect.name == DialectEnum.SQLITE:
             return datetime_services.convert(value, to_server=True, from_server=True)
 
         return value
