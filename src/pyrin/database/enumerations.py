@@ -27,3 +27,4 @@ class DialectEnum(CoreEnum):
     ORACLE = 'oracle'
     MYSQL = 'mysql'
     SYBASE = 'sybase'
+    FIREBIRD = 'firebird'
