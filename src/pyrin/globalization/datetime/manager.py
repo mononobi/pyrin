@@ -3,7 +3,7 @@
 datetime manager module.
 """
 
-from datetime import datetime
+from datetime import datetime, date
 
 import pytz
 
@@ -87,6 +87,36 @@ class DateTimeManager(Manager):
         """
 
         return self.now(server=False)
+
+    def today(self, server=True, timezone=None):
+        """
+        gets the current date based on requested timezone.
+
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to True.
+
+        :param str timezone: timezone name to get date based on it.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
+
+        :rtype: date
+        """
+
+        now = self.now(server, timezone=timezone)
+        return date(year=now.year, month=now.month, day=now.day)
+
+    def client_today(self):
+        """
+        gets the current date based on client timezone.
+
+        this is a helper method to let get the client date
+        without providing value to `today` method.
+
+        :rtype: date
+        """
+
+        return self.today(server=False)
 
     def current_year(self, server=True, timezone=None):
         """

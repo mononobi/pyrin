@@ -38,6 +38,37 @@ def client_now():
     return get_component(DateTimePackage.COMPONENT_NAME).client_now()
 
 
+def today(server=True, timezone=None):
+    """
+    gets the current date based on requested timezone.
+
+    :param bool server: if set to True, server timezone will be used.
+                        if set to False, client timezone will be used.
+                        defaults to True.
+
+    :param str timezone: timezone name to get date based on it.
+                         if provided, the value of `server` input
+                         will be ignored. defaults to None.
+
+    :rtype: date
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).today(server, timezone)
+
+
+def client_today():
+    """
+    gets the current date based on client timezone.
+
+    this is a helper method to let get the client date
+    without providing value to `today` method.
+
+    :rtype: date
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).client_today()
+
+
 def current_year(server=True, timezone=None):
     """
     gets the current year based on requested timezone.
