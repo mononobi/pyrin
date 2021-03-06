@@ -267,14 +267,16 @@ def add_datetime_range_clause(clauses, column,
     :keyword bool consider_begin_of_day: specifies that consider begin
                                          of day for lower datetime.
                                          defaults to False if not provided.
-                                         note that for `date` values, this
-                                         flag will be always considered as True.
+                                         note that this flag is only for
+                                         datetime values and will be ignored
+                                         for date values.
 
     :keyword bool consider_end_of_day: specifies that consider end
                                        of day for upper datetime.
                                        defaults to False if not provided.
                                        note that for `date` values, this
-                                       flag will be always considered as True.
+                                       flag will be always considered as
+                                       True to prevent missing values.
     """
 
     value_lower, value_upper = datetime_utils.normalize_datetime_range(value_lower,
