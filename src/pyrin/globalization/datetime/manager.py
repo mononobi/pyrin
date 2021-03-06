@@ -494,3 +494,40 @@ class DateTimeManager(Manager):
         current = self.now(server=server, timezone=timezone)
         return self.get_timestamp(current, date_sep=date_sep, main_sep=main_sep,
                                   time_sep=time_sep, microsecond=microsecond)
+
+    def datetime(self, year, month, day, hour=0, minute=0,
+                 second=0, microsecond=0, fold=0,
+                 server=True, timezone=None):
+        """
+        gets a new datetime with given inputs and requested timezone.
+
+        :param int year: year.
+        :param int month: month.
+        :param int day: day.
+        :param int hour: hour.
+        :param int minute: minute.
+        :param int second: second.
+        :param int microsecond: microsecond.
+
+        :param int fold: used to disambiguate wall times during a repeated
+                         interval. it could be set to 0 or 1.
+
+        :param bool server: if set to True, server timezone will be used.
+                            if set to False, client timezone will be used.
+                            defaults to True.
+
+        :param str timezone: timezone name to be used.
+                             if provided, the value of `server` input
+                             will be ignored. defaults to None.
+        :rtype: datetime
+        """
+
+        if timezone not in (None, ''):
+            timezone = self.get_timezone(timezone)
+        else:
+            timezone = self.get_current_timezone(server=server)
+
+        result = datetime(year=year, month=month, day=day, hour=hour, minute=minute,
+                          second=second, microsecond=microsecond, fold=fold)
+
+        return timezone.localize(result)

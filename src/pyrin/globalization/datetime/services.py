@@ -428,3 +428,36 @@ def get_current_timestamp(date_sep='-', main_sep=' ',
                                                                                server,
                                                                                timezone,
                                                                                microsecond)
+
+
+def datetime(year, month, day, hour=0, minute=0,
+             second=0, microsecond=0, fold=0,
+             server=True, timezone=None):
+    """
+    gets a new datetime with given inputs and requested timezone.
+
+    :param int year: year.
+    :param int month: month.
+    :param int day: day.
+    :param int hour: hour.
+    :param int minute: minute.
+    :param int second: second.
+    :param int microsecond: microsecond.
+
+    :param int fold: used to disambiguate wall times during a repeated
+                     interval. it could be set to 0 or 1.
+
+    :param bool server: if set to True, server timezone will be used.
+                        if set to False, client timezone will be used.
+                        defaults to True.
+
+    :param str timezone: timezone name to be used.
+                         if provided, the value of `server` input
+                         will be ignored. defaults to None.
+    :rtype: datetime
+    """
+
+    return get_component(DateTimePackage.COMPONENT_NAME).datetime(year, month, day,
+                                                                  hour, minute, second,
+                                                                  microsecond, fold,
+                                                                  server, timezone)
