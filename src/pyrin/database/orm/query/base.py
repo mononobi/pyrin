@@ -19,7 +19,7 @@ from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    UnsupportedQueryStyleError, InjectTotalCountError, InvalidOrderByScopeError
+    UnsupportedQueryStyleError, InvalidOrderByScopeError
 
 
 @inspection._self_inspects
@@ -231,22 +231,17 @@ class CoreQuery(Query):
                                                           current request.
                                                           if no request is available
                                                           and `inject_total` is set to
-                                                          `SECURE_TRUE` it raises an error.
+                                                          `SECURE_TRUE`, it will be ignored.
                                                           defaults to `SECURE_FALSE` if not
                                                           provided.
 
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
-
-        :raises InjectTotalCountError: inject total count error.
         """
 
         inject_total = options.get('inject_total', SECURE_FALSE)
-        if inject_total is SECURE_TRUE:
-            if session_services.is_request_context_available() is False:
-                raise InjectTotalCountError('"inject_total=SECURE_TRUE" is only allowed '
-                                            'when request context is available.')
-
+        if inject_total is SECURE_TRUE and \
+                session_services.is_request_context_available() is True:
             paginator = session_services.get_request_context('paginator', None)
             if paginator is not None:
                 paginator.total_count = self.order_by(None).count()
