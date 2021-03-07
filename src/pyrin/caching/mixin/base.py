@@ -10,10 +10,9 @@ import pyrin.security.session.services as session_services
 
 from pyrin.caching.structs import CacheableDict
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.core.structs import CoreObject
 
 
-class CacheMixinBase(CoreObject):
+class CacheMixinBase:
     """
     cache mixin base class.
     """
@@ -73,7 +72,7 @@ class CacheMixinBase(CoreObject):
         raise CoreNotImplementedError()
 
 
-class SimpleKeyGeneratorMixin(CoreObject):
+class SimpleKeyGeneratorMixin:
     """
     simple key generator mixin class.
     """

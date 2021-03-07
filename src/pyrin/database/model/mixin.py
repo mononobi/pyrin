@@ -38,13 +38,13 @@ from pyrin.database.orm.sql.schema.columns import TimeStampColumn
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.database.services import get_current_store
-from pyrin.core.structs import CoreObject, DTO, CoreImmutableDict
+from pyrin.core.structs import DTO, CoreImmutableDict
 from pyrin.utils.exceptions import InvalidOrderingColumnError
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
 
 
-class ColumnMixin(CoreObject):
+class ColumnMixin:
     """
     column mixin class.
 
@@ -163,7 +163,7 @@ class ColumnMixin(CoreObject):
         return columns
 
 
-class RelationshipMixin(CoreObject):
+class RelationshipMixin:
     """
     relationship mixin class.
 
@@ -218,7 +218,7 @@ class RelationshipMixin(CoreObject):
         return relationships
 
 
-class HybridPropertyMixin(CoreObject):
+class HybridPropertyMixin:
     """
     hybrid property mixin class.
 
@@ -336,7 +336,7 @@ class HybridPropertyMixin(CoreObject):
         return hybrid_properties
 
 
-class PrimaryKeyMixin(CoreObject):
+class PrimaryKeyMixin:
     """
     primary key mixin class.
 
@@ -490,7 +490,7 @@ class PrimaryKeyMixin(CoreObject):
         return pk
 
 
-class ForeignKeyMixin(CoreObject):
+class ForeignKeyMixin:
     """
     foreign key mixin class.
 
@@ -614,7 +614,7 @@ class ForeignKeyMixin(CoreObject):
         return fk
 
 
-class AttributeMixin(CoreObject):
+class AttributeMixin:
     """
     attribute mixin class.
 
@@ -763,7 +763,7 @@ class AttributeMixin(CoreObject):
         return not name.startswith('_')
 
 
-class ConverterMixin(CoreObject):
+class ConverterMixin:
     """
     converter mixin class.
 
@@ -1069,7 +1069,7 @@ class ConverterMixin(CoreObject):
             if len(not_existed) > 0:
                 raise ColumnNotExistedError('Provided columns, relationships or properties '
                                             '{columns} are not available in entity [{entity}].'
-                                            .format(entity=self,
+                                            .format(entity=repr(self),
                                                     columns=list(not_existed)))
 
         for column in result_columns:
@@ -1104,7 +1104,7 @@ class ConverterMixin(CoreObject):
         if silent is False:
             raise ColumnNotExistedError('Provided column, relationship or property '
                                         '[{column}] is not available in entity [{entity}].'
-                                        .format(entity=self, column=name))
+                                        .format(entity=repr(self), column=name))
 
     def _extract_conditions(self, **options):
         """
@@ -1230,7 +1230,7 @@ class ConverterMixin(CoreObject):
         return columns.difference(exclude), rename, exclude
 
 
-class MagicMethodMixin(CoreObject):
+class MagicMethodMixin:
     """
     magic method mixin class.
 
@@ -1286,7 +1286,7 @@ class MagicMethodMixin(CoreObject):
 
         return super().__hash__()
 
-    def __repr__(self):
+    def __str__(self):
         """
         gets the string representation of current entity.
 
@@ -1294,8 +1294,17 @@ class MagicMethodMixin(CoreObject):
         """
 
         return '{module}.{name} [{pk}]'.format(module=self.__module__,
-                                               name=self.get_name(),
+                                               name=self.get_class_name(),
                                                pk=self.primary_key())
+
+    def __repr__(self):
+        """
+        gets the string representation of current entity.
+
+        :rtype: str
+        """
+
+        return self.get_fully_qualified_name()
 
     @classmethod
     def _set_root_base_class(cls, root_base_class):
@@ -1492,7 +1501,7 @@ class MagicMethodMixin(CoreObject):
                           'method.'.format(new=declarative_base_class))
 
 
-class QueryMixin(CoreObject):
+class QueryMixin:
     """
     query mixin class.
 
@@ -1540,7 +1549,7 @@ class QueryMixin(CoreObject):
         return store.query(*used_entities, **options)
 
 
-class CRUDMixin(CoreObject):
+class CRUDMixin:
     """
     crud mixin class.
 
@@ -1683,7 +1692,7 @@ class CRUDMixin(CoreObject):
             store.flush()
 
 
-class MetadataMixin(CoreObject):
+class MetadataMixin:
     """
     metadata mixin class.
 
@@ -1697,7 +1706,7 @@ class MetadataMixin(CoreObject):
     _schema = None
     _extend_existing = None
 
-    # it could be column names or instances.
+    # it could be table column names or entity column attribute instances.
     # for example:
     # _unique_on = name -> single column.
     # _unique_on = name, age -> multiple columns in one constraint.
@@ -1898,7 +1907,7 @@ class ModelCacheMixin(TypedCacheMixin):
     _container = {}
 
 
-class DefaultPrefetchMixin(CoreObject):
+class DefaultPrefetchMixin:
     """
     default prefetch mixin class.
 
@@ -2183,7 +2192,7 @@ class DefaultPrefetchMixin(CoreObject):
                 self._set_update_default(item)
 
 
-class OrderingMixin(CoreObject):
+class OrderingMixin:
     """
     ordering mixin class.
 
@@ -2230,7 +2239,7 @@ class OrderingMixin(CoreObject):
         return tuple(result)
 
 
-class CreateHistoryMixin(CoreObject):
+class CreateHistoryMixin:
     """
     create history mixin class.
 
@@ -2241,7 +2250,7 @@ class CreateHistoryMixin(CoreObject):
                                  default=datetime_services.now, allow_write=False)
 
 
-class UpdateHistoryMixin(CoreObject):
+class UpdateHistoryMixin:
     """
     update history mixin class.
 
