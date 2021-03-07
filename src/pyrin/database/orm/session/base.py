@@ -10,11 +10,12 @@ import pyrin.database.services as database_services
 import pyrin.database.orm.sql.extractor.services as extractor_services
 
 from pyrin.core.globals import _
+from pyrin.core.structs import CoreObject
 from pyrin.database.exceptions import InvalidDatabaseBindError
 from pyrin.database.orm.session.exceptions import TransientSQLExpressionRequiredError
 
 
-class CoreSession(Session):
+class CoreSession(Session, CoreObject):
     """
     core session class.
 
@@ -24,6 +25,17 @@ class CoreSession(Session):
     # these keywords are forbidden when 'execute' method is called
     # with 'transient=True' and a raw sql is given.
     NON_TRANSIENT_KEYWORDS = ['commit', 'flush', 'rollback', 'alter ', 'create ', 'drop ']
+
+    def __str__(self):
+        """
+        gets the string representation of current session.
+
+        :rtype: str
+        """
+
+        atomic = getattr(self, 'atomic', False)
+        return '{fullname}: atomic={atomic}'.format(fullname=self.get_fully_qualified_name(),
+                                                    atomic=atomic)
 
     def execute(self, clause, params=None, mapper=None, bind=None, **kw):
         """
