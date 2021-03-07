@@ -223,31 +223,40 @@ class CoreQuery(Query):
         sets offset and limit for current query.
 
         the offset and limit values will be extracted from given inputs.
-        note that if `inject_total=SECURE_TRUE` is given, `.paginate` must
-        be called after all other query attributes have been called. otherwise
-        unexpected behaviour may occur.
+        note that `.paginate` must be called after all other query methods
+        have been called. otherwise unexpected behaviour may occur.
+
+        if there is no request context available or there is no paginator for
+        current request, pagination will be ignored. this is required to prevent
+        security risks by clients.
+
+        if you want pagination outside of request context, you could use
+        `.limit` and `.offset` methods directly.
 
         :keyword SECURE_TRUE | SECURE_FALSE inject_total: inject total count into
                                                           current request.
-                                                          if no request is available
-                                                          and `inject_total` is set to
-                                                          `SECURE_TRUE`, it will be ignored.
-                                                          defaults to `SECURE_FALSE` if not
-                                                          provided.
+                                                          defaults to `SECURE_FALSE`
+                                                          if not provided.
 
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
         """
 
         inject_total = options.get('inject_total', SECURE_FALSE)
-        if inject_total is SECURE_TRUE and \
-                session_services.is_request_context_available() is True:
+        paginator = None
+        if session_services.is_request_context_available() is True:
             paginator = session_services.get_request_context('paginator', None)
-            if paginator is not None:
+        else:
+            return self
+
+        if paginator is not None:
+            if inject_total is SECURE_TRUE:
                 paginator.total_count = self.order_by(None).count()
 
-        limit, offset = paging_services.get_paging_keys(**options)
-        return self.limit(limit).offset(offset)
+            limit, offset = paging_services.get_paging_keys(**options)
+            return self.limit(limit).offset(offset)
+
+        return self
 
     def existed(self):
         """
