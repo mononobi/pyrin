@@ -1069,8 +1069,8 @@ class ConverterMixin:
             if len(not_existed) > 0:
                 raise ColumnNotExistedError('Provided columns, relationships or properties '
                                             '{columns} are not available in entity [{entity}].'
-                                            .format(entity=repr(self),
-                                                    columns=list(not_existed)))
+                                            .format(columns=list(not_existed),
+                                                    entity=self.get_fully_qualified_name()))
 
         for column in result_columns:
             setattr(self, column, kwargs.get(column))
@@ -1104,7 +1104,8 @@ class ConverterMixin:
         if silent is False:
             raise ColumnNotExistedError('Provided column, relationship or property '
                                         '[{column}] is not available in entity [{entity}].'
-                                        .format(entity=repr(self), column=name))
+                                        .format(column=name,
+                                                entity=self.get_fully_qualified_name()))
 
     def _extract_conditions(self, **options):
         """
@@ -1293,18 +1294,8 @@ class MagicMethodMixin:
         :rtype: str
         """
 
-        return '{module}.{name} [{pk}]'.format(module=self.__module__,
-                                               name=self.get_class_name(),
-                                               pk=self.primary_key())
-
-    def __repr__(self):
-        """
-        gets the string representation of current entity.
-
-        :rtype: str
-        """
-
-        return self.get_fully_qualified_name()
+        return '{fullname} -> {pk}'.format(fullname=self.get_fully_qualified_name(),
+                                           pk=self.primary_key())
 
     @classmethod
     def _set_root_base_class(cls, root_base_class):
