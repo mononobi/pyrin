@@ -46,3 +46,10 @@ class InvalidModelHookTypeError(DatabaseModelException):
     invalid model hook type error.
     """
     pass
+
+
+class InvalidOrderingColumnTypeError(DatabaseModelException):
+    """
+    invalid ordering column type error.
+    """
+    pass

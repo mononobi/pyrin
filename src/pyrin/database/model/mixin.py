@@ -34,6 +34,7 @@ from pyrin.core.decorators import class_property
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.caching.mixin.typed import TypedCacheMixin
 from pyrin.core.globals import LIST_TYPES, SECURE_TRUE, SECURE_FALSE
+from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.columns import TimeStampColumn
 from pyrin.utils.custom_print import print_warning
 from pyrin.core.exceptions import CoreNotImplementedError
@@ -41,7 +42,7 @@ from pyrin.database.services import get_current_store
 from pyrin.core.structs import DTO, CoreImmutableDict
 from pyrin.utils.exceptions import InvalidOrderingColumnError
 from pyrin.database.model.exceptions import ColumnNotExistedError, \
-    InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError
+    InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError, InvalidOrderingColumnTypeError
 
 
 class ColumnMixin:
@@ -638,6 +639,26 @@ class AttributeMixin:
         info = sqla_inspect(cls)
         for attr in info.column_attrs:
             result[attr.key] = attr.columns[0]
+
+        return CoreImmutableDict(result)
+
+    @class_property
+    @fast_cache
+    def all_reverse_column_attributes(cls):
+        """
+        gets an immutable dict of all reverse column attributes of this entity.
+
+        this is the opposite of `all_column_attributes` value. the result
+        dict keys are column instances and their values are attribute names.
+        the result will be calculated once and cached per entity type.
+
+        :returns: CoreImmutableDict(CoreColumn column, str name)
+        :rtype: CoreImmutableDict
+        """
+
+        result = dict()
+        for name, column in cls.all_column_attributes.items():
+            result[column] = name
 
         return CoreImmutableDict(result)
 
@@ -1697,11 +1718,12 @@ class MetadataMixin:
     _schema = None
     _extend_existing = None
 
-    # it could be table column names or entity column attribute instances.
+    # a list of entity column instances or table column names to
+    # create unique constraint for them.
     # for example:
     # _unique_on = name -> single column.
     # _unique_on = name, age -> multiple columns in one constraint.
-    # _unique_on = identity, (name, age), username -> multiple columns in multiple constraints.
+    # _unique_on = identity, (name, age), username -> multiple columns in three constraints.
     _unique_on = None
 
     # mapper args
@@ -1710,6 +1732,7 @@ class MetadataMixin:
     _concrete = None
 
     @classmethod
+    @fast_cache
     def _get_unique_constraints(cls):
         """
         gets required unique constraints for this entity.
@@ -2190,6 +2213,54 @@ class OrderingMixin:
     this class adds functionalities about ordering to its subclasses.
     """
 
+    # a list of entity column instances which are allowed to be used in order by criterion.
+    # defaults to all columns of entity if not provided. if set to an empty list ordering
+    # will be disabled for all columns.
+    # for example:
+    # _ordering_columns = None -> allow ordering on all columns (default).
+    # _ordering_columns = [] -> disable ordering on all columns.
+    # _ordering_columns = name -> allow ordering only on name column.
+    # _ordering_columns = age, name, family -> allow ordering on three columns.
+    _ordering_columns = None
+
+    @class_property
+    @fast_cache
+    def ordering_column_names(cls):
+        """
+        gets all column attribute names which are allowed in order by.
+
+        the result will be calculated once and cached per entity type.
+
+        :raises InvalidOrderingColumnTypeError: invalid ordering column type error.
+        :raises ColumnNotExistedError: column not existed error.
+
+        :rtype: tuple[str]
+        """
+
+        if cls._ordering_columns is None:
+            return cls.all_columns + cls.primary_key_columns + cls.foreign_key_columns
+
+        iterable_columns = misc_utils.make_iterable(cls._ordering_columns, tuple)
+        if len(iterable_columns) <= 0:
+            return tuple()
+
+        result = []
+        for item in iterable_columns:
+            if not isinstance(item, CoreColumn):
+                raise InvalidOrderingColumnTypeError('Ordering columns on entity [{entity}] '
+                                                     'must be an instance of [{column}].'
+                                                     .format(entity=cls, column=CoreColumn))
+
+            name = cls.all_reverse_column_attributes.get(item)
+            if name is None:
+                raise ColumnNotExistedError('Ordering column [{column}] does '
+                                            'not exist in entity [{entity}].'
+                                            .format(column=item, entity=cls))
+
+            result.append(name)
+
+        return tuple(result)
+
     @classmethod
     def get_ordering_criterion(cls, *columns, ignore_invalid=True):
         """
@@ -2221,10 +2292,11 @@ class OrderingMixin:
             if sqlalchemy_utils.is_valid_column_name(item):
                 name, order_type = sqlalchemy_utils.get_ordering_info(item)
                 attribute = cls._get_column_attribute(name)
-                if attribute is None and ignore_invalid is False:
+                is_allowed = name in cls.ordering_column_names
+                if (attribute is None or not is_allowed) and ignore_invalid is False:
                     raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
                                                        'for ordering.').format(name=name))
-                elif attribute is not None:
+                elif attribute is not None and is_allowed:
                     result.append(order_type(attribute))
 
         return tuple(result)
