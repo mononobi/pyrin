@@ -35,7 +35,7 @@ class DateTimeMixin(CoreCustomType):
             if not isinstance(value, datetime):
                 value = datetime_utils.to_datetime_from_date(value)
 
-            return datetime_services.convert(value, to_server=True, from_server=True)
+            return datetime_services.convert_to_utc(value, from_server=True)
 
         return value
 
@@ -51,7 +51,7 @@ class DateTimeMixin(CoreCustomType):
         """
 
         if dialect.name == DialectEnum.SQLITE:
-            return datetime_services.convert(value, to_server=True, from_server=True)
+            return datetime_services.convert_from_utc(value, to_server=True)
 
         return value
 

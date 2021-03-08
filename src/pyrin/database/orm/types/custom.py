@@ -124,6 +124,7 @@ class CoreTimeStamp(DateTimeMixin):
     core timestamp class.
 
     this is a helper type that will handle datetime values correctly on sqlite backend.
+    on sqlite backend, the timezone of database will always considered as utc.
     it works as default on other backends.
     """
 
@@ -135,6 +136,7 @@ class CoreDateTime(DateTimeMixin):
     core datetime class.
 
     this is a helper type that will handle datetime values correctly on sqlite backend.
+    on sqlite backend, the timezone of database will always considered as utc.
     it works as default on other backends.
     """
 

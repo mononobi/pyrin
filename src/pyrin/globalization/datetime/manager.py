@@ -13,6 +13,7 @@ import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.structs import Manager
 from pyrin.globalization.datetime import DateTimePackage
+from pyrin.globalization.datetime.enumerations import TimezoneEnum
 
 
 class DateTimeManager(Manager):
@@ -32,27 +33,68 @@ class DateTimeManager(Manager):
         server_timezone = config_services.get('globalization',
                                               'locale', 'babel_default_timezone')
 
-        client_timezone = config_services.get('globalization',
-                                              'locale', 'client_timezone')
+        client_timezone = config_services.get('globalization', 'locale', 'client_timezone')
 
-        self._server_timezone = pytz.timezone(server_timezone)
-        self._client_timezone = pytz.timezone(client_timezone)
+        self._server_timezone = self.get_timezone(server_timezone)
+        self._client_timezone = self.get_timezone(client_timezone)
 
-    def _add_timezone(self, value, server):
+    def _try_add_timezone(self, value, timezone):
         """
-        adds the current timezone info into input value if it has no timezone info.
+        adds the given timezone info into input value if it has no timezone info.
 
         :param datetime value: value to add timezone info into it.
-        :param bool server: specifies that server or client timezone must be added.
+        :param str timezone: timezone name to get datetime based on it.
 
         :rtype: datetime
         """
 
         localized_value = value
         if value.tzinfo is None:
-            localized_value = self.localize(value, server)
+            localized_value = self._localize(value, timezone)
 
         return localized_value
+
+    def _localize(self, value, timezone):
+        """
+        localizes input datetime with given timezone.
+
+        input value should not have a timezone info.
+
+        :param datetime value: value to be localized.
+        :param str timezone: timezone name to get datetime based on it.
+
+        :rtype: datetime
+        """
+
+        timezone = self.get_timezone(timezone)
+        return timezone.localize(value)
+
+    def _as_timezone(self, value, timezone):
+        """
+        gets the result of `astimezone` on the given value.
+
+        :param datetime value: value to get normalized.
+        :param str timezone: timezone name to get datetime based on it.
+
+        :rtype: datetime
+        """
+
+        timezone = self.get_timezone(timezone)
+        return value.astimezone(timezone)
+
+    def _normalize(self, value, timezone):
+        """
+        normalizes input value using given timezone and returns it.
+
+        :param datetime value: value to get normalized.
+        :param str timezone: timezone name to get datetime based on it.
+
+        :rtype: datetime
+        """
+
+        value = self._as_timezone(value, timezone)
+        timezone = self.get_timezone(timezone)
+        return timezone.normalize(value)
 
     def now(self, server=True, timezone=None):
         """
@@ -222,8 +264,40 @@ class DateTimeManager(Manager):
         if from_server is None:
             from_server = not to_server
 
-        localized_value = self._add_timezone(value, server=from_server)
+        localized_value = self.try_add_timezone(value, server=from_server)
         return self.normalize(localized_value, server=to_server)
+
+    def convert_to_utc(self, value, from_server):
+        """
+        converts the given datetime to utc.
+
+        :param datetime value: value to be converted.
+
+        :param bool from_server: specifies that value must be normalized
+                                 from server timezone. if set to False, it
+                                 will be normalized from client timezone.
+
+        :rtype: datetime
+        """
+
+        localized_value = self.try_add_timezone(value, server=from_server)
+        return self._normalize(localized_value, TimezoneEnum.UTC)
+
+    def convert_from_utc(self, value, to_server):
+        """
+        converts the given datetime from utc.
+
+        :param datetime value: value to be converted.
+
+        :param bool to_server: specifies that value must be normalized
+                               to server timezone. if set to False, it
+                               will be normalized to client timezone.
+
+        :rtype: datetime
+        """
+
+        localized_value = self._try_add_timezone(value, TimezoneEnum.UTC)
+        return self.normalize(localized_value, to_server)
 
     def as_timezone(self, value, server):
         """
@@ -237,8 +311,8 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        timezone = self.get_current_timezone(server=server)
-        return value.astimezone(timezone)
+        timezone = self.get_timezone_name(server=server)
+        return self._as_timezone(value, timezone)
 
     def normalize(self, value, server):
         """
@@ -250,8 +324,8 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        value = self.as_timezone(value, server=server)
-        return self.get_current_timezone(server).normalize(value)
+        timezone = self.get_timezone_name(server)
+        return self._normalize(value, timezone)
 
     def localize(self, value, server):
         """
@@ -265,24 +339,21 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        return self.get_current_timezone(server).localize(value)
+        timezone = self.get_timezone_name(server)
+        return self._localize(value, timezone)
 
-    def replace_timezone(self, value, server):
+    def try_add_timezone(self, value, server):
         """
-        replaces given value's timezone with server or client timezone.
+        adds the current timezone info into input value if it has no timezone info.
 
-        it returns a new object.
-        note that this method does not normalize the value, it just replaces the
-        timezone and localizes the value.
-
-        :param datetime value: value to replace its timezone.
-        :param bool server: specifies that server or client timezone must used.
+        :param datetime value: value to add timezone info into it.
+        :param bool server: specifies that server or client timezone must be added.
 
         :rtype: datetime
         """
 
-        value = value.replace(tzinfo=None)
-        return self._add_timezone(value, server)
+        timezone = self.get_timezone_name(server)
+        return self._try_add_timezone(value, timezone)
 
     def to_datetime_string(self, value, to_server, from_server=None):
         """
@@ -522,12 +593,10 @@ class DateTimeManager(Manager):
         :rtype: datetime
         """
 
-        if timezone not in (None, ''):
-            timezone = self.get_timezone(timezone)
-        else:
-            timezone = self.get_current_timezone(server=server)
-
         result = datetime(year=year, month=month, day=day, hour=hour, minute=minute,
                           second=second, microsecond=microsecond, fold=fold)
 
-        return timezone.localize(result)
+        if timezone not in (None, ''):
+            return self._try_add_timezone(result, timezone)
+
+        return self.try_add_timezone(result, server)
