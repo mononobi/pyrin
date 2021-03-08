@@ -1406,77 +1406,36 @@ class MagicMethodMixin(ModelMixinBase):
         return '{fullname} -> {pk}'.format(fullname=self.get_fully_qualified_name(),
                                            pk=self.primary_key())
 
-    @classmethod
-    def _set_root_base_class(cls, root_base_class):
-        """
-        sets root base class of this entity.
-
-        root base class is the class which is direct subclass
-        of declarative base class (which by default is CoreEntity)
-        in inheritance hierarchy.
-
-        for example if you use pyrin's default CoreEntity as your base model:
-        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> B}
-        then, root base class of A, B and C is A.
-
-        if you implement a new base class named MyNewDeclarativeBase as base model:
-        {MyNewDeclarativeBase -> BaseEntity, A -> MyNewDeclarativeBase, B -> A, C -> B}
-        then, root base class of A, B and C is A.
-
-        the inheritance rule also supports multi-branch hierarchy. for example:
-        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> A}
-        then, root base class of A, B and C is A.
-
-        :param type root_base_class: root base class type.
-        """
-
-        setattr(root_base_class, '_root_base_class', root_base_class)
-
-    @classmethod
-    def _get_root_base_class(cls):
-        """
-        gets root base class of this entity and caches it.
-
-        returns None if it's not set.
-
-        root base class is the class which is direct subclass
-        of declarative base class (which by default is CoreEntity)
-        in inheritance hierarchy.
-
-        for example if you use pyrin's default CoreEntity as your base model:
-        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> B}
-        then, root base class of A, B and C is A.
-
-        if you implement a new base class named MyNewDeclarativeBase as base model:
-        {MyNewDeclarativeBase -> BaseEntity, A -> MyNewDeclarativeBase, B -> A, C -> B}
-        then, root base class of A, B and C is A.
-
-        the inheritance rule also supports multi-branch hierarchy. for example:
-        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> A}
-        then, root base class of A, B and C is A.
-
-        :rtype: type
-        """
-
-        return getattr(cls, '_root_base_class', None)
-
     @class_property
+    @fast_cache
     def root_base_class(cls):
         """
         gets root base class of this entity.
 
-        root base class will be calculated once and cached.
+        root base class is the class which is direct subclass
+        of declarative base class (which by default is CoreEntity)
+        in inheritance hierarchy.
+
+        for example if you use pyrin's default CoreEntity as your base model:
+        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> B}
+        then, root base class of A, B and C is A.
+
+        if you implement a new base class named MyNewDeclarativeBase as base model:
+        {MyNewDeclarativeBase -> BaseEntity, A -> MyNewDeclarativeBase, B -> A, C -> B}
+        then, root base class of A, B and C is A.
+
+        the inheritance rule also supports multi-branch hierarchy. for example:
+        {CoreEntity -> BaseEntity, A -> CoreEntity, B -> A, C -> A}
+        then, root base class of A, B and C is A.
+
+        root base class will be calculated once and cached per entity type.
 
         :rtype: type
         """
 
-        base = cls._get_root_base_class()
-        if base is None:
-            bases = inspect.getmro(cls)
-            root_base_entity_index = bases.index(cls.declarative_base_class) - 1
-            base = bases[root_base_entity_index]
-            cls._set_root_base_class(base)
-
+        bases = inspect.getmro(cls)
+        root_base_entity_index = bases.index(cls.declarative_base_class) - 1
+        base = bases[root_base_entity_index]
         return base
 
     @class_property
@@ -1607,7 +1566,6 @@ class MagicMethodMixin(ModelMixinBase):
         """
 
         temp = cls.root_base_class
-        temp = cls.declarative_base_class
         super().populate_cache()
 
 
