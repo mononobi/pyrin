@@ -97,6 +97,7 @@ class ModelManager(Manager, HookMixin):
         for table in self.get_tables().values():
             entity = sqlalchemy_utils.get_class_by_table(base, table, raise_multi=False)
             if entity is not None:
+                entity.populate_cache()
                 result.append(entity)
 
         self._entities = tuple(result)

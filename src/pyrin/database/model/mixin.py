@@ -45,7 +45,25 @@ from pyrin.database.model.exceptions import ColumnNotExistedError, \
     InvalidDeclarativeBaseTypeError, InvalidDepthProvidedError, InvalidOrderingColumnTypeError
 
 
-class ColumnMixin:
+class ModelMixinBase:
+    """
+    model mixin base class.
+
+    all model mixins that have cached values must be subclassed from this.
+    """
+
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+
+        this method will be get called on server startup for each entity.
+        subclasses must call `super().populate_cache()` at the end.
+        """
+        pass
+
+
+class ColumnMixin(ModelMixinBase):
     """
     column mixin class.
 
@@ -163,8 +181,20 @@ class ColumnMixin:
 
         return columns
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class RelationshipMixin:
+        temp = cls.readable_columns
+        temp = cls.not_readable_columns
+        temp = cls.writable_columns
+        temp = cls.not_writable_columns
+        super().populate_cache()
+
+
+class RelationshipMixin(ModelMixinBase):
     """
     relationship mixin class.
 
@@ -218,8 +248,17 @@ class RelationshipMixin:
                               if cls.is_public(attr.key) is False)
         return relationships
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class HybridPropertyMixin:
+        temp = cls.relationships
+        super().populate_cache()
+
+
+class HybridPropertyMixin(ModelMixinBase):
     """
     hybrid property mixin class.
 
@@ -336,8 +375,18 @@ class HybridPropertyMixin:
 
         return hybrid_properties
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class PrimaryKeyMixin:
+        temp = cls.all_getter_hybrid_properties
+        temp = cls.all_setter_hybrid_properties
+        super().populate_cache()
+
+
+class PrimaryKeyMixin(ModelMixinBase):
     """
     primary key mixin class.
 
@@ -490,8 +539,20 @@ class PrimaryKeyMixin:
 
         return pk
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class ForeignKeyMixin:
+        temp = cls.readable_primary_key_columns
+        temp = cls.not_readable_primary_key_columns
+        temp = cls.writable_primary_key_columns
+        temp = cls.not_writable_primary_key_columns
+        super().populate_cache()
+
+
+class ForeignKeyMixin(ModelMixinBase):
     """
     foreign key mixin class.
 
@@ -614,8 +675,20 @@ class ForeignKeyMixin:
 
         return fk
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class AttributeMixin:
+        temp = cls.readable_foreign_key_columns
+        temp = cls.not_readable_foreign_key_columns
+        temp = cls.writable_foreign_key_columns
+        temp = cls.not_writable_foreign_key_columns
+        super().populate_cache()
+
+
+class AttributeMixin(ModelMixinBase):
     """
     attribute mixin class.
 
@@ -782,6 +855,21 @@ class AttributeMixin:
         """
 
         return not name.startswith('_')
+
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
+
+        temp = cls.all_column_attributes
+        temp = cls.all_reverse_column_attributes
+        temp = cls.all_instrumented_attributes
+        temp = cls.all_readable_attributes
+        temp = cls.all_not_readable_attributes
+        temp = cls.all_writable_attributes
+        temp = cls.all_not_writable_attributes
+        super().populate_cache()
 
 
 class ConverterMixin:
@@ -1252,7 +1340,7 @@ class ConverterMixin:
         return columns.difference(exclude), rename, exclude
 
 
-class MagicMethodMixin:
+class MagicMethodMixin(ModelMixinBase):
     """
     magic method mixin class.
 
@@ -1511,6 +1599,16 @@ class MagicMethodMixin:
                           '"database.model" package. for more information on how to do '
                           'that or how to ignore it, see the documentation of specified '
                           'method.'.format(new=declarative_base_class))
+
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
+
+        temp = cls.root_base_class
+        temp = cls.declarative_base_class
+        super().populate_cache()
 
 
 class QueryMixin:
@@ -1921,7 +2019,7 @@ class ModelCacheMixin(TypedCacheMixin):
     _container = {}
 
 
-class DefaultPrefetchMixin:
+class DefaultPrefetchMixin(ModelMixinBase):
     """
     default prefetch mixin class.
 
@@ -2205,8 +2303,20 @@ class DefaultPrefetchMixin:
             if provided is None:
                 self._set_update_default(item)
 
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
 
-class OrderingMixin:
+        temp = cls.columns_with_scalar_insert_default
+        temp = cls.columns_with_complex_insert_default
+        temp = cls.columns_with_scalar_update_default
+        temp = cls.columns_with_complex_update_default
+        super().populate_cache()
+
+
+class OrderingMixin(ModelMixinBase):
     """
     ordering mixin class.
 
@@ -2300,6 +2410,15 @@ class OrderingMixin:
                     result.append(order_type(attribute))
 
         return tuple(result)
+
+    @classmethod
+    def populate_cache(cls):
+        """
+        populates all related caches.
+        """
+
+        temp = cls.ordering_column_names
+        super().populate_cache()
 
 
 class CreateHistoryMixin:
