@@ -76,7 +76,11 @@ class DateTimeValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -161,7 +165,11 @@ class DateValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
@@ -246,7 +254,11 @@ class TimeValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.

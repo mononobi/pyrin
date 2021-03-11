@@ -100,6 +100,9 @@ class StringValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to False if not provided.
 
@@ -113,13 +116,10 @@ class StringValidator(ValidatorBase):
                                      no max length checking will be done if not provided.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
-        :raises LongStringLengthError: long string length error.
-        :raises ShortStringLengthError: short string length error.
-        :raises ValueCouldNotBeBlankError: value could not be blank error.
-        :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         :raises MinimumLengthHigherThanMaximumLengthError: minimum length higher than
                                                            maximum length error.
         """
@@ -388,6 +388,9 @@ class RegexValidator(StringValidator):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to False if not provided.
 
@@ -406,13 +409,10 @@ class RegexValidator(StringValidator):
                             if no flags are provided, `default_flags` will be applied.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
-        :raises LongStringLengthError: long string length error.
-        :raises ShortStringLengthError: short string length error.
-        :raises ValueCouldNotBeBlankError: value could not be blank error.
-        :raises ValueCouldNotBeWhitespaceError: value could not be whitespace error.
         :raises InvalidRegularExpressionError: invalid regular expression error.
         :raises RegularExpressionMustBeProvidedError: regular expression must be provided error.
         """

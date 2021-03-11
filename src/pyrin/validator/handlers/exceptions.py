@@ -39,6 +39,13 @@ class ValidatorFieldIsRequiredError(ValidatorHandlersException):
     pass
 
 
+class ValidatorNameIsRequiredError(ValidatorHandlersException):
+    """
+    validator name is required error.
+    """
+    pass
+
+
 class ValueCouldNotBeNoneError(HandlersValidationException):
     """
     value could not be none error.

@@ -16,7 +16,7 @@ from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorFieldIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
     InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
-    ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError
+    ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError, ValidatorNameIsRequiredError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -118,25 +118,41 @@ class ValidatorBase(AbstractValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
+        custom_name = options.get('name', None)
         is_column = isinstance(field, InstrumentedAttribute)
         is_str = isinstance(field, str)
-        name = field
-        if is_column:
-            name = field.key
+        is_custom_name = isinstance(custom_name, str)
+        name = None
+        if is_custom_name:
+            name = custom_name
+        else:
+            if is_column:
+                name = field.key
+            else:
+                name = field
 
-        if (not is_column and not is_str) or (is_str and (field.isspace() or field == '')):
+        if not is_column and not is_str:
             raise ValidatorFieldIsRequiredError('Validator field must be provided for '
                                                 'validator [{instance}]. it could be '
                                                 'a string or a [{base}] type.'
                                                 .format(instance=self,
                                                         base=InstrumentedAttribute))
+
+        if name.isspace() or name == '':
+            raise ValidatorNameIsRequiredError('Validator name must be provided for '
+                                               'validator [{instance}].'
+                                               .format(instance=self))
 
         if (not inspect.isclass(domain) or not issubclass(domain, BaseEntity)) and \
                 (not isinstance(domain, str) or domain.isspace()):

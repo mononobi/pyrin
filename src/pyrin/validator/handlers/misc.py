@@ -85,12 +85,16 @@ class MinimumValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
                                          this value has precedence over `inclusive_minimum`
                                          instance attribute if provided.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -257,12 +261,16 @@ class MaximumValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :keyword bool inclusive_maximum: determines that values equal to
                                          accepted maximum should be considered valid.
                                          this value has precedence over `inclusive_maximum`
                                          instance attribute if provided.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -429,6 +437,9 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :keyword bool inclusive_minimum: determines that values equal to
                                          accepted minimum should be considered valid.
                                          this value has precedence over `inclusive_minimum`
@@ -440,6 +451,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                          instance attribute if provided.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -598,7 +610,11 @@ class InValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
@@ -724,7 +740,11 @@ class NotInValidator(ValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
+        :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
