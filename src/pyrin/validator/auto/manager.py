@@ -185,6 +185,8 @@ class ValidatorAutoManager(Manager):
         they will only be used in find validation and will only validate
         type of value if it is not None.
 
+        not that for primary key columns, no find validator will be created.
+
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
 
