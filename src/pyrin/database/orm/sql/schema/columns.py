@@ -179,6 +179,10 @@ class StringColumn(CoreColumn):
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
 
+        :keyword bool validated: specifies that an automatic validator for this column
+                                 must be registered, that is usable through validator
+                                 services. defaults to False if not provided.
+
         :raises StringColumnTypeIsInvalidError: string column type is invalid error.
         """
 
@@ -566,6 +570,14 @@ class FKColumn(CoreColumn):
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
+
+        :keyword bool validated: specifies that an automatic validator for this column
+                                 must be registered, that is usable through validator
+                                 services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         self._fk = kwargs.pop('fk', None)
@@ -830,6 +842,10 @@ class SequenceColumn(SequenceColumnMixin, CoreColumn):
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
 
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
+
         :keyword int cache: cache size for sequence.
                             defaults to `DEFAULT_CACHE`, if not provided.
                             to disable cache, you can pass it as None or `0`.
@@ -1085,6 +1101,10 @@ class DateTimeColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1205,6 +1225,10 @@ class TimeColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1315,6 +1339,10 @@ class TimeStampColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1481,6 +1509,10 @@ class TextColumn(StringColumn):
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
+
+        :keyword bool validated: specifies that an automatic validator for this column
+                                 must be registered, that is usable through validator
+                                 services. defaults to False if not provided.
 
         :raises TextColumnTypeIsInvalidError: text column type is invalid error.
         """

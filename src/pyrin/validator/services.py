@@ -23,6 +23,10 @@ def register_validator(instance, **options):
                            it with the new one, otherwise raise an error.
                            defaults to False.
 
+    :keyword str name: a custom name for this validator to be registered with.
+                       if not provided or if its not a string, the name of given
+                       instance will be used.
+
     :raises InvalidValidatorTypeError: invalid validator type error.
     :raises DuplicatedValidatorError: duplicated validator error.
     """

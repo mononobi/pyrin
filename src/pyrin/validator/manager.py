@@ -50,6 +50,10 @@ class ValidatorManager(Manager):
                                it with the new one, otherwise raise an error.
                                defaults to False.
 
+        :keyword str name: a custom name for this validator to be registered with.
+                           if not provided or if its not a string, the name of given
+                           instance will be used.
+
         :raises InvalidValidatorTypeError: invalid validator type error.
         :raises DuplicatedValidatorError: duplicated validator error.
         """
@@ -66,8 +70,12 @@ class ValidatorManager(Manager):
         else:
             domain_validators = self._validators.get(instance.domain)
 
+        name = options.get('name', None)
+        if name in (None, '') or not isinstance(name, str) or name.isspace():
+            name = instance.name
+
         if domain_validators is not None:
-            old_instance = domain_validators.get(instance.name)
+            old_instance = domain_validators.get(name)
             if old_instance is not None:
                 replace = options.get('replace', False)
                 if replace is not True:
@@ -78,7 +86,7 @@ class ValidatorManager(Manager):
                                                    'so validator [{instance}] '
                                                    'could not be registered.'
                                                    .format(old=old_instance,
-                                                           name=instance.name,
+                                                           name=name,
                                                            domain=instance.domain,
                                                            instance=instance))
 
@@ -92,7 +100,7 @@ class ValidatorManager(Manager):
         if domain_validators is None:
             domain_validators = DTO()
 
-        domain_validators[instance.name] = instance
+        domain_validators[name] = instance
 
         if instance.for_find is True:
             self._for_find_validators[instance.domain] = domain_validators

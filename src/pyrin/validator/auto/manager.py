@@ -31,6 +31,10 @@ class ValidatorAutoManager(Manager):
 
     package_class = ValidatorAutoPackage
 
+    # keywords that will be used to register find validators.
+    FROM_KEYWORD = 'from_'
+    TO_KEYWORD = 'to_'
+
     def __init__(self):
         """
         initializes an instance of ValidatorAutoManager.
@@ -81,12 +85,27 @@ class ValidatorAutoManager(Manager):
         """
         gets the required type validator for given field.
 
+        it may return None if `force=False` is given and no validator could be created.
+
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
+
+        :keyword bool for_find: specifies that this validator must only
+                                be used on validation for find.
+                                defaults to False if not provided.
+
+        :keyword str name: a custom name for this validator.
+                           if provided, the name of `field` will be ignored.
+
+        :keyword bool force: specifies that if no validator could be
+                             created for given field's type, it must return
+                             a base validator for it, otherwise it returns None.
+                             defaults to True if not provided.
 
         :rtype: AbstractValidatorBase
         """
 
+        force = options.get('force', True)
         collection_type, python_type = field.get_python_type()
         if collection_type is list:
             options.update(is_list=True)
@@ -95,7 +114,10 @@ class ValidatorAutoManager(Manager):
         if validator_class is not None:
             return validator_class(domain, field, **options)
 
-        return ValidatorBase(domain, field, **options)
+        if force is True:
+            return ValidatorBase(domain, field, **options)
+
+        return None
 
     def _get_range_validator(self, domain, field, **options):
         """
@@ -148,6 +170,37 @@ class ValidatorAutoManager(Manager):
 
         return None
 
+    def _get_find_validators(self, domain, field, **options):
+        """
+        gets required find validators for given field.
+
+        it returns a tuple of all required find validators.
+        it may return an empty tuple if no validator could be created
+        for given field's type.
+
+        find validators are constructed with names `from_*` and `to_*`.
+        they will only be used in find validation and will only validate
+        type of value if it is not None.
+
+        :param BaseEntity domain: entity type that this field is related to.
+        :param InstrumentedAttribute field: field instance.
+
+        :rtype: tuple
+        """
+
+        collection_type, python_type = field.get_python_type()
+        if field.primary_key is True or \
+                python_type not in (int, float, Decimal, datetime, date, time):
+            return tuple()
+
+        from_name = '{prefix}{field}'.format(prefix=self.FROM_KEYWORD, field=field.key)
+        from_validator = self._get_type_validator(domain, field, name=from_name, for_find=True)
+
+        to_name = '{prefix}{field}'.format(prefix=self.TO_KEYWORD, field=field.key)
+        to_validator = self._get_type_validator(domain, field, name=to_name, for_find=True)
+
+        return from_validator, to_validator
+
     def register_auto_validator(self, domain, field, **options):
         """
         register required auto validator for given field.
@@ -171,6 +224,26 @@ class ValidatorAutoManager(Manager):
         auto_validator = AutoValidator(domain, field, **options)
         validator_services.register_validator(auto_validator, **options)
 
+    def register_find_validators(self, domain, field, **options):
+        """
+        registers required find validators for given field.
+
+        it returns the count of registered find validators.
+
+        :param BaseEntity domain: entity type that this field is related to.
+        :param InstrumentedAttribute field: field instance.
+
+        :rtype: int
+        """
+
+        registered = 0
+        find_validators = self._get_find_validators(domain, field, **options)
+        for item in find_validators:
+            validator_services.register_validator(item, **options)
+            registered += 1
+
+        return registered
+
     def register_auto_validators(self):
         """
         registers all auto validators.
@@ -187,5 +260,9 @@ class ValidatorAutoManager(Manager):
                 if column.validated is True:
                     self.register_auto_validator(entity, column)
                     registered += 1
+
+                if column.validated_find is True:
+                    count = self.register_find_validators(entity, column)
+                    registered += count
 
         return registered

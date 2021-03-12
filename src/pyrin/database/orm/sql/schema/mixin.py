@@ -92,6 +92,10 @@ class SequenceColumnMixin:
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
 
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
+
         :keyword int cache: cache size for sequence.
                             defaults to `DEFAULT_CACHE`, if not provided.
                             to disable cache, you can pass it as None or `0`.
@@ -364,6 +368,10 @@ class TypeMixin:
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         args = list(args)

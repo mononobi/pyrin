@@ -167,6 +167,10 @@ class CoreColumn(Column, CoreColumnOperators):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services. defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that automatic find validators for this column
+                                      must be registered, that is usable through validator
+                                      services. defaults to `validated` value if not provided.
         """
 
         self.allow_read = kwargs.pop('allow_read', True)
@@ -176,6 +180,7 @@ class CoreColumn(Column, CoreColumnOperators):
         self.check_in = kwargs.pop('check_in', None)
         self.check_not_in = kwargs.pop('check_not_in', None)
         self.validated = kwargs.pop('validated', False)
+        self.validated_find = kwargs.pop('validated_find', self.validated)
 
         super().__init__(*args, **kwargs)
 
