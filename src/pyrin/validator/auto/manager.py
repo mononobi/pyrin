@@ -35,6 +35,9 @@ class ValidatorAutoManager(Manager):
     FROM_KEYWORD = 'from_'
     TO_KEYWORD = 'to_'
 
+    # list of all types that support find validators.
+    FIND_VALIDATOR_TYPES = [int, float, Decimal, datetime, date, time]
+
     def __init__(self):
         """
         initializes an instance of ValidatorAutoManager.
@@ -189,8 +192,7 @@ class ValidatorAutoManager(Manager):
         """
 
         collection_type, python_type = field.get_python_type()
-        if field.primary_key is True or \
-                python_type not in (int, float, Decimal, datetime, date, time):
+        if field.primary_key is True or python_type not in self.FIND_VALIDATOR_TYPES:
             return tuple()
 
         from_name = '{prefix}{field}'.format(prefix=self.FROM_KEYWORD, field=field.key)
