@@ -257,7 +257,7 @@ class ValidatorManager(Manager):
         :returns: same value or fixed one.
         """
 
-        validator = self.get_validator(domain, name)
+        validator = self.get_validator(domain, name, **options)
         force = options.get('force')
         if force is None:
             force = False
@@ -355,7 +355,7 @@ class ValidatorManager(Manager):
 
         available_data = set(data.keys())
         validator_names = set()
-        available_validators = self.get_domain_validators(domain)
+        available_validators = self.get_domain_validators(domain, **options)
         if available_validators is not None:
             validator_names = set(available_validators.keys())
 
