@@ -59,23 +59,30 @@ class AutoValidator(AbstractValidatorBase):
                                   validated for update operation.
                                   defaults to False if not provided.
 
+        :keyword bool for_find: specifies that validation is for find operation.
+                                defaults to False if not provided.
+                                if `for_find=True` is provided, this validator
+                                will only validate type if it is not None.
+
         :raises ValidationError: validation error.
 
         :returns: object | list[object]
         """
 
+        for_find = options.get('for_find', False)
         fixed_value = value
         if self._type_validator is not None:
             fixed_value = self._type_validator.validate(fixed_value, **options)
 
-        if self._range_validator is not None:
-            fixed_value = self._range_validator.validate(fixed_value, **options)
+        if for_find is False:
+            if self._range_validator is not None:
+                fixed_value = self._range_validator.validate(fixed_value, **options)
 
-        if self._in_validator is not None:
-            fixed_value = self._in_validator.validate(fixed_value, **options)
+            if self._in_validator is not None:
+                fixed_value = self._in_validator.validate(fixed_value, **options)
 
-        if self._custom_validator is not None:
-            fixed_value = self._custom_validator.validate(fixed_value, **options)
+            if self._custom_validator is not None:
+                fixed_value = self._custom_validator.validate(fixed_value, **options)
 
         return fixed_value
 
@@ -101,3 +108,13 @@ class AutoValidator(AbstractValidatorBase):
         """
 
         return self._domain
+
+    @property
+    def for_find(self):
+        """
+        gets a value indicating that this validator should only be used on validation for find.
+
+        :rtype: bool
+        """
+
+        return False

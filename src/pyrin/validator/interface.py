@@ -30,6 +30,13 @@ class AbstractValidatorBase(CoreObject):
                                   validated for update operation.
                                   defaults to False if not provided.
 
+        :keyword bool for_find: specifies that validation is for find operation.
+                                defaults to False if not provided.
+                                if this validator is for find and `for_find=False`
+                                is provided, no validation will be done.
+                                if `for_find=True` is provided, this validator
+                                will only validate type if it is not None.
+
         :raises CoreNotImplementedError: core not implemented error.
         :raises ValidationError: validation error.
 
@@ -65,6 +72,19 @@ class AbstractValidatorBase(CoreObject):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: type[BaseEntity] | str
+        """
+
+        raise CoreNotImplementedError()
+
+    @property
+    @abstractmethod
+    def for_find(self):
+        """
+        gets a value indicating that this validator should only be used on validation for find.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
         """
 
         raise CoreNotImplementedError()

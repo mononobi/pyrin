@@ -30,7 +30,7 @@ def register_validator(instance, **options):
     get_component(ValidatorPackage.COMPONENT_NAME).register_validator(instance, **options)
 
 
-def get_domain_validators(domain):
+def get_domain_validators(domain, **options):
     """
     gets all registered validators for given domain.
 
@@ -40,15 +40,20 @@ def get_domain_validators(domain):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
+    :keyword bool for_find: specifies that for find validators must also be included.
+                            defaults to False if not provided and only validators
+                            that have `for_find=False` will be returned.
+
     :raises ValidatorDomainNotFoundError: validator domain not found error.
 
     :rtype: dict[type[BaseEntity] | str, AbstractValidatorBase]
     """
 
-    return get_component(ValidatorPackage.COMPONENT_NAME).get_domain_validators(domain)
+    return get_component(ValidatorPackage.COMPONENT_NAME).get_domain_validators(domain,
+                                                                                **options)
 
 
-def get_validator(domain, name):
+def get_validator(domain, name, **options):
     """
     gets the registered validator for given domain and name.
 
@@ -60,15 +65,19 @@ def get_validator(domain, name):
 
     :param str name: validator name to get.
 
+    :keyword bool for_find: specifies that for find validators must also be included.
+                            defaults to False if not provided and only validators
+                            that have `for_find=False` will be returned.
+
     :raises ValidatorDomainNotFoundError: validator domain not found error.
 
     :rtype: AbstractValidatorBase
     """
 
-    return get_component(ValidatorPackage.COMPONENT_NAME).get_validator(domain, name)
+    return get_component(ValidatorPackage.COMPONENT_NAME).get_validator(domain, name, **options)
 
 
-def try_get_validator(domain, name):
+def try_get_validator(domain, name, **options):
     """
     gets the registered validator for given domain and name.
 
@@ -80,10 +89,15 @@ def try_get_validator(domain, name):
 
     :param str name: validator name to get.
 
+    :keyword bool for_find: specifies that for find validators must also be included.
+                            defaults to False if not provided and only validators
+                            that have `for_find=False` will be returned.
+
     :rtype: AbstractValidatorBase
     """
 
-    return get_component(ValidatorPackage.COMPONENT_NAME).try_get_validator(domain, name)
+    return get_component(ValidatorPackage.COMPONENT_NAME).try_get_validator(domain, name,
+                                                                            **options)
 
 
 def validate_field(domain, name, value, **options):
@@ -106,6 +120,11 @@ def validate_field(domain, name, value, **options):
     :keyword bool for_update: specifies that this field is being
                               validated for update operation.
                               defaults to False if not provided.
+
+    :keyword bool for_find: specifies that this field is being
+                            validated for find operation.
+                            defaults to False if not provided and only
+                            validators that have `for_find=False` will be used.
 
     :keyword bool nullable: determines that provided value could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -174,6 +193,11 @@ def validate_dict(domain, data, **options):
                               other fields. it is useful for changing the validation
                               behavior on insert or update operations. defaults to
                               False if not provided and all validators will be used.
+
+    :keyword bool for_find: specifies that this field is being
+                            validated for find operation.
+                            defaults to False if not provided and only
+                            validators that have `for_find=False` will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -305,6 +329,11 @@ def is_valid_field(domain, name, value, **options):
                               validated for update operation.
                               defaults to False if not provided.
 
+    :keyword bool for_find: specifies that this field is being
+                            validated for find operation.
+                            defaults to False if not provided and only
+                            validators that have `for_find=False` will be used.
+
     :keyword bool nullable: determines that provided value could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
 
@@ -366,6 +395,11 @@ def is_valid_dict(domain, data, **options):
                               other fields. it is useful for changing the validation
                               behavior on insert or update operations. defaults to
                               False if not provided and all validators will be used.
+
+    :keyword bool for_find: specifies that this field is being
+                            validated for find operation.
+                            defaults to False if not provided and only
+                            validators that have `for_find=False` will be used.
 
     :keyword bool nullable: determines that provided values could be None.
     :keyword bool is_list: specifies that the value must be a list of items.
@@ -468,3 +502,36 @@ def is_valid_entity(entity, **options):
     """
 
     return get_component(ValidatorPackage.COMPONENT_NAME).is_valid_entity(entity, **options)
+
+
+def validate_for_find(domain, data, **options):
+    """
+    validates available values of given dict for find operation.
+
+    it uses the correct validator for each value based on its key name.
+    note that the validation only assures that type of values are correct
+    if they are provided. so None values will be accepted too.
+
+    after validation is done, all inputs that are not valid will be removed from
+    input data to prevent errors on server. but if you want you can change it
+    to raise validation error.
+
+    :param type[BaseEntity] | str domain: the domain to validate the values for.
+                                          it could be a type of a BaseEntity
+                                          subclass or a string name.
+
+    :param dict data: dictionary to validate its values.
+
+    :keyword bool ignore_errors: specifies that each input that is not valid
+                                 must be ignored and removed from inputs.
+                                 otherwise is raises validation error.
+                                 defaults to True if not provided.
+
+    :raises InvalidDataForValidationError: invalid data for validation error.
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
+    :raises ValidatorNotFoundError: validator not found error.
+    :raises ValidationError: validation error.
+    """
+
+    return get_component(ValidatorPackage.COMPONENT_NAME).validate_for_find(domain, data,
+                                                                            **options)

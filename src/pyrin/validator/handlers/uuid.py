@@ -76,6 +76,10 @@ class UUIDValidator(ValidatorBase):
         :keyword str name: a custom name for this validator.
                            if provided, the name of `field` will be ignored.
 
+        :keyword bool for_find: specifies that this validator must only
+                                be used on validation for find.
+                                defaults to False if not provided.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.

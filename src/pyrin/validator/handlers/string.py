@@ -103,6 +103,10 @@ class StringValidator(ValidatorBase):
         :keyword str name: a custom name for this validator.
                            if provided, the name of `field` will be ignored.
 
+        :keyword bool for_find: specifies that this validator must only
+                                be used on validation for find.
+                                defaults to False if not provided.
+
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to False if not provided.
 
@@ -390,6 +394,10 @@ class RegexValidator(StringValidator):
 
         :keyword str name: a custom name for this validator.
                            if provided, the name of `field` will be ignored.
+
+        :keyword bool for_find: specifies that this validator must only
+                                be used on validation for find.
+                                defaults to False if not provided.
 
         :keyword bool allow_blank: specifies that empty strings should be accepted
                                    as valid. defaults to False if not provided.

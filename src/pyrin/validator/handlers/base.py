@@ -60,6 +60,9 @@ class ValidatorBase(AbstractValidatorBase):
     # a callable that accepts a single value and returns the fixed or the same value.
     default_fixer = None
 
+    # specifies that this validator must only be used on validation for find.
+    default_for_find = False
+
     def __init__(self, domain, field, **options):
         """
         initializes an instance of ValidatorBase.
@@ -120,6 +123,10 @@ class ValidatorBase(AbstractValidatorBase):
 
         :keyword str name: a custom name for this validator.
                            if provided, the name of `field` will be ignored.
+
+        :keyword bool for_find: specifies that this validator must only
+                                be used on validation for find.
+                                defaults to False if not provided.
 
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
@@ -201,6 +208,13 @@ class ValidatorBase(AbstractValidatorBase):
             else:
                 allow_empty_list = False
 
+        for_find = options.get('for_find')
+        if for_find is None:
+            if self.default_for_find is not None:
+                for_find = self.default_for_find
+            else:
+                for_find = False
+
         accepted_type = options.get('accepted_type')
         if accepted_type is not None and not isinstance(accepted_type, (type, tuple)):
             raise InvalidAcceptedTypeError('The provided accepted type '
@@ -246,6 +260,7 @@ class ValidatorBase(AbstractValidatorBase):
         self._accepted_type = accepted_type
         self._localized_name = localized_name
         self._is_list = is_list
+        self._for_find = for_find
         self._null_items = null_items
         self._allow_single = allow_single
         self._allow_empty_list = allow_empty_list
@@ -286,6 +301,13 @@ class ValidatorBase(AbstractValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword bool for_find: specifies that validation is for find operation.
+                                defaults to False if not provided.
+                                if this validator is for find and `for_find=False`
+                                is provided, no validation will be done.
+                                if `for_find=True` is provided, this validator
+                                will only validate type if it is not None.
+
         :raises ValueIsNotListError: value is not list error.
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
@@ -293,6 +315,10 @@ class ValidatorBase(AbstractValidatorBase):
 
         :returns: object | list[object]
         """
+
+        for_find = options.pop('for_find', False)
+        if for_find is False and self.for_find is True:
+            return value
 
         nullable = options.pop('nullable', None)
         if nullable is None:
@@ -351,6 +377,11 @@ class ValidatorBase(AbstractValidatorBase):
                                   validated for update operation.
                                   defaults to False if not provided.
 
+        :keyword bool for_find: specifies that validation is for find operation.
+                                defaults to False if not provided.
+                                if `for_find=True` is provided, this validator
+                                will only validate type if it is not None.
+
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
@@ -362,7 +393,11 @@ class ValidatorBase(AbstractValidatorBase):
             self._validate_nullable(value, nullable, **options)
             return value
 
+        for_find = options.get('for_find', False)
         value = self._validate_type(value)
+        if for_find is True:
+            return value
+
         self._validate(value, **options)
         return value
 
@@ -379,8 +414,17 @@ class ValidatorBase(AbstractValidatorBase):
                                   validated for update operation.
                                   defaults to False if not provided.
 
+        :keyword bool for_find: specifies that validation is for find operation.
+                                defaults to False if not provided.
+                                if `for_find=True` is provided, this validator
+                                will only validate type if it is not None.
+
         :raises ValueCouldNotBeNoneError: value could not be none error.
         """
+
+        for_find = options.get('for_find', False)
+        if for_find is True:
+            return
 
         for_update = options.get('for_update', False)
         has_default = False
@@ -653,3 +697,13 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._field
+
+    @property
+    def for_find(self):
+        """
+        gets a value indicating that this validator should only be used on validation for find.
+
+        :rtype: bool
+        """
+
+        return self._for_find
