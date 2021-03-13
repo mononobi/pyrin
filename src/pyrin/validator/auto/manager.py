@@ -9,6 +9,7 @@ from datetime import datetime, date, time
 
 import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
+import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.structs import Manager, Context
 from pyrin.validator.auto import ValidatorAutoPackage
@@ -202,6 +203,10 @@ class ValidatorAutoManager(Manager):
 
         to_name = '{prefix}{field}'.format(prefix=self.TO_KEYWORD, field=field.key)
         to_validator = self._get_type_validator(domain, field, name=to_name, for_find=True)
+
+        if python_type is datetime:
+            from_validator.default_fixer = datetime_utils.coerce_to_begin_of_day_datetime
+            to_validator.default_fixer = datetime_utils.coerce_to_end_of_day_datetime
 
         return from_validator, to_validator
 

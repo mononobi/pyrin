@@ -81,6 +81,7 @@ class BooleanValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """

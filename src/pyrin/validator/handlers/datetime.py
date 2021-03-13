@@ -6,6 +6,7 @@ validator handlers datetime module.
 from datetime import datetime, date, time
 
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
@@ -21,6 +22,8 @@ class DateTimeValidator(ValidatorBase):
     invalid_type_error = ValueIsNotDateTimeError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a datetime.')
+
+    default_fixer = datetime_utils.coerce_to_begin_of_day_datetime
 
     def __init__(self, domain, field, **options):
         """
@@ -86,6 +89,7 @@ class DateTimeValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
@@ -179,11 +183,12 @@ class DateValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
-        options.update(accepted_type=date)
+        options.update(accepted_type=date, not_accepted_type=datetime)
         super().__init__(domain, field, **options)
 
     def _get_safe_representation(self, value):
@@ -272,6 +277,7 @@ class TimeValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """

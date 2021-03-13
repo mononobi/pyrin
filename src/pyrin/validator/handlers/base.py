@@ -16,7 +16,8 @@ from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.handlers.exceptions import ValidatorFieldIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
     InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
-    ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError, ValidatorNameIsRequiredError
+    ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError, InvalidNotAcceptedTypeError, \
+    ValidatorNameIsRequiredError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -95,6 +96,16 @@ class ValidatorBase(AbstractValidatorBase):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -132,6 +143,7 @@ class ValidatorBase(AbstractValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
@@ -216,24 +228,11 @@ class ValidatorBase(AbstractValidatorBase):
                 for_find = False
 
         accepted_type = options.get('accepted_type')
-        if accepted_type is not None and not isinstance(accepted_type, (type, tuple)):
-            raise InvalidAcceptedTypeError('The provided accepted type '
-                                           '[{accepted_type}] must be a type '
-                                           'or tuple of types.'
-                                           .format(accepted_type=accepted_type))
-
-        if isinstance(accepted_type, tuple):
-            if len(accepted_type) <= 0:
-                raise InvalidAcceptedTypeError('The provided accepted type tuple '
-                                               'should have at least one item in it.'
-                                               'if no type checking should be done, '
-                                               'do not provide the accepted type '
-                                               'keyword argument.')
-            for item in accepted_type:
-                if not isinstance(item, type):
-                    raise InvalidAcceptedTypeError('The provided accepted type '
-                                                   '[{accepted_type}] must be a type'
-                                                   .format(accepted_type=accepted_type))
+        not_accepted_type = options.get('not_accepted_type')
+        self._validate_valid_types('accepted type', accepted_type,
+                                   InvalidAcceptedTypeError)
+        self._validate_valid_types('not accepted type', not_accepted_type,
+                                   InvalidNotAcceptedTypeError)
 
         if self.default_fixer is not None and not callable(self.default_fixer):
             raise ValidatorFixerMustBeCallable('Validator [{name}] fixer must be a '
@@ -258,6 +257,7 @@ class ValidatorBase(AbstractValidatorBase):
         self._domain = domain
         self._nullable = nullable
         self._accepted_type = accepted_type
+        self._not_accepted_type = not_accepted_type
         self._localized_name = localized_name
         self._is_list = is_list
         self._for_find = for_find
@@ -462,8 +462,8 @@ class ValidatorBase(AbstractValidatorBase):
         validates the type of given value.
 
         if no accepted type is set for this validator, this method does nothing.
-        if the value type is not the same as accepted type but this validator
-        has a fixer set for it, it fixes the type using that fixer.
+        if the value type is not the same as accepted type or is the same as not accepted
+        type but this validator has a fixer set for it, it fixes the type using that fixer.
         it returns the same input or fixed one.
 
         :param object value: value to be validated.
@@ -479,19 +479,33 @@ class ValidatorBase(AbstractValidatorBase):
 
             return value
 
-        is_accepted = isinstance(value, self.accepted_type)
-        if not is_accepted:
+        if not self._is_accepted_type(value):
             if self.default_fixer is not None:
                 value = self._fix_value(value)
-                is_accepted = isinstance(value, self.accepted_type)
 
-            if not is_accepted:
+            if not self._is_accepted_type(value):
                 preview_type = misc_utils.make_iterable(self.accepted_type, list)
 
                 raise self.invalid_type_error(self.invalid_type_message.format(
                     param_name=self.localized_name, type=preview_type))
 
         return value
+
+    def _is_accepted_type(self, value):
+        """
+        gets a value indicating that the input has an accepted type for this validator.
+
+        :param object value: value to be checked.
+
+        :rtype: bool
+        """
+
+        is_accepted = isinstance(value, self.accepted_type)
+        is_not_accepted = False
+        if self.not_accepted_type is not None:
+            is_not_accepted = isinstance(value, self.not_accepted_type)
+
+        return is_accepted and not is_not_accepted
 
     def _validate_exception_type(self, exception):
         """
@@ -508,6 +522,34 @@ class ValidatorBase(AbstractValidatorBase):
                                                       '[{base}].'
                                                       .format(exception=exception,
                                                               base=ValidationError))
+
+    def _validate_valid_types(self, name, types, error):
+        """
+        validates that given valid types are actually types.
+
+        :param str name: name of types to be validated.
+                         this will be shown in error message.
+
+        :param type | tuple[type] types: type or types to be validated.
+        :param type[CoreException] error: error class to be raised if types are invalid.
+
+        :raises CoreException: core exception.
+        """
+
+        if types is not None and not isinstance(types, (type, tuple)):
+            raise error('The provided {name} [{types}] must be a type '
+                        'or tuple of types.'.format(name=name, types=types))
+
+        if isinstance(types, tuple):
+            if len(types) <= 0:
+                raise error('The provided {name} tuple should have at least one item in it. '
+                            'if no type checking should be done, do not provide the {name} '
+                            'keyword argument.'.format(name=name))
+
+            for item in types:
+                if not isinstance(item, type):
+                    raise error('The provided {name} [{type}] must be '
+                                'a type.'.format(name=name, type=item))
 
     def _get_representation(self, value):
         """
@@ -635,6 +677,18 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._accepted_type
+
+    @property
+    def not_accepted_type(self):
+        """
+        gets the not accepted type for this validator.
+
+        returns None if no type checking is defined for this validator.
+
+        :rtype: type | tuple[type]
+        """
+
+        return self._not_accepted_type
 
     @property
     def localized_name(self):

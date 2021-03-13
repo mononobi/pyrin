@@ -5,7 +5,7 @@ utils datetime module.
 
 import re
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import pytz
 import aniso8601
@@ -222,7 +222,7 @@ def trunc(value):
 
     it is actually a datetime with time info set to 00:00:00.
 
-    :param datetime value: datetime to be truncated.
+    :param datetime | date value: value to be truncated.
 
     :rtype: datetime
     """
@@ -338,3 +338,37 @@ def normalize_datetime_range(value_lower, value_upper, **options):
         value_upper = end_of_day(value_upper)
 
     return value_lower, value_upper
+
+
+def coerce_to_begin_of_day_datetime(value):
+    """
+    gets the begin of day datetime equivalent of given date object.
+
+    if the value is not a date, it returns the same input.
+
+    :param date value: value to be coerced.
+
+    :rtype: datetime | object
+    """
+
+    if not isinstance(value, datetime) and isinstance(value, date):
+        return begin_of_day(value)
+
+    return value
+
+
+def coerce_to_end_of_day_datetime(value):
+    """
+    gets the end of day datetime equivalent of given date object.
+
+    if the value is not a date, it returns the same input.
+
+    :param date value: value to be coerced.
+
+    :rtype: datetime | object
+    """
+
+    if not isinstance(value, datetime) and isinstance(value, date):
+        return end_of_day(value)
+
+    return value

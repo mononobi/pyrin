@@ -90,7 +90,7 @@ class NumberValidator(ValidatorBase):
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
-        options.update(accepted_type=(int, float, Decimal))
+        options.update(accepted_type=(int, float, Decimal), not_accepted_type=bool)
         super().__init__(domain, field, **options)
 
 
@@ -172,7 +172,7 @@ class IntegerValidator(ValidatorBase):
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
 
-        options.update(accepted_type=int)
+        options.update(accepted_type=int, not_accepted_type=bool)
         super().__init__(domain, field, **options)
 
 
@@ -250,6 +250,7 @@ class FloatValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """
@@ -332,6 +333,7 @@ class DecimalValidator(ValidatorBase):
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         """

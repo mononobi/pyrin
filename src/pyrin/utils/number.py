@@ -52,7 +52,7 @@ def coerce_to_float(value):
     :rtype: float | object
     """
 
-    if not isinstance(value, (int, Decimal)):
+    if not isinstance(value, (int, Decimal)) or isinstance(value, bool):
         return value
 
     return float(value)
@@ -76,7 +76,7 @@ def coerce_to_decimal(value):
     :rtype: Decimal | object
     """
 
-    if not isinstance(value, (int, float)):
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
         return value
 
     return Decimal(value)

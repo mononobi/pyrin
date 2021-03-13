@@ -59,6 +59,16 @@ class MinimumValidator(ValidatorBase):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -101,6 +111,7 @@ class MinimumValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
@@ -239,6 +250,16 @@ class MaximumValidator(ValidatorBase):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -281,6 +302,7 @@ class MaximumValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMaximumValueMustBeProvidedError: accepted maximum value
@@ -419,6 +441,16 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -466,6 +498,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises AcceptedMinimumValueMustBeProvidedError: accepted minimum value
@@ -596,6 +629,16 @@ class InValidator(ValidatorBase):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -633,6 +676,7 @@ class InValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises ValidValuesMustBeProvidedError: valid values must be provided error.
@@ -730,6 +774,16 @@ class NotInValidator(ValidatorBase):
                                                    no type checking will be
                                                    done if not provided.
 
+        :keyword type | tuple[type] not_accepted_type: not accepted type for value.
+                                                       it is useful to provide both
+                                                       `accepted_type` and `not_accepted_type`
+                                                       when you want to separate two types
+                                                       which, one of them is a subclass
+                                                       of the other. for example `datetime`
+                                                       and `date` or `bool` and `int`.
+                                                       note that if `accepted_type` is
+                                                       not provided, this value has no effect.
+
         :keyword bool nullable: specifies that null values should be accepted as valid.
                                 defaults to True if not provided.
 
@@ -767,6 +821,7 @@ class NotInValidator(ValidatorBase):
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
         :raises InvalidAcceptedTypeError: invalid accepted type error.
+        :raises InvalidNotAcceptedTypeError: invalid not accepted type error.
         :raises ValidatorFixerMustBeCallable: validator fixer must be callable.
         :raises InvalidValidationExceptionTypeError: invalid validation exception type error.
         :raises InvalidValuesMustBeProvidedError: invalid values must be provided error.

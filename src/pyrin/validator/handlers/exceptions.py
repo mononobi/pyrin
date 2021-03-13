@@ -116,6 +116,13 @@ class InvalidAcceptedTypeError(ValidatorHandlersException):
     pass
 
 
+class InvalidNotAcceptedTypeError(ValidatorHandlersException):
+    """
+    invalid not accepted type error.
+    """
+    pass
+
+
 class ValidatorFixerMustBeCallable(ValidatorHandlersException):
     """
     validator fixer must be callable.
