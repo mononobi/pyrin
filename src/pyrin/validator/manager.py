@@ -689,5 +689,5 @@ class ValidatorManager(Manager):
             if ignore_errors is False:
                 raise error
 
-            for name, message in error.data.items():
+            for name in error.data:
                 data.pop(name, None)
