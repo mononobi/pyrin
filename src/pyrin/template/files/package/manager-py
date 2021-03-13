@@ -4,6 +4,7 @@
 """
 
 from pyrin.core.structs import Manager
+from pyrin.database.services import get_current_store
 
 from {PACKAGE_FULL_NAME} import {PACKAGE_CLASS_NAME}Package
 
