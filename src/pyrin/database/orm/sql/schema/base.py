@@ -314,6 +314,22 @@ class CoreColumn(Column, CoreColumnOperators):
 
         return name, type_
 
+    def _copy_custom_attributes(self, column):
+        """
+        copies current column's custom attributes into given column.
+
+        this method is implemented to be able to create valid column
+        attributes on copy by sqlalchemy.
+
+        subclasses must override this method and call
+        `super()._copy_custom_attributes()` at the end.
+
+        the changes must be done to given column in-place.
+
+        :param CoreColumn column: copied column instance.
+        """
+        pass
+
     def get_python_type(self, type_=None):
         """
         gets the python equivalent type of this column's type or given type.
@@ -354,6 +370,31 @@ class CoreColumn(Column, CoreColumnOperators):
                 __, python_type = self.get_python_type(type_.item_type)
 
         return collection_type, python_type
+
+    def copy(self, **kw):
+        """
+        gets a copy of this column.
+
+        this method is overridden to be able to handle custom column attributes correctly.
+
+        :param object kw: extra keyword arguments.
+
+        :rtype: CoreColumn
+        """
+
+        column = super().copy(**kw)
+        self._copy_custom_attributes(column)
+
+        column.allow_read = self.allow_read
+        column.allow_write = self.allow_write
+        column.min_value = self.min_value
+        column.max_value = self.max_value
+        column.check_in = self.check_in
+        column.check_not_in = self.check_not_in
+        column.validated = self.validated
+        column.validated_find = self.validated_find
+
+        return column
 
     @cached_property
     def fullname(self):

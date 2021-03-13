@@ -1774,6 +1774,10 @@ class MetadataMixin:
     _schema = None
     _extend_existing = None
 
+    # specifies that this entity is abstract.
+    # abstract entities does not represent any table on database.
+    _abstract = False
+
     # a list of entity column instances or table column names to
     # create unique constraint for them.
     # for example:
@@ -1815,6 +1819,18 @@ class MetadataMixin:
                 constraints.append(UniqueConstraint(*iterable_item))
 
         return tuple(constraints)
+
+    @declared_attr
+    def __abstract__(cls):
+        """
+        gets a value indicating that this entity is abstract.
+
+        abstract entities does not represent any table on database.
+
+        :rtype: bool
+        """
+
+        return cls._abstract
 
     @declared_attr
     def __tablename__(cls):
@@ -2386,7 +2402,7 @@ class CreateHistoryMixin:
     this class adds `created_on` column into its subclasses.
     """
 
-    created_on = TimeStampColumn(name='created_on', nullable=False,
+    created_on = TimeStampColumn(name='created_on', nullable=False, validated=True,
                                  default=datetime_services.now, allow_write=False)
 
 
@@ -2397,7 +2413,7 @@ class UpdateHistoryMixin:
     this class adds `modified_on` column into its subclasses.
     """
 
-    modified_on = TimeStampColumn(name='modified_on', nullable=True,
+    modified_on = TimeStampColumn(name='modified_on', nullable=True, validated=True,
                                   onupdate=datetime_services.now, allow_write=False)
 
 

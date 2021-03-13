@@ -208,6 +208,28 @@ class StringColumn(CoreColumn):
 
         super().__init__(*args, **kwargs)
 
+    def _copy_custom_attributes(self, column):
+        """
+        copies current column's custom attributes into given column.
+
+        this method is implemented to be able to create valid column
+        attributes on copy by sqlalchemy.
+
+        subclasses must override this method and call
+        `super()._copy_custom_attributes()` at the end.
+
+        the changes must be done to given column in-place.
+
+        :param CoreColumn column: copied column instance.
+        """
+
+        column.min_length = self.min_length
+        column.max_length = self.max_length
+        column.allow_blank = self.allow_blank
+        column.allow_whitespace = self.allow_whitespace
+
+        super()._copy_custom_attributes(column)
+
 
 class PKColumn(CoreColumn):
     """
@@ -614,6 +636,27 @@ class FKColumn(CoreColumn):
         return [ForeignKey(self._fk,
                            onupdate=self._fk_on_update,
                            ondelete=self._fk_on_delete)]
+
+    def _copy_custom_attributes(self, column):
+        """
+        copies current column's custom attributes into given column.
+
+        this method is implemented to be able to create valid column
+        attributes on copy by sqlalchemy.
+
+        subclasses must override this method and call
+        `super()._copy_custom_attributes()` at the end.
+
+        the changes must be done to given column in-place.
+
+        :param CoreColumn column: copied column instance.
+        """
+
+        column._fk = self._fk
+        column._fk_on_update = self._fk_on_update
+        column._fk_on_delete = self._fk_on_delete
+
+        super()._copy_custom_attributes(column)
 
 
 class HiddenColumn(CoreColumn):
