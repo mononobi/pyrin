@@ -26,6 +26,29 @@ class CoreSession(Session, CoreObject):
     # with 'transient=True' and a raw sql is given.
     NON_TRANSIENT_KEYWORDS = ['commit', 'flush', 'rollback', 'alter ', 'create ', 'drop ']
 
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreSession.
+
+        all positional and keyword arguments will be passed to underlying `Session`
+        class. for details on inputs, see `Session` docstrings.
+
+        :param object args: all positional arguments.
+
+        :keyword object kwargs: all keyword arguments.
+
+        :keyword bool atomic: specifies that this session is an atomic session.
+                              defaults to False if not provided.
+        """
+
+        self._atomic = kwargs.pop('atomic', False)
+
+        super().__init__(*args, **kwargs)
+
+        # we have to manually call '__init__' on CoreObject because 'Session'
+        # does not call 'super().__init__()' in its '__init__' method.
+        CoreObject.__init__(self)
+
     def __str__(self):
         """
         gets the string representation of current session.
@@ -33,9 +56,8 @@ class CoreSession(Session, CoreObject):
         :rtype: str
         """
 
-        atomic = getattr(self, 'atomic', False)
         return '{fullname}: atomic={atomic}'.format(fullname=self.get_fully_qualified_name(),
-                                                    atomic=atomic)
+                                                    atomic=self.atomic)
 
     def execute(self, clause, params=None, mapper=None, bind=None, **kw):
         """
@@ -183,3 +205,13 @@ class CoreSession(Session, CoreObject):
                 return database_services.get_table_engine(tables[0])
 
         return super().get_bind(mapper, clause=clause)
+
+    @property
+    def atomic(self):
+        """
+        gets a value indicating that this session is atomic.
+
+        :rtype: bool
+        """
+
+        return self._atomic

@@ -121,18 +121,3 @@ class AbstractScopedRegistryBase(CoreObject):
         """
 
         raise CoreNotImplementedError()
-
-    def inject_atomic(self, value, atomic=False):
-        """
-        injects the given atomic flag into given value and returns the same value.
-
-        :param object value: value to inject atomic flag to it.
-
-        :param bool atomic: indicates that the value should be marked
-                            as atomic. defaults to False if not provided.
-
-        :returns: object
-        """
-
-        setattr(value, 'atomic', atomic)
-        return value

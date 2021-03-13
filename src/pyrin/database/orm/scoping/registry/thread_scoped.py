@@ -43,7 +43,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         """
 
         if atomic is True:
-            value = self.inject_atomic(self.createfunc(), atomic)
+            value = self.createfunc(atomic=atomic)
             self.set(value, atomic)
             return value
 
@@ -51,7 +51,7 @@ class ThreadScopedRegistry(ThreadLocalRegistry, AbstractScopedRegistryBase):
         if value is not None:
             return value
 
-        return self.inject_atomic(super().__call__(), atomic)
+        return super().__call__()
 
     def has(self, atomic=False):
         """
