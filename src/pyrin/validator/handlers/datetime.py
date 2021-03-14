@@ -23,8 +23,6 @@ class DateTimeValidator(ValidatorBase):
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a datetime.')
 
-    default_fixer = datetime_utils.coerce_to_begin_of_day_datetime
-
     def __init__(self, domain, field, **options):
         """
         initializes an instance of DateTimeValidator.
@@ -296,3 +294,23 @@ class TimeValidator(ValidatorBase):
         """
 
         return datetime_services.to_time_string(value, to_server=False, from_server=True)
+
+
+class FromDateTimeValidator(DateTimeValidator):
+    """
+    from datetime validator.
+
+    this is a helper class that coerces date values to begin of day datetime.
+    """
+
+    default_fixer = datetime_utils.coerce_to_begin_of_day_datetime
+
+
+class ToDateTimeValidator(DateTimeValidator):
+    """
+    to datetime validator.
+
+    this is a helper class that coerces date values to end of day datetime.
+    """
+
+    default_fixer = datetime_utils.coerce_to_end_of_day_datetime

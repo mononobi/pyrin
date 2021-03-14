@@ -9,7 +9,6 @@ from datetime import datetime, date, time
 
 import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
-import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.structs import Manager, Context
 from pyrin.validator.auto import ValidatorAutoPackage
@@ -19,7 +18,8 @@ from pyrin.validator.handlers.dictionary import DictionaryValidator
 from pyrin.validator.handlers.uuid import UUIDValidator
 from pyrin.validator.handlers.string import StringValidator
 from pyrin.validator.handlers.boolean import BooleanValidator
-from pyrin.validator.handlers.datetime import DateTimeValidator, DateValidator, TimeValidator
+from pyrin.validator.handlers.datetime import DateTimeValidator, DateValidator, TimeValidator, \
+    FromDateTimeValidator, ToDateTimeValidator
 from pyrin.validator.handlers.number import IntegerValidator, FloatValidator, DecimalValidator
 from pyrin.validator.handlers.misc import MaximumValidator, MinimumValidator, \
     RangeValidator, InValidator, NotInValidator
@@ -66,13 +66,15 @@ class ValidatorAutoManager(Manager):
         self._type_to_validator_map[date] = DateValidator
         self._type_to_validator_map[time] = TimeValidator
         self._type_to_validator_map[UUID] = UUIDValidator
+        self._type_to_validator_map['from_datetime'] = FromDateTimeValidator
+        self._type_to_validator_map['to_datetime'] = ToDateTimeValidator
         self._type_to_validator_map['max'] = MaximumValidator
         self._type_to_validator_map['min'] = MinimumValidator
         self._type_to_validator_map['range'] = RangeValidator
         self._type_to_validator_map['in'] = InValidator
         self._type_to_validator_map['not_in'] = NotInValidator
 
-    def _get_validator_class(self, python_type):
+    def _get_validator_class(self, python_type, **options):
         """
         gets the validator class for given python type.
 
@@ -80,8 +82,21 @@ class ValidatorAutoManager(Manager):
 
         :param type | str python_type: python type or name of validator class.
 
+        :keyword bool from_datetime: specifies that if python type is `datetime`,
+                                     get the `from_datetime` validator.
+                                     if set to False, gets the `to_datetime` validator.
+                                     if set to None, gets the `datetime` validator.
+                                     defaults to None if not provided.
+
         :rtype: type[AbstractValidatorBase]
         """
+
+        if python_type is datetime:
+            from_datetime = options.get('from_datetime')
+            if from_datetime is True:
+                python_type = 'from_datetime'
+            elif from_datetime is False:
+                python_type = 'to_datetime'
 
         return self._type_to_validator_map.get(python_type)
 
@@ -106,6 +121,12 @@ class ValidatorAutoManager(Manager):
                              a base validator for it, otherwise it returns None.
                              defaults to True if not provided.
 
+        :keyword bool from_datetime: specifies that if python type is `datetime`,
+                                     get the `from_datetime` validator.
+                                     if set to False, gets the `to_datetime` validator.
+                                     if set to None, gets the `datetime` validator.
+                                     defaults to None if not provided.
+
         :rtype: AbstractValidatorBase
         """
 
@@ -114,7 +135,7 @@ class ValidatorAutoManager(Manager):
         if collection_type is list:
             options.update(is_list=True)
 
-        validator_class = self._get_validator_class(python_type)
+        validator_class = self._get_validator_class(python_type, **options)
         if validator_class is not None:
             return validator_class(domain, field, **options)
 
@@ -199,14 +220,12 @@ class ValidatorAutoManager(Manager):
             return tuple()
 
         from_name = '{prefix}{field}'.format(prefix=self.FROM_KEYWORD, field=field.key)
-        from_validator = self._get_type_validator(domain, field, name=from_name, for_find=True)
+        from_validator = self._get_type_validator(domain, field, name=from_name,
+                                                  for_find=True, from_datetime=True)
 
         to_name = '{prefix}{field}'.format(prefix=self.TO_KEYWORD, field=field.key)
-        to_validator = self._get_type_validator(domain, field, name=to_name, for_find=True)
-
-        if python_type is datetime:
-            from_validator.default_fixer = datetime_utils.coerce_to_begin_of_day_datetime
-            to_validator.default_fixer = datetime_utils.coerce_to_end_of_day_datetime
+        to_validator = self._get_type_validator(domain, field, name=to_name,
+                                                for_find=True, from_datetime=False)
 
         return from_validator, to_validator
 
