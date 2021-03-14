@@ -170,9 +170,10 @@ class StringValidator(ValidatorBase):
 
         if self._minimum_length is not None and self._maximum_length is not None \
                 and self._minimum_length > self._maximum_length:
-            raise MinimumLengthHigherThanMaximumLengthError('Minimum length of string '
-                                                            'could not be higher than '
-                                                            'maximum length.')
+            raise MinimumLengthHigherThanMaximumLengthError('Minimum length of string for '
+                                                            'validator [{name}] could not be '
+                                                            'higher than maximum length.'
+                                                            .format(name=self))
 
         self._allow_blank = allow_blank
         self._allow_whitespace = allow_whitespace
@@ -431,14 +432,17 @@ class RegexValidator(StringValidator):
 
         is_string = isinstance(self.regex, str)
         if not isinstance(self.regex, re.Pattern) and not is_string:
-            raise InvalidRegularExpressionError('The provided regular expression is invalid. '
-                                                'it must be a string containing a regular '
-                                                'expression or a Pattern object returned from '
-                                                're.compile() method.')
+            raise InvalidRegularExpressionError('The provided regular expression for validator '
+                                                '[{name}] is invalid. it must be a string '
+                                                'containing a regular expression or a Pattern '
+                                                'object returned from re.compile() method.'
+                                                .format(name=self))
 
         if is_string and (len(self.regex) <= 0 or self.regex.isspace()):
             raise RegularExpressionMustBeProvidedError('The provided string for regular '
-                                                       'expression could not be blank.')
+                                                       'expression on validator [{name}] '
+                                                       'could not be blank.'
+                                                       .format(name=self))
 
         if is_string:
             flags = options.get('flags')

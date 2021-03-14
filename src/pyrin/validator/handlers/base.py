@@ -518,9 +518,10 @@ class ValidatorBase(AbstractValidatorBase):
 
         if not issubclass(exception, ValidationError):
             raise InvalidValidationExceptionTypeError('The specified validation exception '
-                                                      '[{exception}] is not a subclass of '
-                                                      '[{base}].'
+                                                      '[{exception}] on validator [{instance}] '
+                                                      'is not a subclass of [{base}].'
                                                       .format(exception=exception,
+                                                              instance=self,
                                                               base=ValidationError))
 
     def _validate_valid_types(self, name, types, error):
@@ -528,7 +529,7 @@ class ValidatorBase(AbstractValidatorBase):
         validates that given valid types are actually types.
 
         :param str name: name of types to be validated.
-                         this will be shown in error message.
+                         this will be shown in error messages.
 
         :param type | tuple[type] types: type or types to be validated.
         :param type[CoreException] error: error class to be raised if types are invalid.
@@ -537,19 +538,22 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         if types is not None and not isinstance(types, (type, tuple)):
-            raise error('The provided {name} [{types}] must be a type '
-                        'or tuple of types.'.format(name=name, types=types))
+            raise error('The provided {name} [{types}] on validator '
+                        '[{instance}] must be a type or tuple of types.'
+                        .format(name=name, types=types, instance=self))
 
         if isinstance(types, tuple):
             if len(types) <= 0:
-                raise error('The provided {name} tuple should have at least one item in it. '
-                            'if no type checking should be done, do not provide the {name} '
-                            'keyword argument.'.format(name=name))
+                raise error('The provided {name} tuple on validator [{instance}] '
+                            'should have at least one item in it. if no type checking '
+                            'should be done, do not provide the {name} keyword argument.'
+                            .format(name=name, instance=self))
 
             for item in types:
                 if not isinstance(item, type):
-                    raise error('The provided {name} [{type}] must be '
-                                'a type.'.format(name=name, type=item))
+                    raise error('The provided {name} [{type}] on validator '
+                                '[{instance}] must be a type.'
+                                .format(name=name, type=item, instance=self))
 
     def _get_representation(self, value):
         """

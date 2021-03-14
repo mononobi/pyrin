@@ -4,6 +4,7 @@ validator handlers misc module.
 """
 
 from pyrin.core.globals import _, LIST_TYPES
+from pyrin.core.decorators import class_property
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import ValueIsLowerThanMinimumError, \
     ValueIsHigherThanMaximumError, ValueIsOutOfRangeError, \
@@ -129,15 +130,14 @@ class MinimumValidator(ValidatorBase):
 
         if self.default_accepted_minimum is None and \
                 (self.field is None or self.field.min_value is None):
-            raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value '
-                                                          'could not be None.')
-
-        if self.default_accepted_minimum is None:
-            self.default_accepted_minimum = self.field.min_value
-        else:
-            self.default_accepted_minimum = self.default_accepted_minimum
+            raise AcceptedMinimumValueMustBeProvidedError('Accepted minimum value for '
+                                                          'validator [{name}] could not '
+                                                          'be None.'.format(name=self))
 
         self._inclusive_minimum = inclusive_minimum
+        self._instance_accepted_minimum = None
+        if self.default_accepted_minimum is None:
+            self._instance_accepted_minimum = self.field.min_value
 
         self._validate_exception_type(self.minimum_value_error)
 
@@ -190,7 +190,7 @@ class MinimumValidator(ValidatorBase):
         :rtype: object
         """
 
-        return self._get_value(self.default_accepted_minimum)
+        return self._get_value(self.accepted_minimum_provider)
 
     @property
     def inclusive_minimum(self):
@@ -201,6 +201,45 @@ class MinimumValidator(ValidatorBase):
         """
 
         return self._inclusive_minimum
+
+    @property
+    def instance_accepted_minimum(self):
+        """
+        gets the instance accepted minimum.
+
+        :rtype: object | callable
+        """
+
+        return self._instance_accepted_minimum
+
+    @class_property
+    def class_accepted_minimum(cls):
+        """
+        gets the class accepted minimum.
+
+        :rtype: object | callable
+        """
+
+        return cls.default_accepted_minimum
+
+    @property
+    def accepted_minimum_provider(self):
+        """
+        gets the accepted minimum provider of this instance.
+
+        it may be a class level or instance level object or callable.
+        it may also be None.
+
+        :rtype: object | callable
+        """
+
+        if self.instance_accepted_minimum is not None:
+            return self.instance_accepted_minimum
+
+        if self.class_accepted_minimum is not None:
+            return self.class_accepted_minimum
+
+        return None
 
 
 class MaximumValidator(ValidatorBase):
@@ -320,15 +359,14 @@ class MaximumValidator(ValidatorBase):
 
         if self.default_accepted_maximum is None and \
                 (self.field is None or self.field.max_value is None):
-            raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value '
-                                                          'could not be None.')
-
-        if self.default_accepted_maximum is None:
-            self.default_accepted_maximum = self.field.max_value
-        else:
-            self.default_accepted_maximum = self.default_accepted_maximum
+            raise AcceptedMaximumValueMustBeProvidedError('Accepted maximum value for '
+                                                          'validator [{name}] could not '
+                                                          'be None.'.format(name=self))
 
         self._inclusive_maximum = inclusive_maximum
+        self._instance_accepted_maximum = None
+        if self.default_accepted_maximum is None:
+            self._instance_accepted_maximum = self.field.max_value
 
         self._validate_exception_type(self.maximum_value_error)
 
@@ -381,7 +419,7 @@ class MaximumValidator(ValidatorBase):
         :rtype: object
         """
 
-        return self._get_value(self.default_accepted_maximum)
+        return self._get_value(self.accepted_maximum_provider)
 
     @property
     def inclusive_maximum(self):
@@ -392,6 +430,45 @@ class MaximumValidator(ValidatorBase):
         """
 
         return self._inclusive_maximum
+
+    @property
+    def instance_accepted_maximum(self):
+        """
+        gets the instance accepted maximum.
+
+        :rtype: object | callable
+        """
+
+        return self._instance_accepted_maximum
+
+    @class_property
+    def class_accepted_maximum(cls):
+        """
+        gets the class accepted maximum.
+
+        :rtype: object | callable
+        """
+
+        return cls.default_accepted_maximum
+
+    @property
+    def accepted_maximum_provider(self):
+        """
+        gets the accepted maximum provider of this instance.
+
+        it may be a class level or instance level object or callable.
+        it may also be None.
+
+        :rtype: object | callable
+        """
+
+        if self.instance_accepted_maximum is not None:
+            return self.instance_accepted_maximum
+
+        if self.class_accepted_maximum is not None:
+            return self.class_accepted_maximum
+
+        return None
 
 
 class RangeValidator(MinimumValidator, MaximumValidator):
@@ -511,12 +588,14 @@ class RangeValidator(MinimumValidator, MaximumValidator):
 
         super().__init__(domain, field, **options)
 
-        if not callable(self.default_accepted_minimum) and \
-                not callable(self.default_accepted_maximum) and \
+        if not callable(self.accepted_minimum_provider) and \
+                not callable(self.accepted_maximum_provider) and \
                 self.accepted_minimum is not None and self.accepted_maximum is not None \
                 and self.accepted_minimum > self.accepted_maximum:
-            raise MinimumValueLargerThanMaximumValueError('Accepted minimum value could not be '
-                                                          'larger than accepted maximum value.')
+            raise MinimumValueLargerThanMaximumValueError('Accepted minimum value for '
+                                                          'validator [{name}] could not be '
+                                                          'larger than accepted maximum value.'
+                                                          .format(name=self))
 
         self._validate_exception_type(self.range_value_error)
 
@@ -684,16 +763,18 @@ class InValidator(ValidatorBase):
 
         super().__init__(domain, field, **options)
 
+        self._instance_valid_values = None
         if self.default_valid_values is None \
                 and self.field is not None and self.field.check_in is not None:
-            self.default_valid_values = self.field.check_in
+            self._instance_valid_values = self.field.check_in
 
-        if not callable(self.default_valid_values) and \
-                (self.default_valid_values is None or
-                 not isinstance(self.default_valid_values, LIST_TYPES) or
-                 len(self.default_valid_values) <= 0):
-            raise ValidValuesMustBeProvidedError('Valid values must be provided '
-                                                 'as iterable or callable.')
+        if not callable(self.valid_values_provider) and \
+                (self.valid_values_provider is None or
+                 not isinstance(self.valid_values_provider, LIST_TYPES) or
+                 len(self.valid_values_provider) <= 0):
+            raise ValidValuesMustBeProvidedError('Valid values for validator [{name}] must '
+                                                 'be provided as iterable or callable.'
+                                                 .format(name=self))
 
         self._validate_exception_type(self.not_in_value_error)
 
@@ -727,7 +808,46 @@ class InValidator(ValidatorBase):
         :rtype: list[object]
         """
 
-        return self._get_value(self.default_valid_values)
+        return self._get_value(self.valid_values_provider)
+
+    @property
+    def instance_valid_values(self):
+        """
+        gets the instance valid values.
+
+        :rtype: object | callable
+        """
+
+        return self._instance_valid_values
+
+    @class_property
+    def class_valid_values(cls):
+        """
+        gets the class valid values.
+
+        :rtype: object | callable
+        """
+
+        return cls.default_valid_values
+
+    @property
+    def valid_values_provider(self):
+        """
+        gets the valid values provider of this instance.
+
+        it may be a class level or instance level object or callable.
+        it may also be None.
+
+        :rtype: object | callable
+        """
+
+        if self.instance_valid_values is not None:
+            return self.instance_valid_values
+
+        if self.class_valid_values is not None:
+            return self.class_valid_values
+
+        return None
 
 
 class NotInValidator(ValidatorBase):
@@ -829,16 +949,18 @@ class NotInValidator(ValidatorBase):
 
         super().__init__(domain, field, **options)
 
+        self._instance_invalid_values = None
         if self.default_invalid_values is None \
                 and self.field is not None and self.field.check_not_in is not None:
-            self.default_invalid_values = self.field.check_not_in
+            self._instance_invalid_values = self.field.check_not_in
 
-        if not callable(self.default_invalid_values) and \
-                (self.default_invalid_values is None or
-                 not isinstance(self.default_invalid_values, LIST_TYPES) or
-                 len(self.default_invalid_values) <= 0):
-            raise InvalidValuesMustBeProvidedError('Invalid values must be '
-                                                   'provided as iterable or callable.')
+        if not callable(self.invalid_values_provider) and \
+                (self.invalid_values_provider is None or
+                 not isinstance(self.invalid_values_provider, LIST_TYPES) or
+                 len(self.invalid_values_provider) <= 0):
+            raise InvalidValuesMustBeProvidedError('Invalid values for validator [{name}] '
+                                                   'must be provided as iterable or callable.'
+                                                   .format(name=self))
 
         self._validate_exception_type(self.in_value_error)
 
@@ -872,4 +994,43 @@ class NotInValidator(ValidatorBase):
         :rtype: list[object]
         """
 
-        return self._get_value(self.default_invalid_values)
+        return self._get_value(self.invalid_values_provider)
+
+    @property
+    def instance_invalid_values(self):
+        """
+        gets the instance invalid values.
+
+        :rtype: object | callable
+        """
+
+        return self._instance_invalid_values
+
+    @class_property
+    def class_invalid_values(cls):
+        """
+        gets the class invalid values.
+
+        :rtype: object | callable
+        """
+
+        return cls.default_invalid_values
+
+    @property
+    def invalid_values_provider(self):
+        """
+        gets the invalid values provider of this instance.
+
+        it may be a class level or instance level object or callable.
+        it may also be None.
+
+        :rtype: object | callable
+        """
+
+        if self.instance_invalid_values is not None:
+            return self.instance_invalid_values
+
+        if self.class_invalid_values is not None:
+            return self.class_invalid_values
+
+        return None
