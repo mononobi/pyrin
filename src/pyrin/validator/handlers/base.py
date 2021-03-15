@@ -250,7 +250,7 @@ class ValidatorBase(AbstractValidatorBase):
             elif self.field is not None and self.field.check_in is not None:
                 allow_list_for_find = True
             else:
-                allow_list_for_find = False
+                allow_list_for_find = is_list
 
         accepted_type = options.get('accepted_type')
         not_accepted_type = options.get('not_accepted_type')
