@@ -17,7 +17,7 @@ from pyrin.validator.handlers.exceptions import ValidatorFieldIsRequiredError, \
     ValueCouldNotBeNoneError, InvalidValueTypeError, InvalidValidatorDomainError, \
     InvalidAcceptedTypeError, InvalidValidationExceptionTypeError, ValueIsNotListError, \
     ValidatorFixerMustBeCallable, ValueCouldNotBeAnEmptyListError, InvalidNotAcceptedTypeError, \
-    ValidatorNameIsRequiredError
+    ValidatorNameIsRequiredError, ValueCouldNotBeListError
 
 
 class ValidatorBase(AbstractValidatorBase):
@@ -36,6 +36,8 @@ class ValidatorBase(AbstractValidatorBase):
     not_list_message = _('The provided value for [{param_name}] must be a list of items.')
     empty_list_error = ValueCouldNotBeAnEmptyListError
     empty_list_message = _('The provided value for [{param_name}] could not be an empty list.')
+    can_not_be_list_error = ValueCouldNotBeListError
+    can_not_be_list_message = _('The provided value for [{param_name}] could not be a list.')
 
     # specifies that the value could be None.
     default_nullable = None
@@ -63,6 +65,10 @@ class ValidatorBase(AbstractValidatorBase):
 
     # specifies that this validator must only be used on validation for find.
     default_for_find = False
+
+    # allow value to be list too, on validation for find.
+    # single value is also accepted for find.
+    default_allow_list_for_find = None
 
     def __init__(self, domain, field, **options):
         """
@@ -139,6 +145,12 @@ class ValidatorBase(AbstractValidatorBase):
                                 be used on validation for find.
                                 defaults to False if not provided.
 
+        :keyword bool allow_list_for_find: allow value to be list too, on validation
+                                           for find. single value is also accepted for
+                                           find. if not provided and the field is a
+                                           column which has `check_in` set for it,
+                                           this will be set to True.
+
         :raises ValidatorFieldIsRequiredError: validator field is required error.
         :raises ValidatorNameIsRequiredError: validator name is required error.
         :raises InvalidValidatorDomainError: invalid validator domain error.
@@ -180,6 +192,10 @@ class ValidatorBase(AbstractValidatorBase):
                                               '[{entity}] or a string value.'
                                               .format(instance=self, name=name,
                                                       entity=BaseEntity))
+
+        self._field = None
+        if is_column:
+            self._field = field
 
         nullable = options.get('nullable')
         if nullable is None:
@@ -227,6 +243,15 @@ class ValidatorBase(AbstractValidatorBase):
             else:
                 for_find = False
 
+        allow_list_for_find = options.get('allow_list_for_find')
+        if allow_list_for_find is None:
+            if self.default_allow_list_for_find is not None:
+                allow_list_for_find = self.default_allow_list_for_find
+            elif self.field is not None and self.field.check_in is not None:
+                allow_list_for_find = True
+            else:
+                allow_list_for_find = False
+
         accepted_type = options.get('accepted_type')
         not_accepted_type = options.get('not_accepted_type')
         self._validate_valid_types('accepted type', accepted_type,
@@ -249,10 +274,6 @@ class ValidatorBase(AbstractValidatorBase):
 
         super().__init__()
 
-        self._field = None
-        if is_column:
-            self._field = field
-
         self._set_name(name)
         self._domain = domain
         self._nullable = nullable
@@ -261,6 +282,7 @@ class ValidatorBase(AbstractValidatorBase):
         self._localized_name = localized_name
         self._is_list = is_list
         self._for_find = for_find
+        self._allow_list_for_find = allow_list_for_find
         self._null_items = null_items
         self._allow_single = allow_single
         self._allow_empty_list = allow_empty_list
@@ -305,9 +327,9 @@ class ValidatorBase(AbstractValidatorBase):
                                 defaults to False if not provided.
                                 if this validator is for find and `for_find=False`
                                 is provided, no validation will be done.
-                                if `for_find=True` is provided, this validator
-                                will only validate type if it is not None.
 
+        :raises ValueCouldNotBeListError: value could not be list error.
+        :raises ValueCouldNotBeAnEmptyListError: value could not be an empty list error.
         :raises ValueIsNotListError: value is not list error.
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
@@ -316,7 +338,7 @@ class ValidatorBase(AbstractValidatorBase):
         :returns: object | list[object]
         """
 
-        for_find = options.pop('for_find', False)
+        for_find = options.get('for_find', False)
         if for_find is False and self.for_find is True:
             return value
 
@@ -344,17 +366,13 @@ class ValidatorBase(AbstractValidatorBase):
             self._validate_nullable(value, nullable, **options)
             return value
 
-        is_really_list = isinstance(value, list)
-        if is_list is True and is_really_list is True \
-                and len(value) <= 0 and allow_empty_list is False:
-            raise self.empty_list_error(
-                self.empty_list_message.format(param_name=self.localized_name))
+        is_really_list = self._validate_list(value,
+                                             for_find=for_find,
+                                             is_list=is_list,
+                                             allow_single=allow_single,
+                                             allow_empty_list=allow_empty_list)
 
-        if is_list is True and allow_single is False and is_really_list is False:
-            raise self.not_list_error(
-                self.not_list_message.format(param_name=self.localized_name))
-
-        if is_list is False or (is_list is True and is_really_list is False):
+        if is_really_list is False:
             return self._perform_validation(value, nullable, **options)
         else:
             temp_values = list(value)
@@ -362,6 +380,56 @@ class ValidatorBase(AbstractValidatorBase):
                 value[index] = self._perform_validation(item, null_items, **options)
 
             return value
+
+    def _validate_list(self, value, for_find, is_list,
+                       allow_single, allow_empty_list):
+        """
+        validates given value for being list or single item.
+
+        it returns a value indicating that value is actually a list.
+
+        :param object | list[object] value: value to be validated.
+
+        :param bool for_find: specifies that validation is for find operation.
+                              defaults to False if not provided.
+
+        :keyword bool is_list: specifies that the value must be a list of items.
+                               this value has precedence over `is_list`
+                               instance attribute if provided.
+
+        :keyword bool allow_single: specifies that list validator should also
+                                    accept single, non list values.
+                                    it is only used if `is_list=True` is provided.
+                                    defaults to False if not provided.
+
+        :keyword bool allow_empty_list: specifies that list validators should also
+                                        accept empty lists.
+                                        it is only used if `is_list=True` is provided.
+                                        defaults to False if not provided.
+
+        :raises ValueCouldNotBeListError: value could not be list error.
+        :raises ValueCouldNotBeAnEmptyListError: value could not be an empty list error.
+        :raises ValueIsNotListError: value is not list error.
+
+        :rtype: bool
+        """
+
+        is_really_list = isinstance(value, list)
+        if is_really_list is True:
+            if (for_find is False and is_list is False) or \
+                    (for_find is True and self.allow_list_for_find is False):
+                raise self.can_not_be_list_error(
+                    self.can_not_be_list_message.format(param_name=self.localized_name))
+
+        if is_really_list is True and len(value) <= 0 and allow_empty_list is False:
+            raise self.empty_list_error(
+                self.empty_list_message.format(param_name=self.localized_name))
+
+        if is_list is True and allow_single is False and is_really_list is False:
+            raise self.not_list_error(
+                self.not_list_message.format(param_name=self.localized_name))
+
+        return is_really_list
 
     def _perform_validation(self, value, nullable, **options):
         """
@@ -379,8 +447,6 @@ class ValidatorBase(AbstractValidatorBase):
 
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
-                                if `for_find=True` is provided, this validator
-                                will only validate type if it is not None.
 
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
@@ -416,19 +482,14 @@ class ValidatorBase(AbstractValidatorBase):
 
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
-                                if `for_find=True` is provided, this validator
-                                will only validate type if it is not None.
 
         :raises ValueCouldNotBeNoneError: value could not be none error.
         """
 
         for_find = options.get('for_find', False)
-        if for_find is True:
-            return
-
         for_update = options.get('for_update', False)
         has_default = False
-        if self.field is not None:
+        if for_find is False and self.field is not None:
             if for_update is True:
                 has_default = self.field.onupdate is not None or \
                               self.field.server_onupdate is not None
@@ -757,6 +818,25 @@ class ValidatorBase(AbstractValidatorBase):
         return self._field
 
     @property
+    def column(self):
+        """
+        gets the column that this validator will validate.
+
+        it may be None if the field is a string.
+
+        :rtype: CoreColumn
+        """
+
+        if self.field is None:
+            return None
+
+        has_columns = len(self.field.property.columns) > 0
+        if has_columns is False:
+            return None
+
+        return self.field.property.columns[0]
+
+    @property
     def for_find(self):
         """
         gets a value indicating that this validator should only be used on validation for find.
@@ -765,3 +845,13 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._for_find
+
+    @property
+    def allow_list_for_find(self):
+        """
+        gets a value indicating that value could also be a list on validation for find.
+
+        :rtype: bool
+        """
+
+        return self._allow_list_for_find

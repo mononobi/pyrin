@@ -34,8 +34,6 @@ class AbstractValidatorBase(CoreObject):
                                 defaults to False if not provided.
                                 if this validator is for find and `for_find=False`
                                 is provided, no validation will be done.
-                                if `for_find=True` is provided, this validator
-                                will only validate type if it is not None.
 
         :raises CoreNotImplementedError: core not implemented error.
         :raises ValidationError: validation error.

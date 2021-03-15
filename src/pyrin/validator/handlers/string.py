@@ -318,11 +318,7 @@ class StringValidator(ValidatorBase):
         :rtype: bool
         """
 
-        if not self.is_string_type:
-            return False
-
-        has_columns = len(self.field.property.columns) > 0
-        return has_columns and isinstance(self.field.property.columns[0], StringColumn)
+        return isinstance(self.column, StringColumn)
 
 
 class RegexValidator(StringValidator):

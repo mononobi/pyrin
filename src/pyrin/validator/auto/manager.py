@@ -127,6 +127,12 @@ class ValidatorAutoManager(Manager):
                                      if set to None, gets the `datetime` validator.
                                      defaults to None if not provided.
 
+        :keyword bool allow_list_for_find: allow value to be list too, on validation
+                                           for find. single value is also accepted for
+                                           find. if not provided and the field is a
+                                           column which has `check_in` set for it,
+                                           this will be set to True.
+
         :rtype: AbstractValidatorBase
         """
 
@@ -221,11 +227,13 @@ class ValidatorAutoManager(Manager):
 
         from_name = '{prefix}{field}'.format(prefix=self.FROM_KEYWORD, field=field.key)
         from_validator = self._get_type_validator(domain, field, name=from_name,
-                                                  for_find=True, from_datetime=True)
+                                                  for_find=True, from_datetime=True,
+                                                  allow_list_for_find=False)
 
         to_name = '{prefix}{field}'.format(prefix=self.TO_KEYWORD, field=field.key)
         to_validator = self._get_type_validator(domain, field, name=to_name,
-                                                for_find=True, from_datetime=False)
+                                                for_find=True, from_datetime=False,
+                                                allow_list_for_find=False)
 
         return from_validator, to_validator
 

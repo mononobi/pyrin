@@ -61,8 +61,6 @@ class AutoValidator(AbstractValidatorBase):
 
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
-                                if `for_find=True` is provided, this validator
-                                will only validate type if it is not None.
 
         :raises ValidationError: validation error.
 

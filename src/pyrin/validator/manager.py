@@ -669,8 +669,8 @@ class ValidatorManager(Manager):
 
         :keyword bool ignore_errors: specifies that each input that is not valid
                                      must be ignored and removed from inputs.
-                                     otherwise is raises validation error.
-                                     defaults to True if not provided.
+                                     otherwise it raises validation error.
+                                     defaults to False if not provided.
 
         :raises InvalidDataForValidationError: invalid data for validation error.
         :raises ValidatorDomainNotFoundError: validator domain not found error.
@@ -678,15 +678,16 @@ class ValidatorManager(Manager):
         :raises ValidationError: validation error.
         """
 
-        ignore_errors = options.get('ignore_errors', True)
+        ignore_errors = options.get('ignore_errors', False)
 
         try:
             options.update(lazy=True, for_update=True, for_find=True,
-                           nullable=True, null_items=True, allow_empty_list=True)
+                           nullable=True, null_items=False, allow_empty_list=False,
+                           allow_single=True)
 
             self.validate_dict(domain, data, **options)
         except ValidationError as error:
-            if ignore_errors is False:
+            if ignore_errors is not True:
                 raise error
 
             for name in error.data:

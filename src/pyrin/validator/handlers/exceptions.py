@@ -67,6 +67,13 @@ class ValueCouldNotBeAnEmptyListError(HandlersValidationException):
     pass
 
 
+class ValueCouldNotBeListError(HandlersValidationException):
+    """
+    value could not be list error.
+    """
+    pass
+
+
 class ValueIsLowerThanMinimumError(HandlersValidationException):
     """
     value is lower than minimum error.
