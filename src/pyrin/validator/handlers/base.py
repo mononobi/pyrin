@@ -46,11 +46,11 @@ class ValidatorBase(AbstractValidatorBase):
     default_localized_name = None
 
     # specifies that value must be a list of items.
-    default_is_list = False
+    default_is_list = None
 
     # specifies that list validator should also accept single, non list values.
     # it only has effect if 'default_is_list=True' is set.
-    default_allow_single = False
+    default_allow_single = None
 
     # specifies that list items could also be None.
     # it only has effect if 'default_is_list=True' is set.
@@ -206,10 +206,16 @@ class ValidatorBase(AbstractValidatorBase):
             else:
                 nullable = True
 
+        collection = None
+        if self.field is not None:
+            collection, __ = self.field.get_python_type()
+
         is_list = options.get('is_list')
         if is_list is None:
             if self.default_is_list is not None:
                 is_list = self.default_is_list
+            elif collection is list:
+                is_list = True
             else:
                 is_list = False
 
@@ -226,8 +232,10 @@ class ValidatorBase(AbstractValidatorBase):
         if allow_single is None:
             if self.default_allow_single is not None:
                 allow_single = self.default_allow_single
-            else:
+            elif collection is list:
                 allow_single = False
+            else:
+                allow_single = True
 
         allow_empty_list = options.get('allow_empty_list')
         if allow_empty_list is None:

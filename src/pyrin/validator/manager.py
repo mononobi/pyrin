@@ -682,8 +682,7 @@ class ValidatorManager(Manager):
 
         try:
             options.update(lazy=True, for_update=True, for_find=True,
-                           nullable=True, null_items=False, allow_empty_list=False,
-                           allow_single=True)
+                           nullable=True, null_items=False, allow_empty_list=False)
 
             self.validate_dict(domain, data, **options)
         except ValidationError as error:
