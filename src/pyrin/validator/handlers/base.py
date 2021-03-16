@@ -31,7 +31,7 @@ class ValidatorBase(AbstractValidatorBase):
     invalid_type_message = _('The provided value for [{param_name}] '
                              'is not an instance of {type}.')
     none_value_error = ValueCouldNotBeNoneError
-    none_value_message = _('The provided value for [{param_name}] could not be None.')
+    none_value_message = _('The provided value for [{param_name}] could not be null.')
     not_list_error = ValueIsNotListError
     not_list_message = _('The provided value for [{param_name}] must be a list of items.')
     empty_list_error = ValueCouldNotBeAnEmptyListError
