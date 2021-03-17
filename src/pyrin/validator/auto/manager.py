@@ -280,9 +280,8 @@ class ValidatorAutoManager(Manager):
         options.update(for_find=True)
         find_validators = self._get_find_validators(domain, field, **options)
         for item in find_validators:
-            if item is not None:
-                validator_services.register_validator(item, **options)
-                registered += 1
+            validator_services.register_validator(item, **options)
+            registered += 1
 
         return registered
 
