@@ -27,6 +27,11 @@ def register_validator(instance, **options):
                        if not provided or if its not a string, the name of given
                        instance will be used.
 
+    :keyword bool for_find: specifies that this validator must be used
+                            on validation for find.
+                            defaults to `for_find` attribute of given
+                            instance if not provided.
+
     :raises InvalidValidatorTypeError: invalid validator type error.
     :raises DuplicatedValidatorError: duplicated validator error.
     """
@@ -44,8 +49,8 @@ def get_domain_validators(domain, **options):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
-    :keyword bool for_find: specifies that for find validators must also be included.
-                            defaults to False if not provided and only validators
+    :keyword bool for_find: specifies that for find validators must be returned.
+                            defaults to False if not provided and main validators
                             that have `for_find=False` will be returned.
 
     :raises ValidatorDomainNotFoundError: validator domain not found error.
@@ -69,8 +74,8 @@ def get_validator(domain, name, **options):
 
     :param str name: validator name to get.
 
-    :keyword bool for_find: specifies that for find validators must also be included.
-                            defaults to False if not provided and only validators
+    :keyword bool for_find: specifies that for find validator must be returned.
+                            defaults to False if not provided and main validator
                             that have `for_find=False` will be returned.
 
     :raises ValidatorDomainNotFoundError: validator domain not found error.
@@ -93,8 +98,8 @@ def try_get_validator(domain, name, **options):
 
     :param str name: validator name to get.
 
-    :keyword bool for_find: specifies that for find validators must also be included.
-                            defaults to False if not provided and only validators
+    :keyword bool for_find: specifies that for find validator must be returned.
+                            defaults to False if not provided and main validator
                             that have `for_find=False` will be returned.
 
     :rtype: AbstractValidatorBase

@@ -32,6 +32,10 @@ class ValidatorManager(Manager):
         # example: dict(type[BaseEntity] |
         #               str domain: dict(str name: AbstractValidatorBase instance))
         self._validators = Context()
+
+        # a dictionary containing all registered for find validators.
+        # example: dict(type[BaseEntity] |
+        #               str domain: dict(str name: AbstractValidatorBase instance))
         self._for_find_validators = Context()
 
     def register_validator(self, instance, **options):
@@ -54,6 +58,11 @@ class ValidatorManager(Manager):
                            if not provided or if its not a string, the name of given
                            instance will be used.
 
+        :keyword bool for_find: specifies that this validator must be used
+                                on validation for find.
+                                defaults to `for_find` attribute of given
+                                instance if not provided.
+
         :raises InvalidValidatorTypeError: invalid validator type error.
         :raises DuplicatedValidatorError: duplicated validator error.
         """
@@ -64,8 +73,12 @@ class ValidatorManager(Manager):
                                             .format(instance=instance,
                                                     base=AbstractValidatorBase))
 
+        for_find = options.get('for_find')
+        if for_find is None:
+            for_find = instance.for_find
+
         domain_validators = None
-        if instance.for_find is True:
+        if for_find is True:
             domain_validators = self._for_find_validators.get(instance.domain)
         else:
             domain_validators = self._validators.get(instance.domain)
@@ -102,7 +115,7 @@ class ValidatorManager(Manager):
 
         domain_validators[name] = instance
 
-        if instance.for_find is True:
+        if for_find is True:
             self._for_find_validators[instance.domain] = domain_validators
         else:
             self._validators[instance.domain] = domain_validators
@@ -117,8 +130,8 @@ class ValidatorManager(Manager):
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
-        :keyword bool for_find: specifies that for find validators must also be included.
-                                defaults to False if not provided and only validators
+        :keyword bool for_find: specifies that for find validators must be returned.
+                                defaults to False if not provided and main validators
                                 that have `for_find=False` will be returned.
 
         :raises ValidatorDomainNotFoundError: validator domain not found error.
@@ -127,20 +140,17 @@ class ValidatorManager(Manager):
         """
 
         for_find = options.get('for_find', False)
-        if domain not in self._validators:
+        if (for_find is True and domain not in self._for_find_validators) or \
+                (for_find is not True and domain not in self._validators):
             raise ValidatorDomainNotFoundError('Validator domain [{name}] does not exist.'
                                                .format(name=domain))
 
-        validators = self._validators.get(domain)
-        for_find_validators = None
         if for_find is True:
-            for_find_validators = self._for_find_validators.get(domain)
+            validators = self._for_find_validators.get(domain)
+        else:
+            validators = self._validators.get(domain)
 
-        if for_find_validators is None:
-            for_find_validators = dict()
-
-        for_find_validators.update(validators)
-        return for_find_validators
+        return validators
 
     def get_validator(self, domain, name, **options):
         """
@@ -154,8 +164,8 @@ class ValidatorManager(Manager):
 
         :param str name: validator name to get.
 
-        :keyword bool for_find: specifies that for find validators must also be included.
-                                defaults to False if not provided and only validators
+        :keyword bool for_find: specifies that for find validator must be returned.
+                                defaults to False if not provided and main validator
                                 that have `for_find=False` will be returned.
 
         :raises ValidatorDomainNotFoundError: validator domain not found error.
@@ -178,8 +188,8 @@ class ValidatorManager(Manager):
 
         :param str name: validator name to get.
 
-        :keyword bool for_find: specifies that for find validators must also be included.
-                                defaults to False if not provided and only validators
+        :keyword bool for_find: specifies that for find validator must be returned.
+                                defaults to False if not provided and main validator
                                 that have `for_find=False` will be returned.
 
         :rtype: AbstractValidatorBase
