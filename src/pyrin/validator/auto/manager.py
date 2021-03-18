@@ -36,8 +36,8 @@ class ValidatorAutoManager(Manager):
     FROM_KEYWORD = 'from_'
     TO_KEYWORD = 'to_'
 
-    # list of all types that support find validators.
-    FIND_VALIDATOR_TYPES = [int, float, Decimal, datetime, date, time]
+    # list of all types that support find range validators.
+    FIND_RANGE_VALIDATOR_TYPES = [int, float, Decimal, datetime, date, time]
 
     def __init__(self):
         """
@@ -201,19 +201,37 @@ class ValidatorAutoManager(Manager):
 
         return None
 
-    def _get_find_validators(self, domain, field, **options):
+    def _get_find_validator(self, domain, field, **options):
         """
-        gets the required find validators for given field.
+        gets the required find validator for given field.
 
-        it returns a tuple of all required find validators.
+        it will only be used in find validation and will only validate
+        type of value if it is not None.
 
-        find validators are constructed with names `from_*` and `to_*` and
-        with the original field name.
+        :param BaseEntity domain: entity type that this field is related to.
+        :param InstrumentedAttribute field: field instance.
+
+        :rtype: AbstractValidatorBase
+        """
+
+        find_validator = validator_services.try_get_validator(domain, field.key)
+        if find_validator is None:
+            find_validator = self._get_type_validator(domain, field, for_find=True)
+
+        return find_validator
+
+    def _get_find_range_validators(self, domain, field, **options):
+        """
+        gets the required find range validators for given field.
+
+        it returns a tuple of all required find range validators.
+        it may return an empty tuple if no find range validator should be created.
+
+        find range validators are constructed with names `from_*` and `to_*`.
         they will only be used in find validation and will only validate
         type of value if it is not None.
 
-        not that for primary key columns, no `from_*` or `to_*` validators
-        will be created.
+        not that for primary key columns, no find range validators will be created.
 
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
@@ -221,13 +239,9 @@ class ValidatorAutoManager(Manager):
         :rtype: tuple
         """
 
-        main_validator = validator_services.try_get_validator(domain, field.key)
-        if main_validator is None:
-            main_validator = self._get_type_validator(domain, field, for_find=True)
-
         collection_type, python_type = field.get_python_type()
-        if field.primary_key is True or python_type not in self.FIND_VALIDATOR_TYPES:
-            return main_validator,
+        if field.primary_key is True or python_type not in self.FIND_RANGE_VALIDATOR_TYPES:
+            return tuple()
 
         from_name = '{prefix}{field}'.format(prefix=self.FROM_KEYWORD, field=field.key)
         from_validator = self._get_type_validator(domain, field, name=from_name,
@@ -239,7 +253,7 @@ class ValidatorAutoManager(Manager):
                                                 for_find=True, from_datetime=False,
                                                 allow_list_for_find=False)
 
-        return main_validator, from_validator, to_validator
+        return from_validator, to_validator
 
     def register_auto_validator(self, domain, field, **options):
         """
@@ -264,11 +278,23 @@ class ValidatorAutoManager(Manager):
         auto_validator = AutoValidator(domain, field, **options)
         validator_services.register_validator(auto_validator, **options)
 
-    def register_find_validators(self, domain, field, **options):
+    def register_find_validator(self, domain, field, **options):
         """
-        registers required find validators for given field.
+        registers required find validator for given field.
 
-        it returns the count of registered find validators.
+        :param BaseEntity domain: entity type that this field is related to.
+        :param InstrumentedAttribute field: field instance.
+        """
+
+        find_validator = self._get_find_validator(domain, field, **options)
+        options.update(for_find=True)
+        validator_services.register_validator(find_validator, **options)
+
+    def register_find_range_validators(self, domain, field, **options):
+        """
+        registers required find range validators for given field.
+
+        it returns the count of registered find range validators.
 
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
@@ -277,9 +303,9 @@ class ValidatorAutoManager(Manager):
         """
 
         registered = 0
+        find_range_validators = self._get_find_range_validators(domain, field, **options)
         options.update(for_find=True)
-        find_validators = self._get_find_validators(domain, field, **options)
-        for item in find_validators:
+        for item in find_range_validators:
             validator_services.register_validator(item, **options)
             registered += 1
 
@@ -303,7 +329,11 @@ class ValidatorAutoManager(Manager):
                     registered += 1
 
                 if column.validated_find is True:
-                    count = self.register_find_validators(entity, column)
+                    self.register_find_validator(entity, column)
+                    registered += 1
+
+                if column.validated_range is True:
+                    count = self.register_find_range_validators(entity, column)
                     registered += count
 
         return registered

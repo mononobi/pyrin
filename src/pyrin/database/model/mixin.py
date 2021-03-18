@@ -2403,6 +2403,7 @@ class CreateHistoryMixin:
     """
 
     created_on = TimeStampColumn(name='created_on', nullable=False, validated=True,
+                                 validated_find=False, validated_range=True,
                                  default=datetime_services.now, allow_write=False)
 
 
@@ -2414,6 +2415,7 @@ class UpdateHistoryMixin:
     """
 
     modified_on = TimeStampColumn(name='modified_on', nullable=True, validated=True,
+                                  validated_find=False, validated_range=True,
                                   onupdate=datetime_services.now, allow_write=False)
 
 

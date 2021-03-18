@@ -90,11 +90,24 @@ class SequenceColumnMixin:
 
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
-                                 services. defaults to False if not provided.
+                                 services for create and update.
+                                 defaults to False if not provided.
 
-        :keyword bool validated_find: specifies that automatic find validators for this column
-                                      must be registered, that is usable through validator
-                                      services. defaults to `validated` value if not provided.
+        :keyword bool validated_find: specifies that an automatic find validator for this
+                                      column must be registered, that is usable through
+                                      validator services for find. defaults to `validated`
+                                      value if not provided.
+
+        :keyword bool validated_range: specifies that automatic find range validators for this
+                                       column must be registered, that is usable through
+                                       validator services for find. defaults to `validated_find`
+                                       value if not provided.
+                                       note that find range validators are constructed with
+                                       names `from_*` and `to_*` for given column if it
+                                       is a number or any variant of date and time.
+                                       if the type of column is anything else or it is a
+                                       primary key, no range validators will be registered
+                                       for it and this value will be ignored.
 
         :keyword int cache: cache size for sequence.
                             defaults to `DEFAULT_CACHE`, if not provided.
@@ -208,7 +221,13 @@ class GUIDColumnMixin:
 
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
-                                 services. defaults to False if not provided.
+                                 services for create and update.
+                                 defaults to False if not provided.
+
+        :keyword bool validated_find: specifies that an automatic find validator for this
+                                      column must be registered, that is usable through
+                                      validator services for find. defaults to `validated`
+                                      value if not provided.
         """
 
         args = list(args)
@@ -367,11 +386,24 @@ class TypeMixin:
 
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
-                                 services. defaults to False if not provided.
+                                 services for create and update.
+                                 defaults to False if not provided.
 
-        :keyword bool validated_find: specifies that automatic find validators for this column
-                                      must be registered, that is usable through validator
-                                      services. defaults to `validated` value if not provided.
+        :keyword bool validated_find: specifies that an automatic find validator for this
+                                      column must be registered, that is usable through
+                                      validator services for find. defaults to `validated`
+                                      value if not provided.
+
+        :keyword bool validated_range: specifies that automatic find range validators for this
+                                       column must be registered, that is usable through
+                                       validator services for find. defaults to `validated_find`
+                                       value if not provided.
+                                       note that find range validators are constructed with
+                                       names `from_*` and `to_*` for given column if it
+                                       is a number or any variant of date and time.
+                                       if the type of column is anything else or it is a
+                                       primary key, no range validators will be registered
+                                       for it and this value will be ignored.
         """
 
         args = list(args)

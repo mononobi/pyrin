@@ -19,11 +19,23 @@ def register_auto_validator(domain, field, **options):
         domain, field, **options)
 
 
-def register_find_validators(domain, field, **options):
+def register_find_validator(domain, field, **options):
     """
-    registers required find validators for given field.
+    registers required find validator for given field.
 
-    it returns the count of registered find validators.
+    :param BaseEntity domain: entity type that this field is related to.
+    :param InstrumentedAttribute field: field instance.
+    """
+
+    return get_component(ValidatorAutoPackage.COMPONENT_NAME).register_find_validator(
+        domain, field, **options)
+
+
+def register_find_range_validators(domain, field, **options):
+    """
+    registers required find range validators for given field.
+
+    it returns the count of registered find range validators.
 
     :param BaseEntity domain: entity type that this field is related to.
     :param InstrumentedAttribute field: field instance.
@@ -31,7 +43,7 @@ def register_find_validators(domain, field, **options):
     :rtype: int
     """
 
-    return get_component(ValidatorAutoPackage.COMPONENT_NAME).register_find_validators(
+    return get_component(ValidatorAutoPackage.COMPONENT_NAME).register_find_range_validators(
         domain, field, **options)
 
 
