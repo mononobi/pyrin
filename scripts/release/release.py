@@ -21,8 +21,8 @@ class ReleaseManager:
     PIPFILE = '../../Pipfile'
     PYTHON_VERSION = 'python{version}'
     PYPI_PACKAGE_NAME = 'pyrin'
-    MAX_MINOR = 40
-    MAX_PATCH = 40
+    MAX_MINOR = 50
+    MAX_PATCH = 50
 
     def __init__(self):
         """
