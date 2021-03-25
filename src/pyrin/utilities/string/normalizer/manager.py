@@ -135,8 +135,7 @@ class StringNormalizerManager(Manager):
 
         self._normalizers[instance.get_name()] = instance
         self._priorities[instance.get_name()] = instance.priority
-        self._priorities = OrderedDict(dict_utils.sort_by_value(self._priorities,
-                                                                reverse=True))
+        self._priorities = dict_utils.sort_by_value(self._priorities, reverse=True)
 
     def get_normalizer(self, name, **options):
         """
