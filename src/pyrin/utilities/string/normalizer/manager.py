@@ -55,6 +55,10 @@ class StringNormalizerManager(Manager):
                                     defaults to None. it will only be used
                                     for `filter` normalizer.
 
+        :keyword dict filter_map: a dict of keys and values to be used
+                                  for replacement. defaults to None.
+                                  it will only be used for `filter` normalizer.
+
         :keyword bool ignore_case: remove `filters` from string in case-insensitive
                                    way. defaults to True if not provided.
 
@@ -241,6 +245,7 @@ class StringNormalizerManager(Manager):
         :param str value: value to be filtered.
 
         :keyword list[str] filters: list of items to be removed from value.
+        :keyword dict filter_map: a dict of keys and values to be used for replacement.
 
         :keyword bool ignore_case: remove `filters` from string in case-insensitive
                                    way. defaults to True if not provided.
