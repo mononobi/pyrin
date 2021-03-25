@@ -3,6 +3,8 @@
 utils dictionary module.
 """
 
+from collections import OrderedDict
+
 import pyrin.utils.string as string_utils
 
 from pyrin.core.structs import DTO
@@ -111,7 +113,42 @@ def sort_by_value(value, reverse=False):
     :param bool reverse: sort by descending order.
                          defaults to False if not provided.
 
-    :rtype: list[tuple]
+    :rtype: OrderedDict
     """
 
-    return sorted(value.items(), key=lambda x: x[1], reverse=reverse)
+    result = sorted(value.items(), key=lambda x: x[1], reverse=reverse)
+    return OrderedDict(result)
+
+
+def sort_by_key(value, reverse=False):
+    """
+    sorts a dictionary by its keys.
+
+    :param dict value: dict to be sorted.
+
+    :param bool reverse: sort by descending order.
+                         defaults to False if not provided.
+
+    :rtype: OrderedDict
+    """
+
+    result = sorted(value.items(), key=lambda x: x[0], reverse=reverse)
+    return OrderedDict(result)
+
+
+def sort_by_key_length(value, reverse=False):
+    """
+    sorts a dictionary by its keys length.
+
+    note that keys must be strings.
+
+    :param dict value: dict to be sorted.
+
+    :param bool reverse: sort by descending order.
+                         defaults to False if not provided.
+
+    :rtype: OrderedDict
+    """
+
+    result = sorted(value.items(), key=lambda x: len(x[0]), reverse=reverse)
+    return OrderedDict(result)
