@@ -7,8 +7,9 @@ import os
 import sys
 import shutil
 
+from pyrin.core.globals import _
 from pyrin.utils.exceptions import PathIsNotAbsoluteError, InvalidPathError, \
-    PathNotExistedError, PathAlreadyExistedError
+    PathNotExistedError, PathAlreadyExistedError, IsNotDirectoryError, IsNotFileError
 
 
 def get_module_file_path(module_name):
@@ -217,10 +218,10 @@ def assert_absolute(source):
     """
 
     if source is None:
-        raise InvalidPathError('Provided path could not be None.')
+        raise InvalidPathError(_('Provided path could not be None.'))
 
     if not os.path.isabs(source):
-        raise PathIsNotAbsoluteError('Provided path [{source}] must be absolute.'
+        raise PathIsNotAbsoluteError(_('Provided path [{source}] must be absolute.')
                                      .format(source=source))
 
 
@@ -252,7 +253,7 @@ def assert_exists(source):
     """
 
     if not exists(source):
-        raise PathNotExistedError('Provided path [{source}] does not exist.'
+        raise PathNotExistedError(_('Provided path [{source}] does not exist.')
                                   .format(source=source))
 
 
@@ -269,7 +270,7 @@ def assert_not_exists(source):
     """
 
     if exists(source):
-        raise PathAlreadyExistedError('Provided path [{source}] already existed.'
+        raise PathAlreadyExistedError(_('Provided path [{source}] already existed.')
                                       .format(source=source))
 
 
@@ -409,3 +410,41 @@ def get_pycache(source, names):
     """
 
     return [name for name in names if '__pycache__' in name]
+
+
+def assert_is_directory(source):
+    """
+    asserts that given path is a directory.
+
+    :param str source: source path to be checked.
+                       it must be an absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    :raises IsNotDirectoryError: is not directory error.
+    """
+
+    assert_exists(source)
+    if not os.path.isdir(source):
+        raise IsNotDirectoryError(_('Provided path [{source}] is not a directory.')
+                                  .format(source=source))
+
+
+def assert_is_file(source):
+    """
+    asserts that given path is a file.
+
+    :param str source: source path to be checked.
+                       it must be an absolute path.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    :raises IsNotFileError: is not directory error.
+    """
+
+    assert_exists(source)
+    if not os.path.isfile(source):
+        raise IsNotFileError(_('Provided path [{source}] is not a file.')
+                             .format(source=source))

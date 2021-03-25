@@ -76,37 +76,44 @@ class DictKeyPrefixIsNotProvidedError(UtilsException):
     pass
 
 
-class PathIsNotAbsoluteError(UtilsException):
+class PathIsNotAbsoluteError(UtilsBusinessException):
     """
     path is not absolute error.
     """
     pass
 
 
-class PathAlreadyExistedError(UtilsException):
+class PathAlreadyExistedError(UtilsBusinessException):
     """
     path already existed error.
     """
     pass
 
 
-class InvalidPathError(UtilsException):
+class InvalidPathError(UtilsBusinessException):
     """
     invalid path error.
     """
     pass
 
 
-class PathNotExistedError(UtilsException):
+class PathNotExistedError(UtilsBusinessException):
     """
     path not existed error.
     """
     pass
 
 
-class IsNotDirectoryError(UtilsException):
+class IsNotDirectoryError(UtilsBusinessException):
     """
     is not directory error.
+    """
+    pass
+
+
+class IsNotFileError(UtilsBusinessException):
+    """
+    is not file error.
     """
     pass
 
