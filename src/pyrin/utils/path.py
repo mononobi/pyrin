@@ -602,3 +602,25 @@ def rename(source, new_name):
     root, old_name = split_name(source)
     new_path = os.path.join(root, new_name)
     return move(source, new_path)
+
+
+def get_file_name(file, **options):
+    """
+    gets the file name of given file path.
+
+    :param str file: full file path.
+
+    :keyword bool include_extension: specifies that file extension must be included.
+                                     defaults to True if not provided.
+
+    :rtype: str
+    """
+
+    include_extension = options.get('include_extension', True)
+    root, name = split_name(file)
+
+    if include_extension is False:
+        extension = get_file_extension(file, remove_dot=False)
+        return name.rstrip(extension)
+
+    return name
