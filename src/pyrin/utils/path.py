@@ -460,16 +460,23 @@ def get_file_extension(file, **options):
                               include the `.` character.
                               defaults to True if not provided.
 
+    :keyword bool lowercase: specifies that extension must be changed to lowercase.
+                             defaults to True if not provided.
+
     :rtype: str
     """
 
     remove_dot = options.get('remove_dot', True)
+    lowercase = options.get('lowercase', True)
     name, extension = os.path.splitext(file)
 
     if remove_dot is not False:
         extension = extension.replace('.', '')
 
-    return extension.lower()
+    if lowercase is not False:
+        extension = extension.lower()
+
+    return extension
 
 
 def get_file_size(file):
@@ -620,7 +627,7 @@ def get_file_name(file, **options):
     root, name = split_name(file)
 
     if include_extension is False:
-        extension = get_file_extension(file, remove_dot=False)
+        extension = get_file_extension(file, remove_dot=False, lowercase=False)
         return name.rstrip(extension)
 
     return name
