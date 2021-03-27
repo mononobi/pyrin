@@ -531,3 +531,74 @@ def get_directories(root):
         break
 
     return folders
+
+
+def get_parent_directory(full_path):
+    """
+    gets the parent directory of given path.
+
+    it returns the exact name of parent directory, not the full path.
+
+    :param str full_path: full path of file or directory.
+
+    :rtype: str
+    """
+
+    if os.path.isdir(full_path):
+        # this is to ensure that path ends with '/'.
+        full_path = os.path.join(full_path, '')
+
+    return os.path.basename(os.path.dirname(full_path))
+
+
+def split_name(full_path):
+    """
+    gets the root path and the name of the source directory or file.
+
+    :param str full_path: full file or directory path.
+
+    :returns: tuple[str root, str name]
+    :rtype: tuple[str, str]
+    """
+
+    if os.path.isdir(full_path):
+        # this is to ensure that path does not end with '/'.
+        full_path = full_path.rstrip(os.path.sep).rstrip(os.path.altsep)
+
+    parts = os.path.split(full_path)
+    root = os.path.join(*parts[0:-1])
+    return root, parts[-1]
+
+
+def move(source, destination):
+    """
+    moves a file or directory from source to destination.
+
+    it returns the new destination path, it may be different from input destination.
+
+    :param str source: source file or directory.
+    :param str destination: destination file or directory.
+
+    :rtype: str
+    """
+
+    return shutil.move(source, destination)
+
+
+def rename(source, new_name):
+    """
+    renames the source directory or file to the new name.
+
+    it returns the full path of renamed file or directory.
+
+    :param str source: source file or directory.
+
+    :param str new_name: the new name. it must only be
+                         the exact name, not the full path.
+
+    :rtype: str
+    """
+
+    root, old_name = split_name(source)
+    new_path = os.path.join(root, new_name)
+    return move(source, new_path)
