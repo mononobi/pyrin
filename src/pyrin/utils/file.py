@@ -164,8 +164,5 @@ def is_match(source, *patterns):
     if len(patterns) <= 0:
         return True
 
-    for pattern in patterns:
-        if source.lower().endswith(pattern.lower()):
-            return True
-
-    return False
+    patterns = tuple(item.lower() for item in patterns)
+    return source.lower().endswith(patterns)
