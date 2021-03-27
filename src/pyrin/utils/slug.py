@@ -14,7 +14,7 @@ def get_slug(chars, length=6, case_convertor=string_utils.upper):
     """
     gets a random slug with given length.
 
-    :param list[str] | tuple[str] chars: a list of chars to be used for slug generation.
+    :param str chars: a string of characters to be used for slug generation.
 
     :param int length: length of generated slug.
                        defaults to `6` if not provided.
@@ -81,7 +81,7 @@ def get_complex_slug(length=6, case_convertor=string_utils.upper):
                     length, case_convertor=case_convertor)
 
 
-def get_hex_slug(length=16):
+def get_hex_slug(length=16, case_convertor=None):
     """
     gets a slug from a uuid as hex string.
 
@@ -89,8 +89,14 @@ def get_hex_slug(length=16):
                        defaults to `16` if not provided.
                        the maximum length is `32`.
 
+    :param function case_convertor: a callable to be used as case converter
+                                    for slug. defaults to None if not provided.
+
     :rtype: str
     """
 
     slug = uuid_utils.generate_uuid4().hex
+    if case_convertor is not None:
+        slug = case_convertor(slug)
+
     return slug[0:length]
