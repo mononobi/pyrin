@@ -26,7 +26,7 @@ def get_slug(chars, length=6, case_convertor=string_utils.upper):
     :rtype: str
     """
 
-    slug = random.choices(chars, k=length)
+    slug = ''.join(random.choices(chars, k=length))
     if case_convertor is not None:
         slug = case_convertor(slug)
 
