@@ -631,3 +631,17 @@ def get_file_name(file, **options):
         return name.rstrip(extension)
 
     return name
+
+
+def get_directory_name(directory):
+    """
+    gets the directory name of given directory path.
+
+    :param str directory: full directory path.
+
+    :rtype: str
+    """
+
+    # this is to ensure that path ends with '/'.
+    directory = os.path.join(directory, '')
+    return get_parent_directory(directory)
