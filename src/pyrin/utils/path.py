@@ -568,10 +568,8 @@ def split_name(full_path):
     :rtype: tuple[str, str]
     """
 
-    if os.path.isdir(full_path):
-        # this is to ensure that path does not end with '/'.
-        full_path = full_path.rstrip(os.path.sep).rstrip(os.path.altsep)
-
+    # this is to ensure that path does not end with '/'.
+    full_path = full_path.rstrip(os.path.sep).rstrip(os.path.altsep)
     parts = os.path.split(full_path)
     root = os.path.join(*parts[0:-1])
     return root, parts[-1]
