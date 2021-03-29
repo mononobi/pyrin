@@ -7,6 +7,8 @@ import os
 import sys
 import shutil
 
+import pyrin.utils.environment as env_utils
+
 from pyrin.core.globals import _
 from pyrin.utils.exceptions import PathIsNotAbsoluteError, InvalidPathError, \
     PathNotExistedError, PathAlreadyExistedError, IsNotDirectoryError, IsNotFileError
@@ -643,3 +645,23 @@ def get_directory_name(directory):
     # this is to ensure that path ends with '/'.
     directory = os.path.join(directory, '')
     return get_last_directory_name(directory)
+
+
+def is_same_path(first_path, second_path):
+    """
+    gets a value indicating that two paths are the same.
+
+    note that it has the correct behavior on case-sensitive
+    and case-insensitive operating systems.
+
+    :param str first_path: full first path.
+    :param str second_path: full second path.
+
+    :rtype: bool
+    """
+
+    if env_utils.is_windows() is True:
+        first_path = first_path.lower()
+        second_path = second_path.lower()
+
+    return first_path == second_path
