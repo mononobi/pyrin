@@ -589,7 +589,11 @@ def move(source, destination):
     :rtype: str
     """
 
-    return shutil.move(source, destination)
+    result_path = shutil.move(source, destination)
+    if result_path is None:
+        result_path = destination
+
+    return result_path
 
 
 def rename(source, new_name):
