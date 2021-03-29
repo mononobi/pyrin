@@ -540,11 +540,11 @@ def get_directories(root):
     return folders
 
 
-def get_parent_directory(full_path):
+def get_last_directory_name(full_path):
     """
-    gets the parent directory of given path.
+    gets the last directory name of given path.
 
-    it returns the exact name of parent directory, not the full path.
+    it returns the exact name of last directory, not the full path.
 
     :param str full_path: full path of file or directory.
 
@@ -642,4 +642,4 @@ def get_directory_name(directory):
 
     # this is to ensure that path ends with '/'.
     directory = os.path.join(directory, '')
-    return get_parent_directory(directory)
+    return get_last_directory_name(directory)
