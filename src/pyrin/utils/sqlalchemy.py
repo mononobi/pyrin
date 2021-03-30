@@ -278,7 +278,8 @@ def add_datetime_range_clause(clauses, column,
     add_range_clause(clauses, column,
                      value_lower, value_upper,
                      include_equal_to_lower,
-                     include_equal_to_upper)
+                     include_equal_to_upper,
+                     **options)
 
 
 def add_comparison_clause(clauses, column, value, **options):
