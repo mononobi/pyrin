@@ -200,7 +200,8 @@ def like_exact_suffix(value, count):
 
 def add_range_clause(clauses, column, value_lower, value_upper,
                      include_equal_to_lower=True,
-                     include_equal_to_upper=True):
+                     include_equal_to_upper=True,
+                     **options):
     """
     adds range comparison into given clauses using specified inputs.
 
@@ -280,7 +281,7 @@ def add_datetime_range_clause(clauses, column,
                      include_equal_to_upper)
 
 
-def add_comparison_clause(clauses, column, value):
+def add_comparison_clause(clauses, column, value, **options):
     """
     adds list or single comparison into clauses based on given value.
 
