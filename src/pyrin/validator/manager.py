@@ -381,7 +381,7 @@ class ValidatorManager(Manager):
 
         if len(cumulative_errors) > 0:
             fields = list(cumulative_errors.keys())
-            raise ValidationError(_('Validation failed for these values: {fields}.')
+            raise ValidationError(_('Validation failed for these values: {fields}')
                                   .format(fields=fields), data=cumulative_errors)
 
     def validate_entity(self, entity, **options):
