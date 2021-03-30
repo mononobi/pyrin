@@ -27,13 +27,6 @@ class ColumnsOutOfScopeError(ORMQueryBusinessException):
     pass
 
 
-class UnsupportedQueryStyleError(ORMQueryException):
-    """
-    unsupported query style error.
-    """
-    pass
-
-
 class InvalidOrderByScopeError(ORMQueryException):
     """
     invalid order by scope error.

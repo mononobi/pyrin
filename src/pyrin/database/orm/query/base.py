@@ -5,8 +5,8 @@ orm query base module.
 
 import inspect
 
-from sqlalchemy import inspection, log, func, literal
 from sqlalchemy.orm import Query, lazyload
+from sqlalchemy import inspection, log, func, literal, distinct
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
@@ -16,10 +16,9 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
-from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    UnsupportedQueryStyleError, InvalidOrderByScopeError
+    InvalidOrderByScopeError
 
 
 @inspection._self_inspects
@@ -131,86 +130,39 @@ class CoreQuery(Query):
 
         self._validate_scope(entities, scope)
 
-    def count(self, **options):
+    def _count(self, **options):
         """
         returns the count of rows that the sql formed by this `Query` would return.
-
-        this method is overridden to prevent inefficient count() of sqlalchemy `Query`
-        which produces a subquery.
 
         this method generates a single sql query like below:
         select count(column, ...)
         from table
         where ...
 
+        if a single query could not be produced, an error may be raised.
+
+        :keyword CoreColumn column: column to be used in count function.
+                                    defaults to `*` if not provided.
+
         :keyword bool distinct: specifies that count should
                                 be executed on distinct select.
                                 defaults to False if not provided.
-
-        :keyword bool fallback: specifies that if the overridden count
-                                failed to execute, it should be executed using
-                                the original sqlalchemy count which produces
-                                a subquery, instead of raising an error.
-                                defaults to True if not provided.
-
-        :raises UnsupportedQueryStyleError: unsupported query style error.
+                                note that `distinct` will only be
+                                used if `column` is also provided.
 
         :rtype: int
         """
 
-        fallback = options.get('fallback', True)
-        needs_fallback = False
-        columns = []
-        # if there is group by clause, a subquery
-        # is inevitable to be able to get count.
-        if self.selectable._group_by_clause is not None and \
-                self.selectable._group_by_clause.clauses is not None and \
-                len(self.selectable._group_by_clause.clauses) > 0:
-            needs_fallback = True
+        column = options.get('column')
+        is_distinct = options.get('distinct', False)
+        func_count = None
+        if column is None:
+            func_count = func.count()
         else:
-            for single_column in self.selectable.columns:
-                if not isinstance(single_column, CoreColumn):
-                    if fallback is False:
-                        raise UnsupportedQueryStyleError('Current query does not have columns '
-                                                         'of type [{column_type}] in its '
-                                                         'expression. if you need to apply a '
-                                                         '"DISTINCT" keyword, you should apply '
-                                                         'it by passing "distinct=True" keyword '
-                                                         'to count() method and do not apply it '
-                                                         'in query structure itself. for example '
-                                                         'instead of writing "store.query('
-                                                         'distinct(Entity.id)).count()" you '
-                                                         'should write this in the following '
-                                                         'form "store.query(Entity.id).count('
-                                                         'distinct=True)". but if you want the '
-                                                         'sqlalchemy original style of count() '
-                                                         'which produces a subquery, it is also '
-                                                         'possible to fallback to that default '
-                                                         'sqlalchemy count() but keep in mind '
-                                                         'that, that method is not efficient. '
-                                                         'you could pass "fallback=True" in '
-                                                         'options to fallback to default mode '
-                                                         'if overridden count() method failed '
-                                                         'to provide count.'
-                                                         .format(column_type=CoreColumn))
-                    else:
-                        needs_fallback = True
-                        break
-
-                fullname = single_column.fullname
-                if fullname not in (None, ''):
-                    columns.append(fullname)
-
-        if needs_fallback is True:
-            return super().count()
-
-        func_count = func.count()
-        if len(columns) > 0:
-            distinct = options.get('distinct', False)
-            column_clause = ', '.join(columns)
-            if distinct is True:
-                column_clause = 'distinct {clause}'.format(clause=column_clause)
-            func_count = func.count(column_clause)
+            if is_distinct is True:
+                func_count = func.count(distinct(column))
+            else:
+                func_count = func.count(column)
 
         statement = self.options(lazyload('*')).statement.with_only_columns(
             [func_count]).order_by(None)
@@ -218,9 +170,36 @@ class CoreQuery(Query):
         store = get_current_store()
         return store.execute(statement).scalar()
 
+    def count(self, **options):
+        """
+        returns the count of rows that the sql formed by this `Query` would return.
+
+        this method is overridden to prevent inefficient count() of sqlalchemy `Query`
+        which produces a subquery, if possible. otherwise it uses the default sqlalchemy
+        `count` method.
+
+        :keyword CoreColumn column: column to be used in count function.
+                                    defaults to `*` if not provided.
+                                    this is only used if a single query
+                                    could be produced for count.
+
+        :keyword bool distinct: specifies that count should
+                                be executed on distinct select.
+                                defaults to False if not provided.
+                                note that `distinct` will only be
+                                used if `column` is also provided.
+
+        :rtype: int
+        """
+
+        try:
+            return self._count(**options)
+        except Exception:
+            return super().count()
+
     def paginate(self, **options):
         """
-        sets offset and limit for current query.
+        sets the offset and limit for current query.
 
         the offset and limit values will be extracted from given inputs.
         note that `.paginate` must be called after all other query methods
@@ -238,6 +217,12 @@ class CoreQuery(Query):
                                                           defaults to `SECURE_FALSE`
                                                           if not provided.
 
+        :keyword CoreColumn column: column to be used in count function.
+                                    defaults to `*` if not provided.
+                                    this is only used if `inject_total` is
+                                    provided and a single query could be
+                                    produced for count.
+
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
         """
@@ -251,7 +236,8 @@ class CoreQuery(Query):
 
         if paginator is not None:
             if inject_total is SECURE_TRUE:
-                paginator.total_count = self.order_by(None).count()
+                options.pop('distinct', None)
+                paginator.total_count = self.order_by(None).count(**options)
 
             limit, offset = paging_services.get_paging_keys(**options)
             return self.limit(limit).offset(offset)
