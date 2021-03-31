@@ -17,20 +17,20 @@ with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
     VERSION = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
 
 PACKAGES = [
-    'aniso8601>=8.0.0',
+    'aniso8601>=9.0.1',
     'bcrypt>=3.1.7',
-    'pytz>=2019.3',
+    'pytz>=2021.1',
     'Flask>=1.1.1',
     'PyJWT>=2.0.1',
-    'SQLAlchemy>=1.3.13, <1.4',
+    'SQLAlchemy>=1.4',
     'colorama>=0.4.3',
-    'python-dotenv>=0.10.5',
-    'cryptography>=2.8',
-    'flask-babel>=1.0.0',
-    'babel>=2.8.0',
-    'alembic>=1.4.0',
-    'fire>=0.2.1',
-    'sqlparse>=0.3.0',
+    'python-dotenv>=0.16.0',
+    'cryptography>=3.4.7',
+    'flask-babel>=2.0.0',
+    'babel>=2.9.0',
+    'alembic>=1.5.8',
+    'fire>=0.4.0',
+    'sqlparse>=0.4.1',
 ]
 
 TEST_PACKAGES = PACKAGES + [
@@ -46,16 +46,16 @@ DOC_PACKAGES = [
 ]
 
 MEMCACHED_PACKAGES = [
-    'pymemcache>=3.3.0',
+    'pymemcache>=3.4.1',
 ]
 
 SENTRY_PACKAGES = [
-    'sentry-sdk>=0.17.4',
+    'sentry-sdk>=1.0.0',
     'blinker>=1.4',
 ]
 
 CELERY_PACKAGES = [
-    'celery>=4.4.7',
+    'celery>=5.0.5',
 ]
 
 REDIS_PACKAGES = [
@@ -90,7 +90,6 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -105,7 +104,7 @@ setup(
     package_dir={'': 'src'},
     package_data={'': ['*']},
     include_package_data=True,
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=PACKAGES,
     extras_require={
         'tests': TEST_PACKAGES,
