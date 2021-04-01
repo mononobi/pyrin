@@ -3,10 +3,9 @@
 utils sqlalchemy module.
 """
 
-from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc
-from sqlalchemy import CheckConstraint
-from sqlalchemy.engine import result_tuple
 from sqlalchemy.sql import quoted_name
+from sqlalchemy.engine import result_tuple
+from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc, CheckConstraint
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
