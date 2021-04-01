@@ -1896,7 +1896,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
 
         for hook in self._get_hooks():
-            with atomic_context():
+            with atomic_context(expire_on_commit=True):
                 hook.prepare_runtime_data()
 
     def _provide_response_headers(self, headers, endpoint,
