@@ -5,7 +5,7 @@ caching models module.
 
 from sqlalchemy import LargeBinary
 
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.declarative import CoreEntity
 from pyrin.database.model.mixin import CreateHistoryMixin
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.sql.schema.columns import AutoPKColumn, StringColumn, BigIntegerColumn

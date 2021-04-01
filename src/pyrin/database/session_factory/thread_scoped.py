@@ -40,7 +40,7 @@ class ThreadScopedSessionFactory(SessionFactoryBase):
         """
 
         session_configs = config_services.get_section('database', 'thread_scoped_session')
-        return CoreScopedSession(sessionmaker(bind=engine, class_=CoreSession,
+        return CoreScopedSession(sessionmaker(bind=engine, class_=CoreSession, future=True,
                                               query_cls=CoreQuery, **session_configs))
 
     @property

@@ -3,8 +3,6 @@
 model base module.
 """
 
-from sqlalchemy.ext.declarative import as_declarative
-
 from pyrin.core.structs import CoreObject
 from pyrin.core.decorators import class_property
 from pyrin.database.model.mixin import CRUDMixin, MagicMethodMixin, QueryMixin, \
@@ -31,7 +29,7 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
     if you want to implement a new declarative base class for your application models
     instead of `CoreEntity`, you must inherit your new base class from `BaseEntity`.
     because application will check isinstance() on this class's type to detect models.
-    the new base class must have `@as_declarative` decorator on it.
+    the new base class must be a `DeclarativeMeta`.
     note that your application must have a unique declarative base class for all
     models, do not mix the use of your new base class and `CoreEntity`, otherwise
     you will face problems in migrations and also multi-database environments.
@@ -152,23 +150,3 @@ class BaseEntity(MagicMethodMixin, PrimaryKeyMixin,
         """
 
         return BaseEntity
-
-
-@as_declarative(constructor=None)
-class CoreEntity(BaseEntity):
-    """
-    core entity class.
-
-    it should be used as the base class for all application concrete models.
-
-    it is also possible to implement a new customized declarative base class for your
-    application models. to do this you must subclass it from `BaseEntity`, because
-    application will check isinstance() on `BaseEntity` type to detect models. then
-    implement customized or new features in your subclassed `BaseEntity`. keep in mind
-    that you should not subclass directly from `CoreEntity`, because it has `@as_declarative`
-    decorator and sqlalchemy raises an error if you subclass from this as your new declarative
-    base class. note that your application must have a unique declarative base class for all
-    models, do not mix the use of your new base class and `CoreEntity`, otherwise you will
-    face problems in migrations and also multi-database environments.
-    """
-    pass

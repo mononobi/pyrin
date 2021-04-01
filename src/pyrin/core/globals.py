@@ -4,7 +4,7 @@ core globals module.
 """
 
 from flask_babel import gettext
-from sqlalchemy.util._collections import AbstractKeyedTuple
+from sqlalchemy.engine import Row
 
 
 class Constant:
@@ -57,8 +57,8 @@ LIST_TYPES = (list, tuple, set)
 # this method should be used for localizable strings.
 _ = gettext
 
-# this value should be used when working on AbstractKeyedTuple objects.
-ROW_RESULT = AbstractKeyedTuple
+# this value should be used when working on Row objects.
+ROW_RESULT = Row
 
 # this value should be used instead of True when we want to preserve security of
 # inputs which come from client to prevent injection of invalid values through options.

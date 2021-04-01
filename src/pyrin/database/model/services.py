@@ -86,3 +86,13 @@ def register_hook(instance):
     """
 
     return get_component(ModelPackage.COMPONENT_NAME).register_hook(instance)
+
+
+def get_mapper_registry():
+    """
+    gets the configured mapper registry.
+
+    :rtype: registry
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).get_mapper_registry()

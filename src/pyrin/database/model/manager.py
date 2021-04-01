@@ -3,12 +3,11 @@
 model manager module.
 """
 
-import pyrin.utils.sqlalchemy as sqlalchemy_utils
+from sqlalchemy.orm import registry
 
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.database.model import ModelPackage
-from pyrin.database.model.base import CoreEntity
 from pyrin.database.model.hooks import ModelHookBase
 from pyrin.database.model.exceptions import EntitiesAreNotCollectedError, \
     InvalidModelHookTypeError
@@ -32,6 +31,7 @@ class ModelManager(Manager, HookMixin):
 
         # a tuple containing all application entity classes.
         self._entities = None
+        self._mapper_registry = registry(constructor=None)
 
     def _after_entities_collected(self):
         """
@@ -61,6 +61,10 @@ class ModelManager(Manager, HookMixin):
 
         :rtype: type[BaseEntity]
         """
+
+        # we have to import CoreEntity inside this method because its
+        # module uses model services in it and we have no other choice.
+        from pyrin.database.model.declarative import CoreEntity
 
         return CoreEntity
 
@@ -92,13 +96,11 @@ class ModelManager(Manager, HookMixin):
         :rtype: int
         """
 
-        base = self.get_declarative_base()
         result = []
-        for table in self.get_tables().values():
-            entity = sqlalchemy_utils.get_class_by_table(base, table, raise_multi=False)
-            if entity is not None:
-                entity.populate_cache()
-                result.append(entity)
+        for item in self.get_mapper_registry().mappers:
+            entity = item.entity
+            entity.populate_cache()
+            result.append(entity)
 
         self._entities = tuple(result)
         self._after_entities_collected()
@@ -117,3 +119,12 @@ class ModelManager(Manager, HookMixin):
             raise EntitiesAreNotCollectedError('Application entities are not collected yet.')
 
         return self._entities
+
+    def get_mapper_registry(self):
+        """
+        gets the configured mapper registry.
+
+        :rtype: registry
+        """
+
+        return self._mapper_registry

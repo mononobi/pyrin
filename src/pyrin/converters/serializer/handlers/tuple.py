@@ -7,7 +7,6 @@ import pyrin.converters.serializer.services as serializer_services
 
 from pyrin.converters.serializer.decorators import serializer
 from pyrin.converters.serializer.handlers.base import SerializerBase
-from pyrin.core.globals import ROW_RESULT
 
 
 @serializer()
@@ -52,14 +51,3 @@ class TupleSerializer(SerializerBase):
         """
 
         return tuple
-
-    def is_serializable(self, value, **options):
-        """
-        gets a value indicating that the given input is serializable.
-
-        :param object value: value to be serialized.
-
-        :rtype: bool
-        """
-
-        return super().is_serializable(value, **options) and not isinstance(value, ROW_RESULT)

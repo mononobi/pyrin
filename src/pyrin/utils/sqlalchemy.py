@@ -3,16 +3,10 @@
 utils sqlalchemy module.
 """
 
-from inspect import isclass
-
 from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc
-from sqlalchemy import CheckConstraint, Column
-from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.orm.query import _MapperEntity, _ColumnEntity
-from sqlalchemy.orm.util import AliasedInsp, AliasedClass
-from sqlalchemy.sql import quoted_name, Alias
-from sqlalchemy.orm import mapperlib, Mapper
-from sqlalchemy.util import lightweight_named_tuple
+from sqlalchemy import CheckConstraint
+from sqlalchemy.engine import result_tuple
+from sqlalchemy.sql import quoted_name
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
@@ -21,8 +15,7 @@ from pyrin.core.globals import _
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.exceptions import InvalidRowResultFieldsAndValuesError, \
     FieldsAndValuesCountMismatchError, CheckConstraintValuesRequiredError, \
-    MultipleMappersFoundError, MapperNotFoundError, MultipleDeclarativeClassesFoundError, \
-    InvalidOrderingColumnError
+    MultipleDeclarativeClassesFoundError, InvalidOrderingColumnError
 
 
 LIKE_CHAR_COUNT_LIMIT = 20
@@ -332,11 +325,8 @@ def create_row_result(fields, values):
                                                 '[{values}] does not match.'
                                                 .format(fields=len(fields),
                                                         values=len(values)))
-
-    keyed_tuple = lightweight_named_tuple('result', fields)
-    result = keyed_tuple(values)
-
-    return result
+    result = result_tuple(fields)
+    return result(values)
 
 
 def check_constraint(column, values, **options):
@@ -428,73 +418,6 @@ def range_check_constraint(column, min_value=None, max_value=None, **options):
     return CheckConstraint(**options)
 
 
-def get_mapper(value):
-    """
-    gets related sqlalchemy mapper for given sqlalchemy object.
-
-    :param Table | Alias | Mapper | declarative value: sqlalchemy object.
-
-    :note: this code is taken from sqlalchemy-utils project.
-    https://github.com/kvesteri/sqlalchemy-utils
-
-    for example:
-
-    get_mapper(User)
-    get_mapper(User())
-    get_mapper(User.__table__)
-    get_mapper(User.__mapper__)
-    get_mapper(sa.orm.aliased(User))
-    get_mapper(sa.orm.aliased(User.__table__))
-
-    :raises MultipleMappersFoundError: multiple mappers found error.
-    :raises MapperNotFoundError: mapper not found error.
-
-    :rtype: Mapper
-    """
-
-    if isinstance(value, _MapperEntity):
-        value = value.expr
-    elif isinstance(value, Column):
-        value = value.table
-    elif isinstance(value, _ColumnEntity):
-        value = value.expr
-
-    if isinstance(value, Mapper):
-        return value
-
-    if isinstance(value, AliasedClass):
-        return sqla_inspect(value).mapper
-
-    if isinstance(value, Alias):
-        value = value.element
-
-    if isinstance(value, AliasedInsp):
-        return value.mapper
-
-    if isinstance(value, InstrumentedAttribute):
-        value = value.class_
-
-    if isinstance(value, Table):
-        mappers = [
-            mapper for mapper in mapperlib._mapper_registry
-            if value in mapper.tables
-        ]
-
-        if len(mappers) > 1:
-            raise MultipleMappersFoundError('Multiple mappers found for table '
-                                            '[{table}].'.format(table=value.name))
-        elif not mappers:
-            raise MapperNotFoundError('Could not get mapper for table '
-                                      '[{table}].'.format(table=value.name))
-        else:
-            return mappers[0]
-
-    if not isclass(value):
-        value = type(value)
-
-    return sqla_inspect(value)
-
-
 def get_class_by_table(base, table, **options):
     """
     gets declarative class associated with given table.
@@ -576,9 +499,9 @@ def get_class_by_table(base, table, **options):
     data = options.get('data')
     raise_multi = options.get('raise_multi', True)
     found_classes = []
-    for item in base._decl_class_registry.values():
-        if hasattr(item, '__table__') and item.__table__ is table:
-            found_classes.append(item)
+    for item in base.registry.mappers:
+        if len(item.tables) > 0 and item.tables[0] is table:
+            found_classes.append(item.entity)
 
     current_count = len(found_classes)
     temp = list(found_classes)

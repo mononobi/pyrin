@@ -57,26 +57,25 @@ class RowResultSerializer(SerializerBase):
             return DTO()
 
         requested_columns, rename, excluded_columns = self._extract_conditions(**options)
-        base_columns = value.keys()
+        base_columns = list(value._mapping.keys())
         entities = DTO()
         to_remove_keys = []
-        for item in base_columns:
-            instance = getattr(value, item)
+        for key, instance in value._mapping.items():
             if isinstance(instance, BaseEntity):
                 computed_entity_columns = schema_services.get_computed_entity_columns(instance,
                                                                                       **options)
                 serialized_entity = instance.to_dict(**options)
                 serialized_entity.update(computed_entity_columns)
-                entities[item] = serialized_entity
-                to_remove_keys.append(item)
-                excluded_columns.append(item)
+                entities[key] = serialized_entity
+                to_remove_keys.append(key)
+                excluded_columns.append(key)
 
         computed_row_columns = schema_services.get_computed_row_columns(value, **options)
 
         if len(requested_columns) <= 0 and \
                 len(rename) <= 0 and len(excluded_columns) <= 0:
 
-            result = DTO(zip(base_columns, value))
+            result = DTO(value._mapping)
             result.update(computed_row_columns)
             return result
 
@@ -94,7 +93,7 @@ class RowResultSerializer(SerializerBase):
 
         for col in requested_columns:
             if col not in excluded_columns:
-                result[rename.get(col, col)] = getattr(value, col)
+                result[rename.get(col, col)] = value._mapping.get(col)
 
         result.update(computed_row_columns)
         return result

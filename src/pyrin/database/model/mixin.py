@@ -7,7 +7,7 @@ if you want to implement a new declarative base class and not use the `CoreEntit
 provided by pyrin, you could define your new base class and it must be inherited
 from `BaseEntity`, because application will check isinstance() on `BaseEntity` type
 to detect models. and then implement your customized or new features in your base class.
-then you must put `@as_declarative` decorator on your new base class. now all your concrete
+then you must put `metaclass=DeclarativeMeta` on your new base class. now all your concrete
 entities must be inherited from the new declarative base class. note that you must use a
 unique declarative base class for all your models, do not mix `CoreEntity` and your new
 declarative base class usage. otherwise you will face problems in migrations and also
@@ -19,8 +19,8 @@ import inspect
 from abc import abstractmethod
 
 from sqlalchemy import inspect as sqla_inspect, UniqueConstraint
+from sqlalchemy.orm import declared_attr
 from sqlalchemy.exc import NoInspectionAvailable
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
 import pyrin.globalization.datetime.services as datetime_services
