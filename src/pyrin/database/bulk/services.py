@@ -16,9 +16,9 @@ def insert(*entities, **options):
     :param BaseEntity entities: entities to be inserted.
 
     :keyword int chunk_size: chunk size to insert values.
-                             after each chunk, store will be flushed.
+                             after each chunk, store will be committed.
                              if not provided, all values will be inserted
-                             in a single call and no flush will occur.
+                             in a single call and no commit will occur.
 
     :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
                                                   which has `allow_read=False` or its name
@@ -140,9 +140,9 @@ def update(*entities, **options):
     :param BaseEntity entities: entities to be updated.
 
     :keyword int chunk_size: chunk size to update values.
-                             after each chunk, store will be flushed.
+                             after each chunk, store will be committed.
                              if not provided, all values will be updated
-                             in a single call and no flush will occur.
+                             in a single call and no commit will occur.
 
     :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
                                                   which has `allow_read=False` or its name
