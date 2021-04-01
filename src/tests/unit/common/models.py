@@ -7,7 +7,7 @@ from sqlalchemy import Unicode, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from pyrin.database.model.decorators import bind
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.declarative import CoreEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.orm.types.custom import GUID
 

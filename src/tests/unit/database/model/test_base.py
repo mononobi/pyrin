@@ -9,7 +9,7 @@ from sqlalchemy import Integer, Unicode
 
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.core.structs import DTO
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.declarative import CoreEntity
 from pyrin.database.model.exceptions import ColumnNotExistedError
 from pyrin.database.orm.sql.schema.base import CoreColumn
 
