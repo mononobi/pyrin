@@ -31,6 +31,7 @@ PACKAGES = [
     'alembic>=1.5.8',
     'fire>=0.4.0',
     'sqlparse>=0.4.1',
+    'titlecase>=2.0.0',
 ]
 
 TEST_PACKAGES = PACKAGES + [
