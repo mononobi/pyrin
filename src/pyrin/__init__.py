@@ -8,4 +8,4 @@ which are more maintainable and extensible.
 """
 
 
-__version__ = '0.4.36'
+__version__ = '0.4.50'
