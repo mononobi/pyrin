@@ -15,7 +15,7 @@ class TransactionalContextManagerBase(ContextManagerBase):
     this class should be used as the base for all transactional context managers.
     """
 
-    def __init__(self, store):
+    def __init__(self, store, **options):
         """
         initializes an instance of TransactionalContextManagerBase.
 
@@ -121,12 +121,18 @@ class atomic_context(TransactionalContextManagerBase):
     `service_a` raises an error before finish.
     """
 
-    def __init__(self):
+    def __init__(self, **options):
         """
         initializes an instance of atomic_context.
+
+        :keyword bool expire_on_commit: expire atomic session after commit.
+                                        it is useful to set it to True if
+                                        the atomic function does not return
+                                        any entities for post-processing.
+                                        defaults to False if not provided.
         """
 
-        super().__init__(database_services.get_atomic_store())
+        super().__init__(database_services.get_atomic_store(**options))
 
     def __exit__(self, exc_type, exc_value, traceback):
         """

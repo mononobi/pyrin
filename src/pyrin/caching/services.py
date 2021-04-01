@@ -330,7 +330,7 @@ def persist(name, **options):
     return get_component(CachingPackage.COMPONENT_NAME).persist(name, **options)
 
 
-@atomic
+@atomic(expire_on_commit=True)
 def persist_all(**options):
     """
     saves cached items of all persistent caches into database.
@@ -355,7 +355,7 @@ def load(name, **options):
     return get_component(CachingPackage.COMPONENT_NAME).load(name, **options)
 
 
-@atomic
+@atomic(expire_on_commit=True)
 def load_all(**options):
     """
     loads cached items of all persistent caches from database.

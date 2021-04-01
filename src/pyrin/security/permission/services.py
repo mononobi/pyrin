@@ -32,7 +32,7 @@ def get_permissions(**options):
     return get_component(PermissionPackage.COMPONENT_NAME).get_permissions(**options)
 
 
-@atomic
+@atomic(expire_on_commit=True)
 def synchronize_all(**options):
     """
     synchronizes all permissions with database.

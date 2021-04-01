@@ -8,7 +8,7 @@ from functools import update_wrapper
 import pyrin.database.services as database_services
 
 
-def atomic(func):
+def atomic(*old_func, **options):
     """
     decorator to make a function execution atomic.
 
@@ -62,34 +62,54 @@ def atomic(func):
     but the data of `service_a` and `service_root` will not be persisted because
     `service_a` raises an error before finish.
 
-    :param function func: function.
+    :param function old_func: function.
+
+    :keyword bool expire_on_commit: expire atomic session after commit.
+                                    it is useful to set it to True if
+                                    the atomic function does not return
+                                    any entities for post-processing.
+                                    defaults to False if not provided.
 
     :returns: function result.
     """
 
-    def decorator(*args, **kwargs):
+    def decorator(func):
         """
         decorates the given function and makes its execution atomic.
 
-        :param object args: function arguments.
-        :param object kwargs: function keyword arguments.
+        :param function func: function.
 
-        :returns: function result.
+        :returns: decorated function
         """
 
-        store = database_services.get_atomic_store()
-        try:
-            result = func(*args, **kwargs)
-            store.commit()
-            return result
-        except Exception as ex:
-            store.rollback()
-            raise ex
-        finally:
-            factory = database_services.get_current_session_factory()
-            factory.remove(atomic=True)
+        def wrapper(*args, **kwargs):
+            """
+            decorates the given function and makes its execution atomic.
 
-    return update_wrapper(decorator, func)
+            :param object args: function arguments.
+            :param object kwargs: function keyword arguments.
+
+            :returns: function result.
+            """
+
+            store = database_services.get_atomic_store(**options)
+            try:
+                result = func(*args, **kwargs)
+                store.commit()
+                return result
+            except Exception as ex:
+                store.rollback()
+                raise ex
+            finally:
+                factory = database_services.get_current_session_factory()
+                factory.remove(atomic=True)
+
+        return update_wrapper(wrapper, func)
+
+    if len(old_func) > 0:
+        return decorator(old_func[0])
+
+    return decorator
 
 
 def nested(func):

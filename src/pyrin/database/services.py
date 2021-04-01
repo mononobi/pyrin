@@ -62,6 +62,12 @@ def get_atomic_store(**kwargs):
     scope. this is why it's recommended not to get an atomic session manually, and
     instead use `@atomic` decorator when you need an atomic session.
 
+    :keyword bool expire_on_commit: expire atomic session after commit.
+                                    it is useful to set it to True if
+                                    the atomic function does not return
+                                    any entities for post-processing.
+                                    defaults to False if not provided.
+
     :keyword object **kwargs: keyword arguments will be passed to the
                               `CoreScopedSession.session_factory` callable
                               to configure the new atomic session that's

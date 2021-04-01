@@ -126,6 +126,12 @@ class DatabaseManager(Manager, HookMixin):
         scope. this is why it's recommended not to get an atomic session manually, and
         instead use `@atomic` decorator when you need an atomic session.
 
+        :keyword bool expire_on_commit: expire atomic session after commit.
+                                        it is useful to set it to True if
+                                        the atomic function does not return
+                                        any entities for post-processing.
+                                        defaults to False if not provided.
+
         :keyword object **kwargs: keyword arguments will be passed to the
                                   `CoreScopedSession.session_factory` callable
                                   to configure the new atomic session that's
@@ -135,6 +141,10 @@ class DatabaseManager(Manager, HookMixin):
         :rtype: CoreSession
         """
 
+        # we should set 'expire_on_commit=False' for atomic sessions to be able
+        # to post-process entities resulting from an atomic function after commit.
+        # for example in serialization process.
+        kwargs.setdefault('expire_on_commit', False)
         return self._get_current_session_factory()(atomic=True, **kwargs)
 
     def _get_current_session_factory(self):
