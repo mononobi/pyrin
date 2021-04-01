@@ -3,6 +3,8 @@
 string normalizer handlers case module.
 """
 
+from titlecase import titlecase
+
 from pyrin.utilities.string.normalizer.decorators import string_normalizer
 from pyrin.utilities.string.normalizer.enumerations import NormalizerEnum
 from pyrin.utilities.string.normalizer.handlers.base import StringNormalizerBase
@@ -90,4 +92,4 @@ class TitleCaseNormalizer(StringNormalizerBase):
         :rtype: str
         """
 
-        return value.title()
+        return titlecase(value)
