@@ -142,9 +142,8 @@ class CoreQuery(Query):
         :rtype: Select
         """
 
-        statement = select(*new_columns).select_from(*old_statement.froms)\
-            .where(old_statement.whereclause)
-
+        statement = select(*new_columns).select_from(*old_statement.froms)
+        statement._where_criteria = old_statement._where_criteria
         statement._group_by_clauses = old_statement._group_by_clauses
         statement._having_criteria = old_statement._having_criteria
         statement._distinct_on = old_statement._distinct_on
@@ -152,6 +151,9 @@ class CoreQuery(Query):
         statement._limit_clause = old_statement._limit_clause
         statement._offset_clause = old_statement._offset_clause
         statement._order_by_clauses = old_statement._order_by_clauses
+        statement._correlate = old_statement._correlate
+        statement._correlate_except = old_statement._correlate_except
+        statement._auto_correlate = old_statement._auto_correlate
 
         return statement
 
