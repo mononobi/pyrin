@@ -16,6 +16,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
+from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
     InvalidOrderByScopeError, EfficientCountIsNotPossibleError
@@ -157,6 +158,29 @@ class CoreQuery(Query):
 
         return statement
 
+    def _get_appropriate_column(self, *columns):
+        """
+        gets the appropriate column to be used in `_count` function.
+
+        it may return None if no appropriate column could be found.
+
+        :param CoreColumn | object columns: columns to choose from.
+
+        :rtype: CoreColumn | str
+        """
+
+        if columns is None or len(columns) <= 0 or columns[0] is None:
+            return None
+
+        if len(columns) == 1:
+            return columns[0]
+
+        for item in columns:
+            if not isinstance(item, CoreColumn):
+                return None
+
+        return '*'
+
     def _count(self, **options):
         """
         returns the count of rows that the sql formed by this `Query` would return.
@@ -198,7 +222,12 @@ class CoreQuery(Query):
         is_distinct = options.get('distinct', False)
         func_count = None
         if column is None:
-            func_count = func.count()
+            column = self._get_appropriate_column(*old_statement.selected_columns)
+            if column is None:
+                raise EfficientCountIsNotPossibleError('The provided statement has complex '
+                                                       'columns and efficient count could not '
+                                                       'be produced for it.')
+            func_count = func.count(column)
         else:
             if is_distinct is True:
                 func_count = func.count(distinct(column))
@@ -266,6 +295,12 @@ class CoreQuery(Query):
                                     provided and a single query could be
                                     produced for count.
 
+        :keyword bool distinct: specifies that count should
+                                be executed on distinct select.
+                                defaults to False if not provided.
+                                note that `distinct` will only be
+                                used if `column` is also provided.
+
         :keyword int __limit__: limit value.
         :keyword int __offset__: offset value.
         """
@@ -279,7 +314,6 @@ class CoreQuery(Query):
 
         if paginator is not None:
             if inject_total is SECURE_TRUE:
-                options.pop('distinct', None)
                 paginator.total_count = self.order_by(None).count(**options)
 
             limit, offset = paging_services.get_paging_keys(**options)
