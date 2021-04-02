@@ -205,6 +205,7 @@ class DatabaseManager(Manager, HookMixin):
         :rtype: Engine
         """
 
+        kwargs.update(future=True)
         configs_prefix = self.get_configs_prefix()
         return engine_from_config(database_configs, prefix=configs_prefix, **kwargs)
 

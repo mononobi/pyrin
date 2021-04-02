@@ -6,7 +6,7 @@ orm query base module.
 import inspect
 
 from sqlalchemy.orm import Query, lazyload
-from sqlalchemy import inspection, log, func, literal, distinct
+from sqlalchemy import inspection, log, func, literal, distinct, select
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
@@ -18,7 +18,7 @@ from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
 from pyrin.database.services import get_current_store
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    InvalidOrderByScopeError
+    InvalidOrderByScopeError, EfficientCountIsNotPossibleError
 
 
 @inspection._self_inspects
@@ -130,6 +130,31 @@ class CoreQuery(Query):
 
         self._validate_scope(entities, scope)
 
+    def _copy_statement(self, old_statement, *new_columns):
+        """
+        gets a copy of given statement with columns replaced with new columns.
+
+        this method is used to generate statement for `_count` function.
+
+        :param Select old_statement: the original statement to make a copy of it.
+        :param CoreColumn | str new_columns: new columns to be used in copied statement.
+
+        :rtype: Select
+        """
+
+        statement = select(*new_columns).select_from(*old_statement.froms)\
+            .where(old_statement.whereclause)
+
+        statement._group_by_clauses = old_statement._group_by_clauses
+        statement._having_criteria = old_statement._having_criteria
+        statement._distinct_on = old_statement._distinct_on
+        statement._distinct = old_statement._distinct
+        statement._limit_clause = old_statement._limit_clause
+        statement._offset_clause = old_statement._offset_clause
+        statement._order_by_clauses = old_statement._order_by_clauses
+
+        return statement
+
     def _count(self, **options):
         """
         returns the count of rows that the sql formed by this `Query` would return.
@@ -150,8 +175,22 @@ class CoreQuery(Query):
                                 note that `distinct` will only be
                                 used if `column` is also provided.
 
+        :raises EfficientCountIsNotPossibleError: efficient count is not possible error.
+
         :rtype: int
         """
+
+        old_statement = self.options(lazyload('*')).statement
+        if not old_statement.is_select or not old_statement.is_selectable:
+            raise EfficientCountIsNotPossibleError('The provided statement is not a select '
+                                                   'statement and efficient count could not '
+                                                   'be produced for it.')
+
+        if old_statement._group_by_clauses is not None \
+                and len(old_statement._group_by_clauses) > 0:
+            raise EfficientCountIsNotPossibleError('The provided statement has group by clause '
+                                                   'and efficient count could not be produced '
+                                                   'for it.')
 
         column = options.get('column')
         is_distinct = options.get('distinct', False)
@@ -164,11 +203,13 @@ class CoreQuery(Query):
             else:
                 func_count = func.count(column)
 
-        statement = self.options(lazyload('*')).statement.with_only_columns(
-            [func_count]).order_by(None)
-
+        statement = self._copy_statement(old_statement, func_count).order_by(None)
         store = get_current_store()
-        return store.execute(statement).scalar()
+        result = store.execute(statement).scalar()
+        if result is None:
+            result = 0
+
+        return result
 
     def count(self, **options):
         """

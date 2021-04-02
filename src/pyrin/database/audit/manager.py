@@ -5,6 +5,8 @@ database audit manager module.
 
 import traceback
 
+from sqlalchemy import select, literal
+
 import pyrin.database.services as database_services
 
 from pyrin.audit.enumerations import InspectionStatusEnum
@@ -84,7 +86,7 @@ class DatabaseAuditManager(Manager):
         data = {}
         succeeded = True
         try:
-            store.execute('select 1', bind_name=bind_name)
+            store.execute(select(literal(1)), bind_name=bind_name).scalar()
             data.update(status=InspectionStatusEnum.OK)
         except Exception as error:
             if raise_error is True:

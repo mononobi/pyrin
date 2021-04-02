@@ -32,3 +32,10 @@ class InvalidOrderByScopeError(ORMQueryException):
     invalid order by scope error.
     """
     pass
+
+
+class EfficientCountIsNotPossibleError(ORMQueryException):
+    """
+    efficient count is not possible error.
+    """
+    pass
