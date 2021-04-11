@@ -15,7 +15,17 @@ def get_os_name():
     :rtype: str
     """
 
-    return platform.uname()[0].lower()
+    return platform.system()
+
+
+def is_linux():
+    """
+    gets a value indicating that underlying operating system is linux based.
+
+    :rtype: bool
+    """
+
+    return 'linux' in get_os_name().lower()
 
 
 def is_windows():
@@ -25,7 +35,28 @@ def is_windows():
     :rtype: bool
     """
 
-    return 'win' in get_os_name()
+    return 'windows' in get_os_name().lower()
+
+
+def is_mac():
+    """
+    gets a value indicating that underlying operating system is mac based.
+
+    :rtype: bool
+    """
+
+    name = get_os_name().lower()
+    return 'macos' in name or 'darwin' in name
+
+
+def is_java():
+    """
+    gets a value indicating that underlying operating system is java based.
+
+    :rtype: bool
+    """
+
+    return 'java' in get_os_name().lower()
 
 
 def set_python_path(python_path):
