@@ -5,6 +5,7 @@ orm query base module.
 
 import inspect
 
+from sqlalchemy.sql.elements import Label
 from sqlalchemy.orm import Query, lazyload
 from sqlalchemy import inspection, log, func, literal, distinct, select
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -176,7 +177,11 @@ class CoreQuery(Query):
             return columns[0]
 
         for item in columns:
-            if not isinstance(item, CoreColumn):
+            is_label = isinstance(item, Label)
+            if not isinstance(item, CoreColumn) and not is_label:
+                return None
+
+            if is_label and not isinstance(item.element, CoreColumn):
                 return None
 
         return '*'
