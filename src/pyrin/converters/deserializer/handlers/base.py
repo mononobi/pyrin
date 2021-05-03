@@ -109,6 +109,8 @@ class DeserializerBase(AbstractDeserializerBase):
         :param DeserializerBase deserializer: deserializer instance to
                                               be set as next handler.
 
+        :raises InvalidDeserializerTypeError: invalid deserializer type error.
+
         :rtype: DeserializerBase
         """
 
