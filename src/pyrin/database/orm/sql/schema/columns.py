@@ -521,7 +521,7 @@ class FKColumn(CoreColumn):
 
         :keyword bool nullable: when set to `False`, will cause the `Not NULL`
                                 phrase to be added when generating ddl for the column.
-                                default to False if not provided.
+                                defaults to False if not provided.
 
         :keyword callable | object onupdate: a scalar, python callable, or
                                              `ClauseElement` representing a default
