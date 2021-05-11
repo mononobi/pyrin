@@ -68,7 +68,8 @@ def get_validator(domain, name, **options):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
-    :param str name: validator name to get.
+    :param InstrumentedAttribute | str name: validator name to get.
+                                             it could be a column of an entity.
 
     :keyword bool for_find: specifies that for find validator must be returned.
                             defaults to False if not provided and main validator
@@ -92,7 +93,8 @@ def try_get_validator(domain, name, **options):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
-    :param str name: validator name to get.
+    :param InstrumentedAttribute | str name: validator name to get.
+                                             it could be a column of an entity.
 
     :keyword bool for_find: specifies that for find validator must be returned.
                             defaults to False if not provided and main validator
@@ -115,7 +117,9 @@ def validate_field(domain, name, value, **options):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
-    :param str name: validator name to be used for validation.
+    :param InstrumentedAttribute | str name: validator name to be used.
+                                             it could be a column of an entity.
+
     :param object | list[object] value: value to be validated.
 
     :keyword bool force: specifies that if there is no validator
@@ -323,7 +327,9 @@ def is_valid_field(domain, name, value, **options):
                                           it could be a type of a BaseEntity
                                           subclass or a string name.
 
-    :param str name: validator name to be used for validation.
+    :param InstrumentedAttribute | str name: validator name to be used.
+                                             it could be a column of an entity.
+
     :param object | list[object] value: value to be validated.
 
     :keyword bool force: specifies that if there is no validator

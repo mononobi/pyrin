@@ -3,6 +3,8 @@
 validator manager module.
 """
 
+from sqlalchemy.orm import InstrumentedAttribute
+
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager, Context, DTO
 from pyrin.logging.contexts import suppress
@@ -154,7 +156,8 @@ class ValidatorManager(Manager):
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
-        :param str name: validator name to get.
+        :param InstrumentedAttribute | str name: validator name to get.
+                                                 it could be a column of an entity.
 
         :keyword bool for_find: specifies that for find validator must be returned.
                                 defaults to False if not provided and main validator
@@ -166,6 +169,9 @@ class ValidatorManager(Manager):
         """
 
         domain_validators = self.get_domain_validators(domain, **options)
+        if isinstance(name, InstrumentedAttribute):
+            name = name.key
+
         return domain_validators.get(name)
 
     def try_get_validator(self, domain, name, **options):
@@ -178,7 +184,8 @@ class ValidatorManager(Manager):
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
-        :param str name: validator name to get.
+        :param InstrumentedAttribute | str name: validator name to get.
+                                                 it could be a column of an entity.
 
         :keyword bool for_find: specifies that for find validator must be returned.
                                 defaults to False if not provided and main validator
@@ -202,7 +209,9 @@ class ValidatorManager(Manager):
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
-        :param str name: validator name to be used for validation.
+        :param InstrumentedAttribute | str name: validator name to be used.
+                                                 it could be a column of an entity.
+
         :param object | list[object] value: value to be validated.
 
         :keyword bool force: specifies that if there is no validator
@@ -457,7 +466,9 @@ class ValidatorManager(Manager):
                                               it could be a type of a BaseEntity
                                               subclass or a string name.
 
-        :param str name: validator name to be used for validation.
+        :param InstrumentedAttribute | str name: validator name to be used.
+                                                 it could be a column of an entity.
+
         :param object | list[object] value: value to be validated.
 
         :keyword bool force: specifies that if there is no validator

@@ -36,6 +36,9 @@ def validator(domain, field, *args, **kwargs):
     :param object args: validator class constructor arguments.
     :param object kwargs: validator class constructor keyword arguments.
 
+    :keyword str name: a custom name for this validator.
+                       if provided, the name of `field` will be ignored.
+
     :keyword bool replace: specifies that if there is another registered
                            validator with the same name and domain, replace
                            it with the new one, otherwise raise an error.
