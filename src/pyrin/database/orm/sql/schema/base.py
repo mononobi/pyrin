@@ -344,6 +344,32 @@ class CoreColumn(Column, CoreColumnOperators):
         """
         pass
 
+    def _copy(self, **kw):
+        """
+        gets a copy of this column.
+
+        this method is overridden to be able to handle custom column attributes correctly.
+
+        :param object kw: extra keyword arguments.
+
+        :rtype: CoreColumn
+        """
+
+        column = super()._copy(**kw)
+        self._copy_custom_attributes(column)
+
+        column.allow_read = self.allow_read
+        column.allow_write = self.allow_write
+        column.min_value = self.min_value
+        column.max_value = self.max_value
+        column.check_in = self.check_in
+        column.check_not_in = self.check_not_in
+        column.validated = self.validated
+        column.validated_find = self.validated_find
+        column.validated_range = self.validated_range
+
+        return column
+
     def get_python_type(self, type_=None):
         """
         gets the python equivalent type of this column's type or given type.
@@ -384,32 +410,6 @@ class CoreColumn(Column, CoreColumnOperators):
                 __, python_type = self.get_python_type(type_.item_type)
 
         return collection_type, python_type
-
-    def copy(self, **kw):
-        """
-        gets a copy of this column.
-
-        this method is overridden to be able to handle custom column attributes correctly.
-
-        :param object kw: extra keyword arguments.
-
-        :rtype: CoreColumn
-        """
-
-        column = super().copy(**kw)
-        self._copy_custom_attributes(column)
-
-        column.allow_read = self.allow_read
-        column.allow_write = self.allow_write
-        column.min_value = self.min_value
-        column.max_value = self.max_value
-        column.check_in = self.check_in
-        column.check_not_in = self.check_not_in
-        column.validated = self.validated
-        column.validated_find = self.validated_find
-        column.validated_range = self.validated_range
-
-        return column
 
     @cached_property
     def fullname(self):
