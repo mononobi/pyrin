@@ -300,7 +300,9 @@ class CoreEnumMeta(type):
 
         if name is None or value is None or callable(value) or \
                 inspect.isfunction(value) or inspect.ismethod(value) or \
-                inspect.ismethoddescriptor(value) or inspect.isclass(value):
+                inspect.ismethoddescriptor(value) or inspect.isclass(value) or \
+                isinstance(value, (property, classmethod, staticmethod)) or \
+                inspect.isgetsetdescriptor(value):
             return False
 
         return not name.startswith('_') and not name.endswith('_')
