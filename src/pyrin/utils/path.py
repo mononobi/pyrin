@@ -669,3 +669,28 @@ def is_same_path(first_path, second_path):
         second_path = second_path.lower()
 
     return first_path == second_path
+
+
+def remove_directory(source, ignore_errors=False):
+    """
+    removes the given directory if existed.
+
+    otherwise ignores it.
+
+    :param str source: directory absolute path.
+
+    :param bool ignore_errors: specifies that any errors during this
+                               operation must be ignored. defaults
+                               to False if not provided.
+
+    :raises InvalidPathError: invalid path error.
+    :raises PathIsNotAbsoluteError: path is not absolute error.
+    :raises PathNotExistedError: path not existed error.
+    :raises IsNotDirectoryError: is not directory error.
+    """
+
+    if not exists(source):
+        return
+
+    assert_is_directory(source)
+    shutil.rmtree(source, ignore_errors=ignore_errors)
