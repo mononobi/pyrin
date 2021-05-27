@@ -81,6 +81,22 @@ class CoreBusinessException(CoreException):
         self._code = ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY
 
 
+class CoreNotFoundError(CoreBusinessException):
+    """
+    base class for all application not found errors.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreNotFoundError.
+
+        :keyword dict data: extra data for exception.
+        """
+
+        super().__init__(*args, **kwargs)
+        self._code = ClientErrorResponseCodeEnum.NOT_FOUND
+
+
 class CoreAttributeError(CoreException, AttributeError):
     """
     core attribute error.
