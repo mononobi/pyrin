@@ -18,9 +18,9 @@ from pyrin.validator.handlers.dictionary import DictionaryValidator
 from pyrin.validator.handlers.uuid import UUIDValidator
 from pyrin.validator.handlers.string import StringValidator
 from pyrin.validator.handlers.boolean import BooleanValidator
+from pyrin.validator.handlers.number import IntegerValidator, FloatValidator, DecimalValidator
 from pyrin.validator.handlers.datetime import DateTimeValidator, DateValidator, TimeValidator, \
     FromDateTimeValidator, ToDateTimeValidator
-from pyrin.validator.handlers.number import IntegerValidator, FloatValidator, DecimalValidator
 from pyrin.validator.handlers.misc import MaximumValidator, MinimumValidator, \
     RangeValidator, InValidator, NotInValidator
 
@@ -37,7 +37,7 @@ class ValidatorAutoManager(Manager):
     TO_KEYWORD = 'to_'
 
     # list of all types that support find range validators.
-    FIND_RANGE_VALIDATOR_TYPES = [int, float, Decimal, datetime, date, time]
+    FIND_RANGE_VALIDATOR_TYPES = (int, float, Decimal, datetime, date, time)
 
     def __init__(self):
         """
@@ -231,7 +231,7 @@ class ValidatorAutoManager(Manager):
         they will only be used in find validation and will only validate
         type of value if it is not None.
 
-        not that for primary key columns, no find range validators will be created.
+        note that for primary key columns, no find range validators will be created.
 
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
@@ -239,7 +239,7 @@ class ValidatorAutoManager(Manager):
         :rtype: tuple
         """
 
-        collection_type, python_type = field.get_python_type()
+        __, python_type = field.get_python_type()
         if field.primary_key is True or python_type not in self.FIND_RANGE_VALIDATOR_TYPES:
             return tuple()
 
