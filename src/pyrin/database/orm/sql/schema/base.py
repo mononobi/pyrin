@@ -11,6 +11,7 @@ import sqlalchemy.dialects.sybase.base as sybase_types
 
 from sqlalchemy.exc import ArgumentError
 from sqlalchemy import Column, util, ARRAY
+from sqlalchemy.sql.type_api import Variant
 
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
@@ -390,6 +391,9 @@ class CoreColumn(Column, CoreColumnOperators):
 
         if type_ is None:
             type_ = self.type
+
+        if isinstance(type_, Variant):
+            type_ = type_.impl
 
         python_type = None
         collection_type = None
