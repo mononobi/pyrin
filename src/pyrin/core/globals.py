@@ -3,9 +3,6 @@
 core globals module.
 """
 
-from decimal import Decimal
-from datetime import datetime, date, time
-
 from flask_babel import gettext
 from sqlalchemy.engine import Row
 
@@ -70,11 +67,3 @@ SECURE_TRUE = Constant('SECURE_TRUE')
 # this value should be used instead of False when we want to preserve security of
 # inputs which come from client to prevent injection of invalid values through options.
 SECURE_FALSE = Constant('SECURE_FALSE')
-
-# types that support range operations. for example range filtering or range validation.
-RANGE_SUPPORTED_TYPES = (int, float, Decimal, datetime, date, time)
-
-# keyword prefixes that will be used for range operations.
-# for example range filtering or range validation.
-FROM_KEYWORD_PREFIX = 'from_'
-TO_KEYWORD_PREFIX = 'to_'

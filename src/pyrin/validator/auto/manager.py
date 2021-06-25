@@ -9,6 +9,7 @@ from datetime import datetime, date, time
 
 import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
+import pyrin.utilities.range.services as range_services
 
 from pyrin.core.structs import Manager, Context
 from pyrin.validator.auto import ValidatorAutoPackage
@@ -18,7 +19,6 @@ from pyrin.validator.handlers.dictionary import DictionaryValidator
 from pyrin.validator.handlers.uuid import UUIDValidator
 from pyrin.validator.handlers.string import StringValidator
 from pyrin.validator.handlers.boolean import BooleanValidator
-from pyrin.core.globals import RANGE_SUPPORTED_TYPES, FROM_KEYWORD_PREFIX, TO_KEYWORD_PREFIX
 from pyrin.validator.handlers.number import IntegerValidator, FloatValidator, DecimalValidator
 from pyrin.validator.handlers.datetime import DateTimeValidator, DateValidator, TimeValidator, \
     FromDateTimeValidator, ToDateTimeValidator
@@ -230,19 +230,18 @@ class ValidatorAutoManager(Manager):
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
 
+        :returns: tuple[from_validator, to_validator]
         :rtype: tuple
         """
 
-        __, python_type = field.get_python_type()
-        if field.primary_key is True or python_type not in RANGE_SUPPORTED_TYPES:
+        if not range_services.is_range_supported_column(field):
             return tuple()
 
-        from_name = '{prefix}{field}'.format(prefix=FROM_KEYWORD_PREFIX, field=field.key)
+        from_name, to_name = range_services.get_range_filter_names(field.key)
         from_validator = self._get_type_validator(domain, field, name=from_name,
                                                   for_find=True, from_datetime=True,
                                                   allow_list_for_find=False)
 
-        to_name = '{prefix}{field}'.format(prefix=TO_KEYWORD_PREFIX, field=field.key)
         to_validator = self._get_type_validator(domain, field, name=to_name,
                                                 for_find=True, from_datetime=False,
                                                 allow_list_for_find=False)
