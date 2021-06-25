@@ -44,11 +44,9 @@ class FilteringManager(Manager):
 
         return getattr(entity, name)
 
-    def filter(self, entity, filters, *ignore):
+    def filter(self, entity, filters, *ignore, **options):
         """
         gets filtering expressions for given entity type based on given filters.
-
-        it removes all keys that are applied as filter from filters input.
 
         :param type[pyrin.database.model.base.BaseEntity] entity: entity class type to
                                                                   be used for filtering.
@@ -58,10 +56,14 @@ class FilteringManager(Manager):
         :param sqlalchemy.orm.attributes.InstrumentedAttribute ignore: columns to be ignored
                                                                        from filtering.
 
+        :keyword bool remove: remove all keys that are applied as filter from filters input.
+                              defaults to True if not provided.
+
         :returns: list of expressions for filtering.
         :rtype: list
         """
 
+        remove = options.get('remove', True)
         all_columns = entity.primary_key_columns + \
             entity.foreign_key_columns + entity.all_columns
 
@@ -72,7 +74,10 @@ class FilteringManager(Manager):
                 column = self._get_column_attribute(entity, name)
                 collection_type, python_type = column.get_python_type()
                 if name in filters:
-                    value = filters.pop(name, None)
+                    value = filters.get(name)
+                    if remove is not False:
+                        filters.pop(name, None)
+
                     if python_type is str and not \
                             isinstance(value, LIST_TYPES) and collection_type is None:
                         expressions.append(column.icontains(value))
@@ -82,8 +87,12 @@ class FilteringManager(Manager):
                 if range_services.is_range_supported_column(column):
                     from_name, to_name = range_services.get_range_filter_names(name)
                     if from_name in filters or to_name in filters:
-                        from_value = filters.pop(from_name, None)
-                        to_value = filters.pop(to_name, None)
+                        from_value = filters.get(from_name)
+                        to_value = filters.get(to_name)
+                        if remove is not False:
+                            filters.pop(from_name, None)
+                            filters.pop(to_name, None)
+
                         if python_type is datetime:
                             sqlalchemy_utils.add_datetime_range_clause(expressions, column,
                                                                        from_value, to_value)
