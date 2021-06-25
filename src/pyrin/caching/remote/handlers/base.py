@@ -198,7 +198,7 @@ class RemoteCacheBase(ComplexKeyGeneratorMixin, AbstractRemoteCache):
             return 0
 
         ratio = hit / (hit + miss)
-        return ratio * 100
+        return round(ratio * 100, 1)
 
     def _try_set(self, value, func, inputs, kw_inputs, *args, **options):
         """
@@ -363,13 +363,11 @@ class RemoteCacheBase(ComplexKeyGeneratorMixin, AbstractRemoteCache):
                        int expire: cached items expire time,
                        int hit: hit count,
                        int miss: miss count,
-                       str hit_ratio: hit ratio)
+                       float hit_ratio: hit ratio)
         :rtype: dict
         """
 
         hit_ratio = self._get_hit_ratio()
-        hit_ratio = '{:0.1f}%'.format(hit_ratio)
-
         return dict(last_cleared_time=self.last_cleared_time,
                     persistent=self.persistent,
                     consider_user=self.consider_user,

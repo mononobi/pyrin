@@ -662,7 +662,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
             return 0
 
         ratio = hit / (hit + miss)
-        return ratio * 100
+        return round(ratio * 100, 1)
 
     def _is_cleaning_queue(self):
         """
@@ -984,7 +984,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                        bool consider_user: consider user in cache key,
                        int hit: hit count,
                        int miss: miss count,
-                       str hit_ratio: hit ratio,
+                       float hit_ratio: hit ratio,
                        int limit: items count limit,
                        int expire: items default expire time,
                        bool refreshable: items default refreshable value.
@@ -996,7 +996,6 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
 
         base_stats = super().stats
         hit_ratio = self._get_hit_ratio()
-        hit_ratio = '{:0.1f}%'.format(hit_ratio)
         stats = dict(hit=self.hit_count,
                      miss=self.miss_count,
                      hit_ratio=hit_ratio,

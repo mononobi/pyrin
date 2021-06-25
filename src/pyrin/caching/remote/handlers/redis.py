@@ -328,7 +328,7 @@ class Redis(RemoteCacheBase):
                        int expire: cached items expire time,
                        int hit: hit count,
                        int miss: miss count,
-                       str hit_ratio: hit ratio,
+                       float hit_ratio: hit ratio,
                        dict memory_stats: memory stats)
         :rtype: dict
         """
