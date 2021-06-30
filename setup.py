@@ -20,7 +20,7 @@ PACKAGES = [
     'aniso8601>=9.0.1',
     'bcrypt>=3.1.7',
     'pytz>=2021.1',
-    'Flask>=1.1.1',
+    'Flask>=2.0.1',
     'PyJWT>=2.0.1',
     'SQLAlchemy>=1.4',
     'colorama>=0.4.3',
@@ -115,5 +115,5 @@ setup(
         'celery': CELERY_PACKAGES,
         'redis': REDIS_PACKAGES,
     },
-    entry_points={"console_scripts": ["pyrin = pyrin.cli.core.command:main"]},
+    entry_points={'console_scripts': ['pyrin = pyrin.cli.core.command:main']},
 )
