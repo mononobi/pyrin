@@ -336,6 +336,10 @@ class ValidatorBase(AbstractValidatorBase):
                                 if this validator is for find and `for_find=False`
                                 is provided, no validation will be done.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueCouldNotBeListError: value could not be list error.
         :raises ValueCouldNotBeAnEmptyListError: value could not be an empty list error.
         :raises ValueIsNotListError: value is not list error.
@@ -378,7 +382,8 @@ class ValidatorBase(AbstractValidatorBase):
                                              for_find=for_find,
                                              is_list=is_list,
                                              allow_single=allow_single,
-                                             allow_empty_list=allow_empty_list)
+                                             allow_empty_list=allow_empty_list,
+                                             field_name=options.get('field_name'))
 
         if is_really_list is False:
             return self._perform_validation(value, nullable, **options)
@@ -390,7 +395,7 @@ class ValidatorBase(AbstractValidatorBase):
             return value
 
     def _validate_list(self, value, for_find, is_list,
-                       allow_single, allow_empty_list):
+                       allow_single, allow_empty_list, **options):
         """
         validates given value for being list or single item.
 
@@ -415,6 +420,10 @@ class ValidatorBase(AbstractValidatorBase):
                                         it is only used if `is_list=True` is provided.
                                         defaults to False if not provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueCouldNotBeListError: value could not be list error.
         :raises ValueCouldNotBeAnEmptyListError: value could not be an empty list error.
         :raises ValueIsNotListError: value is not list error.
@@ -427,15 +436,16 @@ class ValidatorBase(AbstractValidatorBase):
             if (for_find is False and is_list is False) or \
                     (for_find is True and self.allow_list_for_find is False):
                 raise self.can_not_be_list_error(
-                    self.can_not_be_list_message.format(param_name=self.localized_name))
+                    self.can_not_be_list_message.format(
+                        param_name=self._get_field_name(**options)))
 
         if is_really_list is True and len(value) <= 0 and allow_empty_list is False:
             raise self.empty_list_error(
-                self.empty_list_message.format(param_name=self.localized_name))
+                self.empty_list_message.format(param_name=self._get_field_name(**options)))
 
         if is_list is True and allow_single is False and is_really_list is False:
             raise self.not_list_error(
-                self.not_list_message.format(param_name=self.localized_name))
+                self.not_list_message.format(param_name=self._get_field_name(**options)))
 
         return is_really_list
 
@@ -456,6 +466,10 @@ class ValidatorBase(AbstractValidatorBase):
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
@@ -468,7 +482,7 @@ class ValidatorBase(AbstractValidatorBase):
             return value
 
         for_find = options.get('for_find', False)
-        value = self._validate_type(value)
+        value = self._validate_type(value, **options)
         if for_find is True:
             return value
 
@@ -491,6 +505,10 @@ class ValidatorBase(AbstractValidatorBase):
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueCouldNotBeNoneError: value could not be none error.
         """
 
@@ -507,7 +525,7 @@ class ValidatorBase(AbstractValidatorBase):
 
         if nullable is False and value is None and has_default is False:
             raise self.none_value_error(self.none_value_message.format(
-                param_name=self.localized_name))
+                param_name=self._get_field_name(**options)))
 
     def _validate(self, value, **options):
         """
@@ -522,11 +540,15 @@ class ValidatorBase(AbstractValidatorBase):
 
         :param object value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValidationError: validation error.
         """
         pass
 
-    def _validate_type(self, value):
+    def _validate_type(self, value, **options):
         """
         validates the type of given value.
 
@@ -536,6 +558,10 @@ class ValidatorBase(AbstractValidatorBase):
         it returns the same input or fixed one.
 
         :param object value: value to be validated.
+
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
 
         :raises InvalidValueTypeError: invalid value type error.
 
@@ -556,7 +582,7 @@ class ValidatorBase(AbstractValidatorBase):
                 preview_type = misc_utils.make_iterable(self.accepted_type, list)
 
                 raise self.invalid_type_error(self.invalid_type_message.format(
-                    param_name=self.localized_name, type=preview_type))
+                    param_name=self._get_field_name(**options), type=preview_type))
 
         return value
 
@@ -623,6 +649,23 @@ class ValidatorBase(AbstractValidatorBase):
                     raise error('The provided {name} [{type}] on validator '
                                 '[{instance}] must be a type.'
                                 .format(name=name, type=item, instance=self))
+
+    def _get_field_name(self, **options):
+        """
+        gets the field name to be used in validation errors.
+
+        if `field_name` is present, it will be returned.
+        otherwise the value of `localized_name` will be returned.
+
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
+        :rtype: str
+        """
+
+        field_name = options.get('field_name')
+        return field_name or self.localized_name
 
     def _get_representation(self, value):
         """

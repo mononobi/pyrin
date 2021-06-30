@@ -109,6 +109,10 @@ class UUID4Validator(UUIDValidator):
 
         :param UUID value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValidationError: validation error.
         """
 
@@ -116,4 +120,4 @@ class UUID4Validator(UUIDValidator):
 
         if value.version != 4:
             raise self.invalid_type_error(self.invalid_type_message.format(
-                param_name=self.localized_name))
+                param_name=self._get_field_name(**options)))

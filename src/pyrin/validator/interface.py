@@ -35,6 +35,8 @@ class AbstractValidatorBase(CoreObject):
                                 if this validator is for find and `for_find=False`
                                 is provided, no validation will be done.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+
         :raises CoreNotImplementedError: core not implemented error.
         :raises ValidationError: validation error.
 

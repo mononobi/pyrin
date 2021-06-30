@@ -157,6 +157,10 @@ class MinimumValidator(ValidatorBase):
                                          this value has precedence over `inclusive_minimum`
                                          instance attribute if provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueIsLowerThanMinimumError: value is lower than minimum error.
         """
 
@@ -177,9 +181,8 @@ class MinimumValidator(ValidatorBase):
                 equality = self.inclusive_minimum_value_message
 
             raise self.minimum_value_error(
-                self.minimum_value_message.format(param_name=self.localized_name,
-                                                  minimum=
-                                                  self._get_representation(current_min),
+                self.minimum_value_message.format(param_name=self._get_field_name(**options),
+                                                  minimum=self._get_representation(current_min),
                                                   or_equal=equality))
 
     @property
@@ -386,6 +389,10 @@ class MaximumValidator(ValidatorBase):
                                          this value has precedence over `inclusive_maximum`
                                          instance attribute if provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueIsHigherThanMaximumError: value is higher than maximum error.
         """
 
@@ -406,9 +413,8 @@ class MaximumValidator(ValidatorBase):
                 equality = self.inclusive_maximum_value_message
 
             raise self.maximum_value_error(
-                self.maximum_value_message.format(param_name=self.localized_name,
-                                                  maximum=
-                                                  self._get_representation(current_max),
+                self.maximum_value_message.format(param_name=self._get_field_name(**options),
+                                                  maximum=self._get_representation(current_max),
                                                   or_equal=equality))
 
     @property
@@ -620,6 +626,10 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                                          this value has precedence over `inclusive_maximum`
                                          instance attribute if provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueIsOutOfRangeError: value is out of range error.
         """
 
@@ -658,7 +668,7 @@ class RangeValidator(MinimumValidator, MaximumValidator):
                 current_max = self.accepted_maximum
 
             raise self.range_value_error(self.range_value_message.format(
-                param_name=self.localized_name,
+                param_name=self._get_field_name(**options),
                 lower=self._get_representation(current_min),
                 upper=self._get_representation(current_max),
                 or_equal_min=equality_min, or_equal_max=equality_max))
@@ -789,6 +799,10 @@ class InValidator(ValidatorBase):
 
         :param object value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueIsOutOfRangeError: value is out of range error.
         """
 
@@ -797,7 +811,7 @@ class InValidator(ValidatorBase):
         current_valid = self.valid_values
         if value not in current_valid:
             raise self.not_in_value_error(self.not_in_value_message.format(
-                param_name=self.localized_name,
+                param_name=self._get_field_name(**options),
                 values=self._get_list_representation(current_valid)))
 
     @property
@@ -975,6 +989,10 @@ class NotInValidator(ValidatorBase):
 
         :param object value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueIsOutOfRangeError: value is out of range error.
         """
 
@@ -983,7 +1001,7 @@ class NotInValidator(ValidatorBase):
         current_invalid = self.invalid_values
         if value in current_invalid:
             raise self.in_value_error(self.in_value_message.format(
-                param_name=self.localized_name,
+                param_name=self._get_field_name(**options),
                 values=self._get_list_representation(current_invalid)))
 
     @property

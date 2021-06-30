@@ -204,6 +204,10 @@ class StringValidator(ValidatorBase):
                                         over `allow_whitespace` instance attribute
                                         if provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises LongStringLengthError: long string length error.
         :raises ShortStringLengthError: short string length error.
         :raises ValueCouldNotBeBlankError: value could not be blank error.
@@ -223,19 +227,19 @@ class StringValidator(ValidatorBase):
         length = len(value)
         if self.maximum_length is not None and length > self.maximum_length:
             raise self.long_length_error(self.long_length_message.format(
-                param_name=self.localized_name, count=self.maximum_length))
+                param_name=self._get_field_name(**options), count=self.maximum_length))
 
         if self.minimum_length is not None and length < self.minimum_length:
             raise self.short_length_error(self.short_length_message.format(
-                param_name=self.localized_name, count=self.minimum_length))
+                param_name=self._get_field_name(**options), count=self.minimum_length))
 
         if allow_blank is not True and length == 0:
             raise self.blank_value_error(self.blank_value_message.format(
-                param_name=self.localized_name))
+                param_name=self._get_field_name(**options)))
 
         if allow_whitespace is not True and value.isspace():
             raise self.whitespace_value_error(self.whitespace_value_message.format(
-                param_name=self.localized_name))
+                param_name=self._get_field_name(**options)))
 
         if length > 0 and not value.isspace():
             self._validate_extra(value, **options)
@@ -251,6 +255,10 @@ class StringValidator(ValidatorBase):
         preferably at the beginning.
 
         :param str value: value to be validated.
+
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
 
         :raises ValidationError: validation error.
         """
@@ -462,6 +470,10 @@ class RegexValidator(StringValidator):
 
         :param str value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises ValueDoesNotMatchPatternError: value does not match pattern error.
         """
 
@@ -469,7 +481,8 @@ class RegexValidator(StringValidator):
 
         if not self.pattern.match(value):
             raise self.pattern_not_match_error(
-                self.pattern_not_match_message.format(param_name=self.localized_name))
+                self.pattern_not_match_message.format(
+                    param_name=self._get_field_name(**options)))
 
     @property
     def pattern(self):
@@ -506,6 +519,10 @@ class EmailValidator(RegexValidator):
 
         :param str value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises InvalidEmailError: invalid email error.
         """
 
@@ -513,7 +530,8 @@ class EmailValidator(RegexValidator):
 
         if '..' in value:
             raise self.pattern_not_match_error(
-                self.pattern_not_match_message.format(param_name=self.localized_name))
+                self.pattern_not_match_message.format(
+                    param_name=self._get_field_name(**options)))
 
 
 class IPv4Validator(RegexValidator):
@@ -542,6 +560,10 @@ class IPv4Validator(RegexValidator):
 
         :param str value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises InvalidIPv4Error: invalid ipv4 error.
         """
 
@@ -552,7 +574,8 @@ class IPv4Validator(RegexValidator):
             converted_item = int(item)
             if converted_item < 0 or converted_item > 255:
                 raise self.pattern_not_match_error(
-                    self.pattern_not_match_message.format(param_name=self.localized_name))
+                    self.pattern_not_match_message.format(
+                        param_name=self._get_field_name(**options)))
 
 
 class URLValidator(RegexValidator):
@@ -582,6 +605,10 @@ class URLValidator(RegexValidator):
 
         :param str value: value to be validated.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+                                 if not provided, the `localized_name` value of this
+                                 validator will be used.
+
         :raises InvalidURLError: invalid url error.
         """
 
@@ -589,7 +616,8 @@ class URLValidator(RegexValidator):
 
         if ' ' in value or '..' in value:
             raise self.pattern_not_match_error(
-                self.pattern_not_match_message.format(param_name=self.localized_name))
+                self.pattern_not_match_message.format(
+                    param_name=self._get_field_name(**options)))
 
 
 class HTTPValidator(URLValidator):

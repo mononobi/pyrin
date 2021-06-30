@@ -62,6 +62,8 @@ class AutoValidator(AbstractValidatorBase):
         :keyword bool for_find: specifies that validation is for find operation.
                                 defaults to False if not provided.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+
         :raises ValidationError: validation error.
 
         :returns: object | list[object]

@@ -261,6 +261,8 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :keyword str field_name: a custom field name to be used in validation errors.
+
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
