@@ -13,7 +13,7 @@ from pyrin.validator import ValidatorPackage
 from pyrin.validator.interface import AbstractValidatorBase
 from pyrin.validator.exceptions import InvalidValidatorTypeError, DuplicatedValidatorError, \
     ValidatorNotFoundError, ValidationError, InvalidEntityForValidationError, \
-    InvalidDataForValidationError, ValidatorDomainNotFoundError
+    InvalidDataForValidationError, ValidatorDomainNotFoundError, FieldNameCouldNotBeSetError
 
 
 class ValidatorManager(Manager):
@@ -743,3 +743,51 @@ class ValidatorManager(Manager):
 
             for name in error.data:
                 data.pop(name, None)
+
+    def validate(self, domain, field_name=None, lazy=True, **data):
+        """
+        validates available values of given data.
+
+        this is the most restricted version of `validate_dict` method and
+        is useful for validating standalone values without considering
+        default value or nullability in database column.
+
+        it uses the correct validator for each value based on its key name.
+
+        :param type[BaseEntity] | str domain: the domain to validate the values for.
+                                              it could be a type of a BaseEntity
+                                              subclass or a string name.
+
+        :param str field_name: a custom field name to be used in validation errors.
+                               note that if the data has more than one key, the
+                               `field_name` could not be set. otherwise it raises
+                               an error.
+
+        :param bool lazy: specifies that all values must be validated first and
+                          then a cumulative error must be raised containing a dict
+                          of all keys and their corresponding error messages.
+                          defaults to True if not provided.
+
+        :keyword **data: values to be validated.
+
+        :raises FieldNameCouldNotBeSetError: field name could not be set error.
+        :raises InvalidDataForValidationError: invalid data for validation error.
+        :raises ValidatorDomainNotFoundError: validator domain not found error.
+        :raises ValidatorNotFoundError: validator not found error.
+        :raises ValidationError: validation error.
+
+        :returns: a dict containing all input values or their fixed equivalent.
+        :rtype: dict
+        """
+
+        if len(data) > 1 and field_name is not None:
+            raise FieldNameCouldNotBeSetError('The provided data for validation has '
+                                              'more than one value, so the "field_name" '
+                                              'could not be set.')
+
+        self.validate_dict(domain, data, nullable=False,
+                           ignore_default=True, null_items=False,
+                           for_update=True, allow_empty_list=False,
+                           lazy=lazy, field_name=field_name)
+
+        return data

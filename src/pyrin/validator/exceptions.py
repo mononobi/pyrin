@@ -68,3 +68,10 @@ class ValidatorDomainNotFoundError(ValidatorManagerException):
     validator domain not found error.
     """
     pass
+
+
+class FieldNameCouldNotBeSetError(ValidatorManagerException):
+    """
+    field name could not be set error.
+    """
+    pass

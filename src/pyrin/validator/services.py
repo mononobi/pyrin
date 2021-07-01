@@ -584,3 +584,43 @@ def validate_for_find(domain, data, **options):
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate_for_find(domain, data,
                                                                             **options)
+
+
+def validate(domain, field_name=None, lazy=True, **data):
+    """
+    validates available values of given data.
+
+    this is the most restricted version of `validate_dict` method and
+    is useful for validating standalone values without considering
+    default value or nullability in database column.
+
+    it uses the correct validator for each value based on its key name.
+
+    :param type[BaseEntity] | str domain: the domain to validate the values for.
+                                          it could be a type of a BaseEntity
+                                          subclass or a string name.
+
+    :param str field_name: a custom field name to be used in validation errors.
+                           note that if the data has more than one key, the
+                           `field_name` could not be set. otherwise it raises
+                           an error.
+
+    :param bool lazy: specifies that all values must be validated first and
+                      then a cumulative error must be raised containing a dict
+                      of all keys and their corresponding error messages.
+                      defaults to True if not provided.
+
+    :keyword **data: values to be validated.
+
+    :raises FieldNameCouldNotBeSetError: field name could not be set error.
+    :raises InvalidDataForValidationError: invalid data for validation error.
+    :raises ValidatorDomainNotFoundError: validator domain not found error.
+    :raises ValidatorNotFoundError: validator not found error.
+    :raises ValidationError: validation error.
+
+    :returns: a dict containing all input values or their fixed equivalent.
+    :rtype: dict
+    """
+
+    return get_component(ValidatorPackage.COMPONENT_NAME).validate(domain, field_name,
+                                                                   lazy, **data)
