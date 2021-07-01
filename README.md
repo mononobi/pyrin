@@ -220,3 +220,7 @@ and remove **`pyrin.caching.remote.handlers.redis`** from the **`ignore_modules`
 
 To enable memcached after installing its dependencies, open **`settings/packaging.ini`** file
 and remove **`pyrin.caching.remote.handlers.memcached`** from the **`ignore_modules`** list.
+
+## Hint
+
+`Pyrin` is a greek word and means core.
