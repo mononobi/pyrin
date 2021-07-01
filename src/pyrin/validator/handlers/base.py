@@ -340,6 +340,12 @@ class ValidatorBase(AbstractValidatorBase):
                                  if not provided, the `localized_name` value of this
                                  validator will be used.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises ValueCouldNotBeListError: value could not be list error.
         :raises ValueCouldNotBeAnEmptyListError: value could not be an empty list error.
         :raises ValueIsNotListError: value is not list error.
@@ -470,6 +476,12 @@ class ValidatorBase(AbstractValidatorBase):
                                  if not provided, the `localized_name` value of this
                                  validator will be used.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises InvalidValueTypeError: invalid value type error.
         :raises ValueCouldNotBeNoneError: value could not be none error.
         :raises ValidationError: validation error.
@@ -509,13 +521,20 @@ class ValidatorBase(AbstractValidatorBase):
                                  if not provided, the `localized_name` value of this
                                  validator will be used.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises ValueCouldNotBeNoneError: value could not be none error.
         """
 
         for_find = options.get('for_find', False)
         for_update = options.get('for_update', False)
+        ignore_default = options.get('ignore_default', False)
         has_default = False
-        if for_find is False and self.field is not None:
+        if for_find is not True and self.field is not None and ignore_default is not True:
             if for_update is True:
                 has_default = self.field.onupdate is not None or \
                               self.field.server_onupdate is not None

@@ -263,6 +263,12 @@ class ValidatorManager(Manager):
 
         :keyword str field_name: a custom field name to be used in validation errors.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
         :raises ValidationError: validation error.
@@ -346,6 +352,12 @@ class ValidatorManager(Manager):
         :keyword bool allow_whitespace: determines that whitespace strings should be
                                         considered valid. this argument will only
                                         be considered in string validators.
+
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
 
         :keyword BaseEntity entity: an entity instance that the provided data
                                     is the result dict of it.
@@ -448,6 +460,12 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises InvalidEntityForValidationError: invalid entity for validation error.
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
@@ -520,6 +538,12 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
 
@@ -589,6 +613,12 @@ class ValidatorManager(Manager):
                                         considered valid. this argument will only
                                         be considered in string validators.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises InvalidDataForValidationError: invalid data for validation error.
         :raises ValidatorDomainNotFoundError: validator domain not found error.
         :raises ValidatorNotFoundError: validator not found error.
@@ -650,6 +680,12 @@ class ValidatorManager(Manager):
         :keyword bool allow_whitespace: determines that whitespace strings should be
                                         considered valid. this argument will only
                                         be considered in string validators.
+
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
 
         :raises InvalidEntityForValidationError: invalid entity for validation error.
         :raises ValidatorDomainNotFoundError: validator domain not found error.

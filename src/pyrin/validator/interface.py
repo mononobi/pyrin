@@ -37,6 +37,12 @@ class AbstractValidatorBase(CoreObject):
 
         :keyword str field_name: a custom field name to be used in validation errors.
 
+        :keyword bool ignore_default: do not consider default value of the column
+                                      for nullability validation. defaults to False
+                                      if not provided and if the value is None but
+                                      the column has default value it will be
+                                      considered as valid.
+
         :raises CoreNotImplementedError: core not implemented error.
         :raises ValidationError: validation error.
 
