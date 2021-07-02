@@ -268,9 +268,9 @@ class Application(Flask, HookMixin, SignalMixin,
                                                             'host_matching combination.')
 
             self.add_url_rule(self.static_url_path + '/<path:filename>',
+                              endpoint='static',
                               view_func=self.send_static_file,
                               authenticated=False,
-                              endpoint='static',
                               host=static_host)
 
     def _remove_flask_unrecognized_keywords(self, **options):
@@ -903,16 +903,18 @@ class Application(Flask, HookMixin, SignalMixin,
         return serializer_services.serialize(rv)
 
     @setupmethod
-    def add_url_rule(self, rule, view_func,
+    def add_url_rule(self, rule, endpoint=None, view_func=None,
                      provide_automatic_options=None, **options):
         """
-        connects a url rule. the provided view_func will be registered with the endpoint.
+        connects a url rule. the provided `view_func` will be registered with the endpoint.
 
         if there is another rule with the same url and http methods and `replace=True`
         option is provided, it will be replaced. otherwise an error will be raised.
 
-        a note about endpoint. pyrin will handle endpoint generation on its own.
-        so there is no endpoint parameter in this method's signature.
+        a note about endpoint:
+
+        pyrin will handle endpoint generation on its own.
+        so it is recommended not to provide endpoint to this method.
         this is required to be able to handle uniqueness of endpoints and managing them.
         despite flask, pyrin will not require you to define view functions with unique names.
         you could define view functions with the same name in different modules. but to
@@ -936,6 +938,10 @@ class Application(Flask, HookMixin, SignalMixin,
            one of them will be get called based on registration order.
 
         :param str rule: the url rule as string.
+
+        :param str endpoint: the endpoint of the route.
+                             by default, it is the fully
+                             qualified name of the view function.
 
         :param function view_func: the function to call when serving a request to the
                                    provided endpoint.
@@ -1159,10 +1165,10 @@ class Application(Flask, HookMixin, SignalMixin,
                                      environments) is not True:
             return
 
-        endpoint = options.get('endpoint')
         if endpoint in (None, ''):
             endpoint = self.generate_endpoint(view_func, **options)
-            options.update(endpoint=endpoint)
+
+        options.update(endpoint=endpoint)
 
         methods = options.pop('methods', None)
         if methods is not None:

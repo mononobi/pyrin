@@ -140,16 +140,18 @@ def register_teardown_request_handler(func):
     get_current_app().teardown_request(func)
 
 
-def add_url_rule(rule, view_func,
+def add_url_rule(rule, endpoint=None, view_func=None,
                  provide_automatic_options=None, **options):
     """
-    connects a url rule. the provided view_func will be registered with the endpoint.
+    connects a url rule. the provided `view_func` will be registered with the endpoint.
 
     if there is another rule with the same url and http methods and `replace=True`
     option is provided, it will be replaced. otherwise an error will be raised.
 
-    a note about endpoint. pyrin will handle endpoint generation on its own.
-    so there is no endpoint parameter in this method's signature.
+    a note about endpoint:
+
+    pyrin will handle endpoint generation on its own.
+    so it is recommended not to provide endpoint to this method.
     this is required to be able to handle uniqueness of endpoints and managing them.
     despite flask, pyrin will not require you to define view functions with unique names.
     you could define view functions with the same name in different modules. but to
@@ -173,6 +175,10 @@ def add_url_rule(rule, view_func,
        one of them will be get called based on registration order.
 
     :param str rule: the url rule as string.
+
+    :param str endpoint: the endpoint of the route.
+                         by default, it is the fully
+                         qualified name of the view function.
 
     :param function view_func: the function to call when serving a request to the
                                provided endpoint.
@@ -296,13 +302,14 @@ def add_url_rule(rule, view_func,
     :keyword int start_index: the initial value of row index. if not
                               provided, starts from 1.
 
-    :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute which
-                                                  has `allow_read=False` or its name starts with
-                                                  underscore `_`, should not be included in
-                                                  result dict. defaults to `SECURE_TRUE` if
-                                                  not provided. it will be used only for
-                                                  entity conversion. this value will override
-                                                  the corresponding value of `result_schema`
+    :keyword SECURE_TRUE | SECURE_FALSE readable: specifies that any column or attribute
+                                                  which has `allow_read=False` or its name
+                                                  starts with underscore `_`, should not
+                                                  be included in result dict. defaults to
+                                                  `SECURE_TRUE` if not provided. it will
+                                                  be used only for entity conversion.
+                                                  this value will override the
+                                                  corresponding value of `result_schema`
                                                   if provided.
 
     :keyword int depth: a value indicating the depth for conversion.
@@ -390,7 +397,8 @@ def add_url_rule(rule, view_func,
     :raises InvalidResponseStatusCodeError: invalid response status code error.
     """
 
-    get_current_app().add_url_rule(rule, view_func, provide_automatic_options, **options)
+    get_current_app().add_url_rule(rule, endpoint, view_func,
+                                   provide_automatic_options, **options)
 
 
 def generate_endpoint(func, **options):
