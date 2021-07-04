@@ -4,10 +4,10 @@ application base module.
 """
 
 import os
-
-from collections import OrderedDict
+import weakref
 
 from time import time
+from collections import OrderedDict
 
 import dotenv
 
@@ -30,7 +30,7 @@ import pyrin.utils.function as function_utils
 
 from pyrin.api.router.structs import CoreURLMap
 from pyrin.application.container import _set_app
-from pyrin.api.router.handlers.protected import ProtectedRoute
+from pyrin.api.router.handlers.public import PublicRoute
 from pyrin.application.enumerations import ApplicationStatusEnum
 from pyrin.application.hooks import ApplicationHookBase, PackagingHook
 from pyrin.application.mixin import SignalMixin
@@ -120,7 +120,7 @@ class Application(Flask, HookMixin, SignalMixin,
     default_response_converter = None
 
     headers_class = CoreHeaders
-    url_rule_class = ProtectedRoute
+    url_rule_class = PublicRoute
     url_map_class = CoreURLMap
     response_class = CoreResponse
     request_class = CoreRequest
@@ -267,11 +267,14 @@ class Application(Flask, HookMixin, SignalMixin,
                 raise InvalidStaticHostAndHostMatchingError('Invalid static_host/'
                                                             'host_matching combination.')
 
-            self.add_url_rule(self.static_url_path + '/<path:filename>',
+            # using a weakref to avoid creating a reference cycle between
+            # the app and the view function (see flask issue #3761).
+            self_ref = weakref.ref(self)
+            self.add_url_rule(f'{self.static_url_path}/<path:filename>',
                               endpoint='static',
-                              view_func=self.send_static_file,
+                              host=static_host,
                               authenticated=False,
-                              host=static_host)
+                              view_func=lambda **kw: self_ref().send_static_file(**kw))
 
     def _remove_flask_unrecognized_keywords(self, **options):
         """
@@ -960,7 +963,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :keyword bool authenticated: specifies that this route could not be accessed
                                      if the requester has not been authenticated.
-                                     defaults to True if not provided.
+                                     defaults to False if not provided.
 
         :keyword bool fresh_auth: specifies that this route could not be accessed
                                   if the requester has not a fresh authentication.
@@ -1173,11 +1176,10 @@ class Application(Flask, HookMixin, SignalMixin,
         methods = options.pop('methods', None)
         if methods is not None:
             methods = misc_utils.make_iterable(methods, tuple)
-
-        # if the methods are not given and the view_func object knows its
-        # methods we can use that instead. if neither exists, we go with
-        # a tuple of only `GET` as default.
-        if methods is None:
+        else:
+            # if the methods are not given and the view_func object knows its
+            # methods we can use that instead. if neither exists, we go with
+            # a tuple of only `GET` as default.
             methods = getattr(view_func, 'methods', None) or (HTTPMethodEnum.GET,)
 
         methods = set(item.upper() for item in methods)

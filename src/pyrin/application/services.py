@@ -197,7 +197,7 @@ def add_url_rule(rule, endpoint=None, view_func=None,
 
     :keyword bool authenticated: specifies that this route could not be accessed
                                  if the requester has not been authenticated.
-                                 defaults to True if not provided.
+                                 defaults to False if not provided.
 
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.

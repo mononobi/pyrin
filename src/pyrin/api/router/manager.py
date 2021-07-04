@@ -37,7 +37,7 @@ class RouterManager(Manager):
 
         :keyword bool authenticated: specifies that this route could not be accessed
                                      if the requester has not been authenticated.
-                                     defaults to True if not provided.
+                                     defaults to False if not provided.
 
         :keyword bool fresh_auth: specifies that this route could not be accessed
                                   if the requester has not a fresh authentication.
@@ -250,7 +250,7 @@ class RouterManager(Manager):
 
         authenticated = options.get('authenticated')
         if authenticated is None:
-            authenticated = True
+            authenticated = False
 
         fresh_auth = options.get('fresh_auth')
         if fresh_auth is None:
@@ -297,7 +297,7 @@ class RouterManager(Manager):
 
         :keyword bool authenticated: specifies that this route could not be accessed
                                      if the requester has not been authenticated.
-                                     defaults to True if not provided.
+                                     defaults to False if not provided.
 
         :keyword bool fresh_auth: specifies that this route could not be accessed
                                   if the requester has not a fresh authentication.
@@ -498,15 +498,16 @@ class RouterManager(Manager):
 
         return None
 
-    def add_route(self, url, view_func=None,
-                  provide_automatic_options=None, **options):
+    def add_route(self, url, view_func, provide_automatic_options=None, **options):
         """
         connects a url rule. the provided view_func will be registered with the endpoint.
 
         if there is another rule with the same url and http methods and `replace=True`
         option is provided, it will be replaced. otherwise an error will be raised.
 
-        a note about endpoint. pyrin will handle endpoint generation on its own.
+        a note about endpoint:
+
+        pyrin will handle endpoint generation on its own.
         so there is no endpoint parameter in this method's signature.
         this is required to be able to handle uniqueness of endpoints and managing them.
         despite flask, pyrin will not require you to define view functions with unique names.
@@ -749,6 +750,7 @@ class RouterManager(Manager):
         :raises InvalidResponseStatusCodeError: invalid response status code error.
         """
 
+        options.setdefault('authenticated', True)
         application_services.add_url_rule(url, view_func=view_func,
                                           provide_automatic_options=provide_automatic_options,
                                           **options)
