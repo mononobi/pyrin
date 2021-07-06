@@ -5,46 +5,126 @@ audit api module.
 
 import pyrin.audit.services as audit_services
 
-from pyrin.api.router.decorators import api
-from pyrin.core.enumerations import HTTPMethodEnum
+from pyrin.api.router.decorators import get
 
 
 audit_config = audit_services.get_audit_configurations()
 is_enabled = audit_config.pop('enabled', False)
 
 if is_enabled is True:
-    @api(**audit_config, methods=HTTPMethodEnum.GET, no_cache=True)
+    @get(**audit_config, no_cache=True)
     def inspect(**options):
         """
         inspects all registered packages and gets inspection data.
-
-        it includes all available info, but it could be customized using different options.
-        other custom implementations could also be excluded from result if the related name
-        of their hook is passed with False value. for example `database=False`.
-
-        it returns a tuple of two values. the first value is a dict containing the
-        inspection data, and the second value is the related status code for the response.
-        in case of any inspection has been failed, the status code will be internal
-        server error 500.
-
-        :keyword bool application: specifies that application info must be included.
-        :keyword bool packages: specifies that loaded packages info must be included.
-        :keyword bool framework: specifies that framework info must be included.
-        :keyword bool python: specifies that python info must be included.
-        :keyword bool os: specifies that operating system info must be included.
-        :keyword bool hardware: specifies that hardware info must be included.
-
-        :keyword bool traceback: specifies that on failure report, it must include
-                                 the traceback of errors.
-                                 defaults to True if not provided.
-
-        :returns: tuple[dict(dict application: application info,
-                             dict packages: loaded packages info,
-                             dict framework: framework info,
-                             dict python: python info,
-                             dict platform: platform info),
-                        int status_code]
-        :rtype: tuple[dict, int]
+        ---
+        parameters:
+          - name: application
+            in: query
+            type: boolean
+            required: false
+            description: specifies that application info must be included.
+          - name: packages
+            in: query
+            type: boolean
+            required: false
+            description: specifies that loaded packages info must be included.
+          - name: framework
+            in: query
+            type: boolean
+            required: false
+            description: specifies that framework info must be included.
+          - name: python
+            in: query
+            type: boolean
+            required: false
+            description: specifies that python info must be included.
+          - name: os
+            in: query
+            type: boolean
+            required: false
+            description: specifies that operating system info must be included.
+          - name: hardware
+            in: query
+            type: boolean
+            required: false
+            description: specifies that hardware info must be included.
+          - name: database
+            in: query
+            type: boolean
+            required: false
+            description: specifies that database info must be included.
+          - name: caching
+            in: query
+            type: boolean
+            required: false
+            description: specifies that caching info must be included.
+          - name: celery
+            in: query
+            type: boolean
+            required: false
+            description: specifies that celery info must be included.
+          - name: traceback
+            in: query
+            type: boolean
+            required: false
+            description: specifies that on failure, it must include the traceback of errors.
+        responses:
+          200:
+            description: all packages are working normally.
+            schema:
+              properties:
+                application:
+                  type: object
+                  description: application info.
+                packages:
+                  type: object
+                  description: loaded packages info.
+                framework:
+                  type: object
+                  description: framework info.
+                python:
+                  type: object
+                  description: python info.
+                platform:
+                  type: object
+                  description: platform info.
+                database:
+                  type: object
+                  description: database info.
+                caching:
+                  type: object
+                  description: caching info.
+                celery:
+                  type: object
+                  description: celery info.
+          500:
+            description: some packages have errors.
+            schema:
+              properties:
+                application:
+                  type: object
+                  description: application info.
+                packages:
+                  type: object
+                  description: loaded packages info.
+                framework:
+                  type: object
+                  description: framework info.
+                python:
+                  type: object
+                  description: python info.
+                platform:
+                  type: object
+                  description: platform info.
+                database:
+                  type: object
+                  description: database info.
+                caching:
+                  type: object
+                  description: caching info.
+                celery:
+                  type: object
+                  description: celery info.
         """
 
         return audit_services.inspect(**options)
