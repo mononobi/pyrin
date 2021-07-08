@@ -769,6 +769,16 @@ class RouteBase(Rule):
 
         return self._cors
 
+    @property
+    def is_paged(self):
+        """
+        gets a value indicating that this route is paged.
+
+        :rtype: bool
+        """
+
+        return self._paginator is not None
+
 
 class TemporaryRouteBase(RouteBase):
     """
