@@ -146,3 +146,16 @@ class DatabasePagingManager(Manager):
         """
 
         self.inject_paging_keys(limit=None, offset=None, values=values)
+
+    def get_paging_param_names(self):
+        """
+        gets current paging param names in effect.
+
+        it returns a tuple of two items. first item is the param name for page
+        number and the second item is the param name for page size.
+
+        :returns: tuple[str page_number_param_name, str page_size_param_name]
+        :rtype: tuple[str, str]
+        """
+
+        return self._page_param, self._page_size_param
