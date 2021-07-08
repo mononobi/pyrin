@@ -37,6 +37,7 @@ def load(file_path, converter=eval, **options):
 
     defaults = options.get('defaults', None)
     parser = ConfigParser(defaults)
+    parser.optionxform = str
     if len(parser.read(file_path)) == 0:
         raise ConfigurationFileNotFoundError('Configuration file [{file}] not found.'
                                              .format(file=file_path))
@@ -45,11 +46,11 @@ def load(file_path, converter=eval, **options):
     for section in parser.sections():
         values = parser.items(section)
         dic_values = DTO()
-        for single_value in values:
-            value = converter(single_value[1])
-            if isinstance(value, str):
-                value = remove_line_break_escapes(value)
-            dic_values[single_value[0]] = value
+        for name, value in values:
+            converted_value = converter(value)
+            if isinstance(converted_value, str):
+                converted_value = remove_line_break_escapes(converted_value)
+            dic_values[name] = converted_value
 
         sections[section] = dic_values
 
