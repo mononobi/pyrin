@@ -48,7 +48,7 @@ class CoreRequest(Request):
     dict_storage_class = CoreImmutableMultiDict
 
     # these are query param names that application expects for locale and timezone.
-    LOCALE_PARAM_NAME = 'lang'
+    LOCALE_PARAM_NAME = 'lc'
     TIMEZONE_PARAM_NAME = 'tz'
 
     # application expects an authorization header in request with this key.
