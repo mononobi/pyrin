@@ -5,9 +5,11 @@ router handlers base module.
 
 import time
 
+from uuid import UUID
 from threading import Lock
 
-from werkzeug.routing import Rule
+from werkzeug.routing import Rule, UnicodeConverter, PathConverter, IntegerConverter, \
+    FloatConverter, UUIDConverter
 
 import pyrin.processor.response.services as response_services
 import pyrin.processor.response.status.services as status_services
@@ -410,6 +412,42 @@ class RouteBase(Rule):
         self._finished(result, **options)
 
         return self._prepare_response(result)
+
+    def get_argument_type(self, name):
+        """
+        gets the type of given argument.
+
+        note that the argument must be from url arguments, otherwise it returns None.
+
+        :param str name: name of the argument.
+
+        :rtype: type
+        """
+
+        if name not in self.arguments:
+            return None
+
+        converters = getattr(self, '_converters', None)
+        if converters is None:
+            return None
+
+        converter = converters.get(name)
+        if converter is None:
+            return None
+
+        if isinstance(converter, IntegerConverter):
+            return int
+
+        if isinstance(converter, FloatConverter):
+            return float
+
+        if isinstance(converter, UUIDConverter):
+            return UUID
+
+        if isinstance(converter, (UnicodeConverter, PathConverter)):
+            return str
+
+        return str
 
     def _get_paginator(self, **options):
         """
