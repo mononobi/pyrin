@@ -213,7 +213,7 @@ class ProtectedRoute(RouteBase):
         if self._cors is not None:
             self._cors.add_allowed_headers(RequestHeaderEnum.AUTHORIZATION)
 
-        self._permissions = options.get('permissions', None)
+        self._permissions = options.get('permissions')
         self._permissions = misc_utils.make_iterable(self._permissions, tuple)
 
         if not all(isinstance(item, PermissionBase) for item in self._permissions):
