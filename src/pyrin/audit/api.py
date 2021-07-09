@@ -19,54 +19,34 @@ if is_enabled is True:
         ---
         parameters:
           - name: application
-            in: query
             type: boolean
-            required: false
             description: specifies that application info must be included.
           - name: packages
-            in: query
             type: boolean
-            required: false
             description: specifies that loaded packages info must be included.
           - name: framework
-            in: query
             type: boolean
-            required: false
             description: specifies that framework info must be included.
           - name: python
-            in: query
             type: boolean
-            required: false
             description: specifies that python info must be included.
           - name: os
-            in: query
             type: boolean
-            required: false
             description: specifies that operating system info must be included.
           - name: hardware
-            in: query
             type: boolean
-            required: false
             description: specifies that hardware info must be included.
           - name: database
-            in: query
             type: boolean
-            required: false
             description: specifies that database info must be included.
           - name: caching
-            in: query
             type: boolean
-            required: false
             description: specifies that caching info must be included.
           - name: celery
-            in: query
             type: boolean
-            required: false
             description: specifies that celery info must be included.
           - name: traceback
-            in: query
             type: boolean
-            required: false
             description: specifies that on failure, it must include the traceback of errors.
         responses:
           200:
