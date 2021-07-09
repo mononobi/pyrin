@@ -99,5 +99,5 @@ class DocstringSectionEnum(CoreEnum):
     # list of security definitions.
     SECURITY = 'security'
 
-    # tags for each api to be categorized by tag in swagger ui.
+    # list of tags for each api to be categorized by tag in swagger ui.
     TAGS = 'tags'
