@@ -49,7 +49,6 @@ class ExtendedSwagger(Swagger):
             }
         ],
         'static_url_path': '/flasgger_static',
-        # "static_folder": "static",  # must be set by user
         'swagger_ui': True,
         'specs_route': '/swagger/'
     }
