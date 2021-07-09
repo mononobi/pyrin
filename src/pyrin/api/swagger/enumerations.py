@@ -15,6 +15,8 @@ class ParameterLocationEnum(CoreEnum):
     QUERY = 'query'
     JSON = 'json'
     BODY = 'body'
+    HEADER = 'header'
+    FORM = 'form'
 
 
 class ParameterAttributeEnum(CoreEnum):
