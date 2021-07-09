@@ -69,6 +69,17 @@ class ExtendedSwagger(Swagger):
 
         return swag.setdefault(DocstringSectionEnum.SECURITY, [])
 
+    def _get_tags_section(self, swag):
+        """
+        gets tags section from given swag info.
+
+        :param dict swag: swag info.
+
+        :rtype: list[str]
+        """
+
+        return swag.setdefault(DocstringSectionEnum.TAGS, [])
+
     def _get_parameter(self, name, parameters):
         """
         gets the parameter with given name from provided params.
@@ -751,10 +762,10 @@ class ExtendedSwagger(Swagger):
                 if doc_swag:
                     merge_specs(swag, doc_swag)
                     swagged = True
-                # else:
-                #     doc_swag = {}
-                #     merge_specs(swag, doc_swag)
-                #     swagged = True
+                else:
+                    doc_swag = {}
+                    merge_specs(swag, doc_swag)
+                    swagged = True
 
                 if swagged:
                     if doc_summary:
