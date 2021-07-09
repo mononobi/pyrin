@@ -3,10 +3,12 @@
 swagger tags protected module.
 """
 
-from pyrin.api.router.handlers.protected import ProtectedRoute
+from pyrin.api.swagger.decorators import tag
 from pyrin.api.swagger.tags.base import BaseTag
+from pyrin.api.router.handlers.protected import ProtectedRoute
 
 
+@tag()
 class ProtectedTag(BaseTag):
     """
     protected tag class.

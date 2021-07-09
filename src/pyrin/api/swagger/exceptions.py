@@ -11,3 +11,17 @@ class SwaggerException(CoreException):
     swagger exception.
     """
     pass
+
+
+class InvalidTagTypeError(SwaggerException):
+    """
+    invalid tag type error.
+    """
+    pass
+
+
+class DuplicatedTagError(SwaggerException):
+    """
+    duplicated tag error.
+    """
+    pass

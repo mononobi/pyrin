@@ -3,10 +3,12 @@
 swagger tags public module.
 """
 
-from pyrin.api.router.handlers.public import PublicRoute
+from pyrin.api.swagger.decorators import tag
 from pyrin.api.swagger.tags.base import BaseTag
+from pyrin.api.router.handlers.public import PublicRoute
 
 
+@tag()
 class PublicTag(BaseTag):
     """
     public tag class.

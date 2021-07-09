@@ -10,4 +10,12 @@ class BaseTag(AbstractTag):
     """
     base tag class.
     """
-    pass
+
+    def __init__(self, *args, **options):
+        """
+        initializes an instance of BaseTag.
+
+        :param object args: constructor arguments.
+        """
+
+        super().__init__()
