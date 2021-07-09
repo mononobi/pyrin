@@ -135,7 +135,7 @@ class SwaggerManager(Manager):
         for name, item in self._tags.items():
             if not self._is_disabled_tag(name):
                 if item.is_accepted(rule, method):
-                    tags.append(name)
+                    tags.append(item.tag)
 
         custom_tags = self._get_custom_tags()
         for name, value in custom_tags.items():

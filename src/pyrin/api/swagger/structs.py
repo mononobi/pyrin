@@ -21,6 +21,7 @@ from flasgger.utils import extract_definitions, parse_definition_docstring, \
 import pyrin.database.paging.services as paging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.status.services as status_services
+import pyrin.api.swagger.services as swagger_services
 
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.core.enumerations import HTTPMethodEnum, ClientErrorResponseCodeEnum
@@ -225,6 +226,7 @@ class ExtendedSwagger(Swagger):
         self._add_authentication_failed_response(rule, verb, swag)
         self._add_permission_denied_response(rule, verb, swag)
         self._add_successful_response(rule, verb, swag)
+        self._add_tags(rule, verb, swag)
 
     def _add_locale_parameter(self, rule, verb, swag):
         """
@@ -407,6 +409,20 @@ class ExtendedSwagger(Swagger):
         responses = self._get_responses_section(swag)
         success = dict(description='successful execution of service.')
         responses.setdefault(status_code, success)
+
+    def _add_tags(self, rule, verb, swag):
+        """
+        adds required tags into given swag info.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        tags = swagger_services.get_tags(rule, verb.upper())
+        if len(tags) > 0:
+            tag_section = self._get_tags_section(swag)
+            tag_section.extend(tags)
 
     def get_apispecs(self, endpoint='apispec_1'):
         """
