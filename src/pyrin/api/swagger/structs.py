@@ -424,6 +424,18 @@ class ExtendedSwagger(Swagger):
             tag_section = self._get_tags_section(swag)
             tag_section.extend(tags)
 
+    def _is_flasgger_rule(self, rule):
+        """
+        gets a value indicating that this rule belongs to flasgger.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: rule to be checked.
+
+        :rtype: bool
+        """
+
+        flasgger_endpoint = config_services.get_active('swagger', 'endpoint')
+        return rule.endpoint.startswith(flasgger_endpoint)
+
     def get_apispecs(self, endpoint='apispec_1'):
         """
         gets api specs for given endpoint.
@@ -692,6 +704,9 @@ class ExtendedSwagger(Swagger):
 
         specs = []
         for rule in rules:
+            if self._is_flasgger_rule(rule):
+                continue
+
             endpoint = current_app.view_functions[rule.endpoint]
             methods = dict()
             is_mv = is_valid_method_view(endpoint)
@@ -728,7 +743,6 @@ class ExtendedSwagger(Swagger):
                     )
 
                 swag = {}
-                swagged = False
 
                 if getattr(method, 'specs_dict', None):
                     definition = {}
@@ -737,7 +751,6 @@ class ExtendedSwagger(Swagger):
                         convert_schemas(deepcopy(method.specs_dict), definition)
                     )
                     swag['definitions'] = definition
-                    swagged = True
 
                 view_class = getattr(endpoint, 'view_class', None)
                 if view_class and issubclass(view_class, SwaggerView):
@@ -757,8 +770,6 @@ class ExtendedSwagger(Swagger):
                     )
                     swag['definitions'] = apispec_definitions
 
-                    swagged = True
-
                 if doc_dir:
                     if view_class:
                         file_path = os.path.join(
@@ -775,23 +786,19 @@ class ExtendedSwagger(Swagger):
                 doc_summary, doc_description, doc_swag = parse_docstring(
                     method, sanitizer, endpoint=rule.endpoint, verb=verb)
 
-                if doc_swag:
-                    merge_specs(swag, doc_swag)
-                    swagged = True
-                else:
+                if doc_swag is None:
                     doc_swag = {}
-                    merge_specs(swag, doc_swag)
-                    swagged = True
 
-                if swagged:
-                    if doc_summary:
-                        swag['summary'] = doc_summary
+                merge_specs(swag, doc_swag)
 
-                    if doc_description:
-                        swag['description'] = doc_description
+                if doc_summary:
+                    swag['summary'] = doc_summary
 
-                    self._fix_metadata(rule, verb, swag)
-                    verbs.append((verb, swag))
+                if doc_description:
+                    swag['description'] = doc_description
+
+                self._fix_metadata(rule, verb, swag)
+                verbs.append((verb, swag))
 
             if verbs:
                 specs.append((rule, verbs))
