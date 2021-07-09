@@ -295,7 +295,7 @@ class RouteBase(Rule):
             raise InvalidResponseStatusCodeError('The provided status code [{status}] for '
                                                  'route [{route}] on view function [{function}] '
                                                  'must be from information, success or '
-                                                 'redirection codes. and if you want to return '
+                                                 'redirection codes. if you want to return '
                                                  'a status code for errors, you should raise '
                                                  'an exception with relevant code as status '
                                                  'code inside your method. pyrin will handle '
