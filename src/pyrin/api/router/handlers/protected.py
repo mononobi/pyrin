@@ -197,6 +197,9 @@ class ProtectedRoute(RouteBase):
         :keyword int cors_max_age: maximum number of seconds to cache results.
                                    if not provided, it will be get from cors config store.
 
+        :keyword bool swagger: specifies that this route must be exposed on swagger.
+                               defaults to False if not provided.
+
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
 

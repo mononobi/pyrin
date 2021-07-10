@@ -212,6 +212,9 @@ def create_route(rule, **options):
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
 
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to False if not provided.
+
     :raises InvalidCustomRouteTypeError: invalid custom route type error.
     :raises RouteAuthenticationMismatchError: route authentication mismatch error.
     :raises PageSizeLimitError: page size limit error.
@@ -467,6 +470,9 @@ def add_route(url, view_func, provide_automatic_options=None, **options):
 
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
+
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
 
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.

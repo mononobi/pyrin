@@ -440,18 +440,6 @@ class ExtendedSwagger(Swagger):
             tag_section = self._get_tags_section(swag)
             tag_section.extend(tags)
 
-    def _is_flasgger_rule(self, rule):
-        """
-        gets a value indicating that this rule belongs to flasgger.
-
-        :param pyrin.api.router.handlers.base.RouteBase rule: rule to be checked.
-
-        :rtype: bool
-        """
-
-        flasgger_endpoint = config_services.get_active('swagger', 'endpoint')
-        return rule.endpoint.startswith(flasgger_endpoint)
-
     def get_apispecs(self, endpoint='swagger'):
         """
         gets api specs for given endpoint.
@@ -720,7 +708,7 @@ class ExtendedSwagger(Swagger):
 
         specs = []
         for rule in rules:
-            if self._is_flasgger_rule(rule):
+            if not rule.swagger:
                 continue
 
             endpoint = current_app.view_functions[rule.endpoint]

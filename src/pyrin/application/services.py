@@ -388,6 +388,9 @@ def add_url_rule(rule, endpoint=None, view_func=None,
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
 
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to False if not provided.
+
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
     :raises PageSizeLimitError: page size limit error.

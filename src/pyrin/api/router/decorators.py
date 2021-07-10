@@ -175,6 +175,9 @@ def api(url, methods=None, authenticated=True, permissions=None, **options):
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
 
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the
@@ -413,6 +416,9 @@ def post(url, authenticated=True, permissions=None, **options):
 
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
+
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
 
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
@@ -654,6 +660,9 @@ def patch(url, authenticated=True, permissions=None, **options):
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
 
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the
@@ -893,6 +902,9 @@ def put(url, authenticated=True, permissions=None, **options):
 
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
+
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
 
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
@@ -1134,6 +1146,9 @@ def get(url, authenticated=True, permissions=None, **options):
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
 
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
+
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.
                                              this can also be controlled by setting the
@@ -1373,6 +1388,9 @@ def delete(url, authenticated=True, permissions=None, **options):
 
     :keyword int cors_max_age: maximum number of seconds to cache results.
                                if not provided, it will be get from cors config store.
+
+    :keyword bool swagger: specifies that this route must be exposed on swagger.
+                           defaults to True if not provided.
 
     :keyword bool provide_automatic_options: controls whether the `OPTIONS` method should be
                                              added automatically.

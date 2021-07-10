@@ -274,6 +274,7 @@ class Application(Flask, HookMixin, SignalMixin,
                               endpoint='static',
                               host=static_host,
                               authenticated=False,
+                              swagger=False,
                               view_func=lambda **kw: self_ref().send_static_file(**kw))
 
     def _remove_flask_unrecognized_keywords(self, **options):
@@ -1153,6 +1154,9 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :keyword int cors_max_age: maximum number of seconds to cache results.
                                    if not provided, it will be get from cors config store.
+
+        :keyword bool swagger: specifies that this route must be exposed on swagger.
+                               defaults to False if not provided.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
