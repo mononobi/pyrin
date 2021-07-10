@@ -115,12 +115,9 @@ class ExtendedSwagger(Swagger):
 
         return None
 
-    def _add_parameter(self, parameters, name, type_, in_, **options):
+    def _add_or_update_parameter(self, parameters, name, type_, in_, **options):
         """
-        adds a new parameter into given parameters.
-
-        if a parameter with the same name is already
-        existed, the new parameter will be ignored.
+        adds a new parameter into given parameters or updates the existing one.
 
         :param list[dict] parameters: list of parameters.
         :param str name: new parameter name.
@@ -137,8 +134,9 @@ class ExtendedSwagger(Swagger):
         :enum in_:
             PATH = 'path'
             QUERY = 'query'
-            JSON = 'json'
             BODY = 'body'
+            HEADER = 'header'
+            FORM = 'formData'
 
         :keyword bool required: specifies that this parameter is required.
                                 defaults to False if not provided.
@@ -165,39 +163,37 @@ class ExtendedSwagger(Swagger):
                                  available params. defaults to False if not
                                  provided and the new param will be appended
                                  to the end.
-
-        :returns: a value indicating that the new param is added.
-        :rtype: bool
         """
 
         param = self._get_parameter(name, parameters)
-        if param is not None:
-            return False
+        is_new = param is None
 
         add_first = options.get('add_first', False)
         format_ = options.get('format')
         required = options.get('required', False)
         description = options.get('description')
         new_param = dict()
-        new_param[ParameterAttributeEnum.NAME] = name
-        new_param[ParameterAttributeEnum.REQUIRED] = required
-        new_param[ParameterAttributeEnum.IN] = in_
+        if not is_new:
+            new_param = param
+
+        new_param.setdefault(ParameterAttributeEnum.NAME, name)
+        new_param.setdefault(ParameterAttributeEnum.REQUIRED, required)
+        new_param.setdefault(ParameterAttributeEnum.IN, in_)
 
         if type_ is not None:
-            new_param[ParameterAttributeEnum.TYPE] = type_
+            new_param.setdefault(ParameterAttributeEnum.TYPE, type_)
 
         if format_ is not None:
-            new_param[ParameterAttributeEnum.FORMAT] = format_
+            new_param.setdefault(ParameterAttributeEnum.FORMAT, format_)
 
         if description is not None:
-            new_param[ParameterAttributeEnum.DESCRIPTION] = description
+            new_param.setdefault(ParameterAttributeEnum.DESCRIPTION, description)
 
-        if add_first is True:
-            parameters.insert(0, new_param)
-        else:
-            parameters.append(new_param)
-
-        return True
+        if is_new:
+            if add_first is True:
+                parameters.insert(0, new_param)
+            else:
+                parameters.append(new_param)
 
     def _get_param_location(self, name, rule, verb):
         """
@@ -236,6 +232,7 @@ class ExtendedSwagger(Swagger):
         self._add_or_fix_required_parameters(rule, verb, swag)
         self._fix_optional_parameters(rule, verb, swag)
         self._add_paging_parameters(rule, verb, swag)
+        self._add_order_by_parameter(rule, verb, swag)
         self._add_locale_parameter(rule, verb, swag)
         self._add_timezone_parameter(rule, verb, swag)
         self._add_security_definitions(rule, verb, swag)
@@ -254,13 +251,13 @@ class ExtendedSwagger(Swagger):
         """
 
         params = self._get_parameters_section(swag)
-        self._add_parameter(params,
-                            current_app.request_class.LOCALE_PARAM_NAME,
-                            ParameterTypeEnum.STRING,
-                            ParameterLocationEnum.QUERY,
-                            required=False,
-                            description='request locale to be sent. '
-                                        'for example en, fa, fr ...')
+        self._add_or_update_parameter(params,
+                                      current_app.request_class.LOCALE_PARAM_NAME,
+                                      ParameterTypeEnum.STRING,
+                                      ParameterLocationEnum.QUERY,
+                                      required=False,
+                                      description='request locale to be sent. '
+                                                  'for example en, fa, fr ...')
 
     def _add_timezone_parameter(self, rule, verb, swag):
         """
@@ -272,13 +269,13 @@ class ExtendedSwagger(Swagger):
         """
 
         params = self._get_parameters_section(swag)
-        self._add_parameter(params,
-                            current_app.request_class.TIMEZONE_PARAM_NAME,
-                            ParameterTypeEnum.STRING,
-                            ParameterLocationEnum.QUERY,
-                            required=False,
-                            description='request timezone to be sent. '
-                                        'for example UTC, Asia/Tehran ...')
+        self._add_or_update_parameter(params,
+                                      current_app.request_class.TIMEZONE_PARAM_NAME,
+                                      ParameterTypeEnum.STRING,
+                                      ParameterLocationEnum.QUERY,
+                                      required=False,
+                                      description='request timezone to be sent. '
+                                                  'for example UTC, Asia/Tehran ...')
 
     def _add_paging_parameters(self, rule, verb, swag):
         """
@@ -292,14 +289,32 @@ class ExtendedSwagger(Swagger):
         if rule.is_paged is True:
             page, page_size = paging_services.get_paging_param_names()
             params = self._get_parameters_section(swag)
-            self._add_parameter(params, page,
-                                ParameterTypeEnum.INTEGER,
-                                ParameterLocationEnum.QUERY,
-                                required=False, description='page number to be get.')
-            self._add_parameter(params, page_size,
-                                ParameterTypeEnum.INTEGER,
-                                ParameterLocationEnum.QUERY,
-                                required=False, description='page size to be get.')
+            self._add_or_update_parameter(params, page,
+                                          ParameterTypeEnum.INTEGER,
+                                          ParameterLocationEnum.QUERY,
+                                          required=False, description='page number to be get.')
+            self._add_or_update_parameter(params, page_size,
+                                          ParameterTypeEnum.INTEGER,
+                                          ParameterLocationEnum.QUERY,
+                                          required=False, description='page size to be get.')
+
+    def _add_order_by_parameter(self, rule, verb, swag):
+        """
+        adds order by parameter into given swag info if the rule is ordered.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        if rule.ordered is True:
+            params = self._get_parameters_section(swag)
+            self._add_or_update_parameter(params, 'order_by',
+                                          ParameterTypeEnum.STRING,
+                                          ParameterLocationEnum.QUERY,
+                                          required=False,
+                                          description='column name or list of column names '
+                                                      'to be used for result ordering.')
 
     def _add_or_fix_required_parameters(self, rule, verb, swag):
         """
@@ -329,18 +344,13 @@ class ExtendedSwagger(Swagger):
                     type_ = ParameterTypeEnum.STRING
                     format_ = ParameterFormatEnum.UUID
 
-            added = self._add_parameter(params, name, type_, in_,
-                                        required=True, add_first=True,
-                                        format=format_)
-            if added is False:
-                param = self._get_parameter(name, params)
-                if param is not None:
-                    param[ParameterAttributeEnum.REQUIRED] = True
-                    param.setdefault(ParameterAttributeEnum.IN, in_)
-                    if type_ is not None:
-                        param.setdefault(ParameterAttributeEnum.TYPE, type_)
-                    if format_ is not None:
-                        param.setdefault(ParameterAttributeEnum.FORMAT, format_)
+            self._add_or_update_parameter(params, name, type_, in_,
+                                          required=True, add_first=True,
+                                          format=format_)
+
+            param = self._get_parameter(name, params)
+            if param is not None:
+                param[ParameterAttributeEnum.REQUIRED] = True
 
     def _fix_optional_parameters(self, rule, verb, swag):
         """
