@@ -6,9 +6,9 @@ swagger tags package.
 from pyrin.packaging.base import Package
 
 
-class TagsPackage(Package):
+class SwaggerTagsPackage(Package):
     """
-    tags package class.
+    swagger tags package class.
     """
 
     NAME = __name__
