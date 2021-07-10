@@ -204,9 +204,8 @@ class ExtendedSwagger(Swagger):
         gets the location that this parameter must be placed in a request.
 
         if the parameter is from url params of given rule, it will return `path`.
-        otherwise it will return `query`. this is required to be able to send all
-        params in the request. if you want you can override this with `in` keyword
-        in each view function docstring.
+        if the verb is one of `get`, 'head' or 'options', it will return `query`.
+        otherwise it will return `formData`.
 
         :param st name: parameter name.
         :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this parameter.
@@ -218,7 +217,12 @@ class ExtendedSwagger(Swagger):
         if name in rule.arguments:
             return ParameterLocationEnum.PATH
 
-        return ParameterLocationEnum.QUERY
+        if verb.upper() in (HTTPMethodEnum.HEAD,
+                            HTTPMethodEnum.GET,
+                            HTTPMethodEnum.OPTIONS):
+            return ParameterLocationEnum.QUERY
+
+        return ParameterLocationEnum.FORM
 
     def _fix_metadata(self, rule, verb, swag):
         """
