@@ -200,8 +200,8 @@ class ExtendedSwagger(Swagger):
         gets the location that this parameter must be placed in a request.
 
         if the parameter is from url params of given rule, it will return `path`.
-        otherwise it will return `query`. this is required to be able to get
-        fully working client side validations from swagger.
+        if the http method is one of `GET`, `OPTIONS` or `HEAD` it will return `query`.
+        otherwise it will return `formData`.
 
         :param st name: parameter name.
         :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this parameter.
@@ -213,7 +213,12 @@ class ExtendedSwagger(Swagger):
         if name in rule.arguments:
             return ParameterLocationEnum.PATH
 
-        return ParameterLocationEnum.QUERY
+        if verb.upper() in (HTTPMethodEnum.HEAD,
+                            HTTPMethodEnum.GET,
+                            HTTPMethodEnum.OPTIONS):
+            return ParameterLocationEnum.QUERY
+
+        return ParameterLocationEnum.FORM
 
     def _fix_metadata(self, rule, verb, swag):
         """
@@ -235,6 +240,7 @@ class ExtendedSwagger(Swagger):
         self._add_permission_denied_response(rule, verb, swag)
         self._add_successful_response(rule, verb, swag)
         self._add_bad_request_response(rule, verb, swag)
+        self._fix_parameter_types(rule, verb, swag)
         self._add_tags(rule, verb, swag)
 
     def _add_locale_parameter(self, rule, verb, swag):
@@ -367,6 +373,23 @@ class ExtendedSwagger(Swagger):
             item.setdefault(ParameterAttributeEnum.REQUIRED, False)
             in_ = self._get_param_location(name, rule, verb)
             item.setdefault(ParameterAttributeEnum.IN, in_)
+
+    def _fix_parameter_types(self, rule, verb, swag):
+        """
+        fixes all parameters that have no type and sets their type to `string`.
+
+        this is required to prevent swagger ui client from erroneous behaviors.
+        also when a parameter has no type, no validation will be done for it by
+        swagger even if the parameter is required.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        params = self._get_parameters_section(swag)
+        for item in params:
+            item.setdefault(ParameterAttributeEnum.TYPE, ParameterTypeEnum.STRING)
 
     def _add_security_definitions(self, rule, verb, swag):
         """
