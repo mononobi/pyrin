@@ -32,7 +32,8 @@ def test_create_route_fresh_protected():
                                          methods=HTTPMethodEnum.GET,
                                          view_function=mock_view_function,
                                          fresh_auth=True,
-                                         max_content_length=15000)
+                                         max_content_length=15000,
+                                         authenticated=True)
 
     assert isinstance(route, FreshProtectedRoute)
     assert route.result_schema is None
@@ -67,7 +68,8 @@ def test_create_route_protected_with_permissions():
                                          methods=HTTPMethodEnum.DELETE,
                                          view_function=mock_view_function,
                                          max_content_length=15000,
-                                         permissions=permissions)
+                                         permissions=permissions,
+                                         authenticated=True)
 
     assert isinstance(route, ProtectedRoute)
 
@@ -84,7 +86,8 @@ def test_create_route_fresh_protected_with_single_permission():
                                          view_function=mock_view_function,
                                          max_content_length=500,
                                          fresh_auth=True,
-                                         permissions=permission)
+                                         permissions=permission,
+                                         authenticated=True)
 
     assert isinstance(route, FreshProtectedRoute)
 
@@ -104,7 +107,8 @@ def test_create_route_protected_with_invalid_permissions():
                                              methods=HTTPMethodEnum.DELETE,
                                              view_function=mock_view_function,
                                              max_content_length=15000,
-                                             permissions=permissions)
+                                             permissions=permissions,
+                                             authenticated=True)
 
 
 def test_create_route_with_mismatch_authentication():
