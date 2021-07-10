@@ -391,6 +391,11 @@ def add_url_rule(rule, endpoint=None, view_func=None,
     :keyword bool swagger: specifies that this route must be exposed on swagger.
                            defaults to False if not provided.
 
+    :keyword bool ordered: specifies that this route provides ordered results.
+                           this is a flag to be used by swagger package to add
+                           `order_by` keyword into parameters.
+                           defaults to False if not provided.
+
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.
     :raises PageSizeLimitError: page size limit error.

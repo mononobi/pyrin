@@ -226,6 +226,11 @@ class RouteBase(Rule):
         :keyword bool swagger: specifies that this route must be exposed on swagger.
                                defaults to False if not provided.
 
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
+                               defaults to False if not provided.
+
         :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
@@ -292,6 +297,7 @@ class RouteBase(Rule):
         self._required_arguments = func_utils.get_required_arguments(self._view_function)
         self._no_cache = options.get('no_cache', False)
         self._swagger = options.get('swagger', False)
+        self._ordered = options.get('ordered', False)
 
         status_code = options.pop('status_code', None)
         if status_code is not None and \
@@ -831,6 +837,19 @@ class RouteBase(Rule):
 
         return self._swagger
 
+    @property
+    def ordered(self):
+        """
+        gets a value indicating that this route provides ordered results.
+
+        this is a flag to be used by swagger package to
+        add `order_by` keyword into parameters.
+
+        :rtype: bool
+        """
+
+        return self._ordered
+
 
 class TemporaryRouteBase(RouteBase):
     """
@@ -1030,6 +1049,11 @@ class TemporaryRouteBase(RouteBase):
                                    if not provided, it will be get from cors config store.
 
         :keyword bool swagger: specifies that this route must be exposed on swagger.
+                               defaults to False if not provided.
+
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
                                defaults to False if not provided.
 
         :raises PageSizeLimitError: page size limit error.

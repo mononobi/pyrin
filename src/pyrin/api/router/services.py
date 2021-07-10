@@ -215,6 +215,11 @@ def create_route(rule, **options):
     :keyword bool swagger: specifies that this route must be exposed on swagger.
                            defaults to False if not provided.
 
+    :keyword bool ordered: specifies that this route provides ordered results.
+                           this is a flag to be used by swagger package to add
+                           `order_by` keyword into parameters.
+                           defaults to False if not provided.
+
     :raises InvalidCustomRouteTypeError: invalid custom route type error.
     :raises RouteAuthenticationMismatchError: route authentication mismatch error.
     :raises PageSizeLimitError: page size limit error.
@@ -473,6 +478,11 @@ def add_route(url, view_func, provide_automatic_options=None, **options):
 
     :keyword bool swagger: specifies that this route must be exposed on swagger.
                            defaults to True if not provided.
+
+    :keyword bool ordered: specifies that this route provides ordered results.
+                           this is a flag to be used by swagger package to add
+                           `order_by` keyword into parameters.
+                           defaults to False if not provided.
 
     :raises DuplicateRouteURLError: duplicate route url error.
     :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.

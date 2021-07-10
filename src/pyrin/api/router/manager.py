@@ -230,6 +230,11 @@ class RouterManager(Manager):
         :keyword bool swagger: specifies that this route must be exposed on swagger.
                                defaults to False if not provided.
 
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
+                               defaults to False if not provided.
+
         :raises InvalidCustomRouteTypeError: invalid custom route type error.
         :raises RouteAuthenticationMismatchError: route authentication mismatch error.
         :raises PageSizeLimitError: page size limit error.
@@ -493,6 +498,11 @@ class RouterManager(Manager):
         :keyword bool swagger: specifies that this route must be exposed on swagger.
                                defaults to False if not provided.
 
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
+                               defaults to False if not provided.
+
         :raises PageSizeLimitError: page size limit error.
         :raises MaxContentLengthLimitMismatchError: max content length limit mismatch error.
         :raises InvalidViewFunctionTypeError: invalid view function type error.
@@ -749,6 +759,11 @@ class RouterManager(Manager):
 
         :keyword bool swagger: specifies that this route must be exposed on swagger.
                                defaults to True if not provided.
+
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
+                               defaults to False if not provided.
 
         :raises DuplicateRouteURLError: duplicate route url error.
         :raises OverwritingEndpointIsNotAllowedError: overwriting endpoint is not allowed error.

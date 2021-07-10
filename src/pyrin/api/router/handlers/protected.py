@@ -200,6 +200,11 @@ class ProtectedRoute(RouteBase):
         :keyword bool swagger: specifies that this route must be exposed on swagger.
                                defaults to False if not provided.
 
+        :keyword bool ordered: specifies that this route provides ordered results.
+                               this is a flag to be used by swagger package to add
+                               `order_by` keyword into parameters.
+                               defaults to False if not provided.
+
         :keyword PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                      to access this route.
 
