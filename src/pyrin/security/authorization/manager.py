@@ -51,17 +51,13 @@ class AuthorizationManager(Manager):
 
         # we must check whether input permissions object is iterable.
         # if not, we make it manually.
-        required_permissions = permissions
-        required_permissions = misc_utils.make_iterable(required_permissions, tuple)
-
-        if len(required_permissions) > 0:
-            if security_services.has_permission(user, required_permissions,
-                                                **options) is not True:
+        permissions = misc_utils.make_iterable(permissions, tuple)
+        if len(permissions) > 0:
+            if security_services.has_permission(user, permissions, **options) is not True:
                 message = _('User [{user}] does not have the '
-                            'required permission(s) {permissions}.')
-                raise AuthorizationFailedError(
-                    message.format(user=user,
-                                   permissions=list(required_permissions)))
+                            'required permissions {permissions}')
+                raise AuthorizationFailedError(message.format(user=user,
+                                                              permissions=list(permissions)))
 
     def is_authorized(self, permissions, user=None, **options):
         """
