@@ -452,7 +452,7 @@ class ExtendedSwagger(Swagger):
         flasgger_endpoint = config_services.get_active('swagger', 'endpoint')
         return rule.endpoint.startswith(flasgger_endpoint)
 
-    def get_apispecs(self, endpoint='apispec_1'):
+    def get_apispecs(self, endpoint='swagger'):
         """
         gets api specs for given endpoint.
 
