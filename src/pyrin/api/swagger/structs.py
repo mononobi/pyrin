@@ -239,6 +239,7 @@ class ExtendedSwagger(Swagger):
         self._add_authentication_failed_response(rule, verb, swag)
         self._add_permission_denied_response(rule, verb, swag)
         self._add_successful_response(rule, verb, swag)
+        self._add_bad_request_response(rule, verb, swag)
         self._add_tags(rule, verb, swag)
 
     def _add_locale_parameter(self, rule, verb, swag):
@@ -435,6 +436,21 @@ class ExtendedSwagger(Swagger):
         responses = self._get_responses_section(swag)
         success = dict(description='successful execution of service.')
         responses.setdefault(status_code, success)
+
+    def _add_bad_request_response(self, rule, verb, swag):
+        """
+        adds bad request response into given swag info if provided rule has required arguments.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        extra_args = rule.required_arguments.difference(rule.arguments)
+        if len(extra_args) > 0:
+            responses = self._get_responses_section(swag)
+            bad_request = dict(description='required arguments are not provided.')
+            responses.setdefault(ClientErrorResponseCodeEnum.BAD_REQUEST, bad_request)
 
     def _add_tags(self, rule, verb, swag):
         """
