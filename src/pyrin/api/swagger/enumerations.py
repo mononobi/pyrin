@@ -53,6 +53,15 @@ class ParameterAttributeEnum(CoreEnum):
     # keys of an object type parameter.
     PROPERTIES = 'properties'
 
+    # default value for parameter.
+    DEFAULT = 'default'
+
+    # minimum value for parameter.
+    MINIMUM = 'minimum'
+
+    # maximum value for parameter.
+    MAXIMUM = 'maximum'
+
 
 class ParameterFormatEnum(CoreEnum):
     """
