@@ -294,11 +294,11 @@ class ExtendedSwagger(Swagger):
             self._add_or_update_parameter(params, page,
                                           ParameterTypeEnum.INTEGER,
                                           ParameterLocationEnum.QUERY,
-                                          required=False, description='page number to be get.')
+                                          required=False, description='page number to be get')
             self._add_or_update_parameter(params, page_size,
                                           ParameterTypeEnum.INTEGER,
                                           ParameterLocationEnum.QUERY,
-                                          required=False, description='page size to be get.')
+                                          required=False, description='page size to be get')
 
     def _add_order_by_parameter(self, rule, verb, swag):
         """
@@ -316,7 +316,7 @@ class ExtendedSwagger(Swagger):
                                           ParameterLocationEnum.QUERY,
                                           required=False,
                                           description='column name or list of column names '
-                                                      'to be used for result ordering.')
+                                                      'to be used for result ordering')
 
     def _add_or_fix_required_parameters(self, rule, verb, swag):
         """
@@ -421,7 +421,7 @@ class ExtendedSwagger(Swagger):
         if isinstance(rule, ProtectedRoute) and len(rule.permissions) > 0:
             responses = self._get_responses_section(swag)
             permission_denied = dict(description='you do not have the required '
-                                                 'permissions to access this resource.')
+                                                 'permissions to access this resource')
             responses.setdefault(ClientErrorResponseCodeEnum.FORBIDDEN, permission_denied)
 
     def _add_authentication_failed_response(self, rule, verb, swag):
@@ -435,7 +435,7 @@ class ExtendedSwagger(Swagger):
 
         if isinstance(rule, ProtectedRoute):
             responses = self._get_responses_section(swag)
-            authentication_failed = dict(description='user has not been authenticated.')
+            authentication_failed = dict(description='user has not been authenticated')
             responses.setdefault(ClientErrorResponseCodeEnum.UNAUTHORIZED, authentication_failed)
 
     def _add_successful_response(self, rule, verb, swag):
@@ -452,7 +452,7 @@ class ExtendedSwagger(Swagger):
             status_code = status_services.get_status_code(method=verb.upper())
 
         responses = self._get_responses_section(swag)
-        success = dict(description='successful execution of service.')
+        success = dict(description='successful execution of service')
         responses.setdefault(status_code, success)
 
     def _add_bad_request_response(self, rule, verb, swag):
@@ -467,7 +467,7 @@ class ExtendedSwagger(Swagger):
         extra_args = rule.required_arguments.difference(rule.arguments)
         if len(extra_args) > 0:
             responses = self._get_responses_section(swag)
-            bad_request = dict(description='required arguments are not provided.')
+            bad_request = dict(description='required arguments are not provided')
             responses.setdefault(ClientErrorResponseCodeEnum.BAD_REQUEST, bad_request)
 
     def _add_tags(self, rule, verb, swag):
