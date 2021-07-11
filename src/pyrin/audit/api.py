@@ -20,91 +20,91 @@ if is_enabled is True:
         parameters:
           - name: application
             type: boolean
-            description: specifies that application info must be included.
+            description: specifies that application info must be included
           - name: packages
             type: boolean
-            description: specifies that loaded packages info must be included.
+            description: specifies that loaded packages info must be included
           - name: framework
             type: boolean
-            description: specifies that framework info must be included.
+            description: specifies that framework info must be included
           - name: python
             type: boolean
-            description: specifies that python info must be included.
+            description: specifies that python info must be included
           - name: os
             type: boolean
-            description: specifies that operating system info must be included.
+            description: specifies that operating system info must be included
           - name: hardware
             type: boolean
-            description: specifies that hardware info must be included.
+            description: specifies that hardware info must be included
           - name: database
             type: boolean
-            description: specifies that database info must be included.
+            description: specifies that database info must be included
           - name: caching
             type: boolean
-            description: specifies that caching info must be included.
+            description: specifies that caching info must be included
           - name: celery
             type: boolean
-            description: specifies that celery info must be included.
+            description: specifies that celery info must be included
           - name: traceback
             type: boolean
-            description: specifies that on failure, it must include the traceback of errors.
+            description: specifies that on failure, it must include the traceback of errors
         responses:
           200:
-            description: all packages are working normally.
+            description: all packages are working normally
             schema:
               properties:
                 application:
                   type: object
-                  description: application info.
+                  description: application info
                 packages:
                   type: object
-                  description: loaded packages info.
+                  description: loaded packages info
                 framework:
                   type: object
-                  description: framework info.
+                  description: framework info
                 python:
                   type: object
-                  description: python info.
+                  description: python info
                 platform:
                   type: object
-                  description: platform info.
+                  description: platform info
                 database:
                   type: object
-                  description: database info.
+                  description: database info
                 caching:
                   type: object
-                  description: caching info.
+                  description: caching info
                 celery:
                   type: object
-                  description: celery info.
+                  description: celery info
           500:
-            description: some packages have errors.
+            description: some packages have errors
             schema:
               properties:
                 application:
                   type: object
-                  description: application info.
+                  description: application info
                 packages:
                   type: object
-                  description: loaded packages info.
+                  description: loaded packages info
                 framework:
                   type: object
-                  description: framework info.
+                  description: framework info
                 python:
                   type: object
-                  description: python info.
+                  description: python info
                 platform:
                   type: object
-                  description: platform info.
+                  description: platform info
                 database:
                   type: object
-                  description: database info.
+                  description: database info
                 caching:
                   type: object
-                  description: caching info.
+                  description: caching info
                 celery:
                   type: object
-                  description: celery info.
+                  description: celery info
         """
 
         return audit_services.inspect(**options)
