@@ -3,7 +3,7 @@
 {PACKAGE_TITLE} api module.
 """
 
-from pyrin.api.router.decorators import api
+from pyrin.api.router.decorators import api, post, patch, delete
 from pyrin.core.enumerations import HTTPMethodEnum
 
 import {PACKAGE_FULL_NAME}.services as {PACKAGE_ALIAS}_services
