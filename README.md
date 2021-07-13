@@ -93,7 +93,7 @@ class DemoApplication(Application):
 **`models.py:`**
 
 ```python
-from pyrin.database.model.base import CoreEntity
+from pyrin.database.model.declarative import CoreEntity
 from pyrin.database.orm.sql.schema.columns import GUIDPKColumn, StringColumn, SmallIntegerColumn
 
 
@@ -118,6 +118,21 @@ from demo.models import GuestEntity
 
 @api('/introduce/<name>', authenticated=False)
 def introduce(name, **options):
+    """
+    introduce yourself to us.
+    ---
+    parameters:
+      - name: name
+        type: string
+        description: your name
+    responses:
+      200:
+        schema:
+          properties:
+            value:
+              type: string
+              description: a welcome note
+    """
     store = get_current_store()
     guest = GuestEntity(name=name)
     store.add(guest)
@@ -126,12 +141,52 @@ def introduce(name, **options):
 
 @api('/guests', authenticated=False)
 def guests(**options):
+    """
+    gets the list of all guests.
+    ---
+    responses:
+      200:
+        schema:
+          properties:
+            count:
+              type: integer
+              description: count of guests
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: id of guest
+                  name:
+                    type: string
+                    description: name of guest
+                  age:
+                    type: integer
+                    description: age of guest.
+    """
     store = get_current_store()
     return store.query(GuestEntity).all()
 
 
 @api('/', authenticated=False)
 def hello(**options):
+    """
+    shows the welcome message.
+    ---
+    responses:
+      200:
+        schema:
+          properties:
+            message:
+              type: string
+              description: welcome message
+            current_guests:
+              type: integer
+              description: count of current guests
+    """
     store = get_current_store()
     count = store.query(GuestEntity.id).count()
     result = DTO(message='Welcome to our demo application, please introduce yourself.',
@@ -220,6 +275,15 @@ and remove **`pyrin.caching.remote.handlers.redis`** from the **`ignore_modules`
 
 To enable memcached after installing its dependencies, open **`settings/packaging.ini`** file
 and remove **`pyrin.caching.remote.handlers.memcached`** from the **`ignore_modules`** list.
+
+## Built-in Swagger UI Support
+
+Pyrin has built-in support for Swagger UI thanks to 
+[Flasgger](https://github.com/flasgger/flasgger).
+all of your api services are available on swagger without anything needed to be done.
+but you can enhance Swagger UI of your application by setting a good **`yaml`**
+docstring for your api method views.
+You can head over to **`127.0.0.1:5000/swagger`** to test the Swagger UI.
 
 ## Hint
 
