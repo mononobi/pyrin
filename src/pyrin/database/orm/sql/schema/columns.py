@@ -182,7 +182,7 @@ class StringColumn(CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -314,7 +314,7 @@ class PKColumn(CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -398,15 +398,10 @@ class AutoPKColumn(PKColumn):
                                    populated on conversion from dict.
                                    defaults to False if not provided.
 
-        :keyword bool validated: specifies that an automatic validator for this column
-                                 must be registered, that is usable through validator
-                                 services for create and update.
-                                 defaults to False if not provided.
-
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
-                                      validator services for find. defaults to `validated`
-                                      value if not provided.
+                                      validator services for find. defaults to True
+                                      if not provided.
 
         :raises AutoPKColumnTypeIsInvalidError: auto pk column type is invalid error.
         """
@@ -435,6 +430,8 @@ class AutoPKColumn(PKColumn):
         kwargs.update(name=name, type_=type_, autoincrement=True, min_value=1)
         kwargs.pop('default', None)
         kwargs.pop('server_default', None)
+        kwargs.update(validated=False)
+        kwargs.setdefault('validated_find', True)
 
         super().__init__(*args, **kwargs)
 
@@ -622,7 +619,7 @@ class FKColumn(CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -839,7 +836,7 @@ class HiddenColumn(CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -944,7 +941,7 @@ class SequenceColumn(SequenceColumnMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -1048,7 +1045,7 @@ class GUIDColumn(GUIDColumnMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -1223,7 +1220,7 @@ class DateTimeColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -1360,7 +1357,7 @@ class TimeColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -1487,7 +1484,7 @@ class TimeStampColumn(TypeMixin, CoreColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -1674,7 +1671,7 @@ class TextColumn(StringColumn):
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through

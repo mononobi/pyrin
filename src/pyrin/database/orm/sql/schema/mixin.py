@@ -91,7 +91,7 @@ class SequenceColumnMixin:
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -222,7 +222,7 @@ class GUIDColumnMixin:
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through
@@ -387,7 +387,7 @@ class TypeMixin:
         :keyword bool validated: specifies that an automatic validator for this column
                                  must be registered, that is usable through validator
                                  services for create and update.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
         :keyword bool validated_find: specifies that an automatic find validator for this
                                       column must be registered, that is usable through

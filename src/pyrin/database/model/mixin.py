@@ -2402,8 +2402,7 @@ class CreateHistoryMixin:
     this class adds `created_on` column into its subclasses.
     """
 
-    created_on = TimeStampColumn(name='created_on', nullable=False, validated=True,
-                                 validated_find=False, validated_range=True,
+    created_on = TimeStampColumn(name='created_on', nullable=False,
                                  default=datetime_services.now, allow_write=False)
 
 
@@ -2414,8 +2413,7 @@ class UpdateHistoryMixin:
     this class adds `modified_on` column into its subclasses.
     """
 
-    modified_on = TimeStampColumn(name='modified_on', nullable=True, validated=True,
-                                  validated_find=False, validated_range=True,
+    modified_on = TimeStampColumn(name='modified_on', nullable=True,
                                   onupdate=datetime_services.now, allow_write=False)
 
 
