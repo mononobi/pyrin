@@ -3,10 +3,13 @@
 validator manager module.
 """
 
+import inspect
+
 from sqlalchemy.orm import InstrumentedAttribute
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager, Context, DTO
+from pyrin.database.model.base import BaseEntity
 from pyrin.logging.contexts import suppress
 from pyrin.utils.custom_print import print_warning
 from pyrin.validator import ValidatorPackage
@@ -376,6 +379,7 @@ class ValidatorManager(Manager):
         cumulative_errors = DTO()
         lazy = options.get('lazy', True)
         for_update = options.get('for_update', False)
+        for_find = options.get('for_find', False)
         entity = options.get('entity')
 
         available_data = set(data.keys())
@@ -388,8 +392,14 @@ class ValidatorManager(Manager):
         if for_update is True:
             should_be_validated = validator_names.intersection(available_data)
 
+        is_entity = inspect.isclass(domain) and issubclass(domain, BaseEntity)
         for name in should_be_validated:
             try:
+                if not for_find and is_entity \
+                        and name in domain.all_not_writable_attributes \
+                        and name not in data:
+                    continue
+
                 fixed_value = self.validate_field(domain, name, data.get(name), **options)
                 if fixed_value is not None:
                     data[name] = fixed_value
