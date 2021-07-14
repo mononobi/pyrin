@@ -59,13 +59,25 @@ class FilteringManager(Manager):
         :keyword bool remove: remove all keys that are applied as filter from filters input.
                               defaults to True if not provided.
 
+        :keyword bool readable: specifies that any column or attribute
+                                which has `allow_read=False` or its name
+                                starts with underscore `_`, should not
+                                be included in filtering.
+                                defaults to True if not provided.
+
         :returns: list of expressions for filtering.
         :rtype: list
         """
 
+        readable = options.get('readable', True)
         remove = options.get('remove', True)
-        all_columns = entity.primary_key_columns + \
-            entity.foreign_key_columns + entity.all_columns
+        all_columns = None
+        if readable is False:
+            all_columns = entity.primary_key_columns + \
+                          entity.foreign_key_columns + entity.all_columns
+        else:
+            all_columns = entity.readable_primary_key_columns + \
+                entity.readable_foreign_key_columns + entity.readable_columns
 
         ignore_names = [item.key for item in ignore]
         expressions = []

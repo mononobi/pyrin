@@ -22,6 +22,12 @@ def filter(entity, filters, *ignore, **options):
     :keyword bool remove: remove all keys that are applied as filter from filters input.
                           defaults to True if not provided.
 
+    :keyword bool readable: specifies that any column or attribute
+                            which has `allow_read=False` or its name
+                            starts with underscore `_`, should not
+                            be included in filtering.
+                            defaults to True if not provided.
+
     :returns: list of expressions for filtering.
     :rtype: list
     """
