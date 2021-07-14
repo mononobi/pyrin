@@ -60,7 +60,7 @@ class ResponseStatusManager(Manager):
         mapping[HTTPMethodEnum.GET] = SuccessfulResponseCodeEnum.OK
         mapping[HTTPMethodEnum.PUT] = SuccessfulResponseCodeEnum.OK
         mapping[HTTPMethodEnum.PATCH] = SuccessfulResponseCodeEnum.OK
-        mapping[HTTPMethodEnum.DELETE] = SuccessfulResponseCodeEnum.OK
+        mapping[HTTPMethodEnum.DELETE] = SuccessfulResponseCodeEnum.NO_CONTENT
         mapping[HTTPMethodEnum.POST] = SuccessfulResponseCodeEnum.CREATED
 
         self._customize_mapping(mapping)
