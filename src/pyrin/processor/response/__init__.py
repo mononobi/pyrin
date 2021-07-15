@@ -12,4 +12,6 @@ class ResponsePackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.configuration']
+    CONFIG_STORE_NAMES = ['response']
     COMPONENT_NAME = 'processor.response.component'

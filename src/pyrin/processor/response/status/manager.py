@@ -4,6 +4,7 @@ response status manager module.
 """
 
 import pyrin.security.session.services as session_services
+import pyrin.configuration.services as config_services
 
 from pyrin.processor.response.status import ResponseStatusPackage
 from pyrin.settings.static import DEFAULT_STATUS_CODE
@@ -63,8 +64,37 @@ class ResponseStatusManager(Manager):
         mapping[HTTPMethodEnum.DELETE] = SuccessfulResponseCodeEnum.NO_CONTENT
         mapping[HTTPMethodEnum.POST] = SuccessfulResponseCodeEnum.CREATED
 
+        new_statuses = self._get_configs()
+        mapping = self._merge_status_codes(mapping, new_statuses)
         self._customize_mapping(mapping)
         self.__method_to_status_map = mapping
+
+    def _get_configs(self):
+        """
+        gets the status codes config from response config store.
+
+        :rtype: dict
+        """
+
+        return config_services.get_active('response', 'status_codes')
+
+    def _merge_status_codes(self, default_codes, new_codes):
+        """
+        merges two given status code dictionaries into a single dict.
+
+        it overrides all keys from `new_codes` into `defaults_codes`.
+
+        :param dict default_codes: defaults status codes.
+        :param dict new_codes: new status codes.
+
+        :rtype: dict
+        """
+
+        result = DTO(**default_codes)
+        for method, status in new_codes.items():
+            result[method.upper()] = status
+
+        return result
 
     def _customize_mapping(self, mapping):
         """
