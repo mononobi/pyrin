@@ -62,6 +62,9 @@ class ParameterAttributeEnum(CoreEnum):
     # maximum value for parameter.
     MAXIMUM = 'maximum'
 
+    # schema of parameter.
+    SCHEMA = 'schema'
+
 
 class ParameterFormatEnum(CoreEnum):
     """
