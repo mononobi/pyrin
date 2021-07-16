@@ -535,6 +535,7 @@ class ExtendedSwagger(Swagger):
         self._add_security_definitions(rule, verb, swag)
         self._fix_responses(rule, verb, swag)
         self._add_authentication_failed_response(rule, verb, swag)
+        self._add_business_error_response(rule, verb, swag)
         self._add_permission_denied_response(rule, verb, swag)
         self._add_successful_response(rule, verb, swag)
         self._add_bad_request_response(rule, verb, swag)
@@ -734,6 +735,19 @@ class ExtendedSwagger(Swagger):
             responses = self._get_responses_section(swag)
             self._add_or_update_response(responses, rule,
                                          ClientErrorResponseCodeEnum.UNAUTHORIZED)
+
+    def _add_business_error_response(self, rule, verb, swag):
+        """
+        adds business error response into given swag info.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        responses = self._get_responses_section(swag)
+        self._add_or_update_response(responses, rule,
+                                     ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY)
 
     def _add_successful_response(self, rule, verb, swag):
         """
