@@ -167,7 +167,6 @@ class ExtendedSwagger(Swagger):
 
         param = self._get_parameter(name, parameters)
         is_new = param is None
-
         add_first = options.get('add_first', False)
         format_ = options.get('format')
         required = options.get('required', False)
@@ -220,6 +219,303 @@ class ExtendedSwagger(Swagger):
 
         return ParameterLocationEnum.FORM
 
+    def _add_or_update_response(self, responses, rule, code, **options):
+        """
+        adds a new response into given responses or updates the existing one.
+
+        :param dict responses: dict of responses.
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this response.
+        :param int code: response status code.
+
+        :keyword str description: new response description.
+                                  defaults to a generic message if not provided.
+        """
+
+        response = responses.get(code)
+        if response is None:
+            response = dict()
+
+        description = options.get('description')
+        if description in (None, ''):
+            description = self._get_response_description(code)
+
+        if description is not None:
+            response.setdefault(ParameterAttributeEnum.DESCRIPTION, description)
+
+        self._wrap_schema(response, rule, code)
+        responses[code] = response
+
+    def _get_response_description(self, code):
+        """
+        gets a generic response description for given status code.
+
+        it may return None if provided code is unknown.
+
+        :param int code: status code.
+
+        :rtype: str
+        """
+
+        if code == ClientErrorResponseCodeEnum.UNPROCESSABLE_ENTITY:
+            return 'a business error such as validation error occurred'
+
+        if code == ClientErrorResponseCodeEnum.UNAUTHORIZED:
+            return 'user has not been authenticated'
+
+        if code == ClientErrorResponseCodeEnum.FORBIDDEN:
+            return 'you do not have the required permissions to access this resource'
+
+        if code == ClientErrorResponseCodeEnum.BAD_REQUEST:
+            return 'required parameters are not provided'
+
+        if code == ClientErrorResponseCodeEnum.NOT_FOUND:
+            return 'the requested resource or entity not found'
+
+        if status_services.is_success(code, strict_status=False):
+            return 'successful execution of service'
+
+        if status_services.is_redirection(code, strict_status=False):
+            return 'redirection is required'
+
+        if status_services.is_information(code, strict_status=False):
+            return 'informational response'
+
+        if status_services.is_client_error(code, strict_status=False):
+            return 'a client error has been occurred'
+
+        if status_services.is_server_error(code, strict_status=False):
+            return 'an internal server error has been occurred'
+
+        return None
+
+    def _wrap_schema(self, response, rule, code):
+        """
+        wraps the given response's schema into a dict.
+
+        if the available schema is already a dict, it does nothing.
+
+        :param dict response: response dict.
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this response.
+        :param int code: response status code.
+        """
+
+        current_schema = response.get(ParameterAttributeEnum.SCHEMA)
+        if current_schema is None:
+            current_schema = dict()
+
+        type_ = current_schema.get(ParameterAttributeEnum.TYPE)
+        if type_ == ParameterTypeEnum.OBJECT or \
+                ParameterAttributeEnum.PROPERTIES in current_schema:
+            current_schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
+            return
+
+        if ParameterAttributeEnum.ITEMS in current_schema:
+            type_ = ParameterTypeEnum.ARRAY
+
+        if status_services.is_error(code, strict_status=False):
+            current_schema = self._get_error_schema()
+        elif type_ == ParameterTypeEnum.ARRAY:
+            if rule.is_paged:
+                current_schema = self._get_paged_list_schema(current_schema)
+            else:
+                current_schema = self._get_list_schema(current_schema)
+        elif type_ in (ParameterTypeEnum.INTEGER, ParameterTypeEnum.NUMBER,
+                       ParameterTypeEnum.STRING, ParameterTypeEnum.BOOLEAN):
+            current_schema = self._get_single_value_schema(current_schema)
+
+        response[ParameterAttributeEnum.SCHEMA] = current_schema
+
+    def _get_error_schema(self):
+        """
+        gets the error schema.
+
+        :rtype: dict
+        """
+
+        schema = dict()
+        properties = dict()
+        schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
+        schema[ParameterAttributeEnum.PROPERTIES] = properties
+
+        self._add_or_update_property(properties, 'code',
+                                     ParameterTypeEnum.INTEGER,
+                                     description='error status code')
+
+        self._add_or_update_property(properties, 'data',
+                                     ParameterTypeEnum.OBJECT,
+                                     description='error extended data')
+
+        self._add_or_update_property(properties, 'request_id',
+                                     ParameterTypeEnum.STRING,
+                                     format=ParameterFormatEnum.UUID,
+                                     description='current request id')
+
+        self._add_or_update_property(properties, 'message',
+                                     ParameterTypeEnum.STRING,
+                                     description='error message')
+
+        return schema
+
+    def _get_paged_list_schema(self, current_schema):
+        """
+        gets a paged list response schema.
+
+        :param dict current_schema: current schema to be processed.
+
+        :rtype: dict
+        """
+
+        results_schema = current_schema.get(ParameterAttributeEnum.ITEMS)
+        if results_schema is None:
+            results_schema = dict()
+
+        results_schema.setdefault(ParameterAttributeEnum.TYPE, ParameterTypeEnum.STRING)
+
+        schema = dict()
+        properties = dict()
+        schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
+        schema[ParameterAttributeEnum.PROPERTIES] = properties
+
+        self._add_or_update_property(properties, 'count',
+                                     ParameterTypeEnum.INTEGER,
+                                     description='results count of the current page')
+
+        self._add_or_update_property(properties, 'count_total',
+                                     ParameterTypeEnum.INTEGER,
+                                     description='results count of all pages')
+
+        self._add_or_update_property(properties, 'next',
+                                     ParameterTypeEnum.STRING,
+                                     format=ParameterFormatEnum.URI,
+                                     description='next page url')
+
+        self._add_or_update_property(properties, 'previous',
+                                     ParameterTypeEnum.STRING,
+                                     format=ParameterFormatEnum.URI,
+                                     description='previous page url')
+
+        self._add_or_update_property(properties, 'results',
+                                     ParameterTypeEnum.ARRAY,
+                                     description='result items',
+                                     schema=results_schema)
+
+        return schema
+
+    def _get_list_schema(self, current_schema):
+        """
+        gets a list response schema.
+
+        :param dict current_schema: current schema to be processed.
+
+        :rtype: dict
+        """
+
+        results_schema = current_schema.get(ParameterAttributeEnum.ITEMS)
+        if results_schema is None:
+            results_schema = dict()
+
+        results_schema.setdefault(ParameterAttributeEnum.TYPE, ParameterTypeEnum.STRING)
+
+        schema = dict()
+        properties = dict()
+        schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
+        schema[ParameterAttributeEnum.PROPERTIES] = properties
+
+        self._add_or_update_property(properties, 'count',
+                                     ParameterTypeEnum.INTEGER,
+                                     description='results count')
+
+        self._add_or_update_property(properties, 'results',
+                                     ParameterTypeEnum.ARRAY,
+                                     description='result items',
+                                     schema=results_schema)
+
+        return schema
+
+    def _get_single_value_schema(self, current_schema):
+        """
+        gets a single value response schema.
+
+        :param dict current_schema: current schema to be processed.
+
+        :rtype: dict
+        """
+
+        description = current_schema.get(ParameterAttributeEnum.DESCRIPTION)
+        type_ = current_schema.get(ParameterAttributeEnum.TYPE)
+        if type_ is None:
+            type_ = ParameterTypeEnum.STRING
+
+        schema = dict()
+        properties = dict()
+        schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
+        schema[ParameterAttributeEnum.PROPERTIES] = properties
+
+        self._add_or_update_property(properties, 'value', type_,
+                                     description=description)
+
+        return schema
+
+    def _add_or_update_property(self, properties, name, type_, **options):
+        """
+        adds a new property into given properties or updates the existing one.
+
+        :param dict properties: dict of properties.
+        :param str name: property name.
+        :param str type_: property type.
+        :enum type_:
+            INTEGER = 'integer'
+            NUMBER = 'number'
+            BOOLEAN = 'boolean'
+            STRING = 'string'
+            ARRAY = 'array'
+            OBJECT = 'object'
+
+        :keyword str description: property description.
+        :keyword str format: property type format.
+        :enum format:
+            UUID = 'uuid'
+            EMAIL = 'email'
+            DATE = 'date'
+            DATE_TIME = 'date-time'
+            PASSWORD = 'password'
+            BYTE = 'byte'
+            URI = 'uri'
+            HOSTNAME = 'hostname'
+            IPV4 = 'ipv4'
+            IPV6 = 'ipv6'
+            DOUBLE = 'double'
+            FLOAT = 'float'
+
+        :keyword dict schema: schema of the property.
+                              it will be used when type is `array` or `dict`.
+        """
+
+        property_ = properties.get(name)
+        if property_ is None:
+            property_ = dict()
+
+        if type_ is None:
+            type_ = ParameterTypeEnum.STRING
+
+        property_.setdefault(ParameterAttributeEnum.TYPE, type_)
+        schema = options.get('schema')
+        description = options.get('description')
+        format_ = options.get('format')
+        if description not in (None, ''):
+            property_.setdefault(ParameterAttributeEnum.DESCRIPTION, description)
+
+        if format_ not in (None, ''):
+            property_.setdefault(ParameterAttributeEnum.FORMAT, format_)
+
+        if schema not in (None, ''):
+            if type_ == ParameterTypeEnum.ARRAY:
+                property_[ParameterAttributeEnum.ITEMS] = schema
+            elif type_ == ParameterTypeEnum.OBJECT:
+                property_[ParameterAttributeEnum.PROPERTIES] = schema
+
+        properties[name] = property_
+
     def _fix_metadata(self, rule, verb, swag):
         """
         fixes metadata of given swag info.
@@ -236,6 +532,7 @@ class ExtendedSwagger(Swagger):
         self._add_locale_parameter(rule, verb, swag)
         self._add_timezone_parameter(rule, verb, swag)
         self._add_security_definitions(rule, verb, swag)
+        self._fix_responses(rule, verb, swag)
         self._add_authentication_failed_response(rule, verb, swag)
         self._add_permission_denied_response(rule, verb, swag)
         self._add_successful_response(rule, verb, swag)
@@ -420,9 +717,8 @@ class ExtendedSwagger(Swagger):
 
         if isinstance(rule, ProtectedRoute) and len(rule.permissions) > 0:
             responses = self._get_responses_section(swag)
-            permission_denied = dict(description='you do not have the required '
-                                                 'permissions to access this resource')
-            responses.setdefault(ClientErrorResponseCodeEnum.FORBIDDEN, permission_denied)
+            self._add_or_update_response(responses, rule,
+                                         ClientErrorResponseCodeEnum.FORBIDDEN)
 
     def _add_authentication_failed_response(self, rule, verb, swag):
         """
@@ -435,8 +731,8 @@ class ExtendedSwagger(Swagger):
 
         if isinstance(rule, ProtectedRoute):
             responses = self._get_responses_section(swag)
-            authentication_failed = dict(description='user has not been authenticated')
-            responses.setdefault(ClientErrorResponseCodeEnum.UNAUTHORIZED, authentication_failed)
+            self._add_or_update_response(responses, rule,
+                                         ClientErrorResponseCodeEnum.UNAUTHORIZED)
 
     def _add_successful_response(self, rule, verb, swag):
         """
@@ -452,8 +748,7 @@ class ExtendedSwagger(Swagger):
             status_code = status_services.get_status_code(method=verb.upper())
 
         responses = self._get_responses_section(swag)
-        success = dict(description='successful execution of service')
-        responses.setdefault(status_code, success)
+        self._add_or_update_response(responses, rule, status_code)
 
     def _add_bad_request_response(self, rule, verb, swag):
         """
@@ -467,8 +762,27 @@ class ExtendedSwagger(Swagger):
         extra_args = rule.required_arguments.difference(rule.arguments)
         if len(extra_args) > 0:
             responses = self._get_responses_section(swag)
-            bad_request = dict(description='required arguments are not provided')
-            responses.setdefault(ClientErrorResponseCodeEnum.BAD_REQUEST, bad_request)
+            self._add_or_update_response(responses, rule,
+                                         ClientErrorResponseCodeEnum.BAD_REQUEST)
+
+    def _fix_responses(self, rule, verb, swag):
+        """
+        adds required metadata into given swag info for all responses.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: related rule to this swag info.
+        :param str verb: http method name.
+        :param dict swag: swag info.
+        """
+
+        responses = self._get_responses_section(swag)
+        for code, response in responses.items():
+            if response is None:
+                response = dict()
+
+            description = self._get_response_description(code)
+            response.setdefault(ParameterAttributeEnum.DESCRIPTION, description)
+            self._wrap_schema(response, rule, code)
+            responses[code] = response
 
     def _add_tags(self, rule, verb, swag):
         """
