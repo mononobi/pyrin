@@ -4,7 +4,6 @@
 """
 
 from pyrin.api.router.decorators import api, post, put, patch, delete
-from pyrin.core.enumerations import HTTPMethodEnum
 
 import {PACKAGE_FULL_NAME}.services as {PACKAGE_ALIAS}_services
 
