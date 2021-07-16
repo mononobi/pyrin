@@ -5,14 +5,14 @@ audit api module.
 
 import pyrin.audit.services as audit_services
 
-from pyrin.api.router.decorators import get
+from pyrin.api.router.decorators import api
 
 
 audit_config = audit_services.get_audit_configurations()
 is_enabled = audit_config.pop('enabled', False)
 
 if is_enabled is True:
-    @get(**audit_config, no_cache=True)
+    @api(**audit_config, no_cache=True)
     def inspect(**options):
         """
         inspects all registered packages and gets inspection data.
