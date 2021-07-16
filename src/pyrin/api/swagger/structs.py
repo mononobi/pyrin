@@ -323,7 +323,8 @@ class ExtendedSwagger(Swagger):
                        ParameterTypeEnum.STRING, ParameterTypeEnum.BOOLEAN):
             current_schema = self._get_single_value_schema(current_schema)
 
-        response[ParameterAttributeEnum.SCHEMA] = current_schema
+        if len(current_schema) > 0:
+            response[ParameterAttributeEnum.SCHEMA] = current_schema
 
     def _get_error_schema(self):
         """
@@ -798,6 +799,17 @@ class ExtendedSwagger(Swagger):
             tag_section = self._get_tags_section(swag)
             tag_section.extend(tags)
 
+    def _should_expose_rule(self, rule):
+        """
+        gets a value indicating that given rule must be exposed on swagger.
+
+        :param pyrin.api.router.handlers.base.RouteBase rule: rule to be checked.
+
+        :rtype: bool
+        """
+
+        return rule.swagger
+
     def get_apispecs(self, endpoint='swagger'):
         """
         gets api specs for given endpoint.
@@ -1066,7 +1078,7 @@ class ExtendedSwagger(Swagger):
 
         specs = []
         for rule in rules:
-            if not rule.swagger:
+            if not self._should_expose_rule(rule):
                 continue
 
             endpoint = current_app.view_functions[rule.endpoint]
