@@ -19,6 +19,7 @@ from pyrin.security.exceptions import InvalidPasswordLengthError, \
 class SecurityManager(Manager):
     """
     security manager class.
+
     this class is intended to provide some services needed in pyrin application.
     the top level application must extend this class considering business requirements.
     """
