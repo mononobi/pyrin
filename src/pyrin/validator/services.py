@@ -561,9 +561,9 @@ def validate_for_find(domain, data, **options):
     note that the validation only assures that type of values are correct
     if they are provided. so None values will be accepted too.
 
-    after validation is done, all inputs that are not valid will be removed from
-    input data to prevent errors on server. but if you want you can change it
-    to raise validation error.
+    after validation is done, it can be forced to remove all inputs that are
+    not valid from input data to prevent errors on server. by default it raises
+    validation error instead of removing values.
 
     :param type[BaseEntity] | str domain: the domain to validate the values for.
                                           it could be a type of a BaseEntity
@@ -619,7 +619,7 @@ def validate(domain, field_name=None, lazy=True, **data):
     :raises ValidationError: validation error.
 
     :returns: a dict containing all input values or their fixed equivalent.
-    :rtype: dict
+    :rtype: pyrin.core.structs.DTO
     """
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate(domain, field_name,

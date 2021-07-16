@@ -719,9 +719,9 @@ class ValidatorManager(Manager):
         note that the validation only assures that type of values are correct
         if they are provided. so None values will be accepted too.
 
-        after validation is done, all inputs that are not valid will be removed from
-        input data to prevent errors on server. but if you want you can change it
-        to raise validation error.
+        after validation is done, it can be forced to remove all inputs that are
+        not valid from input data to prevent errors on server. by default it raises
+        validation error instead of removing values.
 
         :param type[BaseEntity] | str domain: the domain to validate the values for.
                                               it could be a type of a BaseEntity
@@ -787,7 +787,7 @@ class ValidatorManager(Manager):
         :raises ValidationError: validation error.
 
         :returns: a dict containing all input values or their fixed equivalent.
-        :rtype: dict
+        :rtype: pyrin.core.structs.DTO
         """
 
         if len(data) > 1 and field_name is not None:
@@ -800,4 +800,4 @@ class ValidatorManager(Manager):
                            for_update=True, allow_empty_list=False,
                            lazy=lazy, field_name=field_name)
 
-        return data
+        return DTO(data)
