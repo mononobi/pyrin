@@ -8,7 +8,7 @@ import pyrin.configuration.services as config_services
 from pyrin.core.structs import Manager, Context
 from pyrin.utils.custom_print import print_warning
 from pyrin.api.swagger.interface import AbstractTag
-from pyrin.api.swagger.structs import ExtendedSwagger
+from pyrin.api.swagger.base import ExtendedSwagger
 from pyrin.application.services import get_current_app
 from pyrin.api.swagger import SwaggerPackage
 from pyrin.api.swagger.exceptions import InvalidTagTypeError, DuplicatedTagError
