@@ -375,6 +375,25 @@ class HybridPropertyMixin(ModelMixinBase):
 
         return hybrid_properties
 
+    @class_property
+    @fast_cache
+    def expression_level_hybrid_properties(cls):
+        """
+        gets expression level hybrid property names of this entity.
+
+        property names will be calculated once and cached.
+
+        :rtype: tuple[str]
+        """
+
+        info = sqla_inspect(cls)
+        hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
+                                  if isinstance(item, hybrid_property)
+                                  and item.expr is not None
+                                  and cls.is_public(item.__name__) is True)
+
+        return hybrid_properties
+
     @classmethod
     def populate_cache(cls):
         """
@@ -383,6 +402,7 @@ class HybridPropertyMixin(ModelMixinBase):
 
         temp = cls.all_getter_hybrid_properties
         temp = cls.all_setter_hybrid_properties
+        temp = cls.expression_level_hybrid_properties
         super().populate_cache()
 
 
@@ -855,6 +875,36 @@ class AttributeMixin(ModelMixinBase):
         """
 
         return not name.startswith('_')
+
+    @classmethod
+    def get_attribute(cls, name, silent=False):
+        """
+        gets the attribute of this entity with provided name.
+
+        it raises an error if attribute does not exist.
+
+        :param str name: attribute name.
+
+        :param bool silent: specifies that if there is no attribute
+                            with given name, ignore it instead of error.
+                            defaults to False.
+
+        :raises ColumnNotExistedError: column not existed error.
+
+        :returns: specified attribute
+        :rtype: CoreColumn | sqlalchemy.orm.attributes.InstrumentedAttribute
+        """
+
+        if name in (cls.all_attributes + cls.expression_level_hybrid_properties):
+            return getattr(cls, name)
+
+        if silent is False:
+            raise ColumnNotExistedError(
+                'Provided column, relationship or property '
+                '[{column}] is not available in entity [{entity}].'
+                .format(column=name, entity=misc_utils.try_get_fully_qualified_name(cls)))
+
+        return None
 
     @classmethod
     def populate_cache(cls):
