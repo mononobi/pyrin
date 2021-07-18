@@ -879,7 +879,7 @@ class AttributeMixin(ModelMixinBase):
     @classmethod
     def get_attribute(cls, name, silent=False):
         """
-        gets the attribute of this entity with provided name.
+        gets the class level attribute of this entity with provided name.
 
         it raises an error if attribute does not exist.
 
