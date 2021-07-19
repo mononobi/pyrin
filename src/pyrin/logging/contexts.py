@@ -45,7 +45,7 @@ class suppress(ContextManagerBase):
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        does the finalizing to suppress and log and required errors.
+        does the finalizing to suppress and log the required errors.
 
         :param type[Exception] exc_type: the exception type that has been
                                          occurred during current context.
