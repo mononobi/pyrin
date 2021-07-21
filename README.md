@@ -128,10 +128,8 @@ def introduce(name, **options):
     responses:
       200:
         schema:
-          properties:
-            value:
-              type: string
-              description: a welcome note
+          type: string
+          description: a welcome note
     """
     store = get_current_store()
     guest = GuestEntity(name=name)
@@ -147,25 +145,20 @@ def guests(**options):
     responses:
       200:
         schema:
-          properties:
-            count:
-              type: integer
-              description: count of guests
-            results:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    description: id of guest
-                  name:
-                    type: string
-                    description: name of guest
-                  age:
-                    type: integer
-                    description: age of guest.
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: id of guest
+              name:
+                type: string
+                description: name of guest
+              age:
+                type: integer
+                description: age of guest.
     """
     store = get_current_store()
     return store.query(GuestEntity).all()
