@@ -127,9 +127,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # columns that are readonly in edit form.
     readonly_fields = ()
 
-    # default category to be used if a category is not set for an admin page.
-    DEFAULT_CATEGORY = 'OTHERS'
-
     def __init__(self, *args, **options):
         """
         initializes an instance of AdminPage.
