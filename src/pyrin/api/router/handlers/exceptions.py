@@ -3,10 +3,9 @@
 router handlers exceptions module.
 """
 
-from pyrin.core.enumerations import ClientErrorResponseCodeEnum
-from pyrin.core.exceptions import CoreException, CoreBusinessException
 from pyrin.processor.request.wrappers.exceptions import BadRequestError
 from pyrin.security.authentication.exceptions import AuthenticationFailedError
+from pyrin.core.exceptions import CoreException, CoreBusinessException, CoreNotFoundError
 
 
 class RouterHandlerException(CoreException):
@@ -110,17 +109,8 @@ class RequestLimitOrLifetimeRequiredError(RouterHandlerException):
     pass
 
 
-class URLNotFoundError(RouterHandlerBusinessException):
+class URLNotFoundError(CoreNotFoundError, RouterHandlerBusinessException):
     """
     url not found error.
     """
-
-    def __init__(self, *args, **kwargs):
-        """
-        initializes an instance of URLNotFoundError.
-
-        :keyword dict data: extra data for exception.
-        """
-
-        super().__init__(*args, **kwargs)
-        self._code = ClientErrorResponseCodeEnum.NOT_FOUND
+    pass
