@@ -10,7 +10,7 @@ from pyrin.api.router.decorators import api
 
 audit_config = audit_services.get_audit_configurations()
 audit_config.update(no_cache=True)
-is_enabled = audit_config.pop('enabled', False)
+is_enabled = audit_config.pop('enabled', True)
 
 if is_enabled is True:
     @api(**audit_config)
