@@ -485,6 +485,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         paginator = session_services.get_request_context('paginator')
         return self._schema.filter(results, paginator=paginator)
 
+    def get_entity(self):
+        """
+        gets the entity class of this admin page.
+
+        :rtype: BaseEntity
+        """
+
+        return self.entity
+
     def get_register_name(self):
         """
         gets the register name of this admin page.
@@ -494,9 +503,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return self.register_name.lower()
 
-    def get_category_name(self):
+    def get_category(self):
         """
-        gets the category name of this admin page.
+        gets the category of this admin page.
+
+        it may return None if no category is set for this admin page.
 
         :rtype: str
         """
@@ -504,7 +515,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         if self.category not in (None, ''):
             return self.category.upper()
 
-        return self.DEFAULT_CATEGORY.upper()
+        return None
 
     def find(self, **filters):
         """

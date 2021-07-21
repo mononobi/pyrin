@@ -5,7 +5,7 @@ admin page schema module.
 
 from pyrin.api.schema.structs import ResultSchema
 from pyrin.admin.interface import AbstractAdminPage
-from pyrin.admin.page.exceptions import InvalidAdminPageTypeError
+from pyrin.admin.exceptions import InvalidAdminPageTypeError
 
 
 class AdminSchema(ResultSchema):

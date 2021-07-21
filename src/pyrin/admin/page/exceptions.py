@@ -42,13 +42,6 @@ class InvalidMethodNameError(AdminPageException):
     pass
 
 
-class InvalidAdminPageTypeError(AdminPageException):
-    """
-    invalid admin page type error.
-    """
-    pass
-
-
 class InvalidAdminEntityTypeError(AdminPageException):
     """
     invalid admin entity type error.
