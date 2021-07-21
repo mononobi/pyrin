@@ -13,12 +13,14 @@ import pyrin.globalization.locale.services as locale_services
 import pyrin.converters.deserializer.services as deserializer_services
 import pyrin.configuration.services as config_services
 import pyrin.database.paging.services as paging_services
+import pyrin.admin.services as admin_services
 
 from pyrin.core.globals import _
 from pyrin.caching.structs import CacheableDict
 from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.caching.decorators import cached_property
 from pyrin.core.structs import DTO, CoreImmutableMultiDict
+from pyrin.processor.request.wrappers.enumerations import DeserializationTypeEnum
 from pyrin.processor.request.wrappers.structs import RequestContext
 from pyrin.settings.static import APPLICATION_ENCODING, DEFAULT_COMPONENT_KEY
 from pyrin.processor.exceptions import RequestUserAlreadySetError
@@ -109,10 +111,14 @@ class CoreRequest(Request):
         # is not None, it will be raised.
         self._json_decoding_error = None
 
-        # this holds any exception that might be raised on query strings or
-        # form data deserialization. when silent is not passed to 'get_inputs'
-        # method, if this value is not None, it will be raised.
+        # this holds any exception that might be raised on query strings,
+        # form data or url params deserialization. when silent is not passed
+        # to 'get_inputs' method, if this value is not None, it will be raised.
         self._deserialization_error = None
+
+        # this holds the type of failed deserialization. it could be
+        # query strings, form data or url params.
+        self._failed_deserialization_type = None
 
         # this holds any exception that might be raised on custom body decoding.
         # when silent is not passed to 'get_inputs' method, if this value
@@ -205,11 +211,17 @@ class CoreRequest(Request):
 
         return self.content_length or 0
 
-    def _deserialize(self, value, silent=False):
+    def _deserialize(self, value, type_, silent=False):
         """
         deserializes the given dict and returns the result dict.
 
         :param dict value: value to be deserialized.
+
+        :param str type_: deserialization type.
+        :enum type_:
+            FORM_DATA = 'form data'
+            QUERY_STRINGS = 'query strings'
+            URL_PARAMS = 'url params'
 
         :param bool silent: specifies that if an error occurred on processing
                             the value, it should not raise an error.
@@ -224,8 +236,9 @@ class CoreRequest(Request):
             return deserializer_services.deserialize(value, include_internal=False)
         except Exception as error:
             if silent is not True:
-                self.on_deserialization_failed(error=error)
+                self.on_deserialization_failed(error, type_)
             self._deserialization_error = error
+            self._failed_deserialization_type = type_
             return {}
 
     def get_body(self, silent=False):
@@ -286,8 +299,7 @@ class CoreRequest(Request):
         query strings, the value of body will be available at the end.
 
         note that in the context of http requests, it is not possible for a
-        request to have both body and form data at the same time. so this method
-        will raise an error in such scenario.
+        request to have both body and form data at the same time.
 
         :param bool silent: specifies that if an error occurred on processing
                             request, it should not raise an error.
@@ -318,22 +330,32 @@ class CoreRequest(Request):
                 raise self._json_decoding_error
 
             if self._deserialization_error is not None:
-                self.on_deserialization_failed(error=self._deserialization_error)
+                self.on_deserialization_failed(self._deserialization_error,
+                                               self._failed_deserialization_type)
 
             if self._body_decoding_error is not None:
                 self.on_body_loading_failed(error=self._body_decoding_error)
 
         if self.__inputs_parsed is False:
             self.__inputs_parsed = True
+            query_strings = self.get_query_strings(silent=silent)
             form_data = self._deserialize(self.form.to_dict(flat=False, all_list=False),
+                                          DeserializationTypeEnum.FORM_DATA,
                                           silent=silent)
+
+            url_params = self.view_args or {}
+            admin_base = admin_services.get_admin_base_url()
+            if self.path.startswith(admin_base):
+                url_params = self._deserialize(url_params,
+                                               DeserializationTypeEnum.URL_PARAMS,
+                                               silent=silent)
 
             body = self.get_body(silent=silent)
 
-            self._inputs = DTO(self.get_query_strings(silent=silent))
+            self._inputs = DTO(query_strings)
             self._inputs.update(body)
             self._inputs.update(form_data)
-            self._inputs.update(self.view_args or {})
+            self._inputs.update(url_params)
 
             if self.files is not None and len(self.files) > 0:
                 self._inputs.update(uploaded_files=self.files.to_dict(flat=False,
@@ -358,6 +380,7 @@ class CoreRequest(Request):
 
         if self._query_strings is None:
             query_strings = self._deserialize(self.args.to_dict(flat=False, all_list=False),
+                                              DeserializationTypeEnum.QUERY_STRINGS,
                                               silent=silent)
             self._remove_extra_query_params(query_strings)
             self._query_strings = DTO(query_strings)
@@ -488,19 +511,24 @@ class CoreRequest(Request):
 
         self._on_bad_request_received(BodyDecodingError)
 
-    def on_deserialization_failed(self, error):
+    def on_deserialization_failed(self, error, type_):
         """
-        raises an error on query strings or form data deserialization failure.
+        raises an error on query strings, form data or url params deserialization failure.
 
         :param Exception error: exception that occurred on deserialization.
+
+        :param str type_: deserialization type that has been failed.
+        :enum type_:
+            FORM_DATA = 'form data'
+            QUERY_STRINGS = 'query strings'
+            URL_PARAMS = 'url params'
 
         :raises RequestDeserializationError: request deserialization error.
         """
 
         if config_services.get_active('environment', 'debug', default=False) is True:
-            raise RequestDeserializationError('Failed to deserialize request '
-                                              'query strings or form data: [{error}]'
-                                              .format(error=error))
+            message = 'Failed to deserialize request {type}: [{error}]'
+            raise RequestDeserializationError(message.format(type=type_, error=error))
 
         self._on_bad_request_received(RequestDeserializationError)
 
@@ -683,10 +711,8 @@ class CoreRequest(Request):
         :rtype: bool
         """
 
-        if self.method != HTTPMethodEnum.OPTIONS or self.origin in (None, ''):
-            return False
-
-        if self.access_control_request_method in (None, ''):
+        if self.method != HTTPMethodEnum.OPTIONS or self.origin in (None, '') \
+                or self.access_control_request_method in (None, ''):
             return False
 
         return True
