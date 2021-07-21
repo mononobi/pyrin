@@ -37,7 +37,7 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
     entity = None
 
     # name of this admin page to be used for registration.
-    # the register_name is case-insensitive and must be unique for each admin page.
+    # the register name is case-insensitive and must be unique for each admin page.
     register_name = None
 
     # name of this admin page for representation.
