@@ -19,3 +19,10 @@ class AdminManagerBusinessException(CoreBusinessException,
     admin manager business exception.
     """
     pass
+
+
+class InvalidAdminPageTypeError(AdminManagerException):
+    """
+    invalid admin page type error.
+    """
+    pass

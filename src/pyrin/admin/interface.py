@@ -27,6 +27,18 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
     """
 
     @abstractmethod
+    def get_entity(self):
+        """
+        gets the entity class of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
     def get_register_name(self):
         """
         gets the register name of this admin page.
@@ -39,9 +51,9 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
-    def get_category_name(self):
+    def get_category(self):
         """
-        gets the category name of this admin page.
+        gets the category of this admin page.
 
         :raises CoreNotImplementedError: core not implemented error.
 
