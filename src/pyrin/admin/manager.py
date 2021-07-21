@@ -7,6 +7,9 @@ import pyrin.configuration.services as config_services
 
 from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
+from pyrin.admin.interface import AbstractAdminPage
+from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
+    AdminPageNotFoundError
 
 
 class AdminManager(Manager):
@@ -26,6 +29,12 @@ class AdminManager(Manager):
         # a dict containing all registered admin pages in the form of:
         # {str register_name: AbstractAdminPage instance}
         self._admin_pages = Context()
+
+        # a dict containing all registered admin pages for different entity types.
+        # in the form of:
+        # {BaseEntity entity: AbstractAdminPage instance}
+        self._admin_entities = Context()
+
         self._base_url = self._load_base_url()
 
     def _load_base_url(self):
@@ -40,6 +49,41 @@ class AdminManager(Manager):
             url = f'{url}/'
 
         return url
+
+    def _remove_from_pages(self, register_name):
+        """
+        removes the admin page with given register name from admin pages.
+
+        it returns the removed admin page.
+
+        :param str register_name: register name of the admin page to be removed.
+
+        :rtype: AbstractAdminPage
+        """
+
+        instance = self._admin_pages.pop(register_name, None)
+        if instance is not None:
+            return self._remove_from_entities(instance.get_entity())
+
+        return instance
+
+    def _remove_from_entities(self, entity):
+        """
+        removes the admin page with given entity from admin entities.
+
+        it returns the removed admin page.
+
+        :param pyrin.database.model.base.BaseEntity entity: the entity class of
+                                                            admin page to be removed.
+
+        :rtype: AbstractAdminPage
+        """
+
+        instance = self._admin_entities.pop(entity, None)
+        if instance is not None:
+            return self._remove_from_pages(instance.get_register_name())
+
+        return None
 
     def get_admin_base_url(self):
         """
@@ -62,9 +106,80 @@ class AdminManager(Manager):
 
         return config_services.get_active_section('admin')
 
-    def register(self, instance):
-        self._admin_pages[instance.register_name] = instance
+    def get_default_category(self):
+        """
+        gets the default category to be used for admin pages without category.
+
+        :rtype: str
+        """
+
+        category = config_services.get_active('admin', 'default_category')
+        return category.upper()
+
+    def register(self, instance, **options):
+        """
+        registers the provided instance into available admin pages.
+
+        :param pyrin.admin.interface.AbstractAdminPage instance: admin page instance.
+
+        :keyword bool replace: specifies that if another admin page with the same name
+                               or the same entity exists, replace it.
+                               defaults to False if not provided and raises an error.
+
+        :raises InvalidAdminPageTypeError: invalid admin page type error.
+        :raises DuplicatedAdminPageError: duplicated admin page error.
+        """
+
+        if not isinstance(instance, AbstractAdminPage):
+            raise InvalidAdminPageTypeError('Input parameter [{admin}] is '
+                                            'not an instance of [{base}].'
+                                            .format(admin=instance, base=AbstractAdminPage))
+
+        replace = options.get('replace', False)
+        if instance.get_register_name() in self._admin_pages:
+            if replace is not True:
+                raise DuplicatedAdminPageError('There is another registered admin page '
+                                               'with register name [{name}] but "replace" '
+                                               'option is not set, so admin page [{instance}] '
+                                               'could not be registered.'
+                                               .format(name=instance.get_register_name(),
+                                                       instance=instance))
+
+            self._remove_from_pages(instance.get_register_name())
+
+        if instance.get_entity() in self._admin_entities:
+            if replace is not True:
+                raise DuplicatedAdminPageError('There is another registered admin page '
+                                               'for entity [{entity}] but "replace" '
+                                               'option is not set, so admin page [{instance}] '
+                                               'could not be registered.'
+                                               .format(entity=instance.get_entity(),
+                                                       instance=instance))
+
+            self._remove_from_entities(instance.get_entity())
+
+        self._admin_pages[instance.get_register_name()] = instance
+        self._admin_entities[instance.get_entity()] = instance
+
+    def _get_admin_page(self, register_name):
+        """
+        gets the admin page with given register name.
+
+        :param str register_name: register name of admin page to be get.
+                                  this name is case-insensitive.
+
+        :raises AdminPageNotFoundError: admin page not found error.
+
+        :rtype: AbstractAdminPage
+        """
+
+        name = str(register_name).lower()
+        if name not in self._admin_pages:
+            raise AdminPageNotFoundError('Admin page with name [{name}] not found.'
+                                         .format(name=name))
+
+        return self._admin_pages.get(name)
 
     def find(self, register_name, **filters):
-        admin = self._admin_pages[register_name]
+        admin = self._get_admin_page(register_name)
         return admin.find(**filters)

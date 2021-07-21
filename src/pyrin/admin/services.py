@@ -7,8 +7,21 @@ from pyrin.application.services import get_component
 from pyrin.admin import AdminPackage
 
 
-def register(instance):
-    return get_component(AdminPackage.COMPONENT_NAME).register(instance)
+def register(instance, **options):
+    """
+    registers the provided instance into available admin pages.
+
+    :param pyrin.admin.interface.AbstractAdminPage instance: admin page instance.
+
+    :keyword bool replace: specifies that if another admin page with the same name
+                           or the same entity exists, replace it.
+                           defaults to False if not provided and raises an error.
+
+    :raises InvalidAdminPageTypeError: invalid admin page type error.
+    :raises DuplicatedAdminPageError: duplicated admin page error.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).register(instance, **options)
 
 
 def get_admin_base_url():
