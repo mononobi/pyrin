@@ -3,16 +3,11 @@
 admin interface module.
 """
 
-import inspect
-
 from abc import abstractmethod
 from threading import Lock
 
 from pyrin.core.structs import CoreObject, MultiSingletonMeta
 from pyrin.core.exceptions import CoreNotImplementedError
-from pyrin.database.model.base import BaseEntity
-from pyrin.admin.exceptions import InvalidAdminEntityTypeError, AdminNameRequiredError, \
-    AdminRegisterNameRequiredError
 
 
 class AdminPageSingletonMeta(MultiSingletonMeta):
@@ -31,51 +26,29 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
     abstract admin page class.
     """
 
-    # ===================== REQUIRED CONFIGS ===================== #
-
-    # the entity class that this admin page represents.
-    entity = None
-
-    # name of this admin page to be used for registration.
-    # the register name is case-insensitive and must be unique for each admin page.
-    register_name = None
-
-    # name of this admin page for representation.
-    name = None
-
-    def __init__(self, *args, **options):
-        """
-        initializes an instance of AbstractAdminPage.
-
-        :raises InvalidAdminEntityTypeError: invalid admin entity type error.
-        :raises AdminRegisterNameRequiredError: admin register name required error.
-        :raises AdminNameRequiredError: admin name required error.
-        """
-
-        super().__init__()
-
-        if not inspect.isclass(self.entity) or not issubclass(self.entity, BaseEntity):
-            raise InvalidAdminEntityTypeError('The entity for [{admin}] class '
-                                              'must be a subclass of [{base}].'
-                                              .format(admin=self, base=BaseEntity))
-
-        if self.register_name in (None, '') or self.register_name.isspace():
-            raise AdminRegisterNameRequiredError('The register name for '
-                                                 '[{admin}] class is required.'
-                                                 .format(admin=self))
-
-        if self.name in (None, '') or self.name.isspace():
-            raise AdminNameRequiredError('The name for [{admin}] class is required.'
-                                         .format(admin=self))
-
+    @abstractmethod
     def get_register_name(self):
         """
         gets the register name of this admin page.
 
+        :raises CoreNotImplementedError: core not implemented error.
+
         :rtype: str
         """
 
-        return self.register_name.lower()
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_category_name(self):
+        """
+        gets the category name of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
 
     @abstractmethod
     def find(self, **filters):

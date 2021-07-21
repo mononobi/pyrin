@@ -19,24 +19,3 @@ class AdminManagerBusinessException(CoreBusinessException,
     admin manager business exception.
     """
     pass
-
-
-class InvalidAdminEntityTypeError(AdminManagerException):
-    """
-    invalid admin entity type error.
-    """
-    pass
-
-
-class AdminRegisterNameRequiredError(AdminManagerException):
-    """
-    admin register name required error.
-    """
-    pass
-
-
-class AdminNameRequiredError(AdminManagerException):
-    """
-    admin name required error.
-    """
-    pass
