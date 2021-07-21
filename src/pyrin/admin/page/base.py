@@ -3,6 +3,8 @@
 admin page base module.
 """
 
+import inspect
+
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
@@ -13,8 +15,10 @@ from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.database.services import get_current_store
+from pyrin.database.model.base import BaseEntity
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
-    InvalidMethodNameError
+    InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
+    AdminRegisterNameRequiredError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -23,6 +27,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     all admin pages must be subclassed from this.
     """
+
+    # ===================== REQUIRED CONFIGS ===================== #
+
+    # the entity class that this admin page represents.
+    entity = None
+
+    # name of this admin page to be used for registration.
+    # the register name is case-insensitive and must be unique for each admin page.
+    register_name = None
+
+    # name of this admin page for representation.
+    name = None
 
     # ===================== LIST CONFIGS ===================== #
 
@@ -117,9 +133,27 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     def __init__(self, *args, **options):
         """
         initializes an instance of AdminPage.
+
+        :raises InvalidAdminEntityTypeError: invalid admin entity type error.
+        :raises AdminRegisterNameRequiredError: admin register name required error.
+        :raises AdminNameRequiredError: admin name required error.
         """
 
         super().__init__()
+
+        if not inspect.isclass(self.entity) or not issubclass(self.entity, BaseEntity):
+            raise InvalidAdminEntityTypeError('The entity for [{admin}] class '
+                                              'must be a subclass of [{base}].'
+                                              .format(admin=self, base=BaseEntity))
+
+        if self.register_name in (None, '') or self.register_name.isspace():
+            raise AdminRegisterNameRequiredError('The register name for '
+                                                 '[{admin}] class is required.'
+                                                 .format(admin=self))
+
+        if self.name in (None, '') or self.name.isspace():
+            raise AdminNameRequiredError('The name for [{admin}] class is required.'
+                                         .format(admin=self))
 
         self.__populate_caches()
         # list of method names of this admin page to be used for processing the results.
@@ -450,6 +484,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         paginator = session_services.get_request_context('paginator')
         return self._schema.filter(results, paginator=paginator)
+
+    def get_register_name(self):
+        """
+        gets the register name of this admin page.
+
+        :rtype: str
+        """
+
+        return self.register_name.lower()
 
     def get_category_name(self):
         """

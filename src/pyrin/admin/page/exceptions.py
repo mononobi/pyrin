@@ -47,3 +47,24 @@ class InvalidAdminPageTypeError(AdminPageException):
     invalid admin page type error.
     """
     pass
+
+
+class InvalidAdminEntityTypeError(AdminPageException):
+    """
+    invalid admin entity type error.
+    """
+    pass
+
+
+class AdminRegisterNameRequiredError(AdminPageException):
+    """
+    admin register name required error.
+    """
+    pass
+
+
+class AdminNameRequiredError(AdminPageException):
+    """
+    admin name required error.
+    """
+    pass
