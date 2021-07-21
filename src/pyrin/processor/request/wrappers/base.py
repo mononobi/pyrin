@@ -345,7 +345,7 @@ class CoreRequest(Request):
 
             url_params = self.view_args or {}
             admin_base = admin_services.get_admin_base_url()
-            if self.path.startswith(admin_base):
+            if self.path.lower().startswith(admin_base.lower()):
                 url_params = self._deserialize(url_params,
                                                DeserializationTypeEnum.URL_PARAMS,
                                                silent=silent)
