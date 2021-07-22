@@ -9,6 +9,7 @@ import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
 
+from pyrin.core.globals import _
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
@@ -18,7 +19,7 @@ from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
-    AdminRegisterNameRequiredError
+    AdminRegisterNameRequiredError, RequiredValuesNotProvidedError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -139,6 +140,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # plural name of this admin page for representation.
     plural_name = None
+
+    # extra field names that are required to be provided for create
+    # and are optional for update but they are not related to entity.
+    # in the form of:
+    # {str field_name: type field_type}
+    # for example:
+    # {'password': str, 'age': int, 'join_date': datetime}
+    extra_data_fields = {}
 
     # column names to be used in search bar.
     search_fields = ()
@@ -532,6 +541,92 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         paginator = session_services.get_request_context('paginator')
         return self._schema.filter(results, paginator=paginator)
 
+    @classmethod
+    def _validate_extra_fields(cls, data):
+        """
+        validates that all extra required fields are available in data.
+
+        :param dict data: data to be validated.
+
+        :raises RequiredValuesNotProvidedError: required values not provided error.
+        """
+
+        not_present = []
+        for name in cls.extra_data_fields:
+            if data.get(name) is None:
+                not_present.append(name)
+
+        not_present = set(not_present)
+        if len(not_present) > 0:
+            raise RequiredValuesNotProvidedError(_('These values are required: {values}')
+                                                 .format(values=list(not_present)))
+
+    @classmethod
+    def _process_created_entity(cls, entity, **data):
+        """
+        processes created entity if required.
+
+        it must change the attributes of given entity in-place.
+
+        :param pyrin.database.model.base.BaseEntity entity: created entity.
+
+        :keyword **data: all data that has been passed to related create service.
+        """
+        pass
+
+    @classmethod
+    def _create(cls, **data):
+        """
+        creates an entity with given data.
+
+        :keyword **data: all data to be passed to related create service.
+        """
+
+        entity = cls.entity(**data)
+        entity.save()
+        cls._process_created_entity(entity, **data)
+
+    @classmethod
+    def _process_updated_entity(cls, entity, **data):
+        """
+        processes updated entity if required.
+
+        it must change the attributes of given entity in-place.
+
+        :param pyrin.database.model.base.BaseEntity entity: updated entity.
+
+        :keyword **data: all data that has been passed to related update service.
+        """
+        pass
+
+    @classmethod
+    def _update(cls, pk, **data):
+        """
+        updates an entity with given data.
+
+        :param object pk: entity primary key to be updated.
+
+        :keyword **data: all data to be passed to related update service.
+        """
+
+        store = get_current_store()
+        entity = store.query(cls.entity).get(pk)
+        entity.update(**data)
+        cls._process_updated_entity(entity, **data)
+
+    @classmethod
+    def _remove(cls, pk):
+        """
+        deletes an entity with given pk.
+
+        :param object pk: entity primary key to be deleted.
+        """
+
+        store = get_current_store()
+        pk_name = cls._get_primary_key_name()
+        pk_column = cls.entity.get_attribute(pk_name)
+        store.query(cls.entity).filter(pk_column == pk).delete()
+
     def get_entity(self):
         """
         gets the entity class of this admin page.
@@ -604,17 +699,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return self._process_find_results(results, **filters)
 
     @classmethod
-    def _create(cls, **data):
-        """
-        creates an entity with given data.
-
-        :keyword **data: all data to be passed to related create service.
-        """
-
-        entity = cls.entity(**data)
-        entity.save()
-
-    @classmethod
     def create(cls, **data):
         """
         creates an entity with given data.
@@ -622,6 +706,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related create service.
         """
 
+        cls._validate_extra_fields(data)
         if cls.validate_for_create:
             validator_services.validate_dict(cls.entity, data)
 
@@ -629,20 +714,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             cls.create_service(**data)
         else:
             cls._create(**data)
-
-    @classmethod
-    def _update(cls, pk, **data):
-        """
-        updates an entity with given data.
-
-        :param object pk: entity primary key to be updated.
-
-        :keyword **data: all data to be passed to related update service.
-        """
-
-        store = get_current_store()
-        entity = store.query(cls.entity).get(pk)
-        entity.update(**data)
 
     @classmethod
     def update(cls, pk, **data):
@@ -662,19 +733,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             cls.update_service(pk, **data)
         else:
             cls._update(pk, **data)
-
-    @classmethod
-    def _remove(cls, pk):
-        """
-        deletes an entity with given pk.
-
-        :param object pk: entity primary key to be deleted.
-        """
-
-        store = get_current_store()
-        pk_name = cls._get_primary_key_name()
-        pk_column = cls.entity.get_attribute(pk_name)
-        store.query(cls.entity).filter(pk_column == pk).delete()
 
     @classmethod
     def remove(cls, pk):

@@ -4,6 +4,7 @@ admin page exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException, CoreBusinessException
+from pyrin.validator.exceptions import ValidationError
 
 
 class AdminPageException(CoreException):
@@ -59,5 +60,12 @@ class AdminRegisterNameRequiredError(AdminPageException):
 class AdminNameRequiredError(AdminPageException):
     """
     admin name required error.
+    """
+    pass
+
+
+class RequiredValuesNotProvidedError(ValidationError, AdminPageBusinessException):
+    """
+    required values not provided error.
     """
     pass
