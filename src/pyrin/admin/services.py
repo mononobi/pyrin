@@ -47,6 +47,19 @@ def get_admin_configurations():
     return get_component(AdminPackage.COMPONENT_NAME).get_admin_configurations()
 
 
+def get(register_name, pk):
+    """
+    gets an entity with given primary key.
+
+    :param str register_name: register name of admin page.
+    :param object pk: primary key of entity to be get.
+
+    :rtype: pyrin.database.model.base.BaseEntity
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get(register_name, pk)
+
+
 def find(register_name, **filters):
     """
     performs find on given admin page and returns the result.

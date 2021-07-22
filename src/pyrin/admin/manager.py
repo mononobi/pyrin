@@ -180,6 +180,19 @@ class AdminManager(Manager):
 
         return self._admin_pages.get(name)
 
+    def get(self, register_name, pk):
+        """
+        gets an entity with given primary key.
+
+        :param str register_name: register name of admin page.
+        :param object pk: primary key of entity to be get.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.get(pk)
+
     def find(self, register_name, **filters):
         """
         performs find on given admin page and returns the result.

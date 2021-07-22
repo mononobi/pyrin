@@ -63,6 +63,20 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
+    def get(self, pk):
+        """
+        gets an entity with given primary key.
+
+        :param object pk: primary key of entity to be get.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
     def find(self, **filters):
         """
         finds entities with given filters.
@@ -76,8 +90,9 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @classmethod
     @abstractmethod
-    def create(self, **data):
+    def create(cls, **data):
         """
         creates an entity with given data.
 
@@ -88,8 +103,9 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @classmethod
     @abstractmethod
-    def update(self, pk, **data):
+    def update(cls, pk, **data):
         """
         updates an entity with given data.
 
@@ -102,8 +118,9 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @classmethod
     @abstractmethod
-    def remove(self, pk):
+    def remove(cls, pk):
         """
         deletes an entity with given pk.
 

@@ -96,6 +96,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # ===================== VALIDATION CONFIGS ===================== #
 
+    # specifies that inputs must be validated on get.
+    validate_for_get = True
+
     # specifies that filters must be validated on find.
     validate_for_find = True
 
@@ -560,6 +563,22 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             return self.category.upper()
 
         return None
+
+    def get(self, pk):
+        """
+        gets an entity with given primary key.
+
+        :param object pk: primary key of entity to be get.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        if self.validate_for_get:
+            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
+
+        store = get_current_store()
+        entity = store.query(self.entity).get(pk)
+        return entity
 
     def find(self, **filters):
         """

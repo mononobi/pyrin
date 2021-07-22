@@ -5,16 +5,32 @@ admin api module.
 
 import pyrin.admin.services as admin_services
 
+from pyrin.core.globals import SECURE_FALSE
 from pyrin.api.router.decorators import api, post, patch, delete
 
 
 admin_config = admin_services.get_admin_configurations()
 admin_config.update(swagger=False)
 admin_config.pop('paged', None)
+admin_config.pop('readable', None)
 is_enabled = admin_config.pop('enabled', True)
 url = admin_config.pop('url', '/admin')
 
 if is_enabled is True:
+    @api(f'{url}/<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
+    def get(register_name, pk):
+        """
+        gets an entity with given primary key.
+
+        :param str register_name: register name of admin page.
+        :param object pk: primary key of entity to be get.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        return admin_services.get(register_name, pk)
+
+
     @api(f'{url}/<register_name>', **admin_config, paged=True)
     def find(register_name, **filters):
         """
