@@ -518,6 +518,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         finds entities with given filters.
 
+        :keyword **filters: all filters to be passed to related find service.
+
         :raises ListFieldRequiredError: list field required error.
 
         :rtype: list[ROW_RESULT]
@@ -538,6 +540,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     def create(self, **data):
         """
         creates an entity with given data.
+
+        :keyword **data: all data to be passed to related create service.
         """
 
         validator_services.validate_dict(self.entity, data)
@@ -549,6 +553,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         updates an entity with given data.
 
         :param object pk: entity primary key to be updated.
+
+        :keyword **data: all data to be passed to related update service.
         """
 
         validator_services.validate_dict(self.entity, data, for_update=True)

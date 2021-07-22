@@ -175,11 +175,57 @@ class AdminManager(Manager):
 
         name = str(register_name).lower()
         if name not in self._admin_pages:
-            raise AdminPageNotFoundError('Admin page with name [{name}] not found.'
+            raise AdminPageNotFoundError('Admin page [{name}] not found.'
                                          .format(name=name))
 
         return self._admin_pages.get(name)
 
     def find(self, register_name, **filters):
+        """
+        performs find on given admin page and returns the result.
+
+        :param str register_name: register name of admin page.
+
+        :keyword **filters: all filters to be passed to related admin page.
+
+        :rtype: list[ROW_RESULT]
+        """
+
         admin = self._get_admin_page(register_name)
         return admin.find(**filters)
+
+    def create(self, register_name, **data):
+        """
+        performs create on given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :keyword **data: all data to be passed to related admin page for data creation.
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.create(**data)
+
+    def update(self, register_name, pk, **data):
+        """
+        performs update on given admin page.
+
+        :param str register_name: register name of admin page.
+        :param object pk: entity primary key to be updated.
+
+        :keyword **data: all data to be passed to related admin page for data creation.
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.update(pk, **data)
+
+    def remove(self, register_name, pk, **options):
+        """
+        performs remove on given admin page.
+
+        :param str register_name: register name of admin page.
+        :param object pk: entity primary key to be removed.
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.remove(pk, **options)

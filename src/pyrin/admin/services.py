@@ -48,4 +48,50 @@ def get_admin_configurations():
 
 
 def find(register_name, **filters):
+    """
+    performs find on given admin page and returns the result.
+
+    :param str register_name: register name of admin page.
+
+    :keyword **filters: all filters to be passed to related admin page.
+
+    :rtype: list[ROW_RESULT]
+    """
+
     return get_component(AdminPackage.COMPONENT_NAME).find(register_name, **filters)
+
+
+def create(register_name, **data):
+    """
+    performs create on given admin page.
+
+    :param str register_name: register name of admin page.
+
+    :keyword **data: all data to be passed to related admin page for data creation.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).create(register_name, **data)
+
+
+def update(register_name, pk, **data):
+    """
+    performs update on given admin page.
+
+    :param str register_name: register name of admin page.
+    :param object pk: entity primary key to be updated.
+
+    :keyword **data: all data to be passed to related admin page for data creation.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).update(register_name, pk, **data)
+
+
+def remove(register_name, pk, **options):
+    """
+    performs remove on given admin page.
+
+    :param str register_name: register name of admin page.
+    :param object pk: entity primary key to be removed.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk, **options)

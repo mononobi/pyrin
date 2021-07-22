@@ -67,6 +67,8 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         """
         finds entities with given filters.
 
+        :keyword **filters: all filters to be passed to related find service.
+
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: list[ROW_RESULT]
@@ -79,6 +81,8 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         """
         creates an entity with given data.
 
+        :keyword **data: all data to be passed to related create service.
+
         :raises CoreNotImplementedError: core not implemented error.
         """
 
@@ -90,6 +94,8 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         updates an entity with given data.
 
         :param object pk: entity primary key to be updated.
+
+        :keyword **data: all data to be passed to related update service.
 
         :raises CoreNotImplementedError: core not implemented error.
         """
