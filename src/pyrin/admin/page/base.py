@@ -95,23 +95,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # max records to fetch on show all.
     list_max_show_all = 200
 
-    # ===================== VALIDATION CONFIGS ===================== #
-
-    # specifies that inputs must be validated on get.
-    validate_for_get = True
-
-    # specifies that filters must be validated on find.
-    validate_for_find = True
-
-    # specifies that inputs must be validated on create.
-    validate_for_create = True
-
-    # specifies that inputs must be validated on update.
-    validate_for_update = True
-
-    # specifies that inputs must be validated on remove.
-    validate_for_remove = True
-
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -668,9 +651,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: pyrin.database.model.base.BaseEntity
         """
 
-        if self.validate_for_get:
-            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
-
+        validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
         store = get_current_store()
         entity = store.query(self.entity).get(pk)
         return entity
@@ -686,9 +667,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: list[ROW_RESULT]
         """
 
-        if self.validate_for_find:
-            self._validate_filters(filters)
-
+        self._validate_filters(filters)
         store = get_current_store()
         query = store.query(*self._get_selectable_fields())
         query = self._perform_joins(query)
@@ -707,9 +686,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         cls._validate_extra_fields(data)
-        if cls.validate_for_create:
-            validator_services.validate_dict(cls.entity, data)
-
+        validator_services.validate_dict(cls.entity, data)
         if cls.create_service is not None:
             cls.create_service(**data)
         else:
@@ -725,10 +702,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related update service.
         """
 
-        if cls.validate_for_update:
-            validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
-            validator_services.validate_dict(cls.entity, data, for_update=True)
-
+        validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
+        validator_services.validate_dict(cls.entity, data, for_update=True)
         if cls.update_service is not None:
             cls.update_service(pk, **data)
         else:
@@ -742,9 +717,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param object pk: entity primary key to be deleted.
         """
 
-        if cls.validate_for_remove:
-            validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
-
+        validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
         if cls.remove_service is not None:
             cls.remove_service(pk)
         else:
