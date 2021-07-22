@@ -85,6 +85,26 @@ class AdminManager(Manager):
 
         return None
 
+    def is_admin_enabled(self):
+        """
+        gets a value indicating that admin api is enabled.
+
+        :rtype: bool
+        """
+
+        return config_services.get_active('admin', 'enabled')
+
+    def has_admin(self, entity):
+        """
+        gets a value indicating that given entity class has admin page.
+
+        :param type[pyrin.database.model.base.BaseEntity] entity: entity class.
+
+        :rtype: bool
+        """
+
+        return entity in self._admin_entities
+
     def get_admin_base_url(self):
         """
         gets admin base url.

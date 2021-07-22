@@ -24,6 +24,28 @@ def register(instance, **options):
     return get_component(AdminPackage.COMPONENT_NAME).register(instance, **options)
 
 
+def is_admin_enabled():
+    """
+    gets a value indicating that admin api is enabled.
+
+    :rtype: bool
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).is_admin_enabled()
+
+
+def has_admin(entity):
+    """
+    gets a value indicating that given entity class has admin page.
+
+    :param type[pyrin.database.model.base.BaseEntity] entity: entity class.
+
+    :rtype: bool
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).has_admin(entity)
+
+
 def get_admin_base_url():
     """
     gets admin base url.

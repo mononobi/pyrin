@@ -10,11 +10,12 @@ from pyrin.api.router.decorators import api, post, patch, delete
 
 
 admin_config = admin_services.get_admin_configurations()
+url = admin_services.get_admin_base_url()
 admin_config.update(swagger=False)
 admin_config.pop('paged', None)
 admin_config.pop('readable', None)
-is_enabled = admin_config.pop('enabled', True)
-url = admin_config.pop('url', '/admin')
+admin_config.pop('url', None)
+is_enabled = admin_config.pop('enabled', False)
 
 if is_enabled is True:
     @api(f'{url}/<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
