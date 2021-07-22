@@ -182,16 +182,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     def __populate_caches(self):
         """
-        populates all caches of this admin page.
+        populates required caches of this admin page.
         """
 
         self._get_list_field_names()
         self._get_list_temp_field_names()
-        self._get_default_list_fields()
-        self._get_list_fields()
-        self._get_list_temp_fields()
         self._get_selectable_fields()
-        self._extract_method_names()
 
     @fast_cache
     def _get_primary_key_name(self):
