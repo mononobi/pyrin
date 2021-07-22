@@ -105,8 +105,32 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # specifies that inputs must be validated on update.
     validate_for_update = True
 
-    # specifies that inputs must be validated on delete.
-    validate_for_delete = True
+    # specifies that inputs must be validated on remove.
+    validate_for_remove = True
+
+    # ===================== SERVICE CONFIGS ===================== #
+
+    # a service to be used for find operation.
+    # if not set, the default find operation of this admin page will be used.
+    # the find service must also accept keyword arguments.
+    find_service = None
+
+    # a service to be used for create operation.
+    # if not set, the default create operation of this admin page will be used.
+    # the create service must also accept keyword arguments.
+    create_service = None
+
+    # a service to be used for update operation.
+    # if not set, the default update operation of this admin page will be used.
+    # the update service must accept a positional argument at the beginning with
+    # the name of the primary key of the related entity and also accept keyword arguments.
+    update_service = None
+
+    # a service to be used for remove operation.
+    # if not set, the default remove operation of this admin page will be used.
+    # the remove service must accept a single positional argument with
+    # the name of the primary key of the related entity and also accept keyword arguments.
+    remove_service = None
 
     # ===================== OTHER CONFIGS ===================== #
 
