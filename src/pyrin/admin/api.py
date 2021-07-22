@@ -9,12 +9,13 @@ from pyrin.api.router.decorators import api, post, patch, delete
 
 
 admin_config = admin_services.get_admin_configurations()
-admin_config.update(swagger=False, paged=True)
+admin_config.update(swagger=False)
+admin_config.pop('paged', None)
 is_enabled = admin_config.pop('enabled', True)
 url = admin_config.pop('url', '/admin')
 
 if is_enabled is True:
-    @api(f'{url}/<register_name>', **admin_config)
+    @api(f'{url}/<register_name>', **admin_config, paged=True)
     def find(register_name, **filters):
         """
         performs find on given admin page and returns the result.
