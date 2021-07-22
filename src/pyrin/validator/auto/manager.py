@@ -7,6 +7,7 @@ from uuid import UUID
 from decimal import Decimal
 from datetime import datetime, date, time
 
+import pyrin.admin.services as admin_services
 import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
 import pyrin.utilities.range.services as range_services
@@ -315,17 +316,19 @@ class ValidatorAutoManager(Manager):
 
         entities = model_services.get_entities()
         registered = 0
+        is_admin_enabled = admin_services.is_admin_enabled()
         for entity in entities:
+            has_admin = admin_services.has_admin(entity)
             for column in entity.all_instrumented_attributes:
-                if column.validated is True:
+                if column.validated is True or (is_admin_enabled and has_admin):
                     self.register_auto_validator(entity, column)
                     registered += 1
 
-                if column.validated_find is True:
+                if column.validated_find is True or (is_admin_enabled and has_admin):
                     self.register_find_validator(entity, column)
                     registered += 1
 
-                if column.validated_range is True:
+                if column.validated_range is True or (is_admin_enabled and has_admin):
                     count = self.register_find_range_validators(entity, column)
                     registered += count
 

@@ -537,10 +537,12 @@ class ValidatorBase(AbstractValidatorBase):
         if for_find is not True and self.field is not None and ignore_default is not True:
             if for_update is True:
                 has_default = self.field.onupdate is not None or \
-                              self.field.server_onupdate is not None
+                              self.field.server_onupdate is not None or \
+                              self.field.autoincrement is True
             else:
                 has_default = self.field.default is not None or \
-                              self.field.server_default is not None
+                              self.field.server_default is not None or \
+                              self.field.autoincrement is True
 
         if nullable is False and value is None and has_default is False:
             raise self.none_value_error(self.none_value_message.format(
