@@ -110,11 +110,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # ===================== SERVICE CONFIGS ===================== #
 
-    # a service to be used for find operation.
-    # if not set, the default find operation of this admin page will be used.
-    # the find service must also accept keyword arguments.
-    find_service = None
-
     # a service to be used for create operation.
     # if not set, the default create operation of this admin page will be used.
     # the create service must also accept keyword arguments.
@@ -122,14 +117,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # a service to be used for update operation.
     # if not set, the default update operation of this admin page will be used.
-    # the update service must accept a positional argument at the beginning with
-    # the name of the primary key of the related entity and also accept keyword arguments.
+    # the update service must accept a positional argument at the beginning as
+    # the primary key of the related entity and also accept keyword arguments.
     update_service = None
 
     # a service to be used for remove operation.
     # if not set, the default remove operation of this admin page will be used.
-    # the remove service must accept a single positional argument with
-    # the name of the primary key of the related entity and also accept keyword arguments.
+    # the remove service must accept a single positional argument as the
+    # primary key of the related entity.
     remove_service = None
 
     # ===================== OTHER CONFIGS ===================== #
@@ -197,6 +192,36 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         self._get_list_temp_fields()
         self._get_selectable_fields()
         self._extract_method_names()
+
+    @fast_cache
+    def _get_primary_key_name(self):
+        """
+        gets the name of the primary key of this admin page's related entity.
+
+        note that if the entity has a composite primary key, this method returns None.
+
+        :rtype: str
+        """
+
+        if len(self.entity.primary_key_columns) == 1:
+            return self.entity.primary_key_columns[0]
+
+        return None
+
+    def _get_primary_key_holder(self, pk):
+        """
+        gets a dict with the primary key name of this page's entity set to the given value.
+
+        :param object pk: value to be set to primary key.
+
+        :rtype: dict
+        """
+
+        pk_name = self._get_primary_key_name()
+        pk_holder = dict()
+        pk_holder[pk_name] = pk
+
+        return pk_holder
 
     def _show_total_count(self):
         """
@@ -561,6 +586,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = query.all()
         return self._process_find_results(results, **filters)
 
+    def _create(self, **data):
+        """
+        creates an entity with given data.
+
+        :keyword **data: all data to be passed to related create service.
+        """
+
+        entity = self.entity(**data)
+        entity.save()
+
     def create(self, **data):
         """
         creates an entity with given data.
@@ -568,9 +603,26 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related create service.
         """
 
-        validator_services.validate_dict(self.entity, data)
-        entity = self.entity(**data, populate_all=SECURE_TRUE)
-        return entity.save()
+        if self.validate_for_create:
+            validator_services.validate_dict(self.entity, data)
+
+        if self.create_service is not None:
+            self.create_service(**data)
+        else:
+            self._create(**data)
+
+    def _update(self, pk, **data):
+        """
+        updates an entity with given data.
+
+        :param object pk: entity primary key to be updated.
+
+        :keyword **data: all data to be passed to related update service.
+        """
+
+        store = get_current_store()
+        entity = store.query(self.entity).get(pk)
+        entity.update(**data)
 
     def update(self, pk, **data):
         """
@@ -581,12 +633,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related update service.
         """
 
-        validator_services.validate_dict(self.entity, data, for_update=True)
-        store = get_current_store()
-        entity = store.query(self.entity).get(pk)
-        return entity.update(**data, populate_all=SECURE_TRUE)
+        if self.validate_for_update:
+            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
+            validator_services.validate_dict(self.entity, data, for_update=True)
 
-    def remove(self, pk, **options):
+        if self.update_service is not None:
+            self.update_service(pk, **data)
+        else:
+            self._update(pk, **data)
+
+    def _remove(self, pk):
         """
         deletes an entity with given pk.
 
@@ -594,7 +650,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         store = get_current_store()
-        store.query(self.entity.id).filter(id=pk).delete()
+        pk_name = self._get_primary_key_name()
+        pk_column = self.entity.get_attribute(pk_name)
+        store.query(self.entity).filter(pk_column == pk).delete()
+
+    def remove(self, pk):
+        """
+        deletes an entity with given pk.
+
+        :param object pk: entity primary key to be deleted.
+        """
+
+        if self.validate_for_remove:
+            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
+
+        if self.remove_service is not None:
+            self.remove_service(pk)
+        else:
+            self._remove(pk)
 
     def call_method(self, name, argument):
         """

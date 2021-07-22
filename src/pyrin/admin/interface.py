@@ -103,7 +103,7 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
-    def remove(self, pk, **options):
+    def remove(self, pk):
         """
         deletes an entity with given pk.
 

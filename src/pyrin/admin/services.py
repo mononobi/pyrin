@@ -86,7 +86,7 @@ def update(register_name, pk, **data):
     return get_component(AdminPackage.COMPONENT_NAME).update(register_name, pk, **data)
 
 
-def remove(register_name, pk, **options):
+def remove(register_name, pk):
     """
     performs remove on given admin page.
 
@@ -94,4 +94,4 @@ def remove(register_name, pk, **options):
     :param object pk: entity primary key to be removed.
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk, **options)
+    return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk)

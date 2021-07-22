@@ -219,7 +219,7 @@ class AdminManager(Manager):
         admin = self._get_admin_page(register_name)
         return admin.update(pk, **data)
 
-    def remove(self, register_name, pk, **options):
+    def remove(self, register_name, pk):
         """
         performs remove on given admin page.
 
@@ -228,4 +228,4 @@ class AdminManager(Manager):
         """
 
         admin = self._get_admin_page(register_name)
-        return admin.remove(pk, **options)
+        return admin.remove(pk)

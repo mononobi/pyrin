@@ -66,4 +66,4 @@ if is_enabled is True:
         :param object pk: entity primary key to be removed.
         """
 
-        return admin_services.remove(register_name, pk, **options)
+        return admin_services.remove(register_name, pk)
