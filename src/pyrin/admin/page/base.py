@@ -189,8 +189,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         self._get_list_temp_field_names()
         self._get_selectable_fields()
 
+    @classmethod
     @fast_cache
-    def _get_primary_key_name(self):
+    def _get_primary_key_name(cls):
         """
         gets the name of the primary key of this admin page's related entity.
 
@@ -199,12 +200,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: str
         """
 
-        if len(self.entity.primary_key_columns) == 1:
-            return self.entity.primary_key_columns[0]
+        if len(cls.entity.primary_key_columns) == 1:
+            return cls.entity.primary_key_columns[0]
 
         return None
 
-    def _get_primary_key_holder(self, pk):
+    @classmethod
+    def _get_primary_key_holder(cls, pk):
         """
         gets a dict with the primary key name of this page's entity set to the given value.
 
@@ -213,7 +215,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: dict
         """
 
-        pk_name = self._get_primary_key_name()
+        pk_name = cls._get_primary_key_name()
         pk_holder = dict()
         pk_holder[pk_name] = pk
 
@@ -582,32 +584,35 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = query.all()
         return self._process_find_results(results, **filters)
 
-    def _create(self, **data):
+    @classmethod
+    def _create(cls, **data):
         """
         creates an entity with given data.
 
         :keyword **data: all data to be passed to related create service.
         """
 
-        entity = self.entity(**data)
+        entity = cls.entity(**data)
         entity.save()
 
-    def create(self, **data):
+    @classmethod
+    def create(cls, **data):
         """
         creates an entity with given data.
 
         :keyword **data: all data to be passed to related create service.
         """
 
-        if self.validate_for_create:
-            validator_services.validate_dict(self.entity, data)
+        if cls.validate_for_create:
+            validator_services.validate_dict(cls.entity, data)
 
-        if self.create_service is not None:
-            self.create_service(**data)
+        if cls.create_service is not None:
+            cls.create_service(**data)
         else:
-            self._create(**data)
+            cls._create(**data)
 
-    def _update(self, pk, **data):
+    @classmethod
+    def _update(cls, pk, **data):
         """
         updates an entity with given data.
 
@@ -617,10 +622,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         store = get_current_store()
-        entity = store.query(self.entity).get(pk)
+        entity = store.query(cls.entity).get(pk)
         entity.update(**data)
 
-    def update(self, pk, **data):
+    @classmethod
+    def update(cls, pk, **data):
         """
         updates an entity with given data.
 
@@ -629,16 +635,17 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related update service.
         """
 
-        if self.validate_for_update:
-            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
-            validator_services.validate_dict(self.entity, data, for_update=True)
+        if cls.validate_for_update:
+            validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
+            validator_services.validate_dict(cls.entity, data, for_update=True)
 
-        if self.update_service is not None:
-            self.update_service(pk, **data)
+        if cls.update_service is not None:
+            cls.update_service(pk, **data)
         else:
-            self._update(pk, **data)
+            cls._update(pk, **data)
 
-    def _remove(self, pk):
+    @classmethod
+    def _remove(cls, pk):
         """
         deletes an entity with given pk.
 
@@ -646,24 +653,25 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         store = get_current_store()
-        pk_name = self._get_primary_key_name()
-        pk_column = self.entity.get_attribute(pk_name)
-        store.query(self.entity).filter(pk_column == pk).delete()
+        pk_name = cls._get_primary_key_name()
+        pk_column = cls.entity.get_attribute(pk_name)
+        store.query(cls.entity).filter(pk_column == pk).delete()
 
-    def remove(self, pk):
+    @classmethod
+    def remove(cls, pk):
         """
         deletes an entity with given pk.
 
         :param object pk: entity primary key to be deleted.
         """
 
-        if self.validate_for_remove:
-            validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
+        if cls.validate_for_remove:
+            validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))
 
-        if self.remove_service is not None:
-            self.remove_service(pk)
+        if cls.remove_service is not None:
+            cls.remove_service(pk)
         else:
-            self._remove(pk)
+            cls._remove(pk)
 
     def call_method(self, name, argument):
         """
