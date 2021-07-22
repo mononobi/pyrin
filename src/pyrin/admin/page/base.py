@@ -583,8 +583,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         entity = cls.entity(**data)
-        entity.save()
         cls._process_created_entity(entity, **data)
+        entity.save()
 
     @classmethod
     def _process_updated_entity(cls, entity, **data):
