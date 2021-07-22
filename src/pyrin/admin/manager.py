@@ -58,7 +58,7 @@ class AdminManager(Manager):
 
         :param str register_name: register name of the admin page to be removed.
 
-        :rtype: AbstractAdminPage
+        :rtype: pyrin.admin.interface.AbstractAdminPage
         """
 
         instance = self._admin_pages.pop(register_name, None)
@@ -76,7 +76,7 @@ class AdminManager(Manager):
         :param pyrin.database.model.base.BaseEntity entity: the entity class of
                                                             admin page to be removed.
 
-        :rtype: AbstractAdminPage
+        :rtype: pyrin.admin.interface.AbstractAdminPage
         """
 
         instance = self._admin_entities.pop(entity, None)
@@ -170,7 +170,7 @@ class AdminManager(Manager):
 
         :raises AdminPageNotFoundError: admin page not found error.
 
-        :rtype: AbstractAdminPage
+        :rtype: pyrin.admin.interface.AbstractAdminPage
         """
 
         name = str(register_name).lower()
