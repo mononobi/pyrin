@@ -146,6 +146,54 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def has_get_permission(self):
+        """
+        gets a value indicating that this admin page has get permission.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def has_create_permission(self):
+        """
+        gets a value indicating that this admin page has create permission.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def has_update_permission(self):
+        """
+        gets a value indicating that this admin page has update permission.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def has_remove_permission(self):
+        """
+        gets a value indicating that this admin page has remove permission.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def method_names(self):

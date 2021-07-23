@@ -5,11 +5,12 @@ admin manager module.
 
 import pyrin.configuration.services as config_services
 
+from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
-    AdminPageNotFoundError
+    AdminPageNotFoundError, AdminOperationNotAllowedError
 
 
 class AdminManager(Manager):
@@ -195,7 +196,7 @@ class AdminManager(Manager):
 
         name = str(register_name).lower()
         if name not in self._admin_pages:
-            raise AdminPageNotFoundError('Admin page [{name}] not found.'
+            raise AdminPageNotFoundError(_('Admin page [{name}] not found.')
                                          .format(name=name))
 
         return self._admin_pages.get(name)
@@ -207,10 +208,17 @@ class AdminManager(Manager):
         :param str register_name: register name of admin page.
         :param object pk: primary key of entity to be get.
 
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+
         :rtype: pyrin.database.model.base.BaseEntity
         """
 
         admin = self._get_admin_page(register_name)
+        if not admin.has_get_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow get operation.')
+                                                .format(name=admin.get_register_name()))
+
         return admin.get(pk)
 
     def find(self, register_name, **filters):
@@ -234,9 +242,16 @@ class AdminManager(Manager):
         :param str register_name: register name of admin page.
 
         :keyword **data: all data to be passed to related admin page for data creation.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
         admin = self._get_admin_page(register_name)
+        if not admin.has_create_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow create operation.')
+                                                .format(name=admin.get_register_name()))
+
         return admin.create(**data)
 
     def update(self, register_name, pk, **data):
@@ -247,9 +262,16 @@ class AdminManager(Manager):
         :param object pk: entity primary key to be updated.
 
         :keyword **data: all data to be passed to related admin page for data creation.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
         admin = self._get_admin_page(register_name)
+        if not admin.has_get_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow update operation.')
+                                                .format(name=admin.get_register_name()))
+
         return admin.update(pk, **data)
 
     def remove(self, register_name, pk):
@@ -258,7 +280,14 @@ class AdminManager(Manager):
 
         :param str register_name: register name of admin page.
         :param object pk: entity primary key to be removed.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
         admin = self._get_admin_page(register_name)
+        if not admin.has_get_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow remove operation.')
+                                                .format(name=admin.get_register_name()))
+
         return admin.remove(pk)

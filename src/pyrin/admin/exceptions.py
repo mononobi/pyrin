@@ -4,7 +4,8 @@ admin exceptions module.
 """
 
 from pyrin.api.router.handlers.exceptions import URLNotFoundError
-from pyrin.core.exceptions import CoreException, CoreBusinessException
+from pyrin.core.exceptions import CoreException, CoreBusinessException, \
+    CoreMethodNotAllowedError
 
 
 class AdminManagerException(CoreException):
@@ -39,5 +40,12 @@ class DuplicatedAdminPageError(AdminManagerException):
 class AdminPageNotFoundError(URLNotFoundError, AdminManagerBusinessException):
     """
     admin page not found error.
+    """
+    pass
+
+
+class AdminOperationNotAllowedError(CoreMethodNotAllowedError, AdminManagerBusinessException):
+    """
+    admin operation not allowed error.
     """
     pass

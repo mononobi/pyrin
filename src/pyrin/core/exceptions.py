@@ -97,6 +97,22 @@ class CoreNotFoundError(CoreBusinessException):
         self._code = ClientErrorResponseCodeEnum.NOT_FOUND
 
 
+class CoreMethodNotAllowedError(CoreBusinessException):
+    """
+    base class for all application method not allowed errors.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        initializes an instance of CoreMethodNotAllowedError.
+
+        :keyword dict data: extra data for exception.
+        """
+
+        super().__init__(*args, **kwargs)
+        self._code = ClientErrorResponseCodeEnum.METHOD_NOT_ALLOWED
+
+
 class CoreAttributeError(CoreException, AttributeError):
     """
     core attribute error.

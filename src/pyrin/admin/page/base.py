@@ -19,7 +19,8 @@ from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
-    AdminRegisterNameRequiredError, RequiredValuesNotProvidedError
+    AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
+    CompositePrimaryKeysNotSupportedError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -190,7 +191,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets the name of the primary key of this admin page's related entity.
 
-        note that if the entity has a composite primary key, this method returns None.
+        note that if the entity has a composite primary key, this method raises an error.
 
         :rtype: str
         """
@@ -198,7 +199,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         if len(cls.entity.primary_key_columns) == 1:
             return cls.entity.primary_key_columns[0]
 
-        return None
+        raise CompositePrimaryKeysNotSupportedError('Composite primary keys are not '
+                                                    'supported for admin page.')
 
     @classmethod
     def _get_primary_key_holder(cls, pk):
@@ -741,6 +743,48 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         method = getattr(self, name)
         return method(argument)
+
+    def has_get_permission(self):
+        """
+        gets a value indicating that this admin page has get permission.
+
+        note that entities with composite primary key does not support get.
+
+        :rtype: bool
+        """
+
+        return len(self.entity.primary_key_columns) == 1
+
+    def has_create_permission(self):
+        """
+        gets a value indicating that this admin page has create permission.
+
+        :rtype: bool
+        """
+
+        return True
+
+    def has_update_permission(self):
+        """
+        gets a value indicating that this admin page has update permission.
+
+        note that entities with composite primary key does not support update.
+
+        :rtype: bool
+        """
+
+        return len(self.entity.primary_key_columns) == 1
+
+    def has_remove_permission(self):
+        """
+        gets a value indicating that this admin page has remove permission.
+
+        note that entities with composite primary key does not support remove.
+
+        :rtype: bool
+        """
+
+        return len(self.entity.primary_key_columns) == 1
 
     @property
     def method_names(self):

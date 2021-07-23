@@ -69,3 +69,10 @@ class RequiredValuesNotProvidedError(ValidationError, AdminPageBusinessException
     required values not provided error.
     """
     pass
+
+
+class CompositePrimaryKeysNotSupportedError(AdminPageException):
+    """
+    composite primary keys not supported error.
+    """
+    pass
