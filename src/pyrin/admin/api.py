@@ -18,7 +18,7 @@ admin_config.pop('url', None)
 is_enabled = admin_config.pop('enabled', False)
 
 if is_enabled is True:
-    @api(f'{url}/<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
+    @api(f'{url}<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
     def get(register_name, pk):
         """
         gets an entity with given primary key.
@@ -32,7 +32,7 @@ if is_enabled is True:
         return admin_services.get(register_name, pk)
 
 
-    @api(f'{url}/<register_name>', **admin_config, paged=True)
+    @api(f'{url}<register_name>', **admin_config, paged=True)
     def find(register_name, **filters):
         """
         performs find on given admin page and returns the result.
@@ -47,7 +47,7 @@ if is_enabled is True:
         return admin_services.find(register_name, **filters)
 
 
-    @post(f'{url}/<register_name>', **admin_config)
+    @post(f'{url}<register_name>', **admin_config)
     def create(register_name, **data):
         """
         performs create on given admin page.
@@ -60,7 +60,7 @@ if is_enabled is True:
         return admin_services.create(register_name, **data)
 
 
-    @patch(f'{url}/<register_name>/<pk>', **admin_config)
+    @patch(f'{url}<register_name>/<pk>', **admin_config)
     def update(register_name, pk, **data):
         """
         performs update on given admin page.
@@ -74,7 +74,7 @@ if is_enabled is True:
         return admin_services.update(register_name, pk, **data)
 
 
-    @delete(f'{url}/<register_name>/<pk>', **admin_config)
+    @delete(f'{url}<register_name>/<pk>', **admin_config)
     def remove(register_name, pk, **options):
         """
         performs remove on given admin page.
