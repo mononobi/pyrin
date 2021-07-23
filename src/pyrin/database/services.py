@@ -319,3 +319,13 @@ def get_database_bind_names():
     """
 
     return get_component(DatabasePackage.COMPONENT_NAME).get_database_bind_names()
+
+
+def get_ordering_key():
+    """
+    gets the ordering key to be used for result ordering.
+
+    :rtype: str
+    """
+
+    return get_component(DatabasePackage.COMPONENT_NAME).get_ordering_key()

@@ -36,6 +36,11 @@ class DatabaseManager(Manager, HookMixin):
     DEFAULT_DATABASE_NAME = 'default'
     hook_type = DatabaseHookBase
     invalid_hook_type_error = InvalidDatabaseHookTypeError
+
+    # ordering key that application expects in query strings of requests.
+    # this value could be customized in database config store.
+    ORDERING_KEY = 'order_by'
+
     package_class = DatabasePackage
 
     def __init__(self):
@@ -72,6 +77,12 @@ class DatabaseManager(Manager, HookMixin):
         # it should have at most two different keys, True for request bounded
         # and False for request unbounded.
         self._session_factories = DTO()
+
+        ordering_key = config_services.get_active('database', 'ordering_key')
+        if ordering_key not in (None, '') and not ordering_key.isspace():
+            self._ordering_key = ordering_key
+        else:
+            self._ordering_key = self.ORDERING_KEY
 
     def get_current_store(self, **kwargs):
         """
@@ -603,3 +614,12 @@ class DatabaseManager(Manager, HookMixin):
             result.extend(binds)
 
         return result
+
+    def get_ordering_key(self):
+        """
+        gets the ordering key to be used for result ordering.
+
+        :rtype: str
+        """
+
+        return self._ordering_key
