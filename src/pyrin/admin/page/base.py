@@ -555,7 +555,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param pyrin.database.model.base.BaseEntity entity: created entity.
 
-        :keyword **data: all data that has been passed to related create service.
+        :keyword **data: all data that has been passed to create method.
         """
         pass
 
@@ -564,7 +564,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         creates an entity with given data.
 
-        :keyword **data: all data to be passed to related create service.
+        :keyword **data: all data to be passed to create method.
         """
 
         entity = cls.entity(**data)
@@ -580,7 +580,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param pyrin.database.model.base.BaseEntity entity: updated entity.
 
-        :keyword **data: all data that has been passed to related update service.
+        :keyword **data: all data that has been passed to update method.
         """
         pass
 
@@ -591,7 +591,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param object pk: entity primary key to be updated.
 
-        :keyword **data: all data to be passed to related update service.
+        :keyword **data: all data to be passed to update method.
         """
 
         store = get_current_store()
