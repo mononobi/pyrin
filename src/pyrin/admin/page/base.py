@@ -546,6 +546,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         paginator = session_services.get_request_context('paginator')
         return self._schema.filter(results, paginator=paginator)
 
+    def _has_single_primary_key(self):
+        """
+        gets a value indicating that the related entity has a single primary key.
+
+        :rtype: bool
+        """
+
+        return len(self.entity.primary_key_columns) == 1
+
     @classmethod
     def _validate_extra_fields(cls, data):
         """
@@ -773,7 +782,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return self.has_single_primary_key and self.get_permission
+        return self._has_single_primary_key() and self.get_permission
 
     def has_create_permission(self):
         """
@@ -793,7 +802,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return self.has_single_primary_key and self.update_permission
+        return self._has_single_primary_key() and self.update_permission
 
     def has_remove_permission(self):
         """
@@ -804,7 +813,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return self.has_single_primary_key and self.remove_permission
+        return self._has_single_primary_key() and self.remove_permission
 
     @property
     def method_names(self):
@@ -815,13 +824,3 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self._method_names
-
-    @property
-    def has_single_primary_key(self):
-        """
-        gets a value indicating that the related entity has a single primary key.
-
-        :rtype: bool
-        """
-
-        return len(self.entity.primary_key_columns) == 1
