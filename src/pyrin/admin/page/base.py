@@ -16,6 +16,7 @@ from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
+from pyrin.core.structs import SecureList
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.security.session.enumerations import RequestContextEnum
@@ -506,6 +507,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         filters.setdefault(database_services.get_ordering_key(), self.list_ordering)
+        filters.update(external_columns=SecureList())
         return query.safe_order_by(self.entity,
                                    *self.entity.primary_key_columns,
                                    **filters)

@@ -600,3 +600,15 @@ class CoreHeaders(Headers):
                 result[item] = value
 
         return result
+
+
+class SecureList(list):
+    """
+    secure list class.
+
+    this is the same as list but can be used in places where you want to
+    prevent clients from providing list values in options.
+
+    this is mainly used in `safe_order_by` method of pyrin's CoreQuery.
+    """
+    pass

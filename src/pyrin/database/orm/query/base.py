@@ -17,6 +17,7 @@ import pyrin.security.session.services as session_services
 import pyrin.database.services as database_services
 
 from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
+from pyrin.core.structs import SecureList
 from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
@@ -418,6 +419,16 @@ class CoreQuery(Query):
                                 of entity if scope is an entity class, otherwise
                                 they must be the actual table column names.
 
+        :keyword SecureList[str] external_columns: a list of all external columns to be
+                                                   accepted for ordering.
+                                                   this is useful if you have labeled
+                                                   columns in select query and the labeled
+                                                   names are not among the provided entity
+                                                   columns. this value should not be provided
+                                                   by clients, so the type of this value
+                                                   must be `SecureList` otherwise it
+                                                   will be ignored.
+
         :keyword list[str] | str order_by: column names to be used in order by criterion.
                                            this value is defined to let clients directly
                                            provide order by columns to services through
@@ -440,14 +451,20 @@ class CoreQuery(Query):
         columns = options.get(database_services.get_ordering_key())
         columns = misc_utils.make_iterable(columns, list)
         columns.extend(force_order)
+        external_columns = options.get('external_columns')
+        if not isinstance(external_columns, SecureList):
+            external_columns = None
 
         if isinstance(scope, type) and issubclass(scope, BaseEntity):
-            criterion = scope.get_ordering_criterion(*columns, ignore_invalid=True)
+            criterion = scope.get_ordering_criterion(*columns,
+                                                     ignore_invalid=True,
+                                                     external_columns=external_columns)
 
         elif isinstance(scope, list):
             criterion = sqlalchemy_utils.get_ordering_criterion(*columns,
                                                                 valid_columns=scope,
-                                                                ignore_invalid=True)
+                                                                ignore_invalid=True,
+                                                                external_columns=external_columns)
         else:
             raise InvalidOrderByScopeError('Order by "scope" must be an entity '
                                            'class or a list of column names.')

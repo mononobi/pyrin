@@ -18,10 +18,10 @@ import inspect
 
 from abc import abstractmethod
 
-from sqlalchemy import inspect as sqla_inspect, UniqueConstraint
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import inspect as sqla_inspect, UniqueConstraint, text
 
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.database.model.services as model_services
@@ -2396,7 +2396,7 @@ class OrderingMixin(ModelMixinBase):
         return tuple(result)
 
     @classmethod
-    def get_ordering_criterion(cls, *columns, ignore_invalid=True):
+    def get_ordering_criterion(cls, *columns, ignore_invalid=True, **options):
         """
         gets required ordering criterion for given column names.
 
@@ -2416,22 +2416,33 @@ class OrderingMixin(ModelMixinBase):
                                     not valid, ignore them instead of raising
                                     an error. defaults to True.
 
+        :keyword list[str] external_columns: a list of all external columns to be
+                                             accepted for ordering.
+                                             this is useful if you have labeled
+                                             columns in select query and the labeled
+                                             names are not among this entity columns.
+
         :raises InvalidOrderingColumnError: invalid ordering column error.
 
         :rtype: tuple[UnaryExpression]
         """
 
+        external_columns = options.get('external_columns')
+        external_columns = misc_utils.make_iterable(external_columns)
         result = []
         for item in columns:
             if sqlalchemy_utils.is_valid_column_name(item):
                 name, order_type = sqlalchemy_utils.get_ordering_info(item)
                 attribute = cls._get_column_attribute(name)
                 is_allowed = name in cls.ordering_column_names
-                if (attribute is None or not is_allowed) and ignore_invalid is False:
+                is_external = name in external_columns
+                if is_allowed and attribute is not None:
+                    result.append(order_type(attribute))
+                elif is_external:
+                    result.append(order_type(text(name)))
+                elif ignore_invalid is False:
                     raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
                                                        'for ordering.').format(name=name))
-                elif attribute is not None and is_allowed:
-                    result.append(order_type(attribute))
 
         return tuple(result)
 

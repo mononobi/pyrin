@@ -9,6 +9,7 @@ from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc, CheckCon
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
+import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.core.globals import LIST_TYPES
@@ -601,7 +602,8 @@ def get_ordering_info(column):
     return column, order_type
 
 
-def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
+def get_ordering_criterion(*columns, valid_columns=None,
+                           ignore_invalid=True, **options):
     """
     gets required criterion for given columns ordering.
 
@@ -629,20 +631,29 @@ def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
                                 this only has effect if `valid_columns`
                                 is provided. defaults to True.
 
+    :keyword list[str] external_columns: a list of all external columns to be
+                                         accepted for ordering.
+                                         this is useful if you have labeled
+                                         columns in select query and the labeled
+                                         names are not among the valid columns.
+                                         they must be the actual database column
+                                         names.
+
     :raises InvalidOrderingColumnError: invalid ordering column error.
 
     :rtype: tuple[UnaryExpression]
     """
 
+    external_columns = options.get('external_columns')
+    external_columns = misc_utils.make_iterable(external_columns)
     result = []
     for item in columns:
         if is_valid_column_name(item):
             name, order_type = get_ordering_info(item)
-            if valid_columns is None or name in valid_columns:
+            if valid_columns is None or name in valid_columns or name in external_columns:
                 result.append(order_type(text(name)))
-            elif valid_columns is not None and name not in valid_columns:
-                if ignore_invalid is False:
-                    raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
-                                                       'for ordering.').format(name=name))
+            elif ignore_invalid is False:
+                raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
+                                                   'for ordering.').format(name=name))
 
     return tuple(result)
