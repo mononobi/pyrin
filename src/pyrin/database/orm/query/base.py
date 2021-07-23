@@ -14,6 +14,7 @@ import pyrin.utils.misc as misc_utils
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 import pyrin.database.paging.services as paging_services
 import pyrin.security.session.services as session_services
+import pyrin.database.services as database_services
 
 from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
@@ -436,7 +437,7 @@ class CoreQuery(Query):
         """
 
         criterion = None
-        columns = options.get('order_by')
+        columns = options.get(database_services.get_ordering_key())
         columns = misc_utils.make_iterable(columns, list)
         columns.extend(force_order)
 

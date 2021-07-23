@@ -8,6 +8,7 @@ import inspect
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
+import pyrin.database.services as database_services
 
 from pyrin.core.globals import _
 from pyrin.admin.interface import AbstractAdminPage
@@ -504,7 +505,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: CoreQuery
         """
 
-        filters.setdefault('order_by', self.list_ordering)
+        filters.setdefault(database_services.get_ordering_key(), self.list_ordering)
         return query.safe_order_by(self.entity,
                                    *self.entity.primary_key_columns,
                                    **filters)

@@ -18,6 +18,7 @@ from flasgger.utils import extract_definitions, parse_definition_docstring, \
     get_vendor_extension_fields, merge_specs, parse_docstring, is_valid_method_view, \
     has_valid_dispatch_view_docs
 
+import pyrin.database.services as database_services
 import pyrin.database.paging.services as paging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.status.services as status_services
@@ -610,7 +611,8 @@ class ExtendedSwagger(Swagger):
 
         if rule.ordered is True:
             params = self._get_parameters_section(swag)
-            self._add_or_update_parameter(params, 'order_by',
+            self._add_or_update_parameter(params,
+                                          database_services.get_ordering_key(),
                                           ParameterTypeEnum.STRING,
                                           ParameterLocationEnum.QUERY,
                                           required=False,
