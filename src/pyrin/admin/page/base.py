@@ -115,6 +115,26 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # primary key of the related entity.
     remove_service = None
 
+    # ===================== PERMISSION CONFIGS ===================== #
+
+    # specifies that this admin page has get permission.
+    # note that if entity has composite primary key, it does not
+    # have get permission and this value will be ignored.
+    get_permission = True
+
+    # specifies that this admin page has create permission.
+    create_permission = True
+
+    # specifies that this admin page has update permission.
+    # note that if entity has composite primary key, it does not
+    # have update permission and this value will be ignored.
+    update_permission = True
+
+    # specifies that this admin page has remove permission.
+    # note that if entity has composite primary key, it does not
+    # have remove permission and this value will be ignored.
+    remove_permission = True
+
     # ===================== OTHER CONFIGS ===================== #
 
     # the category name to register this admin page in it.
@@ -125,8 +145,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # plural name of this admin page for representation.
     plural_name = None
 
-    # extra field names that are required to be provided for create
-    # and are optional for update but they are not related to entity.
+    # extra field names that are required to be provided for create and are
+    # optional for update but they are not a field of the entity itself.
     # in the form of:
     # {str field_name: type field_type}
     # for example:
@@ -753,7 +773,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return len(self.entity.primary_key_columns) == 1
+        return self.has_single_primary_key and self.get_permission
 
     def has_create_permission(self):
         """
@@ -762,7 +782,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return True
+        return self.create_permission
 
     def has_update_permission(self):
         """
@@ -773,7 +793,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return len(self.entity.primary_key_columns) == 1
+        return self.has_single_primary_key and self.update_permission
 
     def has_remove_permission(self):
         """
@@ -784,7 +804,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: bool
         """
 
-        return len(self.entity.primary_key_columns) == 1
+        return self.has_single_primary_key and self.remove_permission
 
     @property
     def method_names(self):
@@ -795,3 +815,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self._method_names
+
+    @property
+    def has_single_primary_key(self):
+        """
+        gets a value indicating that the related entity has a single primary key.
+
+        :rtype: bool
+        """
+
+        return len(self.entity.primary_key_columns) == 1
