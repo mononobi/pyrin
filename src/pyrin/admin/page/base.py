@@ -90,7 +90,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # columns to show in list filter.
     list_filters = ()
 
-    # max records per page
+    # max records per page.
     list_per_page = 100
 
     # max records to fetch on show all.
@@ -687,8 +687,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :keyword **data: all data to be passed to related create service.
         """
 
-        cls._validate_extra_fields(data)
         validator_services.validate_dict(cls.entity, data)
+        cls._validate_extra_fields(data)
         if cls.create_service is not None:
             cls.create_service(**data)
         else:
