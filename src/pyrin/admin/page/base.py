@@ -17,6 +17,7 @@ from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
+from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
@@ -543,7 +544,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: list[dict]
         """
 
-        paginator = session_services.get_request_context('paginator')
+        paginator = session_services.get_request_context(RequestContextEnum.PAGINATOR)
         return self._schema.filter(results, paginator=paginator)
 
     def _has_single_primary_key(self):

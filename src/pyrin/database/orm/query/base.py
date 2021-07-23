@@ -19,6 +19,7 @@ from pyrin.core.globals import _, SECURE_FALSE, SECURE_TRUE
 from pyrin.database.model.base import BaseEntity
 from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
+from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
     InvalidOrderByScopeError, EfficientCountIsNotPossibleError
 
@@ -313,7 +314,7 @@ class CoreQuery(Query):
         inject_total = options.get('inject_total', SECURE_FALSE)
         paginator = None
         if session_services.is_request_context_available() is True:
-            paginator = session_services.get_request_context('paginator', None)
+            paginator = session_services.get_request_context(RequestContextEnum.PAGINATOR)
         else:
             return self
 

@@ -42,6 +42,7 @@ from pyrin.core.mixin import HookMixin
 from pyrin.database.transaction.contexts import atomic_context
 from pyrin.packaging import PackagingPackage
 from pyrin.packaging.component import PackagingComponent
+from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.settings.static import DEFAULT_COMPONENT_KEY
 from pyrin.utils.custom_print import print_warning
 from pyrin.utils.dictionary import make_key_upper
@@ -842,7 +843,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: tuple[list | tuple | dict | str, dict, PaginatorBase]
         """
 
-        paginator = session_services.get_request_context('paginator', None)
+        paginator = session_services.get_request_context(RequestContextEnum.PAGINATOR)
         if paginator is not None and isinstance(body, list):
             body, metadata = paginator.paginate(body)
             return body, metadata, paginator
@@ -900,7 +901,7 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: dict | list[dict]
         """
 
-        result_schema = session_services.get_request_context('result_schema', None)
+        result_schema = session_services.get_request_context(RequestContextEnum.RESULT_SCHEMA)
         if result_schema is not None:
             return result_schema.filter(rv, paginator=paginator)
 

@@ -26,6 +26,7 @@ from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.processor.response.wrappers.base import CoreResponse
 from pyrin.processor.response.enumerations import ResponseHeaderEnum
+from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.api.router.handlers.exceptions import InvalidViewFunctionTypeError, \
     MaxContentLengthLimitMismatchError, InvalidResultSchemaTypeError, \
     RouteIsNotBoundedToMapError, RouteIsNotBoundedError, InvalidResponseStatusCodeError, \
@@ -693,7 +694,8 @@ class RouteBase(Rule):
         injects this route's result schema into current request context.
         """
 
-        session_services.add_request_context('result_schema', self._result_schema)
+        session_services.add_request_context(RequestContextEnum.RESULT_SCHEMA,
+                                             self._result_schema)
 
     def _inject_paginator(self, inputs, **options):
         """
@@ -706,7 +708,7 @@ class RouteBase(Rule):
         request = session_services.get_current_request()
         paging_params = request.get_paging_params()
         paginator.inject_paging_keys(inputs, **paging_params)
-        session_services.add_request_context('paginator', paginator)
+        session_services.add_request_context(RequestContextEnum.PAGINATOR, paginator)
 
     def _call_view_function(self, inputs, **options):
         """
