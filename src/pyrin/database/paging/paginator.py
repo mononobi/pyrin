@@ -260,6 +260,7 @@ class SimplePaginator(PaginatorBase):
         options.update(request.get_all_query_strings())
         options.update(paging_services.generate_paging_params(page, page_size))
         options.update(request.view_args or {})
+        options.update(_method=request.method)
         return url_for(self._endpoint, **options)
 
     def has_next(self, count, **options):

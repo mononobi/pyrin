@@ -48,7 +48,7 @@ def generate_paging_params(page, page_size):
     :param int page_size: page size.
 
     :returns: dict[int page, int page_size]
-    :rtype: dict[int, int]
+    :rtype: dict
     """
 
     return get_component(DatabasePagingPackage.COMPONENT_NAME).generate_paging_params(page,
