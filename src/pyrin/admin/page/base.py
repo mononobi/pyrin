@@ -77,7 +77,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_expression_level_hybrid_properties = True
 
     # list of default ordering columns.
-    # it must be string names. for example: ('first_name', '-last_name')
+    # it must be string names from `list_fields`.
+    # for example: ('first_name', '-last_name')
     list_ordering = ()
 
     # show the total count of records in list view.
