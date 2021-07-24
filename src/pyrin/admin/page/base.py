@@ -507,7 +507,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         filters.setdefault(database_services.get_ordering_key(), self.list_ordering)
-        filters.update(external_columns=SecureList())
+        filters.update(labeled_columns=SecureList(['lasting']))
         return query.safe_order_by(self.entity,
                                    *self.entity.primary_key_columns,
                                    **filters)

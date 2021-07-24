@@ -27,15 +27,15 @@ class ColumnsOutOfScopeError(ORMQueryBusinessException):
     pass
 
 
-class InvalidOrderByScopeError(ORMQueryException):
+class EfficientCountIsNotPossibleError(ORMQueryException):
     """
-    invalid order by scope error.
+    efficient count is not possible error.
     """
     pass
 
 
-class EfficientCountIsNotPossibleError(ORMQueryException):
+class InvalidLabeledColumnNameError(ORMQueryException):
     """
-    efficient count is not possible error.
+    invalid labeled column name error.
     """
     pass

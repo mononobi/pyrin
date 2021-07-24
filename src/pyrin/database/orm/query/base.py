@@ -23,7 +23,7 @@ from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    InvalidOrderByScopeError, EfficientCountIsNotPossibleError
+    EfficientCountIsNotPossibleError, InvalidLabeledColumnNameError
 
 
 @inspection._self_inspects
@@ -161,6 +161,50 @@ class CoreQuery(Query):
         statement._auto_correlate = old_statement._auto_correlate
 
         return statement
+
+    def _prepare_labeled_columns(self, columns):
+        """
+        prepares given labeled columns list.
+
+        it adds all `+` and `-` variants into given columns and returns a new list.
+
+        :param list[str] columns: columns to be prepared.
+
+        :raises InvalidLabeledColumnNameError: invalid labeled column name error.
+
+        :rtype: list[str]
+        """
+
+        result = []
+        for item in columns:
+            if sqlalchemy_utils.is_valid_column_name(item):
+                name = sqlalchemy_utils.get_column_name(item)
+                result.append(name)
+                result.append(f'+{name}')
+                result.append(f'-{name}')
+            else:
+                raise InvalidLabeledColumnNameError(f'Labeled column [{item}] '
+                                                    f'has an invalid name.')
+
+        return list(set(result))
+
+    def _get_related_entity(self, column, *scope):
+        """
+        gets the first entity that the given column is available in its ordering columns.
+
+        it returns None if the column is not available in ordering columns.
+
+        :param str column: column name to be found.
+        :param type[BaseEntity] scope: entities to search for the ordering column.
+
+        :rtype: type[BaseEntity]
+        """
+
+        for entity in scope:
+            if column in entity.ordering_column_names:
+                return entity
+
+        return None
 
     def _get_appropriate_column(self, *columns):
         """
@@ -408,26 +452,29 @@ class CoreQuery(Query):
         invalid order by expression. if you do not want to ignore invalid columns,
         use `order_by` method instead.
 
-        :param type[BaseEntity] | list[str] scope: entity class or a list of column names
-                                                   to pick order by columns from it.
-                                                   note that if a list is provided, column
-                                                   names must be the name of actual table
-                                                   columns.
+        **NOTE:**
+
+        if an order by column name is in both entity columns and labeled columns,
+        the labeled column will be used for ordering.
+
+        if an order by column is in more than one entity, the column of the first
+        entity will be used for ordering.
+
+        :param type[BaseEntity] | list[type[BaseEntity]] scope: entity class or a list of
+                                                                entity classes to pick order
+                                                                by columns from them.
 
         :param str force_order: column names to be appended to `order_by` columns.
-                                note that they must be the attribute names
-                                of entity if scope is an entity class, otherwise
-                                they must be the actual table column names.
 
-        :keyword SecureList[str] external_columns: a list of all external columns to be
-                                                   accepted for ordering.
-                                                   this is useful if you have labeled
-                                                   columns in select query and the labeled
-                                                   names are not among the provided entity
-                                                   columns. this value should not be provided
-                                                   by clients, so the type of this value
-                                                   must be `SecureList` otherwise it
-                                                   will be ignored.
+        :keyword SecureList[str] labeled_columns: a list of all labeled columns to be
+                                                  accepted for ordering.
+                                                  this is useful if you have labeled
+                                                  columns in select query and the labeled
+                                                  names are not among the provided entities
+                                                  columns. this value should not be provided
+                                                  by clients, so the type of this value
+                                                  must be `SecureList` otherwise it
+                                                  will be ignored.
 
         :keyword list[str] | str order_by: column names to be used in order by criterion.
                                            this value is defined to let clients directly
@@ -438,35 +485,39 @@ class CoreQuery(Query):
                                            it is useful if you want to assure that always
                                            a valid order by will be generated even if
                                            client does not provide any column names.
-                                           note that column names must be the attribute names
-                                           of entity if scope is an entity class, otherwise
-                                           they must be the actual table column names.
 
-        :raises InvalidOrderByScopeError: invalid order by scope error.
+        :raises InvalidLabeledColumnNameError: invalid labeled column name error.
 
         :rtype: CoreQuery
         """
 
-        criterion = None
+        criterion = []
+        scope = misc_utils.make_iterable(scope)
+        labeled_columns = options.get('labeled_columns')
+        if not isinstance(labeled_columns, SecureList):
+            labeled_columns = []
+
+        fixed_labeled_columns = self._prepare_labeled_columns(labeled_columns)
         columns = options.get(database_services.get_ordering_key())
-        columns = misc_utils.make_iterable(columns, list)
+        columns = misc_utils.make_iterable(columns)
         columns.extend(force_order)
-        external_columns = options.get('external_columns')
-        if not isinstance(external_columns, SecureList):
-            external_columns = None
+        count = len(scope)
+        for item in columns:
+            single_criterion = None
+            if item in fixed_labeled_columns:
+                single_criterion = sqlalchemy_utils.get_ordering_criterion(
+                    item, valid_columns=labeled_columns, ignore_invalid=True)
+            else:
+                found_entity = None
+                if count == 1:
+                    found_entity = scope[0]
+                elif count > 1:
+                    found_entity = self._get_related_entity(item, *scope)
 
-        if isinstance(scope, type) and issubclass(scope, BaseEntity):
-            criterion = scope.get_ordering_criterion(*columns,
-                                                     ignore_invalid=True,
-                                                     external_columns=external_columns)
-
-        elif isinstance(scope, list):
-            criterion = sqlalchemy_utils.get_ordering_criterion(*columns,
-                                                                valid_columns=scope,
-                                                                ignore_invalid=True,
-                                                                external_columns=external_columns)
-        else:
-            raise InvalidOrderByScopeError('Order by "scope" must be an entity '
-                                           'class or a list of column names.')
+                if found_entity is not None:
+                    single_criterion = found_entity.get_ordering_criterion(item,
+                                                                           ignore_invalid=True)
+            if single_criterion is not None:
+                criterion.extend(single_criterion)
 
         return self.order_by(*criterion)

@@ -9,7 +9,6 @@ from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc, CheckCon
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
-import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.core.globals import LIST_TYPES
@@ -573,6 +572,27 @@ def is_valid_column_name(column):
     return len(column) > 0 and ' ' not in column
 
 
+def get_column_name(column):
+    """
+    gets the pure column name from given column name with ordering info.
+
+    for example:
+
+    +age -> age
+    age -> age
+    -age -> age
+
+    :param str column: column name to extract pure name from it.
+
+    :rtype: str
+    """
+
+    if column.startswith(('-', '+')):
+        return column[1:]
+
+    return column
+
+
 def get_ordering_info(column):
     """
     gets a tuple containing ordering info for given column name.
@@ -602,8 +622,7 @@ def get_ordering_info(column):
     return column, order_type
 
 
-def get_ordering_criterion(*columns, valid_columns=None,
-                           ignore_invalid=True, **options):
+def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
     """
     gets required criterion for given columns ordering.
 
@@ -618,12 +637,9 @@ def get_ordering_criterion(*columns, valid_columns=None,
     name, -age -> ordering for name ascending and age descending.
 
     :param str columns: column names to get their ordering criterion.
-                        they must be the actual table column names.
 
     :param list[str] valid_columns: valid column names for ordering.
                                     defaults to None if not provided.
-                                    they must be the actual table column
-                                    names.
 
     :param bool ignore_invalid: specifies that if provided columns are
                                 not in valid column names, ignore them
@@ -631,29 +647,22 @@ def get_ordering_criterion(*columns, valid_columns=None,
                                 this only has effect if `valid_columns`
                                 is provided. defaults to True.
 
-    :keyword list[str] external_columns: a list of all external columns to be
-                                         accepted for ordering.
-                                         this is useful if you have labeled
-                                         columns in select query and the labeled
-                                         names are not among the valid columns.
-                                         they must be the actual database column
-                                         names.
-
     :raises InvalidOrderingColumnError: invalid ordering column error.
 
     :rtype: tuple[UnaryExpression]
     """
 
-    external_columns = options.get('external_columns')
-    external_columns = misc_utils.make_iterable(external_columns)
     result = []
+    error_message = _('Column [{name}] is not valid for ordering.')
     for item in columns:
         if is_valid_column_name(item):
             name, order_type = get_ordering_info(item)
-            if valid_columns is None or name in valid_columns or name in external_columns:
+            if valid_columns is None or name in valid_columns:
                 result.append(order_type(text(name)))
             elif ignore_invalid is False:
-                raise InvalidOrderingColumnError(_('Column [{name}] is not valid '
-                                                   'for ordering.').format(name=name))
+                raise InvalidOrderingColumnError(error_message.format(name=name))
+
+        elif ignore_invalid is False:
+            raise InvalidOrderingColumnError(error_message.format(name=item))
 
     return tuple(result)
