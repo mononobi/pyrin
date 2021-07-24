@@ -287,9 +287,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         names = []
-        for item in self.list_fields:
-            if isinstance(item, str) and self._is_valid_method(item):
-                names.append(item)
+        if self.list_fields:
+            for item in self.list_fields:
+                if isinstance(item, str) and self._is_valid_method(item):
+                    names.append(item)
 
         return tuple(names)
 
@@ -358,6 +359,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :rtype: tuple[str]
         """
+
+        if not self.list_temp_fields:
+            return tuple()
 
         return self._extract_field_names(self.list_temp_fields, allow_string=False)
 
@@ -436,6 +440,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :rtype: tuple
         """
+
+        if not self.list_temp_fields:
+            return tuple()
 
         results = [item for item in self.list_temp_fields if self._is_valid_field(item)]
         return tuple(results)
@@ -569,6 +576,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :raises RequiredValuesNotProvidedError: required values not provided error.
         """
+
+        if not cls.extra_data_fields:
+            return
 
         not_present = []
         for name in cls.extra_data_fields:
