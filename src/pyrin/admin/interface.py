@@ -33,7 +33,7 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: pyrin.database.model.base.BaseEntity
+        :rtype: type[pyrin.database.model.base.BaseEntity]
         """
 
         raise CoreNotImplementedError()

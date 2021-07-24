@@ -5,18 +5,20 @@ admin page base module.
 
 import inspect
 
+from sqlalchemy.sql.elements import Label
+from sqlalchemy.orm import InstrumentedAttribute
+
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
-import pyrin.database.services as database_services
 
 from pyrin.core.globals import _
+from pyrin.core.structs import SecureList
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
-from pyrin.core.structs import SecureList
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.security.session.enumerations import RequestContextEnum
@@ -506,11 +508,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: CoreQuery
         """
 
-        filters.setdefault(database_services.get_ordering_key(), self.list_ordering)
-        filters.update(labeled_columns=SecureList(['lasting']))
-        return query.safe_order_by(self.entity,
-                                   *self.entity.primary_key_columns,
-                                   **filters)
+        filters.update(labeled_columns=SecureList(self._get_list_labels()))
+        force_order = list(self.list_ordering or [])
+        force_order.extend(self.entity.primary_key_columns)
+        return query.safe_order_by(self._get_list_entities(), *force_order, **filters)
 
     def _paginate_query(self, query, **filters):
         """
@@ -645,11 +646,43 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pk_column = cls.entity.get_attribute(pk_name)
         store.query(cls.entity).filter(pk_column == pk).delete()
 
+    @fast_cache
+    def _get_list_entities(self):
+        """
+        gets all entities that are involved in list select query.
+
+        :rtype: tuple[type[BaseEntity]]
+        """
+
+        selectable_fields = self._get_list_fields()
+        entities = []
+        for item in selectable_fields:
+            if isinstance(item, InstrumentedAttribute):
+                entities.append(item.class_)
+
+        return tuple(set(entities))
+
+    @fast_cache
+    def _get_list_labels(self):
+        """
+        gets all labels that are involved in list select query.
+
+        :rtype: tuple[str]
+        """
+
+        selectable_fields = self._get_list_fields()
+        labels = []
+        for item in selectable_fields:
+            if isinstance(item, Label):
+                labels.append(item.key)
+
+        return tuple(set(labels))
+
     def get_entity(self):
         """
         gets the entity class of this admin page.
 
-        :rtype: BaseEntity
+        :rtype: type[BaseEntity]
         """
 
         return self.entity
