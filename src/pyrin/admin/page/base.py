@@ -77,7 +77,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_expression_level_hybrid_properties = True
 
     # list of default ordering columns.
-    # it must be string names from `list_fields`.
+    # it must be string names from `list_fields` or `list_temp_fields`.
     # for example: ('first_name', '-last_name')
     list_ordering = ()
 
@@ -665,7 +665,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: tuple[type[BaseEntity]]
         """
 
-        selectable_fields = self._get_list_fields()
+        selectable_fields = self._get_selectable_fields()
         entities = []
         for item in selectable_fields:
             if isinstance(item, InstrumentedAttribute):
@@ -681,7 +681,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: tuple[str]
         """
 
-        selectable_fields = self._get_list_fields()
+        selectable_fields = self._get_selectable_fields()
         labels = []
         for item in selectable_fields:
             if isinstance(item, Label):
