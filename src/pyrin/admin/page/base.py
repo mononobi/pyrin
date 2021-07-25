@@ -279,6 +279,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         method = getattr(self, name, None)
         return callable(method)
 
+    def _is_list_pk_required(self):
+        """
+        gets a value indicating that primary key column for list view is required.
+
+        it returns True if this admin page has any of `get`, `update` or `remove` permissions.
+
+        :rtype: bool
+        """
+
+        return self.has_get_permission() or \
+            self.has_remove_permission() or self.has_update_permission()
+
     @fast_cache
     def _extract_method_names(self):
         """
@@ -347,9 +359,38 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         if not self.list_fields:
             all_fields = self._get_default_list_fields()
         else:
-            all_fields = self.list_fields
+            all_fields = list(self.list_fields)
+            if self._is_list_pk_required():
+                self._inject_primary_keys(all_fields)
 
         return self._extract_field_names(all_fields, allow_string=True)
+
+    @fast_cache
+    def _get_primary_keys(self):
+        """
+        gets all primary key attributes of this admin page's related entity.
+
+        :rtype: tuple[InstrumentedAttribute]
+        """
+
+        return tuple(self.entity.get_attribute(name)
+                     for name in self.entity.primary_key_columns)
+
+    def _inject_primary_keys(self, fields):
+        """
+        injects all primary key attributes of related entity into given list.
+
+        each primary key which is already present, will be ignored.
+
+        :param list fields: fields to inject primary keys in it.
+        """
+
+        primary_keys = self._get_primary_keys()
+        index = 0
+        for pk in primary_keys:
+            if pk not in fields:
+                fields.insert(index, pk)
+                index += 1
 
     @fast_cache
     def _get_list_temp_field_names(self):
@@ -383,16 +424,19 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         expression_level_hybrid_properties = []
         expression_level_hybrid_property_names = ()
 
+        if self._is_list_pk_required():
+            primary_key_names = self.entity.primary_key_columns
+
         if self.list_only_readable is True:
             column_names = self.entity.readable_columns
-            if self.list_pk is True:
+            if self.list_pk is True and not primary_key_names:
                 primary_key_names = self.entity.readable_primary_key_columns
 
             if self.list_fk is True:
                 foreign_key_names = self.entity.readable_foreign_key_columns
         else:
             column_names = self.entity.all_columns
-            if self.list_pk is True:
+            if self.list_pk is True and not primary_key_names:
                 primary_key_names = self.entity.primary_key_columns
 
             if self.list_fk is True:
@@ -432,6 +476,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             return self._get_default_list_fields()
 
         results = [item for item in self.list_fields if self._is_valid_field(item)]
+        if self._is_list_pk_required():
+            self._inject_primary_keys(results)
+
         return tuple(results)
 
     @fast_cache
@@ -688,6 +735,22 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 labels.append(item.key)
 
         return tuple(set(labels))
+
+    @fast_cache
+    def _get_sortable_fields(self):
+        """
+        gets all field names that could be used for result ordering by client.
+
+        :rtype: tuple[str]
+        """
+
+        list_fields = self._get_list_fields()
+        results = []
+        for item in list_fields:
+            if isinstance(item, (InstrumentedAttribute, Label)):
+                results.append(item.key)
+
+        return tuple(set(results))
 
     def get_entity(self):
         """
