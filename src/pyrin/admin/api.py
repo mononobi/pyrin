@@ -84,3 +84,14 @@ if is_enabled is True:
         """
 
         return admin_services.remove(register_name, pk)
+
+
+    @api(f'{url}info', **admin_config)
+    def get_info():
+        """
+        gets all admin pages info.
+
+        :rtype: list[dict]
+        """
+
+        return admin_services.get_info()

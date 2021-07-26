@@ -49,3 +49,10 @@ class AdminOperationNotAllowedError(CoreMethodNotAllowedError, AdminManagerBusin
     admin operation not allowed error.
     """
     pass
+
+
+class AdminPagesHaveNotLoadedError(AdminManagerException):
+    """
+    admin pages have not loaded error.
+    """
+    pass

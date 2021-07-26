@@ -3,6 +3,8 @@
 admin manager module.
 """
 
+from operator import itemgetter
+
 import pyrin.configuration.services as config_services
 
 from pyrin.core.globals import _
@@ -10,7 +12,7 @@ from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
-    AdminPageNotFoundError, AdminOperationNotAllowedError
+    AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
 
 
 class AdminManager(Manager):
@@ -35,6 +37,11 @@ class AdminManager(Manager):
         # in the form of:
         # {BaseEntity entity: AbstractAdminPage instance}
         self._admin_entities = Context()
+
+        # a tuple of all available admin pages info sorted by category and name.
+        # in the form of:
+        # (dict admin_info)
+        self._admin_info = None
 
         self._base_url = self._load_base_url()
 
@@ -291,3 +298,36 @@ class AdminManager(Manager):
                                                 .format(name=admin.get_register_name()))
 
         return admin.remove(pk)
+
+    def populate_info(self):
+        """
+        populates all admin pages info.
+        """
+
+        info = dict()
+        for name, admin in self._admin_pages.items():
+            pages = info.setdefault(admin.get_category(), [])
+            pages.append(admin.get_metadata())
+
+        result = list()
+        sorted_categories = sorted(info.keys())
+        for category in sorted_categories:
+            pages = info.get(category)
+            sorted_pages = sorted(pages, key=itemgetter('plural_name'))
+            result.extend(sorted_pages)
+
+        self._admin_info = tuple(result)
+
+    def get_info(self):
+        """
+        gets all admin pages info.
+
+        :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
+
+        :rtype: list[dict]
+        """
+
+        if self._admin_info is None:
+            raise AdminPagesHaveNotLoadedError('Admin pages have not loaded yet.')
+
+        return list(self._admin_info)

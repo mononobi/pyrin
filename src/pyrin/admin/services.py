@@ -69,6 +69,16 @@ def get_admin_configurations():
     return get_component(AdminPackage.COMPONENT_NAME).get_admin_configurations()
 
 
+def get_default_category():
+    """
+    gets the default category to be used for admin pages without category.
+
+    :rtype: str
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_default_category()
+
+
 def get(register_name, pk):
     """
     gets an entity with given primary key.
@@ -130,3 +140,23 @@ def remove(register_name, pk):
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk)
+
+
+def populate_info():
+    """
+    populates all admin pages info.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).populate_info()
+
+
+def get_info():
+    """
+    gets all admin pages info.
+
+    :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
+
+    :rtype: list[dict]
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_info()

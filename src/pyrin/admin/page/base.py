@@ -8,6 +8,7 @@ import inspect
 from sqlalchemy.sql.elements import Label
 from sqlalchemy.orm import InstrumentedAttribute
 
+import pyrin.admin.services as admin_services
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
@@ -774,15 +775,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets the category of this admin page.
 
-        it may return None if no category is set for this admin page.
-
         :rtype: str
         """
 
         if self.category not in (None, ''):
             return self.category.upper()
 
-        return None
+        return admin_services.get_default_category()
+
+    def get_plural_name(self):
+        """
+        gets the plural name of this admin page.
+
+        if plural name is not set, it returns the `name` instead.
+
+        :rtype: str
+        """
+
+        return self.plural_name or self.name
 
     def get(self, pk):
         """
@@ -925,6 +935,28 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self._has_single_primary_key() and self.remove_permission
+
+    @fast_cache
+    def get_metadata(self):
+        """
+        gets the metadata of this admin page.
+
+        :rtype: dict
+        """
+
+        metadata = dict()
+        metadata['name'] = self.name
+        metadata['plural_name'] = self.get_plural_name()
+        metadata['register_name'] = self.get_register_name()
+        metadata['category'] = self.get_category()
+        metadata['list_fields'] = self._get_list_field_names()
+        metadata['list_sortable_fields'] = self._get_sortable_fields()
+        metadata['pk'] = self.entity.primary_key_columns
+        metadata['has_create_permission'] = self.has_create_permission()
+        metadata['has_update_permission'] = self.has_update_permission()
+        metadata['has_remove_permission'] = self.has_remove_permission()
+        metadata['has_get_permission'] = self.has_get_permission()
+        return metadata
 
     @property
     def method_names(self):
