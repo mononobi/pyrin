@@ -956,6 +956,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_update_permission'] = self.has_update_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
+        metadata['url'] = f'{admin_services.get_admin_base_url()}{self.get_register_name()}/'
         return metadata
 
     @property
