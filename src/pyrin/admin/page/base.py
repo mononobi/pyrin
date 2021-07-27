@@ -45,7 +45,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # the register name is case-insensitive and must be unique for each admin page.
     register_name = None
 
-    # name of this admin page for representation.
+    # singular name of this admin page for representation.
     name = None
 
     # ===================== LIST CONFIGS ===================== #
@@ -787,12 +787,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets the plural name of this admin page.
 
-        if plural name is not set, it returns the `name` instead.
-
         :rtype: str
         """
 
-        return self.plural_name or self.name
+        return self.plural_name or admin_services.get_plural_name(self.name)
 
     def get(self, pk):
         """
@@ -956,7 +954,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_update_permission'] = self.has_update_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
-        metadata['url'] = f'{admin_services.get_admin_base_url()}{self.get_register_name()}/'
+        metadata['url'] = admin_services.url_for(self.get_register_name())
         return metadata
 
     @property

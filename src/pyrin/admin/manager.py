@@ -3,6 +3,8 @@
 admin manager module.
 """
 
+import re
+
 from operator import itemgetter
 
 import pyrin.configuration.services as config_services
@@ -331,3 +333,38 @@ class AdminManager(Manager):
             raise AdminPagesHaveNotLoadedError('Admin pages have not loaded yet.')
 
         return list(self._admin_info)
+
+    def url_for(self, register_name):
+        """
+        gets the base url for given admin page.
+
+        :param str register_name: admin page register name.
+
+        :rtype: str
+        """
+
+        return f'{self.get_admin_base_url()}{register_name.lower()}/'
+
+    def get_plural_name(self, name):
+        """
+        gets the plural name for given singular name.
+
+        for example:
+
+        ash -> ashes
+        name -> names
+        identity -> identities
+
+        :param str name: singular name to be converted to plural.
+
+        :rtype: str
+        """
+
+        if re.search('[sxz]$', name):
+            return re.sub('$', 'es', name)
+        elif re.search('[^aeioudgkprt]h$', name):
+            return re.sub('$', 'es', name)
+        elif re.search('[aeiotu]y$', name):
+            return re.sub('y$', 'ies', name)
+        else:
+            return name + 's'

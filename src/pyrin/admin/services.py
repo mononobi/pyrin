@@ -160,3 +160,33 @@ def get_info():
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).get_info()
+
+
+def url_for(register_name):
+    """
+    gets the base url for given admin page.
+
+    :param str register_name: admin page register name.
+
+    :rtype: str
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).url_for(register_name)
+
+
+def get_plural_name(name):
+    """
+    gets the plural name for given singular name.
+
+    for example:
+
+    ash -> ashes
+    name -> names
+    identity -> identities
+
+    :param str name: singular name to be converted to plural.
+
+    :rtype: str
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_plural_name(name)

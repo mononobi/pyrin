@@ -75,6 +75,18 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
+    def get_plural_name(self):
+        """
+        gets the plural name of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: str
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
     def get(self, pk):
         """
         gets an entity with given primary key.
