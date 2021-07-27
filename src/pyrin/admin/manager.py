@@ -364,7 +364,7 @@ class AdminManager(Manager):
             return re.sub('$', 'es', name)
         elif re.search('[^aeioudgkprt]h$', name):
             return re.sub('$', 'es', name)
-        elif re.search('[aeiotu]y$', name):
+        elif re.search('[^aeiou]y$', name):
             return re.sub('y$', 'ies', name)
         else:
             return name + 's'
