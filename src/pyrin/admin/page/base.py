@@ -155,10 +155,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # extra field names that are required to be provided for create and are
     # optional for update but they are not a field of the entity itself.
     # in the form of:
-    # {str field_name: type field_type}
+    # [str field_name]
     # for example:
-    # {'password': str, 'age': int, 'join_date': datetime}
-    extra_data_fields = {}
+    # ['password', 'age', 'join_date']
+    # if the provided names do not have related validators, the
+    # type of their values will be considered as string.
+    extra_data_fields = ()
 
     # column names to be used in search bar.
     search_fields = ()
@@ -754,9 +756,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return tuple(set(results))
 
     @fast_cache
-    def _get_create_fields(self):
+    def _get_data_fields(self):
         """
-        gets all create fields of this admin page.
+        gets all data fields of this admin page.
 
         :rtype: tuple[dict]
         """
@@ -772,6 +774,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 item.update(validator.get_info())
 
             fields.append(item)
+
+        if self.extra_data_fields:
+            for name in self.extra_data_fields:
+                item = dict(name=name)
+                validator = validator_services.try_get_validator(self.entity, name)
+                if validator is not None:
+                    item.update(validator.get_info())
+
+                fields.append(item)
 
         return tuple(fields)
 
@@ -977,7 +988,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
-        metadata['create_fields'] = self._get_create_fields()
+        metadata['create_fields'] = self._get_data_fields()
         return metadata
 
     @property
