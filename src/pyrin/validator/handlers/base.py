@@ -27,10 +27,15 @@ class ValidatorBase(AbstractValidatorBase):
     all application validators must be subclassed from this.
     """
 
-    # the format of this validator's type.
+    # the client type of this validator.
+    # this is used in admin client to render correct field for the related type.
+    # the type must be from `ParameterTypeEnum` values.
+    _client_type = None
+
+    # the client format of this validator's type.
     # this is used in admin client to render correct field for the related type.
     # the format must be from `ParameterFormatEnum` values.
-    _format = None
+    _client_format = None
 
     invalid_type_error = InvalidValueTypeError
     invalid_type_message = _('The provided value for [{param_name}] '
@@ -789,10 +794,10 @@ class ValidatorBase(AbstractValidatorBase):
         gets the info of this validator.
 
         :returns: dict(bool nullable: is nullable,
-                       type type: value type,
                        bool create_default: has default on create,
                        bool update_default: has default on update,
-                       str format: the format of related type)
+                       str client_type: the client type,
+                       str client_format: the client format of related type)
         :rtype: dict
         """
 
@@ -810,10 +815,10 @@ class ValidatorBase(AbstractValidatorBase):
         update_default = is_auto_increment or has_update_default
 
         info = dict(nullable=self.nullable,
-                    type=self.accepted_type,
                     create_default=create_default,
                     update_default=update_default,
-                    format=self._format)
+                    client_type=self._client_type,
+                    client_format=self._client_format)
 
         extra_info = self._get_info()
         if extra_info:

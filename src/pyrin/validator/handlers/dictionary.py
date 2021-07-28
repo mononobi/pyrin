@@ -5,6 +5,7 @@ validator handlers dictionary module.
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
+from pyrin.api.swagger.enumerations import ParameterTypeEnum
 from pyrin.validator.handlers.exceptions import ValueIsNotDictError
 
 
@@ -13,6 +14,7 @@ class DictionaryValidator(ValidatorBase):
     dictionary validator class.
     """
 
+    _client_type = ParameterTypeEnum.OBJECT
     invalid_type_error = ValueIsNotDictError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a dictionary.')

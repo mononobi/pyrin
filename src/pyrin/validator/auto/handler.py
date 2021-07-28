@@ -92,6 +92,27 @@ class AutoValidator(AbstractValidatorBase):
 
         return fixed_value
 
+    def get_info(self):
+        """
+        gets the info of this validator.
+
+        :returns: dict(bool nullable: is nullable,
+                       bool create_default: has default on create,
+                       bool update_default: has default on update,
+                       str client_type: the client type,
+                       str client_format: the client format of related type)
+        :rtype: dict
+        """
+
+        info = dict()
+        if self._type_validator is not None:
+            info.update(self._type_validator.get_info())
+
+        if self._custom_validator is not None:
+            info.update(self._custom_validator.get_info())
+
+        return info
+
     @property
     def name(self):
         """

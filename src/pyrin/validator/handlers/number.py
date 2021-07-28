@@ -9,7 +9,7 @@ import pyrin.utils.number as number_utils
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.api.swagger.enumerations import ParameterFormatEnum
+from pyrin.api.swagger.enumerations import ParameterFormatEnum, ParameterTypeEnum
 from pyrin.validator.handlers.exceptions import ValueIsNotNumberError, \
     ValueIsNotIntegerError, ValueIsNotFloatError, ValueIsNotDecimalError
 
@@ -19,6 +19,7 @@ class NumberValidator(ValidatorBase):
     number validator class.
     """
 
+    _client_type = ParameterTypeEnum.NUMBER
     invalid_type_error = ValueIsNotNumberError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a number.')
@@ -100,6 +101,7 @@ class IntegerValidator(ValidatorBase):
     integer validator class.
     """
 
+    _client_type = ParameterTypeEnum.INTEGER
     invalid_type_error = ValueIsNotIntegerError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be an integer.')
@@ -182,7 +184,8 @@ class FloatValidator(ValidatorBase):
     float validator class.
     """
 
-    _format = ParameterFormatEnum.FLOAT
+    _client_type = ParameterTypeEnum.NUMBER
+    _client_format = ParameterFormatEnum.FLOAT
     invalid_type_error = ValueIsNotFloatError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a float number.')
@@ -266,7 +269,8 @@ class DecimalValidator(ValidatorBase):
     decimal validator class.
     """
 
-    _format = ParameterFormatEnum.DOUBLE
+    _client_type = ParameterTypeEnum.NUMBER
+    _client_format = ParameterFormatEnum.DOUBLE
     invalid_type_error = ValueIsNotDecimalError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a decimal number.')

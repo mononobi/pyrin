@@ -59,10 +59,10 @@ class AbstractValidatorBase(CoreObject):
         :raises CoreNotImplementedError: core not implemented error.
 
         :returns: dict(bool nullable: is nullable,
-                       type type: value type,
                        bool create_default: has default on create,
                        bool update_default: has default on update,
-                       str format: the format of related type)
+                       str client_type: the client type,
+                       str client_format: the client format of related type)
 
         :rtype: dict
         """
