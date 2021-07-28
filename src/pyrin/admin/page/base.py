@@ -753,6 +753,28 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return tuple(set(results))
 
+    @fast_cache
+    def _get_create_fields(self):
+        """
+        gets all create fields of this admin page.
+
+        :rtype: tuple[dict]
+        """
+
+        fields = []
+        writable_columns = self.entity.writable_primary_key_columns + \
+            self.entity.writable_foreign_key_columns + self.entity.writable_columns
+        for name in writable_columns:
+            item = dict(name=name)
+            validator = validator_services.try_get_validator(self.entity,
+                                                             self.entity.get_attribute(name))
+            if validator is not None:
+                item.update(validator.get_info())
+
+            fields.append(item)
+
+        return tuple(fields)
+
     def get_entity(self):
         """
         gets the entity class of this admin page.
@@ -955,6 +977,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
+        metadata['create_fields'] = self._get_create_fields()
         return metadata
 
     @property
