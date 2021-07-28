@@ -988,7 +988,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
-        metadata['create_fields'] = self._get_data_fields()
+        metadata['data_fields'] = self._get_data_fields()
         return metadata
 
     @property
