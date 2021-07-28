@@ -27,6 +27,11 @@ class ValidatorBase(AbstractValidatorBase):
     all application validators must be subclassed from this.
     """
 
+    # the format of this validator's type.
+    # this is used in admin client to render correct field for the related type.
+    # the format must be from `ParameterFormatEnum` values.
+    _format = None
+
     invalid_type_error = InvalidValueTypeError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'is not an instance of {type}.')
@@ -767,6 +772,54 @@ class ValidatorBase(AbstractValidatorBase):
             return value(*args)
 
         return value
+
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        this method is intended to be overridden in subclasses.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def get_info(self):
+        """
+        gets the info of this validator.
+
+        :returns: dict(bool nullable: is nullable,
+                       type type: value type,
+                       bool create_default: has default on create,
+                       bool update_default: has default on update,
+                       str format: the format of related type)
+        :rtype: dict
+        """
+
+        is_auto_increment = False
+        has_default = False
+        has_update_default = False
+        if self.field is not None:
+            is_auto_increment = self.field.autoincrement is True
+            has_default = self.field.default is not None or \
+                self.field.server_default is not None
+            has_update_default = self.field.onupdate is not None or \
+                self.field.server_onupdate is not None
+
+        create_default = is_auto_increment or has_default
+        update_default = is_auto_increment or has_update_default
+
+        info = dict(nullable=self.nullable,
+                    type=self.accepted_type,
+                    create_default=create_default,
+                    update_default=update_default,
+                    format=self._format)
+
+        extra_info = self._get_info()
+        if extra_info:
+            info.update(extra_info)
+
+        return info
 
     @property
     def name(self):

@@ -51,6 +51,24 @@ class AbstractValidatorBase(CoreObject):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def get_info(self):
+        """
+        gets the info of this validator.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: dict(bool nullable: is nullable,
+                       type type: value type,
+                       bool create_default: has default on create,
+                       bool update_default: has default on update,
+                       str format: the format of related type)
+
+        :rtype: dict
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def name(self):

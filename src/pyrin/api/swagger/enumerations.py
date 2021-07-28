@@ -74,6 +74,7 @@ class ParameterFormatEnum(CoreEnum):
     UUID = 'uuid'
     EMAIL = 'email'
     DATE = 'date'
+    TIME = 'time'
     DATE_TIME = 'date-time'
     PASSWORD = 'password'
     BYTE = 'byte'

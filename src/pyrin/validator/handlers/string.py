@@ -10,6 +10,7 @@ from sqlalchemy import String
 import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import _
+from pyrin.api.swagger.enumerations import ParameterFormatEnum
 from pyrin.database.orm.sql.schema.columns import StringColumn
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStringLengthError, \
@@ -264,6 +265,24 @@ class StringValidator(ValidatorBase):
         """
         pass
 
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = dict(min_length=self.minimum_length,
+                    max_length=self.maximum_length,
+                    allow_blank=self.allow_blank,
+                    allow_whitespace=self.allow_whitespace)
+
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
+
     @property
     def minimum_length(self):
         """
@@ -500,6 +519,7 @@ class EmailValidator(RegexValidator):
     email validator class.
     """
 
+    _format = ParameterFormatEnum.EMAIL
     regex = r'^[a-z0-9]+([a-z0-9\.]*[a-z0-9]+)*[@]\w+[\.]\w{2,3}([\.]\w{2,3})?$'
     pattern_not_match_error = InvalidEmailError
     pattern_not_match_message = _('The provided value for [{param_name}] '
@@ -539,8 +559,8 @@ class IPv4Validator(RegexValidator):
     ipv4 validator class.
     """
 
+    _format = ParameterFormatEnum.IPV4
     regex = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
-
     pattern_not_match_error = InvalidIPv4Error
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid IPv4 address.')
@@ -585,8 +605,8 @@ class URLValidator(RegexValidator):
     this matches urls starting with `www`.
     """
 
+    _format = ParameterFormatEnum.URI
     regex = r'^www\..+\.\w+$'
-
     pattern_not_match_error = InvalidURLError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid url.')
@@ -628,7 +648,6 @@ class HTTPValidator(URLValidator):
     """
 
     regex = r'^http://www\..+\.\w+$'
-
     pattern_not_match_error = InvalidHTTPURLError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid http url.')
@@ -644,7 +663,6 @@ class HTTPSValidator(URLValidator):
     """
 
     regex = r'^https://www\..+\.\w+$'
-
     pattern_not_match_error = InvalidHTTPSURLError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid https url.')

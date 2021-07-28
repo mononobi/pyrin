@@ -7,6 +7,7 @@ from uuid import UUID
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
+from pyrin.api.swagger.enumerations import ParameterFormatEnum
 from pyrin.validator.handlers.exceptions import ValueIsNotUUIDError, ValueIsNotUUID4Error
 
 
@@ -15,6 +16,7 @@ class UUIDValidator(ValidatorBase):
     uuid validator class.
     """
 
+    _format = ParameterFormatEnum.UUID
     invalid_type_error = ValueIsNotUUIDError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be of uuid type.')
