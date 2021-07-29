@@ -814,6 +814,27 @@ class InValidator(ValidatorBase):
                 param_name=self._get_field_name(**options),
                 values=self._get_list_representation(current_valid)))
 
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = {}
+        if self.valid_values_provider is not None and \
+                not callable(self.valid_values_provider):
+            info.update(check_in=self.valid_values)
+
+        if self.field is not None and self.field.check_in_enum is not None:
+            info.update(in_enum=self.field.check_in_enum.to_tuple())
+
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
+
     @property
     def valid_values(self):
         """
@@ -1003,6 +1024,27 @@ class NotInValidator(ValidatorBase):
             raise self.in_value_error(self.in_value_message.format(
                 param_name=self._get_field_name(**options),
                 values=self._get_list_representation(current_invalid)))
+
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = {}
+        if self.invalid_values_provider is not None and \
+                not callable(self.invalid_values_provider):
+            info.update(check_not_in=self.invalid_values)
+
+        if self.field is not None and self.field.check_not_in_enum is not None:
+            info.update(not_in_enum=self.field.check_not_in_enum.to_tuple())
+
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
 
     @property
     def invalid_values(self):
