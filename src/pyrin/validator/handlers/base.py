@@ -793,11 +793,11 @@ class ValidatorBase(AbstractValidatorBase):
         """
         gets the info of this validator.
 
-        :returns: dict(bool nullable: is nullable,
-                       bool create_default: has default on create,
-                       bool update_default: has default on update,
+        :returns: dict(bool create_required: is required for create,
+                       bool update_required: is required for update,
                        str client_type: the client type,
                        str client_format: the client format of related type)
+
         :rtype: dict
         """
 
@@ -813,10 +813,11 @@ class ValidatorBase(AbstractValidatorBase):
 
         create_default = is_auto_increment or has_default
         update_default = is_auto_increment or has_update_default
+        create_required = not self.nullable and not create_default
+        update_required = not self.nullable and not update_default
 
-        info = dict(nullable=self.nullable,
-                    create_default=create_default,
-                    update_default=update_default,
+        info = dict(create_required=create_required,
+                    update_required=update_required,
                     client_type=self._client_type,
                     client_format=self._client_format)
 

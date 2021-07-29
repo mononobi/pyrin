@@ -96,11 +96,11 @@ class AutoValidator(AbstractValidatorBase):
         """
         gets the info of this validator.
 
-        :returns: dict(bool nullable: is nullable,
-                       bool create_default: has default on create,
-                       bool update_default: has default on update,
+        :returns: dict(bool create_required: is required for create,
+                       bool update_required: is required for update,
                        str client_type: the client type,
                        str client_format: the client format of related type)
+
         :rtype: dict
         """
 
