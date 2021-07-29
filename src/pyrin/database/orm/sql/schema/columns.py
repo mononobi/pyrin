@@ -158,23 +158,28 @@ class StringColumn(CoreColumn):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list | callable check_in: list of valid values for this column.
-                                           it could also be a callable without any inputs.
-                                           if a non-callable is provided and the column is
-                                           not a primary key and also column name is provided,
-                                           it will result in check constraint generation on
-                                           database. otherwise it will be ignored and could
-                                           be used in validators.
-                                           defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_in: list of valid values for this column.
+                                                      it could also be a callable without
+                                                      any inputs or an enum class. if a
+                                                      non-callable or enum class is provided
+                                                      and the column is not a primary key and
+                                                      also column name is provided, it will
+                                                      result in check constraint generation
+                                                      on database. otherwise it will be ignored
+                                                      and could be used in validators.
+                                                      defaults to None if not provided.
 
-        :keyword list | callable check_not_in: list of invalid values for this column.
-                                               it could also be a callable without any inputs.
-                                               if a non-callable is provided and the column is
-                                               not a primary key and also column name is provided,
-                                               it will result in check constraint generation on
-                                               database. otherwise it will be ignored and could
-                                               be used in validators.
-                                               defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_not_in: list of invalid values for this column.
+                                                          it could also be a callable without any
+                                                          inputs or an enum class. if a
+                                                          non-callable or enum class is provided
+                                                          and the column is not a primary key
+                                                          and also column name is provided, it
+                                                          will result in check constraint
+                                                          generation on database. otherwise it
+                                                          will be ignored and could be used
+                                                          in validators.
+                                                          defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
@@ -595,23 +600,28 @@ class FKColumn(CoreColumn):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list | callable check_in: list of valid values for this column.
-                                           it could also be a callable without any inputs.
-                                           if a non-callable is provided and the column is
-                                           not a primary key and also column name is provided,
-                                           it will result in check constraint generation on
-                                           database. otherwise it will be ignored and could
-                                           be used in validators.
-                                           defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_in: list of valid values for this column.
+                                                      it could also be a callable without
+                                                      any inputs or an enum class. if a
+                                                      non-callable or enum class is provided
+                                                      and the column is not a primary key and
+                                                      also column name is provided, it will
+                                                      result in check constraint generation
+                                                      on database. otherwise it will be ignored
+                                                      and could be used in validators.
+                                                      defaults to None if not provided.
 
-        :keyword list | callable check_not_in: list of invalid values for this column.
-                                               it could also be a callable without any inputs.
-                                               if a non-callable is provided and the column is
-                                               not a primary key and also column name is provided,
-                                               it will result in check constraint generation on
-                                               database. otherwise it will be ignored and could
-                                               be used in validators.
-                                               defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_not_in: list of invalid values for this column.
+                                                          it could also be a callable without any
+                                                          inputs or an enum class. if a
+                                                          non-callable or enum class is provided
+                                                          and the column is not a primary key
+                                                          and also column name is provided, it
+                                                          will result in check constraint
+                                                          generation on database. otherwise it
+                                                          will be ignored and could be used
+                                                          in validators.
+                                                          defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
@@ -812,23 +822,28 @@ class HiddenColumn(CoreColumn):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list | callable check_in: list of valid values for this column.
-                                           it could also be a callable without any inputs.
-                                           if a non-callable is provided and the column is
-                                           not a primary key and also column name is provided,
-                                           it will result in check constraint generation on
-                                           database. otherwise it will be ignored and could
-                                           be used in validators.
-                                           defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_in: list of valid values for this column.
+                                                      it could also be a callable without
+                                                      any inputs or an enum class. if a
+                                                      non-callable or enum class is provided
+                                                      and the column is not a primary key and
+                                                      also column name is provided, it will
+                                                      result in check constraint generation
+                                                      on database. otherwise it will be ignored
+                                                      and could be used in validators.
+                                                      defaults to None if not provided.
 
-        :keyword list | callable check_not_in: list of invalid values for this column.
-                                               it could also be a callable without any inputs.
-                                               if a non-callable is provided and the column is
-                                               not a primary key and also column name is provided,
-                                               it will result in check constraint generation on
-                                               database. otherwise it will be ignored and could
-                                               be used in validators.
-                                               defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_not_in: list of invalid values for this column.
+                                                          it could also be a callable without any
+                                                          inputs or an enum class. if a
+                                                          non-callable or enum class is provided
+                                                          and the column is not a primary key
+                                                          and also column name is provided, it
+                                                          will result in check constraint
+                                                          generation on database. otherwise it
+                                                          will be ignored and could be used
+                                                          in validators.
+                                                          defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
@@ -1647,23 +1662,28 @@ class TextColumn(StringColumn):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list | callable check_in: list of valid values for this column.
-                                           it could also be a callable without any inputs.
-                                           if a non-callable is provided and the column is
-                                           not a primary key and also column name is provided,
-                                           it will result in check constraint generation on
-                                           database. otherwise it will be ignored and could
-                                           be used in validators.
-                                           defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_in: list of valid values for this column.
+                                                      it could also be a callable without
+                                                      any inputs or an enum class. if a
+                                                      non-callable or enum class is provided
+                                                      and the column is not a primary key and
+                                                      also column name is provided, it will
+                                                      result in check constraint generation
+                                                      on database. otherwise it will be ignored
+                                                      and could be used in validators.
+                                                      defaults to None if not provided.
 
-        :keyword list | callable check_not_in: list of invalid values for this column.
-                                               it could also be a callable without any inputs.
-                                               if a non-callable is provided and the column is
-                                               not a primary key and also column name is provided,
-                                               it will result in check constraint generation on
-                                               database. otherwise it will be ignored and could
-                                               be used in validators.
-                                               defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_not_in: list of invalid values for this column.
+                                                          it could also be a callable without any
+                                                          inputs or an enum class. if a
+                                                          non-callable or enum class is provided
+                                                          and the column is not a primary key
+                                                          and also column name is provided, it
+                                                          will result in check constraint
+                                                          generation on database. otherwise it
+                                                          will be ignored and could be used
+                                                          in validators.
+                                                          defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.

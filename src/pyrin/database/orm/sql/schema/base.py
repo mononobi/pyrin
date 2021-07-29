@@ -3,6 +3,8 @@
 orm sql schema base module.
 """
 
+import inspect
+
 from uuid import UUID
 
 import sqlalchemy.dialects.mssql as mssql_types
@@ -13,6 +15,7 @@ from sqlalchemy.exc import ArgumentError
 from sqlalchemy import Column, util, ARRAY
 from sqlalchemy.sql.type_api import Variant
 
+from pyrin.core.enumerations import CoreEnum
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
 from pyrin.caching.decorators import cached_property
@@ -144,23 +147,28 @@ class CoreColumn(Column, CoreColumnOperators):
                                               be used in validators.
                                               defaults to None if not provided.
 
-        :keyword list | callable check_in: list of valid values for this column.
-                                           it could also be a callable without any inputs.
-                                           if a non-callable is provided and the column is
-                                           not a primary key and also column name is provided,
-                                           it will result in check constraint generation on
-                                           database. otherwise it will be ignored and could
-                                           be used in validators.
-                                           defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_in: list of valid values for this column.
+                                                      it could also be a callable without
+                                                      any inputs or an enum class. if a
+                                                      non-callable or enum class is provided
+                                                      and the column is not a primary key and
+                                                      also column name is provided, it will
+                                                      result in check constraint generation
+                                                      on database. otherwise it will be ignored
+                                                      and could be used in validators.
+                                                      defaults to None if not provided.
 
-        :keyword list | callable check_not_in: list of invalid values for this column.
-                                               it could also be a callable without any inputs.
-                                               if a non-callable is provided and the column is
-                                               not a primary key and also column name is provided,
-                                               it will result in check constraint generation on
-                                               database. otherwise it will be ignored and could
-                                               be used in validators.
-                                               defaults to None if not provided.
+        :keyword list | CoreEnum | callable check_not_in: list of invalid values for this column.
+                                                          it could also be a callable without any
+                                                          inputs or an enum class. if a
+                                                          non-callable or enum class is provided
+                                                          and the column is not a primary key
+                                                          and also column name is provided, it
+                                                          will result in check constraint
+                                                          generation on database. otherwise it
+                                                          will be ignored and could be used
+                                                          in validators.
+                                                          defaults to None if not provided.
 
         :note check_in, check_not_in: only one of these options could be provided.
                                       otherwise it raises an error.
@@ -196,6 +204,8 @@ class CoreColumn(Column, CoreColumnOperators):
         self.validated = kwargs.pop('validated', True)
         self.validated_find = kwargs.pop('validated_find', self.validated)
         self.validated_range = kwargs.pop('validated_range', self.validated_find)
+        self.check_in_enum = None
+        self.check_not_in_enum = None
 
         super().__init__(*args, **kwargs)
 
@@ -234,8 +244,24 @@ class CoreColumn(Column, CoreColumnOperators):
                 raise CheckConstraintConflictError('Both "check_in" and "check_not_in" could '
                                                    'not be provided at the same time.')
 
+            is_in_enum = inspect.isclass(self.check_in) and \
+                issubclass(self.check_in, CoreEnum)
+            is_not_in_enum = inspect.isclass(self.check_not_in) and \
+                issubclass(self.check_not_in, CoreEnum)
+
             is_check_in_callable = callable(self.check_in)
             is_check_not_in_callable = callable(self.check_not_in)
+
+            if is_in_enum:
+                self.check_in_enum = self.check_in
+                self.check_in = self.check_in.values()
+                is_check_in_callable = False
+
+            if is_not_in_enum:
+                self.check_not_in_enum = self.check_not_in
+                self.check_not_in = self.check_not_in.values()
+                is_check_not_in_callable = False
+
             if self.check_in is not None and not is_check_in_callable \
                     and not (isinstance(self.check_in, LIST_TYPES)
                              and len(self.check_in) > 0):
@@ -368,6 +394,8 @@ class CoreColumn(Column, CoreColumnOperators):
         column.validated = self.validated
         column.validated_find = self.validated_find
         column.validated_range = self.validated_range
+        column.check_in_enum = self.check_in_enum
+        column.check_not_in_enum = self.check_not_in_enum
 
         return column
 
