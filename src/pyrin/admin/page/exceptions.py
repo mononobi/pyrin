@@ -76,3 +76,10 @@ class CompositePrimaryKeysNotSupportedError(AdminPageException):
     composite primary keys not supported error.
     """
     pass
+
+
+class ColumnIsNotForeignKeyError(AdminPageException):
+    """
+    column is not foreign key error.
+    """
+    pass

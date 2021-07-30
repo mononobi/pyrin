@@ -30,7 +30,7 @@ from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
-    CompositePrimaryKeysNotSupportedError
+    CompositePrimaryKeysNotSupportedError, ColumnIsNotForeignKeyError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -768,8 +768,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param str name: attribute name of entity.
 
+        :raises ColumnIsNotForeignKeyError: column is not foreign key error.
+
         :rtype: str
         """
+
+        if name not in self.entity.foreign_key_columns:
+            raise ColumnIsNotForeignKeyError('Provided column [{name}] is not a '
+                                             'foreign key of [{entity}] class.'
+                                             .format(name=name, entity=self.entity))
 
         attribute = self.entity.get_attribute(name)
         foreign_keys = list(attribute.property.columns[0].foreign_keys)
