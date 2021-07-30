@@ -24,19 +24,19 @@ def register(instance, **options):
     return get_component(AdminPackage.COMPONENT_NAME).register(instance, **options)
 
 
-def try_get_admin_page(register_name):
+def try_get_admin_page(entity):
     """
-    gets the admin page with given register name.
+    gets the admin page for given entity class.
 
     it returns None if admin page does not exist.
 
-    :param str register_name: register name of admin page to be get.
-                              this name is case-insensitive.
+    :param type[pyrin.database.model.base.BaseEntity] entity: the entity class of
+                                                              admin page to be get.
 
     :rtype: pyrin.admin.interface.AbstractAdminPage
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).try_get_admin_page(register_name)
+    return get_component(AdminPackage.COMPONENT_NAME).try_get_admin_page(entity)
 
 
 def is_admin_enabled():

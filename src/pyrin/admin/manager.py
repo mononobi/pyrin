@@ -123,22 +123,19 @@ class AdminManager(Manager):
 
         return self._admin_pages.get(name)
 
-    def try_get_admin_page(self, register_name):
+    def try_get_admin_page(self, entity):
         """
-        gets the admin page with given register name.
+        gets the admin page for given entity class.
 
         it returns None if admin page does not exist.
 
-        :param str register_name: register name of admin page to be get.
-                                  this name is case-insensitive.
+        :param type[pyrin.database.model.base.BaseEntity] entity: the entity class of
+                                                                  admin page to be get.
 
         :rtype: pyrin.admin.interface.AbstractAdminPage
         """
 
-        with suppress(AdminPageNotFoundError, log=False):
-            return self._get_admin_page(register_name)
-
-        return None
+        return self._admin_entities.get(entity)
 
     def is_admin_enabled(self):
         """
