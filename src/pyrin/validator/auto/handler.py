@@ -105,6 +105,9 @@ class AutoValidator(AbstractValidatorBase):
         """
 
         info = dict()
+        if self._in_validator is not None:
+            info.update(self._in_validator.get_info())
+        
         if self._type_validator is not None:
             info.update(self._type_validator.get_info())
 

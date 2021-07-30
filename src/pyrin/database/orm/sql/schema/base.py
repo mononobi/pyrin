@@ -204,8 +204,16 @@ class CoreColumn(Column, CoreColumnOperators):
         self.validated = kwargs.pop('validated', True)
         self.validated_find = kwargs.pop('validated_find', self.validated)
         self.validated_range = kwargs.pop('validated_range', self.validated_find)
+
         self.check_in_enum = None
         self.check_not_in_enum = None
+        if inspect.isclass(self.check_in) and \
+                issubclass(self.check_in, CoreEnum):
+            self.check_in_enum = self.check_in
+
+        if inspect.isclass(self.check_not_in) and \
+                issubclass(self.check_not_in, CoreEnum):
+            self.check_not_in_enum = self.check_not_in
 
         super().__init__(*args, **kwargs)
 
@@ -244,21 +252,14 @@ class CoreColumn(Column, CoreColumnOperators):
                 raise CheckConstraintConflictError('Both "check_in" and "check_not_in" could '
                                                    'not be provided at the same time.')
 
-            is_in_enum = inspect.isclass(self.check_in) and \
-                issubclass(self.check_in, CoreEnum)
-            is_not_in_enum = inspect.isclass(self.check_not_in) and \
-                issubclass(self.check_not_in, CoreEnum)
-
             is_check_in_callable = callable(self.check_in)
             is_check_not_in_callable = callable(self.check_not_in)
 
-            if is_in_enum:
-                self.check_in_enum = self.check_in
+            if self.check_in_enum is not None:
                 self.check_in = self.check_in.values()
                 is_check_in_callable = False
 
-            if is_not_in_enum:
-                self.check_not_in_enum = self.check_not_in
+            if self.check_not_in_enum is not None:
                 self.check_not_in = self.check_not_in.values()
                 is_check_not_in_callable = False
 

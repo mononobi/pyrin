@@ -194,6 +194,7 @@ class CoreEnumMeta(type):
     __enum_names = None
     __enum_values = None
     __enum_dict = None
+    __enum_options = None
 
     @staticmethod
     def __new__(mcs, *args, **kwargs):
@@ -332,6 +333,7 @@ class CoreEnumMeta(type):
 
         names = []
         values = []
+        options = []
         dictionary = OrderedDict()
         for name in cls.__dict__:
             item = cls.__dict__.get(name)
@@ -341,11 +343,13 @@ class CoreEnumMeta(type):
                     item = item.value
                 names.append(name)
                 values.append(item)
+                options.append(dict(name=name, value=item))
                 dictionary[item] = name
 
         cls.__enum_names = tuple(names)
         cls.__enum_values = tuple(values)
         cls.__enum_dict = dictionary
+        cls.__enum_options = tuple(options)
 
     def values(cls):
         """
@@ -370,6 +374,18 @@ class CoreEnumMeta(type):
             cls._populate_members()
 
         return cls.__enum_names
+
+    def options(cls):
+        """
+        gets a tuple containing all names and values in the enumeration.
+
+        :rtype: tuple[dict]
+        """
+
+        if cls.__enum_options is None:
+            cls._populate_members()
+
+        return cls.__enum_options
 
     def to_dict(cls):
         """

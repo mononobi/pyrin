@@ -827,7 +827,7 @@ class InValidator(ValidatorBase):
             info.update(check_in=self.valid_values)
 
         if self.field is not None and self.field.check_in_enum is not None:
-            info.update(in_enum=self.field.check_in_enum.to_tuple())
+            info.update(in_enum=self.field.check_in_enum.options())
 
         base_info = super()._get_info()
         if base_info:
@@ -1038,7 +1038,7 @@ class NotInValidator(ValidatorBase):
             info.update(check_not_in=self.invalid_values)
 
         if self.field is not None and self.field.check_not_in_enum is not None:
-            info.update(not_in_enum=self.field.check_not_in_enum.to_tuple())
+            info.update(not_in_enum=self.field.check_not_in_enum.options())
 
         base_info = super()._get_info()
         if base_info:
