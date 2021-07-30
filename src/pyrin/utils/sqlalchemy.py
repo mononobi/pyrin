@@ -338,7 +338,7 @@ def check_constraint(column, values, **options):
     if the first item of values is a string, all values will be quoted.
 
     :param str column: column name to be used in check constraint.
-    :param list values: values to be used in check constraint.
+    :param list | tuple values: values to be used in check constraint.
 
     :keyword bool use_in: specifies that it must generate an `in` check.
                           otherwise it generates a `not in` check.
