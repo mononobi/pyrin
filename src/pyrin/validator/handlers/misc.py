@@ -185,6 +185,25 @@ class MinimumValidator(ValidatorBase):
                                                   minimum=self._get_representation(current_min),
                                                   or_equal=equality))
 
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = {}
+        if self.accepted_minimum_provider is not None and \
+                not callable(self.accepted_minimum_provider):
+            info.update(min_value=self.accepted_minimum,
+                        inclusive_minimum=self.inclusive_minimum)
+
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
+
     @property
     def accepted_minimum(self):
         """
@@ -416,6 +435,25 @@ class MaximumValidator(ValidatorBase):
                 self.maximum_value_message.format(param_name=self._get_field_name(**options),
                                                   maximum=self._get_representation(current_max),
                                                   or_equal=equality))
+
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = {}
+        if self.accepted_maximum_provider is not None and \
+                not callable(self.accepted_maximum_provider):
+            info.update(max_value=self.accepted_maximum,
+                        inclusive_maximum=self.inclusive_maximum)
+
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
 
     @property
     def accepted_maximum(self):
