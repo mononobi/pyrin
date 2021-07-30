@@ -210,10 +210,12 @@ class CoreColumn(Column, CoreColumnOperators):
         if inspect.isclass(self.check_in) and \
                 issubclass(self.check_in, CoreEnum):
             self.check_in_enum = self.check_in
+            self.check_in = self.check_in.values()
 
         if inspect.isclass(self.check_not_in) and \
                 issubclass(self.check_not_in, CoreEnum):
             self.check_not_in_enum = self.check_not_in
+            self.check_not_in = self.check_not_in.values()
 
         super().__init__(*args, **kwargs)
 
@@ -254,14 +256,6 @@ class CoreColumn(Column, CoreColumnOperators):
 
             is_check_in_callable = callable(self.check_in)
             is_check_not_in_callable = callable(self.check_not_in)
-
-            if self.check_in_enum is not None:
-                self.check_in = self.check_in.values()
-                is_check_in_callable = False
-
-            if self.check_not_in_enum is not None:
-                self.check_not_in = self.check_not_in.values()
-                is_check_not_in_callable = False
 
             if self.check_in is not None and not is_check_in_callable \
                     and not (isinstance(self.check_in, LIST_TYPES)
