@@ -121,6 +121,29 @@ def get_package_path(module_name):
     return parts[0]
 
 
+def get_object_package_name(value):
+    """
+    gets the package name of given object.
+
+    it may return None if the provided object has no `__module__` attribute.
+
+    :param object value: object to get its package name.
+
+    :rtype: str
+    """
+
+    try:
+        module = value.__module__
+        parts = module.split('.')
+        if len(parts) >= 2:
+            return parts[-2]
+        else:
+            return parts[0]
+
+    except AttributeError:
+        return None
+
+
 def create_directory(target, ignore_existed=False):
     """
     creates a directory with given absolute target path.

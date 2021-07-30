@@ -12,6 +12,7 @@ import pyrin.admin.services as admin_services
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
+import pyrin.utils.path as path_utils
 
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
@@ -147,6 +148,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # the category name to register this admin page in it.
     # all admin pages with the same category will be grouped together.
     # the category name is case-insensitive.
+    # it will be set to the package name of current admin page if not provided.
     category = None
 
     # plural name of this admin page for representation.
@@ -813,6 +815,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         if self.category not in (None, ''):
             return self.category.upper()
+
+        package = path_utils.get_object_package_name(self)
+        if package is not None:
+            return package.upper()
 
         return admin_services.get_default_category()
 
