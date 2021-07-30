@@ -91,8 +91,8 @@ class AdminManager(Manager):
 
         it returns the removed admin page.
 
-        :param pyrin.database.model.base.BaseEntity entity: the entity class of
-                                                            admin page to be removed.
+        :param type[pyrin.database.model.base.BaseEntity] entity: the entity class of
+                                                                  admin page to be removed.
 
         :rtype: pyrin.admin.interface.AbstractAdminPage
         """
@@ -102,6 +102,25 @@ class AdminManager(Manager):
             return self._remove_from_pages(instance.get_register_name())
 
         return None
+
+    def _get_admin_page(self, register_name):
+        """
+        gets the admin page with given register name.
+
+        :param str register_name: register name of admin page to be get.
+                                  this name is case-insensitive.
+
+        :raises AdminPageNotFoundError: admin page not found error.
+
+        :rtype: pyrin.admin.interface.AbstractAdminPage
+        """
+
+        name = str(register_name).lower()
+        if name not in self._admin_pages:
+            raise AdminPageNotFoundError(_('Admin page [{name}] not found.')
+                                         .format(name=name))
+
+        return self._admin_pages.get(name)
 
     def is_admin_enabled(self):
         """
@@ -207,25 +226,6 @@ class AdminManager(Manager):
 
         self._admin_pages[instance.get_register_name()] = instance
         self._admin_entities[instance.get_entity()] = instance
-
-    def _get_admin_page(self, register_name):
-        """
-        gets the admin page with given register name.
-
-        :param str register_name: register name of admin page to be get.
-                                  this name is case-insensitive.
-
-        :raises AdminPageNotFoundError: admin page not found error.
-
-        :rtype: pyrin.admin.interface.AbstractAdminPage
-        """
-
-        name = str(register_name).lower()
-        if name not in self._admin_pages:
-            raise AdminPageNotFoundError(_('Admin page [{name}] not found.')
-                                         .format(name=name))
-
-        return self._admin_pages.get(name)
 
     def get(self, register_name, pk):
         """
