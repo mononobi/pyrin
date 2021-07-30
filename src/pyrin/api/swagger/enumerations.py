@@ -84,6 +84,7 @@ class ParameterFormatEnum(CoreEnum):
     IPV6 = 'ipv6'
     DOUBLE = 'double'
     FLOAT = 'float'
+    TEXT = 'text'
 
 
 class ParameterTypeEnum(CoreEnum):

@@ -5,9 +5,10 @@ validator handlers string module.
 
 import re
 
-from sqlalchemy import String
+from sqlalchemy import String, Text
 
 import pyrin.utils.string as string_utils
+import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.database.orm.sql.schema.columns import StringColumn
@@ -277,6 +278,10 @@ class StringValidator(ValidatorBase):
                     max_length=self.maximum_length,
                     allow_blank=self.allow_blank,
                     allow_whitespace=self.allow_whitespace)
+
+        if self.field is not None and \
+                misc_utils.is_subclass_or_instance(self.field.type, Text):
+            info.update(client_format=ParameterFormatEnum.TEXT)
 
         base_info = super()._get_info()
         if base_info:
