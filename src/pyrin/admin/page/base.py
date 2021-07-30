@@ -12,8 +12,10 @@ import pyrin.admin.services as admin_services
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
+import pyrin.database.model.services as model_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.string as string_utils
+import pyrin.utils.sqlalchemy as sqla_utils
 
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
@@ -758,6 +760,29 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return tuple(set(results))
 
+    def _get_fk_url(self, name):
+        """
+        gets the fk url for given attribute name.
+
+        it may return None if the fk entity does not have an admin page.
+
+        :param str name: attribute name of entity.
+
+        :rtype: str
+        """
+
+        attribute = self.entity.get_attribute(name)
+        foreign_keys = list(attribute.property.columns[0].foreign_keys)
+        entity = sqla_utils.get_class_by_table(model_services.get_declarative_base(),
+                                               foreign_keys[0].constraint.referred_table,
+                                               raise_multi=False)
+
+        admin_page = admin_services.try_get_admin_page(entity)
+        if admin_page is not None:
+            return admin_services.url_for(admin_page.get_register_name())
+
+        return None
+
     @fast_cache
     def _get_data_fields(self):
         """
@@ -772,16 +797,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         for name in writable_columns:
             is_fk = name in self.entity.writable_foreign_key_columns
-            attribute = self.entity.get_attribute(name)
             item = dict(name=name, is_fk=is_fk,
                         is_pk=name in self.entity.writable_primary_key_columns)
 
             if is_fk:
-                admin_page = admin_services.try_get_admin_page(attribute.class_)
-                if admin_page is not None:
-                    item.update(fk_url=admin_services.url_for(admin_page.get_register_name()))
+                item.update(fk_url=self._get_fk_url(name))
 
-            validator = validator_services.try_get_validator(self.entity, attribute)
+            validator = validator_services.try_get_validator(self.entity,
+                                                             self.entity.get_attribute(name))
             if validator is not None:
                 item.update(validator.get_info())
 
@@ -1013,13 +1036,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['plural_name'] = self.get_plural_name()
         metadata['category'] = self.get_category()
         metadata['pk'] = self.entity.primary_key_columns
-        metadata['fk'] = self.entity.foreign_key_columns
         metadata['list_fields'] = self._get_list_field_names()
         metadata['list_sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
+
+        related = {}
+        for fk in self.entity.foreign_key_columns:
+            related[fk] = self._get_fk_url(fk)
+
+        metadata['fk'] = related
         return metadata
 
     @fast_cache
