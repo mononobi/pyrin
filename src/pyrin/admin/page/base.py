@@ -769,15 +769,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         fields = []
         writable_columns = self.entity.writable_primary_key_columns + \
             self.entity.writable_foreign_key_columns + self.entity.writable_columns
+
         for name in writable_columns:
             is_fk = name in self.entity.writable_foreign_key_columns
+            attribute = self.entity.get_attribute(name)
             item = dict(name=name, is_fk=is_fk,
                         is_pk=name in self.entity.writable_primary_key_columns)
-            attribute = self.entity.get_attribute(name)
+
             if is_fk:
                 admin_page = admin_services.try_get_admin_page(attribute.class_)
                 if admin_page is not None:
                     item.update(fk_url=admin_services.url_for(admin_page.get_register_name()))
+
             validator = validator_services.try_get_validator(self.entity, attribute)
             if validator is not None:
                 item.update(validator.get_info())
