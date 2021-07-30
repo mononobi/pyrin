@@ -1004,6 +1004,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['plural_name'] = self.get_plural_name()
         metadata['category'] = self.get_category()
         metadata['pk'] = self.entity.primary_key_columns
+        metadata['fk'] = self.entity.foreign_key_columns
         metadata['list_fields'] = self._get_list_field_names()
         metadata['list_sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()

@@ -13,6 +13,7 @@ from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
     AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
+from pyrin.logging.contexts import suppress
 
 
 class AdminManager(Manager):
@@ -121,6 +122,23 @@ class AdminManager(Manager):
                                          .format(name=name))
 
         return self._admin_pages.get(name)
+
+    def try_get_admin_page(self, register_name):
+        """
+        gets the admin page with given register name.
+
+        it returns None if admin page does not exist.
+
+        :param str register_name: register name of admin page to be get.
+                                  this name is case-insensitive.
+
+        :rtype: pyrin.admin.interface.AbstractAdminPage
+        """
+
+        with suppress(AdminPageNotFoundError, log=False):
+            return self._get_admin_page(register_name)
+
+        return None
 
     def is_admin_enabled(self):
         """

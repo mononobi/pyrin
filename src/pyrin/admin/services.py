@@ -24,6 +24,21 @@ def register(instance, **options):
     return get_component(AdminPackage.COMPONENT_NAME).register(instance, **options)
 
 
+def try_get_admin_page(register_name):
+    """
+    gets the admin page with given register name.
+
+    it returns None if admin page does not exist.
+
+    :param str register_name: register name of admin page to be get.
+                              this name is case-insensitive.
+
+    :rtype: pyrin.admin.interface.AbstractAdminPage
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).try_get_admin_page(register_name)
+
+
 def is_admin_enabled():
     """
     gets a value indicating that admin api is enabled.
