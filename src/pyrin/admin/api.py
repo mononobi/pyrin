@@ -136,3 +136,14 @@ if is_enabled is True:
         """
 
         return admin_services.get_update_metadata(register_name)
+
+
+    @api(f'{url}panel', **admin_config)
+    def get_admin_panel_name(**options):
+        """
+        gets admin panel name.
+
+        :rtype: str
+        """
+
+        return admin_services.get_admin_panel_name()

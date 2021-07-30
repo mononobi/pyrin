@@ -44,6 +44,7 @@ class AdminManager(Manager):
         self._admin_metadata = None
 
         self._base_url = self._load_base_url()
+        self._panel_name = self._load_panel_name()
 
     def _load_base_url(self):
         """
@@ -57,6 +58,15 @@ class AdminManager(Manager):
             url = f'{url}/'
 
         return url
+
+    def _load_panel_name(self):
+        """
+        loads admin panel name from `admin` config store.
+
+        :rtype: str
+        """
+
+        return config_services.get_active('admin', 'panel_name')
 
     def _remove_from_pages(self, register_name):
         """
@@ -121,6 +131,15 @@ class AdminManager(Manager):
         """
 
         return self._base_url
+
+    def get_admin_panel_name(self):
+        """
+        gets admin panel name.
+
+        :rtype: str
+        """
+
+        return self._panel_name
 
     def get_admin_configurations(self):
         """
@@ -378,3 +397,11 @@ class AdminManager(Manager):
         """
 
         return f'{self.get_admin_base_url()}{register_name.lower()}/'
+
+    def get_info(self):
+        """
+        gets the info of admin panel.
+
+        :rtype: dict
+        """
+
