@@ -13,6 +13,7 @@ import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
 import pyrin.utils.path as path_utils
+import pyrin.utils.string as string_utils
 
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
@@ -829,7 +830,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: str
         """
 
-        return self.plural_name or admin_services.get_plural_name(self.name)
+        return self.plural_name or string_utils.pluralize(self.name)
 
     def get(self, pk):
         """

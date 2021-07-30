@@ -3,6 +3,8 @@
 utils string module.
 """
 
+import re
+
 from decimal import Decimal
 
 
@@ -194,3 +196,28 @@ def coerce_to_string(value, *accepted_types):
         return str(value)
 
     return value
+
+
+def pluralize(name):
+    """
+    gets the plural form of the given singular name.
+
+    for example:
+
+    ash -> ashes
+    name -> names
+    identity -> identities
+
+    :param str name: singular name to be converted to plural.
+
+    :rtype: str
+    """
+
+    if re.search('[sxz]$', name):
+        return re.sub('$', 'es', name)
+    elif re.search('[^aeioudgkprt]h$', name):
+        return re.sub('$', 'es', name)
+    elif re.search('[^aeiou]y$', name):
+        return re.sub('y$', 'ies', name)
+    else:
+        return name + 's'

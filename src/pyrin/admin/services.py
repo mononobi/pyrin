@@ -208,21 +208,3 @@ def url_for(register_name):
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).url_for(register_name)
-
-
-def get_plural_name(name):
-    """
-    gets the plural name for given singular name.
-
-    for example:
-
-    ash -> ashes
-    name -> names
-    identity -> identities
-
-    :param str name: singular name to be converted to plural.
-
-    :rtype: str
-    """
-
-    return get_component(AdminPackage.COMPONENT_NAME).get_plural_name(name)
