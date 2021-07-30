@@ -19,7 +19,7 @@ is_enabled = admin_config.pop('enabled', False)
 
 if is_enabled is True:
     @api(f'{url}<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
-    def get(register_name, pk):
+    def get(register_name, pk, **options):
         """
         gets an entity with given primary key.
 
@@ -86,12 +86,53 @@ if is_enabled is True:
         return admin_services.remove(register_name, pk)
 
 
-    @api(f'{url}info', **admin_config)
-    def get_info():
+    @api(f'{url}metadata', **admin_config)
+    def get_main_metadata(**options):
         """
-        gets all admin pages info.
+        gets all admin pages main metadata.
+
+        :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
         :rtype: list[dict]
         """
 
-        return admin_services.get_info()
+        return admin_services.get_main_metadata()
+
+
+    @api(f'{url}metadata/<register_name>/find', **admin_config)
+    def get_find_metadata(register_name, **options):
+        """
+        gets the find metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        return admin_services.get_find_metadata(register_name)
+
+
+    @api(f'{url}metadata/<register_name>/create', **admin_config)
+    def get_create_metadata(register_name, **options):
+        """
+        gets the create metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        return admin_services.get_create_metadata(register_name)
+
+
+    @api(f'{url}metadata/<register_name>/update', **admin_config)
+    def get_update_metadata(register_name, **options):
+        """
+        gets the update metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        return admin_services.get_update_metadata(register_name)

@@ -142,24 +142,60 @@ def remove(register_name, pk):
     return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk)
 
 
-def populate_info():
+def populate_main_metadata():
     """
-    populates all admin pages info.
+    populates all admin pages main metadata.
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).populate_info()
+    return get_component(AdminPackage.COMPONENT_NAME).populate_main_metadata()
 
 
-def get_info():
+def get_main_metadata():
     """
-    gets all admin pages info.
+    gets all admin pages main metadata.
 
     :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
     :rtype: list[dict]
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).get_info()
+    return get_component(AdminPackage.COMPONENT_NAME).get_main_metadata()
+
+
+def get_find_metadata(register_name):
+    """
+    gets the find metadata for given admin page.
+
+    :param str register_name: register name of admin page.
+
+    :rtype: dict
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_find_metadata(register_name)
+
+
+def get_create_metadata(register_name):
+    """
+    gets the create metadata for given admin page.
+
+    :param str register_name: register name of admin page.
+
+    :rtype: dict
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_create_metadata(register_name)
+
+
+def get_update_metadata(register_name):
+    """
+    gets the update metadata for given admin page.
+
+    :param str register_name: register name of admin page.
+
+    :rtype: dict
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_update_metadata(register_name)
 
 
 def url_for(register_name):

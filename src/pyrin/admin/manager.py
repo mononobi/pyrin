@@ -40,10 +40,10 @@ class AdminManager(Manager):
         # {BaseEntity entity: AbstractAdminPage instance}
         self._admin_entities = Context()
 
-        # a tuple of all available admin pages info sorted by category and name.
+        # a tuple of all available admin pages metadata sorted by category and name.
         # in the form of:
-        # (dict admin_info)
-        self._admin_info = None
+        # (dict admin_metadata)
+        self._admin_metadata = None
 
         self._base_url = self._load_base_url()
 
@@ -301,38 +301,74 @@ class AdminManager(Manager):
 
         return admin.remove(pk)
 
-    def populate_info(self):
+    def populate_main_metadata(self):
         """
-        populates all admin pages info.
+        populates all admin pages main metadata.
         """
 
-        info = dict()
+        metadata = dict()
         for name, admin in self._admin_pages.items():
-            pages = info.setdefault(admin.get_category(), [])
-            pages.append(admin.get_metadata())
+            pages = metadata.setdefault(admin.get_category(), [])
+            pages.append(admin.get_main_metadata())
 
         result = list()
-        sorted_categories = sorted(info.keys())
+        sorted_categories = sorted(metadata.keys())
         for category in sorted_categories:
-            pages = info.get(category)
+            pages = metadata.get(category)
             sorted_pages = sorted(pages, key=itemgetter('plural_name'))
             result.extend(sorted_pages)
 
-        self._admin_info = tuple(result)
+        self._admin_metadata = tuple(result)
 
-    def get_info(self):
+    def get_main_metadata(self):
         """
-        gets all admin pages info.
+        gets all admin pages main metadata.
 
         :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
         :rtype: list[dict]
         """
 
-        if self._admin_info is None:
+        if self._admin_metadata is None:
             raise AdminPagesHaveNotLoadedError('Admin pages have not loaded yet.')
 
-        return list(self._admin_info)
+        return list(self._admin_metadata)
+
+    def get_find_metadata(self, register_name):
+        """
+        gets the find metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.get_find_metadata()
+
+    def get_create_metadata(self, register_name):
+        """
+        gets the create metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.get_create_metadata()
+
+    def get_update_metadata(self, register_name):
+        """
+        gets the update metadata for given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :rtype: dict
+        """
+
+        admin = self._get_admin_page(register_name)
+        return admin.get_update_metadata()
 
     def url_for(self, register_name):
         """

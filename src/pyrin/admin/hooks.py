@@ -20,4 +20,4 @@ class PackagingHook(PackagingHookBase):
         this method will be called after all application packages have been loaded.
         """
 
-        admin_services.populate_info()
+        admin_services.populate_main_metadata()

@@ -968,25 +968,77 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return self._has_single_primary_key() and self.remove_permission
 
     @fast_cache
-    def get_metadata(self):
+    def get_main_metadata(self):
         """
-        gets the metadata of this admin page.
+        gets the main metadata of this admin page.
 
         :rtype: dict
         """
 
         metadata = dict()
-        metadata['name'] = self.name
         metadata['plural_name'] = self.get_plural_name()
         metadata['register_name'] = self.get_register_name()
         metadata['category'] = self.get_category()
+        metadata['has_create_permission'] = self.has_create_permission()
+        metadata['url'] = admin_services.url_for(self.get_register_name())
+        return metadata
+
+    @fast_cache
+    def get_find_metadata(self):
+        """
+        gets the find metadata of this admin page.
+
+        :rtype: dict
+        """
+
+        metadata = dict()
+        metadata['register_name'] = self.get_register_name()
+        metadata['name'] = self.name
+        metadata['plural_name'] = self.get_plural_name()
+        metadata['category'] = self.get_category()
+        metadata['pk'] = self.entity.primary_key_columns
         metadata['list_fields'] = self._get_list_field_names()
         metadata['list_sortable_fields'] = self._get_sortable_fields()
-        metadata['pk'] = self.entity.primary_key_columns
         metadata['has_create_permission'] = self.has_create_permission()
-        metadata['has_update_permission'] = self.has_update_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
+        metadata['url'] = admin_services.url_for(self.get_register_name())
+        return metadata
+
+    @fast_cache
+    def get_create_metadata(self):
+        """
+        gets the create metadata of this admin page.
+
+        :rtype: dict
+        """
+
+        metadata = dict()
+        metadata['register_name'] = self.get_register_name()
+        metadata['name'] = self.name
+        metadata['plural_name'] = self.get_plural_name()
+        metadata['category'] = self.get_category()
+        metadata['has_create_permission'] = self.has_create_permission()
+        metadata['url'] = admin_services.url_for(self.get_register_name())
+        metadata['data_fields'] = self._get_data_fields()
+        return metadata
+
+    @fast_cache
+    def get_update_metadata(self):
+        """
+        gets the update metadata of this admin page.
+
+        :rtype: dict
+        """
+
+        metadata = dict()
+        metadata['register_name'] = self.get_register_name()
+        metadata['name'] = self.name
+        metadata['plural_name'] = self.get_plural_name()
+        metadata['category'] = self.get_category()
+        metadata['has_update_permission'] = self.has_update_permission()
+        metadata['has_get_permission'] = self.has_get_permission()
+        metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
         metadata['data_fields'] = self._get_data_fields()
         return metadata

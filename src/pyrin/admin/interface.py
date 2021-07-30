@@ -27,18 +27,6 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
     """
 
     @abstractmethod
-    def get_metadata(self):
-        """
-        gets the metadata of this admin page.
-
-        :raises CoreNotImplementedError: core not implemented error.
-
-        :rtype: dict
-        """
-
-        raise CoreNotImplementedError()
-
-    @abstractmethod
     def get_entity(self):
         """
         gets the entity class of this admin page.
@@ -214,6 +202,54 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         :raises CoreNotImplementedError: core not implemented error.
 
         :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_main_metadata(self):
+        """
+        gets the main metadata of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: dict
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_find_metadata(self):
+        """
+        gets the find metadata of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: dict
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_create_metadata(self):
+        """
+        gets the create metadata of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: dict
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def get_update_metadata(self):
+        """
+        gets the update metadata of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: dict
         """
 
         raise CoreNotImplementedError()
