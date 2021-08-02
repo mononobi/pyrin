@@ -13,7 +13,6 @@ from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
     AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
-from pyrin.logging.contexts import suppress
 
 
 class AdminManager(Manager):
@@ -308,7 +307,7 @@ class AdminManager(Manager):
         """
 
         admin = self._get_admin_page(register_name)
-        if not admin.has_get_permission():
+        if not admin.has_update_permission():
             raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
                                                   'not allow update operation.')
                                                 .format(name=admin.get_register_name()))
@@ -326,12 +325,30 @@ class AdminManager(Manager):
         """
 
         admin = self._get_admin_page(register_name)
-        if not admin.has_get_permission():
+        if not admin.has_remove_permission():
             raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
                                                   'not allow remove operation.')
                                                 .format(name=admin.get_register_name()))
 
         return admin.remove(pk)
+
+    def remove_all(self, register_name, pk):
+        """
+        performs remove all on given admin page.
+
+        :param str register_name: register name of admin page.
+        :param object | list[object] pk: entity primary keys to be removed.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        """
+
+        admin = self._get_admin_page(register_name)
+        if not admin.has_remove_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow remove operation.')
+                                                .format(name=admin.get_register_name()))
+
+        return admin.remove_all(pk)
 
     def populate_main_metadata(self):
         """

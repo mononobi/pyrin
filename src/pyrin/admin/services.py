@@ -111,6 +111,8 @@ def get(register_name, pk):
     :param str register_name: register name of admin page.
     :param object pk: primary key of entity to be get.
 
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
+
     :rtype: pyrin.database.model.base.BaseEntity
     """
 
@@ -138,6 +140,8 @@ def create(register_name, **data):
     :param str register_name: register name of admin page.
 
     :keyword **data: all data to be passed to related admin page for data creation.
+
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).create(register_name, **data)
@@ -151,6 +155,8 @@ def update(register_name, pk, **data):
     :param object pk: entity primary key to be updated.
 
     :keyword **data: all data to be passed to related admin page for data creation.
+
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).update(register_name, pk, **data)
@@ -162,9 +168,24 @@ def remove(register_name, pk):
 
     :param str register_name: register name of admin page.
     :param object pk: entity primary key to be removed.
+
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk)
+
+
+def remove_all(register_name, pk):
+    """
+    performs remove all on given admin page.
+
+    :param str register_name: register name of admin page.
+    :param object | list[object] pk: entity primary keys to be removed.
+
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).remove_all(register_name, pk)
 
 
 def populate_main_metadata():

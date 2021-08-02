@@ -16,6 +16,7 @@ import pyrin.database.model.services as model_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.string as string_utils
 import pyrin.utils.sqlalchemy as sqla_utils
+import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
@@ -710,6 +711,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pk_column = cls.entity.get_attribute(pk_name)
         store.query(cls.entity).filter(pk_column == pk).delete()
 
+    def _remove_all(self, *pk):
+        """
+        deletes all entities with given primary keys.
+
+        :param object pk: entity primary key to be deleted.
+        """
+
+        store = get_current_store()
+        pk_name = self._get_primary_key_name()
+        pk_column = self.entity.get_attribute(pk_name)
+        store.query(self.entity).filter(pk_column.in_(pk)).delete()
+
     @fast_cache
     def _get_list_entities(self):
         """
@@ -949,6 +962,19 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             cls.remove_service(pk)
         else:
             cls._remove(pk)
+
+    def remove_all(self, pk):
+        """
+        deletes entities with given primary keys.
+
+        :param object | list[object] pk: entity primary keys to be deleted.
+        """
+
+        pk = misc_utils.make_iterable(pk)
+        for item in pk:
+            validator_services.validate(self.entity, **self._get_primary_key_holder(item))
+
+        self._remove_all(*pk)
 
     def call_method(self, name, argument):
         """

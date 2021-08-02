@@ -144,6 +144,18 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
+    def remove_all(self, pk):
+        """
+        deletes entities with given primary keys.
+
+        :param object | list[object] pk: entity primary keys to be deleted.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
     def call_method(self, name, argument):
         """
         calls the method with given name with given argument and returns the result.
