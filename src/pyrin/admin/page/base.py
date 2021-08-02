@@ -848,6 +848,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return self.entity
 
+    @fast_cache
     def get_register_name(self):
         """
         gets the register name of this admin page.
@@ -857,6 +858,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return self.register_name.lower()
 
+    @fast_cache
     def get_category(self):
         """
         gets the category of this admin page.
@@ -873,6 +875,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return admin_services.get_default_category()
 
+    @fast_cache
     def get_plural_name(self):
         """
         gets the plural name of this admin page.
