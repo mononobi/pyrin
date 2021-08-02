@@ -155,6 +155,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     category = None
 
     # plural name of this admin page for representation.
+    # it will be automatically generated from 'name' if not provided.
     plural_name = None
 
     # extra field names that are required to be provided for create and are
@@ -169,9 +170,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # column names to be used in search bar.
     search_fields = ()
-
-    # related columns that need to open a separate form to be selected.
-    raw_id_fields = ()
 
     # columns that are readonly in edit form.
     readonly_fields = ()
