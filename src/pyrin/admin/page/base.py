@@ -13,6 +13,7 @@ import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
 import pyrin.database.model.services as model_services
+import pyrin.configuration.services as config_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.string as string_utils
 import pyrin.utils.sqlalchemy as sqla_utils
@@ -218,9 +219,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         self._get_list_temp_field_names()
         self._get_selectable_fields()
 
-    def _prepare_column_name(self, name):
+    def _get_column_name(self, name):
         """
-        prepares given name for list page column name.
+        gets column name for given field name for list page.
 
         :param str name: field name.
 
@@ -382,7 +383,17 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             if self._is_list_pk_required():
                 self._inject_primary_keys(all_fields)
 
-        return self._extract_field_names(all_fields, allow_string=True)
+        all_fields = self._extract_field_names(all_fields, allow_string=True)
+        if self.list_indexed is True:
+            index_name = self.list_index_name
+            if index_name in (None, ''):
+                index_name = config_services.get('api', 'schema', 'index_name')
+
+            all_fields = list(all_fields)
+            all_fields.insert(0, index_name)
+            all_fields = tuple(all_fields)
+
+        return all_fields
 
     @fast_cache
     def _get_list_datasource_info(self):
@@ -398,7 +409,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = []
         all_fields = self._get_list_field_names()
         for item in all_fields:
-            results.append(dict(title=self._prepare_column_name(item), field=item))
+            results.append(dict(title=self._get_column_name(item), field=item))
 
         return tuple(results)
 
