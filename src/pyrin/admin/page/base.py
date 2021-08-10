@@ -218,6 +218,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         self._get_list_temp_field_names()
         self._get_selectable_fields()
 
+    def _prepare_column_name(self, name):
+        """
+        prepares given name for list page column name.
+
+        :param str name: field name.
+
+        :rtype: str
+        """
+
+        name = name.replace('_', ' ')
+        return name.upper()
+
     @classmethod
     @fast_cache
     def _get_primary_key_name(cls):
@@ -371,6 +383,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 self._inject_primary_keys(all_fields)
 
         return self._extract_field_names(all_fields, allow_string=True)
+
+    @fast_cache
+    def _get_list_datasource_info(self):
+        """
+        gets datasource info to be used for list page.
+
+        :returns: tuple[dict(str title: field title,
+                             str field: field name to be used for data binding)]
+
+        :rtype: tuple[dict]
+        """
+
+        results = []
+        all_fields = self._get_list_field_names()
+        for item in all_fields:
+            results.append(dict(title=self._prepare_column_name(item), field=item))
+
+        return tuple(results)
 
     @fast_cache
     def _get_primary_keys(self):
@@ -1070,7 +1100,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['plural_name'] = self.get_plural_name()
         metadata['category'] = self.get_category()
         metadata['pk'] = self.entity.primary_key_columns
-        metadata['list_fields'] = self._get_list_field_names()
+        metadata['list_datasource_info'] = self._get_list_datasource_info()
         metadata['list_sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
