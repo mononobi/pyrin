@@ -40,7 +40,7 @@ class AdminManager(Manager):
 
         # a tuple of all available admin pages metadata sorted by category and name.
         # in the form of:
-        # (dict admin_metadata)
+        # (dict(str category: [dict admin_metadata]))
         self._admin_metadata = None
 
         self._base_url = self._load_base_url()
@@ -365,7 +365,9 @@ class AdminManager(Manager):
         for category in sorted_categories:
             pages = metadata.get(category)
             sorted_pages = sorted(pages, key=itemgetter('plural_name'))
-            result.extend(sorted_pages)
+            single_category = dict()
+            single_category[category] = sorted_pages
+            result.append(single_category)
 
         self._admin_metadata = tuple(result)
 
