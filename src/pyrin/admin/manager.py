@@ -40,7 +40,7 @@ class AdminManager(Manager):
 
         # a tuple of all available admin pages metadata sorted by category and name.
         # in the form of:
-        # (dict(str category: [dict admin_metadata]))
+        # ({str category: [dict admin_metadata]})
         self._admin_metadata = None
 
         self._base_url = self._load_base_url()
