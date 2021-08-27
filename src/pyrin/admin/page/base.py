@@ -1090,6 +1090,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         metadata = dict()
+        metadata['name'] = self.name
         metadata['plural_name'] = self.get_plural_name()
         metadata['register_name'] = self.get_register_name()
         metadata['category'] = self.get_category()
