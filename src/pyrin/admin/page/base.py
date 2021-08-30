@@ -1095,7 +1095,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['register_name'] = self.get_register_name()
         metadata['category'] = self.get_category()
         metadata['has_create_permission'] = self.has_create_permission()
-        metadata['url'] = admin_services.url_for(self.get_register_name())
         return metadata
 
     @fast_cache
