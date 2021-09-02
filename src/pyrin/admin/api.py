@@ -32,7 +32,7 @@ if is_enabled is True:
         return admin_services.get(register_name, pk)
 
 
-    @api(f'{url}<register_name>', **admin_config, paged=True)
+    @api(f'{url}<register_name>', **admin_config)
     def find(register_name, **filters):
         """
         performs find on given admin page and returns the result.

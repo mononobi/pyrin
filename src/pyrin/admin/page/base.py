@@ -23,9 +23,10 @@ from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
 from pyrin.admin.interface import AbstractAdminPage
 from pyrin.admin.page.schema import AdminSchema
-from pyrin.core.globals import SECURE_TRUE, SECURE_FALSE
+from pyrin.core.globals import SECURE_TRUE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
+from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.security.session.enumerations import RequestContextEnum
@@ -74,6 +75,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_only_readable = True
 
     # specifies that if 'list_fields' are not provided also show pk columns in list view.
+    # note that if the admin page has get permission, pk columns will be always added.
     list_pk = True
 
     # specifies that if 'list_fields' are not provided also show fk columns in list view.
@@ -88,9 +90,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # for example: ('first_name', '-last_name')
     list_ordering = ()
 
-    # show the total count of records in list view.
-    list_total_count = True
-
     # specifies that each row must have an index in it.
     list_indexed = False
 
@@ -103,11 +102,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # columns to show in list filter.
     list_filters = ()
 
-    # max records per page.
-    list_per_page = 100
+    # paginate results in list view.
+    list_paged = True
 
-    # max records to fetch on show all.
-    list_max_show_all = 200
+    # records per page.
+    # it could not be more than 'list_max_page_size', otherwise it
+    # will be corrected silently.
+    list_page_size = None
+
+    # max records per page.
+    # it could not be more than 'max_page_size' from 'database'
+    # config store, otherwise it will be corrected silently.
+    list_max_page_size = None
 
     # ===================== SERVICE CONFIGS ===================== #
 
@@ -176,6 +182,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # columns that are readonly in edit form.
     readonly_fields = ()
 
+    # ===================== INTERNAL CONFIGS ===================== #
+
+    # paginator class to be used.
+    paginator_class = SimplePaginator
+
+    # the fully qualified name of find api.
+    FIND_ENDPOINT = 'pyrin.admin.api.find'
+
     def __init__(self, *args, **options):
         """
         initializes an instance of AdminPage.
@@ -209,6 +223,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                                    start_index=self.list_start_index,
                                    index_name=self.list_index_name,
                                    exclude=self._get_list_temp_field_names())
+        self._paginator = None
+        if self.list_paged is True:
+            self._paginator = self.paginator_class(self.FIND_ENDPOINT,
+                                                   page_size=self._get_page_size(),
+                                                   max_page_size=self._get_max_page_size())
 
     def __populate_caches(self):
         """
@@ -263,18 +282,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pk_holder[pk_name] = pk
 
         return pk_holder
-
-    def _show_total_count(self):
-        """
-        gets a value indicating that total count must be shown on list view.
-
-        :returns: SECURE_TRUE | SECURE_FALSE
-        """
-
-        if self.list_total_count is True:
-            return SECURE_TRUE
-
-        return SECURE_FALSE
 
     def _is_valid_field(self, field):
         """
@@ -616,9 +623,64 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         force_order.extend(self.entity.primary_key_columns)
         return query.safe_order_by(self._get_list_entities(), *force_order, **filters)
 
+    @fast_cache
+    def _get_page_size(self):
+        """
+        gets page size of this admin page.
+
+        :rtype: int
+        """
+
+        max_page_size = self._get_max_page_size()
+        default_page_size = config_services.get('database', 'paging', 'default_page_size')
+        page_size = self.list_page_size
+        if page_size is None or page_size < 1 or page_size > max_page_size:
+            page_size = min(default_page_size, max_page_size)
+
+        return page_size
+
+    @fast_cache
+    def _get_max_page_size(self):
+        """
+        gets max page size of this admin page.
+
+        :rtype: int
+        """
+
+        global_max_page_size = config_services.get('database', 'paging', 'max_page_size')
+        max_page_size = self.list_max_page_size
+        if max_page_size is None or max_page_size < 1 or max_page_size > global_max_page_size:
+            max_page_size = global_max_page_size
+
+        return max_page_size
+
+    def _get_paginator(self):
+        """
+        gets paginator for this admin page.
+
+        :rtype: PaginatorBase
+        """
+
+        return self._paginator.copy()
+
+    def _inject_paginator(self, filters):
+        """
+        injects this admin page's paginator into current request context.
+
+        :param dict filters: view function inputs.
+        """
+
+        paginator = self._get_paginator()
+        request = session_services.get_current_request()
+        paging_params = request.get_paging_params()
+        paginator.inject_paging_keys(filters, **paging_params)
+        session_services.add_request_context(RequestContextEnum.PAGINATOR, paginator)
+
     def _paginate_query(self, query, **filters):
         """
         paginates given query and returns a new query object.
+
+        it may return the same query if pagination is disabled for this admin page.
 
         :param CoreQuery query: query instance.
 
@@ -640,7 +702,26 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: CoreQuery
         """
 
-        return query.paginate(inject_total=self._show_total_count(), **filters)
+        if self.list_paged is True:
+            self._inject_paginator(filters)
+            return query.paginate(inject_total=SECURE_TRUE, **filters)
+
+        return query
+
+    @fast_cache
+    def _get_page_size_options(self):
+        """
+        gets a list of page size options of this admin page.
+
+        :rtype: list[int]
+        """
+
+        page_size = self._get_page_size()
+        max_page_size = self._get_max_page_size()
+        if page_size == max_page_size:
+            return [page_size]
+
+        return [page_size, max_page_size]
 
     def _process_find_results(self, results, **options):
         """
@@ -1117,6 +1198,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['url'] = admin_services.url_for(self.get_register_name())
+        metadata['paged'] = self.list_paged
+        metadata['page_size'] = self._get_page_size()
+        metadata['max_page_size'] = self._get_max_page_size()
+        metadata['page_size_options'] = self._get_page_size_options()
 
         related = {}
         for fk in self.entity.foreign_key_columns:
