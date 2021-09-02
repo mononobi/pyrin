@@ -14,6 +14,7 @@ import pyrin.validator.services as validator_services
 import pyrin.security.session.services as session_services
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
+import pyrin.database.paging.services as paging_services
 import pyrin.utils.path as path_utils
 import pyrin.utils.string as string_utils
 import pyrin.utils.sqlalchemy as sqla_utils
@@ -671,10 +672,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         paginator = self._get_paginator()
-        request = session_services.get_current_request()
-        paging_params = request.get_paging_params()
-        paginator.inject_paging_keys(filters, **paging_params)
-        session_services.add_request_context(RequestContextEnum.PAGINATOR, paginator)
+        paging_services.inject_paginator(paginator, filters)
 
     def _paginate_query(self, query, **filters):
         """

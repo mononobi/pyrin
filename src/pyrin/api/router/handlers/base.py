@@ -15,6 +15,7 @@ import pyrin.processor.response.services as response_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.configuration.services as config_services
 import pyrin.security.session.services as session_services
+import pyrin.database.paging.services as paging_services
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.headers as header_utils
 import pyrin.utils.function as func_utils
@@ -705,10 +706,7 @@ class RouteBase(Rule):
         """
 
         paginator = self._paginator.copy()
-        request = session_services.get_current_request()
-        paging_params = request.get_paging_params()
-        paginator.inject_paging_keys(inputs, **paging_params)
-        session_services.add_request_context(RequestContextEnum.PAGINATOR, paginator)
+        paging_services.inject_paginator(paginator, inputs, **options)
 
     def _call_view_function(self, inputs, **options):
         """

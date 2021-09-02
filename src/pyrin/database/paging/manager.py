@@ -4,9 +4,11 @@ database paging manager module.
 """
 
 import pyrin.configuration.services as config_services
+import pyrin.security.session.services as session_services
 
 from pyrin.core.structs import Manager
 from pyrin.database.paging import DatabasePagingPackage
+from pyrin.security.session.enumerations import RequestContextEnum
 
 
 class DatabasePagingManager(Manager):
@@ -159,3 +161,16 @@ class DatabasePagingManager(Manager):
         """
 
         return self._page_param, self._page_size_param
+
+    def inject_paginator(self, paginator, inputs, **options):
+        """
+        injects the given paginator into current request context.
+
+        :param PaginatorBase paginator: paginator instance to be injected.
+        :param dict inputs: view function inputs.
+        """
+
+        request = session_services.get_current_request()
+        paging_params = request.get_paging_params()
+        paginator.inject_paging_keys(inputs, **paging_params)
+        session_services.add_request_context(RequestContextEnum.PAGINATOR, paginator)

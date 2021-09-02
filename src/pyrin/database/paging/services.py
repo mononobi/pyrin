@@ -107,3 +107,16 @@ def get_paging_param_names():
     """
 
     return get_component(DatabasePagingPackage.COMPONENT_NAME).get_paging_param_names()
+
+
+def inject_paginator(paginator, inputs, **options):
+    """
+    injects the given paginator into current request context.
+
+    :param PaginatorBase paginator: paginator instance to be injected.
+    :param dict inputs: view function inputs.
+    """
+
+    return get_component(DatabasePagingPackage.COMPONENT_NAME).inject_paginator(paginator,
+                                                                                inputs,
+                                                                                **options)
