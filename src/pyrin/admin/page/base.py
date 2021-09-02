@@ -724,9 +724,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         page_size = self._get_page_size()
         max_page_size = self._get_max_page_size()
         if page_size == max_page_size:
-            return tuple([page_size])
+            return page_size,
 
-        return tuple([page_size, max_page_size])
+        return page_size, max_page_size
 
     def _process_find_results(self, results, **options):
         """
