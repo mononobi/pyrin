@@ -424,7 +424,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             results.append(dict(title=self._get_column_name(item),
                                 sorting=item in sortable_fields,
                                 emptyValue=self.null_value,
-                                field=item,))
+                                field=item))
 
         return tuple(results)
 
@@ -716,17 +716,17 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     @fast_cache
     def _get_page_size_options(self):
         """
-        gets a list of page size options of this admin page.
+        gets a tuple of page size options of this admin page.
 
-        :rtype: list[int]
+        :rtype: tuple[int]
         """
 
         page_size = self._get_page_size()
         max_page_size = self._get_max_page_size()
         if page_size == max_page_size:
-            return [page_size]
+            return tuple([page_size])
 
-        return [page_size, max_page_size]
+        return tuple([page_size, max_page_size])
 
     def _process_find_results(self, results, **options):
         """
