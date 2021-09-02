@@ -116,6 +116,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # config store, otherwise it will be corrected silently.
     list_max_page_size = None
 
+    # a value to be showed when the relevant data is null.
+    null_value = '-'
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -416,8 +419,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         results = []
         all_fields = self._get_list_field_names()
+        sortable_fields = self._get_sortable_fields()
         for item in all_fields:
-            results.append(dict(title=self._get_column_name(item), field=item))
+            results.append(dict(title=self._get_column_name(item),
+                                sorting=item in sortable_fields,
+                                emptyValue=self.null_value,
+                                field=item,))
 
         return tuple(results)
 
