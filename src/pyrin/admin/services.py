@@ -254,3 +254,22 @@ def url_for(register_name):
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).url_for(register_name)
+
+
+def get_field_type(entity, field, extra_type_map=None):
+    """
+    gets the type of given field for given entity.
+
+    it may return None.
+
+    :param type[pyrin.database.model.base.BaseEntity] entity: the entity class.
+    :param InstrumentedAttribute | str field: field attribute or name.
+
+    :param dict extra_type_map: a dict containing extra type mapping.
+                                this will be used if the provided field is a string.
+
+    :rtype: str
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_field_type(entity, field,
+                                                                     extra_type_map)

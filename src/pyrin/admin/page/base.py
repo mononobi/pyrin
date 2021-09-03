@@ -119,6 +119,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # a value to be showed when the relevant data is null.
     null_value = '-'
 
+    # a dict containing field names and their client type.
+    # this is useful for setting the type of fields which their
+    # value is coming from a method of this admin page.
+    # note that the provided types must be from 'ClientTypeEnum' values.
+    # for example: {'is_viewed': ClientTypeEnum.BOOLEAN}
+    method_field_types = {}
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -421,10 +428,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         all_fields = self._get_list_field_names()
         sortable_fields = self._get_sortable_fields()
         for item in all_fields:
-            results.append(dict(title=self._get_column_name(item),
-                                sorting=item in sortable_fields,
-                                emptyValue=self.null_value,
-                                field=item))
+            info = dict(field=item,
+                        title=self._get_column_name(item),
+                        sorting=item in sortable_fields,
+                        emptyValue=self.null_value)
+
+            type_ = admin_services.get_field_type(self.entity, item, self.method_field_types)
+            if type_ is not None:
+                info.update(type=type_)
+
+            results.append(info)
 
         return tuple(results)
 

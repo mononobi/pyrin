@@ -6,11 +6,14 @@ admin manager module.
 from operator import itemgetter
 
 import pyrin.configuration.services as config_services
+import pyrin.validator.services as validator_services
 
 from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
+from pyrin.admin.enumerations import ClientTypeEnum
+from pyrin.api.swagger.enumerations import ParameterTypeEnum, ParameterFormatEnum
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
     AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
 
@@ -43,8 +46,31 @@ class AdminManager(Manager):
         # ({str category: [dict admin_metadata]})
         self._admin_metadata = None
 
+        # a dict containing a map between all field types and formats to client type.
+        # for example: {(str client_type, str client_format): str type}
+        self._type_map = self._get_type_map()
+
         self._base_url = self._load_base_url()
         self._panel_name = self._load_panel_name()
+
+    def _get_type_map(self):
+        """
+        gets the type map for different field types.
+
+        :rtype: dict
+        """
+
+        result = dict()
+        result[(ParameterTypeEnum.BOOLEAN, None)] = ClientTypeEnum.BOOLEAN
+        result[(ParameterTypeEnum.INTEGER, None)] = ClientTypeEnum.NUMERIC
+        result[(ParameterTypeEnum.NUMBER, None)] = ClientTypeEnum.NUMERIC
+        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.FLOAT)] = ClientTypeEnum.NUMERIC
+        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.DOUBLE)] = ClientTypeEnum.NUMERIC
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE)] = ClientTypeEnum.DATE
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE_TIME)] = ClientTypeEnum.DATETIME
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TIME)] = ClientTypeEnum.TIME
+
+        return result
 
     def _load_base_url(self):
         """
@@ -432,10 +458,36 @@ class AdminManager(Manager):
 
         return f'{self.get_admin_base_url()}{register_name.lower()}/'
 
-    def get_info(self):
+    def get_field_type(self, entity, field, extra_type_map=None):
         """
-        gets the info of admin panel.
+        gets the type of given field for given entity.
 
-        :rtype: dict
+        it may return None.
+
+        :param type[pyrin.database.model.base.BaseEntity] entity: the entity class.
+        :param InstrumentedAttribute | str field: field attribute or name.
+
+        :param dict extra_type_map: a dict containing extra type mapping.
+                                    this will be used if the provided field is a string.
+
+        :rtype: str
         """
 
+        if isinstance(field, str):
+            field_attribute = entity.get_attribute(field, silent=True)
+            if field_attribute is not None:
+                field = field_attribute
+
+        if isinstance(field, str):
+            if extra_type_map:
+                return extra_type_map.get(field)
+        else:
+            validator = validator_services.try_get_validator(entity, field)
+            if validator is not None:
+                info = validator.get_info()
+                client_type = info.get('client_type')
+                client_format = info.get('client_format')
+                key = (client_type, client_format)
+                return self._type_map.get(key)
+
+        return None
