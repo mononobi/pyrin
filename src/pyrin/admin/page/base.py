@@ -731,7 +731,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets a tuple of page size options of this admin page.
 
-        :rtype: tuple[int]
+        :rtype: tuple[int] | tuple[int, int]
         """
 
         page_size = self._get_page_size()
