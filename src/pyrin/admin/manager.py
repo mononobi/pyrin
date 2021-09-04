@@ -61,6 +61,7 @@ class AdminManager(Manager):
         """
 
         result = dict()
+        result[(ParameterTypeEnum.STRING, None)] = ClientTypeEnum.STRING
         result[(ParameterTypeEnum.BOOLEAN, None)] = ClientTypeEnum.BOOLEAN
         result[(ParameterTypeEnum.INTEGER, None)] = ClientTypeEnum.NUMERIC
         result[(ParameterTypeEnum.NUMBER, None)] = ClientTypeEnum.NUMERIC
@@ -69,6 +70,14 @@ class AdminManager(Manager):
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE)] = ClientTypeEnum.DATE
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE_TIME)] = ClientTypeEnum.DATETIME
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TIME)] = ClientTypeEnum.TIME
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TEXT)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.UUID)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.EMAIL)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.PASSWORD)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.URI)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.HOSTNAME)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.IPV4)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.IPV6)] = ClientTypeEnum.STRING
 
         return result
 

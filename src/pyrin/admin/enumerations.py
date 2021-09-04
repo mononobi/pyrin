@@ -16,3 +16,5 @@ class ClientTypeEnum(CoreEnum):
     DATE = 'date'
     DATETIME = 'datetime'
     TIME = 'time'
+    STRING = 'string'
+    CURRENCY = 'currency'
