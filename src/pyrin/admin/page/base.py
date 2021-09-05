@@ -116,15 +116,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # config store, otherwise it will be corrected silently.
     list_max_page_size = None
 
-    # a value to be showed when the relevant data is null.
-    null_value = '-'
+    # a value to be shown when the relevant data is null.
+    list_null_value = '-'
 
-    # a dict containing field names and their client type.
-    # this is useful for setting the type of fields which their
-    # value is coming from a method of this admin page.
+    # a dict containing field names and their client type for fields which their
+    # type could not be detected automatically. for example labeled fields or
+    # fields which their value is coming from a method of this admin page.
     # note that the provided types must be from 'ClientTypeEnum' values.
     # for example: {'is_viewed': ClientTypeEnum.BOOLEAN}
-    method_field_types = {}
+    list_extra_field_types = {}
 
     # ===================== SERVICE CONFIGS ===================== #
 
@@ -431,9 +431,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             info = dict(field=item,
                         title=self._get_column_name(item),
                         sorting=item in sortable_fields,
-                        emptyValue=self.null_value)
+                        emptyValue=self.list_null_value)
 
-            type_ = admin_services.get_field_type(self.entity, item, self.method_field_types)
+            type_ = admin_services.get_field_type(self.entity, item, self.list_extra_field_types)
             if type_ is not None:
                 info.update(type=type_)
 
