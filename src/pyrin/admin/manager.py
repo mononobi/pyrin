@@ -57,16 +57,21 @@ class AdminManager(Manager):
         """
         gets the type map for different field types.
 
+        **note:**
+        as the client side table does not format the numeric values correctly, we
+        have to introduce numeric values as string to the client to keep the behavior
+        of these column types as others.
+
         :rtype: dict
         """
 
         result = dict()
         result[(ParameterTypeEnum.STRING, None)] = ClientTypeEnum.STRING
         result[(ParameterTypeEnum.BOOLEAN, None)] = ClientTypeEnum.BOOLEAN
-        result[(ParameterTypeEnum.INTEGER, None)] = ClientTypeEnum.NUMERIC
-        result[(ParameterTypeEnum.NUMBER, None)] = ClientTypeEnum.NUMERIC
-        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.FLOAT)] = ClientTypeEnum.NUMERIC
-        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.DOUBLE)] = ClientTypeEnum.NUMERIC
+        result[(ParameterTypeEnum.INTEGER, None)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.NUMBER, None)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.FLOAT)] = ClientTypeEnum.STRING
+        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.DOUBLE)] = ClientTypeEnum.STRING
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE)] = ClientTypeEnum.DATE
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE_TIME)] = ClientTypeEnum.DATETIME
         result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TIME)] = ClientTypeEnum.TIME
