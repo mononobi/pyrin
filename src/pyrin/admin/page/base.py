@@ -34,7 +34,8 @@ from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
-    CompositePrimaryKeysNotSupportedError, ColumnIsNotForeignKeyError
+    CompositePrimaryKeysNotSupportedError, ColumnIsNotForeignKeyError, \
+    DuplicateListFieldNamesError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -389,6 +390,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         gets all list field names of this admin page.
 
         :raises InvalidListFieldError: invalid list field error.
+        :raises DuplicateListFieldNamesError: duplicate list field names error.
 
         :rtype: tuple[str]
         """
@@ -410,6 +412,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             all_fields = list(all_fields)
             all_fields.insert(0, index_name)
             all_fields = tuple(all_fields)
+
+        if len(all_fields) != len(set(all_fields)):
+            raise DuplicateListFieldNamesError('There are some duplicate field names '
+                                               'in "list_fields" of [{admin}] class. '
+                                               'this will make the find result incorrect. '
+                                               'please remove duplicate fields or set '
+                                               'unique labels for them.'.format(admin=self))
 
         return all_fields
 
