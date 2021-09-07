@@ -6,7 +6,6 @@ admin manager module.
 from operator import itemgetter
 
 import pyrin.configuration.services as config_services
-import pyrin.validator.services as validator_services
 
 from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
@@ -472,36 +471,40 @@ class AdminManager(Manager):
 
         return f'{self.get_admin_base_url()}{register_name.lower()}/'
 
-    def get_field_type(self, entity, field, extra_type_map=None):
+    def get_client_type(self, type_, format_=None):
         """
-        gets the type of given field for given entity.
+        gets the client type for given field type and format.
 
         it may return None.
 
-        :param type[pyrin.database.model.base.BaseEntity] entity: the entity class.
-        :param InstrumentedAttribute | str field: field attribute or name.
+        :param str type_: field type to get its client type.
+        :enum type_:
+            INTEGER = 'integer'
+            NUMBER = 'number'
+            BOOLEAN = 'boolean'
+            STRING = 'string'
+            ARRAY = 'array'
+            OBJECT = 'object'
 
-        :param dict extra_type_map: a dict containing extra type mapping.
-                                    this will be used if the provided field is a string.
+        :param str format_: field format to get its client type.
+        :enum format_:
+            UUID = 'uuid'
+            EMAIL = 'email'
+            DATE = 'date'
+            TIME = 'time'
+            DATE_TIME = 'date-time'
+            PASSWORD = 'password'
+            BYTE = 'byte'
+            URI = 'uri'
+            HOSTNAME = 'hostname'
+            IPV4 = 'ipv4'
+            IPV6 = 'ipv6'
+            DOUBLE = 'double'
+            FLOAT = 'float'
+            TEXT = 'text'
 
         :rtype: str
         """
 
-        if isinstance(field, str):
-            field_attribute = entity.get_attribute(field, silent=True)
-            if field_attribute is not None:
-                field = field_attribute
-
-        if isinstance(field, str):
-            if extra_type_map:
-                return extra_type_map.get(field)
-        else:
-            validator = validator_services.try_get_validator(entity, field)
-            if validator is not None:
-                info = validator.get_info()
-                client_type = info.get('client_type')
-                client_format = info.get('client_format')
-                key = (client_type, client_format)
-                return self._type_map.get(key)
-
-        return None
+        key = (type_, format_)
+        return self._type_map.get(key)

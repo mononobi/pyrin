@@ -492,7 +492,7 @@ def get_class_by_table(base, table, **options):
     :raises MultipleDeclarativeClassesFoundError: multiple declarative classes found error.
 
     :returns: declarative class or None.
-    :rtype: type[BaseEntity]
+    :rtype: type[pyrin.database.model.base.BaseEntity]
     """
 
     data = options.get('data')

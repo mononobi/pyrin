@@ -256,20 +256,39 @@ def url_for(register_name):
     return get_component(AdminPackage.COMPONENT_NAME).url_for(register_name)
 
 
-def get_field_type(entity, field, extra_type_map=None):
+def get_client_type(type_, format_=None):
     """
-    gets the type of given field for given entity.
+    gets the client type for given field type and format.
 
     it may return None.
 
-    :param type[pyrin.database.model.base.BaseEntity] entity: the entity class.
-    :param InstrumentedAttribute | str field: field attribute or name.
+    :param str type_: field type to get its client type.
+    :enum type_:
+        INTEGER = 'integer'
+        NUMBER = 'number'
+        BOOLEAN = 'boolean'
+        STRING = 'string'
+        ARRAY = 'array'
+        OBJECT = 'object'
 
-    :param dict extra_type_map: a dict containing extra type mapping.
-                                this will be used if the provided field is a string.
+    :param str format_: field format to get its client type.
+    :enum format_:
+        UUID = 'uuid'
+        EMAIL = 'email'
+        DATE = 'date'
+        TIME = 'time'
+        DATE_TIME = 'date-time'
+        PASSWORD = 'password'
+        BYTE = 'byte'
+        URI = 'uri'
+        HOSTNAME = 'hostname'
+        IPV4 = 'ipv4'
+        IPV6 = 'ipv6'
+        DOUBLE = 'double'
+        FLOAT = 'float'
+        TEXT = 'text'
 
     :rtype: str
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).get_field_type(entity, field,
-                                                                     extra_type_map)
+    return get_component(AdminPackage.COMPONENT_NAME).get_client_type(type_, format_)

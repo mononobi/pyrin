@@ -27,6 +27,7 @@ from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
 from pyrin.caching.mixin.decorators import fast_cache
+from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
@@ -121,8 +122,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_null_value = '-'
 
     # a dict containing field names and their client type for fields which their
-    # type could not be detected automatically. for example labeled fields or
-    # fields which their value is coming from a method of this admin page.
+    # type could not be detected automatically. for example hybrid property fields
+    # or fields which their value is coming from a method of this admin page.
     # note that the provided types must be from 'ClientTypeEnum' values.
     # for example: {'is_viewed': ClientTypeEnum.BOOLEAN}
     list_extra_field_types = {}
@@ -422,6 +423,83 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return all_fields
 
+    def _get_relevant_column(self, name):
+        """
+        gets the relevant column attribute of given field name.
+
+        it may return None if no related column found in `list_fields`.
+
+        :param str name: field name.
+
+        :rtype: sqlalchemy.orm.InstrumentedAttribute
+        """
+
+        selectable_fields = self._get_list_fields()
+        for item in selectable_fields:
+            if self._is_valid_field(item) and item.key == name:
+                if isinstance(item, InstrumentedAttribute):
+                    return item
+                elif isinstance(item, Label) and item.base_columns:
+                    columns = list(item.base_columns)
+                    if isinstance(columns[0], CoreColumn):
+                        return model_services.get_instrumented_attribute(columns[0])
+                break
+
+        return None
+
+    @fast_cache
+    def _get_list_fields_to_column_map(self):
+        """
+        gets a dict of all list field names and their related columns.
+
+        the column value may be None if the name does not belong to a column.
+        for example method names or hybrid properties.
+
+        :returns: dict(InstrumentAttribute name)
+        :rtype: dict
+        """
+
+        result = dict()
+        all_fields = self._get_list_field_names()
+        for name in all_fields:
+            attribute = self._get_relevant_column(name)
+            result[name] = attribute
+
+        return result
+
+    def _get_extra_list_field_info(self, name):
+        """
+        gets a dict of extra info for given list field.
+
+        it may return an empty dict.
+
+        :param str name: list field name.
+
+        :rtype: dict
+        """
+
+        result = dict()
+        column_map = self._get_list_fields_to_column_map()
+        attribute = column_map.get(name)
+        type_ = None
+        if attribute is not None:
+            validator = validator_services.try_get_validator(attribute.class_, attribute)
+            if validator is not None:
+                info = validator.get_info()
+                type_ = admin_services.get_client_type(info.get('client_type'),
+                                                       info.get('client_format'))
+                lookup = info.get('in_enum_lookup')
+                if lookup:
+                    result.update(lookup=lookup)
+
+        elif self.list_extra_field_types:
+            type_ = self.list_extra_field_types.get(name)
+
+        if type_ is not None:
+            result.update(type=type_)
+
+        return result
+
     @fast_cache
     def _get_list_datasource_info(self):
         """
@@ -442,10 +520,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value)
 
-            type_ = admin_services.get_field_type(self.entity, item, self.list_extra_field_types)
-            if type_ is not None:
-                info.update(type=type_)
-
+            extra_info = self._get_extra_list_field_info(item)
+            info.update(extra_info)
             results.append(info)
 
         return tuple(results)

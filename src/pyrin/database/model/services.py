@@ -96,3 +96,20 @@ def get_mapper_registry():
     """
 
     return get_component(ModelPackage.COMPONENT_NAME).get_mapper_registry()
+
+
+def get_instrumented_attribute(column, **options):
+    """
+    gets the related instrumented attribute to given column from its entity class.
+
+    it may return None if instrumented attribute does not found.
+
+    :param pyrin.database.orm.sql.schema.base.CoreColumn column: column to get its
+                                                                 related instrumented
+                                                                 attribute.
+
+    :rtype: sqlalchemy.orm.InstrumentedAttribute
+    """
+
+    return get_component(ModelPackage.COMPONENT_NAME).get_instrumented_attribute(column,
+                                                                                 **options)
