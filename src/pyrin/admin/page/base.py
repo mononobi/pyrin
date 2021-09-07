@@ -203,6 +203,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # the fully qualified name of find api.
     FIND_ENDPOINT = 'pyrin.admin.api.find'
 
+    # a name to be used to return primary key column to client as a hidden column.
+    # this is required if the current admin page has any of get or remove permissions.
+    HIDDEN_PK_NAME = '__pk__'
+
     def __init__(self, *args, **options):
         """
         initializes an instance of AdminPage.
@@ -251,9 +255,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         self._get_list_temp_field_names()
         self._get_selectable_fields()
 
-    def _get_column_name(self, name):
+    def _get_column_title(self, name):
         """
-        gets column name for given field name for list page.
+        gets the column title for given field name for list page.
 
         :param str name: field name.
 
@@ -402,7 +406,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         else:
             all_fields = list(self.list_fields)
             if self._is_list_pk_required():
-                self._inject_primary_keys(all_fields)
+                self._inject_primary_key(all_fields)
 
         all_fields = self._extract_field_names(all_fields, allow_string=True)
         if self.list_indexed is True:
@@ -467,6 +471,54 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return result
 
+    def _get_pk_info(self, column):
+        """
+        gets a dict containing pk info for given column if required.
+
+        :param InstrumentedAttribute column: column to be checked.
+
+        :returns: dict(bool is_pk,
+                       str pk_register_name)
+        :rtype: dict
+        """
+
+        result = dict(is_pk=False, pk_register_name=None)
+        if not column.property or not column.property.columns:
+            return result
+
+        base_column = column.property.columns[0]
+        is_pk = base_column.primary_key
+        if is_pk is True:
+            admin_page = admin_services.try_get_admin_page(column.class_)
+            if admin_page is not None and admin_page.has_get_permission() is True:
+                result.update(is_pk=is_pk, pk_register_name=admin_page.get_register_name())
+
+        return result
+
+    def _get_fk_info(self, column):
+        """
+        gets a dict containing fk info for given column if required.
+
+        :param InstrumentedAttribute column: column to be checked.
+
+        :returns: dict(bool is_fk,
+                       str fk_register_name)
+        :rtype: dict
+        """
+
+        result = dict(is_fk=False, fk_register_name=None)
+        if not column.property or not column.property.columns:
+            return result
+
+        base_column = column.property.columns[0]
+        is_fk = base_column.is_foreign_key
+        if is_fk is True:
+            admin_page = admin_services.try_get_admin_page(column.class_)
+            if admin_page is not None and admin_page.has_get_permission() is True:
+                result.update(is_fk=is_fk, fk_register_name=admin_page.get_register_name())
+
+        return result
+
     def _get_extra_list_field_info(self, name):
         """
         gets a dict of extra info for given list field.
@@ -492,6 +544,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 if lookup:
                     result.update(lookup=lookup)
 
+            result.update(self._get_pk_info(attribute))
+            result.update(self._get_fk_info(attribute))
+
         elif self.list_extra_field_types:
             type_ = self.list_extra_field_types.get(name)
 
@@ -516,12 +571,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         sortable_fields = self._get_sortable_fields()
         for item in all_fields:
             info = dict(field=item,
-                        title=self._get_column_name(item),
+                        title=self._get_column_title(item),
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value)
 
-            extra_info = self._get_extra_list_field_info(item)
-            info.update(extra_info)
+            if item == self.HIDDEN_PK_NAME:
+                info.update(hidden=True)
+            else:
+                extra_info = self._get_extra_list_field_info(item)
+                info.update(extra_info)
+
             results.append(info)
 
         return tuple(results)
@@ -537,21 +596,25 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return tuple(self.entity.get_attribute(name)
                      for name in self.entity.primary_key_columns)
 
-    def _inject_primary_keys(self, fields):
+    def _inject_primary_key(self, fields):
         """
-        injects all primary key attributes of related entity into given list.
+        injects primary key attribute of related entity into given list.
 
-        each primary key which is already present, will be ignored.
+        this is required if the current admin page has any
+        of get, remove or update permissions. note that only single
+        primary keys are allowed. otherwise it raises an error.
 
-        :param list fields: fields to inject primary keys in it.
+        :param list fields: fields to inject primary key into it.
+
+        :raises CompositePrimaryKeysNotSupportedError: composite primary keys not supported error.
         """
 
-        primary_keys = self._get_primary_keys()
-        index = 0
-        for pk in primary_keys:
-            if pk not in fields:
-                fields.insert(index, pk)
-                index += 1
+        if not self._has_single_primary_key():
+            raise CompositePrimaryKeysNotSupportedError('Composite primary keys are not '
+                                                        'supported for admin page.')
+
+        primary_key = self._get_primary_keys()[0]
+        fields.append(primary_key.label(self.HIDDEN_PK_NAME))
 
     @fast_cache
     def _get_list_temp_field_names(self):
@@ -585,19 +648,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         expression_level_hybrid_properties = []
         expression_level_hybrid_property_names = ()
 
-        if self._is_list_pk_required():
-            primary_key_names = self.entity.primary_key_columns
-
         if self.list_only_readable is True:
             column_names = self.entity.readable_columns
-            if self.list_pk is True and not primary_key_names:
+            if self.list_pk is True:
                 primary_key_names = self.entity.readable_primary_key_columns
 
             if self.list_fk is True:
                 foreign_key_names = self.entity.readable_foreign_key_columns
         else:
             column_names = self.entity.all_columns
-            if self.list_pk is True and not primary_key_names:
+            if self.list_pk is True:
                 primary_key_names = self.entity.primary_key_columns
 
             if self.list_fk is True:
@@ -623,6 +683,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         primary_keys.extend(foreign_keys)
         primary_keys.extend(columns)
         primary_keys.extend(expression_level_hybrid_properties)
+
+        if self._is_list_pk_required():
+            self._inject_primary_key(primary_keys)
+
         return tuple(primary_keys)
 
     @fast_cache
@@ -638,7 +702,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         results = [item for item in self.list_fields if self._is_valid_field(item)]
         if self._is_list_pk_required():
-            self._inject_primary_keys(results)
+            self._inject_primary_key(results)
 
         return tuple(results)
 
@@ -991,7 +1055,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         list_fields = self._get_list_fields()
         results = []
         for item in list_fields:
-            if isinstance(item, (InstrumentedAttribute, Label)):
+            if isinstance(item, (InstrumentedAttribute, Label)) \
+                    and item.key != self.HIDDEN_PK_NAME:
                 results.append(item.key)
 
         return tuple(set(results))
@@ -1294,23 +1359,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['name'] = self.name
         metadata['plural_name'] = self.get_plural_name()
         metadata['category'] = self.get_category()
-        metadata['pk'] = self.entity.primary_key_columns
-        metadata['list_datasource_info'] = self._get_list_datasource_info()
-        metadata['list_sortable_fields'] = self._get_sortable_fields()
+        metadata['datasource_info'] = self._get_list_datasource_info()
+        metadata['sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_get_permission'] = self.has_get_permission()
-        metadata['url'] = admin_services.url_for(self.get_register_name())
+        metadata['pk_name'] = self.HIDDEN_PK_NAME
         metadata['paged'] = self.list_paged
         metadata['page_size'] = self._get_page_size()
         metadata['max_page_size'] = self._get_max_page_size()
         metadata['page_size_options'] = self._get_page_size_options()
-
-        related = {}
-        for fk in self.entity.foreign_key_columns:
-            related[fk] = self._get_fk_url(fk)
-
-        metadata['fk'] = related
         return metadata
 
     @fast_cache
