@@ -23,6 +23,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
 from pyrin.admin.interface import AbstractAdminPage
+from pyrin.admin.enumerations import TableTypeEnum
 from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
@@ -127,6 +128,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # note that the provided types must be from 'ClientTypeEnum' values.
     # for example: {'is_viewed': ClientTypeEnum.BOOLEAN}
     list_extra_field_types = {}
+
+    # a value to define client-side table type.
+    # it should be from 'TableTypeEnum' values.
+    list_table_type = TableTypeEnum.DENSE
 
     # ===================== SERVICE CONFIGS ===================== #
 
@@ -1369,6 +1374,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['page_size'] = self._get_page_size()
         metadata['max_page_size'] = self._get_max_page_size()
         metadata['page_size_options'] = self._get_page_size_options()
+        metadata['table_type'] = self.list_table_type
         return metadata
 
     @fast_cache
