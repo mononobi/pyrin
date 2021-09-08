@@ -278,6 +278,14 @@ but you can enhance Swagger UI of your application by setting a good **`yaml`**
 docstring for your api method views.
 You can head over to **`127.0.0.1:5000/swagger`** to test the Swagger UI.
 
+## Inspiration
+
+This project is inspired by the awesome **`Deltapy`** framework by:
+- @abisxir
+- @mvavesal
+
+Unfortunately I couldn't find any links to it online.
+
 ## Hint
 
 `Pyrin` is a greek word and means core.
