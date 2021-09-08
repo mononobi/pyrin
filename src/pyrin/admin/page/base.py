@@ -508,7 +508,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_pk=False, pk_register_name=None)
-        if not self.list_link_pk or not column.property or not column.property.columns:
+        if not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
@@ -532,7 +532,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_fk=False, fk_register_name=None)
-        if not self.list_link_fk or not column.property or not column.property.columns:
+        if not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
