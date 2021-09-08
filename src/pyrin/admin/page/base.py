@@ -23,7 +23,6 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
 from pyrin.admin.interface import AbstractAdminPage
-from pyrin.admin.enumerations import TableTypeEnum
 from pyrin.admin.page.schema import AdminSchema
 from pyrin.core.globals import SECURE_TRUE
 from pyrin.admin.page.mixin import AdminPageCacheMixin
@@ -33,6 +32,8 @@ from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
 from pyrin.security.session.enumerations import RequestContextEnum
+from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
+    PaginationPositionEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
@@ -118,6 +119,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # it could not be more than 'max_page_size' from 'database'
     # config store, otherwise it will be corrected silently.
     list_max_page_size = None
+
+    # pagination type to be used on client if paging is enabled for this admin page.
+    # it should be from 'PaginationTypeEnum' values.
+    list_pagination_type = PaginationTypeEnum.NORMAL
+
+    # pagination position to be used on client if paging is enabled for this admin page.
+    # it should be from 'PaginationPositionEnum' values.
+    list_pagination_position = PaginationPositionEnum.BOTTOM
 
     # a value to be shown when the relevant data is null.
     list_null_value = '-'
@@ -1375,6 +1384,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['max_page_size'] = self._get_max_page_size()
         metadata['page_size_options'] = self._get_page_size_options()
         metadata['table_type'] = self.list_table_type
+        metadata['pagination_type'] = self.list_pagination_type
+        metadata['pagination_position'] = self.list_pagination_position
         return metadata
 
     @fast_cache

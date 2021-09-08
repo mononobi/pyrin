@@ -18,12 +18,3 @@ class ClientTypeEnum(CoreEnum):
     TIME = 'time'
     STRING = 'string'
     CURRENCY = 'currency'
-
-
-class TableTypeEnum(CoreEnum):
-    """
-    table type enum.
-    """
-
-    DENSE = 'dense'
-    DEFAULT = 'default'
