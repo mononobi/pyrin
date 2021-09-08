@@ -145,6 +145,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # enable exporting the currently active page into pdf or csv file.
     list_enable_export = True
 
+    # create a link to related admin list page for all pk columns.
+    # this only has effect if the related admin page has get permission.
+    list_link_pk = True
+
+    # create a link to related admin list page for all fk columns.
+    # this only has effect if the related admin page has get permission.
+    list_link_fk = True
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -500,7 +508,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_pk=False, pk_register_name=None)
-        if not column.property or not column.property.columns:
+        if not self.list_link_pk or not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
@@ -524,7 +532,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_fk=False, fk_register_name=None)
-        if not column.property or not column.property.columns:
+        if not self.list_link_fk or not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
