@@ -281,8 +281,8 @@ You can head over to **`127.0.0.1:5000/swagger`** to test the Swagger UI.
 ## Inspiration
 
 This project is inspired by the awesome **`Deltapy`** framework by:
-- @abisxir
-- @mvavesal
+- [@abisxir](https://github.com/abisxir)
+- [@mvavesal](https://github.com/mvavesal)
 
 Unfortunately I couldn't find any links to it online.
 
