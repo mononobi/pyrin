@@ -142,6 +142,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # it should be from 'TableTypeEnum' values.
     list_table_type = TableTypeEnum.DENSE
 
+    # enable exporting the currently active page into pdf or csv file.
+    list_enable_export = True
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -1386,6 +1389,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['table_type'] = self.list_table_type
         metadata['pagination_type'] = self.list_pagination_type
         metadata['pagination_position'] = self.list_pagination_position
+        metadata['enable_export'] = self.list_enable_export
         return metadata
 
     @fast_cache
