@@ -1398,6 +1398,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['pagination_type'] = self.list_pagination_type
         metadata['pagination_position'] = self.list_pagination_position
         metadata['enable_export'] = self.list_enable_export
+        metadata['link_pk'] = self.list_link_pk
+        metadata['link_fk'] = self.list_link_fk
         return metadata
 
     @fast_cache
