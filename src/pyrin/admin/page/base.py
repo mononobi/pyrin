@@ -153,6 +153,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # this only has effect if the related admin page has get permission.
     list_link_fk = True
 
+    # let user select which columns to show on list page.
+    list_column_selection = True
+
+    # let user re-order table columns on list page.
+    list_column_ordering = True
+
+    # let user group results by columns on list page.
+    list_grouping = False
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -1400,6 +1409,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['enable_export'] = self.list_enable_export
         metadata['link_pk'] = self.list_link_pk
         metadata['link_fk'] = self.list_link_fk
+        metadata['column_selection'] = self.list_column_selection
+        metadata['column_ordering'] = self.list_column_ordering
+        metadata['grouping'] = self.list_grouping
         return metadata
 
     @fast_cache
