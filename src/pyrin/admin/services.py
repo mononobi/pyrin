@@ -175,9 +175,9 @@ def remove(register_name, pk):
     return get_component(AdminPackage.COMPONENT_NAME).remove(register_name, pk)
 
 
-def remove_all(register_name, pk):
+def remove_bulk(register_name, pk):
     """
-    performs remove all on given admin page.
+    performs remove bulk on given admin page.
 
     :param str register_name: register name of admin page.
     :param object | list[object] pk: entity primary keys to be removed.
@@ -185,7 +185,19 @@ def remove_all(register_name, pk):
     :raises AdminOperationNotAllowedError: admin operation not allowed error.
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).remove_all(register_name, pk)
+    return get_component(AdminPackage.COMPONENT_NAME).remove_bulk(register_name, pk)
+
+
+def remove_all(register_name):
+    """
+    performs remove all on given admin page.
+
+    :param str register_name: register name of admin page.
+
+    :raises AdminOperationNotAllowedError: admin operation not allowed error.
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).remove_all(register_name)
 
 
 def populate_main_metadata():

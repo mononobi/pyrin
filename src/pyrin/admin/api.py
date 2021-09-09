@@ -86,10 +86,10 @@ if is_enabled is True:
         return admin_services.remove(register_name, pk)
 
 
-    @delete(f'{url}<register_name>', **admin_config)
-    def remove_all(register_name, pk):
+    @delete(f'{url}<register_name>/bulk', **admin_config)
+    def remove_bulk(register_name, pk):
         """
-        performs remove all on given admin page.
+        performs remove bulk on given admin page.
 
         :param str register_name: register name of admin page.
         :param object | list[object] pk: entity primary keys to be removed.
@@ -97,7 +97,20 @@ if is_enabled is True:
         :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
-        return admin_services.remove_all(register_name, pk)
+        return admin_services.remove_bulk(register_name, pk)
+
+
+    @delete(f'{url}<register_name>', **admin_config)
+    def remove_all(register_name):
+        """
+        performs remove all on given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        """
+
+        return admin_services.remove_all(register_name)
 
 
     @api(f'{url}metadata', **admin_config)

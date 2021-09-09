@@ -144,11 +144,21 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         raise CoreNotImplementedError()
 
     @abstractmethod
-    def remove_all(self, pk):
+    def remove_bulk(self, pk):
         """
         deletes entities with given primary keys.
 
         :param object | list[object] pk: entity primary keys to be deleted.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def remove_all(self):
+        """
+        deletes all entities.
 
         :raises CoreNotImplementedError: core not implemented error.
         """
@@ -209,9 +219,19 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
     @abstractmethod
     def has_remove_permission(self):
         """
-        gets a value indicating that this admin page has remove permission.
+        gets a value indicating that this admin page has single or bulk remove permission.
 
         :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def has_remove_all_permission(self):
+        """
+        gets a value indicating that this admin page has remove all permission.
 
         :rtype: bool
         """

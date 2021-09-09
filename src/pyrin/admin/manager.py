@@ -371,9 +371,9 @@ class AdminManager(Manager):
 
         return admin.remove(pk)
 
-    def remove_all(self, register_name, pk):
+    def remove_bulk(self, register_name, pk):
         """
-        performs remove all on given admin page.
+        performs remove bulk on given admin page.
 
         :param str register_name: register name of admin page.
         :param object | list[object] pk: entity primary keys to be removed.
@@ -387,7 +387,24 @@ class AdminManager(Manager):
                                                   'not allow remove operation.')
                                                 .format(name=admin.get_register_name()))
 
-        return admin.remove_all(pk)
+        return admin.remove_bulk(pk)
+
+    def remove_all(self, register_name):
+        """
+        performs remove all on given admin page.
+
+        :param str register_name: register name of admin page.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        """
+
+        admin = self._get_admin_page(register_name)
+        if not admin.has_remove_all_permission():
+            raise AdminOperationNotAllowedError(_('Admin page [{name}] does '
+                                                  'not allow remove all operation.')
+                                                .format(name=admin.get_register_name()))
+
+        return admin.remove_all()
 
     def populate_main_metadata(self):
         """

@@ -196,10 +196,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # have update permission and this value will be ignored.
     update_permission = True
 
-    # specifies that this admin page has remove permission.
-    # note that if entity has composite primary key, it does not
-    # have remove permission and this value will be ignored.
+    # specifies that this admin page has single or bulk remove permission.
+    # note that if entity has composite primary key, it does not have single
+    # or bulk remove permission and this value will be ignored.
     remove_permission = True
+
+    # specifies that this admin page has remove all permission.
+    remove_all_permission = True
 
     # ===================== OTHER CONFIGS ===================== #
 
@@ -361,13 +364,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets a value indicating that primary key column for list view is required.
 
-        it returns True if this admin page has any of `get`, `update` or `remove` permissions.
+        it returns True if this admin page has any of `get` or `remove` permissions.
 
         :rtype: bool
         """
 
-        return self.has_get_permission() or \
-            self.has_remove_permission() or self.has_update_permission()
+        return self.has_get_permission() or self.has_remove_permission()
 
     @fast_cache
     def _extract_method_names(self):
@@ -1042,7 +1044,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pk_column = cls.entity.get_attribute(pk_name)
         store.query(cls.entity).filter(pk_column == pk).delete()
 
-    def _remove_all(self, *pk):
+    def _remove_bulk(self, *pk):
         """
         deletes all entities with given primary keys.
 
@@ -1053,6 +1055,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pk_name = self._get_primary_key_name()
         pk_column = self.entity.get_attribute(pk_name)
         store.query(self.entity).filter(pk_column.in_(pk)).delete()
+
+    def _remove_all(self):
+        """
+        deletes all entities.
+        """
+
+        store = get_current_store()
+        store.query(self.entity).delete()
 
     @fast_cache
     def _get_list_entities(self):
@@ -1141,6 +1151,21 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 fields.append(item)
 
         return tuple(fields)
+
+    @fast_cache
+    def _get_common_metadata(self):
+        """
+        gets the common metadata of this admin page.
+
+        :rtype: dict
+        """
+
+        metadata = dict()
+        metadata['name'] = self.name
+        metadata['plural_name'] = self.get_plural_name()
+        metadata['register_name'] = self.get_register_name()
+        metadata['category'] = self.get_category()
+        return metadata
 
     def get_entity(self):
         """
@@ -1269,7 +1294,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         else:
             cls._remove(pk)
 
-    def remove_all(self, pk):
+    def remove_bulk(self, pk):
         """
         deletes entities with given primary keys.
 
@@ -1280,7 +1305,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         for item in pk:
             validator_services.validate(self.entity, **self._get_primary_key_holder(item))
 
-        self._remove_all(*pk)
+        self._remove_bulk(*pk)
+
+    def remove_all(self):
+        """
+        deletes all entities.
+        """
+
+        self._remove_all()
 
     def call_method(self, name, argument):
         """
@@ -1334,14 +1366,23 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     def has_remove_permission(self):
         """
-        gets a value indicating that this admin page has remove permission.
+        gets a value indicating that this admin page has single or bulk remove permission.
 
-        note that entities with composite primary key does not support remove.
+        note that entities with composite primary key does not support single or bulk remove.
 
         :rtype: bool
         """
 
         return self._has_single_primary_key() and self.remove_permission
+
+    def has_remove_all_permission(self):
+        """
+        gets a value indicating that this admin page has remove all permission.
+
+        :rtype: bool
+        """
+
+        return self.remove_all_permission
 
     @fast_cache
     def get_main_metadata(self):
@@ -1352,10 +1393,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         metadata = dict()
-        metadata['name'] = self.name
-        metadata['plural_name'] = self.get_plural_name()
-        metadata['register_name'] = self.get_register_name()
-        metadata['category'] = self.get_category()
+        metadata.update(self._get_common_metadata())
         metadata['has_create_permission'] = self.has_create_permission()
         return metadata
 
@@ -1368,14 +1406,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         metadata = dict()
-        metadata['register_name'] = self.get_register_name()
-        metadata['name'] = self.name
-        metadata['plural_name'] = self.get_plural_name()
-        metadata['category'] = self.get_category()
+        metadata.update(self._get_common_metadata())
         metadata['datasource_info'] = self._get_list_datasource_info()
         metadata['sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
+        metadata['has_remove_all_permission'] = self.has_remove_all_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['pk_name'] = self.HIDDEN_PK_NAME
         metadata['paged'] = self.list_paged
@@ -1402,12 +1438,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         metadata = dict()
-        metadata['register_name'] = self.get_register_name()
-        metadata['name'] = self.name
-        metadata['plural_name'] = self.get_plural_name()
-        metadata['category'] = self.get_category()
+        metadata.update(self._get_common_metadata())
         metadata['has_create_permission'] = self.has_create_permission()
-        metadata['url'] = admin_services.url_for(self.get_register_name())
         metadata['data_fields'] = self._get_data_fields()
         return metadata
 
@@ -1420,14 +1452,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         metadata = dict()
-        metadata['register_name'] = self.get_register_name()
-        metadata['name'] = self.name
-        metadata['plural_name'] = self.get_plural_name()
-        metadata['category'] = self.get_category()
+        metadata.update(self._get_common_metadata())
         metadata['has_update_permission'] = self.has_update_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
-        metadata['url'] = admin_services.url_for(self.get_register_name())
         metadata['data_fields'] = self._get_data_fields()
         return metadata
 
