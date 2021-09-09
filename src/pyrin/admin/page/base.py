@@ -1142,11 +1142,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             item = dict(name=name, is_fk=is_fk,
                         is_pk=name in self.entity.writable_primary_key_columns)
 
+            column = self.entity.get_attribute(name)
             if is_fk:
-                item.update(fk_url=self._get_fk_url(name))
+                fk_info = self._get_fk_info(column)
+                item.update(fk_info)
 
-            validator = validator_services.try_get_validator(self.entity,
-                                                             self.entity.get_attribute(name))
+            validator = validator_services.try_get_validator(self.entity, column)
             if validator is not None:
                 item.update(validator.get_info())
 

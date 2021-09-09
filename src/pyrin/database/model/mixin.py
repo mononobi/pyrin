@@ -892,7 +892,7 @@ class AttributeMixin(ModelMixinBase):
         :raises ColumnNotExistedError: column not existed error.
 
         :returns: specified attribute
-        :rtype: CoreColumn | sqlalchemy.orm.attributes.InstrumentedAttribute
+        :rtype: sqlalchemy.orm.attributes.InstrumentedAttribute
         """
 
         if name in (cls.all_attributes + cls.expression_level_hybrid_properties):
