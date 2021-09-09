@@ -1194,11 +1194,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: str
         """
 
-        if self.category not in (None, ''):
+        if self.category not in (None, '') and not self.category.isspace():
             return self.category.upper()
 
         package = path_utils.get_object_package_name(self)
         if package is not None:
+            package = package.replace('_', ' ')
             return package.upper()
 
         return admin_services.get_default_category()
