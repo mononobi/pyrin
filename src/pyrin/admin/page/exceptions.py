@@ -78,13 +78,6 @@ class CompositePrimaryKeysNotSupportedError(AdminPageException):
     pass
 
 
-class ColumnIsNotForeignKeyError(AdminPageException):
-    """
-    column is not foreign key error.
-    """
-    pass
-
-
 class DuplicateListFieldNamesError(AdminPageException):
     """
     duplicate list field names error.

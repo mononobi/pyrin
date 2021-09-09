@@ -37,8 +37,7 @@ from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
-    CompositePrimaryKeysNotSupportedError, ColumnIsNotForeignKeyError, \
-    DuplicateListFieldNamesError
+    CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -547,9 +546,17 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         base_column = column.property.columns[0]
         is_fk = base_column.is_foreign_key
         if is_fk is True:
-            admin_page = admin_services.try_get_admin_page(column.class_)
-            if admin_page is not None and admin_page.has_get_permission() is True:
-                result.update(is_fk=is_fk, fk_register_name=admin_page.get_register_name())
+            foreign_keys = list(base_column.foreign_keys)
+            if foreign_keys and foreign_keys[0].constraint:
+                entity = sqla_utils.get_class_by_table(model_services.get_declarative_base(),
+                                                       foreign_keys[0].constraint.referred_table,
+                                                       raise_multi=False)
+
+                if entity is not None:
+                    admin_page = admin_services.try_get_admin_page(entity)
+                    if admin_page is not None and admin_page.has_get_permission() is True:
+                        result.update(is_fk=is_fk,
+                                      fk_register_name=admin_page.get_register_name())
 
         return result
 
@@ -1094,36 +1101,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                 results.append(item.key)
 
         return tuple(set(results))
-
-    def _get_fk_url(self, name):
-        """
-        gets the fk url for given attribute name.
-
-        it may return None if the fk entity does not have an admin page.
-
-        :param str name: attribute name of entity.
-
-        :raises ColumnIsNotForeignKeyError: column is not foreign key error.
-
-        :rtype: str
-        """
-
-        if name not in self.entity.foreign_key_columns:
-            raise ColumnIsNotForeignKeyError('Provided column [{name}] is not a '
-                                             'foreign key of [{entity}] class.'
-                                             .format(name=name, entity=self.entity))
-
-        attribute = self.entity.get_attribute(name)
-        foreign_keys = list(attribute.property.columns[0].foreign_keys)
-        entity = sqla_utils.get_class_by_table(model_services.get_declarative_base(),
-                                               foreign_keys[0].constraint.referred_table,
-                                               raise_multi=False)
-
-        admin_page = admin_services.try_get_admin_page(entity)
-        if admin_page is not None:
-            return admin_services.url_for(admin_page.get_register_name())
-
-        return None
 
     @fast_cache
     def _get_data_fields(self):
