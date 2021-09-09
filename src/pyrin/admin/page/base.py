@@ -54,6 +54,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # name of this admin page to be used for registration.
     # the register name is case-insensitive and must be unique for each admin page.
+    # this name will also be used for generating admin page api routes.
     register_name = None
 
     # singular name of this admin page for representation.
