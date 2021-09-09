@@ -23,7 +23,7 @@ from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.services import get_current_store
 from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.database.orm.query.exceptions import ColumnsOutOfScopeError, \
-    EfficientCountIsNotPossibleError, InvalidLabeledColumnNameError
+    EfficientCountIsNotPossibleError
 
 
 @inspection._self_inspects
@@ -161,32 +161,6 @@ class CoreQuery(Query):
         statement._auto_correlate = old_statement._auto_correlate
 
         return statement
-
-    def _prepare_labeled_columns(self, columns):
-        """
-        prepares given labeled columns list.
-
-        it adds all `+` and `-` variants into given columns and returns a new list.
-
-        :param list[str] columns: columns to be prepared.
-
-        :raises InvalidLabeledColumnNameError: invalid labeled column name error.
-
-        :rtype: list[str]
-        """
-
-        result = []
-        for item in columns:
-            if sqlalchemy_utils.is_valid_column_name(item):
-                name = sqlalchemy_utils.get_column_name(item)
-                result.append(name)
-                result.append(f'+{name}')
-                result.append(f'-{name}')
-            else:
-                raise InvalidLabeledColumnNameError(f'Labeled column [{item}] '
-                                                    f'has an invalid name.')
-
-        return list(set(result))
 
     def _get_related_entity(self, column, *scope):
         """
@@ -473,7 +447,7 @@ class CoreQuery(Query):
                                                   names are not among the provided entities
                                                   columns. this value should not be provided
                                                   by clients, so the type of this value
-                                                  must be `SecureList` otherwise it
+                                                  must be `SecureList`. otherwise it
                                                   will be ignored.
 
         :keyword list[str] | str order_by: column names to be used in order by criterion.
@@ -497,14 +471,14 @@ class CoreQuery(Query):
         if not isinstance(labeled_columns, SecureList):
             labeled_columns = []
 
-        fixed_labeled_columns = self._prepare_labeled_columns(labeled_columns)
         columns = options.get(database_services.get_ordering_key())
         columns = misc_utils.make_iterable(columns)
         columns.extend(force_order)
         count = len(scope)
         for item in columns:
             single_criterion = None
-            if item in fixed_labeled_columns:
+            pure_name = sqlalchemy_utils.get_column_name(item)
+            if pure_name in labeled_columns:
                 single_criterion = sqlalchemy_utils.get_ordering_criterion(
                     item, valid_columns=labeled_columns, ignore_invalid=True)
             else:
@@ -512,7 +486,7 @@ class CoreQuery(Query):
                 if count == 1:
                     found_entity = scope[0]
                 elif count > 1:
-                    found_entity = self._get_related_entity(item, *scope)
+                    found_entity = self._get_related_entity(pure_name, *scope)
 
                 if found_entity is not None:
                     single_criterion = found_entity.get_ordering_criterion(item,

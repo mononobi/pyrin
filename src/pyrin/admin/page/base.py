@@ -1091,7 +1091,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         selectable_fields = self._get_selectable_fields()
         labels = []
         for item in selectable_fields:
-            if isinstance(item, Label):
+            if isinstance(item, Label) and item.key != self.HIDDEN_PK_NAME:
                 labels.append(item.key)
 
         return tuple(set(labels))

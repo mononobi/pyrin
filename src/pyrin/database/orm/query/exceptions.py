@@ -32,10 +32,3 @@ class EfficientCountIsNotPossibleError(ORMQueryException):
     efficient count is not possible error.
     """
     pass
-
-
-class InvalidLabeledColumnNameError(ORMQueryException):
-    """
-    invalid labeled column name error.
-    """
-    pass
