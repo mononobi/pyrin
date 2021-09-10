@@ -56,7 +56,8 @@ class AdminManager(Manager):
         """
         gets the type map for different field types.
 
-        **note:**
+        **NOTE:**
+
         as the client side table does not format the numeric values correctly, we
         have to introduce numeric values as string to the client to keep the behavior
         of these column types as others.
