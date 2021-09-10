@@ -32,13 +32,14 @@ class FilteringManager(Manager):
 
     package_class = FilteringPackage
 
-    def _get_related_entity(self, column, *scope, **options):
+    def _get_related_column(self, name, *scope, **options):
         """
-        gets the first entity that the given column is available in its columns.
+        gets the column with given name from the first entity that has it.
 
-        it returns None if the column is not available in columns of any of provided entities.
+        it returns None if the column name is not available in
+        columns of any of provided entities.
 
-        :param str column: column name to be found.
+        :param str name: column name to be found.
 
         :param type[pyrin.database.model.base.BaseEntity] scope: entities to search
                                                                  for the column.
@@ -49,9 +50,15 @@ class FilteringManager(Manager):
                                 be included in filtering.
                                 defaults to True if not provided.
 
-        :rtype: type[pyrin.database.model.base.BaseEntity]
+        :keyword list[sqlalchemy.orm.attributes.InstrumentedAttribute] exclude: list of columns
+                                                                                to be excluded if
+                                                                                have been found.
+
+        :rtype: sqlalchemy.orm.attributes.InstrumentedAttribute
         """
 
+        exclude = options.get('exclude')
+        exclude = misc_utils.make_iterable(exclude)
         readable = options.get('readable', True)
         for entity in scope:
             all_columns = None
@@ -62,8 +69,10 @@ class FilteringManager(Manager):
                 all_columns = entity.readable_primary_key_columns + \
                               entity.readable_foreign_key_columns + entity.readable_columns
 
-            if column in all_columns:
-                return entity
+            if name in all_columns:
+                column = entity.get_attribute(name)
+                if column not in exclude:
+                    return column
 
         return None
 
@@ -165,11 +174,11 @@ class FilteringManager(Manager):
         for item in to_be_removed:
             filters_copy.pop(item, None)
 
+        options.update(exclude=list(labeled_filters.values()))
         for name, value in filters_copy.items():
             if name not in ignore_names:
-                found_entity = self._get_related_entity(name, *entity, **options)
-                if found_entity is not None:
-                    column = found_entity.get_attribute(name)
+                column = self._get_related_column(name, *entity, **options)
+                if column is not None:
                     self._add_expression(expressions, column, name, to_be_removed, filters_copy)
 
         if remove is not False:
