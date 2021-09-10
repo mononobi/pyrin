@@ -147,3 +147,24 @@ def is_subclass_or_instance(value, type_):
 
     is_subclass = inspect.isclass(value) and issubclass(value, type_)
     return is_subclass or isinstance(value, type_)
+
+
+def get_duplicates(items):
+    """
+    gets a list of duplicate items in given list of items.
+
+    :param list | tuple | set items: items to be checked for duplications.
+
+    :rtype: list
+    """
+
+    unique_set = set(items)
+    if len(unique_set) == len(items):
+        return []
+
+    duplicates = []
+    for item in unique_set:
+        if items.count(item) > 1:
+            duplicates.append(item)
+
+    return duplicates
