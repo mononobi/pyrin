@@ -134,7 +134,7 @@ class FilteringManager(Manager):
                                                                                ignored from
                                                                                filtering. this
                                                                                only has effect
-                                                                               on `filters` and
+                                                                               on `entity` and
                                                                                will be ignored for
                                                                                `labeled_filters`.
 
@@ -146,7 +146,7 @@ class FilteringManager(Manager):
                                 starts with underscore `_`, should not
                                 be included in filtering.
                                 defaults to True if not provided.
-                                this only has effect on `filters` and will be
+                                this only has effect on `entity` and will be
                                 ignored for `labeled_filters`.
 
         :keyword dict labeled_filters: a dict containing all columns that should have
@@ -168,8 +168,10 @@ class FilteringManager(Manager):
         to_be_removed = []
         filters_copy = dict(**filters)
 
-        for name, column in labeled_filters.items():
-            self._add_expression(expressions, column, name, to_be_removed, filters_copy)
+        for name, value in filters_copy.items():
+            if name in labeled_filters:
+                column = labeled_filters.get(name)
+                self._add_expression(expressions, column, name, to_be_removed, filters_copy)
 
         for item in to_be_removed:
             filters_copy.pop(item, None)

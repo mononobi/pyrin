@@ -28,7 +28,7 @@ def filter(filters, *entity, **options):
                                                                            ignored from
                                                                            filtering. this
                                                                            only has effect
-                                                                           on `filters` and
+                                                                           on `entity` and
                                                                            will be ignored for
                                                                            `labeled_filters`.
 
@@ -40,7 +40,7 @@ def filter(filters, *entity, **options):
                             starts with underscore `_`, should not
                             be included in filtering.
                             defaults to True if not provided.
-                            this only has effect on `filters` and will be
+                            this only has effect on `entity` and will be
                             ignored for `labeled_filters`.
 
     :keyword dict labeled_filters: a dict containing all columns that should have
