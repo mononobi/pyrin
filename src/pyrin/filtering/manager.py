@@ -96,7 +96,7 @@ class FilteringManager(Manager):
         collection_type, python_type = column.get_python_type()
         if python_type is str and not isinstance(value, LIST_TYPES) \
                 and collection_type is None:
-            expressions.append(column.icontains(value))
+            expressions.append(column.icontains(str(value)))
         else:
             sqlalchemy_utils.add_comparison_clause(expressions, column, value)
 
