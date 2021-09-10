@@ -182,7 +182,8 @@ class FilteringManager(Manager):
                 if name not in ignore_names:
                     column = self._get_related_column(name, *entity, **options)
                     if column is not None:
-                        self._add_expression(expressions, column, name, to_be_removed, filters_copy)
+                        self._add_expression(expressions, column, name,
+                                             to_be_removed, filters_copy)
 
             if remove is not False:
                 for item in to_be_removed:
