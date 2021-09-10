@@ -168,13 +168,15 @@ class FilteringManager(Manager):
         to_be_removed = []
         filters_copy = dict(**filters)
 
-        for name, value in filters_copy.items():
-            if name in labeled_filters:
-                column = labeled_filters.get(name)
-                self._add_expression(expressions, column, name, to_be_removed, filters_copy)
+        if len(labeled_filters) > 0:
+            for name, value in filters_copy.items():
+                if name in labeled_filters:
+                    column = labeled_filters.get(name)
+                    self._add_expression(expressions, column, name,
+                                         to_be_removed, filters_copy)
 
-        for item in to_be_removed:
-            filters_copy.pop(item, None)
+            for item in to_be_removed:
+                filters_copy.pop(item, None)
 
         if len(entity) > 0:
             options.update(exclude=list(labeled_filters.values()))
