@@ -47,7 +47,7 @@ def filter(filters, *entity, **options):
                                    a different filter name than their actual column
                                    name. for example:
                                    {'city_name': CityEntity.name,
-                                    'person_name': PersonEntity.name})
+                                    'person_name': PersonEntity.name}
 
     :returns: list of expressions for filtering.
     :rtype: list
