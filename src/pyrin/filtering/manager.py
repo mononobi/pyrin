@@ -185,8 +185,8 @@ class FilteringManager(Manager):
                         self._add_expression(expressions, column, name,
                                              to_be_removed, filters_copy)
 
-            if remove is not False:
-                for item in to_be_removed:
-                    filters.pop(item, None)
+        if remove is not False:
+            for item in to_be_removed:
+                filters.pop(item, None)
 
         return expressions
