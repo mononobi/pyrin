@@ -176,15 +176,16 @@ class FilteringManager(Manager):
         for item in to_be_removed:
             filters_copy.pop(item, None)
 
-        options.update(exclude=list(labeled_filters.values()))
-        for name, value in filters_copy.items():
-            if name not in ignore_names:
-                column = self._get_related_column(name, *entity, **options)
-                if column is not None:
-                    self._add_expression(expressions, column, name, to_be_removed, filters_copy)
+        if len(entity) > 0:
+            options.update(exclude=list(labeled_filters.values()))
+            for name, value in filters_copy.items():
+                if name not in ignore_names:
+                    column = self._get_related_column(name, *entity, **options)
+                    if column is not None:
+                        self._add_expression(expressions, column, name, to_be_removed, filters_copy)
 
-        if remove is not False:
-            for item in to_be_removed:
-                filters.pop(item, None)
+            if remove is not False:
+                for item in to_be_removed:
+                    filters.pop(item, None)
 
         return expressions
