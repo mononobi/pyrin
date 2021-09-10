@@ -7,17 +7,30 @@ from pyrin.application.services import get_component
 from pyrin.filtering import FilteringPackage
 
 
-def filter(entity, filters, *ignore, **options):
+def filter(filters, *entity, **options):
     """
-    gets filtering expressions for given entity type based on given filters.
+    gets filtering expressions for given entity types based on given filters.
+
+    **NOTE:**
+
+    if a filter name is available in both `labeled_filters` and columns of
+    entities, the value of `labeled_filters` will be used.
+
+    if a filter name is available in columns of more than one entity, the
+    first found entity will be used.
+
+    :param dict filters: filters to be applied.
 
     :param type[pyrin.database.model.base.BaseEntity] entity: entity class type to
                                                               be used for filtering.
 
-    :param dict filters: filters to be applied.
-
-    :param sqlalchemy.orm.attributes.InstrumentedAttribute ignore: columns to be ignored
-                                                                   from filtering.
+    :keyword list[sqlalchemy.orm.attributes.InstrumentedAttribute] ignore: columns to be
+                                                                           ignored from
+                                                                           filtering. this
+                                                                           only has effect
+                                                                           on `filters` and
+                                                                           will be ignored for
+                                                                           `labeled_filters`.
 
     :keyword bool remove: remove all keys that are applied as filter from filters input.
                           defaults to True if not provided.
@@ -27,10 +40,17 @@ def filter(entity, filters, *ignore, **options):
                             starts with underscore `_`, should not
                             be included in filtering.
                             defaults to True if not provided.
+                            this only has effect on `filters` and will be
+                            ignored for `labeled_filters`.
+
+    :keyword dict labeled_filters: a dict containing all columns that should have
+                                   a different filter name than their actual column
+                                   name. for example:
+                                   {'city_name': CityEntity.name,
+                                    'person_name': PersonEntity.name})
 
     :returns: list of expressions for filtering.
     :rtype: list
     """
 
-    return get_component(FilteringPackage.COMPONENT_NAME).filter(entity, filters,
-                                                                 *ignore, **options)
+    return get_component(FilteringPackage.COMPONENT_NAME).filter(filters, *entity, **options)
