@@ -49,6 +49,13 @@ def filter(filters, *entity, **options):
                                    {'city_name': CityEntity.name,
                                     'person_name': PersonEntity.name}
 
+    :keyword bool ignore_duplicates: specifies that if multiple labeled filters
+                                     point to the same column and have the same value
+                                     in provided filters, only add one of them in
+                                     where clause. defaults to True if not provided.
+                                     the main usage for this is in admin page which
+                                     produces inclusive filters dynamically.
+
     :returns: list of expressions for filtering.
     :rtype: list
     """

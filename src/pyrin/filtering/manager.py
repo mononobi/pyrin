@@ -155,11 +155,19 @@ class FilteringManager(Manager):
                                        {'city_name': CityEntity.name,
                                         'person_name': PersonEntity.name}
 
+        :keyword bool ignore_duplicates: specifies that if multiple labeled filters
+                                         point to the same column and have the same value
+                                         in provided filters, only add one of them in
+                                         where clause. defaults to True if not provided.
+                                         the main usage for this is in admin page which
+                                         produces inclusive filters dynamically.
+
         :returns: list of expressions for filtering.
         :rtype: list
         """
 
         labeled_filters = options.get('labeled_filters') or {}
+        ignore_duplicates = options.get('ignore_duplicates', True)
         remove = options.get('remove', True)
         ignore = options.get('ignore')
         ignore = misc_utils.make_iterable(ignore)
@@ -169,11 +177,21 @@ class FilteringManager(Manager):
         filters_copy = dict(**filters)
 
         if len(labeled_filters) > 0:
-            for name, value in filters_copy.items():
-                if name in labeled_filters:
-                    column = labeled_filters.get(name)
-                    self._add_expression(expressions, column, name,
-                                         to_be_removed, filters_copy)
+            added = dict()
+            to_meet = set(labeled_filters.keys()).intersection(set(filters_copy.keys()))
+            for name in to_meet:
+                column = labeled_filters.get(name)
+                if ignore_duplicates is True:
+                    added_values = added.setdefault(column, [])
+                    value = filters_copy.get(name)
+                    if value in added_values:
+                        to_be_removed.append(name)
+                        continue
+                    else:
+                        added_values.append(value)
+
+                self._add_expression(expressions, column, name,
+                                     to_be_removed, filters_copy)
 
             for item in to_be_removed:
                 filters_copy.pop(item, None)
