@@ -5,7 +5,7 @@ admin page base module.
 
 import inspect
 
-from sqlalchemy.sql.elements import Label
+from sqlalchemy.sql.elements import Label, and_, or_
 from sqlalchemy.orm import InstrumentedAttribute
 
 import pyrin.admin.services as admin_services
@@ -31,13 +31,16 @@ from pyrin.database.orm.sql.schema.base import CoreColumn
 from pyrin.database.paging.paginator import SimplePaginator
 from pyrin.database.services import get_current_store
 from pyrin.database.model.base import BaseEntity
+from pyrin.logging.contexts import suppress
 from pyrin.security.session.enumerations import RequestContextEnum
+from pyrin.validator.exceptions import ValidationError
 from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
     PaginationPositionEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
-    CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError
+    CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError, \
+    InvalidListSearchFieldError, DuplicateListSearchFieldNamesError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -75,7 +78,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # for example: (UserEntity.id, UserEntity.fullname, UserDetailEntity.age)
     list_temp_fields = ()
 
-    # specifies that if 'list_fields' are not provided only show readable
+    # specifies that if 'list_fields' is not provided only show readable
     # columns of the entity in list view.
     list_only_readable = True
 
@@ -91,7 +94,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_expression_level_hybrid_properties = True
 
     # list of default ordering columns.
-    # it must be string names from `list_fields` or `list_temp_fields`.
+    # it must be string names from 'list_fields' or 'list_temp_fields'.
     # for example: ('first_name', '-last_name')
     list_ordering = ()
 
@@ -162,6 +165,23 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # let user group results by columns on list page.
     list_grouping = False
 
+    # specifies that client should render a search box to let user filter the
+    # results by any of columns which are involved in this admin page list view.
+    list_search = True
+
+    # a number in milliseconds to be used as debounce interval in client search box.
+    list_search_debounce_interval = 800
+
+    # extra columns to let user filter by their value in list view.
+    # it must be a column attribute or a labeled column.
+    # this is useful if you want to add some extra fields for searching but do not
+    # want to add these columns in 'list_fields'.
+    # the main usage for this attribute is to set labeled columns for columns
+    # of different entities which have the same name.
+    # for example:
+    # (UserEntity.last_name, UserEntity.name, CityEntity.name.label('city_name'))
+    list_search_fields = ()
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -226,12 +246,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # type of their values will be considered as string.
     extra_data_fields = ()
 
-    # column names to be used in search bar.
-    search_fields = ()
-
-    # columns that are readonly in edit form.
-    readonly_fields = ()
-
     # ===================== INTERNAL CONFIGS ===================== #
 
     # paginator class to be used.
@@ -242,7 +256,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # a name to be used to return primary key column to client as a hidden column.
     # this is required if the current admin page has any of get or remove permissions.
-    HIDDEN_PK_NAME = '__pk__'
+    HIDDEN_PK_NAME = '_pk_'
+
+    # a param name to be used for exclusive search feature by client.
+    LIST_QUERY_PARAM = '_query_'
 
     def __init__(self, *args, **options):
         """
@@ -269,7 +286,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             raise AdminNameRequiredError('The name for [{admin}] class is required.'
                                          .format(admin=self))
 
-        self.__populate_caches()
         # list of method names of this admin page to be used for processing the results.
         self._method_names = self._extract_method_names()
         self._schema = AdminSchema(self,
@@ -282,15 +298,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             self._paginator = self.paginator_class(self.FIND_ENDPOINT,
                                                    page_size=self._get_page_size(),
                                                    max_page_size=self._get_max_page_size())
-
-    def __populate_caches(self):
-        """
-        populates required caches of this admin page.
-        """
-
-        self._get_list_field_names()
-        self._get_list_temp_field_names()
-        self._get_selectable_fields()
 
     def _get_column_title(self, name):
         """
@@ -454,12 +461,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             all_fields.insert(0, index_name)
             all_fields = tuple(all_fields)
 
-        if len(all_fields) != len(set(all_fields)):
+        duplicates = misc_utils.get_duplicates(all_fields)
+        if duplicates:
             raise DuplicateListFieldNamesError('There are some duplicate field names '
                                                'in "list_fields" of [{admin}] class. '
                                                'this will make the find result incorrect. '
                                                'please remove duplicate fields or set '
-                                               'unique labels for them.'.format(admin=self))
+                                               'unique labels for them: {duplicates}'
+                                               .format(admin=self, duplicates=duplicates))
 
         return all_fields
 
@@ -504,6 +513,51 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         for name in all_fields:
             attribute = self._get_relevant_column(name)
             result[name] = attribute
+
+        return result
+
+    @fast_cache
+    def _get_list_search_fields_to_column_map(self):
+        """
+        gets a dict of all list search field names and their related columns.
+
+        :raises InvalidListSearchFieldError: invalid list search field error.
+        :raises DuplicateListSearchFieldNamesError: duplicate list search field names error.
+
+        :returns: dict(InstrumentAttribute name)
+        :rtype: dict
+        """
+
+        if self.list_search_fields:
+            names = []
+            for item in self.list_search_fields:
+                if not isinstance(item, (InstrumentedAttribute, Label)):
+                    raise InvalidListSearchFieldError('Provided field [{field}] is not a valid '
+                                                      'list search field for [{admin}] class. '
+                                                      'search fields must be a column attribute.'
+                                                      .format(admin=self, field=str(item)))
+
+                names.append(item.key)
+
+            duplicates = misc_utils.get_duplicates(names)
+            if duplicates:
+                raise DuplicateListSearchFieldNamesError('There are some duplicate field names '
+                                                         'in "list_search_fields" of [{admin}] '
+                                                         'class. please remove duplicate fields '
+                                                         'or set unique labels for them: '
+                                                         '{duplicates}'
+                                                         .format(admin=self,
+                                                                 duplicates=duplicates))
+
+        result = dict()
+        list_fields = self._get_list_fields_to_column_map()
+        for name, column in list_fields.items():
+            if column is not None:
+                result[name] = column
+
+        if self.list_search_fields:
+            for item in self.list_search_fields:
+                result[item.key] = item
 
         return result
 
@@ -797,6 +851,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return query
 
+    def _prepare_inclusive_filters(self, search_text, filters, labeled_filters):
+        """
+        prepares inclusive filters.
+
+        :param str search_text: search text.
+        :param dict filters: filters which have been provided by client.
+        :param dict labeled_filters: dict of filter name to column map.
+        """
+
+        for name, column in labeled_filters.items():
+            value = None
+            with suppress(ValidationError, log=False):
+                value = validator_services.validate_field(column.class_, column,
+                                                          search_text, for_find=True)
+
+            if value is not None:
+                filters[name] = value
+
     def _filter_query(self, query, **filters):
         """
         filters given query and returns a new query object.
@@ -806,8 +878,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: CoreQuery
         """
 
-        expressions = filtering_services.filter(self.entity, filters)
-        return query.filter(*expressions)
+        labeled_filters = self._get_list_search_fields_to_column_map()
+        search_text = filters.pop(self.LIST_QUERY_PARAM, None)
+        type_ = and_
+        if self.list_search is True and search_text not in (None, ''):
+            type_ = or_
+            self._prepare_inclusive_filters(search_text, filters, labeled_filters)
+
+        expressions = filtering_services.filter(filters, labeled_filters=labeled_filters)
+        return query.filter(type_(*expressions))
 
     def _validate_filters(self, filters):
         """
@@ -1415,6 +1494,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_all_permission'] = self.has_remove_all_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['pk_name'] = self.HIDDEN_PK_NAME
+        metadata['query_param'] = self.LIST_QUERY_PARAM
         metadata['paged'] = self.list_paged
         metadata['page_size'] = self._get_page_size()
         metadata['max_page_size'] = self._get_max_page_size()
@@ -1428,6 +1508,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['column_selection'] = self.list_column_selection
         metadata['column_ordering'] = self.list_column_ordering
         metadata['grouping'] = self.list_grouping
+        metadata['search'] = self.list_search
+        metadata['search_debounce_interval'] = self.list_search_debounce_interval
         return metadata
 
     @fast_cache
@@ -1459,6 +1541,21 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['data_fields'] = self._get_data_fields()
         return metadata
+
+    def populate_caches(self):
+        """
+        populates required caches of this admin page.
+        """
+
+        self.get_main_metadata()
+        self.get_find_metadata()
+        self.get_create_metadata()
+        self.get_update_metadata()
+        self._get_list_search_fields_to_column_map()
+        self._get_primary_keys()
+        self._get_default_list_fields()
+        self._get_list_entities()
+        self._get_list_labels()
 
     @property
     def method_names(self):

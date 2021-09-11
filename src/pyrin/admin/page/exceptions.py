@@ -29,6 +29,13 @@ class InvalidListFieldError(AdminPageException):
     pass
 
 
+class InvalidListSearchFieldError(AdminPageException):
+    """
+    invalid list search field error.
+    """
+    pass
+
+
 class ListFieldRequiredError(AdminPageException):
     """
     list field required error.
@@ -81,5 +88,12 @@ class CompositePrimaryKeysNotSupportedError(AdminPageException):
 class DuplicateListFieldNamesError(AdminPageException):
     """
     duplicate list field names error.
+    """
+    pass
+
+
+class DuplicateListSearchFieldNamesError(AdminPageException):
+    """
+    duplicate list search field names error.
     """
     pass

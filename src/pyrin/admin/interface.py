@@ -286,6 +286,16 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def populate_caches(self):
+        """
+        populates required caches of this admin page.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def method_names(self):
