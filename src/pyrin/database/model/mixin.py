@@ -388,8 +388,7 @@ class HybridPropertyMixin(ModelMixinBase):
 
         info = sqla_inspect(cls)
         hybrid_properties = tuple(item.__name__ for item in info.all_orm_descriptors
-                                  if isinstance(item, hybrid_property)
-                                  and item.expr is not None
+                                  if sqlalchemy_utils.is_expression_level_hybrid_property(item)
                                   and cls.is_public(item.__name__) is True)
 
         return hybrid_properties

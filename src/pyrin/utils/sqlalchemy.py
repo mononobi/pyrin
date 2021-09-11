@@ -5,7 +5,8 @@ utils sqlalchemy module.
 
 from sqlalchemy.sql import quoted_name
 from sqlalchemy.engine import result_tuple
-from sqlalchemy import inspect as sqla_inspect, Table, text, asc, desc, CheckConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import inspect, Table, text, asc, desc, CheckConstraint
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
@@ -538,7 +539,7 @@ def get_class_by_table(base, table, **options):
                                                            'scenarios.'.format(table=table.name))
         else:
             for cls in found_classes:
-                mapper = sqla_inspect(cls)
+                mapper = inspect(cls)
                 polymorphic_on = mapper.polymorphic_on.name
                 if polymorphic_on in data:
                     if data[polymorphic_on] == mapper.polymorphic_identity:
@@ -666,3 +667,27 @@ def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
             raise InvalidOrderingColumnError(error_message.format(name=item))
 
     return tuple(result)
+
+
+def is_expression_level_hybrid_property(value):
+    """
+    gets a value indicating that provided object is an expression level hybrid property.
+
+    the provided value may be a proxy holding a descriptor to a hybrid property.
+
+    :param object value: value to be checked.
+
+    :rtype: bool
+    """
+
+    if isinstance(value, hybrid_property):
+        return value.expr is not None
+
+    descriptor = getattr(value, 'descriptor', None)
+    if descriptor is None:
+        return False
+
+    if not isinstance(descriptor, hybrid_property):
+        return False
+
+    return descriptor.expr is not None
