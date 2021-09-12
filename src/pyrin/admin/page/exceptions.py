@@ -97,3 +97,10 @@ class DuplicateListSearchFieldNamesError(AdminPageException):
     duplicate list search field names error.
     """
     pass
+
+
+class InvalidListFieldNameError(AdminPageException):
+    """
+    invalid list field name error.
+    """
+    pass

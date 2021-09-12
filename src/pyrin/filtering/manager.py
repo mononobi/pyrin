@@ -16,6 +16,9 @@ there are some rules that need to be noticed:
 
 from datetime import datetime
 
+from sqlalchemy import func
+from sqlalchemy.orm import InstrumentedAttribute
+
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 import pyrin.utilities.range.services as range_services
@@ -83,8 +86,8 @@ class FilteringManager(Manager):
 
         :param list expressions: list of expressions to add new expression to it.
 
-        :param sqlalchemy.orm.attributes.InstrumentedAttribute column: column to add
-                                                                       expression for it.
+        :param InstrumentedAttribute | hybrid_property column: column to add
+                                                               expression for it.
 
         :param str name: relevant column name for filtering.
         :param list[str] to_be_removed: a list to add names to it if they used in expression.
@@ -93,14 +96,23 @@ class FilteringManager(Manager):
 
         value = filters.get(name)
         to_be_removed.append(name)
-        collection_type, python_type = column.get_python_type()
-        if python_type is str and not isinstance(value, LIST_TYPES) \
+        collection_type = None
+        python_type = None
+        is_attribute = isinstance(column, InstrumentedAttribute)
+        if is_attribute:
+            collection_type, python_type = column.get_python_type()
+
+        if not is_attribute and isinstance(value, str):
+            expressions.append(func.lower(column).contains(value.lower()))
+
+        elif python_type is str and not isinstance(value, LIST_TYPES) \
                 and collection_type is None:
             expressions.append(column.icontains(str(value)))
+
         else:
             sqlalchemy_utils.add_comparison_clause(expressions, column, value)
 
-        if range_services.is_range_supported_column(column):
+        if is_attribute and range_services.is_range_supported_column(column):
             from_name, to_name = range_services.get_range_filter_names(name)
             if from_name in filters or to_name in filters:
                 from_value = filters.get(from_name)

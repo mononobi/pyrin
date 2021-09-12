@@ -40,7 +40,7 @@ from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequired
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
     CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError, \
-    InvalidListSearchFieldError, DuplicateListSearchFieldNamesError
+    InvalidListSearchFieldError, DuplicateListSearchFieldNamesError, InvalidListFieldNameError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -301,12 +301,20 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     def _get_column_title(self, name):
         """
-        gets the column title for given field name for list page.
+        gets the column title of given field name for list page.
 
         :param str name: field name.
 
+        :raises InvalidListFieldNameError: invalid list field name error.
+
         :rtype: str
         """
+
+        if name is None:
+            raise InvalidListFieldNameError('There are some fields in "list_fields" of '
+                                            '[{admin}] class which does not have a name. '
+                                            'use label to set a name for them.'
+                                            .format(admin=self))
 
         name = name.replace('_', ' ')
         return name.upper()
@@ -472,11 +480,32 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return all_fields
 
-    def _get_relevant_column(self, name):
+    def _get_instrumented_attribute(self, item):
         """
-        gets the relevant column attribute of given field name.
+        gets the related instrumented attribute to given item.
 
-        it may return None if no related column found in `list_fields`.
+        it may return the same value if it is already an instrumented attribute.
+        it may return None if no related instrumented attribute could be found.
+
+        :param InstrumentedAttribute | Label item: item to get its related attribute.
+
+        :rtype: sqlalchemy.orm.InstrumentedAttribute
+        """
+
+        if isinstance(item, InstrumentedAttribute):
+            return item
+        elif isinstance(item, Label) and item.base_columns:
+            columns = list(item.base_columns)
+            if isinstance(columns[0], CoreColumn):
+                return model_services.get_instrumented_attribute(columns[0])
+
+        return None
+
+    def _get_list_field_column(self, name):
+        """
+        gets the relevant column attribute for given field name from `list_fields`.
+
+        it may return None if no related column could be found.
 
         :param str name: field name.
 
@@ -486,13 +515,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         selectable_fields = self._get_list_fields()
         for item in selectable_fields:
             if self._is_valid_field(item) and item.key == name:
-                if isinstance(item, InstrumentedAttribute):
-                    return item
-                elif isinstance(item, Label) and item.base_columns:
-                    columns = list(item.base_columns)
-                    if isinstance(columns[0], CoreColumn):
-                        return model_services.get_instrumented_attribute(columns[0])
-                break
+                return self._get_instrumented_attribute(item)
 
         return None
 
@@ -511,7 +534,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         result = dict()
         all_fields = self._get_list_field_names()
         for name in all_fields:
-            attribute = self._get_relevant_column(name)
+            attribute = self._get_list_field_column(name)
             result[name] = attribute
 
         return result
@@ -524,17 +547,19 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :raises InvalidListSearchFieldError: invalid list search field error.
         :raises DuplicateListSearchFieldNamesError: duplicate list search field names error.
 
-        :returns: dict(InstrumentAttribute name)
+        :returns: dict(InstrumentAttribute | hybrid_property name)
         :rtype: dict
         """
 
         if self.list_search_fields:
             names = []
             for item in self.list_search_fields:
-                if not isinstance(item, (InstrumentedAttribute, Label)):
+                if not isinstance(item, (InstrumentedAttribute, Label)) and \
+                        not sqla_utils.is_expression_level_hybrid_property(item):
                     raise InvalidListSearchFieldError('Provided field [{field}] is not a valid '
                                                       'list search field for [{admin}] class. '
-                                                      'search fields must be a column attribute.'
+                                                      'search fields must be a column attribute '
+                                                      'or an expression level hybrid property.'
                                                       .format(admin=self, field=str(item)))
 
                 names.append(item.key)
@@ -552,12 +577,16 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         result = dict()
         list_fields = self._get_list_fields_to_column_map()
         for name, column in list_fields.items():
-            if column is not None:
+            if column is not None and name != self.HIDDEN_PK_NAME:
                 result[name] = column
 
         if self.list_search_fields:
             for item in self.list_search_fields:
-                result[item.key] = item
+                attribute = self._get_instrumented_attribute(item)
+                if attribute is not None:
+                    result[item.key] = attribute
+                elif sqla_utils.is_expression_level_hybrid_property(item):
+                    result[item.key] = item
 
         return result
 
@@ -775,8 +804,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             columns.append(self.entity.get_attribute(column))
 
         for hybrid_property in expression_level_hybrid_property_names:
-            expression_level_hybrid_properties.append(
-                self.entity.get_attribute(hybrid_property))
+            attribute = self.entity.get_attribute(hybrid_property)
+            expression_level_hybrid_properties.append(attribute.label(attribute.key))
 
         primary_keys.extend(foreign_keys)
         primary_keys.extend(columns)
@@ -798,7 +827,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         if not self.list_fields:
             return self._get_default_list_fields()
 
-        results = [item for item in self.list_fields if self._is_valid_field(item)]
+        results = []
+        for item in self.list_fields:
+            if self._is_valid_field(item):
+                if sqla_utils.is_expression_level_hybrid_property(item):
+                    results.append(item.label(item.key))
+                else:
+                    results.append(item)
+
         if self._is_list_pk_required():
             self._inject_primary_key(results)
 
@@ -861,10 +897,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         for name, column in labeled_filters.items():
-            value = None
-            with suppress(ValidationError, log=False):
-                value = validator_services.validate_field(column.class_, column,
-                                                          search_text, for_find=True)
+            if sqla_utils.is_expression_level_hybrid_property(column):
+                value = search_text
+            else:
+                value = None
+                with suppress(ValidationError, log=False):
+                    value = validator_services.validate_field(column.class_, column,
+                                                              search_text, for_find=True)
 
             if value is not None:
                 filters[name] = value
