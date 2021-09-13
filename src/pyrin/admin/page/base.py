@@ -878,7 +878,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         performs joins on given query and returns a new query object.
 
         this method is intended to be overridden in subclasses if you want to
-        provide columns of other entities in `list_fields` too.
+        provide columns of other entities in `list_fields` or `list_temp_fields`.
 
         :param CoreQuery query: query instance.
 
@@ -893,14 +893,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param str search_text: search text.
         :param dict filters: filters which have been provided by client.
-        :param dict labeled_filters: dict of filter name to column map.
+        :param dict labeled_filters: dict of filter names to column map.
         """
 
         for name, column in labeled_filters.items():
+            value = None
             if sqla_utils.is_expression_level_hybrid_property(column):
                 value = search_text
             else:
-                value = None
                 with suppress(ValidationError, log=False):
                     value = validator_services.validate_field(column.class_, column,
                                                               search_text, for_find=True)
