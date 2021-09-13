@@ -258,8 +258,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # this is required if the current admin page has any of get or remove permissions.
     HIDDEN_PK_NAME = '_pk_'
 
-    # a param name to be used for exclusive search feature by client.
-    LIST_QUERY_PARAM = '_query_'
+    # a param name to be used for inclusive search feature by client.
+    SEARCH_PARAM = '_query_'
 
     def __init__(self, *args, **options):
         """
@@ -918,7 +918,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         labeled_filters = self._get_list_search_fields_to_column_map()
-        search_text = filters.pop(self.LIST_QUERY_PARAM, None)
+        search_text = filters.pop(self.SEARCH_PARAM, None)
         type_ = and_
         if self.list_search is True and search_text not in (None, ''):
             type_ = or_
@@ -1533,7 +1533,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_all_permission'] = self.has_remove_all_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['pk_name'] = self.HIDDEN_PK_NAME
-        metadata['query_param'] = self.LIST_QUERY_PARAM
+        metadata['search_param'] = self.SEARCH_PARAM
         metadata['paged'] = self.list_paged
         metadata['page_size'] = self._get_page_size()
         metadata['max_page_size'] = self._get_max_page_size()
