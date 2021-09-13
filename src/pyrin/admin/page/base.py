@@ -286,7 +286,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             raise AdminNameRequiredError('The name for [{admin}] class is required.'
                                          .format(admin=self))
 
-        # list of method names of this admin page to be used for processing the results.
+        # list of method names of this admin page to be used for processing the list results.
         self._method_names = self._extract_method_names()
         self._schema = AdminSchema(self,
                                    indexed=self.list_indexed,

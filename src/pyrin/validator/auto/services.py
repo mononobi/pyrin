@@ -9,7 +9,7 @@ from pyrin.validator.auto import ValidatorAutoPackage
 
 def register_auto_validator(domain, field, **options):
     """
-    register required auto validator for given field.
+    registers required auto validator for given field.
 
     :param BaseEntity domain: entity type that this field is related to.
     :param InstrumentedAttribute field: field instance.
@@ -57,3 +57,15 @@ def register_auto_validators():
     """
 
     return get_component(ValidatorAutoPackage.COMPONENT_NAME).register_auto_validators()
+
+
+def register_hook(instance):
+    """
+    registers the given instance into auto validator hooks.
+
+    :param AutoValidatorHookBase instance: auto validator hook instance to be registered.
+
+    :raises InvalidAutoValidatorHookTypeError: invalid auto validator hook type error.
+    """
+
+    return get_component(ValidatorAutoPackage.COMPONENT_NAME).register_hook(instance)

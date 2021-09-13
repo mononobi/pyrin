@@ -526,3 +526,16 @@ class AdminManager(Manager):
 
         key = (type_, format_)
         return self._type_map.get(key)
+
+    def populate_caches(self):
+        """
+        populates required caches of all registered admin pages.
+
+        :returns: count of registered admin pages
+        :rtype: int
+        """
+
+        for admin in self._admin_pages.values():
+            admin.populate_caches()
+
+        return len(self._admin_pages)

@@ -5,19 +5,23 @@ admin hooks module.
 
 import pyrin.admin.services as admin_services
 
-from pyrin.packaging.decorators import packaging_hook
-from pyrin.packaging.hooks import PackagingHookBase
+from pyrin.utils.custom_print import print_info
+from pyrin.validator.auto.hooks import AutoValidatorHookBase
+from pyrin.validator.auto.decorators import auto_validator_hook
 
 
-@packaging_hook()
-class PackagingHook(PackagingHookBase):
+@auto_validator_hook()
+class AutoValidatorHook(AutoValidatorHookBase):
     """
-    packaging hook class.
+    auto validator hook class.
     """
 
-    def after_packages_loaded(self):
+    def after_auto_validators_registered(self):
         """
-        this method will be called after all application packages have been loaded.
+        this method will be called after all application auto validators have been registered.
         """
 
+        count = admin_services.populate_caches()
         admin_services.populate_main_metadata()
+        if count > 0:
+            print_info('Total of [{count}] admin pages registered.'.format(count=count))

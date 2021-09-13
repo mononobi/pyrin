@@ -304,3 +304,14 @@ def get_client_type(type_, format_=None):
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).get_client_type(type_, format_)
+
+
+def populate_caches():
+    """
+    populates required caches of all registered admin pages.
+
+    :returns: count of registered admin pages
+    :rtype: int
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).populate_caches()

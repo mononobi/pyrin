@@ -15,4 +15,5 @@ class AdminPackage(Package):
     COMPONENT_NAME = 'admin.component'
     CONFIG_STORE_NAMES = ['admin']
     DEPENDS = ['pyrin.api.router',
-               'pyrin.configuration']
+               'pyrin.configuration',
+               'pyrin.validator.auto']

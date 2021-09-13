@@ -12,9 +12,12 @@ import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
 import pyrin.utilities.range.services as range_services
 
+from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager, Context
 from pyrin.validator.auto import ValidatorAutoPackage
 from pyrin.validator.auto.handler import AutoValidator
+from pyrin.validator.auto.exceptions import InvalidAutoValidatorHookTypeError
+from pyrin.validator.auto.hooks import AutoValidatorHookBase
 from pyrin.validator.handlers.base import ValidatorBase
 from pyrin.validator.handlers.dictionary import DictionaryValidator
 from pyrin.validator.handlers.uuid import UUIDValidator
@@ -27,11 +30,13 @@ from pyrin.validator.handlers.misc import MaximumValidator, MinimumValidator, \
     RangeValidator, InValidator, NotInValidator
 
 
-class ValidatorAutoManager(Manager):
+class ValidatorAutoManager(Manager, HookMixin):
     """
     validator auto manager class.
     """
 
+    hook_type = AutoValidatorHookBase
+    invalid_hook_type_error = InvalidAutoValidatorHookTypeError
     package_class = ValidatorAutoPackage
 
     def __init__(self):
@@ -249,9 +254,17 @@ class ValidatorAutoManager(Manager):
 
         return from_validator, to_validator
 
+    def _after_auto_validators_registered(self):
+        """
+        this will call `after_auto_validators_registered` method of registered hooks.
+        """
+
+        for hook in self._get_hooks():
+            hook.after_auto_validators_registered()
+
     def register_auto_validator(self, domain, field, **options):
         """
-        register required auto validator for given field.
+        registers required auto validator for given field.
 
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
@@ -319,17 +332,19 @@ class ValidatorAutoManager(Manager):
         is_admin_enabled = admin_services.is_admin_enabled()
         for entity in entities:
             has_admin = admin_services.has_admin(entity)
+            requires_validation = is_admin_enabled and has_admin
             for column in entity.all_instrumented_attributes:
-                if column.validated is True or (is_admin_enabled and has_admin):
+                if column.validated is True or requires_validation:
                     self.register_auto_validator(entity, column)
                     registered += 1
 
-                if column.validated_find is True or (is_admin_enabled and has_admin):
+                if column.validated_find is True or requires_validation:
                     self.register_find_validator(entity, column)
                     registered += 1
 
-                if column.validated_range is True or (is_admin_enabled and has_admin):
+                if column.validated_range is True or requires_validation:
                     count = self.register_find_range_validators(entity, column)
                     registered += count
 
+        self._after_auto_validators_registered()
         return registered

@@ -5,9 +5,22 @@ validator auto hooks module.
 
 import pyrin.validator.auto.services as validator_auto_services
 
+from pyrin.core.structs import Hook
 from pyrin.database.model.decorators import model_hook
 from pyrin.database.model.hooks import ModelHookBase
 from pyrin.utils.custom_print import print_info
+
+
+class AutoValidatorHookBase(Hook):
+    """
+    auto validator hook base class.
+    """
+
+    def after_auto_validators_registered(self):
+        """
+        this method will be called after all application auto validators have been registered.
+        """
+        pass
 
 
 @model_hook()
