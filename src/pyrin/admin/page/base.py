@@ -8,6 +8,10 @@ import inspect
 from sqlalchemy.sql.elements import Label, and_, or_
 from sqlalchemy.orm import InstrumentedAttribute
 
+import pyrin.utils.path as path_utils
+import pyrin.utils.string as string_utils
+import pyrin.utils.sqlalchemy as sqla_utils
+import pyrin.utils.misc as misc_utils
 import pyrin.admin.services as admin_services
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
@@ -15,10 +19,7 @@ import pyrin.security.session.services as session_services
 import pyrin.database.model.services as model_services
 import pyrin.configuration.services as config_services
 import pyrin.database.paging.services as paging_services
-import pyrin.utils.path as path_utils
-import pyrin.utils.string as string_utils
-import pyrin.utils.sqlalchemy as sqla_utils
-import pyrin.utils.misc as misc_utils
+import pyrin.utilities.string.normalizer.services as string_normalizer_services
 
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
@@ -318,6 +319,18 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         name = name.replace('_', ' ')
         return name.upper()
+
+    def _get_field_title(self, name):
+        """
+        gets the field title of given field name for detail and create page.
+
+        :param str name: field name.
+
+        :rtype: str
+        """
+
+        name = name.replace('_', ' ')
+        return string_normalizer_services.title_case(name)
 
     @classmethod
     @fast_cache
@@ -1245,7 +1258,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         for name in writable_columns:
             is_fk = name in self.entity.writable_foreign_key_columns
-            item = dict(name=name, is_fk=is_fk,
+            item = dict(field=name, title=self._get_field_title(name), is_fk=is_fk,
                         is_pk=name in self.entity.writable_primary_key_columns)
 
             column = self.entity.get_attribute(name)
@@ -1261,7 +1274,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         if self.extra_data_fields:
             for name in self.extra_data_fields:
-                item = dict(name=name, is_fk=False, is_pk=False)
+                item = dict(field=name, is_fk=False, is_pk=False,
+                            title=self._get_field_title(name))
                 validator = validator_services.try_get_validator(self.entity, name)
                 if validator is not None:
                     item.update(validator.get_info())
