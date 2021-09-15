@@ -791,12 +791,15 @@ class ValidatorBase(AbstractValidatorBase):
 
         return {}
 
-    def get_info(self):
+    def get_info(self, for_update=False):
         """
         gets the info of this validator.
 
-        :returns: dict(bool create_required: is required for create,
-                       bool update_required: is required for update,
+        :param bool for_update: specifies that info must be for update operation.
+                                defaults to False if not provided and the info of
+                                create will be returned.
+
+        :returns: dict(bool required: is required for specified operation,
                        str form_field_type: form field type)
 
         :rtype: dict
@@ -817,11 +820,10 @@ class ValidatorBase(AbstractValidatorBase):
             update_required = not self.nullable and not update_default
 
         info = dict()
-        if create_required is not None:
-            info.update(create_required=create_required)
-
-        if update_required is not None:
-            info.update(update_required=update_required)
+        if for_update is not False and create_required is not None:
+            info.update(required=create_required)
+        elif for_update is True and update_required is not None:
+            info.update(required=update_required)
 
         if self.form_field_type is not None:
             info.update(form_field_type=self.form_field_type)

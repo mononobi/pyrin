@@ -92,12 +92,15 @@ class AutoValidator(AbstractValidatorBase):
 
         return fixed_value
 
-    def get_info(self):
+    def get_info(self, for_update=False):
         """
         gets the info of this validator.
 
-        :returns: dict(bool create_required: is required for create,
-                       bool update_required: is required for update,
+        :param bool for_update: specifies that info must be for update operation.
+                                defaults to False if not provided and the info of
+                                create will be returned.
+
+        :returns: dict(bool required: is required for specified operation,
                        str form_field_type: form field type)
 
         :rtype: dict
@@ -105,16 +108,16 @@ class AutoValidator(AbstractValidatorBase):
 
         info = dict()
         if self._in_validator is not None:
-            info.update(self._in_validator.get_info())
+            info.update(self._in_validator.get_info(for_update))
 
         if self._range_validator is not None:
-            info.update(self._range_validator.get_info())
+            info.update(self._range_validator.get_info(for_update))
 
         if self._type_validator is not None:
-            info.update(self._type_validator.get_info())
+            info.update(self._type_validator.get_info(for_update))
 
         if self._custom_validator is not None:
-            info.update(self._custom_validator.get_info())
+            info.update(self._custom_validator.get_info(for_update))
 
         return info
 
