@@ -624,3 +624,17 @@ def validate(domain, field_name=None, lazy=True, **data):
 
     return get_component(ValidatorPackage.COMPONENT_NAME).validate(domain, field_name,
                                                                    lazy, **data)
+
+
+def get_form_field_type(python_type):
+    """
+    gets the equivalent form field type for given python type.
+
+    it may return None.
+
+    :param type | tuple[type] python_type: python type to get its form field type.
+
+    :rtype: str
+    """
+
+    return get_component(ValidatorPackage.COMPONENT_NAME).get_form_field_type(python_type)

@@ -8,6 +8,7 @@ import inspect
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import pyrin.utils.misc as misc_utils
+import pyrin.validator.services as validator_services
 
 from pyrin.core.globals import _, LIST_TYPES
 from pyrin.database.model.base import BaseEntity
@@ -26,11 +27,6 @@ class ValidatorBase(AbstractValidatorBase):
 
     all application validators must be subclassed from this.
     """
-
-    # the form field type of this validator.
-    # this is used in admin client to render correct field for the related type.
-    # the type must be from `FormFieldTypeEnum` values.
-    _form_field_type = None
 
     invalid_type_error = InvalidValueTypeError
     invalid_type_message = _('The provided value for [{param_name}] '
@@ -74,6 +70,12 @@ class ValidatorBase(AbstractValidatorBase):
     # allow value to be list too, on validation for find.
     # single value is also accepted for find.
     default_allow_list_for_find = None
+
+    # the form field type of this validator.
+    # this is used in admin client to render correct field for the related type.
+    # the type must be from `FormFieldTypeEnum` values.
+    # if not provided, it will be extracted from the accepted type if possible.
+    default_form_field_type = None
 
     def __init__(self, domain, field, **options):
         """
@@ -299,6 +301,11 @@ class ValidatorBase(AbstractValidatorBase):
         self._null_items = null_items
         self._allow_single = allow_single
         self._allow_empty_list = allow_empty_list
+
+        if self.default_form_field_type not in (None, ''):
+            self._form_field_type = self.default_form_field_type
+        else:
+            self._form_field_type = validator_services.get_form_field_type(self.accepted_type)
 
     def validate(self, value, **options):
         """
@@ -812,7 +819,7 @@ class ValidatorBase(AbstractValidatorBase):
 
         info = dict(create_required=create_required,
                     update_required=update_required,
-                    form_field_type=self._form_field_type)
+                    form_field_type=self.form_field_type)
 
         extra_info = self._get_info()
         if extra_info:
@@ -979,3 +986,15 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         return self._allow_list_for_find
+
+    @property
+    def form_field_type(self):
+        """
+        gets the form field type for this validator.
+
+        it may return None.
+
+        :rtype: str
+        """
+
+        return self._form_field_type

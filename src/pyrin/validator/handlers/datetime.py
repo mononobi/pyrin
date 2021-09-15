@@ -10,7 +10,6 @@ import pyrin.utils.datetime as datetime_utils
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.admin.enumerations import FormFieldTypeEnum
 from pyrin.validator.handlers.exceptions import ValueIsNotDateTimeError, ValueIsNotDateError, \
     ValueIsNotTimeError
 
@@ -20,7 +19,6 @@ class DateTimeValidator(ValidatorBase):
     datetime validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.DATETIME
     invalid_type_error = ValueIsNotDateTimeError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a datetime.')
@@ -115,7 +113,6 @@ class DateValidator(ValidatorBase):
     date validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.DATE
     invalid_type_error = ValueIsNotDateError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a date.')
@@ -210,7 +207,6 @@ class TimeValidator(ValidatorBase):
     time validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.TIME
     invalid_type_error = ValueIsNotTimeError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a time.')

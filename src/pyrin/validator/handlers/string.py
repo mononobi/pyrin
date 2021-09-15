@@ -26,7 +26,6 @@ class StringValidator(ValidatorBase):
     string validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.STRING
     invalid_type_error = ValueIsNotStringError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a string.')
@@ -525,13 +524,13 @@ class EmailValidator(RegexValidator):
     email validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.EMAIL
     regex = r'^[a-z0-9]+([a-z0-9\.]*[a-z0-9]+)*[@]\w+[\.]\w{2,3}([\.]\w{2,3})?$'
     pattern_not_match_error = InvalidEmailError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid email address.')
 
     default_minimum_length = 6
+    default_form_field_type = FormFieldTypeEnum.EMAIL
 
     def _validate_extra(self, value, **options):
         """
@@ -565,7 +564,6 @@ class IPv4Validator(RegexValidator):
     ipv4 validator class.
     """
 
-    _form_field_type = FormFieldTypeEnum.IPV4
     regex = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
     pattern_not_match_error = InvalidIPv4Error
     pattern_not_match_message = _('The provided value for [{param_name}] '
@@ -573,6 +571,7 @@ class IPv4Validator(RegexValidator):
 
     default_maximum_length = 15
     default_minimum_length = 7
+    default_form_field_type = FormFieldTypeEnum.IPV4
 
     def _validate_extra(self, value, **options):
         """
@@ -611,13 +610,13 @@ class URLValidator(RegexValidator):
     this matches urls starting with `www`.
     """
 
-    _form_field_type = FormFieldTypeEnum.URL
     regex = r'^www\..+\.\w+$'
     pattern_not_match_error = InvalidURLError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid url.')
 
     default_minimum_length = 7
+    default_form_field_type = FormFieldTypeEnum.URL
 
     def _validate_extra(self, value, **options):
         """

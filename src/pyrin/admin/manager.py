@@ -64,7 +64,7 @@ class AdminManager(Manager):
         :rtype: dict
         """
 
-        result = dict()
+        result = Context()
         result[FormFieldTypeEnum.BOOLEAN] = ListFieldTypeEnum.BOOLEAN
         result[FormFieldTypeEnum.DATE] = ListFieldTypeEnum.DATE
         result[FormFieldTypeEnum.DATETIME] = ListFieldTypeEnum.DATETIME

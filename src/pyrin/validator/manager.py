@@ -5,10 +5,15 @@ validator manager module.
 
 import inspect
 
+from uuid import UUID
+from decimal import Decimal
+from datetime import datetime, date, time
+
 from sqlalchemy.orm import InstrumentedAttribute
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager, Context, DTO
+from pyrin.admin.enumerations import FormFieldTypeEnum
 from pyrin.database.model.base import BaseEntity
 from pyrin.logging.contexts import suppress
 from pyrin.utils.custom_print import print_warning
@@ -42,6 +47,31 @@ class ValidatorManager(Manager):
         # example: dict(type[BaseEntity] |
         #               str domain: dict(str name: AbstractValidatorBase instance))
         self._for_find_validators = Context()
+
+        # a dict containing a map between all python types and form field types.
+        # for example: {type | tuple[type] python_type: str form_field_type}
+        self._type_map = self._get_python_to_field_type_map()
+
+    def _get_python_to_field_type_map(self):
+        """
+        gets the type map for different python types to form field types.
+
+        :rtype: dict
+        """
+
+        result = Context()
+        result[int] = FormFieldTypeEnum.NUMBER
+        result[float] = FormFieldTypeEnum.NUMBER
+        result[Decimal] = FormFieldTypeEnum.NUMBER
+        result[(int, float, Decimal)] = FormFieldTypeEnum.NUMBER
+        result[str] = FormFieldTypeEnum.STRING
+        result[bool] = FormFieldTypeEnum.BOOLEAN
+        result[dict] = FormFieldTypeEnum.OBJECT
+        result[date] = FormFieldTypeEnum.DATE
+        result[datetime] = FormFieldTypeEnum.DATETIME
+        result[time] = FormFieldTypeEnum.TIME
+        result[UUID] = FormFieldTypeEnum.UUID
+        return result
 
     def register_validator(self, instance, **options):
         """
@@ -801,3 +831,16 @@ class ValidatorManager(Manager):
                            lazy=lazy, field_name=field_name)
 
         return DTO(data)
+
+    def get_form_field_type(self, python_type):
+        """
+        gets the equivalent form field type for given python type.
+
+        it may return None.
+
+        :param type | tuple[type] python_type: python type to get its form field type.
+
+        :rtype: str
+        """
+
+        return self._type_map.get(python_type)
