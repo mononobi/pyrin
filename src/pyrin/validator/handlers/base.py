@@ -802,9 +802,8 @@ class ValidatorBase(AbstractValidatorBase):
         :rtype: dict
         """
 
-        is_auto_increment = False
-        has_default = False
-        has_update_default = False
+        create_required = None
+        update_required = None
         if self.field is not None:
             is_auto_increment = self.field.autoincrement is True
             has_default = self.field.default is not None or \
@@ -812,14 +811,20 @@ class ValidatorBase(AbstractValidatorBase):
             has_update_default = self.field.onupdate is not None or \
                 self.field.server_onupdate is not None
 
-        create_default = is_auto_increment or has_default
-        update_default = is_auto_increment or has_update_default
-        create_required = not self.nullable and not create_default
-        update_required = not self.nullable and not update_default
+            create_default = is_auto_increment or has_default
+            update_default = is_auto_increment or has_update_default
+            create_required = not self.nullable and not create_default
+            update_required = not self.nullable and not update_default
 
-        info = dict(create_required=create_required,
-                    update_required=update_required,
-                    form_field_type=self.form_field_type)
+        info = dict()
+        if create_required is not None:
+            info.update(create_required=create_required)
+
+        if update_required is not None:
+            info.update(update_required=update_required)
+
+        if self.form_field_type is not None:
+            info.update(form_field_type=self.form_field_type)
 
         extra_info = self._get_info()
         if extra_info:

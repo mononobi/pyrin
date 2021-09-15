@@ -273,10 +273,18 @@ class StringValidator(ValidatorBase):
         :rtype: dict
         """
 
-        info = dict(min_length=self.minimum_length,
-                    max_length=self.maximum_length,
-                    allow_blank=self.allow_blank,
-                    allow_whitespace=self.allow_whitespace)
+        info = dict()
+        if self.minimum_length is not None:
+            info.update(min_length=self.minimum_length)
+
+        if self.maximum_length is not None:
+            info.update(max_length=self.maximum_length)
+
+        if self.allow_blank is not None:
+            info.update(allow_blank=self.allow_blank)
+
+        if self.allow_whitespace is not None:
+            info.update(allow_whitespace=self.allow_whitespace)
 
         if self.field is not None and \
                 misc_utils.is_subclass_or_instance(self.field.type, Text):
