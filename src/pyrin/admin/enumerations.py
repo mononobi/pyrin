@@ -6,9 +6,9 @@ admin enumerations module.
 from pyrin.core.enumerations import CoreEnum
 
 
-class ClientTypeEnum(CoreEnum):
+class ListFieldTypeEnum(CoreEnum):
     """
-    client type enum.
+    list field type enum.
     """
 
     BOOLEAN = 'boolean'
@@ -18,3 +18,26 @@ class ClientTypeEnum(CoreEnum):
     TIME = 'time'
     STRING = 'string'
     CURRENCY = 'currency'
+
+
+class FormFieldTypeEnum(CoreEnum):
+    """
+    form field type enum.
+    """
+
+    BOOLEAN = 'boolean'
+    DATE = 'date'
+    DATETIME = 'datetime'
+    TIME = 'time'
+    EMAIL = 'email'
+    FILE = 'file'
+    NUMBER = 'number'
+    PASSWORD = 'password'
+    TELEPHONE = 'telephone'
+    STRING = 'string'
+    TEXT = 'text'
+    URL = 'url'
+    UUID = 'uuid'
+    IPV4 = 'ipv4'
+    IPV6 = 'ipv6'
+    OBJECT = 'object'

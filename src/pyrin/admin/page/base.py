@@ -135,11 +135,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # a value to be shown when the relevant data is null.
     list_null_value = '-'
 
-    # a dict containing field names and their client type for fields which their
+    # a dict containing field names and their list field type for fields which their
     # type could not be detected automatically. for example hybrid property fields
     # or fields which their value is coming from a method of this admin page.
-    # note that the provided types must be from 'ClientTypeEnum' values.
-    # for example: {'is_viewed': ClientTypeEnum.BOOLEAN}
+    # note that the provided types must be from 'ListFieldTypeEnum' values.
+    # for example: {'is_viewed': ListFieldTypeEnum.BOOLEAN}
     list_extra_field_types = {}
 
     # a value to define client-side table type.
@@ -678,8 +678,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             validator = validator_services.try_get_validator(attribute.class_, attribute)
             if validator is not None:
                 info = validator.get_info()
-                type_ = admin_services.get_client_type(info.get('client_type'),
-                                                       info.get('client_format'))
+                type_ = admin_services.get_list_field_type(info.get('form_field_type'))
                 lookup = info.get('in_enum_lookup')
                 if lookup:
                     result.update(lookup=lookup)

@@ -13,7 +13,7 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _
 from pyrin.database.orm.sql.schema.columns import StringColumn
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.api.swagger.enumerations import ParameterFormatEnum, ParameterTypeEnum
+from pyrin.admin.enumerations import FormFieldTypeEnum
 from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStringLengthError, \
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
     InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError, \
@@ -26,7 +26,7 @@ class StringValidator(ValidatorBase):
     string validator class.
     """
 
-    _client_type = ParameterTypeEnum.STRING
+    _form_field_type = FormFieldTypeEnum.STRING
     invalid_type_error = ValueIsNotStringError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be a string.')
@@ -281,7 +281,7 @@ class StringValidator(ValidatorBase):
 
         if self.field is not None and \
                 misc_utils.is_subclass_or_instance(self.field.type, Text):
-            info.update(client_format=ParameterFormatEnum.TEXT)
+            info.update(form_field_type=FormFieldTypeEnum.TEXT)
 
         base_info = super()._get_info()
         if base_info:
@@ -525,7 +525,7 @@ class EmailValidator(RegexValidator):
     email validator class.
     """
 
-    _client_format = ParameterFormatEnum.EMAIL
+    _form_field_type = FormFieldTypeEnum.EMAIL
     regex = r'^[a-z0-9]+([a-z0-9\.]*[a-z0-9]+)*[@]\w+[\.]\w{2,3}([\.]\w{2,3})?$'
     pattern_not_match_error = InvalidEmailError
     pattern_not_match_message = _('The provided value for [{param_name}] '
@@ -565,7 +565,7 @@ class IPv4Validator(RegexValidator):
     ipv4 validator class.
     """
 
-    _client_format = ParameterFormatEnum.IPV4
+    _form_field_type = FormFieldTypeEnum.IPV4
     regex = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
     pattern_not_match_error = InvalidIPv4Error
     pattern_not_match_message = _('The provided value for [{param_name}] '
@@ -611,7 +611,7 @@ class URLValidator(RegexValidator):
     this matches urls starting with `www`.
     """
 
-    _client_format = ParameterFormatEnum.URI
+    _form_field_type = FormFieldTypeEnum.URL
     regex = r'^www\..+\.\w+$'
     pattern_not_match_error = InvalidURLError
     pattern_not_match_message = _('The provided value for [{param_name}] '

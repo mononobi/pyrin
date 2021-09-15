@@ -98,8 +98,7 @@ class AutoValidator(AbstractValidatorBase):
 
         :returns: dict(bool create_required: is required for create,
                        bool update_required: is required for update,
-                       str client_type: the client type,
-                       str client_format: the client format of related type)
+                       str form_field_type: form field type)
 
         :rtype: dict
         """

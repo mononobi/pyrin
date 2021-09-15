@@ -5,7 +5,7 @@ validator handlers boolean module.
 
 from pyrin.core.globals import _
 from pyrin.validator.handlers.base import ValidatorBase
-from pyrin.api.swagger.enumerations import ParameterTypeEnum
+from pyrin.admin.enumerations import FormFieldTypeEnum
 from pyrin.validator.handlers.exceptions import ValueIsNotBooleanError
 
 
@@ -14,7 +14,7 @@ class BooleanValidator(ValidatorBase):
     boolean validator class.
     """
 
-    _client_type = ParameterTypeEnum.BOOLEAN
+    _form_field_type = FormFieldTypeEnum.BOOLEAN
     invalid_type_error = ValueIsNotBooleanError
     invalid_type_message = _('The provided value for [{param_name}] '
                              'must be of boolean type.')

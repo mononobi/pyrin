@@ -11,8 +11,7 @@ from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
-from pyrin.admin.enumerations import ClientTypeEnum
-from pyrin.api.swagger.enumerations import ParameterTypeEnum, ParameterFormatEnum
+from pyrin.admin.enumerations import ListFieldTypeEnum, FormFieldTypeEnum
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
     AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
 
@@ -45,16 +44,16 @@ class AdminManager(Manager):
         # ({str category: [dict admin_metadata]})
         self._admin_metadata = None
 
-        # a dict containing a map between all field types and formats to client type.
-        # for example: {(str client_type, str client_format): str type}
-        self._type_map = self._get_type_map()
+        # a dict containing a map between all form field types and list field types.
+        # for example: {str form_field_type: str list_field_type}
+        self._type_map = self._get_form_to_list_type_map()
 
         self._base_url = self._load_base_url()
         self._panel_name = self._load_panel_name()
 
-    def _get_type_map(self):
+    def _get_form_to_list_type_map(self):
         """
-        gets the type map for different field types.
+        gets the type map for different form fields to list fields.
 
         **NOTE:**
 
@@ -66,24 +65,22 @@ class AdminManager(Manager):
         """
 
         result = dict()
-        result[(ParameterTypeEnum.STRING, None)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.BOOLEAN, None)] = ClientTypeEnum.BOOLEAN
-        result[(ParameterTypeEnum.INTEGER, None)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.NUMBER, None)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.FLOAT)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.NUMBER, ParameterFormatEnum.DOUBLE)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE)] = ClientTypeEnum.DATE
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.DATE_TIME)] = ClientTypeEnum.DATETIME
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TIME)] = ClientTypeEnum.TIME
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.TEXT)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.UUID)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.EMAIL)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.PASSWORD)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.URI)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.HOSTNAME)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.IPV4)] = ClientTypeEnum.STRING
-        result[(ParameterTypeEnum.STRING, ParameterFormatEnum.IPV6)] = ClientTypeEnum.STRING
-
+        result[FormFieldTypeEnum.BOOLEAN] = ListFieldTypeEnum.BOOLEAN
+        result[FormFieldTypeEnum.DATE] = ListFieldTypeEnum.DATE
+        result[FormFieldTypeEnum.DATETIME] = ListFieldTypeEnum.DATETIME
+        result[FormFieldTypeEnum.TIME] = ListFieldTypeEnum.TIME
+        result[FormFieldTypeEnum.EMAIL] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.FILE] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.NUMBER] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.PASSWORD] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.TELEPHONE] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.STRING] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.TEXT] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.URL] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.UUID] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.IPV4] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.IPV6] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.OBJECT] = ListFieldTypeEnum.STRING
         return result
 
     def _load_base_url(self):
@@ -489,43 +486,35 @@ class AdminManager(Manager):
 
         return f'{self.get_admin_base_url()}{register_name.lower()}/'
 
-    def get_client_type(self, type_, format_=None):
+    def get_list_field_type(self, form_field_type):
         """
-        gets the client type for given field type and format.
+        gets the equivalent list field type for given form field type.
 
         it may return None.
 
-        :param str type_: field type to get its client type.
-        :enum type_:
-            INTEGER = 'integer'
-            NUMBER = 'number'
+        :param str form_field_type: form field type to get its list field type.
+        :enum form_field_type:
             BOOLEAN = 'boolean'
-            STRING = 'string'
-            ARRAY = 'array'
-            OBJECT = 'object'
-
-        :param str format_: field format to get its client type.
-        :enum format_:
-            UUID = 'uuid'
-            EMAIL = 'email'
             DATE = 'date'
+            DATETIME = 'datetime'
             TIME = 'time'
-            DATE_TIME = 'date-time'
+            EMAIL = 'email'
+            FILE = 'file'
+            NUMBER = 'number'
             PASSWORD = 'password'
-            BYTE = 'byte'
-            URI = 'uri'
-            HOSTNAME = 'hostname'
+            TELEPHONE = 'telephone'
+            STRING = 'string'
+            TEXT = 'text'
+            URL = 'url'
+            UUID = 'uuid'
             IPV4 = 'ipv4'
             IPV6 = 'ipv6'
-            DOUBLE = 'double'
-            FLOAT = 'float'
-            TEXT = 'text'
+            OBJECT = 'object'
 
         :rtype: str
         """
 
-        key = (type_, format_)
-        return self._type_map.get(key)
+        return self._type_map.get(form_field_type)
 
     def populate_caches(self):
         """

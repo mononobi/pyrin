@@ -268,42 +268,35 @@ def url_for(register_name):
     return get_component(AdminPackage.COMPONENT_NAME).url_for(register_name)
 
 
-def get_client_type(type_, format_=None):
+def get_list_field_type(form_field_type):
     """
-    gets the client type for given field type and format.
+    gets the equivalent list field type for given form field type.
 
     it may return None.
 
-    :param str type_: field type to get its client type.
-    :enum type_:
-        INTEGER = 'integer'
-        NUMBER = 'number'
+    :param str form_field_type: form field type to get its list field type.
+    :enum form_field_type:
         BOOLEAN = 'boolean'
-        STRING = 'string'
-        ARRAY = 'array'
-        OBJECT = 'object'
-
-    :param str format_: field format to get its client type.
-    :enum format_:
-        UUID = 'uuid'
-        EMAIL = 'email'
         DATE = 'date'
+        DATETIME = 'datetime'
         TIME = 'time'
-        DATE_TIME = 'date-time'
+        EMAIL = 'email'
+        FILE = 'file'
+        NUMBER = 'number'
         PASSWORD = 'password'
-        BYTE = 'byte'
-        URI = 'uri'
-        HOSTNAME = 'hostname'
+        TELEPHONE = 'telephone'
+        STRING = 'string'
+        TEXT = 'text'
+        URL = 'url'
+        UUID = 'uuid'
         IPV4 = 'ipv4'
         IPV6 = 'ipv6'
-        DOUBLE = 'double'
-        FLOAT = 'float'
-        TEXT = 'text'
+        OBJECT = 'object'
 
     :rtype: str
     """
 
-    return get_component(AdminPackage.COMPONENT_NAME).get_client_type(type_, format_)
+    return get_component(AdminPackage.COMPONENT_NAME).get_list_field_type(form_field_type)
 
 
 def populate_caches():
