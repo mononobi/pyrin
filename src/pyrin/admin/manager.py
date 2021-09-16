@@ -3,8 +3,7 @@
 admin manager module.
 """
 
-from operator import itemgetter
-
+import pyrin.utils.dictionary as dict_utils
 import pyrin.configuration.services as config_services
 
 from pyrin.core.globals import _
@@ -418,7 +417,7 @@ class AdminManager(Manager):
         sorted_categories = sorted(metadata.keys())
         for category in sorted_categories:
             pages = metadata.get(category)
-            sorted_pages = sorted(pages, key=itemgetter('plural_name'))
+            sorted_pages = dict_utils.extended_sort(pages, 'plural_name')
             single_category = dict()
             single_category[category] = sorted_pages
             result.append(single_category)

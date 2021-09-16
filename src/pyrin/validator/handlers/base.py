@@ -820,7 +820,7 @@ class ValidatorBase(AbstractValidatorBase):
             update_required = not self.nullable and not update_default
 
         info = dict()
-        if for_update is not False and create_required is not None:
+        if for_update is False and create_required is not None:
             info.update(required=create_required)
         elif for_update is True and update_required is not None:
             info.update(required=update_required)

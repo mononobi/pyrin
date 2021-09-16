@@ -3,6 +3,7 @@
 utils dictionary module.
 """
 
+from operator import itemgetter
 from collections import OrderedDict
 
 import pyrin.utils.string as string_utils
@@ -152,3 +153,22 @@ def sort_by_key_length(value, reverse=False):
 
     result = sorted(value.items(), key=lambda x: len(x[0]), reverse=reverse)
     return OrderedDict(result)
+
+
+def extended_sort(items, key, reverse=False):
+    """
+    sorts a list of dictionaries by values of specified key.
+
+    note that the provided key must be present in all items and the value
+    of this key must be comparable for all items otherwise it raises an error.
+
+    :param list[dict] items: items to be sorted.
+    :param object key: key of dict to sort list items by it.
+
+    :param bool reverse: sort by descending order.
+                         defaults to False if not provided.
+
+    :rtype: list[dict]
+    """
+
+    return sorted(items, key=itemgetter(key), reverse=reverse)

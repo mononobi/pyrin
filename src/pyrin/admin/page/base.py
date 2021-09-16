@@ -12,6 +12,7 @@ import pyrin.utils.path as path_utils
 import pyrin.utils.string as string_utils
 import pyrin.utils.sqlalchemy as sqla_utils
 import pyrin.utils.misc as misc_utils
+import pyrin.utils.dictionary as dict_utils
 import pyrin.admin.services as admin_services
 import pyrin.filtering.services as filtering_services
 import pyrin.validator.services as validator_services
@@ -1243,45 +1244,123 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return tuple(set(results))
 
-    @fast_cache
-    def _get_data_fields(self):
+    def _get_extra_data_fields(self, for_update):
         """
-        gets all data fields of this admin page.
+        gets all extra data fields of this admin page for specified operation.
+
+        :param bool for_update: specifies that fields must be returned for which operation.
 
         :rtype: tuple[dict]
         """
 
         fields = []
-        writable_columns = self.entity.writable_primary_key_columns + \
-            self.entity.writable_foreign_key_columns + self.entity.writable_columns
-
-        for name in writable_columns:
-            is_fk = name in self.entity.writable_foreign_key_columns
-            item = dict(field=name, title=self._get_field_title(name), is_fk=is_fk,
-                        is_pk=name in self.entity.writable_primary_key_columns)
-
-            column = self.entity.get_attribute(name)
-            if is_fk:
-                fk_info = self._get_fk_info(column)
-                item.update(fk_info)
-
-            validator = validator_services.try_get_validator(self.entity, column)
-            if validator is not None:
-                item.update(validator.get_info())
-
-            fields.append(item)
-
         if self.extra_data_fields:
             for name in self.extra_data_fields:
                 item = dict(field=name, is_fk=False, is_pk=False,
                             title=self._get_field_title(name))
                 validator = validator_services.try_get_validator(self.entity, name)
                 if validator is not None:
-                    item.update(validator.get_info())
+                    item.update(validator.get_info(for_update))
 
+                item.setdefault('required', not for_update)
                 fields.append(item)
 
         return tuple(fields)
+
+    def _get_data_field(self, name, for_update, primary_keys, foreign_keys):
+        """
+        gets info of given data field for specified operation.
+
+        :param str name: field name.
+        :param bool for_update: specifies that fields must be returned for which operation.
+        :param tuple[str] primary_keys: all primary key names.
+        :param tuple[str] foreign_keys: all foreign key names.
+
+        :rtype: dict
+        """
+
+        is_fk = name in foreign_keys
+        info = dict(field=name, title=self._get_field_title(name),
+                    is_fk=is_fk, is_pk=name in primary_keys)
+
+        column = self.entity.get_attribute(name)
+        if is_fk:
+            fk_info = self._get_fk_info(column)
+            info.update(fk_info)
+
+        validator = validator_services.try_get_validator(self.entity, column)
+        if validator is not None:
+            info.update(validator.get_info(for_update))
+
+        return info
+
+    def _get_data_fields(self, writable_fields, for_update,
+                         primary_keys, foreign_keys,
+                         readable_fields=None):
+        """
+        gets all data fields of this admin page for specified operation.
+
+        :param tuple[str] writable_fields: writable field names.
+        :param bool for_update: specifies that fields must be returned for which operation.
+        :param tuple[str] primary_keys: all primary key names.
+        :param tuple[str] foreign_keys: all foreign key names.
+        :param tuple[str] readable_fields: readable field names.
+
+        :rtype: tuple[dict]
+        """
+
+        fields = []
+        for name in writable_fields:
+            item = self._get_data_field(name, for_update, primary_keys, foreign_keys)
+            item.setdefault('required', False)
+            fields.append(item)
+
+        extra_fields = self._get_extra_data_fields(for_update)
+        fields.extend(extra_fields)
+        fields = dict_utils.extended_sort(fields, 'required', reverse=True)
+
+        if readable_fields:
+            for name in readable_fields:
+                if name not in writable_fields and name not in primary_keys:
+                    item = self._get_data_field(name, for_update, primary_keys, foreign_keys)
+                    item.update(read_only=True)
+                    fields.append(item)
+
+        return tuple(fields)
+
+    @fast_cache
+    def _get_create_fields(self):
+        """
+        gets all fields which should be used for create page.
+
+        :rtype: tuple[dict]
+        """
+
+        writable_columns = self.entity.writable_primary_key_columns + \
+            self.entity.writable_foreign_key_columns + self.entity.writable_columns
+
+        return self._get_data_fields(writable_columns, False,
+                                     self.entity.primary_key_columns,
+                                     self.entity.foreign_key_columns)
+
+    @fast_cache
+    def _get_update_fields(self):
+        """
+        gets all fields which should be used for update page.
+
+        :rtype: tuple[dict]
+        """
+
+        writable_columns = self.entity.writable_primary_key_columns + \
+            self.entity.writable_foreign_key_columns + self.entity.writable_columns
+
+        readable_columns = self.entity.readable_primary_key_columns + \
+            self.entity.readable_foreign_key_columns + self.entity.readable_columns
+
+        return self._get_data_fields(writable_columns, True,
+                                     self.entity.primary_key_columns,
+                                     self.entity.foreign_key_columns,
+                                     readable_columns)
 
     @fast_cache
     def _get_common_metadata(self):
@@ -1575,7 +1654,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata = dict()
         metadata.update(self._get_common_metadata())
         metadata['has_create_permission'] = self.has_create_permission()
-        metadata['data_fields'] = self._get_data_fields()
+        metadata['data_fields'] = self._get_create_fields()
         return metadata
 
     @fast_cache
@@ -1591,7 +1670,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_update_permission'] = self.has_update_permission()
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
-        metadata['data_fields'] = self._get_data_fields()
+        metadata['data_fields'] = self._get_update_fields()
         return metadata
 
     def populate_caches(self):
