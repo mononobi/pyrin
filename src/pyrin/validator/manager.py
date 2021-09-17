@@ -60,10 +60,13 @@ class ValidatorManager(Manager):
         """
 
         result = Context()
-        result[int] = FormFieldTypeEnum.NUMBER
-        result[float] = FormFieldTypeEnum.NUMBER
-        result[Decimal] = FormFieldTypeEnum.NUMBER
+        result[int] = FormFieldTypeEnum.INTEGER
+        result[float] = FormFieldTypeEnum.FLOAT
+        result[Decimal] = FormFieldTypeEnum.FLOAT
         result[(int, float, Decimal)] = FormFieldTypeEnum.NUMBER
+        result[(float, Decimal)] = FormFieldTypeEnum.FLOAT
+        result[(int, Decimal)] = FormFieldTypeEnum.NUMBER
+        result[(int, float)] = FormFieldTypeEnum.NUMBER
         result[str] = FormFieldTypeEnum.STRING
         result[bool] = FormFieldTypeEnum.BOOLEAN
         result[dict] = FormFieldTypeEnum.OBJECT

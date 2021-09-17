@@ -71,6 +71,8 @@ class AdminManager(Manager):
         result[FormFieldTypeEnum.EMAIL] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.FILE] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.NUMBER] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.INTEGER] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.FLOAT] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.PASSWORD] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.TELEPHONE] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.STRING] = ListFieldTypeEnum.STRING
