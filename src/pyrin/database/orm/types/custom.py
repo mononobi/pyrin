@@ -25,6 +25,7 @@ class GUID(CoreCustomType):
     """
 
     impl = CHAR
+    cache_ok = True
 
     def _to_database(self, value, dialect):
         """
