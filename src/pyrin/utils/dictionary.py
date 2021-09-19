@@ -172,3 +172,34 @@ def extended_sort(items, key, reverse=False):
     """
 
     return sorted(items, key=itemgetter(key), reverse=reverse)
+
+
+def create_dict(items):
+    """
+    creates a dict with each key and value set to an item of given list.
+
+    :param list items: items to create a dict from them.
+
+    :rtype: dict
+    """
+
+    result = {name: name for name in items}
+    return result
+
+
+def create_options(items):
+    """
+    creates a tuple of dicts with each key and value set to an item of given list.
+
+    :param list items: items to create a tuple of dicts from them.
+
+    :rtype: tuple[dict]
+    """
+
+    results = []
+    for item in items:
+        option = dict()
+        option[item] = item
+        results.append(option)
+
+    return tuple(results)

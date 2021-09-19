@@ -3,6 +3,8 @@
 validator handlers misc module.
 """
 
+import pyrin.utils.dictionary as dict_utils
+
 from pyrin.core.globals import _, LIST_TYPES
 from pyrin.core.decorators import class_property
 from pyrin.validator.handlers.base import ValidatorBase
@@ -860,13 +862,14 @@ class InValidator(ValidatorBase):
         """
 
         info = {}
-        if self.valid_values_provider is not None and \
-                not callable(self.valid_values_provider):
-            info.update(check_in=self.valid_values)
-
         if self.field is not None and self.field.check_in_enum is not None:
             info.update(in_enum=self.field.check_in_enum.options(),
                         in_enum_lookup=self.field.check_in_enum.to_dict())
+
+        elif self.valid_values_provider is not None and \
+                not callable(self.valid_values_provider):
+            info.update(in_enum=dict_utils.create_options(self.valid_values),
+                        in_enum_lookup=dict_utils.create_dict(self.valid_values))
 
         base_info = super()._get_info()
         if base_info:
@@ -1072,13 +1075,14 @@ class NotInValidator(ValidatorBase):
         """
 
         info = {}
-        if self.invalid_values_provider is not None and \
-                not callable(self.invalid_values_provider):
-            info.update(check_not_in=self.invalid_values)
-
         if self.field is not None and self.field.check_not_in_enum is not None:
             info.update(not_in_enum=self.field.check_not_in_enum.options(),
                         not_in_enum_lookup=self.field.check_not_in_enum.to_dict())
+
+        elif self.invalid_values_provider is not None and \
+                not callable(self.invalid_values_provider):
+            info.update(not_in_enum=dict_utils.create_options(self.invalid_values),
+                        not_in_enum_lookup=dict_utils.create_dict(self.invalid_values))
 
         base_info = super()._get_info()
         if base_info:
