@@ -198,8 +198,7 @@ def create_options(items):
 
     results = []
     for item in items:
-        option = dict()
-        option[item] = item
+        option = dict(name=item, value=item)
         results.append(option)
 
     return tuple(results)
