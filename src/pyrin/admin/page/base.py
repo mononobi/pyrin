@@ -150,11 +150,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # enable exporting the currently active page into pdf or csv file.
     list_enable_export = True
 
-    # create a link to related admin list page for all pk columns.
+    # create a link to related admin detail page for all pk columns.
     # this only has effect if the related admin page has get permission.
     list_link_pk = True
 
-    # create a link to related admin list page for all fk columns.
+    # create a link to related admin detail page for all fk columns.
     # this only has effect if the related admin page has get permission.
     list_link_fk = True
 
