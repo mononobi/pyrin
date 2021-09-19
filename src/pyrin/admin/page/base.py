@@ -241,12 +241,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # extra field names that are required to be provided for create and are
     # optional for update but they are not a field of the entity itself.
     # in the form of:
-    # [str field_name]
+    # {str field_name: type python_type}
     # for example:
-    # ['password', 'age', 'join_date']
-    # if the provided names do not have related validators, the
-    # type of their values will be considered as string.
-    extra_data_fields = ()
+    # {'password': str, 'join_date': datetime, 'age': int}
+    # if the provided names have related validators, the
+    # info of that validator will be sent to client.
+    extra_data_fields = {}
 
     # ===================== INTERNAL CONFIGS ===================== #
 
@@ -1255,9 +1255,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         fields = []
         if self.extra_data_fields:
-            for name in self.extra_data_fields:
+            for name, type_ in self.extra_data_fields.items():
                 item = dict(field=name, is_fk=False, is_pk=False,
-                            title=self._get_field_title(name))
+                            title=self._get_field_title(name),
+                            form_field_type=validator_services.get_form_field_type(type_))
                 validator = validator_services.try_get_validator(self.entity, name)
                 if validator is not None:
                     item.update(validator.get_info(for_update))
