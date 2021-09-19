@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-swagger structs module.
+swagger base module.
 """
 
 import re
