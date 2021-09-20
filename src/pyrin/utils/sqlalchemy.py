@@ -6,7 +6,7 @@ utils sqlalchemy module.
 from sqlalchemy.sql import quoted_name
 from sqlalchemy.engine import result_tuple
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import inspect, Table, text, asc, desc, CheckConstraint
+from sqlalchemy import inspect, Table, asc, desc, CheckConstraint
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
@@ -659,7 +659,7 @@ def get_ordering_criterion(*columns, valid_columns=None, ignore_invalid=True):
         if is_valid_column_name(item):
             name, order_type = get_ordering_info(item)
             if valid_columns is None or name in valid_columns:
-                result.append(order_type(text(name)))
+                result.append(order_type(quoted_name(name, True)))
             elif ignore_invalid is False:
                 raise InvalidOrderingColumnError(error_message.format(name=name))
 
