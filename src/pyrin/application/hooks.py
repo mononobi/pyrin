@@ -103,10 +103,9 @@ class ApplicationHookBase(Hook):
         guaranteed.
         this method must return None and change the input response in-place if needed.
         but if you want to return a whole new response you can return a response
-        object. if you return an object other than a response, it will be converted
-        to a response automatically. note that it is recommended for subclasses
-        not to raise any exceptions in this method. but if they do so, other handlers
-        will still get executed.
+        object or a tuple of (body, status, headers).
+        note that it is recommended for subclasses not to raise any exceptions in this
+        method. but if they do so, other handlers will still get executed.
         the main use case for this hook is to finalize any present transactions,
         such as database.
 
@@ -114,8 +113,7 @@ class ApplicationHookBase(Hook):
 
         :rtype: CoreResponse | tuple
         """
-
-        return None
+        pass
 
     def validate_request(self, request, **options):
         """

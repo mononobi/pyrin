@@ -1733,8 +1733,19 @@ class Application(Flask, HookMixin, SignalMixin,
         :rtype: CoreResponse
         """
 
-        body, status_code, headers = response_services.unpack_response(rv)
+        response = self._add_required_headers(rv)
+        return super().finalize_request(response, from_error_handler=from_error_handler)
 
+    def _add_required_headers(self, rv, **options):
+        """
+        adds required headers to given response and returns a new response tuple.
+
+        :param object | tuple | CoreResponse rv: response from view function or error handlers.
+
+        :rtype: object | tuple
+        """
+
+        body, status_code, headers = response_services.unpack_response(rv)
         extra_headers = self.headers_class()
         client_request = session_services.get_current_request()
         self._provide_response_headers(extra_headers, client_request.endpoint,
@@ -1742,9 +1753,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                        url=client_request.path,
                                        user=client_request.user)
         extra_headers.extend(headers or {})
-        response = response_services.pack_response(body, status_code, extra_headers)
-
-        return super().finalize_request(response, from_error_handler=from_error_handler)
+        return response_services.pack_response(body, status_code, extra_headers)
 
     def _get_request_data_for_logging(self, request):
         """
@@ -1958,9 +1967,8 @@ class Application(Flask, HookMixin, SignalMixin,
             try:
                 result = hook.finalize_transaction(response, **options)
                 if result is not None:
-                    if not isinstance(result, self.response_class):
-                        result = self.make_response(result)
-                    new_response = result
+                    result = self._add_required_headers(result)
+                    new_response = self.make_response(result)
             except Exception as error:
                 logging_services.exception(str(error))
 
