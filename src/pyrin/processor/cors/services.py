@@ -113,7 +113,7 @@ def get_required_preflight_headers():
     """
     gets preflight headers for current request if required.
 
-    if any errors occurs or cors conditions are not met, it returns None.
+    if cors conditions are not met, it returns None.
 
     :rtype: CoreHeaders
     """

@@ -10,8 +10,9 @@ import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.string as string_utils
 
-from pyrin.processor.cors import CORSPackage
 from pyrin.core.structs import Manager, CoreHeaders
+from pyrin.processor.cors import CORSPackage
+from pyrin.processor.cors.structs import CORS
 from pyrin.processor.cors.enumerations import CORSResponseHeaderEnum, CORSRequestHeaderEnum
 from pyrin.processor.request.enumerations import RequestHeaderEnum
 from pyrin.processor.response.enumerations import ResponseHeaderEnum
@@ -468,36 +469,34 @@ class CORSManager(Manager):
         """
 
         request = session_services.get_current_request()
+        inputs = None
         if request.url_rule is not None:
             inputs = self.process_inputs(request.url_rule.cors)
-            return self.get_cors_headers(**inputs)
+        else:
+            inputs = self.process_inputs(CORS())
 
-        return None
+        return self.get_cors_headers(**inputs)
 
     def get_required_preflight_headers(self):
         """
         gets preflight headers for current request if required.
 
-        if any errors occurs or cors conditions are not met, it returns None.
+        if cors conditions are not met, it returns None.
 
         :rtype: CoreHeaders
         """
 
         request = session_services.get_current_request()
         adapter = application_services.get_current_url_adapter()
-        headers = None
+        inputs = None
         try:
             rule, arguments = adapter.match(method=request.access_control_request_method,
                                             return_rule=True)
-
             inputs = self.process_inputs(rule.cors)
-            headers = self.get_preflight_headers(request.access_control_request_method,
-                                                 **inputs)
-
         except HTTPException:
-            pass
+            inputs = self.process_inputs(CORS())
 
-        return headers
+        return self.get_preflight_headers(request.access_control_request_method, **inputs)
 
     def get_current_cors_headers(self):
         """
