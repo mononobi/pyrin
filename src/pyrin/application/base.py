@@ -1922,7 +1922,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         this method will call `provide_response_headers` method of all registered hooks.
 
-        :param dict | Headers headers: current response headers.
+        :param Headers headers: current response headers.
 
         :param str endpoint: the endpoint of the route that
                              handled the current request.

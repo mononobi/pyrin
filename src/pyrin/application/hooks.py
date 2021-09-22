@@ -75,7 +75,7 @@ class ApplicationHookBase(Hook):
         subclasses could override this to provide custom or modified response headers.
         they must modify or extend headers in-place.
 
-        :param dict | Headers headers: current response headers.
+        :param Headers headers: current response headers.
 
         :param str endpoint: the endpoint of the route that
                              handled the current request.

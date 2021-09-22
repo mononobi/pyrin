@@ -20,7 +20,7 @@ class ApplicationHook(ApplicationHookBase):
         """
         this method will be called whenever a response is going to be returned from server.
 
-        :param dict | Headers headers: current response headers.
+        :param Headers headers: current response headers.
 
         :param str endpoint: the endpoint of the route that
                              handled the current request.
