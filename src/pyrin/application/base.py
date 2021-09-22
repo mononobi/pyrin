@@ -1950,21 +1950,21 @@ class Application(Flask, HookMixin, SignalMixin,
 
         :param CoreResponse response: response object.
 
-        :rtype: CoreResponse
+        :rtype: CoreResponse | tuple
         """
 
-        result_response = response
+        new_response = None
         for hook in self._get_hooks():
             try:
-                result = hook.finalize_transaction(result_response, **options)
+                result = hook.finalize_transaction(response, **options)
                 if result is not None:
                     if not isinstance(result, self.response_class):
                         result = self.make_response(result)
-                    result_response = result
+                    new_response = result
             except Exception as error:
                 logging_services.exception(str(error))
 
-        return result_response
+        return new_response or response
 
     def _validate_request(self, request, **options):
         """

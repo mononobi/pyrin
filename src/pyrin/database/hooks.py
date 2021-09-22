@@ -52,7 +52,7 @@ class ApplicationHook(ApplicationHookBase):
 
         :param CoreResponse response: response object.
 
-        :rtype: CoreResponse
+        :rtype: CoreResponse | tuple
         """
 
         return database_services.finalize_transaction(response, **options)

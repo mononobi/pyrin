@@ -329,10 +329,10 @@ class DatabaseManager(Manager, HookMixin):
                 if status_services.is_error(response.status_code,
                                             strict_status=False) is True:
                     session_factory.rollback_all()
-                    return response
+                    return
 
                 session_factory.commit_all()
-                return response
+                return
             except Exception:
                 session_factory.rollback_all()
                 raise

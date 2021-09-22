@@ -101,19 +101,21 @@ class ApplicationHookBase(Hook):
         note that this method will be called after all `after_request_handlers`
         have been executed. even if any handler had error, this method call is
         guaranteed.
-        subclasses must return the same input response, a modified response or a
-        new response object. but if they don't, it will be converted to a response.
-        note that it is recommended for subclasses not to raise any exceptions
-        in this method. but if they do so, other handlers will still get executed.
+        this method must return None and change the input response in-place if needed.
+        but if you want to return a whole new response you can return a response
+        object. if you return an object other than a response, it will be converted
+        to a response automatically. note that it is recommended for subclasses
+        not to raise any exceptions in this method. but if they do so, other handlers
+        will still get executed.
         the main use case for this hook is to finalize any present transactions,
         such as database.
 
         :param CoreResponse response: response object.
 
-        :rtype: CoreResponse
+        :rtype: CoreResponse | tuple
         """
 
-        return response
+        return None
 
     def validate_request(self, request, **options):
         """
