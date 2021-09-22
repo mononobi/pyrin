@@ -7,6 +7,7 @@ from werkzeug.datastructures import Headers
 from flask import Response
 
 import pyrin.utils.headers as header_utils
+import pyrin.security.session.services as session_services
 
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.core.globals import ROW_RESULT
@@ -91,7 +92,8 @@ class ResponseManager(Manager):
         if data is None:
             data = {}
 
-        options.update(message=message, data=data)
+        options.update(message=message, data=data,
+                       request_id=session_services.get_current_request_id())
         return self.make_response(**options)
 
     def make_exception_response(self, exception, **options):

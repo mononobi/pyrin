@@ -5,20 +5,19 @@ database manager module.
 
 from sqlalchemy import engine_from_config
 
+import pyrin.utils.misc as misc_utils
+import pyrin.utils.dictionary as dict_utils
+import pyrin.api.services as api_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.logging.services as logging_services
 import pyrin.security.session.services as session_services
-import pyrin.processor.response.services as response_services
-import pyrin.utils.dictionary as dict_utils
-import pyrin.utils.misc as misc_utils
 
 from pyrin.database import DatabasePackage
 from pyrin.database.hooks import DatabaseHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.database.model.base import BaseEntity
 from pyrin.core.structs import DTO, Manager
-from pyrin.core.enumerations import ServerErrorResponseCodeEnum
 from pyrin.database.interface import AbstractSessionFactoryBase
 from pyrin.utils.custom_print import print_warning
 from pyrin.database.exceptions import InvalidSessionFactoryTypeError, \
@@ -339,10 +338,7 @@ class DatabaseManager(Manager, HookMixin):
             finally:
                 session_factory.remove()
         except Exception as error:
-            self.LOGGER.exception(str(error))
-            return response_services.make_exception_response(error,
-                                                             code=ServerErrorResponseCodeEnum.
-                                                             INTERNAL_SERVER_ERROR)
+            return api_services.handle_server_unknown_error(error)
 
     def cleanup_session(self, exception):
         """

@@ -6,15 +6,14 @@ api manager module.
 import pyrin.logging.services as logging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.services as response_services
-import pyrin.security.session.services as session_services
 
+from pyrin.core.globals import _
 from pyrin.api import APIPackage
 from pyrin.api.exceptions import InvalidAPIHookTypeError
 from pyrin.api.hooks import APIHookBase
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager
 from pyrin.core.enumerations import ServerErrorResponseCodeEnum
-from pyrin.core.globals import _
 
 
 class APIManager(Manager, HookMixin):
@@ -40,8 +39,7 @@ class APIManager(Manager, HookMixin):
         """
 
         self._log_exception(exception)
-        return response_services.make_exception_response(exception,
-                                                         request_id=self._get_request_id())
+        return response_services.make_exception_response(exception)
 
     def handle_server_business_error(self, exception):
         """
@@ -57,7 +55,6 @@ class APIManager(Manager, HookMixin):
 
         self._log_exception(exception)
         return response_services.make_exception_response(exception,
-                                                         request_id=self._get_request_id(),
                                                          data=exception.data)
 
     def handle_server_error(self, exception):
@@ -78,12 +75,10 @@ class APIManager(Manager, HookMixin):
         self._log_exception(exception)
         if config_services.get_active('environment', 'debug') is True:
             return response_services.make_exception_response(exception,
-                                                             request_id=self._get_request_id(),
                                                              data=exception.data)
 
         return response_services.make_error_response(self._get_generic_error_message(),
-                                                     code=exception.code,
-                                                     request_id=self._get_request_id())
+                                                     code=exception.code)
 
     def handle_server_unknown_error(self, exception):
         """
@@ -104,13 +99,11 @@ class APIManager(Manager, HookMixin):
         if config_services.get_active('environment', 'debug') is True:
             return response_services.make_exception_response(exception,
                                                              code=ServerErrorResponseCodeEnum.
-                                                             INTERNAL_SERVER_ERROR,
-                                                             request_id=self._get_request_id())
+                                                             INTERNAL_SERVER_ERROR)
 
         return response_services.make_error_response(self._get_generic_error_message(),
                                                      code=ServerErrorResponseCodeEnum.
-                                                     INTERNAL_SERVER_ERROR,
-                                                     request_id=self._get_request_id())
+                                                     INTERNAL_SERVER_ERROR)
 
     def _get_generic_error_message(self):
         """
@@ -123,15 +116,6 @@ class APIManager(Manager, HookMixin):
 
         return _('Application has been encountered an error. Please '
                  'contact the support team if problem persists.')
-
-    def _get_request_id(self):
-        """
-        gets current request id.
-
-        :rtype: uuid.UUID
-        """
-
-        return session_services.get_current_request_id()
 
     def _log_exception(self, exception):
         """
