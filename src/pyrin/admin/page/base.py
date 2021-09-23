@@ -42,7 +42,8 @@ from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequired
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
     CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError, \
-    InvalidListSearchFieldError, DuplicateListSearchFieldNamesError, InvalidListFieldNameError
+    InvalidListSearchFieldError, DuplicateListSearchFieldNamesError, EntityNotFoundError, \
+    InvalidListFieldNameError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -1148,6 +1149,26 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         pass
 
     @classmethod
+    def _get(cls, pk):
+        """
+        gets an entity with given primary key.
+
+        :param object pk: primary key of entity to be get.
+
+        :raises EntityNotFoundError: entity not found error.
+
+        :rtype: pyrin.database.model.base.BaseEntity
+        """
+
+        store = get_current_store()
+        entity = store.query(cls.entity).get(pk)
+        if entity is None:
+            raise EntityNotFoundError(_('{name} with primary key [{pk}] does not exist.')
+                                      .format(name=cls.name, pk=pk))
+
+        return entity
+
+    @classmethod
     def _update(cls, pk, **data):
         """
         updates an entity with given data.
@@ -1155,10 +1176,11 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param object pk: entity primary key to be updated.
 
         :keyword **data: all data to be passed to update method.
+
+        :raises EntityNotFoundError: entity not found error.
         """
 
-        store = get_current_store()
-        entity = store.query(cls.entity).get(pk)
+        entity = cls._get(pk)
         entity.update(**data)
         cls._process_updated_entity(entity, **data)
 
@@ -1431,13 +1453,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         :param object pk: primary key of entity to be get.
 
+        :raises EntityNotFoundError: entity not found error.
+
         :rtype: pyrin.database.model.base.BaseEntity
         """
 
         validator_services.validate(self.entity, **self._get_primary_key_holder(pk))
-        store = get_current_store()
-        entity = store.query(self.entity).get(pk)
-        return entity
+        return self._get(pk)
 
     def find(self, **filters):
         """
@@ -1483,6 +1505,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param object pk: entity primary key to be updated.
 
         :keyword **data: all data to be passed to related update service.
+
+        :raises EntityNotFoundError: entity not found error.
         """
 
         validator_services.validate(cls.entity, **cls._get_primary_key_holder(pk))

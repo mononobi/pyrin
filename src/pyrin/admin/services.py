@@ -112,6 +112,7 @@ def get(register_name, pk):
     :param object pk: primary key of entity to be get.
 
     :raises AdminOperationNotAllowedError: admin operation not allowed error.
+    :raises EntityNotFoundError: entity not found error.
 
     :rtype: pyrin.database.model.base.BaseEntity
     """
@@ -157,6 +158,7 @@ def update(register_name, pk, **data):
     :keyword **data: all data to be passed to related admin page for data creation.
 
     :raises AdminOperationNotAllowedError: admin operation not allowed error.
+    :raises EntityNotFoundError: entity not found error.
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).update(register_name, pk, **data)

@@ -104,3 +104,10 @@ class InvalidListFieldNameError(AdminPageException):
     invalid list field name error.
     """
     pass
+
+
+class EntityNotFoundError(AdminPageBusinessException):
+    """
+    entity not found error.
+    """
+    pass

@@ -5,7 +5,6 @@ admin api module.
 
 import pyrin.admin.services as admin_services
 
-from pyrin.core.globals import SECURE_FALSE
 from pyrin.api.router.decorators import api, post, patch, delete
 
 
@@ -18,13 +17,16 @@ admin_config.pop('url', None)
 is_enabled = admin_config.pop('enabled', False)
 
 if is_enabled is True:
-    @api(f'{url}<register_name>/<pk>', **admin_config, readable=SECURE_FALSE)
+    @api(f'{url}<register_name>/<pk>', **admin_config)
     def get(register_name, pk, **options):
         """
         gets an entity with given primary key.
 
         :param str register_name: register name of admin page.
         :param object pk: primary key of entity to be get.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        :raises EntityNotFoundError: entity not found error.
 
         :rtype: pyrin.database.model.base.BaseEntity
         """
@@ -55,6 +57,8 @@ if is_enabled is True:
         :param str register_name: register name of admin page.
 
         :keyword **data: all data to be passed to related admin page for data creation.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
         return admin_services.create(register_name, **data)
@@ -69,6 +73,9 @@ if is_enabled is True:
         :param object pk: entity primary key to be updated.
 
         :keyword **data: all data to be passed to related admin page for data creation.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        :raises EntityNotFoundError: entity not found error.
         """
 
         return admin_services.update(register_name, pk, **data)
@@ -81,6 +88,8 @@ if is_enabled is True:
 
         :param str register_name: register name of admin page.
         :param object pk: entity primary key to be removed.
+
+        :raises AdminOperationNotAllowedError: admin operation not allowed error.
         """
 
         return admin_services.remove(register_name, pk)

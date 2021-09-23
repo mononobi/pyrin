@@ -287,6 +287,7 @@ class AdminManager(Manager):
         :param object pk: primary key of entity to be get.
 
         :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        :raises EntityNotFoundError: entity not found error.
 
         :rtype: pyrin.database.model.base.BaseEntity
         """
@@ -342,6 +343,7 @@ class AdminManager(Manager):
         :keyword **data: all data to be passed to related admin page for data creation.
 
         :raises AdminOperationNotAllowedError: admin operation not allowed error.
+        :raises EntityNotFoundError: entity not found error.
         """
 
         admin = self._get_admin_page(register_name)
