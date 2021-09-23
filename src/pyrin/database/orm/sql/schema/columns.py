@@ -195,6 +195,7 @@ class StringColumn(CoreColumn):
                                       value if not provided.
 
         :raises StringColumnTypeIsInvalidError: string column type is invalid error.
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         self.min_length = kwargs.pop('min_length', None)
@@ -325,6 +326,8 @@ class PKColumn(CoreColumn):
                                       column must be registered, that is usable through
                                       validator services for find. defaults to `validated`
                                       value if not provided.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         kwargs.update(nullable=False, primary_key=True)
@@ -409,6 +412,7 @@ class AutoPKColumn(PKColumn):
                                       if not provided.
 
         :raises AutoPKColumnTypeIsInvalidError: auto pk column type is invalid error.
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         args = list(args)
@@ -646,6 +650,8 @@ class FKColumn(CoreColumn):
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         self._fk = kwargs.pop('fk', None)
@@ -984,6 +990,7 @@ class SequenceColumn(SequenceColumnMixin, CoreColumn):
                             bad at all.
 
         :raises SequenceColumnTypeIsInvalidError: sequence column type is invalid error.
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         kwargs.setdefault('unique', True)
@@ -1066,6 +1073,8 @@ class GUIDColumn(GUIDColumnMixin, CoreColumn):
                                       column must be registered, that is usable through
                                       validator services for find. defaults to `validated`
                                       value if not provided.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         kwargs.setdefault('unique', True)
@@ -1252,6 +1261,8 @@ class DateTimeColumn(TypeMixin, CoreColumn):
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1389,6 +1400,8 @@ class TimeColumn(TypeMixin, CoreColumn):
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1516,6 +1529,8 @@ class TimeStampColumn(TypeMixin, CoreColumn):
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         timezone = kwargs.pop('timezone', True)
@@ -1699,6 +1714,7 @@ class TextColumn(StringColumn):
                                       value if not provided.
 
         :raises TextColumnTypeIsInvalidError: text column type is invalid error.
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         args = list(args)

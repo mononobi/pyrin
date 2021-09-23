@@ -21,7 +21,7 @@ from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
 from pyrin.caching.decorators import cached_property
 from pyrin.database.orm.sql.operators.base import CoreColumnOperators
 from pyrin.database.orm.sql.schema.exceptions import InvalidCheckConstraintError, \
-    CheckConstraintConflictError
+    CheckConstraintConflictError, InvalidColumnAccessLevelError
 
 
 class CoreColumn(Column, CoreColumnOperators):
@@ -193,6 +193,8 @@ class CoreColumn(Column, CoreColumnOperators):
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         self.allow_read = kwargs.pop('allow_read', True)
@@ -218,6 +220,12 @@ class CoreColumn(Column, CoreColumnOperators):
             self.check_not_in = self.check_not_in.values()
 
         super().__init__(*args, **kwargs)
+
+        # we have to perform this assertion at the end to have the column name available.
+        if self.allow_read is False and self.allow_write is True:
+            raise InvalidColumnAccessLevelError('Column [{instance}] can not be '
+                                                'writable while it is not readable.'
+                                                .format(instance=self))
 
     def _get_schema_items(self):
         """

@@ -60,3 +60,10 @@ class TextColumnTypeIsInvalidError(ORMSQLSchemaException):
     text column type is invalid error.
     """
     pass
+
+
+class InvalidColumnAccessLevelError(ORMSQLSchemaException):
+    """
+    invalid column access level error.
+    """
+    pass

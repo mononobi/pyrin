@@ -119,6 +119,7 @@ class SequenceColumnMixin:
                             bad at all.
 
         :raises SequenceColumnTypeIsInvalidError: sequence column type is invalid error.
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         args = list(args)
@@ -228,6 +229,8 @@ class GUIDColumnMixin:
                                       column must be registered, that is usable through
                                       validator services for find. defaults to `validated`
                                       value if not provided.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         args = list(args)
@@ -404,6 +407,8 @@ class TypeMixin:
                                        if the type of column is anything else or it is a
                                        primary key, no range validators will be registered
                                        for it and this value will be ignored.
+
+        :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
         args = list(args)
