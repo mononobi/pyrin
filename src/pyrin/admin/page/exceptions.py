@@ -111,3 +111,10 @@ class EntityNotFoundError(AdminPageBusinessException):
     entity not found error.
     """
     pass
+
+
+class ExtraDataFieldsAndEntityFieldsOverlapError(AdminPageException):
+    """
+    extra data fields and entity fields overlap error.
+    """
+    pass

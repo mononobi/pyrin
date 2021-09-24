@@ -43,7 +43,7 @@ from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequired
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
     CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError, \
     InvalidListSearchFieldError, DuplicateListSearchFieldNamesError, EntityNotFoundError, \
-    InvalidListFieldNameError
+    InvalidListFieldNameError, ExtraDataFieldsAndEntityFieldsOverlapError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -1317,6 +1317,33 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return info
 
+    def _validate_duplicate_data_fields(self, writable_fields, readable_fields=None):
+        """
+        validates that provided field names do not have overlap with extra data field names.
+
+        :param tuple[str] writable_fields: writable field names.
+        :param tuple[str] readable_fields: readable field names.
+
+        :raises ExtraDataFieldsAndEntityFieldsOverlapError: extra data fields and
+                                                            entity fields overlap error.
+        """
+
+        if not self.extra_data_fields:
+            return
+
+        fields = set(writable_fields).union(set(readable_fields or []))
+        extra_fields = set(self.extra_data_fields)
+        duplicates = fields.intersection(extra_fields)
+        if duplicates:
+            raise ExtraDataFieldsAndEntityFieldsOverlapError('These extra data fields have the '
+                                                             'same name with entity [{entity}] '
+                                                             'fields. please rename these extra '
+                                                             'data fields in admin [{admin}] '
+                                                             'class: {fields}'
+                                                             .format(entity=self.entity,
+                                                                     admin=self,
+                                                                     fields=list(duplicates)))
+
     def _get_data_fields(self, writable_fields, for_update,
                          primary_keys, foreign_keys,
                          readable_fields=None):
@@ -1332,6 +1359,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: tuple[dict]
         """
 
+        self._validate_duplicate_data_fields(writable_fields, readable_fields)
         fields = []
         for name in writable_fields:
             item = self._get_data_field(name, for_update, primary_keys, foreign_keys)
