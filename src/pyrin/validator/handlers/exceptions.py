@@ -326,6 +326,13 @@ class InvalidIPv4Error(HandlersValidationException):
     pass
 
 
+class InvalidIPv6Error(HandlersValidationException):
+    """
+    invalid ipv6 error.
+    """
+    pass
+
+
 class InvalidURLError(HandlersValidationException):
     """
     invalid url error.

@@ -18,7 +18,7 @@ from pyrin.validator.handlers.exceptions import LongStringLengthError, ShortStri
     ValueCouldNotBeBlankError, ValueCouldNotBeWhitespaceError, ValueDoesNotMatchPatternError, \
     InvalidRegularExpressionError, RegularExpressionMustBeProvidedError, ValueIsNotStringError, \
     MinimumLengthHigherThanMaximumLengthError, InvalidEmailError, InvalidIPv4Error, \
-    InvalidURLError, InvalidHTTPURLError, InvalidHTTPSURLError
+    InvalidURLError, InvalidHTTPURLError, InvalidHTTPSURLError, InvalidIPv6Error
 
 
 class StringValidator(ValidatorBase):
@@ -366,7 +366,7 @@ class RegexValidator(StringValidator):
     regex validator class.
     """
 
-    # the regular expression to use for validation.
+    # the regular expression to be used for validation.
     # it could be set with a string containing a regex
     # or with a `Pattern` object from re.compile() method.
     regex = None
@@ -516,6 +516,20 @@ class RegexValidator(StringValidator):
                 self.pattern_not_match_message.format(
                     param_name=self._get_field_name(**options)))
 
+    def _get_info(self):
+        """
+        gets the info of this validator.
+
+        :rtype: dict
+        """
+
+        info = dict(regex=self.pattern.pattern)
+        base_info = super()._get_info()
+        if base_info:
+            info.update(base_info)
+
+        return info
+
     @property
     def pattern(self):
         """
@@ -532,7 +546,7 @@ class EmailValidator(RegexValidator):
     email validator class.
     """
 
-    regex = r'^[a-z0-9]+([a-z0-9\.]*[a-z0-9]+)*[@]\w+[\.]\w{2,3}([\.]\w{2,3})?$'
+    regex = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
     pattern_not_match_error = InvalidEmailError
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid email address.')
@@ -540,39 +554,15 @@ class EmailValidator(RegexValidator):
     default_minimum_length = 6
     default_form_field_type = FormFieldTypeEnum.EMAIL
 
-    def _validate_extra(self, value, **options):
-        """
-        validates the given value.
-
-        this method is intended to be overridden by subclasses.
-        it raises an error if validation fails.
-        the raised error must be an instance of ValidationError.
-        each overridden method must call `super()._validate_extra()`
-        preferably at the beginning.
-
-        :param str value: value to be validated.
-
-        :keyword str field_name: a custom field name to be used in validation errors.
-                                 if not provided, the `localized_name` value of this
-                                 validator will be used.
-
-        :raises InvalidEmailError: invalid email error.
-        """
-
-        super()._validate_extra(value, **options)
-
-        if '..' in value:
-            raise self.pattern_not_match_error(
-                self.pattern_not_match_message.format(
-                    param_name=self._get_field_name(**options)))
-
 
 class IPv4Validator(RegexValidator):
     """
     ipv4 validator class.
     """
 
-    regex = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+    regex = r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}' \
+            r'([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$'
+
     pattern_not_match_error = InvalidIPv4Error
     pattern_not_match_message = _('The provided value for [{param_name}] '
                                   'is not a valid IPv4 address.')
@@ -581,34 +571,30 @@ class IPv4Validator(RegexValidator):
     default_minimum_length = 7
     default_form_field_type = FormFieldTypeEnum.IPV4
 
-    def _validate_extra(self, value, **options):
-        """
-        validates the given value.
 
-        this method is intended to be overridden by subclasses.
-        it raises an error if validation fails.
-        the raised error must be an instance of ValidationError.
-        each overridden method must call `super()._validate_extra()`
-        preferably at the beginning.
+class IPv6Validator(RegexValidator):
+    """
+    ipv6 validator class.
+    """
 
-        :param str value: value to be validated.
+    regex = r'^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|' \
+            r'([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}' \
+            r'(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|' \
+            r'([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}' \
+            r'(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|' \
+            r':((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|' \
+            r'::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.)' \
+            r'{3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:' \
+            r'((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}' \
+            r'[0-9]){0,1}[0-9]))$'
 
-        :keyword str field_name: a custom field name to be used in validation errors.
-                                 if not provided, the `localized_name` value of this
-                                 validator will be used.
+    pattern_not_match_error = InvalidIPv6Error
+    pattern_not_match_message = _('The provided value for [{param_name}] '
+                                  'is not a valid IPv6 address.')
 
-        :raises InvalidIPv4Error: invalid ipv4 error.
-        """
-
-        super()._validate_extra(value, **options)
-
-        parts = value.split('.')
-        for item in parts:
-            converted_item = int(item)
-            if converted_item < 0 or converted_item > 255:
-                raise self.pattern_not_match_error(
-                    self.pattern_not_match_message.format(
-                        param_name=self._get_field_name(**options)))
+    default_maximum_length = 39
+    default_minimum_length = 2
+    default_form_field_type = FormFieldTypeEnum.IPV6
 
 
 class URLValidator(RegexValidator):
