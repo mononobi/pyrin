@@ -1395,6 +1395,21 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                                      self.entity.foreign_key_columns)
 
     @fast_cache
+    def _get_create_fields_dict(self):
+        """
+        gets all fields which should be used for create page as a dict.
+
+        :rtype: dict
+        """
+
+        result = dict()
+        fields = self._get_create_fields()
+        for item in fields:
+            result[item.get('field')] = item
+
+        return result
+
+    @fast_cache
     def _get_update_fields(self):
         """
         gets all fields which should be used for update page.
@@ -1412,6 +1427,21 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                                      self.entity.primary_key_columns,
                                      self.entity.foreign_key_columns,
                                      readable_columns)
+
+    @fast_cache
+    def _get_update_fields_dict(self):
+        """
+        gets all fields which should be used for update page as a dict.
+
+        :rtype: dict
+        """
+
+        result = dict()
+        fields = self._get_update_fields()
+        for item in fields:
+            result[item.get('field')] = item
+
+        return result
 
     @fast_cache
     def _get_common_metadata(self):
@@ -1708,6 +1738,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata.update(self._get_common_metadata())
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['data_fields'] = self._get_create_fields()
+        metadata['data_fields_dict'] = self._get_create_fields_dict()
         return metadata
 
     @fast_cache
@@ -1724,6 +1755,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_get_permission'] = self.has_get_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['data_fields'] = self._get_update_fields()
+        metadata['data_fields_dict'] = self._get_update_fields_dict()
         return metadata
 
     def populate_caches(self):
