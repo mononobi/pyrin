@@ -32,3 +32,24 @@ class PaginationPositionEnum(CoreEnum):
     TOP = 'top'
     BOTTOM = 'bottom'
     BOTH = 'both'
+
+
+class FormatEnum(CoreEnum):
+    """
+    format enum.
+    """
+
+    NUMERIC = 'numeric'
+    TWO_DIGIT = '2-digit'
+
+
+class MonthFormatEnum(CoreEnum):
+    """
+    month format enum.
+    """
+
+    NUMERIC = 'numeric'
+    TWO_DIGIT = '2-digit'
+    LONG = 'long'
+    SHORT = 'short'
+    NARROW = 'narrow'

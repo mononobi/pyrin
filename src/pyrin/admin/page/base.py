@@ -37,7 +37,7 @@ from pyrin.logging.contexts import suppress
 from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.validator.exceptions import ValidationError
 from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
-    PaginationPositionEnum
+    PaginationPositionEnum, FormatEnum, MonthFormatEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
@@ -184,6 +184,31 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # for example:
     # (UserEntity.last_name, UserEntity.name, CityEntity.name.label('city_name'))
     list_search_fields = ()
+
+    # format to render datetime fields on list page.
+    list_datetime_format = dict(year=FormatEnum.NUMERIC,
+                                month=MonthFormatEnum.SHORT,
+                                day=FormatEnum.NUMERIC,
+                                hour=FormatEnum.TWO_DIGIT,
+                                minute=FormatEnum.TWO_DIGIT,
+                                second=FormatEnum.TWO_DIGIT,
+                                hour12=False)
+
+    # format to render date fields on list page.
+    list_date_format = dict(year=FormatEnum.NUMERIC,
+                            month=MonthFormatEnum.SHORT,
+                            day=FormatEnum.NUMERIC)
+
+    # format to render time fields on list page.
+    list_time_format = dict(hour=FormatEnum.TWO_DIGIT,
+                            minute=FormatEnum.TWO_DIGIT,
+                            second=FormatEnum.TWO_DIGIT,
+                            hour12=False)
+
+    # a locale to be used to render data and time fields on list page.
+    # for example: 'en-US', 'fa' or ...
+    # if not provided, the locale on client browser will be used.
+    list_locale = None
 
     # ===================== SERVICE CONFIGS ===================== #
 
@@ -1724,6 +1749,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['grouping'] = self.list_grouping
         metadata['search'] = self.list_search
         metadata['search_debounce_interval'] = self.list_search_debounce_interval
+        metadata['datetime_format'] = self.list_datetime_format
+        metadata['date_format'] = self.list_date_format
+        metadata['time_format'] = self.list_time_format
+        metadata['locale'] = self.list_locale
         return metadata
 
     @fast_cache
