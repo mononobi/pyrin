@@ -3,8 +3,14 @@
 admin manager module.
 """
 
+from copy import deepcopy
+
+from flask import current_app
+
 import pyrin.utils.dictionary as dict_utils
 import pyrin.configuration.services as config_services
+import pyrin.database.paging.services as paging_services
+import pyrin.database.services as database_services
 
 from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
@@ -48,7 +54,9 @@ class AdminManager(Manager):
         self._type_map = self._get_form_to_list_type_map()
 
         self._base_url = self._load_base_url()
-        self._panel_name = self._load_panel_name()
+
+        # shared admin panel configs required for client.
+        self._configs = None
 
     def _get_form_to_list_type_map(self):
         """
@@ -96,15 +104,6 @@ class AdminManager(Manager):
             url = f'{url}/'
 
         return url
-
-    def _load_panel_name(self):
-        """
-        loads admin panel name from `admin` config store.
-
-        :rtype: str
-        """
-
-        return config_services.get_active('admin', 'panel_name')
 
     def _remove_from_pages(self, register_name):
         """
@@ -202,15 +201,6 @@ class AdminManager(Manager):
         """
 
         return self._base_url
-
-    def get_admin_panel_name(self):
-        """
-        gets admin panel name.
-
-        :rtype: str
-        """
-
-        return self._panel_name
 
     def get_admin_configurations(self):
         """
@@ -531,3 +521,31 @@ class AdminManager(Manager):
             admin.populate_caches()
 
         return len(self._admin_pages)
+
+    def get_configs(self):
+        """
+        gets the required configs of admin api.
+
+        :returns: dict(str panel_name,
+                       str page_key,
+                       str page_size_key,
+                       str ordering_key,
+                       str locale_key,
+                       str timezone_key)
+        :rtype: dict
+        """
+
+        if self._configs is not None:
+            return deepcopy(self._configs)
+
+        panel_name = config_services.get_active('admin', 'panel_name')
+        page_key, page_size_key = paging_services.get_paging_param_names()
+        ordering_key = database_services.get_ordering_key()
+        locale_key = current_app.request_class.LOCALE_PARAM_NAME
+        timezone_key = current_app.request_class.TIMEZONE_PARAM_NAME
+        result = dict(panel_name=panel_name, page_key=page_key,
+                      page_size_key=page_size_key, ordering_key=ordering_key,
+                      locale_key=locale_key, timezone_key=timezone_key)
+
+        self._configs = deepcopy(result)
+        return result

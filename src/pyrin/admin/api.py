@@ -174,12 +174,18 @@ if is_enabled is True:
         return admin_services.get_update_metadata(register_name)
 
 
-    @api(f'{url}panel-name', **admin_config)
-    def get_admin_panel_name(**options):
+    @api(f'{url}metadata/configs', **admin_config)
+    def get_configs(**options):
         """
-        gets admin panel name.
+        gets the required configs of admin api.
 
-        :rtype: str
+        :returns: dict(str panel_name,
+                       str page_key,
+                       str page_size_key,
+                       str ordering_key,
+                       str locale_key,
+                       str timezone_key)
+        :rtype: dict
         """
 
-        return admin_services.get_admin_panel_name()
+        return admin_services.get_configs()

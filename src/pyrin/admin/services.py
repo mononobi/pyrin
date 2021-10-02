@@ -71,16 +71,6 @@ def get_admin_base_url():
     return get_component(AdminPackage.COMPONENT_NAME).get_admin_base_url()
 
 
-def get_admin_panel_name():
-    """
-    gets admin panel name.
-
-    :rtype: str
-    """
-
-    return get_component(AdminPackage.COMPONENT_NAME).get_admin_panel_name()
-
-
 def get_admin_configurations():
     """
     gets the admin api configurations.
@@ -310,3 +300,19 @@ def populate_caches():
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).populate_caches()
+
+
+def get_configs():
+    """
+    gets the required configs of admin api.
+
+    :returns: dict(str panel_name,
+                   str page_key,
+                   str page_size_key,
+                   str ordering_key,
+                   str locale_key,
+                   str timezone_key)
+    :rtype: dict
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).get_configs()
