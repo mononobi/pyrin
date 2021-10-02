@@ -10,7 +10,7 @@ from pyrin.converters.deserializer.handlers.base import StringPatternDeserialize
 from pyrin.converters.deserializer.decorators import deserializer
 from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, DEFAULT_DATE_ISO_REGEX, \
     DEFAULT_TIME_ISO_REGEX, DEFAULT_LOCAL_NAIVE_TIME_REGEX, DEFAULT_UTC_ZULU_DATE_TIME_REGEX, \
-    DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX
+    DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX, DEFAULT_UTC_ZULU_TIME_REGEX
 
 
 @deserializer()
@@ -125,6 +125,7 @@ class TimeDeserializer(StringPatternDeserializerBase):
         """
 
         return [(DEFAULT_TIME_ISO_REGEX, 14, 21),
+                (DEFAULT_UTC_ZULU_TIME_REGEX, 9, 16),
                 (DEFAULT_LOCAL_NAIVE_TIME_REGEX, 8, 15)]
 
 

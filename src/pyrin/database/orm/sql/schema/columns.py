@@ -1301,7 +1301,9 @@ class TimeColumn(TypeMixin, CoreColumn):
                              as options to the column.
 
         :keyword bool timezone: specifies that this column is timezone aware.
-                                defaults to True if not provided.
+                                actually timezone has no meaning for a single
+                                time without a date so use it with cautious.
+                                defaults to False if not provided.
 
         :keyword callable | object default: a scalar, python callable or `ColumnElement`
                                             expression representing the default value
@@ -1404,7 +1406,7 @@ class TimeColumn(TypeMixin, CoreColumn):
         :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
-        timezone = kwargs.pop('timezone', True)
+        timezone = kwargs.pop('timezone', False)
         self._column_type = Time(timezone=timezone)
 
         super().__init__(*args, **kwargs)

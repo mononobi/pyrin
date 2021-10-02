@@ -14,7 +14,8 @@ import pyrin.utils.unique_id as uuid_utils
 from pyrin.utils.unique_id import UUID_REGEX
 from pyrin.utils.datetime import DEFAULT_DATE_TIME_ISO_REGEX, \
     DEFAULT_DATE_ISO_REGEX, DEFAULT_TIME_ISO_REGEX, DEFAULT_LOCAL_NAIVE_TIME_REGEX, \
-    DEFAULT_UTC_ZULU_DATE_TIME_REGEX, DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX
+    DEFAULT_UTC_ZULU_DATE_TIME_REGEX, DEFAULT_LOCAL_NAIVE_DATE_TIME_REGEX, \
+    DEFAULT_UTC_ZULU_TIME_REGEX
 
 
 def scanstring_extended(s, end, strict=True):
@@ -27,7 +28,9 @@ def scanstring_extended(s, end, strict=True):
         return datetime_services.to_datetime(s, to_server=False, from_server=False), end
     elif DEFAULT_DATE_ISO_REGEX.match(s):
         return datetime_services.to_date(s), end
-    elif DEFAULT_TIME_ISO_REGEX.match(s) or DEFAULT_LOCAL_NAIVE_TIME_REGEX.match(s):
+    elif DEFAULT_TIME_ISO_REGEX.match(s) or \
+            DEFAULT_LOCAL_NAIVE_TIME_REGEX.match(s) or \
+            DEFAULT_UTC_ZULU_TIME_REGEX.match(s):
         return datetime_services.to_time(s), end
     elif DEFAULT_UTC_ZULU_DATE_TIME_REGEX.match(s):
         return datetime_services.to_datetime(s, to_server=False, from_server=False), end

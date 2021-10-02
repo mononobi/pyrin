@@ -36,6 +36,12 @@ DEFAULT_UTC_ZULU_DATE_TIME_REGEX = \
 # length is between 14 to 21.
 DEFAULT_TIME_ISO_REGEX = re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?[+-][0-1]\d:[0-5]\d$')
 
+# default utc time regular expression pattern with zulu sign.
+# example: '23:40:15Z' or '23:40:15.889Z'
+# length is between 9 to 16.
+DEFAULT_UTC_ZULU_TIME_REGEX = \
+    re.compile(r'^[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,6})?(\.\d{1,6})?Z$')
+
 # default local naive datetime regular expression pattern without utc offset.
 # example: '2015-12-24T23:40:15' or '2015-12-24T23:40:15.98'
 # length is between 19 to 26.
