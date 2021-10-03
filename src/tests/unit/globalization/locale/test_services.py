@@ -73,7 +73,7 @@ def test_get_current_timezone():
     """
 
     timezone = locale_services.get_current_timezone()
-    default_timezone = config_services.get('globalization', 'locale',
+    default_timezone = config_services.get('globalization', 'timezone',
                                            'babel_default_timezone')
 
     assert timezone == default_timezone
