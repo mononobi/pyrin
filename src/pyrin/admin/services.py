@@ -206,7 +206,9 @@ def get_main_metadata():
 
     :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
-    :rtype: list[dict]
+    :returns: dict(list pages,
+                   dict configs)
+    :rtype: dict
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).get_main_metadata()

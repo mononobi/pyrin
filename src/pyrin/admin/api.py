@@ -129,7 +129,9 @@ if is_enabled is True:
 
         :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
-        :rtype: list[dict]
+        :returns: dict(list pages,
+                       dict configs)
+        :rtype: dict
         """
 
         return admin_services.get_main_metadata()

@@ -424,13 +424,16 @@ class AdminManager(Manager):
 
         :raises AdminPagesHaveNotLoadedError: admin pages have not loaded error.
 
-        :rtype: list[dict]
+        :returns: dict(list pages,
+                       dict configs)
+        :rtype: dict
         """
 
         if self._admin_metadata is None:
             raise AdminPagesHaveNotLoadedError('Admin pages have not loaded yet.')
 
-        return list(self._admin_metadata)
+        result = dict(pages=list(self._admin_metadata), configs=self.get_configs())
+        return result
 
     def get_find_metadata(self, register_name):
         """
