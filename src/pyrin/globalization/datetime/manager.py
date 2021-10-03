@@ -31,9 +31,9 @@ class DateTimeManager(Manager):
         super().__init__()
 
         server_timezone = config_services.get('globalization',
-                                              'locale', 'babel_default_timezone')
+                                              'timezone', 'babel_default_timezone')
 
-        client_timezone = config_services.get('globalization', 'locale', 'client_timezone')
+        client_timezone = config_services.get('globalization', 'timezone', 'client_timezone')
 
         self._server_timezone = self.get_timezone(server_timezone)
         self._client_timezone = self.get_timezone(client_timezone)
