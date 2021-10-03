@@ -5,12 +5,12 @@ admin manager module.
 
 from copy import deepcopy
 
-from flask import current_app
-
 import pyrin.utils.dictionary as dict_utils
 import pyrin.configuration.services as config_services
 import pyrin.database.paging.services as paging_services
 import pyrin.database.services as database_services
+import pyrin.globalization.datetime.services as datetime_services
+import pyrin.globalization.locale.services as locale_services
 
 from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
@@ -545,8 +545,8 @@ class AdminManager(Manager):
         hidden_pk_name = config_services.get_active('admin', 'hidden_pk_name')
         page_key, page_size_key = paging_services.get_paging_param_names()
         ordering_key = database_services.get_ordering_key()
-        locale_key = current_app.request_class.LOCALE_PARAM_NAME
-        timezone_key = current_app.request_class.TIMEZONE_PARAM_NAME
+        locale_key = locale_services.get_locale_key()
+        timezone_key = datetime_services.get_timezone_key()
         result = dict(panel_name=panel_name, page_key=page_key,
                       page_size_key=page_size_key, ordering_key=ordering_key,
                       locale_key=locale_key, timezone_key=timezone_key,
