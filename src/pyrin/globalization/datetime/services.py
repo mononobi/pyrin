@@ -498,4 +498,4 @@ def get_timezone_key():
     :rtype: str
     """
 
-    get_component(DateTimePackage.COMPONENT_NAME).get_timezone_key()
+    return get_component(DateTimePackage.COMPONENT_NAME).get_timezone_key()
