@@ -81,3 +81,13 @@ def locale_exists(locale_name):
     """
 
     return get_component(LocalePackage.COMPONENT_NAME).locale_exists(locale_name)
+
+
+def get_locale_key():
+    """
+    gets the locale key which application expects in query strings.
+
+    :rtype: str
+    """
+
+    return get_component(LocalePackage.COMPONENT_NAME).get_locale_key()

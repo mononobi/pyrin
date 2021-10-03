@@ -489,3 +489,13 @@ def datetime(year, month, day, hour=0, minute=0,
                                                                   hour, minute, second,
                                                                   microsecond, fold,
                                                                   server, timezone)
+
+
+def get_timezone_key():
+    """
+    gets the timezone key which application expects in query strings.
+
+    :rtype: str
+    """
+
+    get_component(DateTimePackage.COMPONENT_NAME).get_timezone_key()

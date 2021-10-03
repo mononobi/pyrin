@@ -35,6 +35,7 @@ class LocaleManager(Manager):
         self._babel = Babel(get_current_app())
         self._default_locale = config_services.get('globalization', 'locale',
                                                    'babel_default_locale')
+        self._locale_key = config_services.get('globalization', 'locale', 'locale_key')
 
     def set_locale_selector(self, func):
         """
@@ -128,3 +129,12 @@ class LocaleManager(Manager):
         """
 
         return localedata.exists(locale_name)
+
+    def get_locale_key(self):
+        """
+        gets the locale key which application expects in query strings.
+
+        :rtype: str
+        """
+
+        return self._locale_key

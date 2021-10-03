@@ -37,6 +37,7 @@ class DateTimeManager(Manager):
 
         self._server_timezone = self.get_timezone(server_timezone)
         self._client_timezone = self.get_timezone(client_timezone)
+        self._timezone_key = config_services.get('globalization', 'timezone', 'timezone_key')
 
     def _try_add_timezone(self, value, timezone):
         """
@@ -600,3 +601,12 @@ class DateTimeManager(Manager):
             return self._try_add_timezone(result, timezone)
 
         return self.try_add_timezone(result, server)
+
+    def get_timezone_key(self):
+        """
+        gets the timezone key which application expects in query strings.
+
+        :rtype: str
+        """
+
+        return self._timezone_key
