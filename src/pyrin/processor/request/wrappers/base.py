@@ -49,10 +49,6 @@ class CoreRequest(Request):
     # class to be used for dict values from the incoming WSGI.
     dict_storage_class = CoreImmutableMultiDict
 
-    # these are query param names that application expects for locale and timezone.
-    LOCALE_PARAM_NAME = 'lc'
-    TIMEZONE_PARAM_NAME = 'tz'
-
     # application expects an authorization header in request with this key.
     AUTHORIZATION_HEADER_KEY = 'Authorization'
 
@@ -181,7 +177,7 @@ class CoreRequest(Request):
         """
         removes all kwargs that should not be handed to the view function directly.
 
-        for example `LOCALE_PARAM_NAME` and `TIMEZONE_PARAM_NAME` will be removed
+        for example `locale_key` and `timezone_key` will be removed
         from query params because they will be stored in request object.
         the paging parameters will also be removed and stored in `_paging_params`
         dict attribute. this method removes extra kwargs from input dict directly
@@ -190,14 +186,16 @@ class CoreRequest(Request):
         :param dict params: a dict containing all query params.
         """
 
-        locale = params.pop(self.LOCALE_PARAM_NAME, None)
-        timezone = params.pop(self.TIMEZONE_PARAM_NAME, None)
+        locale_key = locale_services.get_locale_key()
+        timezone_key = datetime_services.get_timezone_key()
+        locale = params.pop(locale_key, None)
+        timezone = params.pop(timezone_key, None)
         globalization = dict()
         if locale not in (None, ''):
-            globalization[self.LOCALE_PARAM_NAME] = locale
+            globalization[locale_key] = locale
 
         if timezone not in (None, ''):
-            globalization[self.TIMEZONE_PARAM_NAME] = timezone
+            globalization[timezone_key] = timezone
 
         self._globalization_params = globalization
         self._paging_params = paging_services.extract_paging_params(params)
@@ -664,7 +662,7 @@ class CoreRequest(Request):
         :rtype: str
         """
 
-        locale = self.args.get(self.LOCALE_PARAM_NAME, None)
+        locale = self.args.get(locale_services.get_locale_key(), None)
         if locale not in (None, '') and locale_services.locale_exists(locale) is True:
             return locale
 
@@ -678,7 +676,7 @@ class CoreRequest(Request):
         :rtype: tzinfo
         """
 
-        timezone_name = self.args.get(self.TIMEZONE_PARAM_NAME, None)
+        timezone_name = self.args.get(datetime_services.get_timezone_key(), None)
         if timezone_name not in (None, ''):
             try:
                 return datetime_services.get_timezone(timezone_name)

@@ -12,6 +12,9 @@ class SwaggerPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = ['pyrin.configuration']
+    DEPENDS = ['pyrin.configuration',
+               'pyrin.globalization.locale',
+               'pyrin.globalization.datetime']
+
     COMPONENT_NAME = 'api.swagger.component'
     CONFIG_STORE_NAMES = ['swagger']

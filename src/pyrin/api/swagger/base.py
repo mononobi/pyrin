@@ -23,6 +23,8 @@ import pyrin.database.paging.services as paging_services
 import pyrin.configuration.services as config_services
 import pyrin.processor.response.status.services as status_services
 import pyrin.api.swagger.services as swagger_services
+import pyrin.globalization.locale.services as locale_services
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.core.enumerations import HTTPMethodEnum, ClientErrorResponseCodeEnum
@@ -554,7 +556,7 @@ class ExtendedSwagger(Swagger):
 
         params = self._get_parameters_section(swag)
         self._add_or_update_parameter(params,
-                                      current_app.request_class.LOCALE_PARAM_NAME,
+                                      locale_services.get_locale_key(),
                                       ParameterTypeEnum.STRING,
                                       ParameterLocationEnum.QUERY,
                                       required=False,
@@ -572,7 +574,7 @@ class ExtendedSwagger(Swagger):
 
         params = self._get_parameters_section(swag)
         self._add_or_update_parameter(params,
-                                      current_app.request_class.TIMEZONE_PARAM_NAME,
+                                      datetime_services.get_timezone_key(),
                                       ParameterTypeEnum.STRING,
                                       ParameterLocationEnum.QUERY,
                                       required=False,
