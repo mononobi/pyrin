@@ -205,7 +205,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                             second=FormatEnum.TWO_DIGIT,
                             hour12=False)
 
-    # a locale to be used to render data and time fields on list page.
+    # a locale to be used to render date and time fields on list page.
     # for example: 'en-US', 'fa' or ...
     # if not provided, the locale on client browser will be used.
     list_locale = None
@@ -282,13 +282,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # the fully qualified name of find api.
     FIND_ENDPOINT = 'pyrin.admin.api.find'
 
-    # a name to be used to return primary key column to client as a hidden column.
-    # this is required if the current admin page has any of get or remove permissions.
-    HIDDEN_PK_NAME = '_pk_'
-
-    # a param name to be used for inclusive search feature by client.
-    SEARCH_PARAM = '_query_'
-
     def __init__(self, *args, **options):
         """
         initializes an instance of AdminPage.
@@ -326,6 +319,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             self._paginator = self.paginator_class(self.FIND_ENDPOINT,
                                                    page_size=self._get_page_size(),
                                                    max_page_size=self._get_max_page_size())
+
+    def _get_hidden_pk_name(self):
+        """
+        gets hidden pk name from configs.
+
+        :rtype: str
+        """
+
+        return config_services.get_active('admin', 'hidden_pk_name')
+
+    def _get_search_param(self):
+        """
+        gets search param name from configs.
+
+        :rtype: str
+        """
+
+        return config_services.get_active('admin', 'search_param')
 
     def _get_column_title(self, name):
         """
@@ -617,7 +628,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         result = dict()
         list_fields = self._get_list_fields_to_column_map()
         for name, column in list_fields.items():
-            if column is not None and name != self.HIDDEN_PK_NAME:
+            if column is not None and name != self._get_hidden_pk_name():
                 result[name] = column
 
         if self.list_search_fields:
@@ -741,7 +752,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value)
 
-            if item == self.HIDDEN_PK_NAME:
+            if item == self._get_hidden_pk_name():
                 info.update(hidden=True)
             else:
                 extra_info = self._get_extra_list_field_info(item)
@@ -780,7 +791,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                                                         'supported for admin page.')
 
         primary_key = self._get_primary_keys()[0]
-        fields.append(primary_key.label(self.HIDDEN_PK_NAME))
+        fields.append(primary_key.label(self._get_hidden_pk_name()))
 
     @fast_cache
     def _get_list_temp_field_names(self):
@@ -957,7 +968,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         labeled_filters = self._get_list_search_fields_to_column_map()
-        search_text = filters.pop(self.SEARCH_PARAM, None)
+        search_text = filters.pop(self._get_search_param(), None)
         type_ = and_
         if self.list_search is True and search_text not in (None, ''):
             type_ = or_
@@ -1269,7 +1280,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         selectable_fields = self._get_selectable_fields()
         labels = []
         for item in selectable_fields:
-            if isinstance(item, Label) and item.key != self.HIDDEN_PK_NAME:
+            if isinstance(item, Label) and item.key != self._get_hidden_pk_name():
                 labels.append(item.key)
 
         return tuple(set(labels))
@@ -1286,7 +1297,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = []
         for item in list_fields:
             if isinstance(item, (InstrumentedAttribute, Label)) \
-                    and item.key != self.HIDDEN_PK_NAME:
+                    and item.key != self._get_hidden_pk_name():
                 results.append(item.key)
 
         return tuple(set(results))
@@ -1481,6 +1492,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['plural_name'] = self.get_plural_name()
         metadata['register_name'] = self.get_register_name()
         metadata['category'] = self.get_category()
+        metadata['configs'] = admin_services.get_configs()
         return metadata
 
     def get_entity(self):
@@ -1732,8 +1744,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['has_remove_permission'] = self.has_remove_permission()
         metadata['has_remove_all_permission'] = self.has_remove_all_permission()
         metadata['has_get_permission'] = self.has_get_permission()
-        metadata['pk_name'] = self.HIDDEN_PK_NAME
-        metadata['search_param'] = self.SEARCH_PARAM
         metadata['paged'] = self.list_paged
         metadata['page_size'] = self._get_page_size()
         metadata['max_page_size'] = self._get_max_page_size()

@@ -184,7 +184,9 @@ if is_enabled is True:
                        str page_size_key,
                        str ordering_key,
                        str locale_key,
-                       str timezone_key)
+                       str timezone_key,
+                       str search_param,
+                       str hidden_pk_name)
         :rtype: dict
         """
 

@@ -531,7 +531,9 @@ class AdminManager(Manager):
                        str page_size_key,
                        str ordering_key,
                        str locale_key,
-                       str timezone_key)
+                       str timezone_key,
+                       str search_param,
+                       str hidden_pk_name)
         :rtype: dict
         """
 
@@ -539,13 +541,16 @@ class AdminManager(Manager):
             return deepcopy(self._configs)
 
         panel_name = config_services.get_active('admin', 'panel_name')
+        search_param = config_services.get_active('admin', 'search_param')
+        hidden_pk_name = config_services.get_active('admin', 'hidden_pk_name')
         page_key, page_size_key = paging_services.get_paging_param_names()
         ordering_key = database_services.get_ordering_key()
         locale_key = current_app.request_class.LOCALE_PARAM_NAME
         timezone_key = current_app.request_class.TIMEZONE_PARAM_NAME
         result = dict(panel_name=panel_name, page_key=page_key,
                       page_size_key=page_size_key, ordering_key=ordering_key,
-                      locale_key=locale_key, timezone_key=timezone_key)
+                      locale_key=locale_key, timezone_key=timezone_key,
+                      search_param=search_param, hidden_pk_name=hidden_pk_name)
 
         self._configs = deepcopy(result)
         return result
