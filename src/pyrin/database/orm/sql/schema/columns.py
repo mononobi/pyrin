@@ -1308,7 +1308,7 @@ class TimeColumn(TypeMixin, CoreColumn):
                                 and if a time requires timezone to let remote
                                 timezones deal with it correctly, you should
                                 define a time column with timezone=False and
-                                another column to keep the timezone name for
+                                another column to keep the timezone `name` for
                                 this time. in most cases keeping the time with
                                 timezone offset is incorrect unless you know
                                 what you are doing.
