@@ -1301,8 +1301,17 @@ class TimeColumn(TypeMixin, CoreColumn):
                              as options to the column.
 
         :keyword bool timezone: specifies that this column is timezone aware.
-                                actually timezone has no meaning for a single
-                                time without a date so use it with cautious.
+                                actually timezone offset has no meaning for a
+                                single time without a date so use it with cautious.
+                                if a time is for a recurring item at the same
+                                time on any timezone it should have timezone=False.
+                                and if a time requires timezone to let remote
+                                timezones deal with it correctly, you should
+                                define a time column with timezone=False and
+                                another column to keep the timezone name for
+                                this time. in most cases keeping the time with
+                                timezone offset is incorrect unless you know
+                                what you are doing.
                                 defaults to False if not provided.
 
         :keyword callable | object default: a scalar, python callable or `ColumnElement`
