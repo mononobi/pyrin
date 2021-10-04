@@ -16,7 +16,7 @@ class DateTimeMixin(CoreCustomType):
     """
     datetime mixin class.
 
-    this is a helper class that adds ability to handle datetime
+    this is a helper class that adds the ability to handle datetime
     values correctly on sqlite backend.
     on other backends, it works as default.
     """
