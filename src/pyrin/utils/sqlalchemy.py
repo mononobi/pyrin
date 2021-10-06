@@ -6,7 +6,7 @@ utils sqlalchemy module.
 from sqlalchemy.sql import quoted_name
 from sqlalchemy.engine import result_tuple
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import inspect, Table, asc, desc, CheckConstraint
+from sqlalchemy import inspect, Table, asc, desc, func, CheckConstraint
 
 import pyrin.utils.datetime as datetime_utils
 import pyrin.utils.string as string_utils
@@ -269,6 +269,48 @@ def add_datetime_range_clause(clauses, column,
                                                                        **options)
 
     add_range_clause(clauses, column,
+                     value_lower, value_upper,
+                     include_equal_to_lower,
+                     include_equal_to_upper,
+                     **options)
+
+
+def add_string_range_clause(clauses, column, value_lower, value_upper,
+                            include_equal_to_lower=True,
+                            include_equal_to_upper=True,
+                            **options):
+    """
+    adds string range comparison into given clauses using specified inputs.
+
+    it coerces both values into string if they are not None.
+    it also converts both values and the value of database column into lowercase.
+
+    :param list clauses: clause list to add string range clause to it.
+    :param CoreColumn column: entity column to add string range clause for it.
+    :param object value_lower: lower bound of string range clause.
+    :param object value_upper: upper bound of string range clause.
+
+    :param include_equal_to_lower: specifies that lower value
+                                   should be considered in range.
+                                   defaults to True if not provided.
+
+    :param include_equal_to_upper: specifies that upper value
+                                   should be considered in range.
+                                   defaults to True if not provided.
+    """
+
+    if value_lower is not None:
+        value_lower = str(value_lower).lower()
+
+    if value_upper is not None:
+        value_upper = str(value_upper).lower()
+
+    # swapping values in case of user mistake.
+    if value_lower is not None and value_upper is not None:
+        if value_lower > value_upper:
+            value_lower, value_upper = value_upper, value_lower
+
+    add_range_clause(clauses, func.lower(column),
                      value_lower, value_upper,
                      include_equal_to_lower,
                      include_equal_to_upper,

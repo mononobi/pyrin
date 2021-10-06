@@ -95,8 +95,8 @@ def is_range_supported_column(column):
     """
     gets a value indicating that range operations are supported for given column.
 
-    columns that are primary keys or their python type is not
-    in `RANGE_SUPPORTED_TYPES`, do not support range operations.
+    columns which their python type is not in `RANGE_SUPPORTED_TYPES`,
+    do not support range operations.
 
     :param sqlalchemy.orm.attributes.InstrumentedAttribute column: column to be checked
                                                                    for range support.

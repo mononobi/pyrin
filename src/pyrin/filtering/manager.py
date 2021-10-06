@@ -188,6 +188,9 @@ class FilteringManager(Manager):
                 if python_type is datetime:
                     sqlalchemy_utils.add_datetime_range_clause(expressions, column,
                                                                from_value, to_value)
+                elif python_type is str:
+                    sqlalchemy_utils.add_string_range_clause(expressions, column,
+                                                             from_value, to_value)
                 else:
                     sqlalchemy_utils.add_range_clause(expressions, column,
                                                       from_value, to_value)
@@ -326,8 +329,8 @@ class FilteringManager(Manager):
         """
         gets a value indicating that range operations are supported for given column.
 
-        columns that are primary keys or their python type is not
-        in `RANGE_SUPPORTED_TYPES`, do not support range operations.
+        columns which their python type is not in `RANGE_SUPPORTED_TYPES`,
+        do not support range operations.
 
         :param sqlalchemy.orm.attributes.InstrumentedAttribute column: column to be checked
                                                                        for range support.
