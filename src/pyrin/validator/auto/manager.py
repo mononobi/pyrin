@@ -214,11 +214,8 @@ class ValidatorAutoManager(Manager, HookMixin):
         :rtype: AbstractValidatorBase
         """
 
-        find_validator = validator_services.try_get_validator(domain, field.key)
-        if find_validator is None:
-            find_validator = self._get_type_validator(domain, field, for_find=True)
-
-        return find_validator
+        return self._get_type_validator(domain, field, for_find=True,
+                                        allow_list_for_find=True)
 
     def _get_find_range_validators(self, domain, field, **options):
         """
