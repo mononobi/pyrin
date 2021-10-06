@@ -24,8 +24,8 @@ import pyrin.utils.misc as misc_utils
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
 
 from pyrin.core.structs import Manager
-from pyrin.filtering import FilteringPackage
 from pyrin.core.globals import LIST_TYPES
+from pyrin.filtering import FilteringPackage
 
 
 class FilteringManager(Manager):
