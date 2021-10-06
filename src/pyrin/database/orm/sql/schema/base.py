@@ -189,10 +189,10 @@ class CoreColumn(Column, CoreColumnOperators):
                                        value if not provided.
                                        note that find range validators are constructed with
                                        names `from_*` and `to_*` for given column if it
-                                       is a number or any variant of date and time.
-                                       if the type of column is anything else or it is a
-                                       primary key, no range validators will be registered
-                                       for it and this value will be ignored.
+                                       is a number, string or any variant of date and time.
+                                       if the type of column is anything else no range
+                                       validator will be registered for it and this value
+                                       will be ignored.
 
         :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
