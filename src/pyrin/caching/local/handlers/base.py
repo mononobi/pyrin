@@ -857,7 +857,7 @@ class ComplexLocalCacheBase(ExtendedLocalCacheBase, AbstractComplexLocalCache):
                 cache_name=self.get_name(),
                 shard_name=shard_name,
                 version=version).order_by(
-                CacheItemEntity.created_on.desc())
+                CacheItemEntity.created_at.desc())
 
             if self.limit != NO_LIMIT:
                 expression = expression.limit(self.limit)

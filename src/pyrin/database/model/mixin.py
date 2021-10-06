@@ -2449,10 +2449,10 @@ class CreateHistoryMixin:
     """
     create history mixin class.
 
-    this class adds `created_on` column into its subclasses.
+    this class adds `created_at` column into its subclasses.
     """
 
-    created_on = TimeStampColumn(name='created_on', nullable=False,
+    created_at = TimeStampColumn(name='created_at', nullable=False,
                                  default=datetime_services.now, allow_write=False)
 
 
@@ -2460,10 +2460,10 @@ class UpdateHistoryMixin:
     """
     update history mixin class.
 
-    this class adds `modified_on` column into its subclasses.
+    this class adds `modified_at` column into its subclasses.
     """
 
-    modified_on = TimeStampColumn(name='modified_on', nullable=True,
+    modified_at = TimeStampColumn(name='modified_at', nullable=True,
                                   onupdate=datetime_services.now, allow_write=False)
 
 
@@ -2471,6 +2471,6 @@ class HistoryMixin(CreateHistoryMixin, UpdateHistoryMixin):
     """
     history mixin class.
 
-    this class adds `created_on` and `modified_on` columns into its subclasses.
+    this class adds `created_at` and `modified_at` columns into its subclasses.
     """
     pass

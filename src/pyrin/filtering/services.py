@@ -67,8 +67,8 @@ def get_range_filter_names(name):
     """
     gets range filter names for given name.
 
-    it returns a tuple of two items. if name is `created_on`, then
-    it returns (`from_created_on`, `to_created_on`) as range filters.
+    it returns a tuple of two items. if name is `created_at`, then
+    it returns (`from_created_at`, `to_created_at`) as range filters.
 
     :param str name: column name.
 
