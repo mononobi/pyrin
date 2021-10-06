@@ -574,7 +574,7 @@ def validate_for_find(domain, data, **options):
     :keyword bool ignore_errors: specifies that each input that is not valid
                                  must be ignored and removed from inputs.
                                  otherwise it raises validation error.
-                                 defaults to False if not provided.
+                                 defaults to True if not provided.
 
     :raises InvalidDataForValidationError: invalid data for validation error.
     :raises ValidatorDomainNotFoundError: validator domain not found error.
