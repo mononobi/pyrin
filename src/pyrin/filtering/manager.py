@@ -12,6 +12,8 @@ there are some rules that need to be noticed:
 4. filtering on range values will be performed using `>=` and `<=`.
 """
 
+import re
+
 from decimal import Decimal
 from datetime import datetime, date, time
 
@@ -40,6 +42,10 @@ class FilteringManager(Manager):
     # for example range filtering or range validation.
     FROM_KEYWORD_PREFIX = 'from_'
     TO_KEYWORD_PREFIX = 'to_'
+
+    # these regexes will be used to remove prefixes from filter names.
+    FROM_REGEX = re.compile(f'^{FROM_KEYWORD_PREFIX}')
+    TO_REGEX = re.compile(f'^{TO_KEYWORD_PREFIX}')
 
     def _is_from_range_filter(self, name):
         """
@@ -94,10 +100,10 @@ class FilteringManager(Manager):
         """
 
         if self._is_from_range_filter(name):
-            return name.lstrip(self.FROM_KEYWORD_PREFIX)
+            return re.sub(self.FROM_REGEX, '', name)
 
         elif self._is_to_range_filter(name):
-            return name.lstrip(self.TO_KEYWORD_PREFIX)
+            return re.sub(self.TO_REGEX, '', name)
 
         return name
 
