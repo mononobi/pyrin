@@ -10,7 +10,7 @@ from datetime import datetime, date, time
 import pyrin.admin.services as admin_services
 import pyrin.validator.services as validator_services
 import pyrin.database.model.services as model_services
-import pyrin.utilities.range.services as range_services
+import pyrin.filtering.services as filtering_services
 
 from pyrin.core.mixin import HookMixin
 from pyrin.core.structs import Manager, Context
@@ -240,10 +240,10 @@ class ValidatorAutoManager(Manager, HookMixin):
         :rtype: tuple
         """
 
-        if not range_services.is_range_supported_column(field):
+        if not filtering_services.is_range_supported_column(field):
             return tuple()
 
-        from_name, to_name = range_services.get_range_filter_names(field.key)
+        from_name, to_name = filtering_services.get_range_filter_names(field.key)
         from_validator = self._get_type_validator(domain, field, name=from_name,
                                                   for_find=True, from_datetime=True,
                                                   allow_list_for_find=False)
