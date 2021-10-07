@@ -78,7 +78,7 @@ setup(
     author_email='mohamadnobakht@gmail.com',
     maintainer='Mohamad Nobakht',
     maintainer_email='mohamadnobakht@gmail.com',
-    description='A rich platform-independent application framework '
+    description='A rich, fast, performant and easy to use application framework '
                 'to build apps using Flask on top of it.',
     long_description=README,
     long_description_content_type='text/markdown',
