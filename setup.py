@@ -78,12 +78,12 @@ setup(
     author_email='mohamadnobakht@gmail.com',
     maintainer='Mohamad Nobakht',
     maintainer_email='mohamadnobakht@gmail.com',
-    description='A rich, fast, performant and easy to use application framework '
-                'to build apps using Flask on top of it.',
+    description='A rich, fast, performant and easy to use application '
+                'framework to build apps using Flask on top of it.',
     long_description=README,
     long_description_content_type='text/markdown',
-    keywords=('flask python sqlalchemy pyrin core alembic multi-database '
-              'application-framework rest-api dependency-injection ioc'),
+    keywords=('flask python sqlalchemy pyrin core alembic multi-database swagger-ui'
+              'application-framework rest-api dependency-injection ioc admin-panel'),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
