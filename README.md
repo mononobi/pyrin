@@ -1,6 +1,6 @@
 # Pyrin
 
-A rich platform-independent application framework to build apps using Flask on top of it.
+A rich, fast, performant and easy to use application framework to build apps using Flask on top of it.
 
 Pyrin is an application framework built on top of Flask micro-framework to make 
 life easier for developers who want to develop an enterprise application 
