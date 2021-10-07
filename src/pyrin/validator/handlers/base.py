@@ -806,19 +806,36 @@ class ValidatorBase(AbstractValidatorBase):
         """
 
         create_required = None
+        update_required = None
+        default = None
         if self.field is not None:
             is_auto_increment = self.field.autoincrement is True
             has_default = self.field.default is not None or \
                 self.field.server_default is not None
+            has_update_default = self.field.onupdate is not None or \
+                self.field.server_onupdate is not None
 
             create_default = is_auto_increment or has_default
+            update_default = is_auto_increment or has_update_default
             create_required = not self.nullable and not create_default
+            update_required = not self.nullable and not update_default
+
+            if for_update is True and self.field.onupdate is not None \
+                    and self.field.onupdate.is_scalar:
+                default = self.field.onupdate.arg
+            elif for_update is False and self.field.default is not None \
+                    and self.field.default.is_scalar:
+                default = self.field.default.arg
 
         info = dict()
         if for_update is False and create_required is not None:
             info.update(required=create_required)
-        elif for_update is True:
-            info.update(required=False)
+
+        elif for_update is True and update_required is not None:
+            info.update(required=update_required)
+
+        if default is not None:
+            info.update(default=default)
 
         if self.form_field_type is not None:
             info.update(form_field_type=self.form_field_type)
