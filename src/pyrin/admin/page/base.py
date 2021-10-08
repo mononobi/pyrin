@@ -1114,14 +1114,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         paginator = session_services.get_request_context(RequestContextEnum.PAGINATOR)
         return self._schema.filter(results, paginator=paginator)
 
-    def _has_single_primary_key(self):
+    @classmethod
+    def _has_single_primary_key(cls):
         """
         gets a value indicating that the related entity has a single primary key.
 
         :rtype: bool
         """
 
-        return len(self.entity.primary_key_columns) == 1
+        return len(cls.entity.primary_key_columns) == 1
 
     @classmethod
     def _validate_extra_fields(cls, data):
@@ -1164,12 +1165,22 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         creates an entity with given data.
 
+        it's preferred for this method to return the pk of created entity
+        if it is not a composite primary key. this lets the client to fill
+        fk fields automatically after create.
+
         :keyword **data: all data to be passed to create method.
+
+        :rtype: object
         """
 
         entity = cls.entity(**data)
         cls._process_created_entity(entity, **data)
         entity.save()
+        if cls._has_single_primary_key():
+            return entity.primary_key()
+
+        return None
 
     @classmethod
     def _process_updated_entity(cls, entity, **data):
@@ -1582,15 +1593,24 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         creates an entity with given data.
 
+        it's preferred for this method to return the pk of created entity
+        if it is not a composite primary key. this lets the client to fill
+        fk fields automatically after create.
+
         :keyword **data: all data to be passed to related create service.
+
+        :rtype: object
         """
 
         validator_services.validate_dict(cls.entity, data)
         cls._validate_extra_fields(data)
         if cls.create_service is not None:
-            cls.create_service(**data)
+            result = cls.create_service(**data)
+            if cls._has_single_primary_key():
+                return result
+            return None
         else:
-            cls._create(**data)
+            return cls._create(**data)
 
     @classmethod
     def update(cls, pk, **data):

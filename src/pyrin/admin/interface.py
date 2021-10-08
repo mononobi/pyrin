@@ -108,9 +108,15 @@ class AbstractAdminPage(CoreObject, metaclass=AdminPageSingletonMeta):
         """
         creates an entity with given data.
 
+        it's preferred for this method to return the pk of created entity
+        if it is not a composite primary key. this lets the client to fill
+        fk fields automatically after create.
+
         :keyword **data: all data to be passed to related create service.
 
         :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: object
         """
 
         raise CoreNotImplementedError()

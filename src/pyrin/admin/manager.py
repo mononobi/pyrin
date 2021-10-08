@@ -313,6 +313,8 @@ class AdminManager(Manager):
         :keyword **data: all data to be passed to related admin page for data creation.
 
         :raises AdminOperationNotAllowedError: admin operation not allowed error.
+
+        :rtype: object
         """
 
         admin = self._get_admin_page(register_name)

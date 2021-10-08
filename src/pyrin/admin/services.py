@@ -133,6 +133,8 @@ def create(register_name, **data):
     :keyword **data: all data to be passed to related admin page for data creation.
 
     :raises AdminOperationNotAllowedError: admin operation not allowed error.
+
+    :rtype: object
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).create(register_name, **data)

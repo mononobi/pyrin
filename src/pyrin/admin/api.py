@@ -59,6 +59,8 @@ if is_enabled is True:
         :keyword **data: all data to be passed to related admin page for data creation.
 
         :raises AdminOperationNotAllowedError: admin operation not allowed error.
+
+        :rtype: object
         """
 
         return admin_services.create(register_name, **data)
