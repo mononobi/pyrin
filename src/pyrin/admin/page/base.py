@@ -648,7 +648,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param InstrumentedAttribute column: column to be checked.
 
         :returns: dict(bool is_pk,
-                       str pk_register_name)
+                       str pk_register_name,
+                       str pk_name)
         :rtype: dict
         """
 
@@ -661,7 +662,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         if is_pk is True:
             admin_page = admin_services.try_get_admin_page(column.class_)
             if admin_page is not None and admin_page.has_get_permission() is True:
-                result.update(is_pk=is_pk, pk_register_name=admin_page.get_register_name())
+                result.update(is_pk=is_pk,
+                              pk_register_name=admin_page.get_register_name(),
+                              pk_name=admin_page.get_singular_name())
 
         return result
 
@@ -672,7 +675,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param InstrumentedAttribute column: column to be checked.
 
         :returns: dict(bool is_fk,
-                       str fk_register_name)
+                       str fk_register_name,
+                       str fk_name)
         :rtype: dict
         """
 
@@ -693,7 +697,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                     admin_page = admin_services.try_get_admin_page(entity)
                     if admin_page is not None and admin_page.has_get_permission() is True:
                         result.update(is_fk=is_fk,
-                                      fk_register_name=admin_page.get_register_name())
+                                      fk_register_name=admin_page.get_register_name(),
+                                      fk_name=admin_page.get_singular_name())
 
         return result
 
@@ -1552,6 +1557,15 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self.plural_name or string_utils.pluralize(self.name)
+
+    def get_singular_name(self):
+        """
+        gets the singular name of this admin page.
+
+        :rtype: str
+        """
+
+        return self.name
 
     def get(self, pk):
         """
