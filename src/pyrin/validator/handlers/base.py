@@ -821,9 +821,11 @@ class ValidatorBase(AbstractValidatorBase):
             update_required = not self.nullable and not update_default
 
             if for_update is True and self.field.onupdate is not None \
+                    and not self.field.onupdate.is_sequence \
                     and self.field.onupdate.is_scalar:
                 default = self.field.onupdate.arg
             elif for_update is False and self.field.default is not None \
+                    and not self.field.default.is_sequence \
                     and self.field.default.is_scalar:
                 default = self.field.default.arg
 
