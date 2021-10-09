@@ -12,14 +12,18 @@ import sqlalchemy.dialects.postgresql as pg_types
 import sqlalchemy.dialects.sybase.base as sybase_types
 
 from sqlalchemy.exc import ArgumentError
-from sqlalchemy import Column, util, ARRAY
 from sqlalchemy.sql.type_api import Variant
+from sqlalchemy import Column, util, ARRAY, BigInteger, SmallInteger, Integer
+
+import pyrin.utils.misc as misc_utils
 
 from pyrin.core.enumerations import CoreEnum
 from pyrin.core.globals import LIST_TYPES
 from pyrin.utils.sqlalchemy import check_constraint, range_check_constraint
 from pyrin.caching.decorators import cached_property
 from pyrin.database.orm.sql.operators.base import CoreColumnOperators
+from pyrin.database.orm.sql.schema.globals import BIG_INTEGER_MAX, BIG_INTEGER_MIN, \
+    INTEGER_MAX, INTEGER_MIN, SMALL_INTEGER_MAX, SMALL_INTEGER_MIN
 from pyrin.database.orm.sql.schema.exceptions import InvalidCheckConstraintError, \
     CheckConstraintConflictError, InvalidColumnAccessLevelError
 
@@ -197,6 +201,13 @@ class CoreColumn(Column, CoreColumnOperators):
         :raises InvalidColumnAccessLevelError: invalid column access level error.
         """
 
+        args = list(args)
+        name, type_ = self._extract_name_and_type(args, kwargs)
+        if type_ is not None:
+            self._set_required_info(type_, kwargs)
+
+        kwargs.update(name=name, type_=type_)
+
         self.allow_read = kwargs.pop('allow_read', True)
         self.allow_write = kwargs.pop('allow_write', True)
         self.min_value = kwargs.pop('min_value', None)
@@ -226,6 +237,26 @@ class CoreColumn(Column, CoreColumnOperators):
             raise InvalidColumnAccessLevelError('Column [{instance}] can not be '
                                                 'writable while it is not readable.'
                                                 .format(instance=self))
+
+    def _set_required_info(self, type_, kwargs):
+        """
+        sets the required info for given column type.
+
+        :param TypeEngine type_: column type.
+        :param dict kwargs: kwargs to set required info in it in-place.
+        """
+
+        if misc_utils.is_subclass_or_instance(type_, BigInteger):
+            kwargs.setdefault('min_value', BIG_INTEGER_MIN)
+            kwargs.setdefault('max_value', BIG_INTEGER_MAX)
+
+        elif misc_utils.is_subclass_or_instance(type_, SmallInteger):
+            kwargs.setdefault('min_value', SMALL_INTEGER_MIN)
+            kwargs.setdefault('max_value', SMALL_INTEGER_MAX)
+
+        elif misc_utils.is_subclass_or_instance(type_, Integer):
+            kwargs.setdefault('min_value', INTEGER_MIN)
+            kwargs.setdefault('max_value', INTEGER_MAX)
 
     def _get_schema_items(self):
         """
@@ -337,8 +368,8 @@ class CoreColumn(Column, CoreColumnOperators):
 
         :raises ArgumentError: argument error.
 
-        :returns: tuple[str name, CoreColumn type]
-        :rtype: tuple[str, CoreColumn]
+        :returns: tuple[str name, TypeEngine type]
+        :rtype: tuple[str, TypeEngine]
         """
 
         name = kwargs.pop('name', None)

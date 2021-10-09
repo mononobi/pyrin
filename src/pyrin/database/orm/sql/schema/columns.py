@@ -11,9 +11,10 @@ from sqlalchemy import BigInteger, Integer, ForeignKey, String, Unicode, Boolean
 import pyrin.utils.misc as misc_utils
 
 from pyrin.database.enumerations import DialectEnum
-from pyrin.database.orm.types.custom import CoreDateTime, CoreTimeStamp
 from pyrin.database.orm.sql.schema.base import CoreColumn
-from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin, GUIDColumnMixin, TypeMixin
+from pyrin.database.orm.types.custom import CoreDateTime, CoreTimeStamp
+from pyrin.database.orm.sql.schema.mixin import SequenceColumnMixin, GUIDColumnMixin, \
+    TypeMixin
 from pyrin.database.orm.sql.schema.exceptions import AutoPKColumnTypeIsInvalidError, \
     InvalidFKColumnReferenceTypeError, StringColumnTypeIsInvalidError, \
     TextColumnTypeIsInvalidError
