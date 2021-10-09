@@ -1,0 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+{PACKAGE_TITLE} admin module.
+"""
+
+from pyrin.admin.decorators import admin
+from pyrin.admin.page.base import AdminPage
