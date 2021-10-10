@@ -210,6 +210,12 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # if not provided, the locale on client browser will be used.
     list_locale = None
 
+    # a value to be used as max body height for table in list view.
+    # for example: '800px'
+    # if not set, the client will automatically choose the best height
+    # based on the screen resolution.
+    list_max_body_height = None
+
     # ===================== SERVICE CONFIGS ===================== #
 
     # a service to be used for create operation.
@@ -1868,6 +1874,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['date_format'] = self.list_date_format
         metadata['time_format'] = self.list_time_format
         metadata['locale'] = self.list_locale
+        metadata['max_body_height'] = self.list_max_body_height
         return metadata
 
     @fast_cache
