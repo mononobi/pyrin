@@ -742,9 +742,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets datasource info to be used for list page.
 
-        :returns: tuple[dict(str title: field title,
-                             str field: field name to be used for data binding)]
-
         :rtype: tuple[dict]
         """
 
