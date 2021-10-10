@@ -89,7 +89,7 @@ class AdminManager(Manager):
         result[FormFieldTypeEnum.UUID] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.IPV4] = ListFieldTypeEnum.STRING
         result[FormFieldTypeEnum.IPV6] = ListFieldTypeEnum.STRING
-        result[FormFieldTypeEnum.OBJECT] = ListFieldTypeEnum.STRING
+        result[FormFieldTypeEnum.OBJECT] = ListFieldTypeEnum.OBJECT
         return result
 
     def _load_base_url(self):

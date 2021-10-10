@@ -18,6 +18,7 @@ class ListFieldTypeEnum(CoreEnum):
     TIME = 'time'
     STRING = 'string'
     CURRENCY = 'currency'
+    OBJECT = 'object'
 
 
 class FormFieldTypeEnum(CoreEnum):
