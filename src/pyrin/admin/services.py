@@ -252,6 +252,24 @@ def get_update_metadata(register_name):
     return get_component(AdminPackage.COMPONENT_NAME).get_update_metadata(register_name)
 
 
+def register_name_for(entity):
+    """
+    gets the admin page register name for given entity class.
+
+    it raises an error if the given entity does not have an admin page.
+
+    :param type[pyrin.database.model.base.BaseEntity] entity: the entity class of
+                                                              admin page to get its
+                                                              register name.
+
+    :raises AdminPageNotFoundError: admin page not found error.
+
+    :rtype: str
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).register_name_for(entity)
+
+
 def url_for(register_name):
     """
     gets the base url for given admin page.

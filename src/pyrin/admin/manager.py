@@ -473,6 +473,28 @@ class AdminManager(Manager):
         admin = self._get_admin_page(register_name)
         return admin.get_update_metadata()
 
+    def register_name_for(self, entity):
+        """
+        gets the admin page register name for given entity class.
+
+        it raises an error if the given entity does not have an admin page.
+
+        :param type[pyrin.database.model.base.BaseEntity] entity: the entity class of
+                                                                  admin page to get its
+                                                                  register name.
+
+        :raises AdminPageNotFoundError: admin page not found error.
+
+        :rtype: str
+        """
+
+        admin = self.try_get_admin_page(entity)
+        if admin is None:
+            raise AdminPageNotFoundError(_('Entity [{entity}] does not have an admin page.')
+                                         .format(entity=entity))
+
+        return admin.get_register_name()
+
     def url_for(self, register_name):
         """
         gets the base url for given admin page.
