@@ -53,3 +53,22 @@ class MonthFormatEnum(CoreEnum):
     LONG = 'long'
     SHORT = 'short'
     NARROW = 'narrow'
+
+
+class ButtonTypeEnum(CoreEnum):
+    """
+    button type enum.
+    """
+
+    CONTAINED = 'contained'
+    OUTLINED = 'outlined'
+    TEXT = 'text'
+
+
+class LinkTypeEnum(CoreEnum):
+    """
+    link type enum.
+    """
+
+    BUTTON = 'button'
+    LINK = 'link'

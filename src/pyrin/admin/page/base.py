@@ -37,7 +37,7 @@ from pyrin.logging.contexts import suppress
 from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.validator.exceptions import ValidationError
 from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
-    PaginationPositionEnum, FormatEnum, MonthFormatEnum
+    PaginationPositionEnum, FormatEnum, MonthFormatEnum, ButtonTypeEnum, LinkTypeEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
@@ -748,11 +748,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = []
         all_fields = self._get_list_field_names()
         sortable_fields = self._get_sortable_fields()
+        link_methods = self.get_link_methods()
         for item in all_fields:
             info = dict(field=item,
                         title=self._get_column_title(item),
                         sorting=item in sortable_fields,
-                        emptyValue=self.list_null_value)
+                        emptyValue=self.list_null_value,
+                        is_link=item in link_methods)
 
             if item == self._get_hidden_pk_name():
                 info.update(hidden=True)
@@ -1492,6 +1494,61 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return result
 
+    def _get_link_info(self, title, register_name, type_=None,
+                       button_type=None, new_tab=True, **filters):
+        """
+        gets the required link info for given inputs.
+
+        the result of this method must be returned by admin methods
+        which want to render a link on client list view.
+
+        :param str title: the title of the link.
+
+        :param str register_name: the register name of the admin class to
+                                  view its list page after clicking on this link.
+
+        :param str type_: the link type.
+                          if not provided defaults to `button`.
+        :enum type_:
+            BUTTON = 'button'
+            LINK = 'link'
+
+        :param str button_type: the link button type.
+                                this is only used if the `type_` is `button`.
+                                defaults to `outlined` if not provided.
+        :enum button_type:
+            CONTAINED = 'contained'
+            OUTLINED = 'outlined'
+            TEXT = 'text'
+
+        :param bool new_tab: open this link in a new tab.
+                             defaults to True if not provided.
+
+        :param **filters: any query strings that must be passed to the related
+                          page after clicking on this link.
+
+        :returns: dict(str title,
+                       str register_name,
+                       str type,
+                       str button_type,
+                       bool new_tab,
+                       dict filters)
+        :rtype: dict
+        """
+
+        if type_ not in LinkTypeEnum:
+            type_ = LinkTypeEnum.BUTTON
+
+        if button_type not in ButtonTypeEnum:
+            button_type = ButtonTypeEnum.OUTLINED
+
+        return dict(title=title,
+                    register_name=register_name,
+                    type=type_,
+                    button_type=button_type,
+                    new_tab=new_tab,
+                    filters=filters)
+
     @fast_cache
     def _get_common_metadata(self):
         """
@@ -1745,6 +1802,23 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self.remove_all_permission
+
+    @fast_cache
+    def get_link_methods(self):
+        """
+        gets all method names which should render a link on client list view.
+
+        :rtype: tuple[str]
+        """
+
+        links = []
+        for name in self.method_names:
+            method = getattr(self, name)
+            is_link = getattr(method, 'is_link', False)
+            if is_link is True:
+                links.append(name)
+
+        return tuple(links)
 
     @fast_cache
     def get_main_metadata(self):
