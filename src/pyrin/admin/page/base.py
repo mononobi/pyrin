@@ -577,6 +577,23 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return None
 
     @fast_cache
+    def _get_link_methods(self):
+        """
+        gets all method names which should render a link on client list view.
+
+        :rtype: tuple[str]
+        """
+
+        links = []
+        for name in self.method_names:
+            method = getattr(self, name)
+            is_link = getattr(method, 'is_link', False)
+            if is_link is True:
+                links.append(name)
+
+        return tuple(links)
+
+    @fast_cache
     def _get_list_fields_to_column_map(self):
         """
         gets a dict of all list field names and their related columns.
@@ -754,7 +771,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         results = []
         all_fields = self._get_list_field_names()
         sortable_fields = self._get_sortable_fields()
-        link_methods = self.get_link_methods()
+        link_methods = self._get_link_methods()
         for item in all_fields:
             info = dict(field=item,
                         title=self._get_column_title(item),
@@ -1808,23 +1825,6 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return self.remove_all_permission
-
-    @fast_cache
-    def get_link_methods(self):
-        """
-        gets all method names which should render a link on client list view.
-
-        :rtype: tuple[str]
-        """
-
-        links = []
-        for name in self.method_names:
-            method = getattr(self, name)
-            is_link = getattr(method, 'is_link', False)
-            if is_link is True:
-                links.append(name)
-
-        return tuple(links)
 
     @fast_cache
     def get_main_metadata(self):
