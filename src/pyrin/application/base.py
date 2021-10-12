@@ -612,12 +612,22 @@ class Application(Flask, HookMixin, SignalMixin,
         if self.is_scripting_mode() is False:
             self._prepare_runtime_data()
 
-        # we should not register signal handlers in development
-        # environment or when debug mode is True.
+        if self._should_register_signal_handlers() is True:
+            self._register_signal_handlers()
+
+    def _should_register_signal_handlers(self):
+        """
+        gets a value indicating that signal handlers must be registered.
+
+        we should not register signal handlers in development
+        environment or when debug mode is True.
+
+        :rtype: bool
+        """
+
         environment = config_services.get_active('environment', 'env')
         debug = config_services.get_active('environment', 'debug')
-        if not debug and environment != 'development':
-            self._register_signal_handlers()
+        return not debug and environment != 'development'
 
     def _resolve_required_paths(self, **options):
         """
