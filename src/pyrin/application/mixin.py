@@ -22,12 +22,12 @@ class SignalMixin(CoreObject):
     note that not all operating systems support signals, so this will work on some of them.
     """
 
-    def __init__(self, **options):
+    def _register_signal_handlers(self):
         """
-        initializes an instance of SignalMixin.
-        """
+        registers required signal handlers.
 
-        super().__init__()
+        this method must be called by subclasses.
+        """
 
         # handling all signals that their default action is `terminate`,
         # to log if something goes wrong.
@@ -57,7 +57,7 @@ class SignalMixin(CoreObject):
         logs the caught termination signal and terminates the application.
 
         :param int signal_number: signal number that caused termination.
-        :param int | FrameType frame: interrupted stack frame.
+        :param int | types.FrameType frame: interrupted stack frame.
         """
 
         message = 'A TERMINATION SIGNAL CAUGHT! signal [{signal_number}] ' \
