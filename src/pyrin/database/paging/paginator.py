@@ -15,6 +15,7 @@ import pyrin.security.session.services as session_services
 
 from pyrin.core.structs import CoreObject
 from pyrin.core.exceptions import CoreNotImplementedError
+from pyrin.database.orm.sql.schema.globals import BIG_INTEGER_MAX
 from pyrin.database.paging.exceptions import PageSizeLimitError, TotalCountIsAlreadySetError
 
 
@@ -356,6 +357,9 @@ class SimplePaginator(PaginatorBase):
         if page is None or not isinstance(page, int) or page < 1:
             page = 1
 
+        if page > BIG_INTEGER_MAX:
+            page = BIG_INTEGER_MAX
+
         if page_size is None or not isinstance(page_size, int) or page_size < 1:
             page_size = self._page_size
         elif page_size > self._max_page_size:
@@ -366,6 +370,9 @@ class SimplePaginator(PaginatorBase):
         self._limit = page_size + 2
         offset = page - 1
         extra_offset = offset * page_size
+        if extra_offset > BIG_INTEGER_MAX:
+            extra_offset = BIG_INTEGER_MAX
+
         if extra_offset > 0:
             # we decrease offset by 1 to be able to detect if there is a previous page.
             # the extra item will not be returned to client.
