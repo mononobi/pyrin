@@ -772,12 +772,14 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         all_fields = self._get_list_field_names()
         sortable_fields = self._get_sortable_fields()
         link_methods = self._get_link_methods()
+        hidden_pk_name = self._get_hidden_pk_name()
         for item in all_fields:
             info = dict(field=item,
                         title=self._get_column_title(item),
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value,
-                        is_link=item in link_methods)
+                        is_link=item in link_methods,
+                        export=item not in link_methods and item != hidden_pk_name)
 
             if item == self._get_hidden_pk_name():
                 info.update(hidden=True)
