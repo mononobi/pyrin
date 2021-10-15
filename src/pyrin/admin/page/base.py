@@ -781,7 +781,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                         is_link=item in link_methods,
                         export=item not in link_methods and item != hidden_pk_name)
 
-            if item == self._get_hidden_pk_name():
+            if item == hidden_pk_name:
                 info.update(hidden=True)
             else:
                 extra_info = self._get_extra_list_field_info(item)
