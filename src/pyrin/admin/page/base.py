@@ -793,6 +793,21 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         return tuple(results)
 
     @fast_cache
+    def _get_list_datasource_info_dict(self):
+        """
+        gets datasource info to be used for list page as a dict.
+
+        :rtype: dict
+        """
+
+        result = dict()
+        fields = self._get_list_datasource_info()
+        for item in fields:
+            result[item.get('field')] = item
+
+        return result
+
+    @fast_cache
     def _get_primary_keys(self):
         """
         gets all primary key attributes of this admin page's related entity.
@@ -1853,6 +1868,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata = dict()
         metadata.update(self._get_common_metadata())
         metadata['datasource_info'] = self._get_list_datasource_info()
+        metadata['datasource_info_dict'] = self._get_list_datasource_info_dict()
+        metadata['field_names'] = self._get_list_field_names()
         metadata['sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
