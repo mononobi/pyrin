@@ -37,7 +37,8 @@ from pyrin.logging.contexts import suppress
 from pyrin.security.session.enumerations import RequestContextEnum
 from pyrin.validator.exceptions import ValidationError
 from pyrin.admin.page.enumerations import TableTypeEnum, PaginationTypeEnum, \
-    PaginationPositionEnum, FormatEnum, MonthFormatEnum, ButtonTypeEnum, LinkTypeEnum
+    PaginationPositionEnum, FormatEnum, MonthFormatEnum, ButtonTypeEnum, \
+    LinkTypeEnum, HourCycleEnum
 from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequiredError, \
     InvalidMethodNameError, InvalidAdminEntityTypeError, AdminNameRequiredError, \
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
@@ -192,7 +193,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                                 hour=FormatEnum.TWO_DIGIT,
                                 minute=FormatEnum.TWO_DIGIT,
                                 second=FormatEnum.TWO_DIGIT,
-                                hour12=False)
+                                hourCycle=HourCycleEnum.H23)
 
     # format to render date fields on list page.
     list_date_format = dict(year=FormatEnum.NUMERIC,
@@ -203,7 +204,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_time_format = dict(hour=FormatEnum.TWO_DIGIT,
                             minute=FormatEnum.TWO_DIGIT,
                             second=FormatEnum.TWO_DIGIT,
-                            hour12=False)
+                            hourCycle=HourCycleEnum.H23)
 
     # a locale to be used to render date and time fields on list page.
     # for example: 'en-US', 'fa' or ...

@@ -55,6 +55,17 @@ class MonthFormatEnum(CoreEnum):
     NARROW = 'narrow'
 
 
+class HourCycleEnum(CoreEnum):
+    """
+    hour cycle enum.
+    """
+
+    H23 = 'h23'
+    H24 = 'h24'
+    H11 = 'h11'
+    H12 = 'h12'
+
+
 class ButtonTypeEnum(CoreEnum):
     """
     button type enum.
