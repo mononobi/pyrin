@@ -174,7 +174,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_search = True
 
     # a number in milliseconds to be used as debounce interval in client search box.
-    list_search_debounce_interval = 800
+    # note that if you set it to lower numbers, it will result in a service call
+    # for each key stroke in search box.
+    list_search_debounce_interval = 700
 
     # extra columns to let user filter by their value in list view.
     # it must be a column attribute or a labeled column.
