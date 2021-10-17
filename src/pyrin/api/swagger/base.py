@@ -1086,7 +1086,7 @@ class ExtendedSwagger(Swagger):
         gets api specs for given url rules.
 
         :param list[pyrin.api.router.handlers.base.RouteBase] rules: list of url rules.
-        :param list[str] ignore_verbs: list of ignored http method names.
+        :param set[str] ignore_verbs: list of ignored http method names.
         :param list[str] optional_fields: list of optional fields in docstrings.
         :param function sanitizer: a callable to be used as string sanitizer.
         :param str doc_dir: directory path of docs.
