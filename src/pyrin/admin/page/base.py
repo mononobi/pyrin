@@ -1853,6 +1853,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata = dict()
         metadata.update(self._get_common_metadata())
         metadata['datasource_info'] = self._get_list_datasource_info()
+        metadata['field_names'] = self._get_list_field_names()
         metadata['sortable_fields'] = self._get_sortable_fields()
         metadata['has_create_permission'] = self.has_create_permission()
         metadata['has_remove_permission'] = self.has_remove_permission()
