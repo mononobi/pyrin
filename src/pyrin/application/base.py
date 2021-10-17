@@ -886,14 +886,14 @@ class Application(Flask, HookMixin, SignalMixin,
         else:
             rv = self._serialize_result(rv, paginator)
 
-        # we could not return a list as response, so we wrap
-        # the result in a dict when we want to return a list.
+        # we wrap the result in a dict when we want to return
+        # a list to be able to add required metadata into it.
         if isinstance(rv, list):
             result = OrderedDict()
             if metadata is not None:
                 result.update(metadata)
             else:
-                result.update(count=len(rv))
+                result.update(count_total=len(rv))
             result.update(results=rv)
             rv = result
 

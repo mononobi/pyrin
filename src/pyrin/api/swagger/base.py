@@ -425,7 +425,7 @@ class ExtendedSwagger(Swagger):
         schema[ParameterAttributeEnum.TYPE] = ParameterTypeEnum.OBJECT
         schema[ParameterAttributeEnum.PROPERTIES] = properties
 
-        self._add_or_update_property(properties, 'count',
+        self._add_or_update_property(properties, 'count_total',
                                      ParameterTypeEnum.INTEGER,
                                      description='results count')
 
