@@ -228,8 +228,6 @@ class ValidatorAutoManager(Manager, HookMixin):
         they will only be used in find validation and will only validate
         type of value if it is not None.
 
-        note that for primary key columns, no find range validators will be created.
-
         :param BaseEntity domain: entity type that this field is related to.
         :param InstrumentedAttribute field: field instance.
 
