@@ -476,11 +476,12 @@ class CoreQuery(Query):
         columns.extend(force_order)
         count = len(scope)
         for item in columns:
+            converted_item = str(item)
             single_criterion = None
-            pure_name = sqlalchemy_utils.get_column_name(item)
+            pure_name = sqlalchemy_utils.get_column_name(converted_item)
             if pure_name in labeled_columns:
                 single_criterion = sqlalchemy_utils.get_ordering_criterion(
-                    item, valid_columns=labeled_columns, ignore_invalid=True)
+                    converted_item, valid_columns=labeled_columns, ignore_invalid=True)
             else:
                 found_entity = None
                 if count == 1:
@@ -489,7 +490,7 @@ class CoreQuery(Query):
                     found_entity = self._get_related_entity(pure_name, *scope)
 
                 if found_entity is not None:
-                    single_criterion = found_entity.get_ordering_criterion(item,
+                    single_criterion = found_entity.get_ordering_criterion(converted_item,
                                                                            ignore_invalid=True)
             if single_criterion is not None:
                 criterion.extend(single_criterion)
