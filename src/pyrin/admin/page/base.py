@@ -152,6 +152,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     # enable exporting the currently active page into pdf or csv file.
     list_enable_export = True
 
+    # a file name to be used for exporting data. for example: Users
+    # if not provided defaults to this admin page's plural name.
+    list_export_name = None
+
     # create a link to related admin detail page for all pk columns.
     # this only has effect if the related admin page has get permission.
     list_link_pk = True
@@ -346,6 +350,19 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         return config_services.get_active('admin', 'search_param')
+
+    @fast_cache
+    def _get_list_export_name(self):
+        """
+        gets a file name to be used for exporting data on list page.
+
+        :rtype: str
+        """
+
+        if self.list_export_name:
+            return self.list_export_name
+
+        return self.get_plural_name()
 
     def _get_column_title(self, name):
         """
@@ -1871,6 +1888,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         metadata['pagination_type'] = self.list_pagination_type
         metadata['pagination_position'] = self.list_pagination_position
         metadata['enable_export'] = self.list_enable_export
+        metadata['export_name'] = self._get_list_export_name()
         metadata['link_pk'] = self.list_link_pk
         metadata['link_fk'] = self.list_link_fk
         metadata['column_selection'] = self.list_column_selection
