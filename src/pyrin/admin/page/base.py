@@ -781,8 +781,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                         title=self._get_column_title(item),
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value,
-                        is_link=item in link_methods,
-                        export=item not in link_methods and item != hidden_pk_name)
+                        is_link=item in link_methods)
+
+            if item in link_methods or item == hidden_pk_name:
+                info.update(export=False)
 
             if item == hidden_pk_name:
                 info.update(hidden=True, hiddenByColumnsButton=True)
