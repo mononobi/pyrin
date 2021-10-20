@@ -58,8 +58,9 @@ class Package(CoreObject):
     # settings path based on pyrin default setting files if not available.
     EXTRA_CONFIG_STORE_NAMES = []
 
-    # notice that any package that adds values in either of `CONFIG_STORE_NAMES` or
-    # `EXTRA_CONFIG_STORE_NAMES` must also add `pyrin.configuration` into its `DEPENDS` list.
+    # notice that any package inside pyrin which adds values in either
+    # of `CONFIG_STORE_NAMES` or `EXTRA_CONFIG_STORE_NAMES` must also
+    # add `pyrin.configuration` into its `DEPENDS` list.
 
     def load_configs(self, config_services):
         """
