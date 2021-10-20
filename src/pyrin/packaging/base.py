@@ -28,6 +28,17 @@ class Package(CoreObject):
     # and `pyrin.packaging` should not be added into this list
     # because those two packages will be loaded at the beginning
     # and are always available before any other package gets loaded.
+    # HINT:
+    # normally there are two situations where a package becomes dependent
+    # on another package and needs to add it inside `DEPENDS` list.
+    # if we have two packages named A and B, then:
+    # 1. if package A is using any services from package B inside its
+    #    manager's `__init__` method, then package A is dependent on B and
+    #    must add B into its `DEPENDS` list.
+    # 2. if package A uses any services from package B at the module level
+    #    (not class or function level), or uses decorators or implements
+    #    any hooks of package B, then package A is dependent on B and must add B
+    #    into its `DEPENDS` list.
     DEPENDS = []
 
     # specifies that this package is enabled and must be loaded.
