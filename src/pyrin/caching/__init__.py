@@ -15,4 +15,5 @@ class CachingPackage(Package):
     COMPONENT_NAME = 'caching.component'
     CONFIG_STORE_NAMES = ['caching']
     DEPENDS = ['pyrin.configuration',
-               'pyrin.database.model']
+               'pyrin.database.model',
+               'pyrin.admin']

@@ -29,7 +29,7 @@ class CacheItemEntity(CacheItemBaseEntity, CreateHistoryMixin):
     _extend_existing = True
 
     cache_name = StringColumn(name='cache_name', max_length=30, nullable=False)
-    shard_name = StringColumn(name='shard_name', max_length=30, nullable=True)
+    shard_name = StringColumn(name='shard_name', max_length=30)
     version = StringColumn(name='version', max_length=20, nullable=False)
     key = BigIntegerColumn(name='key', nullable=False)
     item = CoreColumn(name='item', type_=LargeBinary, nullable=False)
