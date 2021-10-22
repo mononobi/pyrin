@@ -1813,7 +1813,7 @@ class MetadataMixin:
     """
     metadata mixin class.
 
-    this class provides a simple and extensible api for declarative models configuration.
+    this class provides a simple and extensible interface for declarative models configuration.
     """
 
     # table name
