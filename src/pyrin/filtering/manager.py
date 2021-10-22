@@ -111,8 +111,8 @@ class FilteringManager(Manager):
         """
         gets the column with given name from the first entity that has it.
 
-        it returns None if the column name is not available in
-        columns of any of provided entities.
+        it returns None if the column name is not available in columns
+        or expression level hybrid properties of any of provided entities.
 
         :param str name: column name to be found.
 
@@ -125,11 +125,12 @@ class FilteringManager(Manager):
                                 be included in filtering.
                                 defaults to True if not provided.
 
-        :keyword list[sqlalchemy.orm.attributes.InstrumentedAttribute] exclude: list of columns
-                                                                                to be excluded if
-                                                                                have been found.
+        :keyword list[InstrumentedAttribute | hybrid_property] exclude: list of columns
+                                                                        to be excluded if
+                                                                        have been found.
 
-        :rtype: sqlalchemy.orm.attributes.InstrumentedAttribute
+        :rtype: sqlalchemy.orm.attributes.InstrumentedAttribute |
+                sqlalchemy.ext.hybrid.hybrid_property
         """
 
         exclude = options.get('exclude')
@@ -139,10 +140,14 @@ class FilteringManager(Manager):
             all_columns = None
             if readable is False:
                 all_columns = entity.primary_key_columns + \
-                              entity.foreign_key_columns + entity.all_columns
+                              entity.foreign_key_columns + \
+                              entity.all_columns + \
+                              entity.expression_level_hybrid_properties
             else:
                 all_columns = entity.readable_primary_key_columns + \
-                              entity.readable_foreign_key_columns + entity.readable_columns
+                              entity.readable_foreign_key_columns + \
+                              entity.readable_columns + \
+                              entity.expression_level_hybrid_properties
 
             if name in all_columns:
                 column = entity.get_attribute(name)
@@ -218,13 +223,12 @@ class FilteringManager(Manager):
         :param type[pyrin.database.model.base.BaseEntity] entity: entity class type to
                                                                   be used for filtering.
 
-        :keyword list[sqlalchemy.orm.attributes.InstrumentedAttribute] ignore: columns to be
-                                                                               ignored from
-                                                                               filtering. this
-                                                                               only has effect
-                                                                               on `entity` and
-                                                                               will be ignored for
-                                                                               `labeled_filters`.
+        :keyword list[InstrumentedAttribute | hybrid_property] ignore: columns to be ignored
+                                                                       from filtering. this
+                                                                       only has effect on
+                                                                       `entity` and will be
+                                                                       ignored for
+                                                                       `labeled_filters`.
 
         :keyword bool remove: remove all keys that are applied as filter from filters input.
                               defaults to True if not provided.

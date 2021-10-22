@@ -557,42 +557,49 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return all_fields
 
-    def _get_instrumented_attribute(self, item):
+    def _get_attribute(self, item):
         """
-        gets the related instrumented attribute to given item.
+        gets the related instrumented or hybrid property attribute to given item.
 
-        it may return the same value if it is already an instrumented attribute.
-        it may return None if no related instrumented attribute could be found.
+        it may return the same value if it is already an instrumented or
+        hybrid property attribute. it may return None if no related instrumented
+        or hybrid property attribute could be found.
 
-        :param InstrumentedAttribute | Label item: item to get its related attribute.
+        :param InstrumentedAttribute | Label | hybrid_property item: item to get its
+                                                                     related attribute.
 
-        :rtype: sqlalchemy.orm.InstrumentedAttribute
+        :rtype: sqlalchemy.orm.InstrumentedAttribute | sqlalchemy.ext.hybrid.hybrid_property
         """
 
-        if isinstance(item, InstrumentedAttribute):
+        if isinstance(item, InstrumentedAttribute) or \
+                sqla_utils.is_expression_level_hybrid_property(item):
             return item
-        elif isinstance(item, Label) and item.base_columns:
-            columns = list(item.base_columns)
-            if isinstance(columns[0], CoreColumn):
-                return model_services.get_instrumented_attribute(columns[0])
+        elif isinstance(item, Label):
+            hybrid_property = getattr(item, '_hybrid_property', None)
+            if hybrid_property is not None:
+                return hybrid_property
+            elif item.base_columns:
+                columns = list(item.base_columns)
+                if isinstance(columns[0], CoreColumn):
+                    return model_services.get_instrumented_attribute(columns[0])
 
         return None
 
     def _get_list_field_column(self, name):
         """
-        gets the relevant column attribute for given field name from `list_fields`.
+        gets the relevant column or hybrid property attribute for given field name.
 
-        it may return None if no related column could be found.
+        it may return None if no related column or hybrid property could be found.
 
         :param str name: field name.
 
-        :rtype: sqlalchemy.orm.InstrumentedAttribute
+        :rtype: sqlalchemy.orm.InstrumentedAttribute | sqlalchemy.ext.hybrid.hybrid_property
         """
 
         selectable_fields = self._get_list_fields()
         for item in selectable_fields:
             if self._is_valid_field(item) and item.key == name:
-                return self._get_instrumented_attribute(item)
+                return self._get_attribute(item)
 
         return None
 
@@ -618,10 +625,10 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
         gets a dict of all list field names and their related columns.
 
-        the column value may be None if the name does not belong to a column.
-        for example method names or hybrid properties.
+        the column value may be None if the name does not belong to a
+        column or hybrid property. for example method names.
 
-        :returns: dict(InstrumentAttribute name)
+        :returns: dict(InstrumentAttribute | hybrid_property name)
         :rtype: dict
         """
 
@@ -676,7 +683,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         if self.list_search_fields:
             for item in self.list_search_fields:
-                attribute = self._get_instrumented_attribute(item)
+                attribute = self._get_attribute(item)
                 if attribute is not None:
                     result[item.key] = attribute
                 elif sqla_utils.is_expression_level_hybrid_property(item):
@@ -697,7 +704,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_pk=False, pk_register_name=None)
-        if not column.property or not column.property.columns:
+        if sqla_utils.is_expression_level_hybrid_property(column) or \
+                not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
@@ -724,7 +732,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         """
 
         result = dict(is_fk=False, fk_register_name=None)
-        if not column.property or not column.property.columns:
+        if sqla_utils.is_expression_level_hybrid_property(column) or \
+                not column.property or not column.property.columns:
             return result
 
         base_column = column.property.columns[0]
@@ -932,7 +941,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         for item in self.list_fields:
             if self._is_valid_field(item):
                 if sqla_utils.is_expression_level_hybrid_property(item):
-                    results.append(item.label(item.key))
+                    labeled_item = item.label(item.key)
+                    setattr(labeled_item, '_hybrid_property', item)
+                    results.append(labeled_item)
                 else:
                     results.append(item)
 

@@ -24,13 +24,11 @@ def filter(filters, *entity, **options):
     :param type[pyrin.database.model.base.BaseEntity] entity: entity class type to
                                                               be used for filtering.
 
-    :keyword list[sqlalchemy.orm.attributes.InstrumentedAttribute] ignore: columns to be
-                                                                           ignored from
-                                                                           filtering. this
-                                                                           only has effect
-                                                                           on `entity` and
-                                                                           will be ignored for
-                                                                           `labeled_filters`.
+    :keyword list[InstrumentedAttribute | hybrid_property] ignore: columns to be ignored
+                                                                   from filtering. this
+                                                                   only has effect on
+                                                                   `entity` and will be
+                                                                   ignored for `labeled_filters`.
 
     :keyword bool remove: remove all keys that are applied as filter from filters input.
                           defaults to True if not provided.
