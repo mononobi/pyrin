@@ -16,7 +16,6 @@ class AdminUserAdmin(AdminPage):
     register_name = 'admin-users'
     name = 'Admin User'
     plural_name = 'Admin Users'
-    category = 'ADMIN'
     create_service = admin_user_services.create
     update_service = admin_user_services.update
     extra_data_fields = dict(password=str, confirm_password=str)
