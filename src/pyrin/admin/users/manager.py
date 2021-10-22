@@ -7,16 +7,19 @@ import pyrin.security.services as security_services
 import pyrin.validator.services as validator_services
 
 from pyrin.core.globals import _
+from pyrin.core.structs import Manager
+from pyrin.admin.users import AdminUsersPackage
 from pyrin.admin.users.models import AdminUserEntity
 from pyrin.database.services import get_current_store
-from pyrin.security.users.manager import UsersManager as BaseUsersManager
 from pyrin.admin.users.exceptions import AdminUserNotFoundError, PasswordsDoNotMatchError
 
 
-class AdminUsersManager(BaseUsersManager):
+class AdminUsersManager(Manager):
     """
     admin users manager class.
     """
+
+    package_class = AdminUsersPackage
 
     def _get(self, id, **options):
         """
