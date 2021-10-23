@@ -852,8 +852,7 @@ def test_get_active_section_uppercase_keys():
 
     assert all(name in section.keys() for name in ['SERVER_NAME',
                                                    'SERVER_HOST',
-                                                   'SERVER_PORT',
-                                                   'SERVER_PROTOCOL'])
+                                                   'SERVER_PORT'])
 
     assert section.get('SERVER_NAME') is None
 

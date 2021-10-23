@@ -568,8 +568,7 @@ def test_all_configs_available():
     app_configs = application_services.get_configs()
     assert all(name in app_configs for name in ['TITLE', 'ENCODING', 'FLASK_LOG_LEVEL',
                                                 'SERVER_NAME', 'SERVER_HOST', 'SERVER_PORT',
-                                                'SERVER_PROTOCOL', 'ENV', 'DEBUG',
-                                                'TESTING', 'UNIT_TESTING'])
+                                                'ENV', 'DEBUG', 'TESTING', 'UNIT_TESTING'])
 
 
 def test_all_configs_values():
@@ -585,7 +584,6 @@ def test_all_configs_values():
     assert app_configs['SERVER_NAME'] is None
     assert app_configs['SERVER_HOST'] == '127.0.0.1'
     assert app_configs['SERVER_PORT'] == 5001
-    assert app_configs['SERVER_PROTOCOL'] == 'ssl'
     assert app_configs['ENV'] == 'testing'
     assert app_configs['DEBUG'] is False
     assert app_configs['TESTING'] is True
