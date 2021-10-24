@@ -12,5 +12,6 @@ class AuthenticationPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
     COMPONENT_NAME = 'security.authentication.component'
+    CONFIG_STORE_NAMES = ['authentication']
+    DEPENDS = ['pyrin.configuration']

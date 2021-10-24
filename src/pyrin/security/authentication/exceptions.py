@@ -50,3 +50,24 @@ class InvalidPayloadDataError(AuthenticationFailedError):
     invalid payload data error.
     """
     pass
+
+
+class InvalidAuthenticatorTypeError(AuthenticationManagerException):
+    """
+    invalid authenticator type error.
+    """
+    pass
+
+
+class DuplicatedAuthenticatorError(AuthenticationManagerException):
+    """
+    duplicated authenticator error.
+    """
+    pass
+
+
+class AuthenticatorNotFoundError(AuthenticationManagerException):
+    """
+    authenticator not found error.
+    """
+    pass
