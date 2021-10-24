@@ -10,7 +10,6 @@ from uuid import UUID
 from copy import deepcopy
 from collections import defaultdict
 
-from flask import current_app
 from flasgger import Swagger
 from flasgger.marshmallow_apispec import SwaggerView, convert_schemas
 from flasgger.constants import OPTIONAL_FIELDS, OPTIONAL_OAS3_FIELDS
@@ -19,12 +18,13 @@ from flasgger.utils import extract_definitions, parse_definition_docstring, \
     has_valid_dispatch_view_docs
 
 import pyrin.database.services as database_services
-import pyrin.database.paging.services as paging_services
-import pyrin.configuration.services as config_services
-import pyrin.processor.response.status.services as status_services
 import pyrin.api.swagger.services as swagger_services
+import pyrin.configuration.services as config_services
+import pyrin.database.paging.services as paging_services
+import pyrin.application.services as application_services
 import pyrin.globalization.locale.services as locale_services
 import pyrin.globalization.datetime.services as datetime_services
+import pyrin.processor.response.status.services as status_services
 
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.core.enumerations import HTTPMethodEnum, ClientErrorResponseCodeEnum
@@ -1095,6 +1095,7 @@ class ExtendedSwagger(Swagger):
         """
 
         specs = []
+        current_app = application_services.get_current_app()
         for rule in rules:
             if not self._should_expose_rule(rule):
                 continue
