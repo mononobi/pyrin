@@ -188,12 +188,6 @@ class ProtectedRoute(RouteBase):
         :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
                                                  with default ones.
 
-        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
-                                              response headers to front-end javascript code
-                                              if the route is authenticated.
-                                              if not provided, it will be get from cors config
-                                              store.
-
         :keyword int cors_max_age: maximum number of seconds to cache results.
                                    if not provided, it will be get from cors config store.
 
@@ -245,12 +239,6 @@ class ProtectedRoute(RouteBase):
 
         :keyword list[str] cors_allowed_headers: extra allowed headers to be combined
                                                  with default ones.
-
-        :keyword bool cors_allow_credentials: specifies that browsers are allowed to pass
-                                              response headers to front-end javascript code
-                                              if the route is authenticated.
-                                              if not provided, it will be get from cors config
-                                              store.
 
         :keyword int cors_max_age: maximum number of seconds to cache results.
                                    if not provided, it will be get from cors config store.
