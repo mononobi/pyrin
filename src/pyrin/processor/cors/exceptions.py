@@ -19,10 +19,3 @@ class CORSBusinessException(CoreBusinessException,
     cors business exception.
     """
     pass
-
-
-class CORSAllowedHeadersModificationError(CORSException):
-    """
-    cors allowed headers modification error.
-    """
-    pass

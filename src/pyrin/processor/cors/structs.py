@@ -3,10 +3,7 @@
 cors structs module.
 """
 
-import pyrin.application.services as application_services
-
 from pyrin.core.structs import CoreObject
-from pyrin.processor.cors.exceptions import CORSAllowedHeadersModificationError
 
 
 class CORS(CoreObject):
@@ -53,24 +50,6 @@ class CORS(CoreObject):
         self._allowed_headers = options.get('cors_allowed_headers')
         self._allow_credentials = options.get('cors_allow_credentials')
         self._max_age = options.get('cors_max_age')
-
-    def add_allowed_headers(self, *headers):
-        """
-        adds given headers into allowed headers.
-
-        :param str headers: headers to be added.
-
-        :raises CORSAllowedHeadersModificationError: cors allowed headers modification error.
-        """
-
-        if application_services.got_first_request() is True:
-            raise CORSAllowedHeadersModificationError('Cors allowed headers could not be '
-                                                      'modified after first request is served.')
-
-        if headers is not None and len(headers) > 0:
-            current_headers = self._allowed_headers or []
-            current_headers = set(current_headers).union(set(headers))
-            self._allowed_headers = list(current_headers)
 
     @property
     def enabled(self):
