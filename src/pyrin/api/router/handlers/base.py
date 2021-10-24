@@ -516,6 +516,8 @@ class RouteBase(Rule):
 
         :keyword int cors_max_age: maximum number of seconds to cache results.
                                    if not provided, it will be get from cors config store.
+
+        :rtype: pyrin.processor.cors.structs.CORS
         """
 
         return self.cors_class(**options)
