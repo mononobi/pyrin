@@ -26,6 +26,14 @@ def api(url, methods=None, authenticated=True, permissions=None, **options):
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
 
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
+
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
                               fresh authentication means an authentication that
@@ -272,6 +280,14 @@ def post(url, authenticated=True, permissions=None, **options):
 
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
+
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
 
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
@@ -521,6 +537,14 @@ def patch(url, authenticated=True, permissions=None, **options):
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
 
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
+
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
                               fresh authentication means an authentication that
@@ -768,6 +792,14 @@ def put(url, authenticated=True, permissions=None, **options):
 
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
+
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
 
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
@@ -1017,6 +1049,14 @@ def get(url, authenticated=True, permissions=None, **options):
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
 
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
+
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
                               fresh authentication means an authentication that
@@ -1264,6 +1304,14 @@ def delete(url, authenticated=True, permissions=None, **options):
 
     :param PermissionBase | tuple[PermissionBase] permissions: all required permissions
                                                                for accessing this route.
+
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
 
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.

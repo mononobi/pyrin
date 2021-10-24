@@ -199,6 +199,14 @@ def add_url_rule(rule, endpoint=None, view_func=None,
                                  if the requester has not been authenticated.
                                  defaults to False if not provided.
 
+    :keyword str authenticator: the authenticator name to be used for this route.
+                                if not provided, it will be get from rule based
+                                authenticators if possible. otherwise the
+                                `default_authenticator` config will be used.
+                                if no default is set in `authentication` config
+                                store, it raises an error.
+                                it is only used if this route has `authenticated=True`.
+
     :keyword bool fresh_auth: specifies that this route could not be accessed
                               if the requester has not a fresh authentication.
                               fresh authentication means an authentication that

@@ -114,3 +114,10 @@ class URLNotFoundError(CoreNotFoundError, RouterHandlerBusinessException):
     url not found error.
     """
     pass
+
+
+class CouldNotFindRelevantAuthenticatorError(RouterHandlerException):
+    """
+    could not find relevant authenticator error.
+    """
+    pass

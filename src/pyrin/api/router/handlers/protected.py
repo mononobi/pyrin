@@ -3,16 +3,17 @@
 router handlers protected module.
 """
 
-import pyrin.security.authorization.services as authorization_services
 import pyrin.security.session.services as session_services
+import pyrin.security.authorization.services as authorization_services
+import pyrin.security.authentication.services as authentication_services
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _
-from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
-from pyrin.processor.request.enumerations import RequestHeaderEnum
 from pyrin.security.permission.base import PermissionBase
+from pyrin.processor.request.enumerations import RequestHeaderEnum
+from pyrin.api.router.handlers.base import RouteBase, TemporaryRouteBase
 from pyrin.api.router.handlers.exceptions import FreshAuthenticationRequiredError, \
-    PermissionTypeError
+    PermissionTypeError, CouldNotFindRelevantAuthenticatorError
 
 
 class ProtectedRoute(RouteBase):
@@ -31,6 +32,13 @@ class ProtectedRoute(RouteBase):
                          routes with duplicated urls and http methods will be
                          overwritten if `replace=True` option is provided.
                          otherwise an error will be raised.
+
+        :keyword str authenticator: the authenticator name to be used for this route.
+                                    if not provided, it will be get from rule based
+                                    authenticators if possible. otherwise the
+                                    `default_authenticator` config will be used.
+                                    if no default is set in `authentication` config
+                                    store, it raises an error.
 
         :keyword str | tuple[str] methods: http methods that this route could handle.
                                            if not provided, defaults to `GET`, `HEAD`
@@ -214,11 +222,41 @@ class ProtectedRoute(RouteBase):
 
         self._permissions = options.get('permissions')
         self._permissions = misc_utils.make_iterable(self._permissions, tuple)
+        self._authenticator = self._get_authenticator(options.get('authenticator'))
 
         if not all(isinstance(item, PermissionBase) for item in self._permissions):
             raise PermissionTypeError('All route permissions must be an '
                                       'instance of [{instance}].'
                                       .format(instance=PermissionBase))
+
+    def _get_authenticator(self, name=None):
+        """
+        gets the authenticator for this route.
+
+        if the name is None, it will get the authenticator from rule based
+        authenticators if possible. otherwise it will use the `default_authenticator`
+        from `authentication` config store. if it fails to find a relevant authenticator
+        an error will be raised.
+
+        :param str name: the authenticator name to be used.
+
+        :rtype: str
+        """
+
+        if not name:
+            name = authentication_services.get_relevant_authenticator_name(self.rule)
+            if not name:
+                raise CouldNotFindRelevantAuthenticatorError('Could not find a relevant '
+                                                             'authenticator for protected '
+                                                             'route [{endpoint}]. you can '
+                                                             'set "default_authenticator" in '
+                                                             '"authentication" config store to '
+                                                             'be used for all protected routes '
+                                                             'without any specific authenticator '
+                                                             'set.'
+                                                             .format(endpoint=self.endpoint))
+
+        return name
 
     def _get_cors_configs(self, **options):
         """
@@ -295,6 +333,16 @@ class ProtectedRoute(RouteBase):
         """
 
         return self._permissions
+
+    @property
+    def authenticator(self):
+        """
+        gets the authenticator name for this route.
+
+        :rtype: str
+        """
+
+        return self._authenticator
 
 
 class FreshProtectedRoute(ProtectedRoute):
