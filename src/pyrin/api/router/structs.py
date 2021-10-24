@@ -186,3 +186,12 @@ class CoreURLMap(Map):
         """
 
         return len(self.get_routes_by_url(url))
+
+    def get_routes(self):
+        """
+        gets a tuple of all registered routes.
+
+        :rtype: tuple[pyrin.api.router.handlers.base.RouteBase]
+        """
+
+        return tuple(self._rules)
