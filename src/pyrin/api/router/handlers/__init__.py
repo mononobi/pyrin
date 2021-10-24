@@ -12,4 +12,3 @@ class RouterHandlersPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
