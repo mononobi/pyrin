@@ -27,7 +27,7 @@ class SerializerManager(Manager):
         super().__init__()
 
         # a dictionary containing information of registered serializers.
-        # example: dic(type accepted_type: AbstractSerializerBase instance)
+        # example: dict(type accepted_type: AbstractSerializerBase instance)
         self._serializers = Context()
 
     def serialize(self, value, **options):
