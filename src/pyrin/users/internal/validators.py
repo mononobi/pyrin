@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-admin users validators module.
+users internal validators module.
 """
 
 from pyrin.admin.enumerations import FormFieldTypeEnum
-from pyrin.admin.users.models import AdminUserEntity
+from pyrin.users.internal.models import InternalUserEntity
 from pyrin.validator.decorators import validator
 from pyrin.validator.handlers.string import StringValidator
 
 
-@validator(AdminUserEntity, AdminUserEntity.password_hash, name='password')
-@validator(AdminUserEntity, AdminUserEntity.password_hash, name='confirm_password')
+@validator(InternalUserEntity, InternalUserEntity.password_hash, name='password')
+@validator(InternalUserEntity, InternalUserEntity.password_hash, name='confirm_password')
 class PasswordValidator(StringValidator):
     """
     password validator class.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-admin users manager module.
+users internal manager module.
 """
 
 import pyrin.security.services as security_services
@@ -8,37 +8,37 @@ import pyrin.validator.services as validator_services
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager
-from pyrin.admin.users import AdminUsersPackage
-from pyrin.admin.users.models import AdminUserEntity
+from pyrin.users.internal import InternalUsersPackage
+from pyrin.users.internal.models import InternalUserEntity
 from pyrin.database.services import get_current_store
-from pyrin.admin.users.exceptions import AdminUserNotFoundError, PasswordsDoNotMatchError
+from pyrin.users.internal.exceptions import InternalUserNotFoundError, PasswordsDoNotMatchError
 
 
-class AdminUsersManager(Manager):
+class InternalUsersManager(Manager):
     """
-    admin users manager class.
+    internal users manager class.
     """
 
-    package_class = AdminUsersPackage
+    package_class = InternalUsersPackage
 
     def _get(self, id, **options):
         """
-        gets the specified admin user.
+        gets the specified internal user.
 
-        :param int id: admin user id to get its info.
+        :param int id: internal user id to get its info.
 
-        :raises AdminUserNotFoundError: admin user not found error.
+        :raises InternalUserNotFoundError: internal user not found error.
 
-        :rtype: AdminUserEntity
+        :rtype: InternalUserEntity
         """
 
-        data = validator_services.validate(AdminUserEntity, id=id)
+        data = validator_services.validate(InternalUserEntity, id=id)
         store = get_current_store()
-        user = store.query(AdminUserEntity).get(data.id)
+        user = store.query(InternalUserEntity).get(data.id)
 
         if user is None:
-            raise AdminUserNotFoundError(_('Admin user [{user_id}] not found.')
-                                         .format(user_id=data.id))
+            raise InternalUserNotFoundError(_('Internal user [{user_id}] not found.')
+                                            .format(user_id=data.id))
 
         return user
 
@@ -60,11 +60,11 @@ class AdminUsersManager(Manager):
 
     def is_active(self, user, **options):
         """
-        gets a value indicating that given admin user is active.
+        gets a value indicating that given internal user is active.
 
-        :param int user: admin user to check its active status.
+        :param int user: internal user to check its active status.
 
-        :raises AdminUserNotFoundError: admin user not found error.
+        :raises InternalUserNotFoundError: internal user not found error.
 
         :rtype: bool
         """
@@ -75,7 +75,7 @@ class AdminUsersManager(Manager):
     def create(self, username, password, confirm_password,
                first_name, last_name, **options):
         """
-        creates a new admin user based on given inputs.
+        creates a new internal user based on given inputs.
 
         :param str username: username.
         :param str password: password.
@@ -100,19 +100,19 @@ class AdminUsersManager(Manager):
         options.update(username=username, password=password,
                        confirm_password=confirm_password,
                        first_name=first_name, last_name=last_name)
-        validator_services.validate_dict(AdminUserEntity, options)
+        validator_services.validate_dict(InternalUserEntity, options)
         password = options.get('password')
         confirm_password = options.get('confirm_password')
         self._validate_passwords(password, confirm_password)
-        entity = AdminUserEntity(**options)
+        entity = InternalUserEntity(**options)
         entity.password_hash = security_services.get_password_hash(password)
         entity.save()
 
     def update(self, id, **options):
         """
-        updates the given admin user based on given inputs.
+        updates the given internal user based on given inputs.
 
-        :param int id: admin user id.
+        :param int id: internal user id.
 
         :keyword str username: username.
         :keyword str password: password.
@@ -134,7 +134,7 @@ class AdminUsersManager(Manager):
         """
 
         entity = self._get(id)
-        validator_services.validate_dict(AdminUserEntity, options, for_update=True)
+        validator_services.validate_dict(InternalUserEntity, options, for_update=True)
         password = options.get('password')
         confirm_password = options.get('confirm_password')
         if password is not None or confirm_password is not None:

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-admin users services module.
+users internal services module.
 """
 
 from pyrin.application.services import get_component
-from pyrin.admin.users import AdminUsersPackage
+from pyrin.users.internal import InternalUsersPackage
 
 
 def create(username, password, confirm_password, first_name, last_name, **options):
     """
-    creates a new admin user based on given inputs.
+    creates a new internal user based on given inputs.
 
     :param str username: username.
     :param str password: password.
@@ -31,17 +31,17 @@ def create(username, password, confirm_password, first_name, last_name, **option
     :raises PasswordsDoNotMatchError: passwords do not match error.
     """
 
-    return get_component(AdminUsersPackage.COMPONENT_NAME).create(username, password,
-                                                                  confirm_password,
-                                                                  first_name, last_name,
-                                                                  **options)
+    return get_component(InternalUsersPackage.COMPONENT_NAME).create(username, password,
+                                                                     confirm_password,
+                                                                     first_name, last_name,
+                                                                     **options)
 
 
 def update(id, **options):
     """
-    updates the given admin user based on given inputs.
+    updates the given internal user based on given inputs.
 
-    :param int id: admin user id.
+    :param int id: internal user id.
 
     :keyword str username: username.
     :keyword str password: password.
@@ -62,4 +62,4 @@ def update(id, **options):
     :raises PasswordsDoNotMatchError: passwords do not match error.
     """
 
-    return get_component(AdminUsersPackage.COMPONENT_NAME).update(id, **options)
+    return get_component(InternalUsersPackage.COMPONENT_NAME).update(id, **options)
