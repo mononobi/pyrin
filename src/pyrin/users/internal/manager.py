@@ -58,18 +58,18 @@ class InternalUsersManager(Manager):
                                            data=dict(password=message,
                                                      confirm_password=message))
 
-    def is_active(self, user, **options):
+    def is_active(self, id, **options):
         """
         gets a value indicating that given internal user is active.
 
-        :param int user: internal user to check its active status.
+        :param int id: internal user id to check its active status.
 
         :raises InternalUserNotFoundError: internal user not found error.
 
         :rtype: bool
         """
 
-        entity = self._get(user, **options)
+        entity = self._get(id, **options)
         return entity.is_active
 
     def create(self, username, password, confirm_password,

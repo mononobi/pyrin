@@ -7,6 +7,20 @@ from pyrin.application.services import get_component
 from pyrin.users.internal import InternalUsersPackage
 
 
+def is_active(id, **options):
+    """
+    gets a value indicating that given internal user is active.
+
+    :param int id: internal user id to check its active status.
+
+    :raises InternalUserNotFoundError: internal user not found error.
+
+    :rtype: bool
+    """
+
+    return get_component(InternalUsersPackage.COMPONENT_NAME).is_active(id, **options)
+
+
 def create(username, password, confirm_password, first_name, last_name, **options):
     """
     creates a new internal user based on given inputs.
