@@ -19,10 +19,11 @@ class InternalUserAdmin(AdminPage):
     create_service = internal_user_services.create
     update_service = internal_user_services.update
     extra_data_fields = dict(password=str, confirm_password=str)
+    list_search_fields = (InternalUserEntity.email,)
     list_fields = (InternalUserEntity.id, InternalUserEntity.username,
                    InternalUserEntity.fullname, InternalUserEntity.is_active,
                    InternalUserEntity.is_superuser, InternalUserEntity.admin_access,
                    InternalUserEntity.audit_access, InternalUserEntity.swagger_access,
-                   InternalUserEntity.mobile, InternalUserEntity.email,
-                   InternalUserEntity.gender, InternalUserEntity.last_login_at,
-                   InternalUserEntity.created_at, InternalUserEntity.modified_at)
+                   InternalUserEntity.mobile, InternalUserEntity.gender,
+                   InternalUserEntity.last_login_at, InternalUserEntity.created_at,
+                   InternalUserEntity.modified_at)
