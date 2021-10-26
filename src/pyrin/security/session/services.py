@@ -9,23 +9,38 @@ from pyrin.security.session import SessionPackage
 
 def get_current_user():
     """
-    gets current user.
+    gets current user identity.
+
+    :returns: object
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_current_user()
 
 
-def set_current_user(user):
+def get_current_user_info():
+    """
+    gets current user info.
+
+    it may return None if user info is not set.
+
+    :rtype: dict
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).get_current_user_info()
+
+
+def set_current_user(user, info=None):
     """
     sets current user.
 
-    :param user: user object.
+    :param user: user identity object.
+    :param dict info: user info object.
 
     :raises InvalidUserError: invalid user error.
     :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
     """
 
-    return get_component(SessionPackage.COMPONENT_NAME).set_current_user(user)
+    return get_component(SessionPackage.COMPONENT_NAME).set_current_user(user, info)
 
 
 def get_current_request():

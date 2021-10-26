@@ -21,16 +21,30 @@ class SessionManager(Manager):
 
     def get_current_user(self):
         """
-        gets current user.
+        gets current user identity.
+
+        :returns: object
         """
 
         return self.get_current_request().user
 
-    def set_current_user(self, user):
+    def get_current_user_info(self):
+        """
+        gets current user info.
+
+        it may return None if user info is not set.
+
+        :rtype: dict
+        """
+
+        return self.get_current_request().user_info
+
+    def set_current_user(self, user, info=None):
         """
         sets current user.
 
-        :param user: user object.
+        :param user: user identity object.
+        :param dict info: user info.
 
         :raises InvalidUserError: invalid user error.
         :raises CouldNotOverwriteCurrentUserError: could not overwrite current user error.
@@ -39,12 +53,14 @@ class SessionManager(Manager):
         if user is None:
             raise InvalidUserError('Request user could not be None.')
 
-        if self.get_current_user() is not None:
+        current_request = self.get_current_request()
+        if current_request.user is not None:
             raise CouldNotOverwriteCurrentUserError('User has been already set for '
                                                     'current request, it could not '
                                                     'be overwritten.')
 
-        self.get_current_request().user = user
+        current_request.user = user
+        current_request.user_info = info
 
     def get_current_request(self):
         """
