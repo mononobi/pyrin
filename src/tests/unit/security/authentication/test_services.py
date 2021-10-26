@@ -8,8 +8,8 @@ import pytest
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 
-from pyrin.security.authentication.exceptions import AccessTokenRequiredError, \
-    AuthenticationFailedError
+from pyrin.security.authentication.exceptions import AuthenticationFailedError
+from pyrin.security.authentication.handlers.exceptions import AccessTokenRequiredError
 
 
 def test_authenticate_with_fresh_access_token(client_request_fresh_access_token):
