@@ -7,6 +7,23 @@ from pyrin.application.services import get_component
 from pyrin.users.internal import InternalUsersPackage
 
 
+def get(id, *columns, **options):
+    """
+    gets the internal user with given id.
+
+    :param int id: internal user id to be get.
+
+    :param columns: columns to be fetched.
+                    if not provided all columns will be fetched.
+
+    :raises InternalUserNotFoundError: internal user not found error.
+
+    :rtype: InternalUserEntity | ROW_RESULT
+    """
+
+    return get_component(InternalUsersPackage.COMPONENT_NAME).get(id, *columns, **options)
+
+
 def is_active(id, **options):
     """
     gets a value indicating that given internal user is active.

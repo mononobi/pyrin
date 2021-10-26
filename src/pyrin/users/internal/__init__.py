@@ -13,4 +13,5 @@ class InternalUsersPackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'users.internal.component'
-    DEPENDS = ['pyrin.admin']
+    DEPENDS = ['pyrin.admin',
+               'pyrin.database.model']

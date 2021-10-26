@@ -58,6 +58,32 @@ class InternalUsersManager(Manager):
                                            data=dict(password=message,
                                                      confirm_password=message))
 
+    def get(self, id, *columns, **options):
+        """
+        gets the internal user with given id.
+
+        :param int id: internal user id to be get.
+
+        :param columns: columns to be fetched.
+                        if not provided all columns will be fetched.
+
+        :raises InternalUserNotFoundError: internal user not found error.
+
+        :rtype: InternalUserEntity | ROW_RESULT
+        """
+
+        if not columns:
+            return self._get(id, **options)
+
+        data = validator_services.validate(InternalUserEntity, id=id)
+        store = get_current_store()
+        user = store.query(*columns).filter(InternalUserEntity.id == data.id).first()
+        if user is None:
+            raise InternalUserNotFoundError(_('Internal user [{user_id}] not found.')
+                                            .format(user_id=data.id))
+
+        return user
+
     def is_active(self, id, **options):
         """
         gets a value indicating that given internal user is active.
