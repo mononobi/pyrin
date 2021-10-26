@@ -64,7 +64,7 @@ class AbstractAuthenticatorBase(CoreObject, metaclass=AuthenticatorSingletonMeta
 
         :raises CoreNotImplementedError: core not implemented error.
 
-        :rtype: type
+        :rtype: str
         """
 
         raise CoreNotImplementedError()

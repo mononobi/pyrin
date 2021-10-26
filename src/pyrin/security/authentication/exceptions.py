@@ -38,20 +38,6 @@ class AuthenticationFailedError(AuthenticationManagerBusinessException):
         self._code = ClientErrorResponseCodeEnum.UNAUTHORIZED
 
 
-class AccessTokenRequiredError(AuthenticationFailedError):
-    """
-    access token required error.
-    """
-    pass
-
-
-class InvalidPayloadDataError(AuthenticationFailedError):
-    """
-    invalid payload data error.
-    """
-    pass
-
-
 class InvalidAuthenticatorTypeError(AuthenticationManagerException):
     """
     invalid authenticator type error.

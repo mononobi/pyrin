@@ -116,18 +116,16 @@ def validate_authenticators():
     return get_component(AuthenticationPackage.COMPONENT_NAME).validate_authenticators()
 
 
-def authenticate(client_request, **options):
+def authenticate(request, **options):
     """
-    authenticates given request and pushes the authenticated data into request context.
+    authenticates given request and pushes the authenticated data into current request.
 
-    if authentication fails, authenticated data will not be pushed into request context.
+    if authentication fails, authenticated data will not be pushed into current request.
 
-    :param CoreRequest client_request: request to be authenticated.
+    :param CoreRequest request: request to be authenticated.
 
     :raises AuthenticationFailedError: authentication failed error.
-    :raises InvalidPayloadDataError: invalid payload data error.
-    :raises AccessTokenRequiredError: access token required error.
     """
 
-    return get_component(AuthenticationPackage.COMPONENT_NAME).authenticate(client_request,
+    return get_component(AuthenticationPackage.COMPONENT_NAME).authenticate(request,
                                                                             **options)

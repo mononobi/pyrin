@@ -12,3 +12,4 @@ class AuthenticationHandlersPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.users.internal']
