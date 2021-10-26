@@ -12,3 +12,4 @@ class AdminSecurityPackage(Package):
     """
 
     NAME = __name__
+    DEPENDS = ['pyrin.security.authentication.handlers']
