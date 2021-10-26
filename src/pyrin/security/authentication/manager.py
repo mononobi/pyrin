@@ -3,14 +3,12 @@
 authentication manager module.
 """
 
-from collections import OrderedDict
-
 import pyrin.application.services as application_services
 import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
 import pyrin.utils.dictionary as dict_utils
 
-from pyrin.core.structs import Manager
+from pyrin.core.structs import Manager, Context
 from pyrin.utils.custom_print import print_warning
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.security.authentication import AuthenticationPackage
@@ -35,7 +33,7 @@ class AuthenticationManager(Manager):
 
         # a dictionary containing information of registered authenticators.
         # example: dict(str name: AbstractAuthenticatorBase instance)
-        self._authenticators = OrderedDict()
+        self._authenticators = Context()
         self._default_authenticator = config_services.get_active('authentication',
                                                                  'default_authenticator')
 
