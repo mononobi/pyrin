@@ -49,15 +49,9 @@ class CoreRequest(Request):
     # class to be used for dict values from the incoming WSGI.
     dict_storage_class = CoreImmutableMultiDict
 
-    # application expects an authorization header in request with this key.
-    AUTHORIZATION_HEADER_KEY = 'Authorization'
-
     # application expects one of these keys in environ dict to get client ip from.
     CLIENT_IP_ENVIRON_KEY_1 = 'HTTP_X_REAL_IP'
     CLIENT_IP_ENVIRON_KEY_2 = 'REMOTE_ADDR'
-
-    # application will store authorization header in request context with this key.
-    AUTHORIZATION_CONTEXT_KEY = 'authorization'
 
     def __init__(self, environ, populate_request=True,
                  shallow=False, **options):
@@ -75,12 +69,11 @@ class CoreRequest(Request):
         self._request_date = datetime_services.now()
         self._user = None
         self._cacheable_user = None
+        self._user_info = None
         self._component_custom_key = DEFAULT_COMPONENT_KEY
         self._client_ip = self._get_client_ip()
         self._safe_content_length = self._get_safe_content_length()
         self._context = self.request_context_class()
-
-        self._extract_authorization_header()
 
         # when an attempt is done to parse inputs, this will be set to True
         # to prevent retrying.
@@ -163,15 +156,6 @@ class CoreRequest(Request):
 
         return self.environ.get(self.CLIENT_IP_ENVIRON_KEY_1,
                                 self.environ.get(self.CLIENT_IP_ENVIRON_KEY_2, None))
-
-    def _extract_authorization_header(self):
-        """
-        extracts authorization header if available and puts it into
-        request context, otherwise puts None into request context.
-        """
-
-        self.add_context(self.AUTHORIZATION_CONTEXT_KEY,
-                         self.headers.get(self.AUTHORIZATION_HEADER_KEY, None))
 
     def _remove_extra_query_params(self, params):
         """
@@ -563,9 +547,35 @@ class CoreRequest(Request):
         return self._request_date
 
     @property
+    def user_info(self):
+        """
+        gets current request's user info.
+
+        :rtype: dict
+        """
+
+        return self._user_info
+
+    @user_info.setter
+    def user_info(self, info):
+        """
+        sets current request's user info.
+
+        :param dict info: user info to be set.
+
+        :raises RequestUserAlreadySetError: request user already set error.
+        """
+
+        if self._user_info is not None:
+            raise RequestUserAlreadySetError('Request user for current request '
+                                             'has been already set.')
+
+        self._user_info = info
+
+    @property
     def user(self):
         """
-        gets current request's user.
+        gets current request's user identity.
 
         :rtype: object
         """
@@ -575,7 +585,7 @@ class CoreRequest(Request):
     @user.setter
     def user(self, user):
         """
-        sets current request's user.
+        sets current request's user identity.
 
         :param object user: user to be set.
 
@@ -684,18 +694,6 @@ class CoreRequest(Request):
                 pass
 
         return datetime_services.get_default_client_timezone()
-
-    @property
-    def authorization(self):
-        """
-        gets the authorization header of current request.
-
-        returns None if authorization header is not set.
-
-        :rtype: str
-        """
-
-        return self.get_context(self.AUTHORIZATION_CONTEXT_KEY, None)
 
     @property
     def is_preflight(self):
