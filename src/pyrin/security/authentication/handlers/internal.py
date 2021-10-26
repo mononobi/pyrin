@@ -5,9 +5,7 @@ authentication handlers internal module.
 
 import pyrin.users.internal.services as internal_user_services
 
-from pyrin.core.globals import _
 from pyrin.users.internal.models import InternalUserEntity
-from pyrin.security.authorization.exceptions import UserIsNotActiveError
 from pyrin.security.authentication.handlers.base import TokenAuthenticatorBase
 
 
@@ -75,33 +73,6 @@ class InternalTokenAuthenticator(TokenAuthenticatorBase):
                                           InternalUserEntity.audit_access,
                                           InternalUserEntity.admin_access,
                                           InternalUserEntity.fullname)
-
-    def _authorize_user(self, user_info, **options):
-        """
-        authorizes the internal user with given info.
-
-        :param dict user_info: user info to be authorized.
-
-        :raises UserIsNotActiveError: user is not active error.
-        """
-
-        if not user_info.get('is_active'):
-            raise UserIsNotActiveError(_('Your user is not active. If you think that this '
-                                         'is a mistake, please contact the support team.'))
-
-        if not user_info.get('is_superuser'):
-            self._authorize_access(user_info, **options)
-
-    def _authorize_access(self, user_info, **options):
-        """
-        authorizes user access with given info.
-
-        this method is intended to be overridden in subclasses.
-        it must raise an error if authorization failed.
-
-        :param dict user: internal user info to be authorized.
-        """
-        pass
 
     def _get_extra_user_info(self, user, **options):
         """

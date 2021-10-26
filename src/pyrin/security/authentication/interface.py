@@ -38,24 +38,6 @@ class AbstractAuthenticatorBase(CoreObject, metaclass=AuthenticatorSingletonMeta
 
         raise CoreNotImplementedError()
 
-    @abstractmethod
-    def authorize(self, user, permissions, **options):
-        """
-        authorizes the given user for the specified permissions.
-
-        if the user does not have each one of specified permissions,
-        an error will be raised.
-
-        :param user: user identity to authorize permissions for.
-
-        :param PermissionBase | list[PermissionBase] permissions: permissions to check
-                                                                  for user authorization.
-
-        :raises CoreNotImplementedError: core not implemented error.
-        """
-
-        raise CoreNotImplementedError()
-
     @property
     @abstractmethod
     def name(self):

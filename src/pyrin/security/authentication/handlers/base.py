@@ -123,17 +123,6 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         """
         pass
 
-    def _authorize_user(self, user_info, **options):
-        """
-        authorizes the user with given info.
-
-        this method could be overridden in subclasses if required.
-        it must raise an error if authorization failed.
-
-        :param dict user_info: user info to be authorized.
-        """
-        pass
-
     def _authenticate(self, *payloads, **options):
         """
         authenticates the user with given credentials.
@@ -182,21 +171,6 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         payloads = self._get_payloads(*credentials, **options)
         payloads = misc_utils.make_iterable(payloads, tuple)
         self._authenticate(*payloads, **options)
-
-    def authorize(self, user_info, permissions, **options):
-        """
-        authorizes the user with given info for the specified permissions.
-
-        if the user does not have each one of specified permissions,
-        an error will be raised.
-
-        :param user_info: user info to authorize permissions for.
-
-        :param PermissionBase | list[PermissionBase] permissions: permissions to check
-                                                                  for user authorization.
-
-        :raises CoreNotImplementedError: core not implemented error.
-        """
 
     @abstractmethod
     def _get_payloads(self, *credentials, **options):
