@@ -95,7 +95,7 @@ class InternalUsersManager(Manager):
         :rtype: bool
         """
 
-        entity = self._get(id, **options)
+        entity = self.get(id, InternalUserEntity.is_active, **options)
         return entity.is_active
 
     def create(self, username, password, confirm_password,
