@@ -52,3 +52,31 @@ class UserIsNotActiveError(AuthorizationFailedError):
     user is not active error.
     """
     pass
+
+
+class PermissionDeniedError(AuthorizationFailedError):
+    """
+    permission denied error.
+    """
+    pass
+
+
+class InvalidAuthorizerTypeError(AuthorizationManagerException):
+    """
+    invalid authorizer type error.
+    """
+    pass
+
+
+class DuplicatedAuthorizerError(AuthorizationManagerException):
+    """
+    duplicated authorizer error.
+    """
+    pass
+
+
+class AuthorizerNotFoundError(AuthorizationManagerException):
+    """
+    authorizer not found error.
+    """
+    pass

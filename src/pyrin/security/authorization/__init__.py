@@ -13,5 +13,4 @@ class AuthorizationPackage(Package):
     """
 
     NAME = __name__
-    DEPENDS = []
     COMPONENT_NAME = 'security.authorization.component'

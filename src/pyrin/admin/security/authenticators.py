@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-admin security authenticators.
+admin security authenticators module.
 """
 
 from pyrin.security.authentication.decorators import authenticator

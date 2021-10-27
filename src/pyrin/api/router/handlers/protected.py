@@ -303,7 +303,6 @@ class ProtectedRoute(RouteBase):
         :param dict inputs: view function inputs.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
-        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 
@@ -315,12 +314,12 @@ class ProtectedRoute(RouteBase):
         authorizes the route permissions for current user.
 
         :raises UserNotAuthenticatedError: user not authenticated error.
-        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 
         user = session_services.get_current_user()
-        authorization_services.authorize(user, self.permissions)
+        user_info = session_services.get_current_user_info()
+        authorization_services.authorize(user, self.permissions, user_info=user_info)
 
     @property
     def permissions(self):
@@ -362,7 +361,6 @@ class FreshProtectedRoute(ProtectedRoute):
 
         :raises FreshAuthenticationRequiredError: fresh authentication required error.
         :raises UserNotAuthenticatedError: user not authenticated error.
-        :raises UserIsNotActiveError: user is not active error.
         :raises AuthorizationFailedError: authorization failed error.
         """
 

@@ -22,9 +22,9 @@ class AdminSecurityBusinessException(CoreBusinessException,
     pass
 
 
-class AdminLoginNotAllowedError(AuthorizationFailedError,
-                                AdminSecurityBusinessException):
+class AdminAccessNotAllowedError(AuthorizationFailedError,
+                                 AdminSecurityBusinessException):
     """
-    admin login not allowed error.
+    admin access not allowed error.
     """
     pass
