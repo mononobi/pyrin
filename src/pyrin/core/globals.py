@@ -3,8 +3,8 @@
 core globals module.
 """
 
-from flask_babel import gettext
 from sqlalchemy.engine import Row
+from flask_babel import gettext, ngettext
 
 
 class Constant:
@@ -56,6 +56,10 @@ LIST_TYPES = (list, tuple, set)
 
 # this method should be used for localizable strings.
 _ = gettext
+
+# this method should be used for localizable strings which have
+# different singular and plural forms.
+_n = ngettext
 
 # this value should be used when working on Row objects.
 ROW_RESULT = Row

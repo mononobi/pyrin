@@ -7,7 +7,7 @@ from abc import abstractmethod
 
 import pyrin.utils.misc as misc_utils
 
-from pyrin.core.globals import _
+from pyrin.core.globals import _, _n
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authorization.interface import AbstractAuthorizerBase
 from pyrin.security.authorization.handlers.exceptions import AuthorizerNameIsRequiredError
@@ -107,7 +107,9 @@ class AuthorizerBase(AbstractAuthorizerBase):
         permissions = misc_utils.make_iterable(permissions, tuple)
         if len(permissions) > 0:
             if self._has_permission(user, permissions, **options) is not True:
-                message = _('You do not have the required permissions {permissions}')
+                message = _n('You do not have the required permission {permissions}',
+                             'You do not have the required permissions {permissions}',
+                             len(permissions))
                 raise PermissionDeniedError(message.format(user=user,
                                                            permissions=list(permissions)))
 
