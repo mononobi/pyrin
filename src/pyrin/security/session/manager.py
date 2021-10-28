@@ -6,7 +6,9 @@ session manager module.
 from flask import request
 from flask.ctx import has_request_context
 
-from pyrin.core.structs import DTO, Manager
+import pyrin.security.authentication.services as authentication_service
+
+from pyrin.core.structs import Manager
 from pyrin.security.session import SessionPackage
 from pyrin.security.session.exceptions import InvalidUserError, \
     CouldNotOverwriteCurrentUserError, InvalidComponentCustomKeyError
@@ -141,25 +143,11 @@ class SessionManager(Manager):
         :rtype: bool
         """
 
-        return self.get_current_token_payload().get('is_fresh', False)
+        authenticator = authentication_service.get_current_authenticator()
+        if authenticator is not None:
+            return authenticator.is_fresh()
 
-    def get_current_token_payload(self):
-        """
-        gets current request's token payload.
-
-        :rtype: dict
-        """
-
-        return self.get_request_context('token_payload', DTO())
-
-    def get_current_token_header(self):
-        """
-        gets current request's token header.
-
-        :rtype: dict
-        """
-
-        return self.get_request_context('token_header', DTO())
+        return False
 
     def set_component_custom_key(self, value):
         """

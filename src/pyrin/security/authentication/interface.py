@@ -41,10 +41,10 @@ class AbstractAuthenticatorBase(CoreObject, metaclass=AuthenticatorSingletonMeta
     @abstractmethod
     def is_fresh(self):
         """
-        gets a value indicating that the credentials of current user are fresh.
+        gets a value indicating that current request has a fresh authentication.
 
-        being fresh means that they are created by providing
-        username and password to the server.
+        fresh authentication means an authentication which is done by providing
+        user credentials to server.
 
         :raises CoreNotImplementedError: core not implemented error.
 

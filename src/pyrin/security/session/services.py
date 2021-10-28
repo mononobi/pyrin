@@ -130,26 +130,6 @@ def is_fresh():
     return get_component(SessionPackage.COMPONENT_NAME).is_fresh()
 
 
-def get_current_token_payload():
-    """
-    gets current request's token payload.
-
-    :rtype: dict
-    """
-
-    return get_component(SessionPackage.COMPONENT_NAME).get_current_token_payload()
-
-
-def get_current_token_header():
-    """
-    gets current request's token header.
-
-    :rtype: dict
-    """
-
-    return get_component(SessionPackage.COMPONENT_NAME).get_current_token_header()
-
-
 def set_component_custom_key(value):
     """
     sets the component custom key.

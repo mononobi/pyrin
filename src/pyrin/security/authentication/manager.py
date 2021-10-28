@@ -98,6 +98,23 @@ class AuthenticationManager(Manager):
 
         return None
 
+    def get_current_authenticator(self):
+        """
+        gets the authenticator for current request from its matched url rule.
+
+        it may return None if the current request does not match any url rule.
+        it also returns None for routes which have `authenticated=False` in their
+        definition.
+
+        :rtype: AbstractAuthenticatorBase
+        """
+
+        name = self.get_current_authenticator_name()
+        if name:
+            return self.get_authenticator(name)
+
+        return None
+
     def get_rule_based_authenticator_name(self, url):
         """
         gets the relevant authenticator name to the given url rule.

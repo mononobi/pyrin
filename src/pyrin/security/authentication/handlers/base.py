@@ -174,10 +174,10 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
 
     def is_fresh(self):
         """
-        gets a value indicating that the credentials of current user are fresh.
+        gets a value indicating that current request has a fresh authentication.
 
-        being fresh means that they are created by providing
-        username and password to the server.
+        fresh authentication means an authentication which is done by providing
+        user credentials to server.
         if you do not want to implement such a concept in your authenticator,
         you can leave this method unimplemented and it will always return False.
 
@@ -543,10 +543,10 @@ class TokenAuthenticatorBase(AuthenticatorBase):
 
     def is_fresh(self):
         """
-        gets a value indicating that the credentials of current user are fresh.
+        gets a value indicating that current request has a fresh authentication.
 
-        being fresh means that they are created by providing
-        username and password to the server.
+        fresh authentication means an authentication which is done by providing
+        user credentials to server.
 
         :rtype: bool
         """

@@ -66,7 +66,7 @@ class AuthorizationManager(Manager):
         if authorizer_name is None:
             authorizer_name = authentication_services.get_current_authenticator_name()
 
-        if authorizer_name is None:
+        if authorizer_name is None or not self.authorizer_exists(authorizer_name):
             return
 
         authorizer = self.get_authorizer(authorizer_name)

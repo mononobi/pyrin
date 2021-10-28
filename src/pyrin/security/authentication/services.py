@@ -41,6 +41,20 @@ def get_current_authenticator_name():
     return get_component(AuthenticationPackage.COMPONENT_NAME).get_current_authenticator_name()
 
 
+def get_current_authenticator():
+    """
+    gets the authenticator for current request from its matched url rule.
+
+    it may return None if the current request does not match any url rule.
+    it also returns None for routes which have `authenticated=False` in their
+    definition.
+
+    :rtype: AbstractAuthenticatorBase
+    """
+
+    return get_component(AuthenticationPackage.COMPONENT_NAME).get_current_authenticator()
+
+
 def get_rule_based_authenticator_name(url):
     """
     gets the relevant authenticator name to the given url rule.
