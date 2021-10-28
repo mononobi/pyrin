@@ -38,6 +38,21 @@ class AbstractAuthenticatorBase(CoreObject, metaclass=AuthenticatorSingletonMeta
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def is_fresh(self):
+        """
+        gets a value indicating that the credentials of current user are fresh.
+
+        being fresh means that they are created by providing
+        username and password to the server.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def name(self):

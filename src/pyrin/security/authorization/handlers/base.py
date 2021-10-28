@@ -146,6 +146,19 @@ class AuthorizerBase(AbstractAuthorizerBase):
             if permissions:
                 self._authorize_permissions(user, permissions, **options)
 
+    def is_superuser(self):
+        """
+        gets a value indicating that the current user is superuser.
+
+        this method could be overridden in subclasses to provide actual
+        implementation for checking that a user is superuser.
+        otherwise this method will always return False.
+
+        :rtype: bool
+        """
+
+        return False
+
     @abstractmethod
     def _has_permission(self, user, permissions, **options):
         """

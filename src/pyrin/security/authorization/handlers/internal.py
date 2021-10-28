@@ -3,6 +3,8 @@
 authorization handlers internal module.
 """
 
+import pyrin.security.session.services as session_services
+
 from pyrin.security.authorization.handlers.base import AuthorizerBase
 
 
@@ -25,8 +27,8 @@ class InternalAuthorizer(AuthorizerBase):
         :rtype: bool
         """
 
-        user_info = options.get('user_info', {})
-        return user_info.get('is_superuser') is True
+        user_info = options.get('user_info')
+        return user_info and user_info.get('is_superuser') is True
 
     def _is_active(self, user, **options):
         """
@@ -39,5 +41,16 @@ class InternalAuthorizer(AuthorizerBase):
         :rtype: bool
         """
 
-        user_info = options.get('user_info', {})
-        return user_info.get('is_active') is True
+        user_info = options.get('user_info')
+        return user_info and user_info.get('is_active') is True
+
+    def is_superuser(self):
+        """
+        gets a value indicating that the current user is superuser.
+
+        :rtype: bool
+        """
+
+        user = session_services.get_current_user()
+        user_info = session_services.get_current_user_info()
+        return self._is_superuser(user, user_info=user_info)

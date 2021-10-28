@@ -46,6 +46,18 @@ class AbstractAuthorizerBase(CoreObject, metaclass=AuthorizerSingletonMeta):
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def is_superuser(self):
+        """
+        gets a value indicating that the current user is superuser.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: bool
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def name(self):

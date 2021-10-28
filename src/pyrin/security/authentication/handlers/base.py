@@ -172,6 +172,20 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         payloads = misc_utils.make_iterable(payloads, tuple)
         self._authenticate(*payloads, **options)
 
+    def is_fresh(self):
+        """
+        gets a value indicating that the credentials of current user are fresh.
+
+        being fresh means that they are created by providing
+        username and password to the server.
+        if you do not want to implement such a concept in your authenticator,
+        you can leave this method unimplemented and it will always return False.
+
+        :rtype: bool
+        """
+
+        return False
+
     @abstractmethod
     def _get_payloads(self, *credentials, **options):
         """
@@ -486,7 +500,7 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         :rtype: dict
         """
 
-        return dict(is_fresh=payload.get('is_fresh', False))
+        return dict(is_fresh=payload.get('is_fresh') or False)
 
     def _pre_authenticate(self,  access_token_payload, refresh_token_payload, **options):
         """
@@ -526,3 +540,16 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         """
 
         return access_token_payload
+
+    def is_fresh(self):
+        """
+        gets a value indicating that the credentials of current user are fresh.
+
+        being fresh means that they are created by providing
+        username and password to the server.
+
+        :rtype: bool
+        """
+
+        user_info = session_services.get_current_user_info()
+        return user_info and user_info.get('is_fresh') is True
