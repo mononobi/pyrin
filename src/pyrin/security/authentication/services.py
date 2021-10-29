@@ -138,6 +138,12 @@ def authenticate(request, **options):
 
     :param CoreRequest request: request to be authenticated.
 
+    :keyword str authenticator: authenticator name to be used. if not
+                                provided, current request authenticator
+                                will be used. if current request does
+                                not have an authenticator, nothing will
+                                be done.
+
     :raises AuthenticationFailedError: authentication failed error.
     """
 

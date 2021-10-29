@@ -234,11 +234,20 @@ class AuthenticationManager(Manager):
 
         :param CoreRequest request: request to be authenticated.
 
+        :keyword str authenticator: authenticator name to be used. if not
+                                    provided, current request authenticator
+                                    will be used. if current request does
+                                    not have an authenticator, nothing will
+                                    be done.
+
         :raises AuthenticationFailedError: authentication failed error.
         """
 
-        authenticator_name = self.get_current_authenticator_name()
-        if authenticator_name is not None:
+        authenticator_name = options.get('authenticator')
+        if not authenticator_name:
+            authenticator_name = self.get_current_authenticator_name()
+
+        if authenticator_name:
             authenticator = self.get_authenticator(authenticator_name)
             try:
                 authenticator.authenticate(request, **options)
