@@ -9,7 +9,7 @@ from pyrin.packaging.decorators import packaging_hook
 from pyrin.packaging.hooks import PackagingHookBase
 
 
-# @packaging_hook()
+@packaging_hook()
 class PackagingHook(PackagingHookBase):
     """
     packaging hook class.
