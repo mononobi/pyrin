@@ -6,7 +6,8 @@ session manager module.
 from flask import request
 from flask.ctx import has_request_context
 
-import pyrin.security.authentication.services as authentication_service
+import pyrin.security.authentication.services as authentication_services
+import pyrin.security.authorization.services as authorization_services
 
 from pyrin.core.structs import Manager
 from pyrin.security.session import SessionPackage
@@ -143,7 +144,7 @@ class SessionManager(Manager):
         :rtype: bool
         """
 
-        authenticator = authentication_service.get_current_authenticator()
+        authenticator = authentication_services.get_current_authenticator()
         if authenticator is not None:
             return authenticator.is_fresh()
 
@@ -239,3 +240,18 @@ class SessionManager(Manager):
         """
 
         return has_request_context()
+
+    def is_superuser(self):
+        """
+        gets a value indicating that the current user is superuser.
+
+        :rtype: bool
+        """
+
+        authorizer_name = authentication_services.get_current_authenticator_name()
+        if authorizer_name is None or \
+                not authorization_services.authorizer_exists(authorizer_name):
+            return False
+
+        authorizer = authorization_services.get_authorizer(authorizer_name)
+        return authorizer.is_superuser()

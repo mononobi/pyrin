@@ -208,3 +208,13 @@ def is_request_context_available():
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).is_request_context_available()
+
+
+def is_superuser():
+    """
+    gets a value indicating that the current user is superuser.
+
+    :rtype: bool
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).is_superuser()
