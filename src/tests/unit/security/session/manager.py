@@ -34,6 +34,18 @@ class SessionManager(BaseSessionManager):
 
         return self.__current_request_mock
 
+    def get_safe_current_request(self):
+        """
+        gets current request object in a safe manner.
+
+        meaning that if the request does not exist in current context, it will
+        return a None object instead of raising an error.
+
+        :rtype: CoreRequestMock
+        """
+
+        return self.__current_request_mock
+
     def inject_new_request(self):
         """
         injects a new request into current request object.
