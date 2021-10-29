@@ -28,8 +28,8 @@ class AdminAuthorizer(InternalAuthorizer):
         :raises AdminAccessNotAllowedError: admin access not allowed error.
         """
 
-        user_info = options.get('user_info', {})
-        if not user_info.get('admin_access'):
+        user_info = options.get('user_info')
+        if not user_info or user_info.get('admin_access') is not True:
             raise AdminAccessNotAllowedError(_('You are not allowed to access the admin panel. '
                                                'If you think that this is a mistake, please '
                                                'contact the support team.'))

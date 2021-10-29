@@ -5,6 +5,7 @@ authorization handlers base module.
 
 from abc import abstractmethod
 
+import pyrin.security.session.services as session_services
 import pyrin.utils.misc as misc_utils
 
 from pyrin.core.globals import _, _n
@@ -150,14 +151,16 @@ class AuthorizerBase(AbstractAuthorizerBase):
         """
         gets a value indicating that the current user is superuser.
 
-        this method could be overridden in subclasses to provide actual
-        implementation for checking that a user is superuser.
+        if you want to provide the actual implementation for checking that a
+        user is superuser, you should implement the `_is_superuser` method.
         otherwise this method will always return False.
 
         :rtype: bool
         """
 
-        return False
+        user = session_services.get_current_user()
+        user_info = session_services.get_current_user_info()
+        return self._is_superuser(user, user_info=user_info)
 
     @abstractmethod
     def _has_permission(self, user, permissions, **options):
