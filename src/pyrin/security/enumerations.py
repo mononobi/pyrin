@@ -3,7 +3,7 @@
 security enumerations module.
 """
 
-from pyrin.core.enumerations import CoreEnum
+from pyrin.core.enumerations import CoreEnum, EnumMember
 
 
 class TokenTypeEnum(CoreEnum):
@@ -13,3 +13,13 @@ class TokenTypeEnum(CoreEnum):
 
     ACCESS = 'access'
     REFRESH = 'refresh'
+
+
+class InternalAuthenticatorEnum(CoreEnum):
+    """
+    internal authenticator enum.
+    """
+
+    ADMIN = EnumMember('admin', 'Admin')
+    AUDIT = EnumMember('audit', 'Audit')
+    SWAGGER = EnumMember('swagger', 'Swagger')

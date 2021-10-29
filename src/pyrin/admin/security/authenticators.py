@@ -3,6 +3,7 @@
 admin security authenticators module.
 """
 
+from pyrin.security.enumerations import InternalAuthenticatorEnum
 from pyrin.security.authentication.decorators import authenticator
 from pyrin.security.authentication.handlers.internal import InternalTokenAuthenticator
 
@@ -14,7 +15,7 @@ class AdminTokenAuthenticator(InternalTokenAuthenticator):
     """
 
     REFRESH_TOKEN_HOLDER = 'Admin-Refresh-Auth'
-    _name = 'admin'
+    _name = InternalAuthenticatorEnum.ADMIN
 
     def _get_extra_user_info(self, user, **options):
         """

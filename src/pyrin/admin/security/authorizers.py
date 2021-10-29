@@ -5,8 +5,9 @@ admin security authorizers module.
 
 from pyrin.core.globals import _
 from pyrin.security.authorization.decorators import authorizer
-from pyrin.admin.security.exceptions import AdminAccessNotAllowedError
+from pyrin.security.enumerations import InternalAuthenticatorEnum
 from pyrin.security.authorization.handlers.internal import InternalAuthorizer
+from pyrin.admin.security.exceptions import AdminAccessNotAllowedError
 
 
 @authorizer()
@@ -15,7 +16,7 @@ class AdminAuthorizer(InternalAuthorizer):
     admin authorizer class.
     """
 
-    _name = 'admin'
+    _name = InternalAuthenticatorEnum.ADMIN
 
     def _authorize_access(self, user, **options):
         """
