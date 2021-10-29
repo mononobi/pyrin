@@ -40,6 +40,32 @@ if cache_name is not None:
         return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user, permissions,
                                                                             **options)
 
+
+    @custom_cached(cache_name, expire=cache_expire, consider_user=True, refreshable=False)
+    def is_authorized(permissions, user=None, **options):
+        """
+        gets a value indicating that specified user is authorized for given permissions.
+
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for authorization.
+
+        :param user: user identity to be checked for authorization.
+                     if not provided, current user will be used.
+
+        :keyword str authorizer: authorizer name to be used.
+                                 if not provided, current request authenticator will
+                                 be used. if current request does not have an
+                                 authenticator, it will return True as authorized.
+
+        :keyword dict user_info: user info to be used for authorization.
+                                 if not provided, current user info will be used.
+
+        :rtype: bool
+        """
+
+        return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(permissions, user,
+                                                                                **options)
+
 else:
     def authorize(user, permissions, **options):
         """
@@ -68,29 +94,29 @@ else:
                                                                             **options)
 
 
-def is_authorized(permissions, user=None, **options):
-    """
-    gets a value indicating that specified user is authorized for given permissions.
+    def is_authorized(permissions, user=None, **options):
+        """
+        gets a value indicating that specified user is authorized for given permissions.
 
-    :param PermissionBase | list[PermissionBase] permissions: permissions to check
-                                                              for authorization.
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for authorization.
 
-    :param user: user identity to be checked for authorization.
-                 if not provided, current user will be used.
+        :param user: user identity to be checked for authorization.
+                     if not provided, current user will be used.
 
-    :keyword str authorizer: authorizer name to be used.
-                             if not provided, current request authenticator will
-                             be used. if current request does not have an
-                             authenticator, it will return True as authorized.
+        :keyword str authorizer: authorizer name to be used.
+                                 if not provided, current request authenticator will
+                                 be used. if current request does not have an
+                                 authenticator, it will return True as authorized.
 
-    :keyword dict user_info: user info to be used for authorization.
-                             if not provided, current user info will be used.
+        :keyword dict user_info: user info to be used for authorization.
+                                 if not provided, current user info will be used.
 
-    :rtype: bool
-    """
+        :rtype: bool
+        """
 
-    return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(permissions, user,
-                                                                            **options)
+        return get_component(AuthorizationPackage.COMPONENT_NAME).is_authorized(permissions, user,
+                                                                                **options)
 
 
 def authorizer_exists(name):
