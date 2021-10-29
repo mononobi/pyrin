@@ -14,3 +14,5 @@ class AuthorizationPackage(Package):
 
     NAME = __name__
     COMPONENT_NAME = 'security.authorization.component'
+    DEPENDS = ['pyrin.caching',
+               'pyrin.configuration']

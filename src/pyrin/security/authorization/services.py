@@ -3,35 +3,69 @@
 authorization services module.
 """
 
+import pyrin.configuration.services as config_services
+
 from pyrin.application.services import get_component
+from pyrin.caching.decorators import custom_cached
 from pyrin.security.authorization import AuthorizationPackage
 
 
-def authorize(user, permissions, **options):
-    """
-    authorizes the given user for specified permissions.
+cache_name = config_services.get('security', 'authorization', 'cache_name')
+cache_expire = config_services.get('security', 'authorization', 'cache_expire')
+if cache_name is not None:
+    @custom_cached(cache_name, expire=cache_expire, consider_user=True, refreshable=False)
+    def authorize(user, permissions, **options):
+        """
+        authorizes the given user for specified permissions.
 
-    if user does not have each one of the specified
-    permissions, an error will be raised.
+        if user does not have each one of the specified
+        permissions, an error will be raised.
 
-    :param user: user identity to authorize permissions for.
+        :param user: user identity to authorize permissions for.
 
-    :param PermissionBase | list[PermissionBase] permissions: permissions to check
-                                                              for user authorization.
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for user authorization.
 
-    :keyword str authorizer: authorizer name to be used.
-                             if not provided, current request authenticator will
-                             be used. if current request does not have an
-                             authenticator, it will consider it as authorized.
+        :keyword str authorizer: authorizer name to be used.
+                                 if not provided, current request authenticator will
+                                 be used. if current request does not have an
+                                 authenticator, it will consider it as authorized.
 
-    :keyword dict user_info: user info to be used for authorization.
+        :keyword dict user_info: user info to be used for authorization.
 
-    :raises UserNotAuthenticatedError: user not authenticated error.
-    :raises AuthorizationFailedError: authorization failed error.
-    """
+        :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises AuthorizationFailedError: authorization failed error.
+        """
 
-    return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user, permissions,
-                                                                        **options)
+        return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user, permissions,
+                                                                            **options)
+
+else:
+    def authorize(user, permissions, **options):
+        """
+        authorizes the given user for specified permissions.
+
+        if user does not have each one of the specified
+        permissions, an error will be raised.
+
+        :param user: user identity to authorize permissions for.
+
+        :param PermissionBase | list[PermissionBase] permissions: permissions to check
+                                                                  for user authorization.
+
+        :keyword str authorizer: authorizer name to be used.
+                                 if not provided, current request authenticator will
+                                 be used. if current request does not have an
+                                 authenticator, it will consider it as authorized.
+
+        :keyword dict user_info: user info to be used for authorization.
+
+        :raises UserNotAuthenticatedError: user not authenticated error.
+        :raises AuthorizationFailedError: authorization failed error.
+        """
+
+        return get_component(AuthorizationPackage.COMPONENT_NAME).authorize(user, permissions,
+                                                                            **options)
 
 
 def is_authorized(permissions, user=None, **options):
