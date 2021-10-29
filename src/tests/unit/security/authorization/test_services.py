@@ -22,7 +22,7 @@ def test_authorize_invalid_user():
     """
 
     with pytest.raises(UserNotAuthenticatedError):
-        authorization_services.authorize(None, PERMISSION_TEST_ONE)
+        authorization_services.authorize(None, PERMISSION_TEST_ONE, authorizer='test')
 
 
 def test_authorize_single_permission():
@@ -30,7 +30,7 @@ def test_authorize_single_permission():
     authorizes the given user for specified permission.
     """
 
-    authorization_services.authorize(DTO(user_id=1000), PERMISSION_TEST_ONE)
+    authorization_services.authorize(DTO(user_id=500), PERMISSION_TEST_ONE, authorizer='test')
 
 
 def test_authorize_multiple_permissions():
@@ -38,9 +38,11 @@ def test_authorize_multiple_permissions():
     authorizes the given user for specified permissions.
     """
 
-    authorization_services.authorize(DTO(user_id=1000), [PERMISSION_TEST_ONE,
-                                                         PERMISSION_TEST_TWO,
-                                                         PERMISSION_TEST_THREE])
+    authorization_services.authorize(DTO(user_id=500),
+                                     [PERMISSION_TEST_ONE,
+                                      PERMISSION_TEST_TWO,
+                                      PERMISSION_TEST_THREE],
+                                     authorizer='test')
 
 
 def test_authorize_unavailable_single_permission():
@@ -50,7 +52,9 @@ def test_authorize_unavailable_single_permission():
     """
 
     with pytest.raises(AuthorizationFailedError):
-        authorization_services.authorize(DTO(user_id=1000), PERMISSION_TEST_FOUR)
+        authorization_services.authorize(DTO(user_id=500),
+                                         PERMISSION_TEST_FOUR,
+                                         authorizer='test')
 
 
 def test_authorize_unavailable_multiple_permissions():
@@ -61,8 +65,10 @@ def test_authorize_unavailable_multiple_permissions():
     """
 
     with pytest.raises(AuthorizationFailedError):
-        authorization_services.authorize(DTO(user_id=1000), [PERMISSION_TEST_FOUR,
-                                                             PERMISSION_TEST_FIVE])
+        authorization_services.authorize(DTO(user_id=500),
+                                         [PERMISSION_TEST_FOUR,
+                                          PERMISSION_TEST_FIVE],
+                                         authorizer='test')
 
 
 def test_authorize_unavailable_mixed_permissions():
@@ -73,10 +79,12 @@ def test_authorize_unavailable_mixed_permissions():
     """
 
     with pytest.raises(AuthorizationFailedError):
-        authorization_services.authorize(DTO(user_id=1000), [PERMISSION_TEST_ONE,
-                                                             PERMISSION_TEST_FOUR,
-                                                             PERMISSION_TEST_TWO,
-                                                             PERMISSION_TEST_FIVE])
+        authorization_services.authorize(DTO(user_id=500),
+                                         [PERMISSION_TEST_ONE,
+                                          PERMISSION_TEST_FOUR,
+                                          PERMISSION_TEST_TWO,
+                                          PERMISSION_TEST_FIVE],
+                                         authorizer='test')
 
 
 def test_is_authorized_current_user(client_request_authenticated):
@@ -84,7 +92,8 @@ def test_is_authorized_current_user(client_request_authenticated):
     gets a value indicating that the current user is authorized for given permission.
     """
 
-    authorized = authorization_services.is_authorized(PERMISSION_TEST_ONE)
+    authorized = authorization_services.is_authorized(PERMISSION_TEST_ONE,
+                                                      authorizer='test')
     assert authorized is True
 
 
@@ -95,7 +104,8 @@ def test_is_authorized_current_user_unavailable_permissions(client_request_authe
     """
 
     authorized = authorization_services.is_authorized([PERMISSION_TEST_FOUR,
-                                                       PERMISSION_TEST_FIVE])
+                                                       PERMISSION_TEST_FIVE],
+                                                      authorizer='test')
     assert authorized is False
 
 
@@ -105,7 +115,8 @@ def test_is_authorized_current_user_unavailable_permission(client_request_authen
     is not authorized for given permission.
     """
 
-    authorized = authorization_services.is_authorized([PERMISSION_TEST_FIVE])
+    authorized = authorization_services.is_authorized([PERMISSION_TEST_FIVE],
+                                                      authorizer='test')
     assert authorized is False
 
 
@@ -115,7 +126,8 @@ def test_is_authorized_current_user_unauthenticated(client_request_unauthenticat
     the user is not authenticated so it should not be authorized.
     """
 
-    authorized = authorization_services.is_authorized(PERMISSION_TEST_ONE)
+    authorized = authorization_services.is_authorized(PERMISSION_TEST_ONE,
+                                                      authorizer='test')
     assert authorized is False
 
 
@@ -126,16 +138,17 @@ def test_is_authorized_current_user_no_request(no_client_request):
     """
 
     with pytest.raises(AttributeError):
-        authorization_services.is_authorized(PERMISSION_TEST_TWO)
+        authorization_services.is_authorized(PERMISSION_TEST_TWO, authorizer='test')
 
 
-def test_is_authorized_single_permission():
+def test_is_authorized_single_permission(client_request_authenticated):
     """
     gets a value indicating that specified user is authorized for given permission.
     """
 
     authorized = authorization_services.is_authorized(PERMISSION_TEST_ONE,
-                                                      user=DTO(user_id=1000))
+                                                      user=DTO(user_id=500),
+                                                      authorizer='test')
 
     assert authorized is True
 
@@ -148,6 +161,7 @@ def test_is_authorized_multiple_permissions():
     authorized = authorization_services.is_authorized([PERMISSION_TEST_ONE,
                                                        PERMISSION_TEST_TWO,
                                                        PERMISSION_TEST_THREE],
-                                                      user=DTO(user_id=1000))
+                                                      user=DTO(user_id=500),
+                                                      authorizer='test')
 
     assert authorized is True

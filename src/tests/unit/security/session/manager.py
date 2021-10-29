@@ -47,3 +47,21 @@ class SessionManager(BaseSessionManager):
         """
 
         self.__current_request_mock = None
+
+    def set_access_token(self, token):
+        """
+        sets the given access token in current request.
+
+        :param str token: access token.
+        """
+
+        self.__current_request_mock.headers['Authorization'] = token
+
+    def set_refresh_token(self, token):
+        """
+        sets the given refresh token in current request.
+
+        :param str token: refresh token.
+        """
+
+        self.__current_request_mock.headers['Cookie'] = f'Refresh-Auth={token}'

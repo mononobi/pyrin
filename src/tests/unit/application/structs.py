@@ -5,7 +5,7 @@ application structs module.
 
 from pyrin.application.base import Application
 from pyrin.application.structs import Component
-from pyrin.core.structs import Manager
+from pyrin.core.structs import Manager, CoreMultiDict
 from pyrin.processor.request.wrappers.base import CoreRequest
 
 
@@ -23,6 +23,7 @@ class CoreRequestMock(CoreRequest):
 
     def __init__(self):
         super().__init__({}, populate_request=True)
+        self.headers = CoreMultiDict()
 
 
 class OnlyManagerMock(Manager):

@@ -22,3 +22,23 @@ def clear_current_request():
     """
 
     get_component(SessionPackage.COMPONENT_NAME).clear_current_request()
+
+
+def set_access_token(token):
+    """
+    sets the given access token in current request.
+
+    :param str token: access token.
+    """
+
+    get_component(SessionPackage.COMPONENT_NAME).set_access_token(token)
+
+
+def set_refresh_token(token):
+    """
+    sets the given refresh token in current request.
+
+    :param str token: refresh token.
+    """
+
+    get_component(SessionPackage.COMPONENT_NAME).set_refresh_token(token)

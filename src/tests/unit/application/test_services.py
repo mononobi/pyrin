@@ -366,7 +366,6 @@ def test_get_all_components():
                   'security.permission.component',
                   'security.session.component',
                   'security.token.component',
-                  'security.users.component',
                   'packaging.component',
                   'caching.component']
 

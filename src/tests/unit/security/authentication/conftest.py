@@ -23,9 +23,11 @@ def client_request_fresh_access_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    payload = DTO(user_id=100)
-    token = token_services.generate_access_token(payload, is_fresh=True)
-    session_services.add_request_context('authorization', token, replace=True)
+    payload = DTO(sub=100, auth='test')
+    access_token = token_services.generate_access_token(payload, is_fresh=True)
+    refresh_token = token_services.generate_refresh_token(payload)
+    test_session_services.set_access_token(access_token)
+    test_session_services.set_refresh_token(refresh_token)
 
     return session_services.get_current_request()
 
@@ -40,9 +42,11 @@ def client_request_access_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    payload = DTO(user_id=200)
-    token = token_services.generate_access_token(payload)
-    session_services.add_request_context('authorization', token, replace=True)
+    payload = DTO(sub=200, auth='test')
+    access_token = token_services.generate_access_token(payload)
+    refresh_token = token_services.generate_refresh_token(payload)
+    test_session_services.set_access_token(access_token)
+    test_session_services.set_refresh_token(refresh_token)
 
     return session_services.get_current_request()
 
@@ -57,9 +61,11 @@ def client_request_refresh_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    payload = DTO(user_id=300)
-    token = token_services.generate_refresh_token(payload)
-    session_services.add_request_context('authorization', token, replace=True)
+    payload = DTO(sub=300, auth='test')
+    access_token = token_services.generate_refresh_token(payload)
+    refresh_token = token_services.generate_refresh_token(payload)
+    test_session_services.set_access_token(access_token)
+    test_session_services.set_refresh_token(refresh_token)
 
     return session_services.get_current_request()
 
@@ -90,8 +96,10 @@ def client_request_no_identity_token():
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
     payload = DTO()
-    token = token_services.generate_access_token(payload)
-    session_services.add_request_context('authorization', token, replace=True)
+    access_token = token_services.generate_access_token(payload)
+    refresh_token = token_services.generate_refresh_token(payload)
+    test_session_services.set_access_token(access_token)
+    test_session_services.set_refresh_token(refresh_token)
 
     return session_services.get_current_request()
 
@@ -106,6 +114,9 @@ def client_request_invalid_token():
 
     test_session_services.clear_current_request()
     test_session_services.inject_new_request()
-    session_services.add_request_context('authorization', 'an invalid token', replace=True)
+    payload = DTO(sub=300, auth='test')
+    refresh_token = token_services.generate_refresh_token(payload)
+    test_session_services.set_access_token('an invalid token')
+    test_session_services.set_refresh_token(refresh_token)
 
     return session_services.get_current_request()

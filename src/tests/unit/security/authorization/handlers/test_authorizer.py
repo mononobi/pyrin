@@ -1,30 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-security manager module.
+authorization test authorizers package.
 """
 
 import pyrin.utils.misc as misc_utils
 
-from pyrin.security.manager import SecurityManager as BaseSecurityManager
+from pyrin.security.authorization.decorators import authorizer
+from pyrin.security.authorization.handlers.base import AuthorizerBase
 
-from tests.unit.security import SecurityPackage
 from tests.unit.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
     PERMISSION_TEST_THREE
 
 
-class SecurityManager(BaseSecurityManager):
+@authorizer()
+class TestAuthorizer(AuthorizerBase):
     """
-    security manager class.
+    test authorizer class.
     """
 
-    package_class = SecurityPackage
+    _name = 'test'
 
-    def has_permission(self, user, permissions, **options):
+    def _has_permission(self, user, permissions, **options):
         """
-        gets a value indicating that given user has the specified permissions.
+        gets a value indicating that given user has the requested permissions.
 
-        :param dict user: user identity to check its permissions.
-        :param list[PermissionBase] permissions: permissions to check for user.
+        :param user: user identity to authorize permissions for.
+        :param tuple[PermissionBase] permissions: permissions to check for user authorization.
+
+        :keyword dict user_info: user info to be used for authorization.
 
         :rtype: bool
         """
