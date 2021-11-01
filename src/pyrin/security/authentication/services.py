@@ -161,8 +161,23 @@ def login(username, password, authenticator, **options):
     :param str password: password.
     :param str authenticator: authenticator name to be used.
 
+    :raises ValidationError: validation error.
+    :raises AuthenticatorNotFoundError: authenticator not found error.
+
     :returns: required credentials.
     """
 
     return get_component(AuthenticationPackage.COMPONENT_NAME).login(username, password,
                                                                      authenticator, **options)
+
+
+def logout(authenticator, **options):
+    """
+    logouts the current user and clears its relevant credentials.
+
+    :param str authenticator: authenticator name to be used.
+
+    :raises AuthenticatorNotFoundError: authenticator not found error.
+    """
+
+    return get_component(AuthenticationPackage.COMPONENT_NAME).logout(authenticator, **options)

@@ -267,6 +267,9 @@ class AuthenticationManager(Manager):
         :param str password: password.
         :param str authenticator: authenticator name to be used.
 
+        :raises ValidationError: validation error.
+        :raises AuthenticatorNotFoundError: authenticator not found error.
+
         :returns: required credentials.
         """
 
@@ -276,3 +279,15 @@ class AuthenticationManager(Manager):
 
         authenticator = self.get_authenticator(authenticator, **options)
         return authenticator.login(data.username, data.password, **options)
+
+    def logout(self, authenticator, **options):
+        """
+        logouts the current user and clears its relevant credentials.
+
+        :param str authenticator: authenticator name to be used.
+
+        :raises AuthenticatorNotFoundError: authenticator not found error.
+        """
+
+        authenticator = self.get_authenticator(authenticator, **options)
+        return authenticator.logout(**options)
