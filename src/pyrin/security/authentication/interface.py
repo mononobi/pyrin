@@ -53,6 +53,33 @@ class AbstractAuthenticatorBase(CoreObject, metaclass=AuthenticatorSingletonMeta
 
         raise CoreNotImplementedError()
 
+    @abstractmethod
+    def login(self, username, password, **options):
+        """
+        logs in a user with given info and stores/generates the relevant credentials.
+
+        it may return the required credentials if they must be returned to client.
+
+        :param str username: username.
+        :param str password: password.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: required credentials.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def logout(self, **options):
+        """
+        logouts the current user and clears its relevant credentials.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
     @property
     @abstractmethod
     def name(self):

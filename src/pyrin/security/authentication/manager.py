@@ -3,6 +3,7 @@
 authentication manager module.
 """
 
+import pyrin.validator.services as validator_services
 import pyrin.application.services as application_services
 import pyrin.security.session.services as session_services
 import pyrin.configuration.services as config_services
@@ -255,3 +256,23 @@ class AuthenticationManager(Manager):
                 raise
             except Exception as error:
                 raise AuthenticationFailedError(error) from error
+
+    def login(self, username, password, authenticator, **options):
+        """
+        logs in a user with given info using provided authenticator.
+
+        it may return the required credentials if they must be returned to client.
+
+        :param str username: username.
+        :param str password: password.
+        :param str authenticator: authenticator name to be used.
+
+        :returns: required credentials.
+        """
+
+        data = validator_services.validate('authentication',
+                                           username=username,
+                                           password=password)
+
+        authenticator = self.get_authenticator(authenticator, **options)
+        return authenticator.login(data.username, data.password, **options)

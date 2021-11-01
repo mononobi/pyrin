@@ -97,3 +97,11 @@ class InvalidUserIdentityError(AuthenticationHandlersException):
     invalid user identity error.
     """
     pass
+
+
+class ProvidedUsernameOrPasswordAreIncorrect(AuthenticationFailedError,
+                                             AuthenticationHandlersBusinessException):
+    """
+    provided username or password are incorrect.
+    """
+    pass

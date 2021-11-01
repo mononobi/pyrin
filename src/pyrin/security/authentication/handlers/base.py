@@ -17,7 +17,7 @@ from pyrin.security.authentication.handlers.exceptions import RefreshTokenRequir
     AuthenticatorNameIsRequiredError, AccessTokenRequiredError, InvalidUserError, \
     AccessAndRefreshTokensDoesNotBelongToSameUserError, InvalidAccessTokenError, \
     InvalidTokenAuthenticatorError, InvalidRefreshTokenError, UserCredentialsRevokedError, \
-    InvalidUserIdentityError
+    InvalidUserIdentityError, ProvidedUsernameOrPasswordAreIncorrect
 
 
 class AuthenticatorBase(AbstractAuthenticatorBase):
@@ -132,10 +132,14 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
                                     token or a session identifier.
                                     it can be multiple items if required.
 
+        :raises UserCredentialsRevokedError: user credentials revoked error.
         :raises AuthenticationFailedError: authentication failed error.
         :raises InvalidUserError: invalid user error.
         :raises InvalidUserIdentityError: invalid user identity error.
         """
+
+        if self._is_revoked(*payloads, **options):
+            raise UserCredentialsRevokedError(_('User credentials are revoked.'))
 
         self._pre_authenticate(*payloads, **options)
         user_payload = self._get_user_related_payload(*payloads, **options)
@@ -156,6 +160,55 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         custom_component_key = self._get_custom_component_key(user, user_payload, **options)
         if custom_component_key is not None:
             self._set_custom_component_key(custom_component_key)
+
+    def _is_revoked(self, *payloads, **options):
+        """
+        gets a value indicating that given payloads are revoked.
+
+        if you want to implement credential revocation, you must implement
+        this method. otherwise it will always return False.
+
+        :param dict | str payloads: credential payloads.
+                                    it is usually an access token, refresh
+                                    token or a session identifier.
+                                    it can be multiple items if required.
+
+        :rtype: bool
+        """
+
+        return False
+
+    def _persist_payloads(self, user, *payloads, **options):
+        """
+        persists given payloads for user login.
+
+        this is needed if you want to use credentials revocation.
+        if you do not need this feature, you can leave this method unimplemented.
+
+        :param BaseEntity | ROW_RESULT user: user to persist its generated credentials.
+
+        :param dict | str payloads: credential payloads.
+                                    it is usually an access token, refresh
+                                    token or a session identifier.
+                                    it can be multiple items if required.
+        """
+        pass
+
+    def _generate_credentials(self, user, **options):
+        """
+        generates the required credentials for given user for a successful login.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :returns: required credentials to be returned to client.
+        """
+
+        credentials = self._create_credentials(user, **options)
+        credentials = misc_utils.make_iterable(credentials, tuple)
+        payloads = self._get_payloads(*credentials, **options)
+        payloads = misc_utils.make_iterable(payloads, tuple)
+        self._persist_payloads(user, *payloads, **options)
+        return self._get_client_credentials(*credentials, **options)
 
     def authenticate(self, request, **options):
         """
@@ -185,6 +238,120 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         """
 
         return False
+
+    def login(self, username, password, **options):
+        """
+        logs in a user with given info and stores/generates the relevant credentials.
+
+        it may return the required credentials if they must be sent to client.
+
+        :param str username: username.
+        :param str password: password.
+
+        :raises ValidationError: validation error.
+
+        :raises ProvidedUsernameOrPasswordAreIncorrect: provided username or
+                                                        password are incorrect.
+
+        :returns: required credentials to be returned to client.
+        """
+
+        user = self._get_login_user(username, password, **options)
+        if user is None:
+            raise ProvidedUsernameOrPasswordAreIncorrect(_('The provided username or '
+                                                           'password are incorrect.'))
+
+        self._validate_login(user, **options)
+        return self._generate_credentials(user, **options)
+
+    def logout(self, **options):
+        """
+        logouts the current user and clears its relevant credentials.
+        """
+
+        user = session_services.get_current_user()
+        credentials = self._get_credentials(session_services.get_current_request(), **options)
+        credentials = misc_utils.make_iterable(credentials, tuple)
+        payloads = self._get_payloads(*credentials, **options)
+        payloads = misc_utils.make_iterable(payloads, tuple)
+        self._revoke(user, *payloads, **options)
+
+    @abstractmethod
+    def _create_credentials(self, user, **options):
+        """
+        creates the required credentials for given user for a successful login.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: created credentials.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _get_client_credentials(self, *credentials, **options):
+        """
+        gets the credentials that must be returned to client.
+
+        :param str credentials: user credentials.
+                                it is usually the contents of
+                                authorization or cookie headers.
+                                it can be multiple items if required.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :returns: required credentials to be returned to client.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _revoke(self, *payloads, **options):
+        """
+        revokes the given payloads for user logout.
+
+        :param dict | str payloads: credential payloads.
+                                    it is usually an access token, refresh
+                                    token or a session identifier.
+                                    it can be multiple items if required.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _get_login_user(self, username, password, **options):
+        """
+        gets the related user entity to given inputs for logging in.
+
+        it must return None if no user found.
+
+        :param str username: username.
+        :param str password: password.
+
+        :raises CoreNotImplementedError: core not implemented error.
+
+        :rtype: BaseEntity | ROW_RESULT
+        """
+
+        raise CoreNotImplementedError()
+
+    @abstractmethod
+    def _validate_login(self, user, **options):
+        """
+        validates that given user can actually logged in.
+
+        if user should not be logged in it must raise a relevant authorization failed error.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :raises CoreNotImplementedError: core not implemented error.
+        """
+
+        raise CoreNotImplementedError()
 
     @abstractmethod
     def _get_payloads(self, *credentials, **options):
@@ -294,14 +461,21 @@ class TokenAuthenticatorBase(AuthenticatorBase):
     # header name to read access token from it.
     ACCESS_TOKEN_HOLDER = 'Authorization'
 
-    # cookie name to read refresh token from it.
+    # cookie or header name to read refresh token from it.
     REFRESH_TOKEN_HOLDER = 'Refresh-Auth'
 
     # a key name to hold user identity in token payloads.
     USER_IDENTITY_HOLDER = 'sub'
 
+    # a key name to hold authenticator name in token payloads.
+    AUTHENTICATOR_HOLDER = 'auth'
+
     # specifies that this authenticator requires refresh token.
     _refresh_token = True
+
+    # specifies that refresh token must be read from a cookie.
+    # if set to False, it will be read from a normal header.
+    _refresh_token_in_cookie = True
 
     def _get_token_payload(self, token, **options):
         """
@@ -391,7 +565,10 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         :rtype: str
         """
 
-        return request.cookies.get(self.REFRESH_TOKEN_HOLDER)
+        if self._refresh_token_in_cookie:
+            return request.cookies.get(self.REFRESH_TOKEN_HOLDER)
+
+        return request.headers.get(self.REFRESH_TOKEN_HOLDER)
 
     def _get_credentials(self, request, **options):
         """
@@ -447,7 +624,7 @@ class TokenAuthenticatorBase(AuthenticatorBase):
                 payload.get('type') != TokenTypeEnum.ACCESS:
             raise InvalidAccessTokenError(_('Provided access token is invalid.'))
 
-        generator = payload.get('auth')
+        generator = payload.get(self.AUTHENTICATOR_HOLDER)
         if generator != self.name:
             raise InvalidTokenAuthenticatorError(_('This access token is generated using '
                                                    'another authenticator with name [{name}].')
@@ -468,28 +645,11 @@ class TokenAuthenticatorBase(AuthenticatorBase):
                 payload.get('type') != TokenTypeEnum.REFRESH:
             raise InvalidRefreshTokenError(_('Provided refresh token is invalid.'))
 
-        generator = payload.get('auth')
+        generator = payload.get(self.AUTHENTICATOR_HOLDER)
         if generator != self.name:
             raise InvalidTokenAuthenticatorError(_('This refresh token is generated using '
                                                    'another authenticator with name [{name}].')
                                                  .format(name=generator))
-
-    def _is_revoked(self, *id):
-        """
-        gets a value indicating that tokens with given ids are revoked.
-
-        this method could be overridden in subclasses to perform a database query
-        on revoked tokens to check if this id is revoked.
-
-        if you do not want to implement token revocation, you could
-        leave this method unimplemented.
-
-        :param uuid.UUID id: token unique id.
-
-        :rtype: bool
-        """
-
-        return False
 
     def _get_extra_info(self, payload, **options):
         """
@@ -517,14 +677,8 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         """
 
         if self._refresh_token:
-            self._validate_same_user(access_token_payload, refresh_token_payload)
-
-        ids = [access_token_payload.get('jti')]
-        if self._refresh_token:
-            ids.append(refresh_token_payload.get('jti'))
-
-        if self._is_revoked(*ids):
-            raise UserCredentialsRevokedError(_('User credentials are revoked.'))
+            self._validate_same_user(access_token_payload,
+                                     refresh_token_payload, **options)
 
     def _get_user_related_payload(self, access_token_payload,
                                   refresh_token_payload, **options):
@@ -540,6 +694,82 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         """
 
         return access_token_payload
+
+    def _create_credentials(self, user, **options):
+        """
+        creates the required access and refresh tokens for given user for a successful login.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :returns: tuple[str access_token, str refresh_token]
+        :rtype: tuple[str, str]
+        """
+
+        access_claims = self._get_access_token_claims(user, **options) or {}
+        refresh_claims = {}
+        if self._refresh_token:
+            refresh_claims = self._get_refresh_token_claims(user, **options) or {}
+
+        common_claims = dict()
+        common_claims[self.AUTHENTICATOR_HOLDER] = self.name
+        common_claims[self.USER_IDENTITY_HOLDER] = self._get_user_identity(user, **options)
+        access_claims.update(common_claims)
+        if self._refresh_token:
+            refresh_claims.update(common_claims)
+
+        access_token = token_services.generate_access_token(access_claims, is_fresh=True)
+        refresh_token = None
+        if self._refresh_token:
+            refresh_token = token_services.generate_refresh_token(refresh_claims)
+
+        return access_token, refresh_token
+
+    def _get_access_token_claims(self, user, **options):
+        """
+        gets a dict of all claims that must be added to access token payload.
+
+        this method could be overridden in subclasses.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def _get_refresh_token_claims(self, user, **options):
+        """
+        gets a dict of all claims that must be added to refresh token payload.
+
+        this method could be overridden in subclasses.
+
+        :param BaseEntity | ROW_RESULT user: user to be logged in.
+
+        :rtype: dict
+        """
+
+        return {}
+
+    def _get_client_credentials(self, access_token, refresh_token, **options):
+        """
+        gets the credentials that must be returned to client.
+
+        :param str access_token: access token.
+        :param str refresh_token: refresh token.
+
+        :returns: dict(str access_token) | dict(str access_token, str refresh_token)
+        :rtype: dict
+        """
+
+        result = dict(access_token=access_token)
+        if self._refresh_token:
+            if self._refresh_token_in_cookie:
+                # set cookie for refresh token.
+                pass
+            else:
+                result.update(refresh_token=refresh_token)
+
+        return result
 
     def is_fresh(self):
         """

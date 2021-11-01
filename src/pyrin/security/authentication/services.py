@@ -149,3 +149,20 @@ def authenticate(request, **options):
 
     return get_component(AuthenticationPackage.COMPONENT_NAME).authenticate(request,
                                                                             **options)
+
+
+def login(username, password, authenticator, **options):
+    """
+    logs in a user with given info using provided authenticator.
+
+    it may return the required credentials if they must be returned to client.
+
+    :param str username: username.
+    :param str password: password.
+    :param str authenticator: authenticator name to be used.
+
+    :returns: required credentials.
+    """
+
+    return get_component(AuthenticationPackage.COMPONENT_NAME).login(username, password,
+                                                                     authenticator, **options)
