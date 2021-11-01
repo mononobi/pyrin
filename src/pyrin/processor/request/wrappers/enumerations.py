@@ -14,3 +14,13 @@ class DeserializationTypeEnum(CoreEnum):
     FORM_DATA = 'form data'
     QUERY_STRINGS = 'query strings'
     URL_PARAMS = 'url params'
+
+
+class CookieSameSiteEnum(CoreEnum):
+    """
+    cookie same-site enum.
+    """
+
+    STRICT = 'Strict'
+    LAX = 'Lax'
+    NONE = 'None'

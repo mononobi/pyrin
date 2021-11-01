@@ -75,6 +75,10 @@ class CoreRequest(Request):
         self._safe_content_length = self._get_safe_content_length()
         self._context = self.request_context_class()
 
+        # a dict of all response cookies that must be sent in subsequent requests by client.
+        # in the form of: {str cookie_name: dict(str value, bool httponly, bool secure, ...)}
+        self._response_cookies = DTO()
+
         # when an attempt is done to parse inputs, this will be set to True
         # to prevent retrying.
         self.__inputs_parsed = False
@@ -525,6 +529,48 @@ class CoreRequest(Request):
 
         raise error_class(_('The browser (or proxy) sent a request '
                             'that this server could not understand.'))
+
+    def set_response_cookie(self, key, value, path='/',
+                            secure=False, httponly=False, **options):
+        """
+        sets a response cookie that client should send on subsequent requests.
+
+        :param str key: the key (name) of the cookie to be set.
+        :param str value: the value of the cookie.
+
+        :param str path: limits the cookie to a given path, per default
+                         it will span the whole domain.
+
+        :param bool secure: if `True`, the cookie will only be available via HTTPS.
+        :param bool httponly: disallow JavaScript access to the cookie.
+
+        :keyword timedelta | int max_age: should be a number of seconds, or `None`
+                                          (default) if the cookie should last only
+                                          as long as the client's browser session.
+
+        :keyword str | datetime | int | float expires: should be a `datetime`
+                                                       object or UNIX timestamp.
+
+        :keyword str domain: if you want to set a cross-domain cookie.
+                             for example, `domain=".example.com"` will set a
+                             cookie that is readable by the domain `www.example.com`,
+                             `foo.example.com`` etc. otherwise, a cookie will only
+                             be readable by the domain that set it.
+
+        :keyword samesite: limit the scope of the cookie to only be
+                           attached to requests that are `same-site`.
+
+        :enum samesite:
+            STRICT = 'Strict'
+            LAX = 'Lax'
+            NONE = 'None'
+        """
+
+        options.update(value=value, path=path,
+                       secure=secure, httponly=httponly)
+
+        cookie = dict(**options)
+        self._response_cookies[key] = cookie
 
     @property
     def request_id(self):
