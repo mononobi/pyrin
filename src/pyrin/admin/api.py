@@ -195,3 +195,20 @@ if is_enabled is True:
         """
 
         return admin_services.get_configs()
+
+    @post(f'{url}login', authenticated=False)
+    def login(username, password, **options):
+        """
+        logs in an internal user with given info into admin panel.
+
+        :param str username: username.
+        :param str password: password.
+
+        :raises ProvidedUsernameOrPasswordAreIncorrect: provided username or
+                                                        password are incorrect.
+
+        :returns: dict(str access_token)
+        :rtype: dict
+        """
+
+        return admin_services.login(username, password, **options)

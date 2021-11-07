@@ -194,6 +194,17 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         """
         pass
 
+    def _persist_login(self, user, **options):
+        """
+        persists required login data for given user.
+
+        this method is intended to be overridden in subclasses to perform
+        custom actions. for example updating the last login datetime of user.
+
+        :param BaseEntity | ROW_RESULT user: user to persist its login data.
+        """
+        pass
+
     def _generate_credentials(self, user, **options):
         """
         generates the required credentials for given user for a successful login.
@@ -248,8 +259,6 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
         :param str username: username.
         :param str password: password.
 
-        :raises ValidationError: validation error.
-
         :raises ProvidedUsernameOrPasswordAreIncorrect: provided username or
                                                         password are incorrect.
 
@@ -262,7 +271,9 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
                                                            'password are incorrect.'))
 
         self._validate_login(user, **options)
-        return self._generate_credentials(user, **options)
+        credentials = self._generate_credentials(user, **options)
+        self._persist_login(user, **options)
+        return credentials
 
     def logout(self, **options):
         """

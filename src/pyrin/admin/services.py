@@ -340,3 +340,20 @@ def get_configs():
     """
 
     return get_component(AdminPackage.COMPONENT_NAME).get_configs()
+
+
+def login(username, password, **options):
+    """
+    logs in an internal user with given info into admin panel.
+
+    :param str username: username.
+    :param str password: password.
+
+    :raises ProvidedUsernameOrPasswordAreIncorrect: provided username or
+                                                    password are incorrect.
+
+    :returns: dict(str access_token)
+    :rtype: dict
+    """
+
+    return get_component(AdminPackage.COMPONENT_NAME).login(username, password, **options)

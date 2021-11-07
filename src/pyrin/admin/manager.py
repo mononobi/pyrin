@@ -11,11 +11,13 @@ import pyrin.database.paging.services as paging_services
 import pyrin.database.services as database_services
 import pyrin.globalization.datetime.services as datetime_services
 import pyrin.globalization.locale.services as locale_services
+import pyrin.security.authentication.services as authentication_services
 
 from pyrin.core.globals import _
 from pyrin.admin import AdminPackage
 from pyrin.core.structs import Context, Manager
 from pyrin.admin.interface import AbstractAdminPage
+from pyrin.security.enumerations import InternalAuthenticatorEnum
 from pyrin.admin.enumerations import ListFieldTypeEnum, FormFieldTypeEnum
 from pyrin.admin.exceptions import InvalidAdminPageTypeError, DuplicatedAdminPageError, \
     AdminPageNotFoundError, AdminOperationNotAllowedError, AdminPagesHaveNotLoadedError
@@ -581,3 +583,21 @@ class AdminManager(Manager):
 
         self._configs = deepcopy(result)
         return result
+
+    def login(self, username, password, **options):
+        """
+        logs in an internal user with given info into admin panel.
+
+        :param str username: username.
+        :param str password: password.
+
+        :raises ProvidedUsernameOrPasswordAreIncorrect: provided username or
+                                                        password are incorrect.
+
+        :returns: dict(str access_token)
+        :rtype: dict
+        """
+
+        return authentication_services.login(username, password,
+                                             InternalAuthenticatorEnum.ADMIN,
+                                             **options)

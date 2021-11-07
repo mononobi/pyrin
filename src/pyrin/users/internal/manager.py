@@ -5,6 +5,8 @@ users internal manager module.
 
 import pyrin.security.services as security_services
 import pyrin.validator.services as validator_services
+import pyrin.security.hashing.services as hashing_services
+import pyrin.globalization.datetime.services as datetime_services
 
 from pyrin.core.globals import _
 from pyrin.core.structs import Manager
@@ -64,8 +66,8 @@ class InternalUsersManager(Manager):
 
         :param int id: internal user id to be get.
 
-        :param columns: columns to be fetched.
-                        if not provided all columns will be fetched.
+        :param CoreColumn columns: columns to be fetched.
+                                   if not provided all columns will be fetched.
 
         :raises InternalUserNotFoundError: internal user not found error.
 
@@ -77,7 +79,7 @@ class InternalUsersManager(Manager):
 
         data = validator_services.validate(InternalUserEntity, id=id)
         store = get_current_store()
-        user = store.query(*columns).filter(InternalUserEntity.id == data.id).first()
+        user = store.query(*columns).filter(InternalUserEntity.id == data.id).one_or_none()
         if user is None:
             raise InternalUserNotFoundError(_('Internal user [{user_id}] not found.')
                                             .format(user_id=data.id))
@@ -168,3 +170,50 @@ class InternalUsersManager(Manager):
             entity.password_hash = security_services.get_password_hash(password)
 
         entity.update(**options)
+
+    def get_login_user(self, username, password, *columns, **options):
+        """
+        gets an internal user with given username and password for logging in.
+
+        it may return None if no internal user found.
+
+        :param str username: username.
+        :param str password: password.
+
+        :param CoreColumn columns: columns to be fetched.
+                                   if not provided all columns will be fetched.
+
+        :rtype: InternalUserEntity | ROW_RESULT
+        """
+
+        columns = list(columns)
+        if not columns:
+            columns = [InternalUserEntity]
+        elif InternalUserEntity.password_hash not in columns:
+            columns.append(InternalUserEntity.password_hash)
+
+        store = get_current_store()
+        user = store.query(*columns)\
+            .filter(InternalUserEntity.username == username).one_or_none()
+
+        if user is None or hashing_services.is_match(password, user.password_hash) is not True:
+            return None
+
+        return user
+
+    def update_last_login_at(self, id, **options):
+        """
+        updates the last login at for given user to current datetime.
+
+        :param int id: internal user id to update its last login at.
+
+        :raises InternalUserNotFoundError: internal user not found error.
+        """
+
+        store = get_current_store()
+        count = store.query(InternalUserEntity).filter(InternalUserEntity.id == id)\
+            .update({InternalUserEntity.last_login_at: datetime_services.now()})
+
+        if count <= 0:
+            raise InternalUserNotFoundError(_('Internal user [{user_id}] not found.')
+                                            .format(user_id=id))
