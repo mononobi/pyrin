@@ -13,9 +13,9 @@ from pyrin.utils.custom_print import print_warning
 from pyrin.security.authorization import AuthorizationPackage
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.security.authorization.interface import AbstractAuthorizerBase
-from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
-    UserNotAuthenticatedError, AuthorizerNotFoundError, InvalidAuthorizerTypeError, \
-    DuplicatedAuthorizerError
+from pyrin.security.exceptions import AuthorizationFailedError
+from pyrin.security.authorization.exceptions import UserNotAuthenticatedError, \
+    AuthorizerNotFoundError, InvalidAuthorizerTypeError, DuplicatedAuthorizerError
 
 
 class AuthorizationManager(Manager):

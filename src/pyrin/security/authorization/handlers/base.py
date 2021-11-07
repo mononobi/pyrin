@@ -11,9 +11,10 @@ import pyrin.utils.misc as misc_utils
 from pyrin.core.globals import _, _n
 from pyrin.core.exceptions import CoreNotImplementedError
 from pyrin.security.authorization.interface import AbstractAuthorizerBase
+from pyrin.security.exceptions import UserIsNotActiveError
 from pyrin.security.authorization.handlers.exceptions import AuthorizerNameIsRequiredError
 from pyrin.security.authorization.exceptions import UserNotAuthenticatedError, \
-    UserIsNotActiveError, PermissionDeniedError
+    PermissionDeniedError
 
 
 class AuthorizerBase(AbstractAuthorizerBase):
@@ -139,8 +140,7 @@ class AuthorizerBase(AbstractAuthorizerBase):
 
         if self._is_active(user, **options) is not True:
             raise UserIsNotActiveError(_('Your user is not active. If you think that this '
-                                         'is a mistake, please contact the support team.')
-                                       .format(user=user))
+                                         'is a mistake, please contact the support team.'))
 
         if self._is_superuser(user, **options) is not True:
             self._authorize_access(user, **options)
