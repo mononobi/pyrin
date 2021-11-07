@@ -49,7 +49,7 @@ def get_current_request():
 
     :raises RuntimeError: runtime error.
 
-    :rtype: CoreRequest
+    :rtype: pyrin.processor.request.wrappers.base.CoreRequest
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_current_request()
@@ -172,7 +172,7 @@ def get_safe_current_request():
     meaning that if the request does not exist in current context, it will
     return a None object instead of raising an error.
 
-    :rtype: CoreRequest
+    :rtype: pyrin.processor.request.wrappers.base.CoreRequest
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).get_safe_current_request()
@@ -218,3 +218,44 @@ def is_superuser():
     """
 
     return get_component(SessionPackage.COMPONENT_NAME).is_superuser()
+
+
+def set_response_cookie(key, value, path='/',
+                        secure=False, httponly=False, **options):
+    """
+    sets a response cookie that client should send on subsequent requests.
+
+    :param str key: the key (name) of the cookie to be set.
+    :param str value: the value of the cookie.
+
+    :param str path: limits the cookie to a given path, per default
+                     it will span the whole domain.
+
+    :param bool secure: if `True`, the cookie will only be available via HTTPS.
+    :param bool httponly: disallow JavaScript access to the cookie.
+
+    :keyword timedelta | int max_age: should be a number of seconds, or `None`
+                                      (default) if the cookie should last only
+                                      as long as the client's browser session.
+
+    :keyword str | datetime | int | float expires: should be a `datetime`
+                                                   object or UNIX timestamp.
+
+    :keyword str domain: if you want to set a cross-domain cookie.
+                         for example, `domain=".example.com"` will set a
+                         cookie that is readable by the domain `www.example.com`,
+                         `foo.example.com`` etc. otherwise, a cookie will only
+                         be readable by the domain that set it.
+
+    :keyword samesite: limit the scope of the cookie to only be
+                       attached to requests that are `same-site`.
+
+    :enum samesite:
+        STRICT = 'Strict'
+        LAX = 'Lax'
+        NONE = 'None'
+    """
+
+    return get_component(SessionPackage.COMPONENT_NAME).set_response_cookie(key, value, path,
+                                                                            secure, httponly,
+                                                                            **options)

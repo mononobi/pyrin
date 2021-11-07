@@ -71,7 +71,7 @@ class SessionManager(Manager):
 
         :raises RuntimeError: runtime error.
 
-        :rtype: CoreRequest
+        :rtype: pyrin.processor.request.wrappers.base.CoreRequest
         """
 
         return request
@@ -196,7 +196,7 @@ class SessionManager(Manager):
         meaning that if the request does not exist in current context, it will
         return a None object instead of raising an error.
 
-        :rtype: CoreRequest
+        :rtype: pyrin.processor.request.wrappers.base.CoreRequest
         """
 
         if self.is_request_context_available() is True:
@@ -255,3 +255,43 @@ class SessionManager(Manager):
 
         authorizer = authorization_services.get_authorizer(authorizer_name)
         return authorizer.is_superuser()
+
+    def set_response_cookie(self, key, value, path='/',
+                            secure=False, httponly=False, **options):
+        """
+        sets a response cookie that client should send on subsequent requests.
+
+        :param str key: the key (name) of the cookie to be set.
+        :param str value: the value of the cookie.
+
+        :param str path: limits the cookie to a given path, per default
+                         it will span the whole domain.
+
+        :param bool secure: if `True`, the cookie will only be available via HTTPS.
+        :param bool httponly: disallow JavaScript access to the cookie.
+
+        :keyword timedelta | int max_age: should be a number of seconds, or `None`
+                                          (default) if the cookie should last only
+                                          as long as the client's browser session.
+
+        :keyword str | datetime | int | float expires: should be a `datetime`
+                                                       object or UNIX timestamp.
+
+        :keyword str domain: if you want to set a cross-domain cookie.
+                             for example, `domain=".example.com"` will set a
+                             cookie that is readable by the domain `www.example.com`,
+                             `foo.example.com`` etc. otherwise, a cookie will only
+                             be readable by the domain that set it.
+
+        :keyword samesite: limit the scope of the cookie to only be
+                           attached to requests that are `same-site`.
+
+        :enum samesite:
+            STRICT = 'Strict'
+            LAX = 'Lax'
+            NONE = 'None'
+        """
+
+        current_request = self.get_current_request()
+        current_request.set_response_cookie(key, value, path,
+                                            secure, httponly, **options)
