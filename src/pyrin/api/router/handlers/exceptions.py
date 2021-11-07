@@ -3,8 +3,8 @@
 router handlers exceptions module.
 """
 
+from pyrin.security.exceptions import AuthenticationFailedError
 from pyrin.processor.request.wrappers.exceptions import BadRequestError
-from pyrin.security.authentication.exceptions import AuthenticationFailedError
 from pyrin.core.exceptions import CoreException, CoreBusinessException, CoreNotFoundError
 
 
