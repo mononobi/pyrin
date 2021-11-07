@@ -4,7 +4,7 @@ authentication handlers exceptions module.
 """
 
 from pyrin.core.exceptions import CoreException, CoreBusinessException
-from pyrin.security.authentication.exceptions import AuthenticationFailedError
+from pyrin.security.exceptions import AuthenticationFailedError
 
 
 class AuthenticationHandlersException(CoreException):

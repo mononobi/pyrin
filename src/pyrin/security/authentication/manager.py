@@ -14,8 +14,9 @@ from pyrin.utils.custom_print import print_warning
 from pyrin.api.router.handlers.protected import ProtectedRoute
 from pyrin.security.authentication import AuthenticationPackage
 from pyrin.security.authentication.interface import AbstractAuthenticatorBase
-from pyrin.security.authentication.exceptions import AuthenticationFailedError, \
-    InvalidAuthenticatorTypeError, DuplicatedAuthenticatorError, AuthenticatorNotFoundError
+from pyrin.security.exceptions import AuthenticationFailedError
+from pyrin.security.authentication.exceptions import InvalidAuthenticatorTypeError, \
+    DuplicatedAuthenticatorError, AuthenticatorNotFoundError
 
 
 class AuthenticationManager(Manager):

@@ -3,7 +3,6 @@
 authentication exceptions module.
 """
 
-from pyrin.core.enumerations import ClientErrorResponseCodeEnum
 from pyrin.core.exceptions import CoreException, CoreBusinessException
 
 
@@ -20,22 +19,6 @@ class AuthenticationManagerBusinessException(CoreBusinessException,
     authentication manager business exception.
     """
     pass
-
-
-class AuthenticationFailedError(AuthenticationManagerBusinessException):
-    """
-    authentication failed error.
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-        initializes an instance of AuthenticationFailedError.
-
-        :keyword dict data: extra data for exception.
-        """
-
-        super().__init__(*args, **kwargs)
-        self._code = ClientErrorResponseCodeEnum.UNAUTHORIZED
 
 
 class InvalidAuthenticatorTypeError(AuthenticationManagerException):

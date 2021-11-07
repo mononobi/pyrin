@@ -764,8 +764,7 @@ class TokenAuthenticatorBase(AuthenticatorBase):
         result = dict(access_token=access_token)
         if self._refresh_token:
             if self._refresh_token_in_cookie:
-                # set cookie for refresh token.
-                pass
+                session_services.set_response_cookie(self.REFRESH_TOKEN_HOLDER, refresh_token)
             else:
                 result.update(refresh_token=refresh_token)
 
