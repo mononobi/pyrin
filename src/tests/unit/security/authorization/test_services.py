@@ -8,8 +8,8 @@ import pytest
 import pyrin.security.authorization.services as authorization_services
 
 from pyrin.core.structs import DTO
-from pyrin.security.authorization.exceptions import AuthorizationFailedError, \
-    UserNotAuthenticatedError
+from pyrin.security.exceptions import AuthorizationFailedError
+from pyrin.security.authorization.exceptions import UserNotAuthenticatedError
 
 from tests.unit.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST_TWO, \
     PERMISSION_TEST_THREE, PERMISSION_TEST_FOUR, PERMISSION_TEST_FIVE

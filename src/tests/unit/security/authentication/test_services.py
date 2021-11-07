@@ -8,7 +8,7 @@ import pytest
 import pyrin.security.authentication.services as authentication_services
 import pyrin.security.session.services as session_services
 
-from pyrin.security.authentication.exceptions import AuthenticationFailedError
+from pyrin.security.exceptions import AuthenticationFailedError
 from pyrin.security.authentication.handlers.exceptions import AccessTokenRequiredError, \
     InvalidAccessTokenError
 
