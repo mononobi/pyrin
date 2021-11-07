@@ -51,8 +51,7 @@ class AbstractHashingBase(CoreObject, metaclass=HashingSingletonMeta):
     @abstractmethod
     def is_match(self, text, full_hashed_value, **options):
         """
-        gets a value indicating that given text's
-        hash is identical to given full hashed value.
+        gets a value indicating that given text's hash is identical to given full hashed value.
 
         :param str text: text to be hashed.
         :param str full_hashed_value: full hashed value to compare with.
