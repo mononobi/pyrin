@@ -112,8 +112,7 @@ class AuthorizerBase(AbstractAuthorizerBase):
                 message = _n('You do not have the required permission {permissions}',
                              'You do not have the required permissions {permissions}',
                              len(permissions))
-                raise PermissionDeniedError(message.format(user=user,
-                                                           permissions=list(permissions)))
+                raise PermissionDeniedError(message.format(permissions=list(permissions)))
 
     def authorize(self, user, permissions, **options):
         """
