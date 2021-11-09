@@ -11,8 +11,8 @@ class TokenTypeEnum(CoreEnum):
     token type enum.
     """
 
-    ACCESS = 'access'
-    REFRESH = 'refresh'
+    ACCESS = EnumMember('access', 'Access')
+    REFRESH = EnumMember('refresh', 'Refresh')
 
 
 class InternalAuthenticatorEnum(CoreEnum):

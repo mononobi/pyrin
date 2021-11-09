@@ -15,4 +15,5 @@ class AuthenticationPackage(Package):
     COMPONENT_NAME = 'security.authentication.component'
     CONFIG_STORE_NAMES = ['authentication']
     DEPENDS = ['pyrin.validator',
-               'pyrin.configuration']
+               'pyrin.configuration',
+               'pyrin.database.model']

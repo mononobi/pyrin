@@ -5,10 +5,10 @@ orm query base module.
 
 import inspect
 
-from sqlalchemy.sql.elements import Label
 from sqlalchemy.orm import Query, lazyload
-from sqlalchemy import inspection, log, func, literal, distinct, select
+from sqlalchemy.sql.elements import Label, BinaryExpression
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy import inspection, log, func, literal, distinct, select
 
 import pyrin.utils.misc as misc_utils
 import pyrin.utils.sqlalchemy as sqlalchemy_utils
@@ -199,10 +199,10 @@ class CoreQuery(Query):
 
         for item in columns:
             is_label = isinstance(item, Label)
-            if not isinstance(item, CoreColumn) and not is_label:
+            if not is_label and not isinstance(item, (CoreColumn, BinaryExpression)):
                 return None
 
-            if is_label and not isinstance(item.element, CoreColumn):
+            if is_label and not isinstance(item.element, (CoreColumn, BinaryExpression)):
                 return None
 
         return '*'

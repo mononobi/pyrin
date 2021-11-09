@@ -1559,11 +1559,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         the result of this method must be returned by admin methods
         which want to render a link on client list view.
+        the aforementioned methods must be decorated using `@link` decorator.
 
         :param str title: the title of the link.
 
-        :param str register_name: the register name of the admin class to
-                                  view its list page after clicking on this link.
+        :param str | type[BaseEntity] register_name: the register name or the entity class of
+                                                     the related admin class to view its list
+                                                     page after clicking on this link.
 
         :param str type_: the link type.
                           if not provided defaults to `button`.
@@ -1585,6 +1587,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param **filters: any query strings that must be passed to the related
                           page after clicking on this link.
 
+        :raises AdminPageNotFoundError: admin page not found error.
+
         :returns: dict(str title,
                        str register_name,
                        str type,
@@ -1593,6 +1597,9 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                        dict filters)
         :rtype: dict
         """
+
+        if not isinstance(register_name, str):
+            register_name = admin_services.register_name_for(register_name)
 
         if type_ not in LinkTypeEnum:
             type_ = LinkTypeEnum.BUTTON
