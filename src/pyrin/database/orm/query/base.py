@@ -384,17 +384,17 @@ class CoreQuery(Query):
         this method is overridden to provide the most performant
         `synchronize_session` value as default value.
 
-        :param values: a dictionary with attributes names, or alternatively
-                       mapped attributes or sql expressions, as keys, and
-                       literal values or sql expressions as values.
+        :param dict values: a dictionary with attributes names, or alternatively
+                            mapped attributes or sql expressions, as keys, and
+                            literal values or sql expressions as values.
 
         :param str | bool synchronize_session: session synchronization strategy.
                                                it could be set to False, `fetch`
                                                or `evaluate`. defaults to False.
 
-        :param update_args: optional dictionary, if present will be passed
-                            to the underlying `_expression.update` construct
-                            as the `**kw` for the object.
+        :param dict update_args: optional dictionary, if present will be passed
+                                 to the underlying `_expression.update` construct
+                                 as the `**kw` for the object.
 
         :returns: count of affected rows
         :rtype: int
