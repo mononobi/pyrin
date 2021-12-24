@@ -13,7 +13,7 @@ packages will use its functionality and features to maintain their goals without
 worrying about basic implementations.
 It is also possible for application packages to extend existing Pyrin packages.
 
-Pyrin point of view is to build an application that is more decoupled, so making it 
+Pyrin point of view is to build an application which is more decoupled, so making it 
 possible to have customized implementations of different packages and also making it 
 easier to write unit-test packages.
 
