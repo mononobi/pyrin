@@ -174,8 +174,8 @@ class PackagingManager(Manager, HookMixin):
         """
         loads all required package names.
 
-        these packages are always loaded before any other package and
-        they do not need to be handled by packaging package itself.
+        these packages are always loaded before any other package,
+        and they do not need to be handled by packaging package itself.
 
         :param str pyrin_package: the name of pyrin package.
                                   it would always be `pyrin` in normal cases.
