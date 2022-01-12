@@ -73,7 +73,7 @@ setup(
         'Code': 'https://github.com/mononobi/pyrin',
         'Issue tracker': 'https://github.com/mononobi/pyrin/issues',
     },
-    license='GPL-3.0',
+    license='BSD-3-Clause',
     author='Mohamad Nobakht',
     author_email='mohamadnobakht@gmail.com',
     maintainer='Mohamad Nobakht',
