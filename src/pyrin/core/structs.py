@@ -72,7 +72,7 @@ class SingletonMetaBase(type):
 
 class UniqueSingletonMeta(SingletonMetaBase):
     """
-    unique singleton meta class.
+    unique singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     this class only allows a single unique object for all descendant types.
@@ -113,7 +113,7 @@ class UniqueSingletonMeta(SingletonMetaBase):
 
 class MultiSingletonMeta(SingletonMetaBase):
     """
-    multi singleton meta class.
+    multi singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     this class allows a unique object per each type of descendants.
@@ -321,7 +321,7 @@ class Context(DTO):
 
 class HookSingletonMeta(MultiSingletonMeta):
     """
-    hook singleton meta class.
+    hook singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     """
@@ -341,7 +341,7 @@ class Hook(CoreObject, metaclass=HookSingletonMeta):
 
 class ManagerSingletonMeta(MultiSingletonMeta):
     """
-    manager singleton meta class.
+    manager singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     """
@@ -389,7 +389,7 @@ class Manager(CoreObject, metaclass=ManagerSingletonMeta):
 
 class CLISingletonMeta(MultiSingletonMeta):
     """
-    cli singleton meta class.
+    cli singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     """
