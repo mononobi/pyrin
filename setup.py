@@ -6,8 +6,7 @@ pyrin setup module.
 import io
 import re
 
-from setuptools import find_namespace_packages
-from setuptools import setup
+from setuptools import find_namespace_packages, setup
 
 
 with io.open('README.md', 'rt', encoding='utf8') as readme_file:
