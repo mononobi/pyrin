@@ -1038,7 +1038,7 @@ class PackagingManager(Manager, HookMixin):
         """
 
         for ignored in self._configs.ignored_modules:
-            if module_name.endswith(ignored) or self._is_equal(ignored, module_name):
+            if module_name.endswith(ignored):
                 return True
 
         return False
