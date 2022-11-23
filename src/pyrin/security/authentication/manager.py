@@ -52,7 +52,7 @@ class AuthenticationManager(Manager):
         loads rule based authenticators from `authentication` config store.
 
         we sort rule based authenticators by length of their name in descending order.
-        this is required to be able to detect closest match to each url rule.
+        this is required to be able to detect the closest match to each url rule.
 
         :rtype: dict
         """

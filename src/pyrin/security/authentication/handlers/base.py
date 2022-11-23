@@ -61,7 +61,7 @@ class AuthenticatorBase(AbstractAuthenticatorBase):
 
     def _get_extra_info(self, payload, **options):
         """
-        gets the the info of given payload to be set in current request.
+        gets the info of given payload to be set in current request.
 
         it could be None if no extra info must be set in current request.
 
@@ -664,7 +664,7 @@ class TokenAuthenticatorBase(AuthenticatorBase):
 
     def _get_extra_info(self, payload, **options):
         """
-        gets the the info of given payload to be set in current request.
+        gets the info of given payload to be set in current request.
 
         :param dict payload: access token payload.
 
