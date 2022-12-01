@@ -115,7 +115,7 @@ class Application(Flask, HookMixin, SignalMixin,
     # and extra optional keyword arguments. the founded mimetype will be
     # passed to this function as 'mimetype' keyword argument. metadata for
     # pagination is also passed to this function using 'metadata' keyword.
-    # paginator instance will also passed to this function using 'paginator'
+    # paginator instance will also be passed to this function using 'paginator'
     # keyword. the function must return a response object or an object which
     # could be converted to response by flask.
     default_response_converter = None
@@ -139,7 +139,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                   of application package name if not provided.
                                   for example: `pyrin`.
                                   but if the main package name of application includes
-                                  more that one package you should provide it manually.
+                                  more than one package you should provide it manually.
                                   for example: `tests.unit`.
 
         :keyword str static_url_path: can be used to specify a different path for the
@@ -187,7 +187,7 @@ class Application(Flask, HookMixin, SignalMixin,
                                       scripting mode. defaults to False, if not provided.
 
         :keyword bool force_json_response: specifies that if response object is
-                                           not an html string, consider it as json
+                                           not a html string, consider it as json
                                            and convert it to be json serializable.
                                            even if it is not a dict.
                                            defaults to True if not provided.
@@ -910,7 +910,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         this method could be overridden in subclasses.
         it must return a dict or a list of dicts on success or
-        the same exact input if could not convert it.
+        the same exact input if it could not convert it.
 
         :param object rv: the return value from the view function.
         :param PaginatorBase paginator: paginator that has been used.

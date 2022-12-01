@@ -19,7 +19,7 @@ class ApplicationHook(ApplicationHookBase):
 
     def prepare_runtime_data(self):
         """
-        this method will be get called after application has been fully initialized.
+        this method will be got called after application has been fully initialized.
 
         any changes of this method to database, will be committed automatically by
         application. so you should not commit anything in the hook. if you do commit

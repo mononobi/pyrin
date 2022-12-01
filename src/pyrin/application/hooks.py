@@ -26,13 +26,13 @@ class ApplicationHookBase(Hook):
 
     def application_initialized(self):
         """
-        this method will be get called after application has been fully initialized.
+        this method will be got called after application has been fully initialized.
         """
         pass
 
     def prepare_runtime_data(self):
         """
-        this method will be get called after application has been fully initialized.
+        this method will be got called after application has been fully initialized.
 
         any changes of this method to database, will be committed automatically by
         application. so you should not commit anything in the hook. if you do commit
@@ -44,7 +44,7 @@ class ApplicationHookBase(Hook):
 
     def before_application_run(self):
         """
-        this method will be get called just before application gets running.
+        this method will be got called just before application gets running.
 
         note that this method will not get called when
         application starts in scripting mode.
