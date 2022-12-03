@@ -112,7 +112,7 @@ class FilteringManager(Manager):
         gets the column with given name from the first entity that has it.
 
         it returns None if the column name is not available in columns
-        or expression level hybrid properties of any of provided entities.
+        or expression level hybrid properties of any provided entities.
 
         :param str name: column name to be found.
 
