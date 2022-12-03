@@ -611,6 +611,7 @@ class Application(Flask, HookMixin, SignalMixin,
 
         if self.is_scripting_mode() is False:
             self._prepare_runtime_data()
+            self._after_runtime_data_prepared()
 
         if self._should_register_signal_handlers() is True:
             self._register_signal_handlers()
@@ -1929,8 +1930,7 @@ class Application(Flask, HookMixin, SignalMixin,
         """
         this method will call `before_application_run` method of all registered hooks.
 
-        note that this method will not get called when
-        application starts in scripting mode.
+        note that this method will not get called when application starts in scripting mode.
         """
 
         for hook in self._get_hooks():
@@ -1950,6 +1950,16 @@ class Application(Flask, HookMixin, SignalMixin,
         for hook in self._get_hooks():
             with atomic_context(expire_on_commit=True):
                 hook.prepare_runtime_data()
+
+    def _after_runtime_data_prepared(self):
+        """
+        this method will call `after_runtime_data_prepared` method of all registered hooks.
+
+        note that this method will not get called when application starts in scripting mode.
+        """
+
+        for hook in self._get_hooks():
+            hook.after_runtime_data_prepared()
 
     def _provide_response_headers(self, headers, endpoint,
                                   status_code, method, **options):
