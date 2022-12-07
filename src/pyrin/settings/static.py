@@ -11,7 +11,7 @@ DEFAULT_STATUS_CODE = 200
 # default application encoding.
 APPLICATION_ENCODING = 'utf-8'
 
-# this value will be used to register default components that does not belong
+# this value will be used to register default components which do not belong
 # to any custom implementation. any other custom implementation that needs to be
 # exposed through services, should provide its own relevant key.
 # example for COMPONENT_ID:
