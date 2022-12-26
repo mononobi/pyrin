@@ -21,7 +21,7 @@ class BaseLoggerAdapter(Logger):
     this class is intended to be an adapter for `Logger`, but it is implemented
     this way because of two different issues:
 
-    1. if we implement it as an stand-alone adapter and not subclassing it from
+    1. if we implement it as a stand-alone adapter and not subclassing it from
     `Logger`, then logging package will raise an error on wrapped loggers where
     it checks the type of logger against `Logger`. for example in fixup methods.
 
