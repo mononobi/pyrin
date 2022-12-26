@@ -100,10 +100,10 @@ class LoggingManager(Manager, HookMixin):
 
     def should_be_wrapped(self, logger):
         """
-        gets a value indication that given logger should be wrapped.
+        gets a value indicating that given logger should be wrapped.
 
         note that we should not wrap sqlalchemy and alembic loggers,
-        because it does not affect on sqlalchemy loggers and they
+        because it does not have effect on sqlalchemy loggers, and they
         never have request info in emitted logs, I don't know the reason.
         but wrapping them actually has a side effect which leads to some errors.
         so we do not wrap them in the first place.
