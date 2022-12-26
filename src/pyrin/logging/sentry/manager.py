@@ -42,7 +42,7 @@ class SentryManager(Manager, TypedCacheMixin):
 
         it raises an error if no integration found for given name.
 
-        :param str name: name of the integration to be get.
+        :param str name: name of the integration to be got.
 
         :raises SentryIntegrationNotFoundError: sentry integration not found error.
 
