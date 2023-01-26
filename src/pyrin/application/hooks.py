@@ -42,12 +42,19 @@ class ApplicationHookBase(Hook):
         """
         pass
 
+    def after_runtime_data_prepared(self):
+        """
+        this method will be got called after runtime data is ready.
+
+        note that this method will not get called when application starts in scripting mode.
+        """
+        pass
+
     def before_application_run(self):
         """
         this method will be got called just before application gets running.
 
-        note that this method will not get called when
-        application starts in scripting mode.
+        note that this method will not get called when application starts in scripting mode.
         """
         pass
 

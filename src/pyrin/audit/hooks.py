@@ -56,12 +56,11 @@ class ApplicationHook(ApplicationHookBase):
     application hook class.
     """
 
-    def before_application_run(self):
+    def after_runtime_data_prepared(self):
         """
-        this method will be got called just before application gets running.
+        this method will be got called after runtime data is ready.
 
-        note that this method will not get called when
-        application starts in scripting mode.
+        note that this method will not get called when application starts in scripting mode.
 
         :raises AuditFailedError: audit failed error.
         """

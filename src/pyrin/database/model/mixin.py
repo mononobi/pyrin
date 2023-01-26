@@ -712,7 +712,7 @@ class AttributeMixin(ModelMixinBase):
     attribute mixin class.
 
     this class adds functionalities about all attributes to its subclasses.
-    attributes includes pk, fk, columns, relationships and hybrid properties.
+    attributes include pk, fk, columns, relationships and hybrid properties.
     """
 
     @class_property

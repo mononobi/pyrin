@@ -19,7 +19,7 @@ class LoggingMaskingManager(Manager):
 
     # these are default keywords that will be masked if they are present in a dict.
     # these values could be extended or disabled in 'logging.masking' config store.
-    # note that all values will be normalized and matched against also normalized values.
+    # note that all values will be normalized and also matched against normalized values.
     # for example 'api_key' and 'APIkey' and 'api-key' will be considered equal.
     DEFAULT_MASKED_KEYWORDS = {'access_token',
                                'address',
@@ -36,6 +36,8 @@ class LoggingMaskingManager(Manager):
                                'card_no',
                                'card_number',
                                'certificate',
+                               'certificate_no',
+                               'certificate_number',
                                'cookie',
                                'cookies',
                                'credential',
@@ -89,6 +91,7 @@ class LoggingMaskingManager(Manager):
                                'secret_key',
                                'session',
                                'session_id',
+                               'ssl_certificate',
                                'token',
                                'uploaded_files',
                                'username',

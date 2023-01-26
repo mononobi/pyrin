@@ -12,7 +12,7 @@ from pyrin.core.structs import CoreObject, MultiSingletonMeta
 
 class SentryIntegrationSingletonMeta(MultiSingletonMeta):
     """
-    sentry integration singleton meta class.
+    sentry integration singleton metaclass.
 
     this is a thread-safe implementation of singleton.
     """
