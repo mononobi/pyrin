@@ -229,6 +229,19 @@ class CoreEnumMeta(type):
 
         return member
 
+    def __iter__(cls):
+        """
+        iterates over enum values.
+
+        this method is overridden to be able to loop over enum values
+        using its class. for example:
+        for value in SomeEnum:
+            print(value)
+        """
+
+        for value in cls.values():
+            yield value
+
     def __contains__(cls, member):
         """
         gets a value indicating that given input exists in the enumeration values.
