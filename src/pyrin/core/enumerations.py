@@ -237,6 +237,10 @@ class CoreEnumMeta(type):
         using its class. for example:
         for value in SomeEnum:
             print(value)
+
+        the above code is equivalent to this:
+        for value in SomeEnum.values():
+            print(value)
         """
 
         for value in cls.values():
