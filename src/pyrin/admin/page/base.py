@@ -87,7 +87,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_only_readable = True
 
     # specifies that if 'list_fields' are not provided also show pk columns in list view.
-    # note that if the admin page has get permission, pk columns will be always added.
+    # note that if the admin page has get permission, pk columns will always be added.
     list_pk = True
 
     # specifies that if 'list_fields' are not provided also show fk columns in list view.
@@ -179,7 +179,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
     # a number in milliseconds to be used as debounce interval in client search box.
     # note that if you set it to lower numbers, it will result in a service call
-    # for each key stroke in search box.
+    # for each keystroke in search box.
     list_search_debounce_interval = 700
 
     # extra columns to let user filter by their value in list view.
