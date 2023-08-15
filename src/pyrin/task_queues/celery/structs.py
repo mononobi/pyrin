@@ -43,7 +43,7 @@ class ExtendedTask(Task):
         :keyword bool suppress: suppress any error during execution of the task
                                 and silently logs it. defaults to False if not provided.
 
-        :returns: the `apply_async` result
+        :rtype: celery.result.AsyncResult
         """
 
         suppress = options.pop('suppress', False)
@@ -74,7 +74,7 @@ class ExtendedTask(Task):
         :keyword bool suppress: suppress any error during execution of the task
                                 and silently logs it. defaults to False if not provided.
 
-        :returns: the `delay` result
+        :rtype: celery.result.AsyncResult
         """
 
         suppress = kwargs.pop('suppress', False)
