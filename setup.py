@@ -16,28 +16,28 @@ with io.open('src/pyrin/__init__.py', 'rt', encoding='utf8') as version_file:
     VERSION = re.search(r"__version__ = '(.*?)'", version_file.read()).group(1)
 
 PACKAGES = [
-    'aniso8601>=9.0.1',
-    'bcrypt>=3.1.7',
-    'pytz>=2021.1',
-    'Flask>=2.0.1',
-    'PyJWT>=2.0.1',
-    'SQLAlchemy>=1.4',
-    'colorama>=0.4.3',
-    'python-dotenv>=0.16.0',
-    'cryptography>=3.4.7',
-    'flask-babel>=2.0.0',
-    'babel>=2.9.0',
-    'alembic>=1.5.8',
-    'fire>=0.4.0',
-    'sqlparse>=0.4.1',
-    'titlecase>=2.0.0',
-    'flasgger>=0.9.5',
+    'aniso8601==9.0.1',
+    'bcrypt==3.2.0',
+    'pytz==2023.3',
+    'Flask==2.0.2',
+    'PyJWT==2.2.0',
+    'SQLAlchemy==1.4.20',
+    'colorama==0.4.4',
+    'python-dotenv==0.18.0',
+    'cryptography==3.4.7',
+    'flask-babel==2.0.0',
+    'babel==2.9.1',
+    'alembic==1.6.5',
+    'fire==0.4.0',
+    'sqlparse==0.4.2',
+    'titlecase==2.3',
+    'flasgger==0.9.5',
 ]
 
 TEST_PACKAGES = PACKAGES + [
-    'pytest',
-    'pytest-cov',
-    'pygments',
+    'pytest==6.2.4',
+    'pytest-cov==2.12.1',
+    'pygments==2.9.0',
 ]
 
 DOC_PACKAGES = [
@@ -47,20 +47,20 @@ DOC_PACKAGES = [
 ]
 
 MEMCACHED_PACKAGES = [
-    'pymemcache>=3.4.1',
+    'pymemcache==3.4.4',
 ]
 
 SENTRY_PACKAGES = [
-    'sentry-sdk>=1.0.0',
-    'blinker>=1.4',
+    'sentry-sdk==1.1.0',
+    'blinker==1.4',
 ]
 
 CELERY_PACKAGES = [
-    'celery>=5.0.5',
+    'celery==5.1.2',
 ]
 
 REDIS_PACKAGES = [
-    'redis>=3.5.3',
+    'redis==3.5.3',
 ]
 
 setup(

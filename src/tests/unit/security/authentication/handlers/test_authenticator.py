@@ -8,9 +8,9 @@ from pyrin.security.authentication.handlers.base import TokenAuthenticatorBase
 
 
 @authenticator()
-class TestAccessTokenAuthenticator(TokenAuthenticatorBase):
+class UnitTestAccessTokenAuthenticator(TokenAuthenticatorBase):
     """
-    test access token authenticator.
+    unit test access token authenticator.
     """
 
     _name = 'test'

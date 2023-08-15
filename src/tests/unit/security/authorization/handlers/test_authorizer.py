@@ -13,9 +13,9 @@ from tests.unit.security.permissions import PERMISSION_TEST_ONE, PERMISSION_TEST
 
 
 @authorizer()
-class TestAuthorizer(AuthorizerBase):
+class UnitTestAuthorizer(AuthorizerBase):
     """
-    test authorizer class.
+    unit test authorizer class.
     """
 
     _name = 'test'
