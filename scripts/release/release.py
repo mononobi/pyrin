@@ -88,7 +88,7 @@ class ReleaseManager:
         :type current_version: tuple(int major, int minor, int patch, str beta)
 
         :param str change: change for generating the new version.
-        :note change:
+        :enum change:
             MAJOR = 'major'
             MINOR = 'minor'
             PATCH = 'patch'
@@ -214,7 +214,7 @@ class ReleaseManager:
 
         :param str change: change for generating the new release version.
                            defaults to `DEFAULT_CHANGE` value if not provided.
-        :note change:
+        :enum change:
             MAJOR = 'major'
             MINOR = 'minor'
             PATCH = 'patch'
