@@ -17,7 +17,7 @@ def fast_cache(*old_method):
     note that this decorator should only be used in classes which subclassed from
     `TypedCacheMixin` class.
 
-    this type of caches are implemented to be used where performance is critical.
+    this type of cache is implemented to be used where performance is critical.
     it has as few overhead as possible even on single usage.
 
     :param function | property old_method: the original decorated method or property.
@@ -69,13 +69,14 @@ def extended_fast_cache(*old_method, **options):
     note that this decorator should only be used in classes which subclassed from
     `ExtendedTypedCacheMixin` class.
 
-    this type of caches are implemented to be used where performance is critical.
-    it has as few overhead as possible but it is slower than `fast_cache` because
+    this type of cache is implemented to be used where performance is critical.
+    it has as few overhead as possible, but it is slower than `fast_cache` because
     it processes function inputs.
 
-    important note: if you want to use this decorator inside pyrin code, you must
-    add `pyrin.security.session` into depends list of the package that uses this
-    decorator. this is not required in top level application.
+    important note:
+    if you want to use this decorator inside pyrin code, you must
+    add `pyrin.security.session` into the `depends` list of the package that
+    uses this decorator. this is not required in top level application.
 
     :param function | property old_method: the original decorated method or property.
 

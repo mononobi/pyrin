@@ -118,3 +118,10 @@ class ExtraDataFieldsAndEntityFieldsOverlapError(AdminPageException):
     extra data fields and entity fields overlap error.
     """
     pass
+
+
+class InvalidHTTPMethodNameError(AdminPageException):
+    """
+    invalid http method name error.
+    """
+    pass

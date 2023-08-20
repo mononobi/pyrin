@@ -5,6 +5,7 @@ admin page base module.
 
 import inspect
 
+from flask import url_for
 from sqlalchemy.sql.elements import Label, and_, or_
 from sqlalchemy.orm import InstrumentedAttribute
 
@@ -22,6 +23,7 @@ import pyrin.configuration.services as config_services
 import pyrin.database.paging.services as paging_services
 import pyrin.utilities.string.normalizer.services as string_normalizer_services
 
+from pyrin.core.enumerations import HTTPMethodEnum
 from pyrin.core.globals import _
 from pyrin.core.structs import SecureList
 from pyrin.admin.interface import AbstractAdminPage
@@ -44,7 +46,8 @@ from pyrin.admin.page.exceptions import InvalidListFieldError, ListFieldRequired
     AdminRegisterNameRequiredError, RequiredValuesNotProvidedError, \
     CompositePrimaryKeysNotSupportedError, DuplicateListFieldNamesError, \
     InvalidListSearchFieldError, DuplicateListSearchFieldNamesError, EntityNotFoundError, \
-    InvalidListFieldNameError, ExtraDataFieldsAndEntityFieldsOverlapError
+    InvalidListFieldNameError, ExtraDataFieldsAndEntityFieldsOverlapError, \
+    InvalidHTTPMethodNameError
 
 
 class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
@@ -76,7 +79,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
     list_fields = ()
 
     # columns that will be selected from database and will be used to compute
-    # another field's value but they will be removed from the final result and
+    # another field's value, but they will be removed from the final result and
     # will not be returned to client.
     # it could be a column attribute or an expression level hybrid property.
     # for example: (UserEntity.id, UserEntity.fullname, UserDetailEntity.age)
@@ -603,6 +606,25 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         return None
 
+    def _get_custom_methods(self, flag):
+        """
+        gets all custom method names which have the given flag set.
+
+        :param str flag: flag name to get all methods having it set.
+                         ex. `is_link`, `is_action`, ...
+
+        :rtype: tuple[str]
+        """
+
+        result = []
+        for name in self.method_names:
+            method = getattr(self, name)
+            has_flag = getattr(method, flag, False)
+            if has_flag is True:
+                result.append(name)
+
+        return tuple(result)
+
     @fast_cache
     def _get_link_methods(self):
         """
@@ -611,14 +633,17 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :rtype: tuple[str]
         """
 
-        links = []
-        for name in self.method_names:
-            method = getattr(self, name)
-            is_link = getattr(method, 'is_link', False)
-            if is_link is True:
-                links.append(name)
+        return self._get_custom_methods('is_link')
 
-        return tuple(links)
+    @fast_cache
+    def _get_action_methods(self):
+        """
+        gets all method names which should render an action button on client list view.
+
+        :rtype: tuple[str]
+        """
+
+        return self._get_custom_methods('is_action')
 
     @fast_cache
     def _get_list_fields_to_column_map(self):
@@ -801,18 +826,23 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         all_fields = self._get_list_field_names()
         sortable_fields = self._get_sortable_fields()
         link_methods = self._get_link_methods()
+        action_methods = self._get_action_methods()
         hidden_pk_name = self._get_hidden_pk_name()
         for item in all_fields:
+            is_link = item in link_methods
+            is_action = item in action_methods
+            is_hidden_pk = item == hidden_pk_name
             info = dict(field=item,
                         title=self._get_column_title(item),
                         sorting=item in sortable_fields,
                         emptyValue=self.list_null_value,
-                        is_link=item in link_methods)
+                        is_link=is_link,
+                        is_action=is_action)
 
-            if item in link_methods or item == hidden_pk_name:
+            if is_link or is_action or is_hidden_pk:
                 info.update(export=False)
 
-            if item == hidden_pk_name:
+            if is_hidden_pk:
                 info.update(hidden=True, hiddenByColumnsButton=True)
             else:
                 extra_info = self._get_extra_list_field_info(item)
@@ -1584,8 +1614,8 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
         :param bool new_tab: open this link in a new tab.
                              defaults to True if not provided.
 
-        :param **filters: any query strings that must be passed to the related
-                          page after clicking on this link.
+        :keyword **filters: any query string that must be passed to the related
+                            page after clicking on this link.
 
         :raises AdminPageNotFoundError: admin page not found error.
 
@@ -1613,6 +1643,111 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
                     button_type=button_type,
                     new_tab=new_tab,
                     filters=filters)
+
+    def _get_action_info(self, title, endpoint,
+                         http_method, button_type=None,
+                         success_message=None,
+                         confirmation_message=None,
+                         important_action=False,
+                         url_params=None,
+                         **params):
+        """
+        gets the required action info for given inputs.
+
+        the result of this method must be returned by admin methods
+        which want to render an action button on client list view.
+        the aforementioned methods must be decorated using `@action` decorator.
+
+        :param str title: the title of the link.
+        :param str endpoint: the endpoint name to get the url for it.
+                             it would be the fully qualified name of the view function.
+                             ex. `my_app.users.approve`.
+
+        :param str http_method: http method name to be used for this service call.
+                                not that only `POST`, `PATCH`, `PUT` and `DELETE`
+                                http methods are allowed for actions.
+        :enum http_method:
+            POST = 'POST'
+            PATCH = 'PATCH'
+            PUT = 'PUT'
+            DELETE = 'DELETE'
+
+        :param str button_type: the action button type.
+                                defaults to `outlined` if not provided.
+        :enum button_type:
+            CONTAINED = 'contained'
+            OUTLINED = 'outlined'
+            TEXT = 'text'
+
+        :param success_message: a message to be shown to the user when this action
+                                is done successfully.
+                                if not provided, a default generic message will be
+                                shown to the user.
+
+        :param confirmation_message: a confirmation message to be shown to the user
+                                     before actually executing the action.
+                                     if not provided, no confirmation would be done
+                                     for this action.
+
+        :param important_action: specifies that this action has high importance.
+                                 this will tell the client to render the confirmation
+                                 dialog with informative style to let the user know
+                                 about the importance of the action.
+                                 note that if `confirmation_message` is not provided,
+                                 the value of `important_action` has no effect and no
+                                 confirmation dialog would be shown to the user.
+
+        :param dict url_params: a dict containing any parameter that should be
+                                passed to the service by the client in the url
+                                including in the url itself and/or in the query
+                                strings.
+
+        :keyword **params: any parameter that should be passed to the
+                           service by the client in request body.
+
+        :raises InvalidHTTPMethodNameError: invalid http method name error.
+
+        :returns: dict(str title,
+                       str remote_url,
+                       str http_method,
+                       str button_type,
+                       str success_message,
+                       str confirmation_message,
+                       bool important_action,
+                       dict params)
+        :rtype: dict
+        """
+
+        allowed_methods = [
+            HTTPMethodEnum.POST,
+            HTTPMethodEnum.PATCH,
+            HTTPMethodEnum.PUT,
+            HTTPMethodEnum.DELETE
+        ]
+
+        if http_method not in allowed_methods:
+            raise InvalidHTTPMethodNameError('HTTP method [{http_method}] is invalid. '
+                                             'only these methods are allowed: {allowed_methods}'
+                                             .format(http_method=http_method,
+                                                     allowed_methods=allowed_methods))
+
+        if not url_params:
+            url_params = {}
+
+        url_params.update(_method=http_method)
+        remote_url = url_for(endpoint, **url_params)
+
+        if button_type not in ButtonTypeEnum:
+            button_type = ButtonTypeEnum.OUTLINED
+
+        return dict(title=title,
+                    remote_url=remote_url,
+                    http_method=http_method,
+                    button_type=button_type,
+                    success_message=success_message,
+                    confirmation_message=confirmation_message,
+                    important_action=important_action,
+                    params=params)
 
     @fast_cache
     def _get_common_metadata(self):
