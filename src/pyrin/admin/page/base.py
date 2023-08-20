@@ -1725,6 +1725,7 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
             HTTPMethodEnum.DELETE
         ]
 
+        http_method = http_method.upper()
         if http_method not in allowed_methods:
             raise InvalidHTTPMethodNameError('HTTP method [{http_method}] is invalid. '
                                              'only these methods are allowed: {allowed_methods}'
