@@ -1727,9 +1727,13 @@ class AdminPage(AbstractAdminPage, AdminPageCacheMixin):
 
         http_method = http_method.upper()
         if http_method not in allowed_methods:
-            raise InvalidHTTPMethodNameError('HTTP method [{http_method}] is invalid. '
-                                             'only these methods are allowed: {allowed_methods}'
+            raise InvalidHTTPMethodNameError('HTTP method [{http_method}] is invalid for '
+                                             'action button [{title}] of [{admin}] class. '
+                                             'only these methods are allowed for '
+                                             'action buttons: {allowed_methods}'
                                              .format(http_method=http_method,
+                                                     title=title,
+                                                     admin=self,
                                                      allowed_methods=allowed_methods))
 
         if not url_params:
